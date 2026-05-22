@@ -1,0 +1,27 @@
+# Env / secrets
+.env
+.env.local
+.env.*.local
+
+# Expo
+.expo/
+dist/
+web-build/
+expo-env.d.ts
+
+# EAS
+.easignore
+
+# Node
+node_modules/
+
+# iOS / Android native
+ios/
+android/
+
+# macOS
+.DS_Store
+
+# IDE
+.vscode/
+.idea/

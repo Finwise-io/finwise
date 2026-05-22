@@ -1,0 +1,42 @@
+module.exports = {
+  name: 'FinWise',
+  slug: 'finwise',
+  version: '1.0.0',
+  orientation: 'portrait',
+  userInterfaceStyle: 'automatic',
+  icon: './assets/icon.png',
+  splash: {
+    image: './assets/splash.png',
+    resizeMode: 'contain',
+    backgroundColor: '#1a1f3a',
+  },
+  ios: {
+    supportsTablet: false,
+    bundleIdentifier: 'com.finwise.app',
+    infoPlist: {
+      NSCameraUsageDescription: 'Scan receipts to log expenses instantly.',
+      NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
+    },
+  },
+  android: {
+    package: 'com.finwise.app',
+    adaptiveIcon: {
+      foregroundImage: './assets/adaptive-icon.png',
+      backgroundColor: '#1a1f3a',
+    },
+    permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE'],
+  },
+  plugins: ['expo-router', 'expo-secure-store'],
+  scheme: 'finwise',
+  extra: {
+    eas: { projectId: '73cc38c4-bb3d-4cbc-89d0-ed9d4fc49eef' },
+    FIREBASE_API_KEY:             process.env.FIREBASE_API_KEY             || '',
+    FIREBASE_AUTH_DOMAIN:         process.env.FIREBASE_AUTH_DOMAIN         || '',
+    FIREBASE_PROJECT_ID:          process.env.FIREBASE_PROJECT_ID          || '',
+    FIREBASE_STORAGE_BUCKET:      process.env.FIREBASE_STORAGE_BUCKET      || '',
+    FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
+    FIREBASE_APP_ID:              process.env.FIREBASE_APP_ID              || '',
+    ANTHROPIC_API_KEY:            process.env.ANTHROPIC_API_KEY            || '',
+    GOOGLE_VISION_API_KEY:        process.env.GOOGLE_VISION_API_KEY        || '',
+  },
+};
