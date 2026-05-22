@@ -7,8 +7,8 @@ import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { logoutUser, submitFeedback } from '../services/firebase';
 import Constants from 'expo-constants';
 
-const PRIVACY_URL = 'https://finwise-jj.github.io/finwise/privacy';
-const TERMS_URL   = 'https://finwise-jj.github.io/finwise/terms';
+const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
+const TERMS_URL   = 'https://finwise-io.github.io/finwise/terms';
 const SUPPORT_EMAIL = 'support@finwise.app';
 
 function openURL(url: string) {
