@@ -7,6 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { onAuthChange, loadUserData, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
+import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
 // Fields synced to Firestore (excludes auth user + ephemeral economic data)
 const SYNC_FIELDS = [
@@ -14,6 +15,7 @@ const SYNC_FIELDS = [
   'incomeIsFixed', 'budgetCategories', 'expenseTargetType', 'expenseTargetAmount',
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
+  'recurringIncomes', 'recurringExpenses', 'debts', 'customCategories',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
   'jobRiskLevel', 'emergencyMonths',
 ] as const;
@@ -104,6 +106,7 @@ export default function RootLayout() {
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
+        <ErrorBoundary>
         <StatusBar style="dark" />
         <Stack
           screenOptions={{
@@ -125,6 +128,7 @@ export default function RootLayout() {
           <Stack.Screen name="invest"     options={{ title: 'Log investment 📈',  presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="jobsafety"  options={{ title: 'Job safety check 🛡', ...backBtn(() => router.back()) }} />
         </Stack>
+        </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

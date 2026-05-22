@@ -4,7 +4,7 @@ import {
   RefreshControl, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useStore, useMonthlyStats, useLevel } from '../store/useStore';
+import { useStore, useMonthlyStats, useLevel, useNetWorth } from '../store/useStore';
 import { fetchEconomicData } from '../services/economicData';
 import { Card, DarkCard, Badge, ProgressBar, TipCard, AmountText, IconCircle } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -13,23 +13,21 @@ import { getCategoryIcon } from '../constants/categories';
 
 export default function HomeScreen() {
   const router = useRouter();
-  const { user, incomes, expenses, goals, savings, investments, streak, badges, inflationRate, treasuryYield, setEconomicData, earnBadge, checkStreak, budgetFrequency, expenseTargetPercent, applyRecurringIncomes } = useStore() as any;
+  const { user, incomes, expenses, goals, streak, inflationRate, treasuryYield, setEconomicData, earnBadge, checkStreak, budgetFrequency, expenseTargetPercent, applyRecurringIncomes, applyRecurringExpenses } = useStore() as any;
   const stats = useMonthlyStats();
   const monthIncome = stats.monthIncome || 0;
   const monthSpend = stats.monthSpend || 0;
   const remaining = stats.remaining || 0;
   const pctSpent = stats.pctSpent || 0;
   const level = useLevel();
+  const { totalSavings, totalInvestments, totalDebt, netWorth } = useNetWorth();
   const [refreshing, setRefreshing] = useState(false);
-
-  const totalSavings = (savings as any[]).reduce((s: number, e: any) => s + e.amount, 0);
-  const totalInvestments = (investments as any[]).reduce((s: number, e: any) => s + e.amount, 0);
-  const netWorth = totalSavings + totalInvestments;
 
   useEffect(() => {
     checkStreak();
     loadEconomicData();
     applyRecurringIncomes();
+    applyRecurringExpenses();
   }, []);
 
   async function loadEconomicData() {
@@ -158,7 +156,7 @@ export default function HomeScreen() {
       </View>
 
       {/* Net worth card */}
-      {(totalSavings > 0 || totalInvestments > 0) && (
+      {(totalSavings > 0 || totalInvestments > 0 || totalDebt > 0) && (
         <Card style={styles.netWorthCard}>
           <View style={styles.netWorthRow}>
             <View style={styles.netWorthItem}>
@@ -170,10 +168,19 @@ export default function HomeScreen() {
               <Text style={styles.netWorthLabel}>📈 Investments</Text>
               <Text style={[styles.netWorthValue, { color: Colors.primary }]}>${totalInvestments.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Text>
             </View>
+            {totalDebt > 0 && (
+              <>
+                <View style={styles.netWorthDivider} />
+                <View style={styles.netWorthItem}>
+                  <Text style={styles.netWorthLabel}>💳 Debt</Text>
+                  <Text style={[styles.netWorthValue, { color: Colors.red }]}>-${totalDebt.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Text>
+                </View>
+              </>
+            )}
             <View style={styles.netWorthDivider} />
             <View style={styles.netWorthItem}>
               <Text style={styles.netWorthLabel}>🏦 Net worth</Text>
-              <Text style={[styles.netWorthValue, { color: Colors.primary, fontWeight: Typography.weights.bold }]}>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Text>
+              <Text style={[styles.netWorthValue, { color: netWorth >= 0 ? Colors.primary : Colors.red, fontWeight: Typography.weights.bold }]}>${netWorth.toLocaleString(undefined, { maximumFractionDigits: 0 })}</Text>
             </View>
           </View>
         </Card>

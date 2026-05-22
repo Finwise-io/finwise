@@ -1,24 +1,36 @@
 import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, FlatList,
-  Modal, TextInput, KeyboardAvoidingView, Platform,
+  Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
-import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
+import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES } from '../constants/categories';
+import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories } from '../constants/categories';
 import { format } from 'date-fns';
 
-type Tab = 'Transactions' | 'Budget' | 'Import';
+type Tab = 'Transactions' | 'Budget' | 'Debts' | 'Import';
+
+const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = [
+  { value: 'credit_card',   label: 'Credit card',   icon: '💳' },
+  { value: 'student_loan',  label: 'Student loan',  icon: '🎓' },
+  { value: 'car_loan',      label: 'Car loan',       icon: '🚗' },
+  { value: 'mortgage',      label: 'Mortgage',      icon: '🏠' },
+  { value: 'personal_loan', label: 'Personal loan', icon: '🤝' },
+  { value: 'other',         label: 'Other',         icon: '📄' },
+];
 
 export default function BudgetScreen() {
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
     budgetCategories, setBudgetCategories,
     expenseTargetPercent,
-  } = useStore();
+    debts, addDebt, updateDebt, deleteDebt,
+    customCategories, addCustomCategory, deleteCustomCategory,
+  } = useStore() as any;
+  const allCategories = useAllCategories(customCategories || []);
   const { monthIncome, monthSpend } = useMonthlyStats();
   const categorySpend = useCategorySpend();
   const [tab, setTab] = useState<Tab>('Transactions');
@@ -26,6 +38,80 @@ export default function BudgetScreen() {
   const [importing, setImporting] = useState(false);
   const [limitsVisible, setLimitsVisible] = useState(false);
   const [draftLimits, setDraftLimits] = useState<Record<string, string>>({});
+
+  // Custom category form
+  const [catFormVisible, setCatFormVisible] = useState(false);
+  const [newCatLabel, setNewCatLabel] = useState('');
+  const [newCatIcon, setNewCatIcon] = useState('📦');
+  const [newCatBg, setNewCatBg] = useState('#F5F5F5');
+
+  function saveCustomCategory() {
+    const label = newCatLabel.trim();
+    if (!label) { Alert.alert('Enter a name', 'Category name is required.'); return; }
+    if (allCategories.find(c => c.label.toLowerCase() === label.toLowerCase())) {
+      Alert.alert('Already exists', 'A category with this name already exists.'); return;
+    }
+    addCustomCategory({ label, icon: newCatIcon, bg: newCatBg });
+    setNewCatLabel(''); setNewCatIcon('📦'); setNewCatBg('#F5F5F5');
+    setCatFormVisible(false);
+  }
+
+  // Debt form state
+  const [debtFormVisible, setDebtFormVisible] = useState(false);
+  const [editDebtId, setEditDebtId] = useState<string | null>(null);
+  const [debtName, setDebtName] = useState('');
+  const [debtType, setDebtType] = useState<DebtEntry['type']>('credit_card');
+  const [debtBalance, setDebtBalance] = useState('');
+  const [debtRate, setDebtRate] = useState('');
+  const [debtMinPayment, setDebtMinPayment] = useState('');
+
+  const totalDebt = (debts as DebtEntry[]).reduce((s: number, d: DebtEntry) => s + d.balance, 0);
+
+  function openAddDebt() {
+    setEditDebtId(null);
+    setDebtName(''); setDebtBalance(''); setDebtRate(''); setDebtMinPayment('');
+    setDebtType('credit_card');
+    setDebtFormVisible(true);
+  }
+
+  function openEditDebt(d: DebtEntry) {
+    setEditDebtId(d.id);
+    setDebtName(d.name);
+    setDebtType(d.type);
+    setDebtBalance(String(d.balance));
+    setDebtRate(String(d.interestRate));
+    setDebtMinPayment(String(d.minimumPayment));
+    setDebtFormVisible(true);
+  }
+
+  function saveDebt() {
+    const balance = parseFloat(debtBalance);
+    if (!debtName.trim() || !balance || balance <= 0) {
+      Alert.alert('Missing info', 'Enter a name and balance.');
+      return;
+    }
+    const entry = {
+      name: debtName.trim(),
+      type: debtType,
+      balance,
+      interestRate: parseFloat(debtRate) || 0,
+      minimumPayment: parseFloat(debtMinPayment) || 0,
+      date: new Date().toISOString(),
+    };
+    if (editDebtId) {
+      updateDebt(editDebtId, entry);
+    } else {
+      addDebt(entry);
+    }
+    setDebtFormVisible(false);
+  }
+
+  function handleDeleteDebt(id: string) {
+    Alert.alert('Delete debt', 'Remove this debt entry?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteDebt(id) },
+    ]);
+  }
 
   function handleDeleteEntry(kind: 'income' | 'expense', id: string) {
     Alert.alert(
@@ -88,8 +174,8 @@ export default function BudgetScreen() {
 
   function openLimitsModal() {
     const initial: Record<string, string> = {};
-    EXPENSE_CATEGORIES.forEach(({ label }) => {
-      const existing = budgetCategories.find((c) => c.category === label);
+    allCategories.forEach(({ label }) => {
+      const existing = budgetCategories.find((c: any) => c.category === label);
       initial[label] = existing ? String(existing.limit) : '';
     });
     setDraftLimits(initial);
@@ -97,7 +183,7 @@ export default function BudgetScreen() {
   }
 
   function saveLimits() {
-    const updated = EXPENSE_CATEGORIES
+    const updated = allCategories
       .filter(({ label }) => draftLimits[label] && parseFloat(draftLimits[label]) > 0)
       .map(({ label }) => ({ category: label, limit: parseFloat(draftLimits[label]), type: 'fixed' as const }));
     setBudgetCategories(updated);
@@ -112,7 +198,7 @@ export default function BudgetScreen() {
   return (
     <View style={styles.root}>
       <SegmentedControl
-        options={['Transactions', 'Budget', 'Import']}
+        options={['Transactions', 'Budget', 'Debts', 'Import']}
         selected={tab}
         onSelect={(v) => setTab(v as Tab)}
       />
@@ -287,8 +373,234 @@ export default function BudgetScreen() {
               <Text style={styles.setLimitsBtnText}>✏️  Set monthly limits</Text>
             </TouchableOpacity>
           )}
+
+          {/* Custom categories */}
+          <View style={styles.sectionRow}>
+            <Text style={styles.sectionTitle}>Custom categories</Text>
+            <TouchableOpacity onPress={() => setCatFormVisible(true)}>
+              <Text style={styles.sectionLink}>+ Add →</Text>
+            </TouchableOpacity>
+          </View>
+          {(customCategories || []).length === 0 ? (
+            <Card>
+              <Text style={{ fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', paddingVertical: Spacing.md }}>
+                No custom categories yet — tap "+ Add" to create one
+              </Text>
+            </Card>
+          ) : (
+            (customCategories as { label: string; icon: string; bg: string }[]).map(c => (
+              <Card key={c.label} style={styles.catCard}>
+                <View style={styles.catRow}>
+                  <View style={[styles.catIcon, { backgroundColor: c.bg }]}>
+                    <Text style={{ fontSize: 18 }}>{c.icon}</Text>
+                  </View>
+                  <Text style={[styles.catLabel, { flex: 1, marginLeft: Spacing.sm }]}>{c.label}</Text>
+                  <TouchableOpacity onPress={() => Alert.alert('Delete category', `Remove "${c.label}"?`, [
+                    { text: 'Cancel', style: 'cancel' },
+                    { text: 'Delete', style: 'destructive', onPress: () => deleteCustomCategory(c.label) },
+                  ])}>
+                    <Text style={{ color: Colors.red, fontSize: 16, padding: 8 }}>✕</Text>
+                  </TouchableOpacity>
+                </View>
+              </Card>
+            ))
+          )}
         </ScrollView>
       )}
+
+      {/* Custom category modal */}
+      <Modal visible={catFormVisible} animationType="slide" presentationStyle="pageSheet">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setCatFormVisible(false)}>
+              <Text style={styles.modalCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>New category</Text>
+            <TouchableOpacity onPress={saveCustomCategory}>
+              <Text style={styles.modalSave}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+            <Text style={styles.limitLabel}>Name</Text>
+            <TextInput
+              style={[styles.limitInput, { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary }]}
+              value={newCatLabel} onChangeText={setNewCatLabel}
+              placeholder="e.g. Pet care, Kids, Gym"
+              placeholderTextColor={Colors.textTertiary}
+              autoFocus
+            />
+            <Text style={styles.limitLabel}>Icon</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {CATEGORY_EMOJI_OPTIONS.map(e => (
+                <TouchableOpacity key={e}
+                  style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: newCatIcon === e ? Colors.primaryLight : Colors.bgSecondary, borderWidth: 0.5, borderColor: newCatIcon === e ? Colors.primaryMid : Colors.border }}
+                  onPress={() => setNewCatIcon(e)}>
+                  <Text style={{ fontSize: 22 }}>{e}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <Text style={styles.limitLabel}>Background colour</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+              {CATEGORY_BG_OPTIONS.map(bg => (
+                <TouchableOpacity key={bg}
+                  style={{ width: 36, height: 36, borderRadius: 10, backgroundColor: bg, borderWidth: newCatBg === bg ? 2 : 0.5, borderColor: newCatBg === bg ? Colors.primary : Colors.border }}
+                  onPress={() => setNewCatBg(bg)} />
+              ))}
+            </View>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, backgroundColor: Colors.bgSecondary, borderRadius: Radii.lg }}>
+              <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: newCatBg }}>
+                <Text style={{ fontSize: 22 }}>{newCatIcon}</Text>
+              </View>
+              <Text style={{ fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary }}>{newCatLabel || 'Preview'}</Text>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Modal>
+
+      {/* ── Debts tab ────────────────────────────────────────────── */}
+      {tab === 'Debts' && (
+        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+
+          {/* Summary card */}
+          <Card>
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+              <View>
+                <Text style={styles.budgetCardTitle}>Total debt</Text>
+                <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
+                  {(debts as DebtEntry[]).length} account{(debts as DebtEntry[]).length !== 1 ? 's' : ''}
+                </Text>
+              </View>
+              <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
+                ${totalDebt.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+              </Text>
+            </View>
+            {totalDebt > 0 && (
+              <TipCard color="amber">
+                <Text style={{ fontSize: Typography.sizes.sm, color: Colors.amber, lineHeight: 20 }}>
+                  💡 High-interest debt (credit cards) costs you money every month. Focus on paying those off first — avalanche method saves the most interest.
+                </Text>
+              </TipCard>
+            )}
+          </Card>
+
+          {/* Debt list */}
+          {(debts as DebtEntry[]).length === 0 ? (
+            <Card>
+              <View style={styles.empty}>
+                <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>🦸</Text>
+                <Text style={styles.emptyTitle}>No debts tracked</Text>
+                <Text style={styles.emptySub}>Add any loans, credit cards, or other debts to see your true net worth</Text>
+              </View>
+            </Card>
+          ) : (
+            (debts as DebtEntry[])
+              .slice()
+              .sort((a: DebtEntry, b: DebtEntry) => b.balance - a.balance)
+              .map((d: DebtEntry) => {
+                const dt = DEBT_TYPES.find(t => t.value === d.type);
+                const monthlyInterest = d.balance * (d.interestRate / 100 / 12);
+                return (
+                  <TouchableOpacity key={d.id} onPress={() => openEditDebt(d)} onLongPress={() => handleDeleteDebt(d.id)} activeOpacity={0.8}>
+                    <Card style={styles.catCard}>
+                      <View style={styles.catRow}>
+                        <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}>
+                          <Text style={{ fontSize: 18 }}>{dt?.icon || '📄'}</Text>
+                        </View>
+                        <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                          <View style={styles.catTitleRow}>
+                            <Text style={styles.catLabel}>{d.name}</Text>
+                            <Text style={[styles.catAmt, { color: Colors.red }]}>
+                              ${d.balance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                            </Text>
+                          </View>
+                          <Text style={styles.catLimit}>
+                            {dt?.label}{d.interestRate > 0 ? ` · ${d.interestRate}% APR` : ''}{d.minimumPayment > 0 ? ` · $${d.minimumPayment}/mo min` : ''}
+                          </Text>
+                          {d.interestRate > 0 && (
+                            <Text style={[styles.catLimit, { color: Colors.red, marginTop: 2 }]}>
+                              ~${monthlyInterest.toFixed(0)}/mo in interest
+                            </Text>
+                          )}
+                        </View>
+                      </View>
+                    </Card>
+                  </TouchableOpacity>
+                );
+              })
+          )}
+
+          <TouchableOpacity style={styles.setLimitsBtn} onPress={openAddDebt} activeOpacity={0.8}>
+            <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
+          </TouchableOpacity>
+          <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }}>
+            Tap to edit • Hold to delete
+          </Text>
+        </ScrollView>
+      )}
+
+      {/* ── Debt form modal ───────────────────────────────────────── */}
+      <Modal visible={debtFormVisible} animationType="slide" presentationStyle="pageSheet">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setDebtFormVisible(false)}>
+              <Text style={styles.modalCancel}>Cancel</Text>
+            </TouchableOpacity>
+            <Text style={styles.modalTitle}>{editDebtId ? 'Edit debt' : 'Add debt'}</Text>
+            <TouchableOpacity onPress={saveDebt}>
+              <Text style={styles.modalSave}>Save</Text>
+            </TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+            <Text style={styles.limitLabel}>Debt type</Text>
+            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
+              {DEBT_TYPES.map(t => (
+                <TouchableOpacity key={t.value}
+                  style={[styles.filterBtn, debtType === t.value && styles.filterBtnOn]}
+                  onPress={() => setDebtType(t.value)}>
+                  <Text style={[styles.filterText, debtType === t.value && styles.filterTextOn]}>
+                    {t.icon} {t.label}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Name</Text>
+              <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
+                <TextInput
+                  style={[styles.limitInput, { flex: 1 }]}
+                  value={debtName} onChangeText={setDebtName}
+                  placeholder="e.g. Chase Sapphire"
+                  placeholderTextColor={Colors.textTertiary}
+                />
+              </View>
+            </View>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Balance ($)</Text>
+              <View style={styles.limitInputWrap}>
+                <Text style={styles.limitDollar}>$</Text>
+                <TextInput style={styles.limitInput} value={debtBalance} onChangeText={setDebtBalance}
+                  keyboardType="decimal-pad" placeholder="5000" placeholderTextColor={Colors.textTertiary} />
+              </View>
+            </View>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Interest rate (%)</Text>
+              <View style={styles.limitInputWrap}>
+                <TextInput style={styles.limitInput} value={debtRate} onChangeText={setDebtRate}
+                  keyboardType="decimal-pad" placeholder="19.99" placeholderTextColor={Colors.textTertiary} />
+                <Text style={styles.limitDollar}>%</Text>
+              </View>
+            </View>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Min payment ($)</Text>
+              <View style={styles.limitInputWrap}>
+                <Text style={styles.limitDollar}>$</Text>
+                <TextInput style={styles.limitInput} value={debtMinPayment} onChangeText={setDebtMinPayment}
+                  keyboardType="decimal-pad" placeholder="25" placeholderTextColor={Colors.textTertiary} />
+              </View>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* ── Import tab ───────────────────────────────────────────── */}
       {tab === 'Import' && (
@@ -350,7 +662,7 @@ export default function BudgetScreen() {
                 Set a monthly dollar limit per category. Leave blank for no limit. You'll see a progress bar and over-budget warning when you exceed it.
               </Text>
             </TipCard>
-            {EXPENSE_CATEGORIES.map(({ label, icon, bg }) => (
+            {allCategories.map(({ label, icon, bg }) => (
               <View key={label} style={styles.limitRow}>
                 <View style={[styles.catIcon, { backgroundColor: bg }]}>
                   <Text style={{ fontSize: 18 }}>{icon}</Text>

@@ -5,24 +5,66 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
-import { useStore } from '../store/useStore';
+import { useStore, RecurringExpense } from '../store/useStore';
 import { Button, Card, TipCard, ProgressBar, SegmentedControl } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { parseReceiptWithOCR } from '../services/receiptOCR';
-import { format } from 'date-fns';
-import { EXPENSE_CATEGORIES, getCategoryIcon as getCatIcon } from '../constants/categories';
+import { format, addDays, addMonths } from 'date-fns';
+import { EXPENSE_CATEGORIES, getCategoryIcon as getCatIcon, useAllCategories } from '../constants/categories';
 
-type Tab = 'list' | 'add';
-
-const CATEGORIES = EXPENSE_CATEGORIES;
+type Tab = 'list' | 'add' | 'recurring';
 
 export default function ExpenseScreen() {
   const router = useRouter();
-  const { addExpense, deleteExpense, expenses, monthlyBudgetTarget } = useStore();
+  const { addExpense, deleteExpense, expenses, monthlyBudgetTarget, recurringExpenses, addRecurringExpense, deleteRecurringExpense, updateRecurringExpense, customCategories } = useStore() as any;
+  const CATEGORIES = useAllCategories(customCategories || []);
 
   const [tab, setTab] = useState<Tab>('list');
   const [editId, setEditId] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
+
+  // Recurring form state
+  const [recurCategory, setRecurCategory] = useState('Utilities');
+  const [recurStore, setRecurStore] = useState('');
+  const [recurAmount, setRecurAmount] = useState('');
+  const [recurFreq, setRecurFreq] = useState<RecurringExpense['frequency']>('monthly');
+  const [recurStart, setRecurStart] = useState(format(new Date(), 'yyyy-MM-dd'));
+  const [recurNotes, setRecurNotes] = useState('');
+
+  function handleAddRecurring() {
+    const amt = parseFloat(recurAmount);
+    if (!amt || !recurStore.trim()) {
+      Alert.alert('Missing info', 'Enter a name/store and amount.');
+      return;
+    }
+    let nextDate: Date;
+    if (recurFreq === 'monthly') nextDate = addMonths(new Date(recurStart + 'T12:00:00'), 0);
+    else nextDate = addDays(new Date(recurStart + 'T12:00:00'), 0);
+
+    addRecurringExpense({
+      category: recurCategory,
+      store: recurStore.trim(),
+      amount: amt,
+      frequency: recurFreq,
+      nextDate: new Date(recurStart + 'T12:00:00').toISOString(),
+      active: true,
+      notes: recurNotes.trim() || undefined,
+    });
+    setRecurStore(''); setRecurAmount(''); setRecurNotes('');
+    setRecurStart(format(new Date(), 'yyyy-MM-dd'));
+    Alert.alert('Recurring expense added!', `$${amt.toFixed(2)} ${recurFreq} for "${recurStore}" will auto-log on each due date.`);
+  }
+
+  function handleDeleteRecurring(id: string) {
+    Alert.alert('Remove recurring expense', 'Stop auto-logging this expense?', [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Remove', style: 'destructive', onPress: () => deleteRecurringExpense(id) },
+    ]);
+  }
+
+  function toggleRecurring(id: string, active: boolean) {
+    updateRecurringExpense(id, { active });
+  }
 
   // Form state
   const [amount, setAmount] = useState('');
@@ -136,9 +178,9 @@ export default function ExpenseScreen() {
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <View style={styles.root}>
         <SegmentedControl
-          options={['My expenses', 'Add new']}
-          selected={tab === 'list' ? 'My expenses' : 'Add new'}
-          onSelect={v => { setTab(v === 'My expenses' ? 'list' : 'add'); resetForm(); }}
+          options={['My expenses', 'Add new', 'Recurring']}
+          selected={tab === 'list' ? 'My expenses' : tab === 'add' ? 'Add new' : 'Recurring'}
+          onSelect={v => { setTab(v === 'My expenses' ? 'list' : v === 'Add new' ? 'add' : 'recurring'); if (v !== 'Recurring') resetForm(); }}
         />
 
         {/* ── LIST TAB ──────────────────────────────────────────── */}
@@ -295,6 +337,86 @@ export default function ExpenseScreen() {
               loading={saving}
               disabled={!isValid}
             />
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        )}
+
+        {/* ── RECURRING TAB ─────────────────────────────────────── */}
+        {tab === 'recurring' && (
+          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+
+            {/* Existing recurring expenses */}
+            {(recurringExpenses as RecurringExpense[]).length > 0 && (
+              <Card>
+                <Text style={[styles.inputLabel, { marginTop: 0 }]}>Active recurring expenses</Text>
+                {(recurringExpenses as RecurringExpense[]).map((r: RecurringExpense) => (
+                  <View key={r.id} style={styles.entryRow}>
+                    <View style={[styles.entryIcon, { backgroundColor: CATEGORIES.find(c => c.label === r.category)?.bg || Colors.bgSecondary }]}>
+                      <Text style={{ fontSize: 20 }}>{getCatIcon(r.category)}</Text>
+                    </View>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.entryLabel}>{r.store}</Text>
+                      <Text style={styles.entryDate}>{r.category} · ${r.amount.toFixed(2)} · {r.frequency}</Text>
+                    </View>
+                    <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }}>
+                      <Text style={{ color: Colors.red, fontSize: 18 }}>✕</Text>
+                    </TouchableOpacity>
+                  </View>
+                ))}
+              </Card>
+            )}
+
+            {/* Add new recurring */}
+            <Card>
+              <Text style={[styles.inputLabel, { marginTop: 0 }]}>Add recurring expense</Text>
+
+              <Text style={styles.inputLabel}>Category</Text>
+              <View style={styles.catGrid}>
+                {CATEGORIES.filter(c => ['Utilities', 'Subscriptions', 'Rent', 'Gas', 'Transit', 'Health', 'Other'].includes(c.label)).map(cat => (
+                  <TouchableOpacity key={cat.label}
+                    style={[styles.catBtn, recurCategory === cat.label && styles.catBtnOn]}
+                    onPress={() => setRecurCategory(cat.label)}>
+                    <View style={[styles.catIcon, { backgroundColor: cat.bg }]}>
+                      <Text style={{ fontSize: 20 }}>{cat.icon}</Text>
+                    </View>
+                    <Text style={[styles.catLabel, recurCategory === cat.label && styles.catLabelOn]}>{cat.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.inputLabel}>Name / provider</Text>
+              <TextInput style={styles.input} value={recurStore} onChangeText={setRecurStore}
+                placeholder="e.g. Netflix, PG&E, Rent" placeholderTextColor={Colors.textTertiary} />
+
+              <Text style={styles.inputLabel}>Amount ($)</Text>
+              <TextInput style={styles.input} value={recurAmount} onChangeText={setRecurAmount}
+                keyboardType="decimal-pad" placeholder="99.99" placeholderTextColor={Colors.textTertiary} />
+
+              <Text style={styles.inputLabel}>Frequency</Text>
+              <View style={{ flexDirection: 'row', gap: Spacing.sm, marginBottom: Spacing.sm }}>
+                {(['weekly', 'biweekly', 'monthly'] as const).map(f => (
+                  <TouchableOpacity key={f}
+                    style={[styles.catBtn, { flex: 1, width: undefined }, recurFreq === f && styles.catBtnOn]}
+                    onPress={() => setRecurFreq(f)}>
+                    <Text style={[styles.catLabel, recurFreq === f && styles.catLabelOn]}>
+                      {f === 'biweekly' ? 'Bi-weekly' : f.charAt(0).toUpperCase() + f.slice(1)}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              <Text style={styles.inputLabel}>First due date</Text>
+              <TextInput style={styles.input} value={recurStart} onChangeText={setRecurStart}
+                placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} />
+
+              <Button label="Add recurring expense" onPress={handleAddRecurring} style={{ marginTop: Spacing.md }} />
+            </Card>
+
+            <TipCard color="green">
+              <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
+                💡 Recurring expenses auto-log on their due date each time you open the app. Use this for rent, subscriptions, utilities, and any fixed monthly bills.
+              </Text>
+            </TipCard>
             <View style={{ height: 40 }} />
           </ScrollView>
         )}

@@ -84,14 +84,43 @@ export type RecurringIncome = {
   active: boolean;
 };
 
+export type RecurringExpense = {
+  id: string;
+  category: string;
+  store: string;
+  amount: number;
+  frequency: 'weekly' | 'biweekly' | 'monthly';
+  nextDate: string;
+  active: boolean;
+  notes?: string;
+};
+
+export type DebtEntry = {
+  id: string;
+  name: string;
+  type: 'credit_card' | 'student_loan' | 'car_loan' | 'mortgage' | 'personal_loan' | 'other';
+  balance: number;
+  interestRate: number;   // APR %
+  minimumPayment: number;
+  date: string;
+};
+
 export type RetirementPlan = {
   currentAge: number;
   retireAge: number;
+  monthlyIncome: number;
   currentSavings: number;
   monthlyContribution: number;
+  employerMonthlyMatch: number;  // employer's monthly $ contribution
   expectedReturn: number;
   nestEggYears: number;
   targetYear: number;
+};
+
+export type CustomCategory = {
+  label: string;
+  icon: string;
+  bg: string;
 };
 
 type AppState = {
@@ -114,11 +143,14 @@ type AppState = {
   incomes: IncomeEntry[];
   expenses: ExpenseEntry[];
   recurringIncomes: RecurringIncome[];
+  recurringExpenses: RecurringExpense[];
   savings: SavingsEntry[];
   investments: InvestmentEntry[];
+  debts: DebtEntry[];
   goals: Goal[];
   badges: Badge[];
   retirementPlan: RetirementPlan | null;
+  customCategories: CustomCategory[];
 
   // Gamification
   xp: number;
@@ -165,11 +197,19 @@ type AppState = {
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
   deleteRecurringIncome: (id: string) => void;
   applyRecurringIncomes: () => void;
-
+  addRecurringExpense: (entry: Omit<RecurringExpense, 'id'>) => void;
+  updateRecurringExpense: (id: string, updates: Partial<RecurringExpense>) => void;
+  deleteRecurringExpense: (id: string) => void;
+  applyRecurringExpenses: () => void;
+  addDebt: (entry: Omit<DebtEntry, 'id'>) => void;
+  updateDebt: (id: string, updates: Partial<DebtEntry>) => void;
+  deleteDebt: (id: string) => void;
   addGoal: (goal: Omit<Goal, 'id'>) => void;
   updateGoal: (id: string, updates: Partial<Goal>) => void;
   deleteGoal: (id: string) => void;
   importFromCSV: (rows: Record<string, string>[]) => void;
+  addCustomCategory: (cat: CustomCategory) => void;
+  deleteCustomCategory: (label: string) => void;
 
   // Actions - Gamification
   addXP: (amount: number) => void;
@@ -226,13 +266,16 @@ export const useStore = create<AppState>()(
       expenseTargetPercent: 80,
       savingsDistribution: 'leftover',
       retirementPlan: null,
+      customCategories: [],
 
       // Data
       incomes: [],
       expenses: [],
       recurringIncomes: [],
+      recurringExpenses: [],
       savings: [],
       investments: [],
+      debts: [],
       goals: [],
       badges: DEFAULT_BADGES,
 
@@ -324,7 +367,6 @@ export const useStore = create<AppState>()(
           next.setHours(0, 0, 0, 0);
           if (next > today) return r;
 
-          // Generate all missed entries up to and including today
           let updated = { ...r };
           while (next <= today) {
             state.addIncome({
@@ -334,7 +376,6 @@ export const useStore = create<AppState>()(
               date: next.toISOString(),
               notes: `Auto: ${r.frequency}`,
             });
-            // Advance nextDate
             if (r.frequency === 'monthly') {
               next = new Date(next.getFullYear(), next.getMonth() + 1, next.getDate());
             } else {
@@ -347,6 +388,58 @@ export const useStore = create<AppState>()(
 
         set({ recurringIncomes: updatedRecurring });
       },
+
+      addRecurringExpense: (entry) => {
+        const r: RecurringExpense = { ...entry, id: uid() };
+        set((s) => ({ recurringExpenses: [r, ...s.recurringExpenses] }));
+      },
+      updateRecurringExpense: (id, updates) =>
+        set((s) => ({ recurringExpenses: s.recurringExpenses.map((r) => r.id === id ? { ...r, ...updates } : r) })),
+      deleteRecurringExpense: (id) =>
+        set((s) => ({ recurringExpenses: s.recurringExpenses.filter((r) => r.id !== id) })),
+
+      applyRecurringExpenses: () => {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        const state = get();
+        const freqDays: Record<RecurringExpense['frequency'], number> = { weekly: 7, biweekly: 14, monthly: 0 };
+
+        const updated = state.recurringExpenses.map((r) => {
+          if (!r.active) return r;
+          let next = new Date(r.nextDate);
+          next.setHours(0, 0, 0, 0);
+          if (next > today) return r;
+
+          let u = { ...r };
+          while (next <= today) {
+            state.addExpense({
+              amount: r.amount,
+              category: r.category,
+              store: r.store,
+              date: next.toISOString(),
+              notes: r.notes || `Auto: ${r.frequency}`,
+            });
+            if (r.frequency === 'monthly') {
+              next = new Date(next.getFullYear(), next.getMonth() + 1, next.getDate());
+            } else {
+              next = new Date(next.getTime() + freqDays[r.frequency] * 86400000);
+            }
+          }
+          u.nextDate = next.toISOString();
+          return u;
+        });
+
+        set({ recurringExpenses: updated });
+      },
+
+      addDebt: (entry) => {
+        const d: DebtEntry = { ...entry, id: uid() };
+        set((s) => ({ debts: [d, ...s.debts] }));
+        get().addXP(5);
+      },
+      updateDebt: (id, updates) =>
+        set((s) => ({ debts: s.debts.map((d) => d.id === id ? { ...d, ...updates } : d) })),
+      deleteDebt: (id) => set((s) => ({ debts: s.debts.filter((d) => d.id !== id) })),
 
       addGoal: (goal) => {
         const g: Goal = { ...goal, id: uid() };
@@ -373,6 +466,11 @@ export const useStore = create<AppState>()(
         set((s) => ({ expenses: [...newExpenses, ...s.expenses] }));
         get().addXP(newExpenses.length * 5);
       },
+
+      addCustomCategory: (cat) =>
+        set((s) => ({ customCategories: [...s.customCategories, cat] })),
+      deleteCustomCategory: (label) =>
+        set((s) => ({ customCategories: s.customCategories.filter((c) => c.label !== label) })),
 
       // ── Gamification actions ─────────────────────────────────────
       addXP: (amount) => set((s) => ({ xp: s.xp + amount })),
@@ -408,21 +506,20 @@ export const useStore = create<AppState>()(
 
       resetAll: () => set({
         incomes: [], expenses: [], savings: [], investments: [],
-        recurringIncomes: [],
+        recurringIncomes: [], recurringExpenses: [], debts: [],
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, retirementPlan: null,
-        selectedGoals: [], budgetCategories: [],
+        selectedGoals: [], budgetCategories: [], customCategories: [],
       }),
 
       loadFromCloud: (data) => set((s) => ({
         ...s,
         ...data,
-        // Never overwrite user from cloud — that comes from Firebase Auth
         user: s.user,
       })),
     }),
     {
-      name: 'finwise-storage-v2',
+      name: 'finwise-storage-v3',
       storage: createJSONStorage(() => AsyncStorage),
     }
   )
@@ -454,12 +551,9 @@ export function useMonthlyStats() {
   const isOverBudget  = periodSpend + periodSavings > periodIncome && periodIncome > 0;
 
   return {
-    // Period names (correct)
     periodIncome, periodSpend, periodSavings,
-    // Month aliases (used by HomeScreen, AnalyticsScreen, TipsScreen)
     monthIncome: periodIncome,
     monthSpend: periodSpend,
-    // Shared
     totalSavings, remaining, pctSpent, isOverBudget,
   };
 }
@@ -481,16 +575,16 @@ export function useCategorySpend() {
 export function useLevel() {
   const xp = useStore((s) => s.xp);
   const levels = [
-    { level: 1, name: 'Beginner',      min: 0 },
-    { level: 2, name: 'Saver',         min: 100 },
-    { level: 3, name: 'Planner',       min: 300 },
-    { level: 4, name: 'Budgeter',      min: 600 },
-    { level: 5, name: 'Investor',      min: 1000 },
-    { level: 6, name: 'Strategist',    min: 1500 },
-    { level: 7, name: 'Money Master',  min: 2200 },
-    { level: 8, name: 'Wealth Builder',min: 3000 },
-    { level: 9, name: 'Financial Guru',min: 4000 },
-    { level: 10,name: 'FinWise Legend',min: 5500 },
+    { level: 1, name: 'Beginner',       min: 0 },
+    { level: 2, name: 'Saver',          min: 100 },
+    { level: 3, name: 'Planner',        min: 300 },
+    { level: 4, name: 'Budgeter',       min: 600 },
+    { level: 5, name: 'Investor',       min: 1000 },
+    { level: 6, name: 'Strategist',     min: 1500 },
+    { level: 7, name: 'Money Master',   min: 2200 },
+    { level: 8, name: 'Wealth Builder', min: 3000 },
+    { level: 9, name: 'Financial Guru', min: 4000 },
+    { level: 10,name: 'FinWise Legend', min: 5500 },
   ];
   let current = levels[0], next = levels[1];
   for (let i = 0; i < levels.length; i++) {
@@ -498,4 +592,12 @@ export function useLevel() {
   }
   const pct = next.min > current.min ? Math.min(((xp - current.min) / (next.min - current.min)) * 100, 100) : 100;
   return { ...current, next, xp, pct };
+}
+
+export function useNetWorth() {
+  const { savings, investments, debts } = useStore();
+  const totalSavings     = savings.reduce((s, e) => s + e.amount, 0);
+  const totalInvestments = investments.reduce((s, e) => s + e.amount, 0);
+  const totalDebt        = debts.reduce((s, d) => s + d.balance, 0);
+  return { totalSavings, totalInvestments, totalDebt, netWorth: totalSavings + totalInvestments - totalDebt };
 }
