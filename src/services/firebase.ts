@@ -12,6 +12,8 @@ import {
   doc,
   setDoc,
   getDoc,
+  addDoc,
+  collection,
   serverTimestamp,
 } from 'firebase/firestore';
 import { firebaseApp } from './firebaseConfig';
@@ -56,4 +58,19 @@ export async function loadUserData(uid: string): Promise<Record<string, any> | n
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
   return snap.data()?.appState ?? null;
+}
+
+export async function submitFeedback(payload: {
+  uid:       string | null;
+  email:     string | null;
+  name:      string | null;
+  type:      string;
+  subject:   string;
+  message:   string;
+  appVersion:string;
+}) {
+  await addDoc(collection(db, 'feedback'), {
+    ...payload,
+    createdAt: serverTimestamp(),
+  });
 }
