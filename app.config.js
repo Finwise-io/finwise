@@ -12,21 +12,33 @@ module.exports = {
   },
   ios: {
     supportsTablet: false,
-    bundleIdentifier: 'com.finwise.app',
+    bundleIdentifier: 'co.finwise.app',
     infoPlist: {
       NSCameraUsageDescription: 'Scan receipts to log expenses instantly.',
       NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
+      ITSAppUsesNonExemptEncryption: false,
     },
   },
   android: {
-    package: 'com.finwise.app',
+    package: 'io.finwise.app',
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#1a1f3a',
     },
     permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE'],
   },
-  plugins: ['expo-router', 'expo-secure-store'],
+  plugins: [
+    'expo-router',
+    'expo-secure-store',
+    'expo-camera',
+    [
+      'expo-notifications',
+      {
+        icon: './assets/icon.png',
+        color: '#1a1f3a',
+      },
+    ],
+  ],
   scheme: 'finwise',
   extra: {
     eas: { projectId: '73cc38c4-bb3d-4cbc-89d0-ed9d4fc49eef' },
