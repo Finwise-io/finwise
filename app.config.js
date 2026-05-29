@@ -13,6 +13,7 @@ module.exports = {
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'co.finwise.app',
+    newArchEnabled: false,
     infoPlist: {
       NSCameraUsageDescription: 'Scan receipts to log expenses instantly.',
       NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
