@@ -13,7 +13,10 @@ module.exports = {
   ios: {
     supportsTablet: false,
     bundleIdentifier: 'co.finwise.app',
-    newArchEnabled: false,
+    // Reanimated 4.x ONLY supports the New Architecture (see its peerDeps/README).
+    // Disabling it (commit c7e0223) crashed build #14 at launch. The real #11 crash
+    // was Firebase (fixed in 7d70844), not a new-arch conflict.
+    newArchEnabled: true,
     infoPlist: {
       NSCameraUsageDescription: 'Scan receipts to log expenses instantly.',
       NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
