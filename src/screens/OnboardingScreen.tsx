@@ -110,6 +110,31 @@ export default function OnboardingScreen() {
     return getPeriodIncome() >= getExpenseAmt() + getSavingsAmt();
   }
 
+  // Annualized savings (for the budgeting "aha" projection)
+  function getAnnualSavings(): number {
+    const per = getSavingsAmt();
+    if (budgetFreq === 'daily') return per * 365;
+    if (budgetFreq === 'weekly') return per * 52;
+    if (budgetFreq === 'annual') return per;
+    return per * 12; // monthly
+  }
+
+  // Projected retirement nest egg — future value of current savings + monthly
+  // contributions at ~7%/yr (monthly compounding). Returns null if ages missing.
+  function getRetirementProjection(): number | null {
+    const age = parseInt(currentAge);
+    const rAge = parseInt(retireAge);
+    if (!age || !rAge || rAge <= age) return null;
+    const months = (rAge - age) * 12;
+    const rM = 0.07 / 12;
+    const start = parseFloat(currentSavings) || 0;
+    // explicit monthly contribution, else fall back to the budget's monthly savings
+    const contrib = parseFloat(monthlyContrib) || (isBudget ? getAnnualSavings() / 12 : 0);
+    const fvStart = start * Math.pow(1 + rM, months);
+    const fvContrib = contrib * ((Math.pow(1 + rM, months) - 1) / rM);
+    return fvStart + fvContrib;
+  }
+
   const freqLabel = budgetFreq === 'daily' ? 'day'
     : budgetFreq === 'weekly' ? 'week'
     : budgetFreq === 'annual' ? 'year' : 'month';
@@ -613,6 +638,35 @@ export default function OnboardingScreen() {
               <Text style={styles.heading}>You're all set!</Text>
               <Text style={styles.sub}>Here's your personalized FinWise plan</Text>
             </View>
+
+            {/* ── "Aha" projection — lead with a forward number, not just a recap ── */}
+            {isRetirement && getRetirementProjection() !== null && (
+              <Card>
+                <Text style={{ fontSize: 13, color: Colors.textSecondary, textAlign: 'center', fontWeight: '600' }}>
+                  Projected nest egg at {retireAge}
+                </Text>
+                <Text style={{ fontSize: 40, fontWeight: '800', color: Colors.primary, textAlign: 'center', marginVertical: 6 }}>
+                  ${Math.round(getRetirementProjection()!).toLocaleString()}
+                </Text>
+                <Text style={{ fontSize: 12, color: Colors.textTertiary, textAlign: 'center' }}>
+                  Assuming ~7%/yr average growth — refine anytime in the Retirement tab.
+                </Text>
+              </Card>
+            )}
+            {!isRetirement && isBudget && getAnnualSavings() > 0 && (
+              <Card>
+                <Text style={{ fontSize: 13, color: Colors.textSecondary, textAlign: 'center', fontWeight: '600' }}>
+                  On track to save
+                </Text>
+                <Text style={{ fontSize: 40, fontWeight: '800', color: Colors.primary, textAlign: 'center', marginVertical: 6 }}>
+                  ${Math.round(getAnnualSavings()).toLocaleString()}<Text style={{ fontSize: 20 }}>/yr</Text>
+                </Text>
+                <Text style={{ fontSize: 12, color: Colors.textTertiary, textAlign: 'center' }}>
+                  At your current {freqLabel}ly targets — keep it up to hit your goals faster.
+                </Text>
+              </Card>
+            )}
+
             <Card>
               <Text style={styles.cardTitle}>Your plan</Text>
               <SRow label="Goal" value={mainGoal === 'both' ? 'Budgeting + Retirement' : mainGoal === 'budgeting' ? 'Budgeting' : 'Retirement'} />
@@ -647,6 +701,15 @@ export default function OnboardingScreen() {
             size="md"
           />
         </View>
+
+        {/* Skip affordance — income/expenses are optional; let users reach value fast */}
+        {(currentStepName === 'income' || currentStepName === 'expenses') && (
+          <TouchableOpacity onPress={advanceStep} style={{ alignSelf: 'center', paddingVertical: Spacing.sm, marginTop: Spacing.xs }}>
+            <Text style={{ fontSize: 14, color: Colors.textSecondary, fontWeight: '600' }}>
+              Skip for now — I'll add this later →
+            </Text>
+          </TouchableOpacity>
+        )}
 
         <View style={{ height: 40 }} />
       </ScrollView>
