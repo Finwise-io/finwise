@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity,
   TextInput, KeyboardAvoidingView, Platform, Alert,
@@ -35,10 +35,20 @@ export default function OnboardingScreen() {
   const router = useRouter();
   const store = useStore() as any;
 
-  const [stepIndex, setStepIndex] = useState(0);
-  const [status, setStatus] = useState<Status | null>(store.employmentStatus ?? null);
-  const [tracks, setTracks] = useState<Track[]>((store.selectedGoals ?? []) as Track[]);
-  const [name, setName] = useState<string>(store.user?.name ?? '');
+  // Resume from a saved draft if present; otherwise start fresh (don't inherit
+  // stale persisted goals — that leaked retire_acc into retired flows).
+  const draft = store.onboardingDraft;
+  const [stepIndex, setStepIndex] = useState<number>(draft?.stepIndex ?? 0);
+  const [status, setStatus] = useState<Status | null>((draft?.status as Status) ?? null);
+  const [tracks, setTracks] = useState<Track[]>((draft?.tracks as Track[]) ?? []);
+  const [name, setName] = useState<string>(draft?.name ?? store.user?.name ?? '');
+
+  // Auto-save progress (synced to the account once signed in).
+  useEffect(() => {
+    store.setOnboardingDraft?.({ stepIndex, status, tracks, name });
+    if (status) store.setEmploymentStatus?.(status);
+    if (tracks.length) store.setSelectedGoals?.(tracks);
+  }, [stepIndex, status, tracks, name]);
 
   // Inline account step
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
@@ -55,6 +65,17 @@ export default function OnboardingScreen() {
 
   function toggleTrack(t: Track) {
     setTracks(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
+  }
+
+  function chooseStatus(s: Status) {
+    setStatus(s);
+    const valid = new Set(goalOptionsFor(s).map(o => o.value));   // drop goals invalid for this stage
+    setTracks(prev => prev.filter(t => valid.has(t)));
+  }
+
+  function saveAndExit() {
+    store.setOnboardingDraft?.({ stepIndex, status, tracks, name });
+    Alert.alert('Progress saved', "Your setup is saved to your account. Close anytime — we'll pick up right here.");
   }
 
   function canContinue(): boolean {
@@ -100,6 +121,7 @@ export default function OnboardingScreen() {
     if (name.trim() && store.setUser && store.user) {
       store.setUser({ ...store.user, name: name.trim() });
     }
+    store.setOnboardingDraft?.(null);   // clear resume draft on completion
     store.setOnboardingComplete?.(true);
     router.replace('/(tabs)/home');
   }
@@ -118,7 +140,7 @@ export default function OnboardingScreen() {
           {STATUS_OPTIONS.map(opt => (
             <TouchableOpacity key={opt.value}
               style={[styles.choice, status === opt.value && styles.choiceOn]}
-              onPress={() => setStatus(opt.value)}>
+              onPress={() => chooseStatus(opt.value)}>
               <Text style={styles.choiceIcon}>{opt.icon}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={[styles.choiceTitle, status === opt.value && styles.choiceTitleOn]}>{opt.title}</Text>
@@ -206,9 +228,15 @@ export default function OnboardingScreen() {
 
     // Stub for not-yet-built modules
     const s = STUB_TITLES[current] ?? { emoji: '🛠', title: current, sub: '' };
+    let sub = s.sub;
+    if (current === 'ret_spend_change') {
+      sub = status === 'retired'
+        ? 'Do you expect it to change later in retirement?'
+        : 'About the same, less, or more than today?';
+    }
     return (
       <>
-        <Header emoji={s.emoji} title={s.title} sub={s.sub} />
+        <Header emoji={s.emoji} title={s.title} sub={sub} />
         <Card><Text style={styles.note}>This step is coming in the next build pass.</Text></Card>
       </>
     );
@@ -233,9 +261,15 @@ export default function OnboardingScreen() {
             <Button label="← Back" onPress={back} variant="secondary" style={{ flex: 1 }} size="md" />
           )}
           <Button label={primaryLabel} onPress={onPrimary} loading={authBusy}
-            disabled={!canContinue() && !(current === 'account')}
-            style={{ flex: stepIndex === 0 ? undefined : 1 }} size="md" />
+            disabled={current !== 'account' && !canContinue()}
+            style={{ flex: 1 }} size="md" />
         </View>
+
+        {stepIndex > 0 && !isLast && (
+          <TouchableOpacity onPress={saveAndExit} style={{ alignSelf: 'center', paddingVertical: Spacing.md }}>
+            <Text style={styles.link}>Save & come back later</Text>
+          </TouchableOpacity>
+        )}
         <View style={{ height: 40 }} />
       </ScrollView>
     </KeyboardAvoidingView>
