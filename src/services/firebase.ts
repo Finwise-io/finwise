@@ -1,5 +1,6 @@
 import {
   getAuth,
+  initializeAuth,
   createUserWithEmailAndPassword,
   signInWithEmailAndPassword,
   signOut,
@@ -7,6 +8,14 @@ import {
   onAuthStateChanged,
   updateProfile,
 } from 'firebase/auth';
+import * as FirebaseAuth from 'firebase/auth';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
+// getReactNativePersistence ships in firebase/auth's React Native build but is
+// missing from the published TS types — access it via a cast.
+const getReactNativePersistence = (FirebaseAuth as any).getReactNativePersistence as
+  | ((storage: unknown) => unknown)
+  | undefined;
 import {
   getFirestore,
   doc,
@@ -18,7 +27,21 @@ import {
 } from 'firebase/firestore';
 import { firebaseApp } from './firebaseConfig';
 
-const auth = getAuth(firebaseApp);
+// React Native: getAuth() at module load throws "Component auth has not been
+// registered yet" under Hermes/lazy bundling. initializeAuth registers the auth
+// component and (with AsyncStorage) persists the session across app restarts.
+// Fall back to getAuth if auth was already initialized (e.g. Fast Refresh).
+let auth: ReturnType<typeof getAuth>;
+try {
+  auth = initializeAuth(
+    firebaseApp,
+    getReactNativePersistence
+      ? { persistence: getReactNativePersistence(AsyncStorage) as any }
+      : undefined,
+  );
+} catch {
+  auth = getAuth(firebaseApp);
+}
 const db   = getFirestore(firebaseApp);
 
 export async function registerUser(email: string, password: string, name: string) {
