@@ -129,6 +129,7 @@ type AppState = {
   onboardingComplete: boolean;
 
   // Onboarding settings
+  employmentStatus: string | null;
   selectedGoals: string[];
   budgetFrequency: 'daily' | 'weekly' | 'monthly' | 'annually';
   payFrequency: string;
@@ -175,6 +176,7 @@ type AppState = {
   setOnboardingComplete: (v: boolean) => void;
 
   // Actions - Onboarding
+  setEmploymentStatus: (s: string | null) => void;
   setSelectedGoals: (goals: string[]) => void;
   setBudgetFrequency: (f: 'daily' | 'weekly' | 'monthly' | 'annually') => void;
   setPayFrequency: (f: string) => void;
@@ -256,6 +258,7 @@ export const useStore = create<AppState>()(
       onboardingComplete: false,
 
       // Onboarding settings
+      employmentStatus: null,
       selectedGoals: [],
       budgetFrequency: 'monthly',
       payFrequency: 'monthly',
@@ -302,6 +305,7 @@ export const useStore = create<AppState>()(
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
 
       // ── Onboarding actions ───────────────────────────────────────
+      setEmploymentStatus: (s) => set({ employmentStatus: s }),
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
@@ -509,7 +513,7 @@ export const useStore = create<AppState>()(
         recurringIncomes: [], recurringExpenses: [], debts: [],
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, retirementPlan: null,
-        selectedGoals: [], budgetCategories: [], customCategories: [],
+        employmentStatus: null, selectedGoals: [], budgetCategories: [], customCategories: [],
       }),
 
       loadFromCloud: (data) => set((s) => ({

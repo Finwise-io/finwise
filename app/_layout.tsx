@@ -88,16 +88,28 @@ export default function RootLayout() {
     };
   }, []);
 
-  // Auth-based routing guard
+  // Auth-based routing guard.
+  // Onboarding now begins UNAUTHENTICATED (Q1/Q2); the account is created mid-flow,
+  // so unauth users are allowed in /onboarding (it's not in the protected-modal set).
   useEffect(() => {
     if (!isReady) return;
-    const inTabs   = segments[0] === '(tabs)';
-    const inModals = ['income','expense','savings','invest','jobsafety','onboarding'].includes(segments[0] as string);
-    if (!user && (inTabs || inModals)) {
-      router.replace('/auth');
-    } else if (user && !inTabs && !inModals && segments[0] !== 'auth') {
-      if (!onboardingComplete) router.replace('/onboarding');
-      else router.replace('/(tabs)/home');
+    const inTabs       = segments[0] === '(tabs)';
+    const inOnboarding = segments[0] === 'onboarding';
+    const inAuth       = segments[0] === 'auth';
+    const inModals     = ['income','expense','savings','invest','jobsafety'].includes(segments[0] as string);
+    if (user) {
+      if (onboardingComplete) {
+        if (!inTabs && !inModals) router.replace('/(tabs)/home');
+      } else {
+        if (!inOnboarding) router.replace('/onboarding');
+      }
+    } else {
+      // Unauthenticated. New users do onboarding Q1/Q2; returning (logged-out) users log in.
+      if (onboardingComplete) {
+        if (!inAuth) router.replace('/auth');
+      } else if (inTabs || inModals) {
+        router.replace('/onboarding');
+      }
     }
   }, [user, segments, isReady, onboardingComplete]);
 
