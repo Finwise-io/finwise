@@ -243,12 +243,19 @@
 - [ ] 🔵 **Encrypted local storage** — move sensitive data to expo-secure-store (currently plain JSON).
 - [ ] 🔵 **Receipt OCR native rebuild** — `npx expo run:ios` to activate ML Kit, then test scan.
 
-### Portfolio Performance — v2
+### Portfolio module — transaction ledger + 3 services (see docs/portfolio-module.md)
+- [x] 🟢 **Total-return prices** — performance now uses dividend/split-adjusted close.
+- [ ] 🔵 **Phase A — foundation** — cash sleeve on investment accounts; transaction ledger
+  (OPENING/BUY/SELL/DEPOSIT/WITHDRAWAL/TRANSFER/DIVIDEND); instrument eligibility (529 fix);
+  per-account history (auditability); flows to NW/Retire/Income. *(in progress)*
+- [ ] 🔵 **Refresh-on-open** — throttled price refresh when NW/Retirement open (live everywhere).
+- [ ] 🔵 **Dividend/interest as income** — manual capture: source + reinvested-vs-cash; reinvest grows position.
+- [ ] 🔵 **Income manager screen** — review/add/edit ALL income sources from Home (#4).
+- [ ] 🔵 **Phase B — Bond management** — coupon/maturity/yield + coupon income.
+- [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
+- [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
 - [ ] 🔵 **Attribution** — which holdings drove / dragged your return.
-- [ ] ⚪ **Allocation view** — your mix vs a target.
-- [ ] ⚪ **Trend chart** — portfolio value vs benchmark over time.
-- [ ] ⚪ **Ticker autocomplete / validation** — catch typos, show company names.
-- [ ] ⚪ **Price-cache TTL + per-lot edit polish.**
+- [ ] ⚪ **Allocation view · trend chart · ticker autocomplete · price-cache TTL.**
 
 ### Retirement
 - [ ] 🟡 **Drawdown / decumulation view for retirees** — "will it last?" framing (accumulation done).
