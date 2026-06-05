@@ -8,6 +8,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -23,6 +24,7 @@ const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
 
 export default function RetirementCockpit() {
+  const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const A = store.retirementAssumptions ?? {};
@@ -370,6 +372,7 @@ export default function RetirementCockpit() {
               : `You returned ${(actualReturn * 100).toFixed(1)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(1)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(1)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(1)} pts behind`}.`}
           </Text>
           <Text style={styles.tFootMuted}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>
+          <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
         </View>
       )}
 

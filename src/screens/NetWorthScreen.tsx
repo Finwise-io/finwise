@@ -3,6 +3,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -52,6 +53,7 @@ const WIZ_HINT: Record<string, string> = {
 };
 
 export default function NetWorthScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
@@ -253,6 +255,12 @@ export default function NetWorthScreen() {
           </View>
         </View>
 
+        {/* performance launch */}
+        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/performance')}>
+          <Text style={styles.perfBtnT}>📈  Portfolio performance vs benchmark</Text>
+          <Text style={styles.perfBtnArrow}>›</Text>
+        </TouchableOpacity>
+
         {/* insight */}
         {totalAssets > 0 && (
           <View style={styles.insight}>
@@ -406,6 +414,9 @@ const styles = StyleSheet.create({
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
   lgVal: { fontSize: 13, fontWeight: '500', color: Colors.textSecondary, minWidth: 56, textAlign: 'right' },
   lgPct: { fontSize: 12, fontWeight: '600', color: Colors.textTertiary, width: 34, textAlign: 'right' },
+  perfBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
+  perfBtnT: { flex: 1, fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  perfBtnArrow: { fontSize: 22, color: Colors.textTertiary, fontWeight: '400' },
   insight: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   insightIcon: { fontSize: 15, lineHeight: 20 },
   insightTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },

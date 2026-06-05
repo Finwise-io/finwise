@@ -1,0 +1,298 @@
+// Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
+import React, { useEffect, useMemo, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { useStore } from '../store/useStore';
+import { Colors, Spacing, Radii } from '../utils/theme';
+import { money } from '../domain/_shared/num';
+import { moneyCompact } from '../domain/_shared/money';
+import { ASSET_KINDS, assetKind, type AssetAccount } from '../domain/assets';
+import {
+  buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
+  PERIODS, type Period, type Position, type Lot,
+} from '../domain/performance';
+
+const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
+const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' || k.section === 'Retirement');
+
+export default function PerformanceScreen() {
+  const store = useStore() as any;
+  const accounts: AssetAccount[] = store.assetAccounts ?? [];
+  const priceCache = store.priceCache ?? {};
+  const [period, setPeriod] = useState<Period>('1Y');
+  const [loading, setLoading] = useState(false);
+  const [addOpen, setAddOpen] = useState(false);
+  const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
+
+  // every position across accounts, tagged with its owning account
+  const owned = useMemo(() => accounts.flatMap((a) => (a.positions ?? []).map((p) => ({ accountId: a.asset_id, p }))), [accounts]);
+  const positions = owned.map((o) => o.p);
+  const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
+  const rows = useMemo(() => buildPerformance(positions, priceOf, period), [owned, priceCache, period]);
+  const portReturn = portfolioPeriodReturn(rows);
+  const benchPort = (() => {
+    const usable = rows.filter((r) => r.benchReturn != null && r.marketValue > 0);
+    const tot = usable.reduce((t, r) => t + r.marketValue, 0);
+    return tot > 0 ? usable.reduce((t, r) => t + (r.benchReturn as number) * r.marketValue, 0) / tot : null;
+  })();
+  const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
+  const totalValue = rows.reduce((t, r) => t + r.marketValue, 0);
+
+  const refresh = async () => { setLoading(true); try { await store.refreshPrices(); } finally { setLoading(false); } };
+  useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
+
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <View style={styles.headRow}>
+        <Text style={styles.eyebrow}>PORTFOLIO PERFORMANCE</Text>
+        <TouchableOpacity onPress={refresh} disabled={loading}>
+          <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
+        </TouchableOpacity>
+      </View>
+
+      {positions.length === 0 ? (
+        <View style={styles.empty}>
+          <Text style={styles.emptyT}>Track how your investments perform against the market.</Text>
+          <Text style={styles.emptyS}>Add a holding with its ticker and what you paid — we'll value it live and compare its return to the right benchmark.</Text>
+          <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a holding</Text></TouchableOpacity>
+        </View>
+      ) : (
+        <>
+          {/* PERIOD SELECTOR */}
+          <View style={styles.periodRow}>
+            {PERIODS.map((p) => (
+              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} onPress={() => setPeriod(p)}>
+                <Text style={[styles.periodT, period === p && styles.periodTOn]}>{p}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {/* PORTFOLIO SUMMARY */}
+          <View style={styles.summary}>
+            <Text style={styles.sumVal}>{money(totalValue)}</Text>
+            <Text style={styles.sumLab}>portfolio value · live</Text>
+            <View style={styles.sumRow}>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>YOUR {period}</Text><Text style={[styles.sumCellV, portReturn != null && { color: portReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(portReturn)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>BENCHMARK</Text><Text style={styles.sumCellV}>{pct(benchPort)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>VS BENCH</Text><Text style={[styles.sumCellV, portBeat != null && { color: portBeat >= 0 ? Colors.primary : Colors.red }]}>{portBeat == null ? '—' : `${portBeat >= 0 ? '+' : ''}${(portBeat * 100).toFixed(1)}`}</Text></View>
+            </View>
+          </View>
+
+          {/* PER-HOLDING TABLE */}
+          <View style={styles.card}>
+            <View style={styles.tHead}>
+              <Text style={[styles.tHL, { flex: 1 }]}>HOLDING</Text>
+              <Text style={[styles.tHL, styles.col]}>YOUR {period}</Text>
+              <Text style={[styles.tHL, styles.col]}>BENCH</Text>
+            </View>
+            {rows.map((r) => {
+              const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
+              return (
+                <TouchableOpacity key={r.position.position_id} style={styles.tRow} onPress={() => setEdit({ accountId: o.accountId, position: r.position })}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.hTicker}>{r.position.ticker}{r.position.label ? <Text style={styles.hName}>  {r.position.label}</Text> : null}</Text>
+                    <Text style={styles.hSub} numberOfLines={1}>
+                      {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position)} sh`}
+                      {r.totalROI != null ? ` · ${pct(r.totalROI)} since buy` : ''}
+                      {` · vs ${r.benchTicker}`}
+                    </Text>
+                  </View>
+                  <Text style={[styles.col, styles.cellV, r.periodReturn != null && { color: r.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(r.periodReturn)}</Text>
+                  <Text style={[styles.col, styles.cellB]}>{pct(r.benchReturn)}</Text>
+                </TouchableOpacity>
+              );
+            })}
+            <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add holding</Text></TouchableOpacity>
+          </View>
+
+          <Text style={styles.foot}>
+            Values are end-of-day from a free market-data source{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}.
+            “Your {period}” is the holding's price return over the period; benchmark is the matching index over the SAME period — so the comparison is like-for-like. Past performance isn't a guarantee.
+          </Text>
+        </>
+      )}
+
+      <View style={{ height: 40 }} />
+      <HoldingEditor
+        open={addOpen || edit != null}
+        accounts={accounts}
+        existing={edit}
+        onClose={() => { setAddOpen(false); setEdit(null); }}
+        onSave={(accountId, position, isNew) => {
+          if (isNew) {
+            if (accountId === '__new__') {
+              store.addAsset({ label: position.label || position.ticker, kind: position.kind, tax_bucket: assetKind(position.kind)?.bucket ?? 'TAXABLE', balance: 0, target_return: 0.07, positions: [] });
+              // newest account is at index 0
+              const newId = (useStore.getState() as any).assetAccounts[0].asset_id;
+              store.addPosition(newId, position);
+            } else {
+              store.addPosition(accountId, position);
+            }
+          } else {
+            store.updatePosition(accountId, position.position_id, position);
+          }
+          setAddOpen(false); setEdit(null); setTimeout(refresh, 50);
+        }}
+        onDelete={edit ? () => { store.deletePosition(edit.accountId, edit.position.position_id); setEdit(null); } : undefined}
+      />
+    </ScrollView>
+  );
+}
+
+// ───────────────────────── Add / edit holding (ticker + lots) ─────────────────────────
+function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: {
+  open: boolean; accounts: AssetAccount[]; existing: { accountId: string; position: Position } | null;
+  onClose: () => void; onSave: (accountId: string, position: Position, isNew: boolean) => void; onDelete?: () => void;
+}) {
+  const isNew = existing == null;
+  const investAccts = accounts;   // any account can hold securities
+  const [accountId, setAccountId] = useState<string>('');
+  const [ticker, setTicker] = useState('');
+  const [label, setLabel] = useState('');
+  const [kind, setKind] = useState<string>('stocks_etf');
+  const [lots, setLots] = useState<Lot[]>([]);
+
+  useEffect(() => {
+    if (!open) return;
+    if (existing) {
+      setAccountId(existing.accountId); setTicker(existing.position.ticker); setLabel(existing.position.label ?? '');
+      setKind(existing.position.kind ?? 'stocks_etf'); setLots(existing.position.lots.length ? existing.position.lots : [blankLot()]);
+    } else {
+      setAccountId(investAccts[0]?.asset_id ?? '__new__'); setTicker(''); setLabel(''); setKind('stocks_etf'); setLots([blankLot()]);
+    }
+  }, [open]);
+
+  const setLot = (i: number, patch: Partial<Lot>) => setLots((ls) => ls.map((l, j) => j === i ? { ...l, ...patch } : l));
+  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0);
+
+  const save = () => {
+    const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
+    const position: Position = {
+      position_id: existing?.position.position_id ?? `pos_${Math.random().toString(36).slice(2, 8)}`,
+      ticker: ticker.trim().toUpperCase(), label: label.trim() || undefined, kind, lots: clean,
+    };
+    onSave(accountId, position, isNew);
+  };
+
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+          <Text style={styles.sheetT}>{isNew ? 'Add a holding' : 'Edit holding'}</Text>
+
+          <Text style={styles.fieldL}>Ticker</Text>
+          <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL, VTI, SPY" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Name (optional)</Text>
+          <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
+
+          <Text style={styles.fieldL}>Type (sets the benchmark — {benchmarkTicker(kind)})</Text>
+          <View style={styles.kindWrap}>
+            {KIND_OPTIONS.map((k) => (
+              <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} onPress={() => setKind(k.id)}>
+                <Text style={[styles.kindChipT, kind === k.id && styles.kindChipTOn]}>{k.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.fieldL}>Lots — what you bought</Text>
+          {lots.map((l, i) => (
+            <View key={i} style={styles.lotRow}>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.shares ? String(l.shares) : ''} onChangeText={(t) => setLot(i, { shares: num(t) })} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.cost_per_share ? String(l.cost_per_share) : ''} onChangeText={(t) => setLot(i, { cost_per_share: num(t) })} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+              {lots.length > 1 && <TouchableOpacity onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
+            </View>
+          ))}
+          <TouchableOpacity onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
+
+          {accounts.length > 0 && (
+            <>
+              <Text style={styles.fieldL}>Account</Text>
+              <View style={styles.kindWrap}>
+                {investAccts.map((a) => (
+                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} onPress={() => setAccountId(a.asset_id)}>
+                    <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{a.institution?.trim() || a.label}</Text>
+                  </TouchableOpacity>
+                ))}
+                {isNew && (
+                  <TouchableOpacity style={[styles.kindChip, accountId === '__new__' && styles.kindChipOn]} onPress={() => setAccountId('__new__')}>
+                    <Text style={[styles.kindChipT, accountId === '__new__' && styles.kindChipTOn]}>＋ New account</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            </>
+          )}
+
+          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}>
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid ? ` · cost ${moneyCompact(costBasis({ position_id: '', ticker, lots } as Position), 'M')}` : ''}</Text>
+          </TouchableOpacity>
+          {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
+          <View style={{ height: 20 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+}
+const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: new Date().toISOString().slice(0, 10) });
+
+const styles = StyleSheet.create({
+  content: { padding: Spacing.lg },
+  headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
+  refresh: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+
+  empty: { alignItems: 'center', paddingVertical: 40 },
+  emptyT: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  emptyS: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, lineHeight: 19 },
+  addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, paddingHorizontal: 24, marginTop: 20 },
+  addBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+
+  periodRow: { flexDirection: 'row', gap: 6, marginTop: 12 },
+  periodPill: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: Radii.pill, backgroundColor: Colors.cardBg },
+  periodPillOn: { backgroundColor: Colors.primary },
+  periodT: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary },
+  periodTOn: { color: '#fff' },
+
+  summary: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 12, alignItems: 'center' },
+  sumVal: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
+  sumLab: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
+  sumRow: { flexDirection: 'row', marginTop: 14, alignSelf: 'stretch' },
+  sumCell: { flex: 1, alignItems: 'center' },
+  sumCellL: { fontSize: 9.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  sumCellV: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 3 },
+
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 12 },
+  tHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  tHL: { fontSize: 9.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  col: { width: 62, textAlign: 'right' },
+  tRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  hTicker: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
+  hName: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
+  hSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
+  cellV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  cellB: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
+  addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
+  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
+
+  scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
+  input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 11, fontSize: 15, color: Colors.textPrimary },
+  kindWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
+  kindChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 7 },
+  kindChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  kindChipT: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary },
+  kindChipTOn: { color: Colors.primaryDark },
+  lotRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginBottom: 8 },
+  lotCell: { flex: 1 },
+  lotL: { fontSize: 10, color: Colors.textTertiary, marginBottom: 3 },
+  lotIn: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: 8, padding: 8, fontSize: 13, color: Colors.textPrimary },
+  lotDel: { fontSize: 16, color: Colors.red, padding: 8 },
+  saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
+  saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },
+});
