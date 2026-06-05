@@ -13,7 +13,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -28,20 +28,23 @@ export default function RetirementCockpit() {
   const A = store.retirementAssumptions ?? {};
   const setA = store.setRetirementAssumptions as (p: any) => void;
   const assets: AssetAccount[] = store.assetAccounts ?? [];
-  const benchOverrides: Record<string, number> = store.benchmarkReturns ?? {};
 
   const [screen, setScreen] = useState<'current' | 'scenario'>('current');
   const [earmarkOpen, setEarmarkOpen] = useState(false);
   const [ssOpen, setSsOpen] = useState(false);
-  const [benchOpen, setBenchOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
-  const [portfolioOpen, setPortfolioOpen] = useState(false);
   const [ttmEdit, setTtmEdit] = useState<AssetAccount | null>(null);
 
   // ---- data-derived ----
   const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
   const nestEgg = retirementEarmarkedValue(assets);
-  const benchReturn = blendedReturn(assets, benchOverrides);           // blended ROI from per-type benchmarks
+  const benchBlended = blendedReturn(assets);                          // historic blended benchmark — NOT editable
+  const actualBlended = portfolioActualReturn(assets);                 // weighted actual TTM from per-holding entries (may be null)
+  const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
+  // growth rate that drives the projection + heroes — user picks which basis to use
+  const scenarioReturn = A.expectedReturn ?? benchBlended;
+  const growthRate = returnBasis === 'actual' ? (actualBlended ?? benchBlended) : returnBasis === 'scenario' ? scenarioReturn : benchBlended;
+  const basisLabel = returnBasis === 'actual' ? 'your 12-month return' : returnBasis === 'scenario' ? 'your scenario return' : 'the blended benchmark';
   const inflDefault = (store.inflationRate ?? 2.5) / 100;
   const ssDefault = Math.round(num(op.ri_ss));
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
@@ -53,7 +56,7 @@ export default function RetirementCockpit() {
 
   // ---- scenario slider state ----
   const [rAge, setRAge] = useState<number>(A.retireAge ?? retireDefault);
-  const [retPct, setRetPct] = useState<number>(Math.round((A.expectedReturn ?? benchReturn) * 1000) / 10);
+  const [retPct, setRetPct] = useState<number>(Math.round((A.expectedReturn ?? benchBlended) * 1000) / 10);
   const [saveMo, setSaveMo] = useState<number>(A.contribMonthly ?? contribDefault);
   const [spendMo, setSpendMo] = useState<number>(A.spendMonthly ?? spendDefault);
   const [inflPct, setInflPct] = useState<number>(Math.round((A.inflation ?? inflDefault) * 1000) / 10);
@@ -80,8 +83,8 @@ export default function RetirementCockpit() {
   });
 
   // CURRENT insight (green box): based on the nest egg + BENCHMARK return + no further saving — not the sliders
-  const greenInputs = buildInputs({ annual_contribution: 0, mean_return: benchReturn });
-  const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, benchReturn, inflPct, spendMo, ssIncome, claimAge, horizon]);
+  const greenInputs = buildInputs({ annual_contribution: 0, mean_return: growthRate });
+  const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, growthRate, inflPct, spendMo, ssIncome, claimAge, horizon]);
   // spend rises with inflation over the retirement period. Everything below the heroes is anchored to
   // the TARGET retire age (rAge), so escalate from there (not from the never-save floor age).
   const spendEscFromAge = isRetired ? age : rAge;
@@ -105,14 +108,13 @@ export default function RetirementCockpit() {
   // instruments: each earmarked investment holding (property excluded) with its benchmark + source/period
   const instruments = earmarked
     .filter((a) => a.tax_bucket !== 'PROPERTY')
-    .map((a) => ({ a, info: benchmarkInfo(a.kind, benchOverrides) }))
+    .map((a) => ({ a, info: benchmarkInfo(a.kind) }))
     .sort((x, y) => earmarkedAmount(y.a) - earmarkedAmount(x.a));
 
   // beating-benchmark: actual portfolio return vs the blended benchmark. Portfolio actual =
   // explicit override if set, else value-weighted from the per-instrument actuals the user entered.
-  const portfolioActual = portfolioActualReturn(assets);
-  const actualReturn: number | null = A.actualReturn != null ? A.actualReturn : portfolioActual;   // decimal
-  const beatBy = actualReturn != null ? actualReturn - benchReturn : null;              // +ve = ahead
+  const actualReturn: number | null = actualBlended;                                    // weighted from per-holding entries
+  const beatBy = actualReturn != null ? actualReturn - benchBlended : null;             // +ve = ahead of benchmark
 
   // projected nest-egg, end of each year up to retirement (blended return + current contributions).
   // Span runs to the target retire age (clamped 3–20 yrs); contributions stop once retired, so the
@@ -125,11 +127,11 @@ export default function RetirementCockpit() {
     const yr0 = new Date().getFullYear();
     for (let i = 1; i <= span; i++) {
       const a = age + i;
-      bal = bal * (1 + benchReturn) + (a <= retAge ? saveMo * 12 : 0);
+      bal = bal * (1 + growthRate) + (a <= retAge ? saveMo * 12 : 0);
       out.push({ year: yr0 + i, age: a, bal, isRetire: a === retAge });
     }
     return out;
-  }, [nestEgg, benchReturn, saveMo, age, rAge]);
+  }, [nestEgg, growthRate, saveMo, age, rAge]);
   const hasRetireBar = projYears.some((d) => d.isRetire);
   // transparency: split the final projected balance into starting egg + contributions you add + growth
   const projEnd = projYears.length ? projYears[projYears.length - 1].bal : nestEgg;
@@ -171,7 +173,7 @@ export default function RetirementCockpit() {
           {!isRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={setSaveMo} onComplete={() => commit({ contribMonthly: saveMo })} />}
           <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={setSpendMo} onComplete={() => commit({ spendMonthly: spendMo })} />
           <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={setInflPct} onComplete={() => commit({ inflation: inflPct / 100 })} />
-          <Text style={styles.note}>Return starts from your blended benchmark ({(benchReturn * 100).toFixed(1)}%). Drag to stress-test.</Text>
+          <Text style={styles.note}>Return starts from your blended benchmark ({(benchBlended * 100).toFixed(1)}%). Drag to stress-test.</Text>
         </View>
 
         <TouchableOpacity style={styles.save} onPress={() => setSaveOpen(true)}><Text style={styles.saveT}>＋ Save this scenario</Text></TouchableOpacity>
@@ -240,9 +242,10 @@ export default function RetirementCockpit() {
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(rAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
-              <Text style={styles.heroSub}>{chance == null ? 'projected nest egg' : `${chance}% it lasts to ${horizon}`}</Text>
+              <Text style={styles.heroSub}>{chance == null ? 'projected nest egg' : `${chance}% chance it lasts to ${horizon}`}</Text>
             </View>
           </View>
+          {chance != null && <Text style={styles.heroExplain}>“{chance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {chance}% of them.</Text>}
           <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(rAge)}{saveMo > 0 ? `, keep saving ${money(saveMo)}/mo` : ''}.</Text>
         </>
       )}
@@ -282,7 +285,7 @@ export default function RetirementCockpit() {
       {/* INSTRUMENTS — your 12-mo actual vs benchmark (30-yr) per holding */}
       {instruments.length > 0 && (
         <View style={styles.card}>
-          <View style={styles.li}><Text style={styles.liK}>Your investments</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr blended</Text></View>
+          <Text style={styles.liK}>Your investments</Text>
           <View style={styles.tHead}>
             <Text style={[styles.tHL, { flex: 1 }]} numberOfLines={1}>INSTRUMENT</Text>
             <Text style={[styles.tHL, styles.tColNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>YOUR 12-MO</Text>
@@ -300,32 +303,60 @@ export default function RetirementCockpit() {
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
                     ? <Text style={styles.ttmAdd}>+ Add</Text>
-                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.primary : Colors.red }]}>{ttm >= 0 ? '' : ''}{(ttm * 100).toFixed(1)}%</Text>}
+                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.primary : Colors.red }]}>{(ttm * 100).toFixed(1)}%</Text>}
                 </TouchableOpacity>
                 <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(1)}%</Text>
               </View>
             );
           })}
-          <View style={styles.instLinks}>
-            <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={styles.editLink2}>Edit benchmarks ›</Text></TouchableOpacity>
-            <TouchableOpacity onPress={() => setPortfolioOpen(true)}>
-              {actualReturn == null
-                ? <Text style={styles.editLink2}>Compare your returns ›</Text>
-                : <Text style={[styles.editLink2, { color: beatBy! >= 0 ? Colors.primary : Colors.red }]}>You {beatBy! >= 0 ? '+' : ''}{(beatBy! * 100).toFixed(1)} pts vs benchmark ›</Text>}
-            </TouchableOpacity>
+          {/* weighted-average row (not editable) */}
+          <View style={[styles.tRow, styles.tTotal]}>
+            <Text style={[styles.instName, { flex: 1 }]}>Weighted average</Text>
+            <Text style={[styles.tColNum, styles.instRet, actualReturn == null && { color: Colors.textTertiary, fontWeight: '700' }]}>{actualReturn == null ? '—' : `${(actualReturn * 100).toFixed(1)}%`}</Text>
+            <Text style={[styles.tColNum, styles.instBench]}>{(benchBlended * 100).toFixed(1)}%</Text>
           </View>
-          <Text style={styles.tFoot}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the index's historical return; past performance isn't a guarantee. A 12-mo actual vs a ~30-yr average is directional only.</Text>
+          <Text style={styles.tFoot}>
+            {actualReturn == null
+              ? 'Add your actual 12-month return on each holding to see how you compare to the benchmark.'
+              : `You returned ${(actualReturn * 100).toFixed(1)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(1)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(1)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(1)} pts behind`}.`}
+          </Text>
+          <Text style={styles.tFootMuted}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>
         </View>
       )}
 
       {/* ── YOUR PLAN (assumptions) ── */}
       <Text style={styles.divider}>YOUR PLAN · assumes age {Math.round(rAge)}</Text>
 
+      {/* GROWTH-RATE BASIS — which return drives the projection */}
+      <View style={styles.card}>
+        <Text style={styles.liK}>Grow my nest egg using</Text>
+        <View style={styles.basisRow}>
+          {([
+            { k: 'benchmark', label: 'Benchmark', rate: benchBlended, warn: false },
+            { k: 'actual', label: 'Your 12-mo', rate: actualBlended, warn: true },
+            { k: 'scenario', label: 'Scenario', rate: scenarioReturn, warn: false },
+          ] as const).map((o) => {
+            const sel = returnBasis === o.k;
+            const disabled = o.k === 'actual' && actualBlended == null;
+            return (
+              <TouchableOpacity key={o.k} disabled={disabled} activeOpacity={0.8}
+                style={[styles.basisPill, sel && styles.basisPillOn, disabled && { opacity: 0.4 }]}
+                onPress={() => commit({ returnBasis: o.k })}>
+                <Text style={[styles.basisPillT, sel && styles.basisPillTOn]} numberOfLines={1}>{o.label}{o.warn ? ' ⚠' : ''}</Text>
+                <Text style={[styles.basisPillR, sel && styles.basisPillTOn]}>{o.rate == null ? '— add' : `${(o.rate * 100).toFixed(1)}%`}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        {returnBasis === 'actual' && <Text style={styles.basisWarn}>⚠ Projecting decades from a single 12-month return is unreliable — benchmark is the safer basis.</Text>}
+        {returnBasis === 'scenario' && <Text style={styles.note}>Using the expected return you set in scenario analysis.</Text>}
+      </View>
+
       {/* PROJECTION — nest egg at end of each year, up to retirement */}
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
-          <Text style={styles.note}>If your {big(nestEgg)} grows at the {(benchReturn * 100).toFixed(1)}% blended benchmark{saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(rAge)}.` : ''}</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at {(growthRate * 100).toFixed(1)}% ({basisLabel}){saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(rAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
@@ -363,11 +394,7 @@ export default function RetirementCockpit() {
       <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg}
         onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => { setEarmarkOpen(false); setCommitTick((t) => t + 1); }} />
       <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
-      <BenchmarkEditor open={benchOpen} onClose={() => setBenchOpen(false)} kinds={earmarkedKinds(assets)} overrides={benchOverrides}
-        onSet={(kind, ret) => store.setBenchmarkReturn(kind, ret)} onDone={() => { setBenchOpen(false); setCommitTick((t) => t + 1); }} blended={benchReturn} />
-      <PortfolioReturnEditor open={portfolioOpen} onClose={() => setPortfolioOpen(false)} current={A.actualReturn != null ? A.actualReturn : null} benchmark={benchReturn}
-        onApply={(ret) => { commit({ actualReturn: ret }); setPortfolioOpen(false); }} />
-      <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind, benchOverrides) : 0}
+      <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind) : 0}
         onApply={(ret) => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: ret }); setTtmEdit(null); }}
         onClear={() => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: null }); setTtmEdit(null); }} />
     </ScrollView>
@@ -508,36 +535,6 @@ function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
   );
 }
 
-// ───────────────────────── Benchmark-return editor ─────────────────────────
-function BenchmarkEditor({ open, onClose, kinds, overrides, onSet, onDone, blended }: {
-  open: boolean; onClose: () => void; kinds: string[]; overrides: Record<string, number>; onSet: (kind: string, ret: number) => void; onDone: () => void; blended: number;
-}) {
-  return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
-        <View style={styles.grab} />
-        <Text style={styles.sheetT}>Benchmark returns by type</Text>
-        <Text style={styles.sheetS}>Expected long-run annual return for each kind of investment. Edit to be more or less optimistic — your blended return updates.</Text>
-        <ScrollView style={{ maxHeight: 360 }}>
-          {kinds.length === 0 && <Text style={styles.sub}>Add investment accounts in Net Worth to set their benchmarks.</Text>}
-          {kinds.map((k) => {
-            const r = benchmarkReturn(k, overrides);
-            return (
-              <View key={k} style={styles.acc}>
-                <Text style={styles.accIc}>{assetKind(k)?.icon ?? '📈'}</Text>
-                <View style={{ flex: 1 }}><Text style={styles.accName}>{assetKind(k)?.label ?? 'Other'}</Text><Text style={styles.accBal}>expected return / yr</Text></View>
-                <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="decimal-pad" value={(r * 100).toFixed(1)} onChangeText={(t) => onSet(k, clamp(num(t), 0, 30) / 100)} /><Text style={styles.pctU}>%</Text></View>
-              </View>
-            );
-          })}
-        </ScrollView>
-        <TouchableOpacity style={styles.applyBtn} onPress={onDone}><Text style={styles.applyT}>Blended return: {(blended * 100).toFixed(1)}% · Done</Text></TouchableOpacity>
-      </View>
-    </Modal>
-  );
-}
-
 // ───────────────────────── Social Security editor ─────────────────────────
 function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onClose: () => void; A: any; ssDefault: number; onApply: (patch: any) => void }) {
   const [eligible, setEligible] = useState<boolean>(A.ssEligible ?? (ssDefault > 0));
@@ -589,28 +586,6 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
         <Text style={styles.sheetS}>Name this what-if so you can compare it later.</Text>
         <TextInput style={styles.nameIn} value={name} onChangeText={setName} placeholder="e.g. Retire 60" placeholderTextColor={Colors.textTertiary} />
         <TouchableOpacity style={styles.applyBtn} onPress={() => onSave(name.trim() || defaultName)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
-      </View>
-    </Modal>
-  );
-}
-
-// ───────────────────────── Portfolio actual-return editor ─────────────────────────
-function PortfolioReturnEditor({ open, onClose, current, benchmark, onApply }: {
-  open: boolean; onClose: () => void; current: number | null; benchmark: number; onApply: (ret: number) => void;
-}) {
-  const [val, setVal] = useState(current != null ? (current * 100).toFixed(1) : '');
-  useEffect(() => { if (open) setVal(current != null ? (current * 100).toFixed(1) : ''); }, [open]);
-  return (
-    <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.dialog}>
-        <Text style={styles.sheetT}>Your portfolio's actual return</Text>
-        <Text style={styles.sheetS}>What did your investments actually return over the last 12 months? We'll compare it to your {(benchmark * 100).toFixed(1)}% blended benchmark.</Text>
-        <View style={styles.pctBox}>
-          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} />
-          <Text style={styles.pctU}>% / yr</Text>
-        </View>
-        <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
       </View>
     </Modal>
   );
@@ -689,8 +664,18 @@ const styles = StyleSheet.create({
   heroK: { color: '#BEE7D8', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.3 },
   heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
   heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
-  planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 10, lineHeight: 16 },
+  heroExplain: { fontSize: 10.5, color: Colors.textSecondary, lineHeight: 14, marginTop: 8 },
+  planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
+  basisRow: { flexDirection: 'row', gap: 7, marginTop: 8 },
+  basisPill: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 6, alignItems: 'center' },
+  basisPillOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  basisPillT: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
+  basisPillR: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  basisPillTOn: { color: Colors.primaryDark },
+  basisWarn: { fontSize: 11, color: Colors.amber, fontWeight: '600', marginTop: 8, lineHeight: 15 },
+  tTotal: { borderBottomWidth: 0, borderTopWidth: 1.5, borderTopColor: Colors.border, marginTop: 2 },
+  tFootMuted: { fontSize: 10, color: Colors.textTertiary, lineHeight: 13.5, marginTop: 6 },
   gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
   gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
