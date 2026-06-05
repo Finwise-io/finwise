@@ -81,7 +81,10 @@ export default function RetirementCockpit() {
   // CURRENT insight (green box): based on the nest egg + BENCHMARK return + no further saving — not the sliders
   const greenInputs = buildInputs({ annual_contribution: 0, mean_return: benchReturn });
   const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, benchReturn, inflPct, spendMo, ssIncome, claimAge, horizon]);
-  const spendHi = Math.round(spendMo * Math.pow(1 + inflPct / 100, Math.max(0, horizon - age)));
+  // spend rises with inflation over the RETIREMENT period (retirement → horizon), not from today —
+  // otherwise we'd inflate over the pre-retirement years too and overstate end-of-life spend.
+  const spendEscFromAge = isRetired ? age : (retireAtAge ?? rAge);
+  const spendHi = Math.round(spendMo * Math.pow(1 + inflPct / 100, Math.max(0, horizon - spendEscFromAge)));
 
   // scenario deterministic (instant) + Monte-Carlo (on release)
   const proj = projectNestEgg(buildInputs());
@@ -125,6 +128,10 @@ export default function RetirementCockpit() {
     return out;
   }, [nestEgg, benchReturn, saveMo, age, rAge]);
   const hasRetireBar = projYears.some((d) => d.isRetire);
+  // transparency: split the final projected balance into starting egg + contributions you add + growth
+  const projEnd = projYears.length ? projYears[projYears.length - 1].bal : nestEgg;
+  const projContrib = projYears.reduce((t, d) => t + (d.age <= Math.round(rAge) ? saveMo * 12 : 0), 0);
+  const projGrowth = Math.max(0, projEnd - nestEgg - projContrib);
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -212,24 +219,33 @@ export default function RetirementCockpit() {
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
 
-      {/* HERO — based on CURRENT nest egg + benchmark return (moved to top) */}
+      {/* HERO — dark-green headline box (the one big number) */}
       <View style={styles.gbox}>
         {isRetired ? (
           <>
             <Text style={styles.gK}>YOUR MONEY SO FAR</Text>
             <Text style={styles.gAge}>{chance == null ? '…' : `${chance}%`}</Text>
-            <Text style={styles.gD}>Your <Text style={styles.gB}>{big(nestEgg)}</Text> at ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
+            <Text style={styles.gSub}>chance it lasts to age {horizon}</Text>
           </>
         ) : (
           <>
             <Text style={styles.gK}>EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</Text>
             <Text style={styles.gAge}>{retireAtAge ? `Retire at ${retireAtAge}` : 'Keep saving'}</Text>
-            <Text style={styles.gD}>
-              Your <Text style={styles.gB}>{big(nestEgg)}</Text> growing ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.gB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
-                ? <Text>covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
-                : <Text>doesn't yet cover <Text style={styles.gB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
-            </Text>
+            <Text style={styles.gSub}>on your {big(nestEgg)} nest egg today</Text>
           </>
+        )}
+      </View>
+
+      {/* INSIGHT — light-green box underneath the hero */}
+      <View style={styles.insightBox}>
+        {isRetired ? (
+          <Text style={styles.insightTxt}>Your <Text style={styles.insightB}>{big(nestEgg)}</Text> at ~<Text style={styles.insightB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.insightB}>{money(spendMo)}/mo</Text> <Text style={styles.insightB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
+        ) : (
+          <Text style={styles.insightTxt}>
+            Your <Text style={styles.insightB}>{big(nestEgg)}</Text> growing ~<Text style={styles.insightB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.insightB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
+              ? <Text>covers spending of <Text style={styles.insightB}>{money(spendMo)}/mo</Text> <Text style={styles.insightB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
+              : <Text>doesn't yet cover <Text style={styles.insightB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
+          </Text>
         )}
       </View>
 
@@ -267,9 +283,9 @@ export default function RetirementCockpit() {
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Your investments</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr blended</Text></View>
           <View style={styles.tHead}>
-            <Text style={[styles.tHL, { flex: 1 }]}>INSTRUMENT</Text>
-            <Text style={[styles.tHL, styles.tColBal]}>BALANCE</Text>
-            <Text style={[styles.tHL, styles.tColRet]}>BENCHMARK</Text>
+            <Text style={[styles.tHL, { flex: 1 }]} numberOfLines={1}>INSTRUMENT</Text>
+            <Text style={[styles.tHL, styles.tColBal]} numberOfLines={1}>BALANCE</Text>
+            <Text style={[styles.tHL, styles.tColRet]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>BENCHMARK</Text>
           </View>
           {instruments.map(({ a, info }) => (
             <View key={a.asset_id} style={styles.tRow}>
@@ -308,6 +324,15 @@ export default function RetirementCockpit() {
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
           <Text style={styles.note}>If your {big(nestEgg)} grows at the {(benchReturn * 100).toFixed(1)}% blended benchmark{saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(rAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
+          <View style={styles.breakdown}>
+            <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
+            <Text style={styles.bdOp}>+</Text>
+            <View style={styles.bdItem}><Text style={styles.bdV}>{big(projContrib)}</Text><Text style={styles.bdL}>you add</Text></View>
+            <Text style={styles.bdOp}>+</Text>
+            <View style={styles.bdItem}><Text style={styles.bdV}>{big(projGrowth)}</Text><Text style={styles.bdL}>growth</Text></View>
+            <Text style={styles.bdOp}>=</Text>
+            <View style={styles.bdItem}><Text style={[styles.bdV, { color: Colors.primary }]}>{big(projEnd)}</Text><Text style={styles.bdL}>at {Math.round(rAge)}</Text></View>
+          </View>
         </View>
       )}
 
@@ -360,13 +385,14 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
       <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
       {data.map((d, i) => {
         const bh = h(d.bal), x = i * (bw + gap), y = H - padBot - bh;
-        const show = i === 0 || i === n - 1 || d.isRetire || (i + 1) % 5 === 0;
+        // every bar gets a label; tiny font + edge anchoring keeps them readable even at 20 bars
         const anchor = i === n - 1 ? 'end' : i === 0 ? 'start' : 'middle';
         const lx = i === n - 1 ? x + bw : i === 0 ? x : x + bw / 2;
+        const fs = n > 16 ? 6.5 : 7.5;
         return (
           <G key={d.year}>
             <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
-            {show && <SvgText x={lx} y={H - 6} fontSize={8} fill={Colors.textTertiary} textAnchor={anchor}>{d.isRetire ? `retire ${d.age}` : `'${String(d.year).slice(2)}`}</SvgText>}
+            <SvgText x={lx} y={H - 5} fontSize={fs} fontWeight={d.isRetire ? '700' : '400'} fill={d.isRetire ? Colors.amber : Colors.textTertiary} textAnchor={anchor}>{`'${String(d.year).slice(2)}`}</SvgText>
           </G>
         );
       })}
@@ -622,11 +648,13 @@ const styles = StyleSheet.create({
   lgV: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
   editLink: { marginTop: 12, fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center' },
 
-  gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 10 },
+  gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
   gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
-  gD: { color: '#DDF3EB', fontSize: 12.5, lineHeight: 18 },
-  gB: { color: '#fff', fontWeight: '800' },
+  gSub: { color: '#BEE7D8', fontSize: 12.5, fontWeight: '600' },
+  insightBox: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 8 },
+  insightTxt: { color: Colors.primaryDark, fontSize: 12.5, lineHeight: 18 },
+  insightB: { color: Colors.primaryDark, fontWeight: '800' },
 
   ssRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: 12, marginTop: 10 },
   ssIc: { fontSize: 18 },
@@ -640,14 +668,21 @@ const styles = StyleSheet.create({
   // instruments table
   tHead: { flexDirection: 'row', alignItems: 'center', marginTop: 8, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
   tHL: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  tColBal: { width: 64, textAlign: 'right' },
-  tColRet: { width: 60, textAlign: 'right' },
+  tColBal: { width: 60, textAlign: 'right' },
+  tColRet: { width: 72, textAlign: 'right' },
   tRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   instIc: { fontSize: 16 },
   instName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   instSrc: { fontSize: 10.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 14 },
   instBal: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   instRet: { fontSize: 13.5, fontWeight: '800', color: Colors.primary },
+
+  // projection breakdown (now + you add + growth = total)
+  breakdown: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
+  bdItem: { alignItems: 'center', flexShrink: 1 },
+  bdV: { fontSize: 12.5, fontWeight: '800', color: Colors.textPrimary },
+  bdL: { fontSize: 9.5, color: Colors.textSecondary, marginTop: 1 },
+  bdOp: { fontSize: 12, color: Colors.textTertiary, fontWeight: '700', marginBottom: 10 },
 
   // beating-benchmark insight
   benchBox: { borderRadius: Radii.lg, padding: Spacing.base, marginTop: 10, borderWidth: 1 },
