@@ -59,7 +59,8 @@ export default function RetirementCockpit() {
   const planRetireAge = A.retireAge ?? retireDefault;
   const planSave = A.contribMonthly ?? contribDefault;
   const planSpend = A.spendMonthly ?? spendDefault;
-  const planInfl = inflDefault;                       // Screen 1 always uses ACTUAL inflation (economic data)
+  const planInfl = A.inflation ?? inflDefault;        // your applied inflation if set, else ACTUAL (economic data)
+  const inflIsActual = A.inflation == null;
   const planGrowth = growthRate;                      // from the basis selector (benchmark / 12-mo / scenario)
   const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
   const commit = (patch: any) => setA(patch);
@@ -165,7 +166,7 @@ export default function RetirementCockpit() {
   const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
   const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
   const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
-  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, returnBasis: 'scenario' }); setScreen('current'); };
+  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, returnBasis: 'scenario' }); setScreen('current'); };
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -199,7 +200,7 @@ export default function RetirementCockpit() {
             markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
           <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
-          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: 'actual' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'actual' : 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
           <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
         </View>
 
@@ -269,6 +270,7 @@ export default function RetirementCockpit() {
           <Text style={styles.heroK}>YOUR MONEY SO FAR</Text>
           <Text style={styles.heroBig}>{planChance == null ? '…' : `${planChance}%`}</Text>
           <Text style={styles.heroSub}>chance your {big(nestEgg)} lasts to age {horizon}</Text>
+          <Text style={styles.heroRoi}>assuming {(planGrowth * 100).toFixed(1)}%/yr · {basisLabel}</Text>
         </View>
       ) : (
         <>
@@ -277,11 +279,13 @@ export default function RetirementCockpit() {
               <Text style={styles.heroK}>IF YOU NEVER SAVE AGAIN</Text>
               <Text style={styles.heroBig}>{retireAtAge ? `Retire ${retireAtAge}` : 'Keep saving'}</Text>
               <Text style={styles.heroSub}>on today's {big(nestEgg)}</Text>
+              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
               <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% chance it lasts to ${horizon}`}</Text>
+              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
             </View>
           </View>
           {planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
@@ -335,12 +339,11 @@ export default function RetirementCockpit() {
             const uncategorized = !assetKind(a.kind);
             return (
               <View key={a.asset_id} style={styles.tRow}>
-                <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '❓'}</Text>
                 <TouchableOpacity style={{ flex: 1 }} disabled={!uncategorized} onPress={() => setKindPick(a)}>
                   <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
                   {uncategorized
                     ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a), 'M')} · ⚠ Set a type ›</Text>
-                    : <Text style={styles.instSrc} numberOfLines={2}>{moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>}
+                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
@@ -417,7 +420,7 @@ export default function RetirementCockpit() {
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>actual</Text>.</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
       </View>
 
       {/* SOCIAL SECURITY */}
@@ -668,7 +671,7 @@ function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null
               <View style={styles.kindGrid}>
                 {ASSET_KINDS.filter((k) => k.section === sec).map((k) => (
                   <TouchableOpacity key={k.id} style={styles.kindChip} onPress={() => onPick(k.id, k.bucket)}>
-                    <Text style={styles.kindIc}>{k.icon}</Text><Text style={styles.kindT}>{k.label}</Text>
+                    <Text style={styles.kindT}>{k.label}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -753,6 +756,7 @@ const styles = StyleSheet.create({
   heroK: { color: '#BEE7D8', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.3 },
   heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
   heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
+  heroRoi: { color: '#9FD9C6', fontSize: 10.5, fontWeight: '700', marginTop: 5 },
   heroExplain: { fontSize: 10.5, color: Colors.textSecondary, lineHeight: 14, marginTop: 8 },
   planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
