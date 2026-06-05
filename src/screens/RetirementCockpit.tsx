@@ -108,19 +108,23 @@ export default function RetirementCockpit() {
   const actualReturn: number | null = A.actualReturn != null ? A.actualReturn : null;   // decimal
   const beatBy = actualReturn != null ? actualReturn - benchReturn : null;              // +ve = ahead
 
-  // projected nest-egg, end of each year for the next 15 (blended return + current contributions)
+  // projected nest-egg, end of each year up to retirement (blended return + current contributions).
+  // Span runs to the target retire age (clamped 3–20 yrs); contributions stop once retired, so the
+  // trajectory doesn't overstate the nest egg past retirement.
   const projYears = useMemo(() => {
     const out: { year: number; age: number; bal: number; isRetire: boolean }[] = [];
+    const retAge = Math.round(rAge);
+    const span = clamp(retAge - age, 3, 20);
     let bal = nestEgg;
-    const annual = (isRetired ? 0 : saveMo) * 12;
     const yr0 = new Date().getFullYear();
-    for (let i = 1; i <= 15; i++) {
-      bal = bal * (1 + benchReturn) + annual;
+    for (let i = 1; i <= span; i++) {
       const a = age + i;
-      out.push({ year: yr0 + i, age: a, bal, isRetire: a === Math.round(rAge) });
+      bal = bal * (1 + benchReturn) + (a <= retAge ? saveMo * 12 : 0);
+      out.push({ year: yr0 + i, age: a, bal, isRetire: a === retAge });
     }
     return out;
-  }, [nestEgg, benchReturn, saveMo, isRetired, age, rAge]);
+  }, [nestEgg, benchReturn, saveMo, age, rAge]);
+  const hasRetireBar = projYears.some((d) => d.isRetire);
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -298,11 +302,11 @@ export default function RetirementCockpit() {
         )}
       </TouchableOpacity>
 
-      {/* PROJECTION — nest egg at end of each year, next 15 years */}
-      {nestEgg > 0 && (
+      {/* PROJECTION — nest egg at end of each year, up to retirement */}
+      {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
-          <Text style={styles.note}>If your {big(nestEgg)} grows at the {(benchReturn * 100).toFixed(1)}% blended benchmark{!isRetired && saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}. Amber bar = your target retirement age.</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at the {(benchReturn * 100).toFixed(1)}% blended benchmark{saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(rAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
         </View>
       )}
@@ -357,10 +361,12 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
       {data.map((d, i) => {
         const bh = h(d.bal), x = i * (bw + gap), y = H - padBot - bh;
         const show = i === 0 || i === n - 1 || d.isRetire || (i + 1) % 5 === 0;
+        const anchor = i === n - 1 ? 'end' : i === 0 ? 'start' : 'middle';
+        const lx = i === n - 1 ? x + bw : i === 0 ? x : x + bw / 2;
         return (
           <G key={d.year}>
             <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
-            {show && <SvgText x={x + bw / 2} y={H - 6} fontSize={8} fill={Colors.textTertiary} textAnchor="middle">{d.isRetire ? `retire ${d.age}` : `'${String(d.year).slice(2)}`}</SvgText>}
+            {show && <SvgText x={lx} y={H - 6} fontSize={8} fill={Colors.textTertiary} textAnchor={anchor}>{d.isRetire ? `retire ${d.age}` : `'${String(d.year).slice(2)}`}</SvgText>}
           </G>
         );
       })}
