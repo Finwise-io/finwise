@@ -29,7 +29,11 @@ export const yahooProvider: PriceProvider = {
       const json: any = await res.json();
       const result = json?.chart?.result?.[0];
       const ts: number[] = result?.timestamp;
-      const closes: (number | null)[] = result?.indicators?.quote?.[0]?.close;
+      // Prefer dividend+split-ADJUSTED close (total return) so returns match "total return" benchmarks;
+      // fall back to raw close if adjclose isn't present.
+      const adj: (number | null)[] | undefined = result?.indicators?.adjclose?.[0]?.adjclose;
+      const raw: (number | null)[] | undefined = result?.indicators?.quote?.[0]?.close;
+      const closes = adj && adj.some((v) => v != null) ? adj : raw;
       if (!Array.isArray(ts) || !Array.isArray(closes)) return null;
       const points: { date: string; close: number }[] = [];
       for (let i = 0; i < ts.length; i++) {
