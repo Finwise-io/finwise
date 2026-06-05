@@ -142,6 +142,7 @@ export type RetirementAssumptions = {
   ssEligible: boolean | null;                // null = not yet asked
   ssMonthly: number | null;                  // estimated Social Security benefit, today's $/mo
   ssClaimAge: number | null;                 // age SS begins (default 67)
+  actualReturn: number | null;               // self-reported actual portfolio return, trailing 12mo (decimal)
 };
 
 // A saved what-if the user can re-open / compare (stickiness).
@@ -359,7 +360,7 @@ export const useStore = create<AppState>()(
       allocatedByMonth: {},
       allocPromptSkipped: {},
       monthlySnapshots: {},
-      retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null },
+      retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null },
       retirementScenarios: [],
       benchmarkReturns: {},
       goals: [],
@@ -645,7 +646,7 @@ export const useStore = create<AppState>()(
         recurringIncomes: [], recurringExpenses: [], debts: [],
         assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null,
         allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {},
-        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null },
+        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null },
         retirementScenarios: [],
         benchmarkReturns: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,

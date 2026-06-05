@@ -7,13 +7,13 @@
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, type LayoutChangeEvent } from 'react-native';
-import Svg, { Path, Line, Circle, G } from 'react-native-svg';
+import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -35,6 +35,7 @@ export default function RetirementCockpit() {
   const [ssOpen, setSsOpen] = useState(false);
   const [benchOpen, setBenchOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
+  const [portfolioOpen, setPortfolioOpen] = useState(false);
 
   // ---- data-derived ----
   const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
@@ -96,6 +97,30 @@ export default function RetirementCockpit() {
     (bySection[sec] ||= { amt: 0, full: true }); bySection[sec].amt += earmarkedAmount(a); if (pct < 100) bySection[sec].full = false;
   });
   const segs = ASSET_SECTIONS.filter((s) => (bySection[s]?.amt ?? 0) > 0).map((s) => ({ label: s, amt: bySection[s].amt, full: bySection[s].full, color: SECTION_COLOR[s] }));
+
+  // instruments: each earmarked investment holding (property excluded) with its benchmark + source/period
+  const instruments = earmarked
+    .filter((a) => a.tax_bucket !== 'PROPERTY')
+    .map((a) => ({ a, info: benchmarkInfo(a.kind, benchOverrides) }))
+    .sort((x, y) => earmarkedAmount(y.a) - earmarkedAmount(x.a));
+
+  // beating-benchmark: self-reported actual portfolio return vs the blended benchmark
+  const actualReturn: number | null = A.actualReturn != null ? A.actualReturn : null;   // decimal
+  const beatBy = actualReturn != null ? actualReturn - benchReturn : null;              // +ve = ahead
+
+  // projected nest-egg, end of each year for the next 15 (blended return + current contributions)
+  const projYears = useMemo(() => {
+    const out: { year: number; age: number; bal: number; isRetire: boolean }[] = [];
+    let bal = nestEgg;
+    const annual = (isRetired ? 0 : saveMo) * 12;
+    const yr0 = new Date().getFullYear();
+    for (let i = 1; i <= 15; i++) {
+      bal = bal * (1 + benchReturn) + annual;
+      const a = age + i;
+      out.push({ year: yr0 + i, age: a, bal, isRetire: a === Math.round(rAge) });
+    }
+    return out;
+  }, [nestEgg, benchReturn, saveMo, isRetired, age, rAge]);
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -183,8 +208,29 @@ export default function RetirementCockpit() {
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
 
+      {/* HERO — based on CURRENT nest egg + benchmark return (moved to top) */}
+      <View style={styles.gbox}>
+        {isRetired ? (
+          <>
+            <Text style={styles.gK}>YOUR MONEY SO FAR</Text>
+            <Text style={styles.gAge}>{chance == null ? '…' : `${chance}%`}</Text>
+            <Text style={styles.gD}>Your <Text style={styles.gB}>{big(nestEgg)}</Text> at ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.gK}>EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</Text>
+            <Text style={styles.gAge}>{retireAtAge ? `Retire at ${retireAtAge}` : 'Keep saving'}</Text>
+            <Text style={styles.gD}>
+              Your <Text style={styles.gB}>{big(nestEgg)}</Text> growing ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.gB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
+                ? <Text>covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
+                : <Text>doesn't yet cover <Text style={styles.gB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
+            </Text>
+          </>
+        )}
+      </View>
+
       {/* DONUT — current earmarked nest egg */}
-      <View style={styles.donutCard}>
+      <View style={[styles.donutCard, { marginTop: 10 }]}>
         {nestEgg > 0 ? (
           <>
             <View style={styles.donutRow}>
@@ -212,33 +258,54 @@ export default function RetirementCockpit() {
         )}
       </View>
 
-      {/* ESTIMATED RETURN — blended from per-type benchmarks */}
-      <View style={styles.card}>
-        <View style={styles.li}><Text style={styles.liK}>Estimated return (blended)</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr</Text></View>
-        <Text style={styles.note}>Different investments earn different returns — equity, bonds, private equity, hedge funds, etc. This is the value-weighted benchmark for your mix.</Text>
-        <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={[styles.editLink, { textAlign: 'left', marginTop: 8 }]}>Edit benchmark returns by type ›</Text></TouchableOpacity>
-      </View>
+      {/* INSTRUMENTS — per-holding benchmark ROI with source + period */}
+      {instruments.length > 0 && (
+        <View style={styles.card}>
+          <View style={styles.li}><Text style={styles.liK}>Your investments</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr blended</Text></View>
+          <View style={styles.tHead}>
+            <Text style={[styles.tHL, { flex: 1 }]}>INSTRUMENT</Text>
+            <Text style={[styles.tHL, styles.tColBal]}>BALANCE</Text>
+            <Text style={[styles.tHL, styles.tColRet]}>BENCHMARK</Text>
+          </View>
+          {instruments.map(({ a, info }) => (
+            <View key={a.asset_id} style={styles.tRow}>
+              <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '📈'}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
+                <Text style={styles.instSrc} numberOfLines={2}>{info.source} · {info.period}{info.edited ? ' · edited' : ''}</Text>
+              </View>
+              <Text style={[styles.tColBal, styles.instBal]}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>
+              <Text style={[styles.tColRet, styles.instRet]}>{(info.ret * 100).toFixed(1)}%</Text>
+            </View>
+          ))}
+          <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={[styles.editLink, { textAlign: 'left', marginTop: 10 }]}>Edit benchmark returns by type ›</Text></TouchableOpacity>
+        </View>
+      )}
 
-      {/* GREEN INSIGHT — based on CURRENT nest egg + benchmark return */}
-      <View style={styles.gbox}>
-        {isRetired ? (
+      {/* BEATING-BENCHMARK INSIGHT — self-reported actual portfolio return vs blended benchmark */}
+      <TouchableOpacity activeOpacity={0.85} style={[styles.benchBox, beatBy == null ? styles.benchNeutral : beatBy >= 0 ? styles.benchAhead : styles.benchBehind]} onPress={() => setPortfolioOpen(true)}>
+        {actualReturn == null ? (
           <>
-            <Text style={styles.gK}>YOUR MONEY SO FAR</Text>
-            <Text style={styles.gAge}>{chance == null ? '…' : `${chance}%`}</Text>
-            <Text style={styles.gD}>Your <Text style={styles.gB}>{big(nestEgg)}</Text> at ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
+            <Text style={styles.benchK}>ARE YOU BEATING YOUR BENCHMARK?</Text>
+            <Text style={styles.benchD}>Add your portfolio's actual return over the last 12 months to compare it against your {(benchReturn * 100).toFixed(1)}% blended benchmark.  <Text style={styles.benchLink}>Add return ›</Text></Text>
           </>
         ) : (
           <>
-            <Text style={styles.gK}>EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</Text>
-            <Text style={styles.gAge}>{retireAtAge ? `Retire at ${retireAtAge}` : 'Keep saving'}</Text>
-            <Text style={styles.gD}>
-              Your <Text style={styles.gB}>{big(nestEgg)}</Text> growing ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.gB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
-                ? <Text>covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
-                : <Text>doesn't yet cover <Text style={styles.gB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
-            </Text>
+            <Text style={[styles.benchK, beatBy! >= 0 ? { color: Colors.primaryDark } : { color: Colors.red }]}>{beatBy! >= 0 ? '↑ BEATING YOUR BENCHMARK' : '↓ TRAILING YOUR BENCHMARK'}</Text>
+            <Text style={styles.benchBig}>{beatBy! >= 0 ? '+' : ''}{(beatBy! * 100).toFixed(1)} pts</Text>
+            <Text style={styles.benchD}>Your <Text style={styles.benchB}>{(actualReturn * 100).toFixed(1)}%</Text> actual return vs a <Text style={styles.benchB}>{(benchReturn * 100).toFixed(1)}%</Text> blended benchmark.  <Text style={styles.benchLink}>Edit ›</Text></Text>
           </>
         )}
-      </View>
+      </TouchableOpacity>
+
+      {/* PROJECTION — nest egg at end of each year, next 15 years */}
+      {nestEgg > 0 && (
+        <View style={styles.card}>
+          <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at the {(benchReturn * 100).toFixed(1)}% blended benchmark{!isRetired && saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}. Amber bar = your target retirement age.</Text>
+          <ProjectionChartAuto data={projYears} />
+        </View>
+      )}
 
       {/* SOCIAL SECURITY */}
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
@@ -260,6 +327,8 @@ export default function RetirementCockpit() {
       <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
       <BenchmarkEditor open={benchOpen} onClose={() => setBenchOpen(false)} kinds={earmarkedKinds(assets)} overrides={benchOverrides}
         onSet={(kind, ret) => store.setBenchmarkReturn(kind, ret)} onDone={() => { setBenchOpen(false); setCommitTick((t) => t + 1); }} blended={benchReturn} />
+      <PortfolioReturnEditor open={portfolioOpen} onClose={() => setPortfolioOpen(false)} current={actualReturn} benchmark={benchReturn}
+        onApply={(ret) => { commit({ actualReturn: ret }); setPortfolioOpen(false); }} />
     </ScrollView>
   );
 }
@@ -268,6 +337,35 @@ export default function RetirementCockpit() {
 function BandChartAuto({ band, retireAge }: { band: any[]; retireAge: number | null }) {
   const [w, setW] = useState(0);
   return <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>{w > 0 && <BandChart band={band} width={w} retireAge={retireAge} />}</View>;
+}
+
+// auto-measuring projected-nest-egg column chart
+function ProjectionChartAuto({ data }: { data: { year: number; age: number; bal: number; isRetire: boolean }[] }) {
+  const [w, setW] = useState(0);
+  return <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>{w > 0 && <ProjectionChart data={data} width={w} />}</View>;
+}
+// column chart: nest-egg balance at the end of each of the next N years; retirement-age column tinted amber
+function ProjectionChart({ data, width }: { data: { year: number; age: number; bal: number; isRetire: boolean }[]; width: number }) {
+  const H = 132, padTop = 6, padBot = 18, gap = 4;
+  const n = data.length;
+  const bw = Math.max(4, (width - gap * (n - 1)) / n);
+  const top = Math.max(...data.map((d) => d.bal), 1);
+  const h = (v: number) => Math.max(2, (v / top) * (H - padTop - padBot));
+  return (
+    <Svg width={width} height={H}>
+      <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
+      {data.map((d, i) => {
+        const bh = h(d.bal), x = i * (bw + gap), y = H - padBot - bh;
+        const show = i === 0 || i === n - 1 || d.isRetire || (i + 1) % 5 === 0;
+        return (
+          <G key={d.year}>
+            <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
+            {show && <SvgText x={x + bw / 2} y={H - 6} fontSize={8} fill={Colors.textTertiary} textAnchor="middle">{d.isRetire ? `retire ${d.age}` : `'${String(d.year).slice(2)}`}</SvgText>}
+          </G>
+        );
+      })}
+    </Svg>
+  );
 }
 
 // ───────────────────────── Slider ─────────────────────────
@@ -452,6 +550,28 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
   );
 }
 
+// ───────────────────────── Portfolio actual-return editor ─────────────────────────
+function PortfolioReturnEditor({ open, onClose, current, benchmark, onApply }: {
+  open: boolean; onClose: () => void; current: number | null; benchmark: number; onApply: (ret: number) => void;
+}) {
+  const [val, setVal] = useState(current != null ? (current * 100).toFixed(1) : '');
+  useEffect(() => { if (open) setVal(current != null ? (current * 100).toFixed(1) : ''); }, [open]);
+  return (
+    <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.dialog}>
+        <Text style={styles.sheetT}>Your portfolio's actual return</Text>
+        <Text style={styles.sheetS}>What did your investments actually return over the last 12 months? We'll compare it to your {(benchmark * 100).toFixed(1)}% blended benchmark.</Text>
+        <View style={styles.pctBox}>
+          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.pctU}>% / yr</Text>
+        </View>
+        <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
 // log-scale 10–90 band + median
 function BandChart({ band, width, retireAge }: { band: { age: number; p10: number; p50: number; p90: number }[]; width: number; retireAge: number | null }) {
   const H = 130, padTop = 8, padBot = 4;
@@ -509,7 +629,30 @@ const styles = StyleSheet.create({
   ssPill: { backgroundColor: Colors.primaryLight, color: Colors.primary, borderRadius: Radii.pill, paddingHorizontal: 10, paddingVertical: 5, fontSize: 11, fontWeight: '800', overflow: 'hidden' },
 
   section: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.base, marginBottom: 6 },
-  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 6 },
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
+
+  // instruments table
+  tHead: { flexDirection: 'row', alignItems: 'center', marginTop: 8, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  tHL: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  tColBal: { width: 64, textAlign: 'right' },
+  tColRet: { width: 60, textAlign: 'right' },
+  tRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  instIc: { fontSize: 16 },
+  instName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  instSrc: { fontSize: 10.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 14 },
+  instBal: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  instRet: { fontSize: 13.5, fontWeight: '800', color: Colors.primary },
+
+  // beating-benchmark insight
+  benchBox: { borderRadius: Radii.lg, padding: Spacing.base, marginTop: 10, borderWidth: 1 },
+  benchNeutral: { backgroundColor: Colors.cardBg, borderColor: Colors.border },
+  benchAhead: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
+  benchBehind: { backgroundColor: '#FBE9E9', borderColor: '#E9B7B7' },
+  benchK: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
+  benchBig: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary, marginVertical: 1 },
+  benchD: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 3 },
+  benchB: { fontWeight: '800', color: Colors.textPrimary },
+  benchLink: { fontWeight: '800', color: Colors.primary },
 
   heroCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 6, alignItems: 'center' },
   heroLabel: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.5 },

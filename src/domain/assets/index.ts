@@ -74,6 +74,34 @@ export function benchmarkReturn(kind: string | undefined, overrides?: Record<str
   if (kind && overrides && overrides[kind] != null) return overrides[kind];
   return assetKind(kind)?.ret ?? 0.06;
 }
+
+/** Where each benchmark return comes from + the window it's measured over. Forward-looking nominal
+ *  planning estimates (the retirement engine applies inflation separately, so these are NOMINAL). */
+export const BENCHMARK_META: Record<string, { source: string; period: string }> = {
+  checking:       { source: 'FDIC national average, interest checking', period: '2026' },
+  savings:        { source: 'High-yield savings APY, national top-tier', period: '2026' },
+  stocks_etf:     { source: 'S&P 500, long-run nominal planning estimate', period: '30-yr' },
+  fixed_income:   { source: 'US Aggregate Bond / 10-yr Treasury yield', period: '2026' },
+  private_equity: { source: 'Cambridge Associates US PE index', period: '10-yr' },
+  hedge_funds:    { source: 'HFRI Fund Weighted Composite', period: '10-yr' },
+  commodities:    { source: 'Bloomberg Commodity Index', period: '10-yr' },
+  crypto:         { source: 'Blended digital-asset estimate (high uncertainty)', period: '—' },
+  annuities:      { source: 'Typical fixed-annuity crediting rate', period: '2026' },
+  college_529:    { source: 'Age-based 529 blended portfolio', period: 'long-run' },
+  '401k':         { source: 'Diversified equity/bond mix', period: 'long-run' },
+  trad_ira:       { source: 'Diversified equity/bond mix', period: 'long-run' },
+  roth_ira:       { source: 'Diversified equity/bond mix', period: 'long-run' },
+  hsa:            { source: 'Invested HSA, balanced allocation', period: 'long-run' },
+  home:           { source: 'US home-price appreciation (FHFA/Case-Shiller)', period: 'long-run' },
+  vehicle:        { source: 'Vehicle depreciation', period: 'annual' },
+  other_asset:    { source: 'Generic blended estimate', period: '—' },
+};
+/** Benchmark return + its source/period for an asset kind. `edited` flags a user override. */
+export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean } {
+  const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—' };
+  const edited = !!(kind && overrides && overrides[kind] != null);
+  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: meta.period, edited };
+}
 /** Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the
  *  nest egg's growth rate is the value-weighted average of their benchmarks. */
