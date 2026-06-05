@@ -5,7 +5,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, type AssetAccount } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
   PERIODS, type Period, type Position, type Lot,
@@ -13,7 +13,9 @@ import {
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
-const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' || k.section === 'Retirement');
+// A holding's TYPE = its instrument class (sets the benchmark) — not an account type (401k/IRA/529/brokerage).
+const ACCOUNT_TYPE_IDS = ['brokerage', '401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529', 'checking', 'savings', 'home', 'vehicle'];
+const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !ACCOUNT_TYPE_IDS.includes(k.id));
 
 export default function PerformanceScreen() {
   const store = useStore() as any;
@@ -121,7 +123,7 @@ export default function PerformanceScreen() {
         onSave={(accountId, position, isNew) => {
           if (isNew) {
             if (accountId === '__new__') {
-              store.addAsset({ label: position.label || position.ticker, kind: position.kind, tax_bucket: assetKind(position.kind)?.bucket ?? 'TAXABLE', balance: 0, target_return: 0.07, positions: [] });
+              store.addAsset({ label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, target_return: 0.08, positions: [] });
               // newest account is at index 0
               const newId = (useStore.getState() as any).assetAccounts[0].asset_id;
               store.addPosition(newId, position);
@@ -145,7 +147,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   onClose: () => void; onSave: (accountId: string, position: Position, isNew: boolean) => void; onDelete?: () => void;
 }) {
   const isNew = existing == null;
-  const investAccts = accounts;   // any account can hold securities
+  const investAccts = accounts.filter(accountAllowsTicker);   // only security-eligible accounts (excludes cash/property/529)
   const [accountId, setAccountId] = useState<string>('');
   const [ticker, setTicker] = useState('');
   const [label, setLabel] = useState('');
@@ -163,7 +165,8 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   }, [open]);
 
   const setLot = (i: number, patch: Partial<Lot>) => setLots((ls) => ls.map((l, j) => j === i ? { ...l, ...patch } : l));
-  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0);
+  // require full lots: every lot needs shares, cost/share, and a purchase date
+  const valid = ticker.trim().length > 0 && lots.length > 0 && lots.every((l) => l.shares > 0 && l.cost_per_share > 0 && !!l.purchase_date);
 
   const save = () => {
     const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));

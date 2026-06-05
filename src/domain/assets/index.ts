@@ -37,12 +37,22 @@ export function portfolioActualReturn(accounts: AssetAccount[]): number | null {
   return Math.round((weighted / total) * 1e4) / 1e4;
 }
 
+/** Can this account hold individual ticker securities? (Excludes cash, property, and 529 —
+ *  a 529 holds the plan's age-based portfolios, not individual stocks.) */
+export function accountAllowsTicker(a: AssetAccount): boolean {
+  if (a.tax_bucket === 'PROPERTY' || a.tax_bucket === 'CASH') return false;
+  if (a.kind === 'college_529') return false;
+  if (a.kind === 'checking' || a.kind === 'savings') return false;
+  return true;
+}
+
 // Capture types for assets. `section` groups them on the Net Worth screen.
 // `ret` = benchmark annual return (nominal). Where a clean 30-yr index series exists it's the real
 // historical figure (see BENCHMARK_META for source/period); otherwise it's a flagged estimate.
 export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: TaxBucket; section: string; ret: number }[] = [
   { id: 'checking', label: 'Checking', icon: '💵', bucket: 'CASH', section: 'Cash', ret: 0.005 },
   { id: 'savings', label: 'Savings', icon: '🏦', bucket: 'CASH', section: 'Cash', ret: 0.024 },
+  { id: 'brokerage', label: 'Brokerage', icon: '📊', bucket: 'TAXABLE', section: 'Investments', ret: 0.08 },
   { id: 'stocks_etf', label: 'Stocks / ETFs', icon: '📈', bucket: 'TAXABLE', section: 'Investments', ret: 0.104 },
   { id: 'fixed_income', label: 'Fixed income', icon: '📜', bucket: 'TAXABLE', section: 'Investments', ret: 0.042 },
   { id: 'private_equity', label: 'Private equity', icon: '🏢', bucket: 'TAXABLE', section: 'Investments', ret: 0.13 },
