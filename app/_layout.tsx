@@ -5,6 +5,7 @@ import { TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
+import { setMoneyFormat } from '../src/domain/_shared/money';
 import { onAuthChange, loadUserData, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
@@ -16,8 +17,10 @@ const SYNC_FIELDS = [
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
   'recurringIncomes', 'recurringExpenses', 'debts', 'customCategories',
+  'assetAccounts', 'liabilities', 'nwSeeded', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns',
+  'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
-  'jobRiskLevel', 'emergencyMonths',
+  'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
 ] as const;
 
 function pickSyncFields(state: Record<string, any>) {
@@ -35,7 +38,10 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, loadFromCloud } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale } = useStore() as any;
+  // Keep the app-wide money formatter in sync with the (persisted / cloud-loaded) region.
+  // Done in render so children format with the right currency on the same pass it changes.
+  setMoneyFormat(currency, locale);
   const router    = useRouter();
   const segments  = useSegments();
   const [isReady, setIsReady] = useState(false);
@@ -58,6 +64,7 @@ export default function RootLayout() {
         try {
           const cloudData = await loadUserData(firebaseUser.uid);
           if (cloudData) loadFromCloud(cloudData);
+          else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
         } catch (_) {
           // Offline — local AsyncStorage cache is already loaded by Zustand persist
         }
@@ -96,10 +103,13 @@ export default function RootLayout() {
     const inTabs       = segments[0] === '(tabs)';
     const inOnboarding = segments[0] === 'onboarding';
     const inAuth       = segments[0] === 'auth';
-    const inModals     = ['income','expense','savings','invest','jobsafety'].includes(segments[0] as string);
+    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail'].includes(segments[0] as string);
     if (user) {
       if (onboardingComplete) {
         if (!inTabs && !inModals) router.replace('/(tabs)/home');
+      } else if (onboardingPaused) {
+        // user chose "Save & come back later" → let them use the app; don't force onboarding
+        if (inOnboarding) router.replace('/(tabs)/home');
       } else {
         if (!inOnboarding) router.replace('/onboarding');
       }
@@ -111,7 +121,7 @@ export default function RootLayout() {
         router.replace('/onboarding');
       }
     }
-  }, [user, segments, isReady, onboardingComplete]);
+  }, [user, segments, isReady, onboardingComplete, onboardingPaused]);
 
   const backBtn = (onPress: () => void) => ({ headerLeft: () => <BackButton onPress={onPress} /> });
 
@@ -139,6 +149,7 @@ export default function RootLayout() {
           <Stack.Screen name="savings"    options={{ title: 'Add savings 🏦',     presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="invest"     options={{ title: 'Log investment 📈',  presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="jobsafety"  options={{ title: 'Job safety check 🛡', ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
         </Stack>
         </ErrorBoundary>
       </SafeAreaProvider>

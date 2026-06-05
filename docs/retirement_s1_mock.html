@@ -1,0 +1,167 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--mid:#9FE1CB;--amber:#854F0B;--amberL:#FAEEDA;--red:#A32D2D;
+--purple:#7A5AA7;--blue:#185FA5;--gold:#EBB23A;--bg:#F6F7F5;--card:#fff;--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:26px;justify-content:center;flex-wrap:wrap}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:10px}
+.phone{width:330px;height:1080px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative}
+.topbar{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.ham{font-size:18px}.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:5px 10px;font-size:10px;font-weight:700}
+.scr{padding:4px 16px}
+.eyebrow{font-size:11px;font-weight:800;color:var(--ter);letter-spacing:.5px;margin:10px 0 8px}
+/* donut */
+.donutCard{background:#fff;border-radius:18px;padding:16px;text-align:center}
+.donutWrap{display:flex;align-items:center;gap:14px}
+.legend{flex:1;text-align:left}
+.lg{display:flex;align-items:center;gap:7px;padding:3px 0}
+.dot{width:9px;height:9px;border-radius:3px;flex:none}
+.lgL{font-size:12px;color:var(--ink);flex:1}.lgV{font-size:12px;font-weight:700;color:var(--ink)}
+.dCenter .amt{font-size:20px;font-weight:800;color:var(--ink)}.dCenter .lab{font-size:9px;color:var(--ter);font-weight:700}
+.editLink{margin-top:10px;font-size:12.5px;font-weight:700;color:var(--green);text-align:center}
+/* green box */
+.gbox{background:var(--greenD);border-radius:16px;padding:16px;margin-top:10px}
+.gbox .k{color:#BEE7D8;font-size:11px;font-weight:700;letter-spacing:.3px}
+.gbox .age{color:#fff;font-size:40px;font-weight:800;margin:2px 0}
+.gbox .d{color:#DDF3EB;font-size:12px;line-height:17px}
+.gbox .d b{color:#fff}
+/* sliders */
+.sec{font-size:12px;font-weight:800;color:var(--ter);letter-spacing:.5px;margin:16px 0 6px}
+.sl{margin:13px 0}
+.slTop{display:flex;justify-content:space-between;align-items:baseline}
+.slL{font-size:13px;color:var(--sub);font-weight:600}.slV{font-size:15px;font-weight:800;color:var(--ink)}
+.track{height:6px;border-radius:3px;background:var(--line);margin-top:9px;position:relative}
+.fill{position:absolute;left:0;top:0;height:6px;border-radius:3px;background:var(--green)}
+.thumb{position:absolute;top:-7px;width:20px;height:20px;border-radius:10px;background:#fff;border:3px solid var(--green);margin-left:-10px;box-shadow:0 1px 3px rgba(0,0,0,.2)}
+/* result */
+.res{background:#fff;border-radius:16px;padding:14px;margin-top:14px}
+.resRow{display:flex;justify-content:space-between;padding:5px 0}
+.rk{font-size:13.5px;color:var(--sub)}.rv{font-size:15px;font-weight:800;color:var(--ink)}
+.conf{display:flex;align-items:center;gap:8px;background:var(--greenL);border-radius:10px;padding:9px 11px;margin-top:8px}
+.confPct{font-size:18px;font-weight:800;color:var(--greenD)}.confT{font-size:12px;color:var(--greenD);flex:1;line-height:15px}
+.save{background:var(--green);color:#fff;text-align:center;border-radius:12px;padding:13px;font-weight:800;font-size:14.5px;margin-top:12px}
+.chips{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap}
+.chip{background:#fff;border:1.5px solid var(--line);border-radius:100px;padding:7px 12px;font-size:12px;font-weight:700;color:var(--ink)}
+.chip.on{border-color:var(--green);background:var(--greenL);color:var(--green)}
+.foot{font-size:11px;color:var(--ter);text-align:center;margin-top:12px}
+.ssRow{display:flex;align-items:center;gap:10px;background:#fff;border-radius:14px;padding:12px 14px;margin-top:10px}
+.ssIc{font-size:18px}.ssName{font-size:14px;font-weight:700;color:var(--ink)}.ssSub{font-size:11.5px;color:var(--sub);margin-top:1px}
+.ssPill{background:var(--greenL);color:var(--green);border-radius:100px;padding:5px 10px;font-size:11px;font-weight:800}
+/* edit popup */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:22px 22px 0 0;padding:18px 16px 26px;box-shadow:0 -8px 30px rgba(0,0,0,.18)}
+.grab{width:38px;height:5px;border-radius:3px;background:var(--line);margin:0 auto 12px}
+.sheetT{font-size:17px;font-weight:800;color:var(--ink)}.sheetS{font-size:12.5px;color:var(--sub);margin:3px 0 12px;line-height:17px}
+.acc{display:flex;align-items:center;gap:10px;padding:11px 0;border-top:1px solid var(--line)}
+.accIc{font-size:18px}.accName{font-size:14px;font-weight:700;color:var(--ink)}.accBal{font-size:11.5px;color:var(--ter)}
+.pctBox{display:flex;align-items:center;gap:6px}
+.pctIn{width:52px;border:1.5px solid var(--line);border-radius:8px;padding:6px;text-align:right;font-size:14px;font-weight:700;color:var(--ink)}
+.pctU{font-size:13px;color:var(--sub)}
+.counts{font-size:11px;color:var(--green);font-weight:700;min-width:64px;text-align:right}
+.dim .accName,.dim .accBal{color:var(--ter)}
+.applyBtn{background:var(--green);color:#fff;text-align:center;border-radius:12px;padding:14px;font-weight:800;font-size:15px;margin-top:16px}
+.scrim{position:absolute;inset:0;background:rgba(0,0,0,.28)}
+</style></head><body>
+<script>
+function donut(segs,size){
+  const r=(size-18)/2,c=2*Math.PI*r,total=segs.reduce((t,s)=>t+s.v,0)||1;let acc=0,out='';
+  segs.forEach(s=>{const dash=s.v/total*c;out+='<circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="'+s.c+'" stroke-width="16" stroke-dasharray="'+dash+' '+(c-dash)+'" stroke-dashoffset="'+(-acc)+'"/>';acc+=dash;});
+  return '<svg width="'+size+'" height="'+size+'"><g transform="rotate(-90 '+size/2+' '+size/2+')"><circle cx="'+size/2+'" cy="'+size/2+'" r="'+r+'" fill="none" stroke="#EEEEE9" stroke-width="16"/>'+out+'</g></svg>';
+}
+window.addEventListener('DOMContentLoaded',()=>{
+  const segs=[{c:'#185FA5',v:220000},{c:'#178F6B',v:90000},{c:'#7A5AA7',v:80000},{c:'#5DCAA5',v:30000}];
+  document.getElementById('d1').innerHTML=donut(segs,128);
+});
+</script>
+
+<!-- SCREEN 1 — MAIN -->
+<div><div class="cap">Retirement · Screen 1 (first open)</div><div class="phone">
+<div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $612k ›</span></div>
+<div class="scr">
+  <div class="eyebrow">RETIREMENT · YOUR NEST EGG</div>
+  <div class="donutCard">
+    <div class="donutWrap">
+      <div style="position:relative">
+        <div id="d1"></div>
+        <div class="dCenter" style="position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center">
+          <div class="amt">$420K</div><div class="lab">EARMARKED</div>
+        </div>
+      </div>
+      <div class="legend">
+        <div class="lg"><span class="dot" style="background:#185FA5"></span><span class="lgL">401(k)</span><span class="lgV">$220K</span></div>
+        <div class="lg"><span class="dot" style="background:#178F6B"></span><span class="lgL">Roth IRA</span><span class="lgV">$90K</span></div>
+        <div class="lg"><span class="dot" style="background:#7A5AA7"></span><span class="lgL">Brokerage <span style="color:var(--ter);font-weight:600">·60%</span></span><span class="lgV">$80K</span></div>
+        <div class="lg"><span class="dot" style="background:#5DCAA5"></span><span class="lgL">Cash <span style="color:var(--ter);font-weight:600">·50%</span></span><span class="lgV">$30K</span></div>
+      </div>
+    </div>
+    <div class="editLink">⚙︎ Edit what counts toward retirement ›</div>
+  </div>
+
+  <div class="gbox">
+    <div class="k">EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</div>
+    <div class="age">Retire at 63</div>
+    <div class="d">Your <b>$420K</b> growing at <b>6%</b> (after <b>2.5%</b> inflation) covers <b>$4,200/mo</b> of spending — topped up by <b>Social Security from 67</b> — from 63 to 90 in most scenarios.</div>
+  </div>
+
+  <!-- Social Security row (answer the eligibility question once, then editable) -->
+  <div class="ssRow">
+    <span class="ssIc">🏛️</span>
+    <div style="flex:1"><div class="ssName">Social Security</div><div class="ssSub">$2,400/mo starting at 67 · in today's $</div></div>
+    <span class="ssPill">Eligible ✓</span>
+  </div>
+
+  <div class="sec">WHAT IF YOU PLANNED IT? — DRAG TO EXPLORE</div>
+  <div class="res" style="margin-top:6px">
+    <div class="sl"><div class="slTop"><span class="slL">Retire at age</span><span class="slV">60</span></div><div class="track"><div class="fill" style="width:46%"></div><div class="thumb" style="left:46%"></div></div></div>
+    <div class="sl"><div class="slTop"><span class="slL">Expected return</span><span class="slV">6.0%</span></div><div class="track"><div class="fill" style="width:55%"></div><div class="thumb" style="left:55%"></div></div></div>
+    <div class="sl"><div class="slTop"><span class="slL">Save / month</span><span class="slV">$1,500</span></div><div class="track"><div class="fill" style="width:38%"></div><div class="thumb" style="left:38%"></div></div></div>
+    <div class="sl"><div class="slTop"><span class="slL">Spend / month in retirement</span><span class="slV">$5,000</span></div><div class="track"><div class="fill" style="width:50%"></div><div class="thumb" style="left:50%"></div></div></div>
+    <div class="sl"><div class="slTop"><span class="slL">Inflation</span><span class="slV">2.5%</span></div><div class="track"><div class="fill" style="width:30%"></div><div class="thumb" style="left:30%"></div></div></div>
+  </div>
+
+  <div class="res">
+    <div class="resRow"><span class="rk">Nest egg you'll have at 60</span><span class="rv" style="color:var(--green)">$1.21M</span></div>
+    <div class="resRow"><span class="rk">Nest egg you'll need</span><span class="rv">$1.50M</span></div>
+    <div class="resRow"><span class="rk" style="font-weight:700;color:var(--ink)">Shortfall</span><span class="rv" style="color:var(--red)">$290K</span></div>
+    <div class="resRow"><span class="rk" style="font-size:11.5px;color:var(--ter)">incl. Social Security $2,400/mo from 67</span><span class="rv" style="font-size:11.5px;color:var(--ter)">−$215K need</span></div>
+    <div class="conf"><span class="confPct">64%</span><span class="confT">lasts to age 90 across 500 market scenarios</span></div>
+    <div class="save">＋ Save this scenario</div>
+  </div>
+  <div class="chips">
+    <span class="chip on">Retire 60</span>
+    <span class="chip">Retire 65 ✓ 88%</span>
+    <span class="chip">Lean · $3.5k/mo</span>
+  </div>
+  <div class="foot">See the full breakdown & confidence detail →</div>
+  <div style="height:20px"></div>
+</div></div></div>
+
+<!-- EDIT POPUP -->
+<div><div class="cap">Edit earmarks (pop-up)</div><div class="phone">
+<div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $612k ›</span></div>
+<div class="scr" style="opacity:.5">
+  <div class="eyebrow">RETIREMENT · YOUR NEST EGG</div>
+  <div class="donutCard"><div style="height:150px"></div></div>
+</div>
+<div class="scrim"></div>
+<div class="sheet">
+  <div class="grab"></div>
+  <div class="sheetT">What counts toward retirement?</div>
+  <div class="sheetS">Some money is for other goals. Set how much of each account funds retirement — the rest stays free for things like a home or college.</div>
+
+  <div class="acc"><span class="accIc">🏛️</span><div style="flex:1"><div class="accName">401(k) · Fidelity</div><div class="accBal">$220,000</div></div>
+    <div class="pctBox"><input class="pctIn" value="100"><span class="pctU">%</span></div><span class="counts">$220K</span></div>
+  <div class="acc"><span class="accIc">🌱</span><div style="flex:1"><div class="accName">Roth IRA</div><div class="accBal">$90,000</div></div>
+    <div class="pctBox"><input class="pctIn" value="100"><span class="pctU">%</span></div><span class="counts">$90K</span></div>
+  <div class="acc"><span class="accIc">📈</span><div style="flex:1"><div class="accName">Brokerage · Schwab</div><div class="accBal">$133,000</div></div>
+    <div class="pctBox"><input class="pctIn" value="60"><span class="pctU">%</span></div><span class="counts">$80K</span></div>
+  <div class="acc"><span class="accIc">💵</span><div style="flex:1"><div class="accName">Savings · Ally</div><div class="accBal">$60,000</div></div>
+    <div class="pctBox"><input class="pctIn" value="50"><span class="pctU">%</span></div><span class="counts">$30K</span></div>
+  <div class="acc dim"><span class="accIc">🎓</span><div style="flex:1"><div class="accName">529 · College</div><div class="accBal">$40,000 · for the kids</div></div>
+    <div class="pctBox"><input class="pctIn" value="0"><span class="pctU">%</span></div><span class="counts" style="color:var(--ter)">$0</span></div>
+  <div class="acc dim"><span class="accIc">🏠</span><div style="flex:1"><div class="accName">Home</div><div class="accBal">excluded — you live in it</div></div>
+    <span class="counts" style="color:var(--ter)">—</span></div>
+
+  <div class="applyBtn">Counts toward retirement: $420K  ·  Done</div>
+</div>
+</div></div>
+
+</body></html>

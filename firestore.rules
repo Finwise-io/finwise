@@ -1,0 +1,29 @@
+rules_version = '2';
+
+// FinWise Firestore security rules.
+// Principle: a signed-in user can read/write ONLY their own document. Everything else is denied.
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // Each user's data lives at users/{uid} (with appState payload + any subcollections).
+    // Only the authenticated owner may read or write it.
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      match /{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // Feedback: any signed-in user may submit (create); nobody may read/update/delete from the client.
+    match /feedback/{doc} {
+      allow create: if request.auth != null;
+      allow read, update, delete: if false;
+    }
+
+    // Default: deny everything not explicitly allowed above.
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

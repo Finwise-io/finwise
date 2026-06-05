@@ -1,1 +1,1 @@
-export { default } from '../../src/screens/AnalyticsScreen';
+export { default } from '../../src/screens/NetWorthScreen';

@@ -1,0 +1,86 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--blue:#185FA5;--amber:#854F0B;--red:#A32D2D;
+--bg:#F6F7F5;--card:#fff;--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:28px;justify-content:center}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:10px}
+.phone{width:320px;height:1180px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative}
+.topbar{height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.ham{font-size:21px}.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:6px 11px;font-size:11px;font-weight:700}
+.scr{padding:6px 16px}
+.hero{background:var(--greenD);border-radius:18px;padding:18px;position:relative;overflow:hidden}
+.hero .l{color:#BEE7D8;font-size:11px;font-weight:700;letter-spacing:.5px}
+.hero .v{color:#fff;font-size:34px;font-weight:800;margin-top:4px}
+.hero .s{color:#BEE7D8;font-size:12px;margin-top:6px}
+.hero .delta{position:absolute;right:16px;top:18px;background:rgba(255,255,255,.15);color:#fff;font-size:11px;font-weight:700;border-radius:10px;padding:4px 8px}
+.sec{font-size:12px;font-weight:800;color:var(--ter);letter-spacing:.5px;margin:18px 0 8px;display:flex;justify-content:space-between;align-items:center}
+.add{color:var(--green);font-size:12px;font-weight:700}
+.card{background:#fff;border-radius:16px;padding:6px 14px;box-shadow:0 1px 4px var(--line)}
+.row{display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.row:last-child{border-bottom:none}
+.ic{font-size:20px;width:26px;text-align:center}
+.rl{flex:1}.rt{font-size:14px;font-weight:600;color:var(--ink)}.rs{font-size:11px;color:var(--ter);margin-top:1px}
+.rv{font-size:15px;font-weight:800;color:var(--ink)}.rv.debt{color:var(--ink)}
+.pill{font-size:9px;font-weight:700;border-radius:8px;padding:2px 6px;margin-left:6px}
+.pill.hot{background:#FCEBEB;color:var(--red)}.pill.ok{background:var(--greenL);color:var(--greenD)}
+.alloc{display:flex;height:10px;border-radius:5px;overflow:hidden;margin:10px 0 4px}
+.alloc i{height:100%}
+.legend{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:4px}
+.lg{display:flex;align-items:center;gap:5px;font-size:11px;color:var(--sub)}
+.dot{width:9px;height:9px;border-radius:5px}
+.tot{display:flex;justify-content:space-between;padding:10px 0 2px;font-size:13px}
+.tot .k{color:var(--sub)}.tot .v{font-weight:800;color:var(--ink)}
+.callout{background:#FCEBEB;border-radius:14px;padding:12px;display:flex;gap:8px;margin-top:12px}
+.callout .t{font-size:13px;font-weight:700;color:var(--red)}.callout .s{font-size:12px;color:var(--red);opacity:.85;margin-top:2px}
+.fab{position:absolute;left:16px;right:16px;bottom:74px;background:var(--green);color:#fff;text-align:center;border-radius:14px;padding:14px;font-weight:800;font-size:15px}
+.nav{position:absolute;left:0;right:0;bottom:0;height:64px;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;font-size:9px;color:var(--sub);padding-top:8px}
+.nav .e{font-size:18px;text-align:center}.nav .on{color:var(--green);font-weight:800}
+</style></head><body>
+<div>
+<div class="cap">Net Worth screen</div>
+<div class="phone">
+  <div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $182k ›</span></div>
+  <div class="scr">
+    <div class="hero">
+      <div class="delta">▲ $3.1k this mo</div>
+      <div class="l">NET WORTH</div>
+      <div class="v">$182,400</div>
+      <div class="s">Assets $312,400 − Debts $130,000</div>
+    </div>
+
+    <div class="sec"><span>ASSETS · $312,400</span><span class="add">+ Add</span></div>
+    <div class="card">
+      <div class="alloc">
+        <i style="width:38%;background:#185FA5"></i><i style="width:19%;background:#7A5AA7"></i>
+        <i style="width:8%;background:#178F6B"></i><i style="width:35%;background:#EBB23A"></i>
+      </div>
+      <div class="legend">
+        <span class="lg"><span class="dot" style="background:#185FA5"></span>Pre-tax</span>
+        <span class="lg"><span class="dot" style="background:#7A5AA7"></span>Taxable</span>
+        <span class="lg"><span class="dot" style="background:#178F6B"></span>Cash</span>
+        <span class="lg"><span class="dot" style="background:#EBB23A"></span>Property</span>
+      </div>
+      <div class="row"><span class="ic">🏦</span><div class="rl"><div class="rt">401(k) / Retirement</div><div class="rs">Pre-tax · 38%</div></div><div class="rv">$120,000</div></div>
+      <div class="row"><span class="ic">📈</span><div class="rl"><div class="rt">Brokerage</div><div class="rs">Taxable · 19%</div></div><div class="rv">$60,000</div></div>
+      <div class="row"><span class="ic">💵</span><div class="rl"><div class="rt">Cash / savings</div><div class="rs">Cash · 8%</div></div><div class="rv">$22,400</div></div>
+      <div class="row"><span class="ic">🏠</span><div class="rl"><div class="rt">Home</div><div class="rs">Property · 35%</div></div><div class="rv">$110,000</div></div>
+    </div>
+
+    <div class="sec"><span>DEBTS · $130,000</span><span class="add">+ Add</span></div>
+    <div class="card">
+      <div class="row"><span class="ic">🏠</span><div class="rl"><div class="rt">Mortgage</div><div class="rs">3.2% APR · $1,300/mo</div></div><div class="rv">$110,000</div></div>
+      <div class="row"><span class="ic">🎓</span><div class="rl"><div class="rt">Student loan</div><div class="rs">6.5% APR · $220/mo</div></div><div class="rv">$18,000</div></div>
+      <div class="row"><span class="ic">💳</span><div class="rl"><div class="rt">Credit card <span class="pill hot">22% · pay first</span></div><div class="rs">$60/mo min</div></div><div class="rv">$2,000</div></div>
+      <div class="tot"><span class="k">Monthly debt payments</span><span class="v">$1,580/mo</span></div>
+    </div>
+
+    <div class="callout"><span style="font-size:15px">⚠️</span><div><div class="t">$2,000 on a 22% card is your costliest debt</div><div class="s">Paying it off first saves the most interest.</div></div></div>
+  </div>
+  <div class="fab">＋  Add asset or debt</div>
+  <div class="nav">
+    <div><div class="e">🏠</div><div>Home</div></div><div><div class="e">📋</div><div>Budget</div></div>
+    <div><div class="e">🏖</div><div>Retire</div></div><div><div class="e">🎯</div><div>Goals</div></div>
+  </div>
+</div>
+</div>
+</body></html>

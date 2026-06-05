@@ -1,0 +1,185 @@
+<!doctype html><html><head><meta charset="utf-8"><title>FinWise mockup</title>
+<style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--gold:#EBB23A;--amber:#854F0B;
+--amberL:#FAEEDA;--red:#A32D2D;--redL:#FCEBEB;--blue:#185FA5;--bg:#EEF0EC;--card:#fff;
+--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.07)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:var(--bg);padding:28px;display:flex;gap:26px;align-items:flex-start}
+.phone{width:340px;height:740px;background:var(--bg);border-radius:38px;border:9px solid #14201c;
+box-shadow:0 18px 50px rgba(0,0,0,.18);overflow:hidden;position:relative;display:flex;flex-direction:column}
+.notch{height:26px;background:#14201c;border-radius:0 0 16px 16px;width:140px;margin:0 auto;position:absolute;left:50%;transform:translateX(-50%);top:0;z-index:5}
+.scr{flex:1;overflow:hidden;padding:34px 16px 0}
+.tt{font-size:11px;font-weight:700;color:var(--ter);text-transform:uppercase;letter-spacing:.5px}
+.h1{font-size:22px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;color:var(--sub)}
+.card{background:var(--card);border-radius:18px;padding:15px;box-shadow:0 2px 8px var(--line);margin-bottom:12px}
+.row{display:flex;justify-content:space-between;align-items:center}
+.tab{position:absolute;bottom:0;left:0;right:0;height:62px;background:#fff;border-top:1px solid var(--line);
+display:flex;justify-content:space-around;align-items:center;padding-bottom:10px}
+.tab div{font-size:10px;color:var(--ter);text-align:center}
+.tab .on{color:var(--green);font-weight:700}
+.ic{font-size:19px;display:block;margin-bottom:2px}
+.coin{width:34px;height:34px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBE08A,#EBB23A);
+border:2px solid #D99A26;display:inline-flex;align-items:center;justify-content:center;font-size:15px}
+.pill{font-size:10px;font-weight:700;padding:3px 8px;border-radius:20px}
+.up{background:var(--greenL);color:var(--greenD)} .warn{background:var(--amberL);color:var(--amber)}
+.bad{background:var(--redL);color:var(--red)}
+.bar{height:7px;border-radius:4px;background:#EDEDE9;overflow:hidden;margin-top:6px}
+.bar > i{display:block;height:100%;border-radius:4px;background:var(--green)}
+.tile{background:#fff;border-radius:16px;padding:13px;box-shadow:0 2px 8px var(--line)}
+.big{font-size:26px;font-weight:800;color:var(--ink)} .gd{color:var(--green)}
+.lab{font-size:11px;color:var(--sub)}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:11px}
+.kv{display:flex;justify-content:space-between;font-size:13px;padding:5px 0}
+.kv b{font-weight:700;color:var(--ink)} .kv span{color:var(--sub)}
+hr{border:0;border-top:1px solid var(--line);margin:8px 0}
+.cap{font-size:14px;font-weight:800;color:var(--ink);margin-bottom:9px;display:flex;gap:7px;align-items:center}
+.fx{font-size:9.5px;color:var(--ter);font-style:italic;margin-top:3px}
+.upd{font-size:9px;color:var(--ter);margin-top:2px}
+.help{width:27px;height:27px;border-radius:50%;background:#fff;border:1px solid var(--line);display:inline-flex;align-items:center;justify-content:center;font-size:14px;color:var(--sub);font-weight:700}
+.gloss{font-size:13px;padding:9px 0;border-bottom:1px solid var(--line)}
+.gloss b{color:var(--ink)} .gloss span{color:var(--sub);display:block;font-size:11px;margin-top:2px}
+</style></head><body>
+
+<!-- 1. HOME / COCKPIT -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="row" style="margin-bottom:14px">
+    <div><div class="sub">Good morning</div><div class="h1">Alex 👋</div></div>
+    <div style="display:flex;gap:8px;align-items:center"><span class="help">?</span><span class="coin">$</span></div>
+  </div>
+  <div class="card" style="background:linear-gradient(135deg,#0F6E56,#178F6B)">
+    <div style="color:#BEE7D8;font-size:11px;font-weight:700;text-transform:uppercase">Net worth</div>
+    <div style="color:#fff;font-size:32px;font-weight:800">$765,000</div>
+    <div style="color:#BEE7D8;font-size:12px">▲ $12,400 this month</div>
+    <div class="fx" style="color:#9FE1CB">= assets $1.15M − debt $385k · updated today 9:18 AM</div>
+  </div>
+  <div class="tt" style="margin:4px 2px 8px">June 2026 at a glance</div>
+  <div class="grid2" style="margin-bottom:12px">
+    <div class="tile"><div class="lab">Income</div><div class="big" style="font-size:18px">$14,200</div><div class="bar"><i style="width:95%"></i></div></div>
+    <div class="tile"><div class="lab">Projected to save</div><div class="big gd" style="font-size:18px">$1,350</div><div class="fx">income − planned spend</div></div>
+  </div>
+  <div class="cap">Your plans</div>
+  <div class="grid2">
+    <div class="tile"><div class="row"><span class="lab">🏖️ Retirement</span><span class="pill up">82%</span></div><div class="big" style="font-size:17px">On track</div><div class="lab">chance by 65</div></div>
+    <div class="tile"><div class="row"><span class="lab">📊 Budget</span><span class="pill up">On track</span></div><div class="big" style="font-size:17px">$850</div><div class="lab">left this month</div></div>
+    <div class="tile"><div class="row"><span class="lab">📈 Assets</span><span class="pill up">+6.8%</span></div><div class="big" style="font-size:17px">$1.15M</div><div class="lab">6 accounts</div></div>
+    <div class="tile"><div class="row"><span class="lab">💳 Debt</span><span class="pill warn">2 left</span></div><div class="big" style="font-size:17px">$385k</div><div class="lab">payoff 2031</div></div>
+  </div>
+</div>
+<div class="tab"><div class="on"><span class="ic">🏠</span>Home</div><div><span class="ic">📊</span>Budget</div><div><span class="ic">📈</span>Assets</div><div><span class="ic">🏖️</span>Retire</div><div><span class="ic">👤</span>You</div></div></div>
+
+<!-- 2. RETIREMENT (Monte Carlo) -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="tt">Retirement plan</div><div class="h1" style="margin-bottom:12px">Will I have enough?</div>
+  <div class="card" style="text-align:center">
+    <svg width="180" height="104" viewBox="0 0 180 104">
+      <path d="M16 96 A74 74 0 0 1 164 96" fill="none" stroke="#EDEDE9" stroke-width="14" stroke-linecap="round"/>
+      <path d="M16 96 A74 74 0 0 1 150 44" fill="none" stroke="#178F6B" stroke-width="14" stroke-linecap="round"/>
+    </svg>
+    <div style="margin-top:-26px"><div class="big" style="font-size:34px">82%</div><div class="lab">chance of success</div></div>
+    <div class="sub" style="margin-top:6px">across 1,000 simulated market paths</div>
+    <div class="fx">assumes 2.4% inflation (BLS) · 4.3% Treasury — tap to adjust</div>
+  </div>
+  <div class="card">
+    <div class="cap">Projected savings · retire at 65</div>
+    <svg width="100%" height="110" viewBox="0 0 300 110" preserveAspectRatio="none">
+      <polygon points="0,95 300,18 300,52 0,98" fill="#E1F5EE"/>
+      <polyline points="0,96 80,80 160,58 240,38 300,30" fill="none" stroke="#178F6B" stroke-width="3"/>
+      <line x1="0" y1="42" x2="300" y2="42" stroke="#854F0B" stroke-width="1.5" stroke-dasharray="4 3"/>
+      <text x="6" y="38" font-size="9" fill="#854F0B">needed $2.15M</text>
+    </svg>
+    <div class="kv"><span>Projected by 65</span><b>$1.85M</b></div>
+    <div class="kv"><span>Needed (incl. Social Security)</span><b>$2.15M</b></div>
+    <hr><div class="kv"><span>Gap</span><b style="color:var(--amber)">$300k</b></div>
+  </div>
+  <div class="card" style="background:var(--amberL)">
+    <div style="font-size:13px;color:var(--amber);font-weight:700">💡 Save $1,180/mo more → 91% chance</div>
+  </div>
+</div>
+<div class="tab"><div><span class="ic">🏠</span>Home</div><div><span class="ic">📊</span>Budget</div><div><span class="ic">📈</span>Assets</div><div class="on"><span class="ic">🏖️</span>Retire</div><div><span class="ic">👤</span>You</div></div></div>
+
+<!-- 3. BUDGET -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="tt">Budget · June 2026</div><div class="h1" style="margin-bottom:12px">Cash flow</div>
+  <div class="card">
+    <div class="row"><div><div class="lab">Projected to save</div><div class="big gd">$1,350</div></div>
+    <span class="pill up">Pacing: on track</span></div>
+    <div class="fx">= income − fixed − discretionary − sinking funds</div>
+    <div class="upd">avg spend $57.50/day · 8 days left · updated 1h ago</div>
+  </div>
+  <div class="card">
+    <div class="cap">Categories</div>
+    <div class="kv"><span>Fixed / essential</span><b>$4,200 committed</b></div><div class="bar"><i style="width:100%;background:#185FA5"></i></div>
+    <div class="kv" style="margin-top:8px"><span>Groceries</span><b>$240 / $600</b></div><div class="bar"><i style="width:40%"></i></div>
+    <div class="kv" style="margin-top:8px"><span>Dining out</span><b>$310 / $400</b></div><div class="bar"><i style="width:78%;background:var(--amber)"></i></div>
+    <div class="kv" style="margin-top:8px"><span>Travel</span><b>$420 / $800</b></div><div class="bar"><i style="width:52%"></i></div>
+  </div>
+  <div class="card"><div class="cap">↳ Feeds your goals</div>
+    <div class="sub">This month's $1,350 surplus is routed: <b style="color:var(--ink)">Emergency fund ✓ · 401(k) match (active) · Roth (next)</b></div>
+  </div>
+</div>
+<div class="tab"><div><span class="ic">🏠</span>Home</div><div class="on"><span class="ic">📊</span>Budget</div><div><span class="ic">📈</span>Assets</div><div><span class="ic">🏖️</span>Retire</div><div><span class="ic">👤</span>You</div></div></div>
+
+<!-- 4. ASSETS / NET WORTH -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="tt">Assets & net worth</div><div class="h1">$1.15M</div>
+  <div class="fx" style="margin-bottom:12px">value = prior balance + flows + returns · synced today</div>
+  <div class="card" style="text-align:center">
+    <svg width="150" height="150" viewBox="0 0 42 42">
+      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#EDEDE9" stroke-width="7"/>
+      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#178F6B" stroke-width="7" stroke-dasharray="39 61" stroke-dashoffset="25"/>
+      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#EBB23A" stroke-width="7" stroke-dasharray="26 74" stroke-dashoffset="-14"/>
+      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#185FA5" stroke-width="7" stroke-dasharray="18 82" stroke-dashoffset="-40"/>
+      <circle cx="21" cy="21" r="15.9" fill="none" stroke="#9FE1CB" stroke-width="7" stroke-dasharray="17 83" stroke-dashoffset="-58"/>
+    </svg>
+    <div class="lab" style="margin-top:6px">allocation across 6 accounts</div>
+  </div>
+  <div class="card">
+    <div class="kv"><span>● 401(k) · pre-tax</span><b>$450,000</b></div>
+    <div class="kv"><span>● Brokerage · taxable</span><b>$300,000</b></div>
+    <div class="kv"><span>● Roth IRA</span><b>$210,000</b></div>
+    <div class="kv"><span>● Primary home</span><b>$190,000 eq.</b></div>
+    <hr><div class="kv"><span>Target return (10y)</span><b class="gd">6.8%</b></div>
+  </div>
+</div>
+<div class="tab"><div><span class="ic">🏠</span>Home</div><div><span class="ic">📊</span>Budget</div><div class="on"><span class="ic">📈</span>Assets</div><div><span class="ic">🏖️</span>Retire</div><div><span class="ic">👤</span>You</div></div></div>
+
+<!-- 5. DEBT -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="tt">Debt payoff</div><div class="h1" style="margin-bottom:12px">$385,000</div>
+  <div class="card">
+    <div class="row"><div class="lab">Debt-free by</div><b>June 2031</b></div>
+    <div class="bar" style="margin-top:10px"><i style="width:34%"></i></div>
+    <div class="lab" style="margin-top:6px">34% paid · $2,450/mo servicing</div>
+  </div>
+  <div class="card">
+    <div class="cap">⚠️ Pay this first (highest rate)</div>
+    <div class="kv"><span><b style="color:var(--ink)">Credit card</b> · 19%</span><b style="color:var(--red)">$100,000</b></div>
+    <div class="bar"><i style="width:20%;background:var(--red)"></i></div>
+    <div class="sub" style="margin-top:6px">Routing extra surplus here saves $14,200 in interest</div>
+  </div>
+  <div class="card">
+    <div class="cap">Other</div>
+    <div class="kv"><span>Mortgage · 4.5%</span><b>$375,000</b></div>
+    <div class="lab">payoff 2045 · on schedule</div>
+  </div>
+</div>
+<div class="tab"><div><span class="ic">🏠</span>Home</div><div><span class="ic">📊</span>Budget</div><div><span class="ic">📈</span>Assets</div><div><span class="ic">🏖️</span>Retire</div><div class="on"><span class="ic">👤</span>You</div></div></div>
+
+<!-- 6. HELP / GLOSSARY -->
+<div class="phone"><div class="notch"></div><div class="scr">
+  <div class="tt">Help</div><div class="h1" style="margin-bottom:10px">Terms & definitions</div>
+  <div class="card" style="padding:10px 13px"><div class="row"><span class="sub">🔎 Search a term…</span><span class="sub">⌄</span></div></div>
+  <div class="card">
+    <div class="gloss"><b>Net worth</b><span>Everything you own minus everything you owe (assets − debt).</span></div>
+    <div class="gloss"><b>Projected to save</b><span>What you're on track to have left this month after planned spending.</span></div>
+    <div class="gloss"><b>Chance of success</b><span>% of 1,000 simulated market futures where your money lasts through retirement.</span></div>
+    <div class="gloss"><b>Tax bucket</b><span>How an account is taxed later: pre-tax (401k), Roth (tax-free), or taxable.</span></div>
+    <div class="gloss"><b>Required minimum distribution</b><span>The amount the IRS makes you withdraw from pre-tax accounts after a set age.</span></div>
+    <div class="gloss"><b>Toxic debt</b><span>High-interest debt (above ~7%) that's worth paying off before investing.</span></div>
+    <div class="gloss" style="border:0"><b>Sequence-of-returns risk</b><span>The danger of poor market returns early in retirement draining savings.</span></div>
+  </div>
+</div>
+<div class="tab"><div><span class="ic">🏠</span>Home</div><div><span class="ic">📊</span>Budget</div><div><span class="ic">📈</span>Assets</div><div><span class="ic">🏖️</span>Retire</div><div class="on"><span class="ic">❔</span>Help</div></div></div>
+
+</body></html>

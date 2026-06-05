@@ -1,3 +1,38 @@
+// Canonical budget categories — same set used in onboarding's spending plan, each tagged
+// with the budget bucket it rolls into. Used by add-expense + budget-vs-actual so logged
+// expenses match the categories you set up (incl. Insurance).
+export type BudgetBucket = 'fixed' | 'nonmonthly' | 'flexible';
+export const BUDGET_CATEGORIES: { id: string; label: string; bucket: BudgetBucket; icon: string }[] = [
+  { id: 'rent', label: 'Rent / Mortgage', bucket: 'fixed', icon: '🏠' },
+  { id: 'utilities', label: 'Utilities', bucket: 'fixed', icon: '⚡' },
+  { id: 'phone', label: 'Phone / Internet', bucket: 'fixed', icon: '📶' },
+  { id: 'insurance', label: 'Insurance', bucket: 'fixed', icon: '🛡️' },
+  { id: 'subs', label: 'Subscriptions', bucket: 'fixed', icon: '📺' },
+  { id: 'debt', label: 'Debt payment', bucket: 'fixed', icon: '💳' },
+  { id: 'repairs', label: 'Repairs / maintenance', bucket: 'nonmonthly', icon: '🔧' },
+  { id: 'travel', label: 'Travel / holidays', bucket: 'nonmonthly', icon: '✈️' },
+  { id: 'gifts', label: 'Gifts', bucket: 'nonmonthly', icon: '🎁' },
+  { id: 'groceries', label: 'Groceries', bucket: 'flexible', icon: '🛒' },
+  { id: 'gas', label: 'Gas / Transport', bucket: 'flexible', icon: '⛽' },
+  { id: 'dining', label: 'Dining out', bucket: 'flexible', icon: '🍔' },
+  { id: 'shopping', label: 'Shopping', bucket: 'flexible', icon: '🛍️' },
+  { id: 'fun', label: 'Entertainment', bucket: 'flexible', icon: '🎉' },
+];
+
+type CatLike = { label: string; bucket?: BudgetBucket; icon?: string };
+/** Bucket for a logged expense category — canonical list first, then the user's custom cats, else flexible. */
+export function categoryBucketFor(label: string, custom: CatLike[] = []): BudgetBucket {
+  const c = BUDGET_CATEGORIES.find((x) => x.label === label) || custom.find((x) => x.label === label);
+  return (c?.bucket as BudgetBucket) ?? 'flexible';
+}
+/** Icon for a budget/expense category, falling back to the legacy expense set, then 📦. */
+export function budgetCategoryIcon(label: string, custom: CatLike[] = []): string {
+  return BUDGET_CATEGORIES.find((x) => x.label === label)?.icon
+    || custom.find((x) => x.label === label)?.icon
+    || EXPENSE_CATEGORIES.find((c) => c.label === label)?.icon
+    || '📦';
+}
+
 export const EXPENSE_CATEGORIES = [
   { label: 'Groceries',     icon: '🛒', bg: '#E1F5EE' },
   { label: 'Dining',        icon: '🍔', bg: '#FFF3E0' },

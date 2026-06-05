@@ -1,0 +1,137 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--gold:#EBB23A;--bg:#F6F7F5;--card:#fff;
+--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:24px;flex-wrap:wrap;justify-content:center}
+.col{width:300px}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:4px}
+.capsub{font-size:11px;color:var(--sub);text-align:center;margin-bottom:10px;min-height:28px}
+.phone{width:300px;height:600px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px;background:var(--bg)}
+.brand{font-size:16px;font-weight:800;color:var(--ink)}
+.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:6px 11px;font-size:11px;font-weight:700}
+.ham{font-size:20px;color:var(--ink)}
+.body{padding:14px 16px}
+.h{font-size:12px;font-weight:800;color:var(--ter);letter-spacing:.5px}
+.heroCard{background:var(--greenD);border-radius:16px;padding:16px;margin-top:8px}
+.heroCard .l{color:#BEE7D8;font-size:10px;font-weight:700}
+.heroCard .v{color:#fff;font-size:24px;font-weight:800;margin-top:4px}
+.bar2{height:8px;background:rgba(255,255,255,.18);border-radius:4px;margin-top:10px;overflow:hidden}
+.bar2 i{display:block;height:100%;width:54%;background:#7FE3C2;border-radius:4px}
+.tiles{display:flex;gap:8px;margin-top:10px}
+.tile{flex:1;background:#fff;border-radius:12px;padding:10px;box-shadow:0 1px 4px var(--line)}
+.tile .tl{font-size:10px;color:var(--sub)}
+.tile .tv{font-size:15px;font-weight:800;color:var(--ink);margin-top:2px}
+/* bottom nav */
+.nav{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);
+display:flex;justify-content:space-around;align-items:center;padding:8px 4px 18px}
+.nav.two{flex-wrap:wrap;gap:2px 0}
+.ni{flex:1;min-width:33%;text-align:center}
+.ni .e{font-size:19px}
+.ni .t{font-size:9px;color:var(--sub);margin-top:2px}
+.ni.on .t{color:var(--green);font-weight:800}
+.ni.on .e{filter:none}
+.fab{width:46px;height:46px;border-radius:23px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin-top:-18px;box-shadow:0 4px 10px rgba(23,143,107,.4)}
+.ni5{flex:1;text-align:center}
+/* hub overlay */
+.hub{position:absolute;left:0;right:0;bottom:64px;background:#fff;border-radius:18px 18px 0 0;box-shadow:0 -6px 20px rgba(0,0,0,.12);padding:14px}
+.hubgrid{display:flex;flex-wrap:wrap;gap:10px;margin-top:8px}
+.hubitem{width:30%;text-align:center;background:var(--bg);border-radius:12px;padding:10px 4px}
+.hubitem .e{font-size:20px}.hubitem .t{font-size:10px;color:var(--ink);margin-top:3px;font-weight:600}
+</style></head><body>
+
+<!-- VARIANT 1: 5 single-row tabs + Net Worth chip top-right -->
+<div class="col">
+  <div class="cap">A · 5 tabs + NW chip</div>
+  <div class="capsub">Net Worth as a top-right chip; Goals/Scenario folded into Menu. Most native.</div>
+  <div class="phone">
+    <div class="topbar"><span class="brand">FinWise 💰</span><span class="nwchip">Net worth $182k ›</span></div>
+    <div class="body">
+      <div class="h">SPENT IN JUN</div>
+      <div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div>
+      <div class="tiles"><div class="tile"><div class="tl">Take-home</div><div class="tv">$8.4k</div></div><div class="tile"><div class="tl">Left over</div><div class="tv">$5.8k</div></div></div>
+    </div>
+    <div class="nav">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">🎯</div><div class="t">Goals</div></div>
+      <div class="ni"><div class="e">☰</div><div class="t">Menu</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 2: two-row bottom bar (6) -->
+<div class="col">
+  <div class="cap">B · Two-row bar</div>
+  <div class="capsub">All six in two rows. Fits everything, but non-standard &amp; eats screen height.</div>
+  <div class="phone">
+    <div class="topbar"><span class="brand">FinWise 💰</span></div>
+    <div class="body">
+      <div class="h">SPENT IN JUN</div>
+      <div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div>
+      <div class="tiles"><div class="tile"><div class="tl">Take-home</div><div class="tv">$8.4k</div></div><div class="tile"><div class="tl">Left over</div><div class="tv">$5.8k</div></div></div>
+    </div>
+    <div class="nav two">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">💎</div><div class="t">Net Worth</div></div>
+      <div class="ni"><div class="e">🎯</div><div class="t">Goals</div></div>
+      <div class="ni"><div class="e">☰</div><div class="t">Menu</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 3: top bar split (Menu left, NW right) + 4 bottom -->
+<div class="col">
+  <div class="cap">C · Top split + 4 tabs</div>
+  <div class="capsub">☰ Menu top-left, Net Worth top-right (your idea); bottom = 4 daily tabs. Clean.</div>
+  <div class="phone">
+    <div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $182k ›</span></div>
+    <div class="body">
+      <div class="h">SPENT IN JUN</div>
+      <div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div>
+      <div class="tiles"><div class="tile"><div class="tl">Take-home</div><div class="tv">$8.4k</div></div><div class="tile"><div class="tl">Left over</div><div class="tv">$5.8k</div></div></div>
+    </div>
+    <div class="nav">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">🎯</div><div class="t">Goals</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- VARIANT 4: center hub button opens all modules -->
+<div class="col">
+  <div class="cap">D · Center hub (⊕)</div>
+  <div class="capsub">4 core tabs + a center ⊕ that opens a grid of every module (NW, Goals, Scenario…).</div>
+  <div class="phone">
+    <div class="topbar"><span class="brand">FinWise 💰</span><span class="nwchip">$182k ›</span></div>
+    <div class="body">
+      <div class="h">SPENT IN JUN</div>
+      <div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div>
+    </div>
+    <div class="hub">
+      <div class="h">ALL MODULES</div>
+      <div class="hubgrid">
+        <div class="hubitem"><div class="e">🏖</div><div class="t">Retirement</div></div>
+        <div class="hubitem"><div class="e">💎</div><div class="t">Net Worth</div></div>
+        <div class="hubitem"><div class="e">🎯</div><div class="t">Goals</div></div>
+        <div class="hubitem"><div class="e">🔮</div><div class="t">Scenarios</div></div>
+        <div class="hubitem"><div class="e">💡</div><div class="t">Insights</div></div>
+        <div class="hubitem"><div class="e">⚙️</div><div class="t">Settings</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="ni5 on"><div class="e">🏠</div><div class="t" style="font-size:9px;color:#178F6B;font-weight:800">Home</div></div>
+      <div class="ni5"><div class="e">📋</div><div class="t" style="font-size:9px;color:#6B6B66">Budget</div></div>
+      <div class="ni5"><div class="fab">＋</div></div>
+      <div class="ni5"><div class="e">🏖</div><div class="t" style="font-size:9px;color:#6B6B66">Retire</div></div>
+      <div class="ni5"><div class="e">☰</div><div class="t" style="font-size:9px;color:#6B6B66">Menu</div></div>
+    </div>
+  </div>
+</div>
+
+</body></html>

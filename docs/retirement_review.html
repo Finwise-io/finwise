@@ -1,0 +1,141 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--mid:#9FE1CB;--amber:#854F0B;--amberL:#FAEEDA;--red:#A32D2D;
+--bg:#F6F7F5;--card:#fff;--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:26px;justify-content:center;flex-wrap:wrap}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:10px}
+.phone{width:320px;height:1000px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative}
+.topbar{height:42px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.ham{font-size:18px}.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:5px 10px;font-size:10px;font-weight:700}
+.scr{padding:4px 16px}
+.eyebrowRow{display:flex;justify-content:space-between;align-items:center;margin:10px 0 8px}
+.eyebrow{font-size:11px;font-weight:800;color:var(--ter);letter-spacing:.5px}
+.tg{display:flex;align-items:center;gap:6px}.tgL{font-size:12px;color:var(--sub);font-weight:600}
+.sw{width:38px;height:22px;border-radius:11px;background:var(--line);position:relative}.sw.on{background:var(--mid)}
+.sw>i{position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:9px;background:#fff}.sw.on>i{left:18px;background:var(--green)}
+.hero{background:var(--greenD);border-radius:16px;padding:18px;text-align:center}
+.hl{color:#BEE7D8;font-size:11px;font-weight:700;letter-spacing:.5px}
+.pct{color:#fff;font-size:50px;font-weight:800;margin-top:2px}
+.word{color:#fff;font-size:32px;font-weight:800;margin:6px 0 2px}
+.gauge{height:10px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:6px}
+.gauge>i{display:block;height:100%;background:#7FE3C2;border-radius:5px}
+.hsub{color:#DDF3EB;font-size:12px;margin-top:8px;line-height:17px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-top:8px}
+.summary{font-size:13.5px;color:var(--ink);line-height:21px}
+.summary b{color:var(--greenD)}
+.row{display:flex;justify-content:space-between;padding:6px 0}
+.rk{font-size:14px;color:var(--sub)}.rv{font-size:15px;font-weight:700;color:var(--ink)}
+.div{height:1px;background:var(--line);margin:6px 0}
+.sec{font-size:12px;font-weight:700;color:var(--ter);text-transform:uppercase;letter-spacing:.5px;margin:14px 0 8px}
+.axis{display:flex;justify-content:space-between;margin-top:2px}.ax{font-size:9px;color:var(--ter)}
+.fx{font-size:11px;color:var(--sub);margin-top:8px;line-height:15px}
+.btn{background:var(--green);color:#fff;text-align:center;border-radius:12px;padding:14px;font-weight:800;font-size:15px;margin-top:14px}
+.foot{font-size:11px;color:var(--ter);text-align:center;margin-top:8px}
+/* plan */
+.back{font-size:15px;font-weight:700;color:var(--green)}
+.chip{background:var(--green);color:#fff;border-radius:100px;padding:5px 10px;font-size:11px;font-weight:700}
+.aHead{display:flex;justify-content:space-between;align-items:center;margin:14px 0 2px}
+.aT{font-size:12px;font-weight:800;color:var(--ter);letter-spacing:.5px}.hint{font-size:12px;font-weight:700;color:var(--green)}
+.big{font-size:24px;font-weight:800;color:var(--ink)}.subx{font-size:12px;color:var(--sub);margin-top:2px}
+.li{display:flex;justify-content:space-between;align-items:center;padding:7px 0}
+.lk{font-size:13.5px;color:var(--sub)}.lv{font-size:14px;font-weight:700;color:var(--ink)}
+.excl{font-size:11px;color:var(--amber);margin-top:8px;background:var(--amberL);border-radius:8px;padding:8px;line-height:16px}
+.seg{display:flex;gap:6px;margin-top:10px}
+.seg b{flex:1;padding:8px;border-radius:10px;border:1.5px solid var(--line);text-align:center;font-size:11px;font-weight:700;color:var(--sub)}
+.seg b.on{border-color:var(--green);background:var(--greenL);color:var(--green)}
+.note{font-size:11px;color:var(--sub);margin-top:8px}
+.bigInWrap{display:flex;align-items:center;margin-top:2px}.bigPre{font-size:20px;font-weight:800;color:var(--sub)}
+.bigIn{font-size:24px;font-weight:800;color:var(--ink);border-bottom:2px solid var(--mid);min-width:90px}.bigSuf{font-size:14px;color:var(--sub);margin-left:2px}
+.step{display:flex;align-items:center;gap:8px}.sb{width:30px;height:30px;border-radius:15px;background:var(--greenL);color:var(--green);font-size:18px;font-weight:700;display:flex;align-items:center;justify-content:center}
+.sv{font-size:16px;font-weight:800;min-width:34px;text-align:center}
+.inWrap{display:flex;align-items:center;background:var(--bg);border:1px solid var(--line);border-radius:8px;padding:2px 8px}.inP{font-size:14px;color:var(--sub)}.inV{font-size:14px;font-weight:700;width:64px;text-align:right}
+.explain{background:var(--greenL);border-radius:16px;padding:14px;margin-top:14px}.et{font-size:13px;font-weight:800;color:var(--greenD)}.ed{font-size:12px;color:var(--greenD);opacity:.92;margin-top:4px;line-height:18px}
+</style></head><body>
+<script>
+// reproduce the component's LOG-scale band chart with the REAL sim numbers
+function chart(band, w, retAge){
+  const H=130,padTop=8,padBot=4;
+  const top=Math.max(...band.map(b=>b.p90),1);
+  const hardFloor=Math.max(1000,top/1000);
+  const positives=band.map(b=>b.p10).filter(v=>v>hardFloor);
+  const dataMin=positives.length?Math.min(...positives):hardFloor;
+  const floor=Math.max(hardFloor,dataMin*0.7);
+  const lTop=Math.log(top), lFloor=Math.log(floor);
+  const minA=band[0].age,maxA=band[band.length-1].age;
+  const x=a=>((a-minA)/(maxA-minA||1))*w;
+  const y=v=>{const ly=(Math.log(Math.max(floor,v))-lFloor)/(lTop-lFloor||1);return padTop+(1-ly)*(H-padTop-padBot);};
+  const up=band.map(b=>x(b.age).toFixed(1)+','+y(b.p90).toFixed(1)).join(' L ');
+  const lo=[...band].reverse().map(b=>x(b.age).toFixed(1)+','+y(b.p10).toFixed(1)).join(' L ');
+  const med='M '+band.map(b=>x(b.age).toFixed(1)+','+y(b.p50).toFixed(1)).join(' L ');
+  let marker='';
+  if(retAge!=null&&retAge>=minA&&retAge<=maxA) marker='<line x1="'+x(retAge)+'" y1="0" x2="'+x(retAge)+'" y2="'+(H-padBot)+'" stroke="#854F0B" stroke-width="1.5" stroke-dasharray="3,3" opacity="0.6"/>';
+  return '<svg width="'+w+'" height="'+H+'"><line x1="0" y1="'+(H-padBot)+'" x2="'+w+'" y2="'+(H-padBot)+'" stroke="rgba(0,0,0,.10)"/>'+
+    '<path d="M '+up+' L '+lo+' Z" fill="#9FE1CB" fill-opacity="0.4"/>'+
+    '<path d="'+med+'" stroke="#178F6B" stroke-width="2.5" fill="none"/>'+marker+'</svg>';
+}
+const accum=[{age:40,p10:240000,p50:240000,p90:240000},{age:45,p10:362187,p50:466124,p90:608689},{age:50,p10:560593,p50:797486,p90:1125198},{age:55,p10:773010,p50:1216054,p90:1888749},{age:60,p10:1120136,p50:1761935,p90:3072994},{age:65,p10:1561673,p50:2566678,p90:4516504},{age:70,p10:1497581,p50:3130861,p90:6168260},{age:75,p10:1402204,p50:3789779,p90:8646185},{age:80,p10:1191551,p50:4545912,p90:12136220},{age:85,p10:1150236,p50:5864201,p90:16379173},{age:90,p10:768138,p50:7080223,p90:22313461}];
+const draw=[{age:68,p10:900000,p50:900000,p90:900000},{age:72,p10:787569,p50:959939,p90:1138137},{age:76,p10:729335,p50:1005539,p90:1315010},{age:80,p10:683508,p50:1039943,p90:1486673},{age:84,p10:628175,p50:1081275,p90:1645580},{age:88,p10:551268,p50:1084949,p90:1895537},{age:92,p10:441831,p50:1100990,p90:2077047}];
+window.addEventListener('DOMContentLoaded',()=>{document.getElementById('c1').innerHTML=chart(accum,272,65);document.getElementById('c2').innerHTML=chart(draw,272,null);});
+</script>
+
+<!-- 1 ACCUM OUTLOOK -->
+<div><div class="cap">1 · Outlook — Accumulating (age 40)</div><div class="phone">
+<div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $360k ›</span></div>
+<div class="scr">
+<div class="eyebrowRow"><span class="eyebrow">RETIREMENT</span><div class="tg"><span class="tgL">Show me simply</span><div class="sw"><i></i></div></div></div>
+<div class="hero"><div class="hl">CHANCE OF SUCCESS</div><div class="pct">95%</div><div class="gauge"><i style="width:95%"></i></div><div class="hsub">On track · your money lasts to age 90 in 95% of market scenarios</div></div>
+<div class="card"><div class="summary">If you keep adding <b>$2,000/mo</b> to a <b>$240K</b> nest egg and retire at <b>65</b>, it likely grows to ~<b>$2.57M</b>. You'd draw about <b>$3,000/mo</b> (after guaranteed income) — and that lasts in most scenarios.</div></div>
+<div class="card"><div class="row"><span class="rk">Projected at 65 (median)</span><span class="rv" style="color:var(--green)">$2.57M</span></div><div class="row"><span class="rk">Needed for your plan</span><span class="rv">$1.63M</span></div><div class="div"></div><div class="row"><span class="rk">Surplus</span><span class="rv" style="color:var(--green)">$938K</span></div></div>
+<div class="sec">Projected balance (10th–90th %)</div>
+<div class="card"><div id="c1"></div><div class="axis"><span class="ax">40</span><span class="ax">retire 65</span><span class="ax">90</span></div><div class="fx">Shaded range = 10th–90th percentile of outcomes; line = the median path. Log scale — if the lower edge hits the floor, the money runs out in those scenarios.</div></div>
+<div class="btn">Adjust assumptions  →</div><div class="foot">We run 500 market scenarios. Tap above to see &amp; change every input.</div>
+</div></div></div>
+
+<!-- 2 DRAWDOWN OUTLOOK -->
+<div><div class="cap">2 · Outlook — Retired / drawdown (age 68)</div><div class="phone">
+<div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $900k ›</span></div>
+<div class="scr">
+<div class="eyebrowRow"><span class="eyebrow">RETIREMENT</span><div class="tg"><span class="tgL">Show me simply</span><div class="sw"><i></i></div></div></div>
+<div class="hero"><div class="hl">CHANCE YOUR MONEY LASTS</div><div class="pct">100%</div><div class="gauge"><i style="width:100%"></i></div><div class="hsub">Looking good · your money lasts to age 92 in 100% of market scenarios</div></div>
+<div class="card"><div class="summary">From your <b>$900K</b> nest egg you're drawing about <b>$2,500/mo</b> on top of <b>$3,000/mo</b> of guaranteed income. In most scenarios this lasts through age 92.</div></div>
+<div class="card"><div class="row"><span class="rk">Nest egg today</span><span class="rv" style="color:var(--green)">$900K</span></div><div class="row"><span class="rk">Needed to last (rule of thumb)</span><span class="rv">$750K</span></div><div class="div"></div><div class="row"><span class="rk">Surplus</span><span class="rv" style="color:var(--green)">$150K</span></div></div>
+<div class="sec">Projected balance (10th–90th %)</div>
+<div class="card"><div id="c2"></div><div class="axis"><span class="ax">68</span><span class="ax">92</span></div><div class="fx">Shaded range = 10th–90th percentile of outcomes; line = the median path. Log scale — if the lower edge hits the floor, the money runs out in those scenarios.</div></div>
+<div class="btn">Adjust assumptions  →</div><div class="foot">We run 500 market scenarios. Tap above to see &amp; change every input.</div>
+</div></div></div>
+
+<!-- 3 PLAIN MODE -->
+<div><div class="cap">3 · Plain mode (toggle ON)</div><div class="phone">
+<div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $360k ›</span></div>
+<div class="scr">
+<div class="eyebrowRow"><span class="eyebrow">RETIREMENT</span><div class="tg"><span class="tgL">Show me simply</span><div class="sw on"><i></i></div></div></div>
+<div class="hero"><div class="hl">CHANCE OF SUCCESS</div><div class="word">✅ On track</div><div class="hsub">You're on track to a comfortable retirement in most cases.</div></div>
+<div class="card"><div class="summary">If you keep adding <b>$2,000/mo</b> to a <b>$240K</b> nest egg and retire at <b>65</b>, it likely grows to ~<b>$2.57M</b>. You'd draw about <b>$3,000/mo</b> (after guaranteed income) — and that lasts in most scenarios.</div></div>
+<div class="card"><div class="row"><span class="rk">Projected at 65 (median)</span><span class="rv" style="color:var(--green)">$2.57M</span></div><div class="row"><span class="rk">Needed for your plan</span><span class="rv">$1.63M</span></div><div class="div"></div><div class="row"><span class="rk">Surplus</span><span class="rv" style="color:var(--green)">$938K</span></div></div>
+<div class="btn">Adjust assumptions  →</div><div class="foot">Tap above to see and change every number.</div>
+</div></div></div>
+
+<!-- 4 YOUR PLAN -->
+<div><div class="cap">4 · Your plan (assumptions, editable)</div><div class="phone">
+<div class="topbar"><span class="back">‹ Back</span><span class="chip">95% success</span></div>
+<div class="scr">
+<div class="aHead"><span class="aT">NEST EGG TODAY</span><span class="hint">Manage in Net Worth</span></div>
+<div class="card"><div class="big">$240,000</div><div class="subx">investable assets counted toward retirement</div><div class="div"></div>
+<div class="li"><span class="lk">🏛️ 401(k)</span><span class="lv">$120,000</span></div><div class="li"><span class="lk">🌱 Roth IRA</span><span class="lv">$40,000</span></div><div class="li"><span class="lk">📈 Stocks / ETFs</span><span class="lv">$60,000</span></div><div class="li"><span class="lk">💵 Savings</span><span class="lv">$20,000</span></div>
+<div class="excl">🏠 Home &amp; 🚗 vehicles are excluded — you don't sell them to live on.</div></div>
+<div class="aHead"><span class="aT">CONTRIBUTIONS</span></div>
+<div class="card"><div class="subx">Added to retirement / mo</div><div class="bigInWrap"><span class="bigPre">$</span><span class="bigIn">2,000</span><span class="bigSuf">/mo</span></div><div class="div"></div>
+<div class="li"><span class="lk">Your 401(k)</span><span class="lv">$1,500/mo</span></div><div class="li"><span class="lk">Employer match</span><span class="lv">$500/mo</span></div><div class="li"><span class="lk">Roth + invested savings</span><span class="lv">$0/mo</span></div></div>
+<div class="aHead"><span class="aT">GROWTH</span></div>
+<div class="card"><div class="li"><span class="lk">Expected return</span><span class="lv">7.0% / yr</span></div><div class="li"><span class="lk">Inflation</span><span class="lv">2.4% / yr</span></div>
+<div class="seg"><b>Conservative</b><b>Moderate</b><b>Aggressive</b></div><div class="note">Using your actual asset mix.</div></div>
+<div class="aHead"><span class="aT">RETIREMENT &amp; DRAWDOWN</span></div>
+<div class="card"><div class="li"><span class="lk">Retire at</span><span class="step"><span class="sb">−</span><span class="sv">65</span><span class="sb">+</span></span></div>
+<div class="li"><span class="lk">Plan to age</span><span class="step"><span class="sb">−</span><span class="sv">90</span><span class="sb">+</span></span></div>
+<div class="li"><span class="lk">Spend / mo (today's $)</span><span class="inWrap"><span class="inP">$</span><span class="inV">5,000</span></span></div>
+<div class="li"><span class="lk">Social Security / pension / mo</span><span class="inWrap"><span class="inP">$</span><span class="inV">2,000</span></span></div>
+<div class="div"></div><div class="li"><span class="lk" style="font-weight:700;color:var(--ink)">Net drawdown</span><span class="lv" style="color:var(--amber)">$3,000/mo · $36k/yr</span></div></div>
+<div class="explain"><div class="et">What the simulation does</div><div class="ed">We run 500 market scenarios. Each year your nest egg earns a random return (~7% ± market swings) and your contributions are added; after 65 it pays your net drawdown, rising with inflation. <b>Chance of success = the % of scenarios where the money lasts to 90.</b></div></div>
+</div></div></div>
+
+</body></html>

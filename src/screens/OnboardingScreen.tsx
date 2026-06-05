@@ -1,35 +1,20 @@
 import React, { useState, useEffect } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity,
-  TextInput, KeyboardAvoidingView, Platform, Alert,
+  View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Button, Card, ProgressBar } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import {
-  Status, Track, STATUS_OPTIONS, goalOptionsFor, buildSteps,
+  Status, Track, STATUS_OPTIONS, goalOptionsFor, buildSteps, isOptional,
 } from '../onboarding/engine';
+import { renderStep, stepValid, StepCtx } from '../onboarding/modules';
+import Summary from '../onboarding/Summary';
+import Mascot from '../onboarding/Mascot';
 import { registerUser, loginUser } from '../services/firebase';
-
-// Steps fully built in this slice; the rest are functional stubs (filled in next pass).
-const STUB_TITLES: Record<string, { emoji: string; title: string; sub: string }> = {
-  birth:          { emoji: '🎂', title: 'When were you born?', sub: 'Month and year (next pass).' },
-  marital:        { emoji: '💍', title: 'Married or have a partner?', sub: '' },
-  dependents:     { emoji: '👨‍👩‍👧', title: 'Kids or dependents?', sub: '' },
-  income:         { emoji: '💵', title: 'Your income', sub: 'Job / retirement sources — adapts to your status.' },
-  other_income:   { emoji: '➕', title: 'Other income', sub: 'Consulting, rental, side gigs.' },
-  savings:        { emoji: '🏦', title: 'Savings & investments', sub: '' },
-  ret_location:   { emoji: '🌍', title: 'Where will you retire?', sub: '' },
-  ret_spend_change:{ emoji: '📉', title: 'Retirement spending', sub: 'Same, less, or more than now?' },
-  ret_addons:     { emoji: '✈️', title: 'Travel & medical budget', sub: '' },
-  ret_age:        { emoji: '🏖️', title: 'Target retirement age', sub: '' },
-  ret_horizon:    { emoji: '🛟', title: 'How long should your money last?', sub: '' },
-  spending:       { emoji: '🧾', title: 'Average monthly spending', sub: '' },
-  goals_detail:   { emoji: '🎯', title: 'What are you saving for?', sub: '' },
-  debt:           { emoji: '🎓', title: 'Student loans', sub: '' },
-  partner_invite: { emoji: '👫', title: 'Invite your partner', sub: '' },
-};
+import { saveProfile, profileFromOnboarding } from '../domain/profile';
+import { saveIncome, incomeFromOnboarding } from '../domain/income';
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -42,13 +27,15 @@ export default function OnboardingScreen() {
   const [status, setStatus] = useState<Status | null>((draft?.status as Status) ?? null);
   const [tracks, setTracks] = useState<Track[]>((draft?.tracks as Track[]) ?? []);
   const [name, setName] = useState<string>(draft?.name ?? store.user?.name ?? '');
+  const [answers, setAnswers] = useState<Record<string, any>>(draft?.answers ?? {});
+  const setAnswer = (key: string, value: any) => setAnswers(prev => ({ ...prev, [key]: value }));
 
   // Auto-save progress (synced to the account once signed in).
   useEffect(() => {
-    store.setOnboardingDraft?.({ stepIndex, status, tracks, name });
+    store.setOnboardingDraft?.({ stepIndex, status, tracks, name, answers });
     if (status) store.setEmploymentStatus?.(status);
     if (tracks.length) store.setSelectedGoals?.(tracks);
-  }, [stepIndex, status, tracks, name]);
+  }, [stepIndex, status, tracks, name, answers]);
 
   // Inline account step
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
@@ -62,6 +49,9 @@ export default function OnboardingScreen() {
   const progress = totalSteps > 1 ? (stepIndex / (totalSteps - 1)) * 100 : 0;
   const isLast = current === 'summary';
   const alreadyAuthed = !!store.user;
+  const ctx: StepCtx = { status, tracks, answers, setAnswer };
+  const META = new Set(['status', 'goals', 'account', 'name', 'summary']);
+  const isOptionalStep = isOptional(current as any);
 
   function toggleTrack(t: Track) {
     setTracks(prev => prev.includes(t) ? prev.filter(x => x !== t) : [...prev, t]);
@@ -74,15 +64,24 @@ export default function OnboardingScreen() {
   }
 
   function saveAndExit() {
-    store.setOnboardingDraft?.({ stepIndex, status, tracks, name });
-    Alert.alert('Progress saved', "Your setup is saved to your account. Close anytime — we'll pick up right here.");
+    store.setOnboardingDraft?.({ stepIndex, status, tracks, name, answers });
+    if (store.user) {
+      // account exists → pause onboarding and drop them into the app (resume later)
+      store.setOnboardingPaused?.(true);
+      router.replace('/(tabs)/home');
+    } else {
+      // no account yet (early steps) → just save the draft locally
+      Alert.alert('Progress saved', "We'll pick up right here next time you open the app.");
+    }
   }
 
   function canContinue(): boolean {
     if (current === 'status') return !!status;
     if (current === 'goals') return tracks.length > 0;
     if (current === 'name') return name.trim().length > 0;
-    return true; // stubs always continue
+    if (META.has(current)) return true;
+    if (isOptionalStep) return true;        // optional steps: Continue always enabled (or Skip)
+    return stepValid(current as any, ctx);  // required field steps: validate
   }
 
   function advance() {
@@ -118,10 +117,22 @@ export default function OnboardingScreen() {
   function finish() {
     store.setEmploymentStatus?.(status);
     store.setSelectedGoals?.(tracks);
+    const consolidated = { status, tracks, name: name.trim(), ...answers };
+    store.setOnboardingProfile?.(consolidated);
+    // Persist the Profile domain module (blueprint §5: onboarding → modules).
+    const uid = store.user?.uid;
+    if (uid) {
+      saveProfile(profileFromOnboarding(uid, consolidated)).catch(() => {});
+      saveIncome(incomeFromOnboarding(uid, consolidated)).catch(() => {});
+    }
+    // Seed a couple of headline numbers the dashboard already reads.
+    const spend = parseFloat(String(answers.monthlySpending ?? '').replace(/[^0-9.]/g, ''));
+    if (spend > 0) store.setMonthlyBudgetTarget?.(spend);
     if (name.trim() && store.setUser && store.user) {
       store.setUser({ ...store.user, name: name.trim() });
     }
     store.setOnboardingDraft?.(null);   // clear resume draft on completion
+    store.setOnboardingPaused?.(false);
     store.setOnboardingComplete?.(true);
     router.replace('/(tabs)/home');
   }
@@ -213,94 +224,71 @@ export default function OnboardingScreen() {
     }
 
     if (current === 'summary') {
-      return (
-        <>
-          <Header emoji="🎉" title="You're all set!" sub="Your personalized plan is ready." />
-          <Card>
-            <SRow label="You are" value={status ?? '—'} />
-            <SRow label="Focus" value={tracks.join(', ') || '—'} />
-            {!!name.trim() && <SRow label="Name" value={name.trim()} />}
-          </Card>
-          <Text style={styles.note}>Full Boldin-style summary charts come next. For now, jump in 🚀</Text>
-        </>
-      );
+      return <Summary status={status} tracks={tracks} answers={answers} name={name} />;
     }
 
-    // Stub for not-yet-built modules
-    const s = STUB_TITLES[current] ?? { emoji: '🛠', title: current, sub: '' };
-    let sub = s.sub;
-    if (current === 'ret_spend_change') {
-      sub = status === 'retired'
-        ? 'Do you expect it to change later in retirement?'
-        : 'About the same, less, or more than today?';
-    }
-    return (
-      <>
-        <Header emoji={s.emoji} title={s.title} sub={sub} />
-        <Card><Text style={styles.note}>This step is coming in the next build pass.</Text></Card>
-      </>
-    );
+    // Field & recap steps are rendered by the data-driven module registry.
+    return <>{renderStep(current as any, ctx)}</>;
   }
 
   const primaryLabel =
     current === 'account' && !alreadyAuthed ? (authMode === 'signup' ? 'Create account' : 'Log in')
-      : isLast ? 'Start FinWise 🚀' : 'Continue →';
+      : isLast ? 'Enter your dashboard →' : 'Continue →';
 
   return (
-    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-        <View style={styles.progressWrap}>
-          <ProgressBar pct={progress} />
-          <Text style={styles.progressText}>Step {stepIndex + 1} of {totalSteps}</Text>
-        </View>
-
+    <View style={{ flex: 1 }}>
+      {/* progress bar — pinned at the top, always visible */}
+      <View style={styles.progressBarFixed}>
+        <ProgressBar pct={progress} />
+        <Text style={styles.progressText}>Step {stepIndex + 1} of {totalSteps}</Text>
+      </View>
+      <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}
+        keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator>
         {renderBody()}
 
-        <View style={styles.navRow}>
-          {stepIndex > 0 && current !== 'account' && (
-            <Button label="← Back" onPress={back} variant="secondary" style={{ flex: 1 }} size="md" />
-          )}
-          <Button label={primaryLabel} onPress={onPrimary} loading={authBusy}
-            disabled={current !== 'account' && !canContinue()}
-            style={{ flex: 1 }} size="md" />
-        </View>
+        {isOptionalStep && (
+          <TouchableOpacity onPress={advance} style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
+            <Text style={styles.link}>Skip for now</Text>
+          </TouchableOpacity>
+        )}
 
         {stepIndex > 0 && !isLast && (
           <TouchableOpacity onPress={saveAndExit} style={{ alignSelf: 'center', paddingVertical: Spacing.md }}>
             <Text style={styles.link}>Save & come back later</Text>
           </TouchableOpacity>
         )}
-        <View style={{ height: 40 }} />
       </ScrollView>
-    </KeyboardAvoidingView>
+
+      {/* pinned footer — Back / Continue always visible, never clipped by tall content */}
+      <View style={styles.footer}>
+        {stepIndex > 0 && current !== 'account' && (
+          <Button label="← Back" onPress={back} variant="secondary" style={{ width: 104 }} size="md" />
+        )}
+        <Button label={primaryLabel} onPress={onPrimary} loading={authBusy}
+          disabled={current !== 'account' && !canContinue()}
+          style={{ flex: 1 }} size="md" />
+      </View>
+    </View>
   );
 }
 
 function Header({ emoji, title, sub }: { emoji: string; title: string; sub: string }) {
   return (
     <View style={styles.headWrap}>
-      <Text style={styles.emoji}>{emoji}</Text>
+      <Mascot accessory={emoji} size={88} />
       <Text style={styles.heading}>{title}</Text>
       {!!sub && <Text style={styles.sub}>{sub}</Text>}
     </View>
   );
 }
 
-function SRow({ label, value }: { label: string; value: string }) {
-  return (
-    <View style={styles.sRow}>
-      <Text style={styles.sLabel}>{label}</Text>
-      <Text style={styles.sVal}>{value}</Text>
-    </View>
-  );
-}
-
 const styles = StyleSheet.create({
-  scroll: { padding: Spacing.lg, paddingTop: Spacing.xl, flexGrow: 1, backgroundColor: Colors.bgSecondary },
-  progressWrap: { marginBottom: Spacing.lg },
+  scrollView: { flex: 1, minHeight: 0, backgroundColor: Colors.bgSecondary },
+  scroll: { padding: Spacing.lg, paddingTop: Spacing.md, paddingBottom: Spacing.xl, backgroundColor: Colors.bgSecondary },
+  footer: { flexDirection: 'row', gap: Spacing.sm, alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: 28, backgroundColor: Colors.bgSecondary },
+  progressBarFixed: { paddingTop: 60, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm, backgroundColor: Colors.bgSecondary },
   progressText: { marginTop: 6, fontSize: 12, color: Colors.textTertiary, textAlign: 'right' },
   headWrap: { alignItems: 'center', marginBottom: Spacing.lg },
-  emoji: { fontSize: 40, marginBottom: 8 },
   heading: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },
@@ -319,7 +307,4 @@ const styles = StyleSheet.create({
   link: { color: Colors.primary, fontWeight: '600', fontSize: 14 },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center' },
   navRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
-  sRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  sLabel: { fontSize: 14, color: Colors.textSecondary },
-  sVal: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
 });

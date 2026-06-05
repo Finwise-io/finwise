@@ -13,8 +13,9 @@ export type Track =
 export type StepId =
   // meta
   | 'status' | 'goals' | 'account' | 'name'
-  // S1
-  | 'income' | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget' | 'categoryBudgets' | 'bills'
+  // S1 — income captured as focused, one-type-per-screen sub-steps
+  | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
+  | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget'
   // S2 accumulation
   | 'birth' | 'currentRetirementSavings' | 'contributionsByType' | 'employerContribution'
   | 'targetRetirementAge' | 'expectedRetirementSpending'
@@ -29,7 +30,7 @@ export type StepId =
   // S5 / S6 / S7
   | 'hasPartner' | 'invitePartner' | 'dependentsCount' | 'debts' | 'legacyTarget'
   // recaps + end
-  | 'recap_spend' | 'recap_retire' | 'recap_invest' | 'recap_goals' | 'summary';
+  | 'recap_income' | 'recap_spend' | 'recap_retire' | 'recap_invest' | 'recap_goals' | 'summary';
 
 export const STATUS_OPTIONS: { value: Status; icon: string; title: string; sub: string }[] = [
   { value: 'employed', icon: '🧑‍💼', title: 'Employed',           sub: 'Working a job' },
@@ -62,10 +63,20 @@ export function goalOptionsFor(status: Status | null): { value: Track; icon: str
 
 // Optional (skippable) field steps — rendered with a "Skip for now".
 export const OPTIONAL_STEPS = new Set<StepId>([
-  'flexBuckets', 'savingsRateTarget', 'categoryBudgets', 'bills',
+  'income_401k', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
+  'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
   'investRefine', 'invitePartner',
 ]);
+
+// Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
+// Retired users instead give their retirement-income sources directly.
+function incomeBlock(status: Status | null): StepId[] {
+  return status === 'retired'
+    ? ['retirementIncomeSources']
+    // birth before the 401(k) screen — the contribution limit depends on age (50+ catch-up)
+    : ['income_salary', 'birth', 'income_401k', 'income_bonus', 'income_rsu', 'income_rental', 'income_tax', 'recap_income'];
+}
 
 const RECAP_OF: Partial<Record<Track, StepId>> = {
   spend: 'recap_spend',
@@ -81,15 +92,16 @@ const SERVICE_ORDER: Track[] = [
 ];
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
-function requirements(track: Track, _status: Status | null, tracks: Track[]): { must: StepId[]; optional: StepId[] } {
+function requirements(track: Track, status: Status | null, tracks: Track[]): { must: StepId[]; optional: StepId[] } {
   const hasSpend = tracks.includes('spend');
+  const income = incomeBlock(status);   // focused income sub-steps (deduped across tracks by buildSteps)
   switch (track) {
     case 'spend':
-      return { must: ['income', 'monthlySpending'],
-               optional: ['flexBuckets', 'savingsRateTarget', 'categoryBudgets', 'bills'] };
+      return { must: [...income, 'monthlySpending'],
+               optional: ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
-      // No income needed: contributions + spending are captured directly.
-      return { must: ['birth', 'currentRetirementSavings', 'contributionsByType', 'employerContribution',
+      // 401(k) + employer match captured on the income_401k screen (deduped if income flow also present).
+      return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'contributionsByType',
                       'targetRetirementAge', 'expectedRetirementSpending'],
                optional: ['retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater'] };
     case 'retire_dec':
@@ -102,9 +114,9 @@ function requirements(track: Track, _status: Status | null, tracks: Track[]): { 
     case 'goals':
       return { must: hasSpend ? ['goals_detail'] : ['goals_detail', 'monthlySavingsCapacity'], optional: [] };
     case 'partner':
-      return { must: ['hasPartner', 'income'], optional: ['invitePartner'] };
+      return { must: ['hasPartner', ...income], optional: ['invitePartner'] };
     case 'family':
-      return { must: ['dependentsCount', 'income'], optional: [] };
+      return { must: ['dependentsCount', ...income], optional: [] };
     case 'debt':
       return { must: hasSpend ? ['debts'] : ['debts', 'monthlySavingsCapacity'], optional: [] };
     case 'legacy':

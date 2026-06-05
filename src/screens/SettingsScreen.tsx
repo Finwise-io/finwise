@@ -26,7 +26,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, budgetFrequency, payFrequency } = useStore();
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency } = useStore() as any;
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -108,6 +108,8 @@ export default function SettingsScreen() {
           text: 'Continue',
           onPress: () => {
             setOnboardingComplete(false);
+            setOnboardingPaused(false);   // clear pause so the guard lets us into onboarding
+            setOnboardingDraft(null);     // start the wizard fresh, not resumed mid-flow
             router.replace('/onboarding');
           },
         },
@@ -172,6 +174,15 @@ export default function SettingsScreen() {
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Retirement planner</Text>
             <Text style={styles.actionSub}>Update your retirement plan</Text>
+          </View>
+          <Text style={styles.arrow}>›</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionRow} onPress={handleLogout}>
+          <Text style={{ fontSize: 22 }}>🚪</Text>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={[styles.actionLabel, { color: Colors.red }]}>Sign out</Text>
+            <Text style={styles.actionSub}>Log out of {user?.email ?? 'your account'}</Text>
           </View>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>

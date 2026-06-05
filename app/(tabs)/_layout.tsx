@@ -1,6 +1,7 @@
 import { Tabs } from 'expo-router';
 import { Text, View } from 'react-native';
 import { Colors } from '../../src/utils/theme';
+import TopBar from '../../src/components/TopBar';
 
 function TabIcon({ emoji, focused }: { emoji: string; focused: boolean }) {
   return (
@@ -25,18 +26,18 @@ export default function TabLayout() {
           paddingTop: 8,
         },
         tabBarLabelStyle: { fontSize: 10, fontWeight: '500', marginTop: 2 },
-        headerStyle: { backgroundColor: Colors.bgSecondary, shadowColor: 'transparent', elevation: 0 },
-        headerTitleStyle: { fontSize: 18, fontWeight: '600', color: Colors.textPrimary },
-        headerTintColor: Colors.primary,
+        header: () => <TopBar />,
       }}
     >
-      <Tabs.Screen name="home"       options={{ title: 'Home',         headerTitle: 'FinWise 💰', tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
-      <Tabs.Screen name="budget"     options={{ title: 'Transactions',                            tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
-      <Tabs.Screen name="analytics"  options={{ title: 'Analytics',                               tabBarIcon: ({ focused }) => <TabIcon emoji="📊" focused={focused} /> }} />
-      <Tabs.Screen name="retirement" options={{ title: 'Retirement',                              tabBarIcon: ({ focused }) => <TabIcon emoji="🏖" focused={focused} /> }} />
-      <Tabs.Screen name="tips"       options={{ title: 'Tips',                                    tabBarIcon: ({ focused }) => <TabIcon emoji="💡" focused={focused} /> }} />
-      <Tabs.Screen name="rewards"    options={{ title: 'Rewards',                                 tabBarIcon: ({ focused }) => <TabIcon emoji="🏅" focused={focused} /> }} />
-      <Tabs.Screen name="settings"   options={{ title: 'Settings',                                tabBarIcon: ({ focused }) => <TabIcon emoji="⚙️" focused={focused} /> }} />
+      <Tabs.Screen name="home"       options={{ title: 'Home',   tabBarIcon: ({ focused }) => <TabIcon emoji="🏠" focused={focused} /> }} />
+      <Tabs.Screen name="budget"     options={{ title: 'Budget', tabBarIcon: ({ focused }) => <TabIcon emoji="📋" focused={focused} /> }} />
+      <Tabs.Screen name="retirement" options={{ title: 'Retire', tabBarIcon: ({ focused }) => <TabIcon emoji="🏖" focused={focused} /> }} />
+      <Tabs.Screen name="goals"      options={{ title: 'Goals',  tabBarIcon: ({ focused }) => <TabIcon emoji="🎯" focused={focused} /> }} />
+      {/* routable from the Menu grid, hidden from the bar */}
+      <Tabs.Screen name="analytics"  options={{ href: null }} />
+      <Tabs.Screen name="tips"       options={{ href: null }} />
+      <Tabs.Screen name="rewards"    options={{ href: null }} />
+      <Tabs.Screen name="settings"   options={{ href: null }} />
     </Tabs>
   );
 }

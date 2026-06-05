@@ -42,7 +42,7 @@ try {
 } catch {
   auth = getAuth(firebaseApp);
 }
-const db   = getFirestore(firebaseApp);
+export const db = getFirestore(firebaseApp);
 
 export async function registerUser(email: string, password: string, name: string) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
@@ -72,9 +72,12 @@ export function onAuthChange(callback: (user: any) => void) {
   return onAuthStateChanged(auth, callback);
 }
 
-// Sync fields stored under users/{uid}/appState
+// Sync fields stored under users/{uid}/appState.
+// Firestore rejects `undefined` field values (e.g. optional institution / change_amount / due_day on
+// assets & debts) and would throw, silently failing the whole sync. Strip undefined first.
 export async function saveUserData(uid: string, data: object) {
-  await setDoc(doc(db, 'users', uid), { appState: data }, { merge: true });
+  const clean = JSON.parse(JSON.stringify(data ?? {}));
+  await setDoc(doc(db, 'users', uid), { appState: clean }, { merge: true });
 }
 
 export async function loadUserData(uid: string): Promise<Record<string, any> | null> {

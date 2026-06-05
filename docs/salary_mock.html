@@ -1,0 +1,65 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--gold:#EBB23A;--bg:#F6F7F5;--card:#fff;
+--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:30px;display:flex;gap:30px}
+.phone{width:360px;height:760px;background:var(--bg);border-radius:40px;border:10px solid #14201c;overflow:hidden;position:relative;box-shadow:0 18px 50px rgba(0,0,0,.18)}
+.scr{padding:30px 18px}
+.prog{height:6px;background:#E1E1DC;border-radius:3px;overflow:hidden;margin-bottom:6px}
+.prog>i{display:block;height:100%;width:32%;background:var(--green);border-radius:3px}
+.step{font-size:11px;color:var(--ter);text-align:right;margin-bottom:18px}
+.coin{width:84px;height:84px;border-radius:50%;background:radial-gradient(circle at 38% 32%,#FBE08A,#EBB23A);border:3px solid #D99A26;margin:0 auto 10px;display:flex;align-items:center;justify-content:center;font-size:34px;position:relative}
+.badge{position:absolute;right:-4px;top:4px;width:34px;height:34px;border-radius:50%;background:#fff;display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 2px 5px rgba(0,0,0,.12)}
+h1{font-size:23px;font-weight:800;color:var(--ink);text-align:center}
+.sub{font-size:13px;color:var(--sub);text-align:center;margin:6px 14px 18px}
+.card{background:var(--card);border-radius:18px;padding:16px;box-shadow:0 2px 8px var(--line);margin-bottom:12px}
+.lab{font-size:12px;color:var(--sub);margin-bottom:8px}
+.seg{display:flex;gap:6px;margin-bottom:14px}
+.seg button{flex:1;padding:9px 4px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:11px;font-weight:600;color:var(--sub)}
+.seg button.on{border-color:var(--green);background:var(--greenL);color:var(--green);font-weight:700}
+.hlab{font-size:12px;color:var(--sub);text-align:center;margin-top:6px;margin-bottom:4px}
+.hin{font-size:30px;font-weight:800;color:var(--ink);text-align:center;padding:8px 0;border-bottom:2px solid var(--line);margin-bottom:12px}
+.callout{background:var(--greenL);border-radius:16px;padding:14px}
+.ctxt{font-size:14px;font-weight:700;color:var(--greenD)}
+.csub{font-size:12px;color:var(--greenD);opacity:.85;margin-top:4px}
+</style></head><body>
+
+<!-- GROSS selected -->
+<div class="phone"><div class="scr">
+  <div class="prog"><i></i></div><div class="step">Step 5 of 18</div>
+  <div class="coin">🪙<div class="badge">💵</div></div>
+  <h1>Your salary</h1>
+  <div class="sub">Enter gross or take-home — we handle the tax math.</div>
+  <div class="card">
+    <div class="lab">How often are you paid?</div>
+    <div class="seg"><button>Hourly</button><button>Weekly</button><button>Bi-weekly</button><button class="on">Monthly</button></div>
+    <div class="hlab">Base salary (per month)</div>
+    <div class="hin">$8,000</div>
+    <div class="seg"><button class="on">Gross</button><button>Take-home</button></div>
+  </div>
+  <div class="callout">
+    <div class="ctxt">✨ You're in the 22% federal tax bracket (2026)</div>
+    <div class="csub">Annualized gross $96,000</div>
+  </div>
+</div></div>
+
+<!-- TAKE-HOME selected -->
+<div class="phone"><div class="scr">
+  <div class="prog"><i></i></div><div class="step">Step 5 of 18</div>
+  <div class="coin">🪙<div class="badge">💵</div></div>
+  <h1>Your salary</h1>
+  <div class="sub">Enter gross or take-home — we handle the tax math.</div>
+  <div class="card">
+    <div class="lab">How often are you paid?</div>
+    <div class="seg"><button>Hourly</button><button>Weekly</button><button class="on">Bi-weekly</button><button>Monthly</button></div>
+    <div class="hlab">Base salary (per 2 weeks)</div>
+    <div class="hin">$2,800</div>
+    <div class="seg"><button>Gross</button><button class="on">Take-home</button></div>
+  </div>
+  <div class="callout">
+    <div class="ctxt">✨ ~17% effective rate · 22% bracket (2026)</div>
+    <div class="csub">Take-home $72,800/yr · gross $87,600/yr</div>
+  </div>
+</div></div>
+
+</body></html>

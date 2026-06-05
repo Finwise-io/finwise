@@ -1,0 +1,133 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--gold:#EBB23A;--bg:#F6F7F5;--card:#fff;
+--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10)}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:28px;flex-wrap:wrap;justify-content:center}
+.col{width:300px}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:4px}
+.capsub{font-size:11px;color:var(--sub);text-align:center;margin-bottom:10px;min-height:42px;padding:0 6px}
+.phone{width:300px;height:610px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative;box-shadow:0 14px 40px rgba(0,0,0,.18)}
+.topbar{height:54px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.brand{font-size:16px;font-weight:800;color:var(--ink)}
+.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:6px 11px;font-size:11px;font-weight:700}
+.ham{font-size:21px;color:var(--ink)}
+.body{padding:10px 16px}
+.h{font-size:11px;font-weight:800;color:var(--ter);letter-spacing:.5px}
+.heroCard{background:var(--greenD);border-radius:16px;padding:14px;margin-top:8px}
+.heroCard .l{color:#BEE7D8;font-size:10px;font-weight:700}
+.heroCard .v{color:#fff;font-size:22px;font-weight:800;margin-top:4px}
+.bar2{height:8px;background:rgba(255,255,255,.18);border-radius:4px;margin-top:10px;overflow:hidden}
+.bar2 i{display:block;height:100%;width:54%;background:#7FE3C2;border-radius:4px}
+.dim{position:absolute;inset:0;background:rgba(0,0,0,.35)}
+.nav{position:absolute;left:0;right:0;bottom:0;background:#fff;border-top:1px solid var(--line);display:flex;justify-content:space-around;align-items:center;padding:8px 4px 16px;z-index:5}
+.ni{flex:1;text-align:center}.ni .e{font-size:19px}.ni .t{font-size:9px;color:var(--sub);margin-top:2px}
+.ni.on .t{color:var(--green);font-weight:800}
+.fab{width:46px;height:46px;border-radius:23px;background:var(--green);color:#fff;display:flex;align-items:center;justify-content:center;font-size:24px;margin-top:-20px;box-shadow:0 4px 10px rgba(23,143,107,.4)}
+/* drawer (list) */
+.drawer{position:absolute;top:0;bottom:0;left:0;width:80%;background:#fff;z-index:6;padding:18px 0;box-shadow:6px 0 24px rgba(0,0,0,.18)}
+.dtitle{font-size:17px;font-weight:800;color:var(--ink);padding:0 18px 8px}
+.drow{display:flex;align-items:center;gap:12px;padding:12px 18px}
+.drow .e{font-size:19px;width:24px;text-align:center}
+.drow .t{flex:1;font-size:14px;font-weight:600;color:var(--ink)}
+.drow .meta{font-size:11px;color:var(--ter)}
+.tagset{font-size:10px;color:var(--green);font-weight:700}
+/* grid sheet */
+.sheet{position:absolute;left:0;right:0;bottom:0;background:#fff;border-radius:20px 20px 0 0;z-index:6;padding:16px 14px 22px;box-shadow:0 -6px 24px rgba(0,0,0,.16)}
+.grip{width:38px;height:4px;border-radius:2px;background:var(--line);margin:0 auto 12px}
+.stitle{font-size:13px;font-weight:800;color:var(--ink);margin-bottom:10px}
+.grid{display:flex;flex-wrap:wrap;gap:10px}
+.gi{width:31%;text-align:center;background:var(--bg);border-radius:14px;padding:12px 4px}
+.gi .e{font-size:22px}.gi .t{font-size:10px;color:var(--ink);margin-top:4px;font-weight:600}
+.gi .lk{font-size:9px;color:var(--ter);margin-top:1px}
+</style></head><body>
+
+<!-- C: top split + 4 tabs, Menu as LEFT DRAWER (list) -->
+<div class="col">
+  <div class="cap">C · Top split + Menu drawer</div>
+  <div class="capsub">☰ top-left opens a side Menu listing every module; Net Worth top-right; 4 daily tabs below.</div>
+  <div class="phone">
+    <div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $182k ›</span></div>
+    <div class="body"><div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div></div>
+    <div class="dim"></div>
+    <div class="drawer">
+      <div class="dtitle">Menu</div>
+      <div class="drow"><span class="e">💎</span><span class="t">Net Worth</span><span class="meta">$182k</span></div>
+      <div class="drow"><span class="e">🏖</span><span class="t">Retirement</span><span class="tagset">82%</span></div>
+      <div class="drow"><span class="e">🎯</span><span class="t">Goals</span><span class="meta">3</span></div>
+      <div class="drow"><span class="e">🔮</span><span class="t">Scenario Planning</span></div>
+      <div class="drow"><span class="e">💡</span><span class="t">Insights</span></div>
+      <div class="drow"><span class="e">🏅</span><span class="t">Rewards</span></div>
+      <div class="drow"><span class="e">⚙️</span><span class="t">Settings</span></div>
+    </div>
+    <div class="nav">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">🎯</div><div class="t">Goals</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- Blend: top split + Menu as GRID sheet -->
+<div class="col">
+  <div class="cap">Blend · Top split + Menu grid</div>
+  <div class="capsub">Same top bar (☰ + Net Worth) &amp; 4 tabs, but ☰ opens a tappable GRID of every module.</div>
+  <div class="phone">
+    <div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $182k ›</span></div>
+    <div class="body"><div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div></div>
+    <div class="dim"></div>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="stitle">All modules</div>
+      <div class="grid">
+        <div class="gi"><div class="e">💎</div><div class="t">Net Worth</div><div class="lk">$182k</div></div>
+        <div class="gi"><div class="e">🏖</div><div class="t">Retirement</div><div class="lk">82% on track</div></div>
+        <div class="gi"><div class="e">🎯</div><div class="t">Goals</div><div class="lk">3 active</div></div>
+        <div class="gi"><div class="e">🔮</div><div class="t">Scenarios</div><div class="lk">Set up →</div></div>
+        <div class="gi"><div class="e">💡</div><div class="t">Insights</div></div>
+        <div class="gi"><div class="e">🏅</div><div class="t">Rewards</div></div>
+        <div class="gi"><div class="e">💡</div><div class="t">Tips</div></div>
+        <div class="gi"><div class="e">⚙️</div><div class="t">Settings</div></div>
+        <div class="gi"><div class="e">🔗</div><div class="t">Link bank</div><div class="lk">Soon</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">🎯</div><div class="t">Goals</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- D: center hub ⊕ opens grid -->
+<div class="col">
+  <div class="cap">D · Center ⊕ hub</div>
+  <div class="capsub">Brand bar + Net Worth chip; center ⊕ opens the module GRID. Bottom = Home · Budget · Retire · Menu.</div>
+  <div class="phone">
+    <div class="topbar"><span class="brand">FinWise 💰</span><span class="nwchip">$182k ›</span></div>
+    <div class="body"><div class="heroCard"><div class="l">SPENT IN JUN</div><div class="v">$2,547</div><div class="bar2"><i></i></div></div></div>
+    <div class="dim"></div>
+    <div class="sheet">
+      <div class="grip"></div>
+      <div class="stitle">All modules</div>
+      <div class="grid">
+        <div class="gi"><div class="e">💎</div><div class="t">Net Worth</div></div>
+        <div class="gi"><div class="e">🏖</div><div class="t">Retirement</div></div>
+        <div class="gi"><div class="e">🎯</div><div class="t">Goals</div></div>
+        <div class="gi"><div class="e">🔮</div><div class="t">Scenarios</div></div>
+        <div class="gi"><div class="e">💡</div><div class="t">Insights</div></div>
+        <div class="gi"><div class="e">⚙️</div><div class="t">Settings</div></div>
+      </div>
+    </div>
+    <div class="nav">
+      <div class="ni on"><div class="e">🏠</div><div class="t">Home</div></div>
+      <div class="ni"><div class="e">📋</div><div class="t">Budget</div></div>
+      <div class="ni"><div class="fab">＋</div></div>
+      <div class="ni"><div class="e">🏖</div><div class="t">Retire</div></div>
+      <div class="ni"><div class="e">☰</div><div class="t">Menu</div></div>
+    </div>
+  </div>
+</div>
+
+</body></html>

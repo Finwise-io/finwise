@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { debtsFromOnboarding, type Debt } from '../domain/debt';
+import { newEntityId } from '../domain/_shared/ids';
+import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
 
 export type IncomeEntry = {
   id: string;
@@ -123,14 +127,44 @@ export type CustomCategory = {
   bg: string;
 };
 
+// Editable overrides for the retirement projection. Any null field is derived
+// from live data (age from birthYear, nest egg from assets, contributions from
+// onboarding, etc.) so an untouched plan always tracks reality.
+export type RetirementAssumptions = {
+  retireAge: number | null;
+  horizonAge: number | null;
+  contribMonthly: number | null;
+  spendMonthly: number | null;
+  guaranteedMonthly: number | null;          // legacy: total guaranteed income (kept for older callers)
+  risk: 'conservative' | 'moderate' | 'aggressive' | null;
+  expectedReturn: number | null;             // decimal nominal, e.g. 0.06 (null → from asset mix)
+  inflation: number | null;                  // decimal, e.g. 0.025 (null → from economic data)
+  ssEligible: boolean | null;                // null = not yet asked
+  ssMonthly: number | null;                  // estimated Social Security benefit, today's $/mo
+  ssClaimAge: number | null;                 // age SS begins (default 67)
+};
+
+// A saved what-if the user can re-open / compare (stickiness).
+export type RetirementScenario = {
+  id: string;
+  name: string;
+  createdAt: string;
+  assumptions: RetirementAssumptions;
+  // cached headline so the chip can show it without recompute
+  retireAge: number;
+  chance: number;
+};
+
 type AppState = {
   // Auth
   user: UserProfile | null;
   onboardingComplete: boolean;
+  onboardingPaused: boolean;   // user tapped "Save & come back later" → allow them into the app
 
   // Onboarding settings
   employmentStatus: string | null;
-  onboardingDraft: { stepIndex: number; status: string | null; tracks: string[]; name: string } | null;
+  onboardingDraft: { stepIndex: number; status: string | null; tracks: string[]; name: string; answers?: Record<string, any> } | null;
+  onboardingProfile: Record<string, any> | null;
   selectedGoals: string[];
   budgetFrequency: 'daily' | 'weekly' | 'monthly' | 'annually';
   payFrequency: string;
@@ -154,6 +188,18 @@ type AppState = {
   retirementPlan: RetirementPlan | null;
   customCategories: CustomCategory[];
 
+  // Net Worth — per-account assets & liabilities (managed in the Net Worth module)
+  assetAccounts: AssetAccount[];
+  liabilities: Debt[];
+  nwSeeded: boolean;
+  nwSetupChoice: 'guided' | 'self' | null;
+  allocatedByMonth: Record<string, number>;     // 'YYYY-MM' → total savings allocated to assets
+  allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
+  monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
+  retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
+  retirementScenarios: RetirementScenario[];      // saved what-if scenarios
+  benchmarkReturns: Record<string, number>;       // asset-kind → expected annual return (decimal); overrides ASSET_KINDS defaults
+
   // Gamification
   xp: number;
   streak: number;
@@ -167,6 +213,10 @@ type AppState = {
   jobRiskLevel: 'low' | 'medium' | 'high' | null;
   emergencyMonths: number;
 
+  // Region & currency (drives app-wide money formatting)
+  currency: string;   // ISO 4217, e.g. 'USD'
+  locale: string;     // BCP-47, e.g. 'en-US'
+
   // Economic data
   inflationRate: number;
   treasuryYield: number;
@@ -175,10 +225,12 @@ type AppState = {
   // Actions - Auth
   setUser: (user: UserProfile | null) => void;
   setOnboardingComplete: (v: boolean) => void;
+  setOnboardingPaused: (v: boolean) => void;
 
   // Actions - Onboarding
   setEmploymentStatus: (s: string | null) => void;
   setOnboardingDraft: (d: AppState['onboardingDraft']) => void;
+  setOnboardingProfile: (p: Record<string, any> | null) => void;
   setSelectedGoals: (goals: string[]) => void;
   setBudgetFrequency: (f: 'daily' | 'weekly' | 'monthly' | 'annually') => void;
   setPayFrequency: (f: string) => void;
@@ -197,6 +249,22 @@ type AppState = {
   deleteExpense: (id: string) => void;
   updateIncome: (id: string, updates: Partial<IncomeEntry>) => void;
   updateExpense: (id: string, updates: Partial<ExpenseEntry>) => void;
+  addAsset: (a: Omit<AssetAccount, 'asset_id'>) => void;
+  updateAsset: (id: string, updates: Partial<AssetAccount>) => void;
+  deleteAsset: (id: string) => void;
+  addLiability: (d: Omit<Debt, 'debt_id'>) => void;
+  updateLiability: (id: string, updates: Partial<Debt>) => void;
+  deleteLiability: (id: string) => void;
+  seedNetWorth: (op: Record<string, any> | null) => void;
+  setNwSetupChoice: (v: 'guided' | 'self' | null) => void;
+  allocateSavings: (ym: string, items: { assetId: string; amount: number }[]) => void;
+  skipAllocPrompt: (ym: string) => void;
+  captureMonthlySnapshot: (ym: string, data: any) => void;
+  setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
+  saveRetirementScenario: (name: string, retireAge: number, chance: number) => void;
+  deleteRetirementScenario: (id: string) => void;
+  setBenchmarkReturn: (kind: string, ret: number) => void;
+  setCurrency: (currency: string, locale?: string) => void;
   addRecurringIncome: (entry: Omit<RecurringIncome, 'id'>) => void;
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
   deleteRecurringIncome: (id: string) => void;
@@ -258,10 +326,12 @@ export const useStore = create<AppState>()(
       // Auth
       user: null,
       onboardingComplete: false,
+      onboardingPaused: false,
 
       // Onboarding settings
       employmentStatus: null,
       onboardingDraft: null,
+      onboardingProfile: null,
       selectedGoals: [],
       budgetFrequency: 'monthly',
       payFrequency: 'monthly',
@@ -282,6 +352,16 @@ export const useStore = create<AppState>()(
       savings: [],
       investments: [],
       debts: [],
+      assetAccounts: [],
+      liabilities: [],
+      nwSeeded: false,
+      nwSetupChoice: null,
+      allocatedByMonth: {},
+      allocPromptSkipped: {},
+      monthlySnapshots: {},
+      retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null },
+      retirementScenarios: [],
+      benchmarkReturns: {},
       goals: [],
       badges: DEFAULT_BADGES,
 
@@ -299,6 +379,8 @@ export const useStore = create<AppState>()(
       emergencyMonths: 6,
 
       // Economic
+      currency: 'USD',
+      locale: 'en-US',
       inflationRate: 3.2,
       treasuryYield: 4.35,
       lastEconomicFetch: null,
@@ -306,10 +388,12 @@ export const useStore = create<AppState>()(
       // ── Auth actions ─────────────────────────────────────────────
       setUser: (user) => set({ user }),
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
+      setOnboardingPaused: (v) => set({ onboardingPaused: v }),
 
       // ── Onboarding actions ───────────────────────────────────────
       setEmploymentStatus: (s) => set({ employmentStatus: s }),
       setOnboardingDraft: (d) => set({ onboardingDraft: d }),
+      setOnboardingProfile: (p) => set({ onboardingProfile: p }),
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
@@ -353,6 +437,50 @@ export const useStore = create<AppState>()(
       deleteExpense: (id) => set((s) => ({ expenses: s.expenses.filter((e) => e.id !== id) })),
       updateIncome:  (id, updates) => set((s) => ({ incomes:  s.incomes.map((i)  => i.id === id ? { ...i, ...updates } : i) })),
       updateExpense: (id, updates) => set((s) => ({ expenses: s.expenses.map((e) => e.id === id ? { ...e, ...updates } : e) })),
+
+      // ── Net Worth: assets & liabilities ──────────────────────────
+      addAsset:       (a) => set((s) => ({ assetAccounts: [{ ...a, asset_id: newEntityId('ast') }, ...s.assetAccounts] })),
+      updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
+      deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
+      addLiability:   (d) => set((s) => ({ liabilities: [{ ...d, debt_id: newEntityId('debt') }, ...s.liabilities] })),
+      updateLiability:(id, u) => set((s) => ({ liabilities: s.liabilities.map((x) => x.debt_id === id ? { ...x, ...u } : x) })),
+      deleteLiability:(id) => set((s) => ({ liabilities: s.liabilities.filter((x) => x.debt_id !== id) })),
+      seedNetWorth:   (op) => set((s) => s.nwSeeded ? {} : ({
+        assetAccounts: assetsFromOnboarding('local', op).accounts,
+        liabilities: debtsFromOnboarding('local', op).debts,
+        nwSeeded: true,
+      })),
+      setNwSetupChoice: (v) => set({ nwSetupChoice: v }),
+      allocateSavings: (ym, items) => set((s) => {
+        const now = new Date(); const cym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+        let total = 0;
+        const accounts = s.assetAccounts.map((a) => {
+          const it = items.find((i) => i.assetId === a.asset_id && i.amount > 0);
+          if (!it) return a;
+          total += it.amount;
+          const prior = a.change_month === cym ? (a.change_amount ?? 0) : 0;
+          return { ...a, balance: a.balance + it.amount, change_amount: prior + it.amount, change_month: cym };
+        });
+        return { assetAccounts: accounts, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
+      }),
+      skipAllocPrompt: (ym) => set((s) => ({ allocPromptSkipped: { ...s.allocPromptSkipped, [ym]: true } })),
+      // Freeze a month's metrics. The CURRENT month is overwritten on each change (so it ends the month
+      // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
+      captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
+      setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
+      saveRetirementScenario: (name, retireAge, chance) => set((s) => ({
+        retirementScenarios: [
+          ...s.retirementScenarios,
+          { id: newEntityId('scn'), name, createdAt: new Date().toISOString(), assumptions: { ...s.retirementAssumptions }, retireAge, chance },
+        ],
+      })),
+      deleteRetirementScenario: (id) => set((s) => ({ retirementScenarios: s.retirementScenarios.filter((x) => x.id !== id) })),
+      setBenchmarkReturn: (kind, ret) => set((s) => ({ benchmarkReturns: { ...s.benchmarkReturns, [kind]: ret } })),
+      setCurrency: (currency, locale) => {
+        const resolved = locale || CURRENCIES.find((c) => c.code === currency)?.locale || 'en-US';
+        setMoneyFormat(currency, resolved);                 // apply immediately to all formatters
+        set({ currency, locale: resolved });
+      },
 
       addRecurringIncome: (entry) => {
         const r: RecurringIncome = { ...entry, id: uid() };
@@ -515,9 +643,15 @@ export const useStore = create<AppState>()(
       resetAll: () => set({
         incomes: [], expenses: [], savings: [], investments: [],
         recurringIncomes: [], recurringExpenses: [], debts: [],
+        assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null,
+        allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {},
+        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null },
+        retirementScenarios: [],
+        benchmarkReturns: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
-        lastCheckIn: null, onboardingComplete: false, retirementPlan: null,
-        employmentStatus: null, onboardingDraft: null, selectedGoals: [], budgetCategories: [], customCategories: [],
+        lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
+        employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],
+        currency: 'USD', locale: 'en-US',
       }),
 
       loadFromCloud: (data) => set((s) => ({

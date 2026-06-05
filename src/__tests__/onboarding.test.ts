@@ -23,14 +23,16 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     expect(isOptional('retLocation')).toBe(true);    // ...but skippable
   });
 
-  test('employed + spend + retire_acc: contributions by type, employer, recaps', () => {
+  test('employed + spend + retire_acc: focused income flow + recaps, 401k deduped', () => {
     const steps = buildSteps('employed', ['spend', 'retire_acc']);
     expect(steps).toEqual(
       expect.arrayContaining([
-        'income', 'monthlySpending', 'recap_spend',
-        'contributionsByType', 'employerContribution', 'targetRetirementAge', 'recap_retire',
+        'income_salary', 'income_401k', 'income_rsu', 'income_tax', 'recap_income',
+        'monthlySpending', 'recap_spend', 'contributionsByType', 'targetRetirementAge', 'recap_retire',
       ]),
     );
+    // income_401k appears once even though both spend and retire_acc reference it
+    expect(steps.filter((s) => s === 'income_401k')).toHaveLength(1);
     expect(steps).not.toContain('horizonAge');
     expect(steps).not.toContain('retirementIncomeSources');
   });

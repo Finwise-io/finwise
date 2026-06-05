@@ -1,0 +1,150 @@
+<!doctype html><html><head><meta charset="utf-8"><style>
+:root{--green:#178F6B;--greenD:#0F6E56;--greenL:#E1F5EE;--mid:#9FE1CB;--gold:#EBB23A;--amber:#854F0B;--amberMid:#FAC775;
+--bg:#F6F7F5;--card:#fff;--ink:#1A1A18;--sub:#6B6B66;--ter:#9E9E99;--line:rgba(0,0,0,.10);--blue:#185FA5}
+*{margin:0;padding:0;box-sizing:border-box;font-family:-apple-system,'Segoe UI',Roboto,sans-serif}
+body{background:#EEF0EC;padding:24px;display:flex;gap:30px;justify-content:center}
+.cap{font-size:13px;font-weight:800;color:var(--ink);text-align:center;margin-bottom:10px}
+.phone{width:330px;height:980px;background:var(--bg);border-radius:34px;border:9px solid #14201c;overflow:hidden;position:relative}
+.topbar{height:46px;display:flex;align-items:center;justify-content:space-between;padding:0 16px}
+.ham{font-size:20px}.nwchip{background:var(--greenD);color:#fff;border-radius:20px;padding:5px 10px;font-size:10px;font-weight:700}
+.scr{padding:4px 16px}
+.eyebrow{font-size:11px;font-weight:800;color:var(--ter);letter-spacing:.5px;margin:16px 0 8px}
+.hero{background:var(--greenD);border-radius:18px;padding:18px;align-items:center;text-align:center}
+.hero .l{color:#BEE7D8;font-size:11px;font-weight:700;letter-spacing:.5px}
+.hero .pct{color:#fff;font-size:50px;font-weight:800;margin-top:2px}
+.gauge{height:9px;border-radius:5px;background:rgba(255,255,255,.18);overflow:hidden;margin-top:8px}
+.gauge>i{display:block;height:100%;width:78%;background:#7FE3C2;border-radius:5px}
+.hero .s{color:#DDF3EB;font-size:12px;margin-top:8px}
+.card{background:#fff;border-radius:16px;padding:14px;margin-top:8px;box-shadow:0 1px 4px var(--line)}
+.summary{font-size:13.5px;color:var(--ink);line-height:21px}
+.summary b{color:var(--greenD)}
+.row{display:flex;justify-content:space-between;padding:7px 0}
+.row .k{font-size:13px;color:var(--sub)}.row .v{font-size:14px;font-weight:800;color:var(--ink)}
+.div{height:1px;background:var(--line);margin:4px 0}
+.chart{display:flex;align-items:flex-end;height:110px;gap:3px;margin-top:4px;position:relative}
+.col{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;height:100%}
+.bar{width:72%;border-radius:3px 3px 0 0}
+.cl{font-size:8px;color:var(--ter);margin-top:2px}
+.marker{position:absolute;top:0;bottom:14px;width:2px;background:var(--amber);opacity:.6}
+.btn{background:var(--green);color:#fff;text-align:center;border-radius:14px;padding:13px;font-weight:800;font-size:15px;margin-top:12px}
+.note{font-size:11px;color:var(--sub);margin-top:8px;line-height:16px}
+/* assumptions screen */
+.aHead{display:flex;justify-content:space-between;align-items:center;margin:16px 0 6px}
+.aTitle{font-size:12px;font-weight:800;color:var(--ter);letter-spacing:.5px}
+.edit{font-size:12px;font-weight:700;color:var(--green)}
+.big{font-size:22px;font-weight:800;color:var(--ink)}
+.sub{font-size:12px;color:var(--sub);margin-top:2px}
+.li{display:flex;justify-content:space-between;padding:6px 0;font-size:13px}
+.li .k{color:var(--sub)}.li .v{font-weight:700;color:var(--ink)}
+.excl{font-size:11px;color:var(--amber);margin-top:6px;background:#FAEEDA;border-radius:8px;padding:6px 8px}
+.seg{display:flex;gap:6px;margin-top:8px}
+.seg button{flex:1;padding:7px;border-radius:10px;border:1.5px solid var(--line);background:#fff;font-size:11px;font-weight:700;color:var(--sub)}
+.seg button.on{border-color:var(--green);background:var(--greenL);color:var(--green)}
+.explain{background:var(--greenL);border-radius:14px;padding:12px;margin-top:14px}
+.explain .t{font-size:13px;font-weight:800;color:var(--greenD)}
+.explain .d{font-size:12px;color:var(--greenD);opacity:.9;margin-top:4px;line-height:18px}
+</style></head><body>
+
+<!-- SCREEN 1 — OUTLOOK -->
+<div>
+<div class="cap">1 · Outlook (the answer)</div>
+<div class="phone">
+  <div class="topbar"><span class="ham">☰</span><span class="nwchip">Net worth $182k ›</span></div>
+  <div class="scr">
+    <div class="eyebrow">RETIREMENT</div>
+    <div class="hero">
+      <div class="l">CHANCE OF SUCCESS</div>
+      <div class="pct">78%</div>
+      <div class="gauge"><i></i></div>
+      <div class="s">On track · your money lasts to age 90 in 78% of market scenarios</div>
+    </div>
+
+    <div class="card"><div class="summary">If you keep adding <b>$24k/yr</b> to a <b>$240k</b> nest egg and retire at <b>65</b>, it likely grows to <b>~$1.8M</b>. You'd draw about <b>$3,000/mo</b> (after Social Security) — and that lasts in most scenarios.</div></div>
+
+    <div class="card">
+      <div class="row"><span class="k">Projected at 65 (median)</span><span class="v" style="color:var(--green)">$1.82M</span></div>
+      <div class="row"><span class="k">Needed for your plan</span><span class="v">$1.50M</span></div>
+      <div class="div"></div>
+      <div class="row"><span class="k">Surplus</span><span class="v" style="color:var(--green)">$320K</span></div>
+    </div>
+
+    <div class="eyebrow">PROJECTED BALANCE (10th–90th %)</div>
+    <div class="card">
+      <div class="chart">
+        <div class="marker" style="left:58%"></div>
+        <div class="col"><div class="bar" style="height:14%;background:var(--mid)"></div><div class="cl">35</div></div>
+        <div class="col"><div class="bar" style="height:24%;background:var(--mid)"></div><div class="cl">40</div></div>
+        <div class="col"><div class="bar" style="height:38%;background:var(--mid)"></div><div class="cl">45</div></div>
+        <div class="col"><div class="bar" style="height:54%;background:var(--mid)"></div><div class="cl">50</div></div>
+        <div class="col"><div class="bar" style="height:74%;background:var(--mid)"></div><div class="cl">55</div></div>
+        <div class="col"><div class="bar" style="height:90%;background:var(--mid)"></div><div class="cl">60</div></div>
+        <div class="col"><div class="bar" style="height:100%;background:var(--green)"></div><div class="cl">65</div></div>
+        <div class="col"><div class="bar" style="height:82%;background:var(--amberMid)"></div><div class="cl">72</div></div>
+        <div class="col"><div class="bar" style="height:58%;background:var(--amberMid)"></div><div class="cl">79</div></div>
+        <div class="col"><div class="bar" style="height:30%;background:var(--amberMid)"></div><div class="cl">86</div></div>
+        <div class="col"><div class="bar" style="height:12%;background:var(--amberMid)"></div><div class="cl">90</div></div>
+      </div>
+      <div class="note">Green = saving years · amber = drawing down after 65 (marker). Shaded range = 10th–90th percentile of outcomes.</div>
+    </div>
+
+    <div class="btn">Adjust assumptions  →</div>
+    <div class="note" style="text-align:center">We run 400 market scenarios. Tap above to see &amp; change every input.</div>
+  </div>
+</div>
+</div>
+
+<!-- SCREEN 2 — YOUR PLAN / ASSUMPTIONS -->
+<div>
+<div class="cap">2 · Your plan (assumptions, editable)</div>
+<div class="phone">
+  <div class="topbar"><span class="ham">‹ Back</span><span class="nwchip">78% success</span></div>
+  <div class="scr">
+
+    <div class="aHead"><span class="aTitle">NEST EGG TODAY</span><span class="edit">Manage in Net Worth ›</span></div>
+    <div class="card">
+      <div class="big">$240,000</div><div class="sub">investable assets counted toward retirement</div>
+      <div class="div"></div>
+      <div class="li"><span class="k">🏛️ 401(k)</span><span class="v">$120,000</span></div>
+      <div class="li"><span class="k">🌱 Roth IRA</span><span class="v">$40,000</span></div>
+      <div class="li"><span class="k">📈 Brokerage</span><span class="v">$60,000</span></div>
+      <div class="li"><span class="k">💵 Cash / savings</span><span class="v">$20,000</span></div>
+      <div class="excl">🏠 Home &amp; 🚗 vehicles are excluded — you don't sell them to live on.</div>
+    </div>
+
+    <div class="aHead"><span class="aTitle">CONTRIBUTIONS</span><span class="edit">Edit</span></div>
+    <div class="card">
+      <div class="big">$24,000<span style="font-size:14px;color:var(--sub)"> / yr</span></div><div class="sub">added to retirement each year</div>
+      <div class="div"></div>
+      <div class="li"><span class="k">Your 401(k)</span><span class="v">$1,500/mo</span></div>
+      <div class="li"><span class="k">Employer match</span><span class="v">$500/mo</span></div>
+      <div class="li"><span class="k">Roth + invested savings</span><span class="v">$0/mo</span></div>
+    </div>
+
+    <div class="aHead"><span class="aTitle">GROWTH</span></div>
+    <div class="card">
+      <div class="li"><span class="k">Expected return</span><span class="v">7.0% / yr</span></div>
+      <div class="li"><span class="k">Inflation</span><span class="v">2.4% / yr</span></div>
+      <div class="seg"><button>Conservative</button><button class="on">Moderate</button><button>Aggressive</button></div>
+      <div class="note">Return &amp; risk come from your asset mix; pick a risk level to override.</div>
+    </div>
+
+    <div class="aHead"><span class="aTitle">RETIREMENT &amp; DRAWDOWN</span><span class="edit">Edit</span></div>
+    <div class="card">
+      <div class="li"><span class="k">Retire at</span><span class="v">65</span></div>
+      <div class="li"><span class="k">Plan to age</span><span class="v">90</span></div>
+      <div class="li"><span class="k">Spend (today's $)</span><span class="v">$5,000/mo</span></div>
+      <div class="li"><span class="k">Social Security / pension</span><span class="v">$2,000/mo</span></div>
+      <div class="div"></div>
+      <div class="li"><span class="k" style="font-weight:700;color:var(--ink)">Net drawdown</span><span class="v" style="color:var(--amber)">$3,000/mo · $36k/yr</span></div>
+    </div>
+
+    <div class="explain">
+      <div class="t">What the simulation does</div>
+      <div class="d">We run 400 scenarios. Each year your nest egg earns a <i>random</i> return (~7% ± market swings) and your contributions are added. After 65 it pays your net drawdown, rising with inflation. <b>Chance of success = the % of scenarios where the money lasts to 90.</b></div>
+    </div>
+    <div style="height:20px"></div>
+  </div>
+</div>
+</div>
+
+</body></html>

@@ -1,0 +1,575 @@
+// Retirement — two screens.
+// Screen 1 "Where you stand" (current, fact-based): nest-egg donut (earmarked, editable per-account) +
+//   blended expected return from per-type benchmarks (editable) + a green insight ("retire at age Y even
+//   if you never save again", based on CURRENT nest egg & benchmark return — not the scenario) + Social
+//   Security (asked once) + a button into scenario analysis.
+// Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
+//   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
+import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, type LayoutChangeEvent } from 'react-native';
+import Svg, { Path, Line, Circle, G } from 'react-native-svg';
+import { useStore } from '../store/useStore';
+import { Colors, Spacing, Radii } from '../utils/theme';
+import { money } from '../domain/_shared/num';
+import { moneyCompact, currencySymbol } from '../domain/_shared/money';
+import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+
+const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+const big = (n: number) => moneyCompact(n, 'M');
+const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);            // higher return ⇒ more volatility
+const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
+const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
+
+export default function RetirementCockpit() {
+  const store = useStore() as any;
+  const op = store.onboardingProfile ?? {};
+  const A = store.retirementAssumptions ?? {};
+  const setA = store.setRetirementAssumptions as (p: any) => void;
+  const assets: AssetAccount[] = store.assetAccounts ?? [];
+  const benchOverrides: Record<string, number> = store.benchmarkReturns ?? {};
+
+  const [screen, setScreen] = useState<'current' | 'scenario'>('current');
+  const [earmarkOpen, setEarmarkOpen] = useState(false);
+  const [ssOpen, setSsOpen] = useState(false);
+  const [benchOpen, setBenchOpen] = useState(false);
+  const [saveOpen, setSaveOpen] = useState(false);
+
+  // ---- data-derived ----
+  const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
+  const nestEgg = retirementEarmarkedValue(assets);
+  const benchReturn = blendedReturn(assets, benchOverrides);           // blended ROI from per-type benchmarks
+  const inflDefault = (store.inflationRate ?? 2.5) / 100;
+  const ssDefault = Math.round(num(op.ri_ss));
+  const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
+  const spendDefault = Math.round(num(op.expectedRetirementSpending) || num(op.monthlySpending) || 5000);
+  const retireDefault = num(op.targetRetirementAge) || 65;
+  const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
+  const ssIncome = A.ssEligible ? Math.round(A.ssMonthly ?? ssDefault) : 0;
+  const claimAge = A.ssClaimAge ?? 67;
+
+  // ---- scenario slider state ----
+  const [rAge, setRAge] = useState<number>(A.retireAge ?? retireDefault);
+  const [retPct, setRetPct] = useState<number>(Math.round((A.expectedReturn ?? benchReturn) * 1000) / 10);
+  const [saveMo, setSaveMo] = useState<number>(A.contribMonthly ?? contribDefault);
+  const [spendMo, setSpendMo] = useState<number>(A.spendMonthly ?? spendDefault);
+  const [inflPct, setInflPct] = useState<number>(Math.round((A.inflation ?? inflDefault) * 1000) / 10);
+  const [chance, setChance] = useState<number | null>(null);
+  const [band, setBand] = useState<any>(null);
+  const [commitTick, setCommitTick] = useState(0);
+
+  const isRetired = store.employmentStatus === 'retired' || age >= rAge;
+
+  const buildInputs = (over: any = {}) => ({
+    current_age: age,
+    retire_age: isRetired ? age : Math.max(age + 1, rAge),
+    horizon_age: Math.max((isRetired ? age : rAge) + 1, horizon),
+    start_balance: nestEgg,
+    annual_contribution: (isRetired ? 0 : saveMo) * 12,
+    retire_monthly_spend_today: spendMo,
+    guaranteed_monthly_income: ssIncome,
+    guaranteed_start_age: claimAge,
+    inflation: inflPct / 100,
+    mean_return: retPct / 100,
+    vol_return: volOf(retPct / 100),
+    paths: 400, seed: 42,
+    ...over,
+  });
+
+  // CURRENT insight (green box): based on the nest egg + BENCHMARK return + no further saving — not the sliders
+  const greenInputs = buildInputs({ annual_contribution: 0, mean_return: benchReturn });
+  const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, benchReturn, inflPct, spendMo, ssIncome, claimAge, horizon]);
+  const spendHi = Math.round(spendMo * Math.pow(1 + inflPct / 100, Math.max(0, horizon - age)));
+
+  // scenario deterministic (instant) + Monte-Carlo (on release)
+  const proj = projectNestEgg(buildInputs());
+  useEffect(() => { const s = simulate(buildInputs({ with_band: true })); setChance(s.chance_of_success); setBand(s.band); }, [commitTick, nestEgg, ssIncome, claimAge]);
+  const commit = (patch: any) => { setA(patch); setCommitTick((t) => t + 1); };
+  const level = chance == null ? Colors.textTertiary : chance >= 80 ? Colors.primary : chance >= 60 ? Colors.amber : Colors.red;
+
+  // donut segments (earmarked, grouped by section, Net-Worth colors)
+  const earmarked = assets.filter((a) => earmarkedAmount(a) > 0);
+  const bySection: Record<string, { amt: number; full: boolean }> = {};
+  earmarked.forEach((a) => {
+    const sec = sectionOf(a); const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
+    (bySection[sec] ||= { amt: 0, full: true }); bySection[sec].amt += earmarkedAmount(a); if (pct < 100) bySection[sec].full = false;
+  });
+  const segs = ASSET_SECTIONS.filter((s) => (bySection[s]?.amt ?? 0) > 0).map((s) => ({ label: s, amt: bySection[s].amt, full: bySection[s].full, color: SECTION_COLOR[s] }));
+
+  // ───────────────── SCREEN 2 — SCENARIO ─────────────────
+  if (screen === 'scenario') {
+    return (
+      <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <View style={styles.topbar}>
+          <TouchableOpacity onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
+          <View style={[styles.chip2, { backgroundColor: level }]}><Text style={styles.chip2T}>{chance ?? '…'}% {isRetired ? 'lasts' : 'success'}</Text></View>
+        </View>
+
+        <Text style={styles.section}>{isRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF YOU PLANNED IT? — DRAG TO EXPLORE'}</Text>
+
+        {/* HERO */}
+        <View style={styles.heroCard}>
+          <Text style={styles.heroLabel}>{isRetired ? 'PROJECTED NEST EGG' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
+          <Text style={styles.heroNum}>{big(proj.will_have)}</Text>
+          <View style={styles.heroMetaRow}>
+            <Text style={styles.heroMeta}>you'll need {big(proj.will_need)}</Text>
+            {proj.shortfall > 0
+              ? <Text style={[styles.heroMeta, { color: Colors.red, fontWeight: '800' }]}>short {big(proj.shortfall)}</Text>
+              : <Text style={[styles.heroMeta, { color: Colors.primary, fontWeight: '800' }]}>surplus {big(proj.will_have - proj.will_need)}</Text>}
+          </View>
+          {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
+          <View style={[styles.conf, { alignSelf: 'stretch' }, chance != null && chance < 60 && { backgroundColor: Colors.redLight }]}>
+            <Text style={[styles.confPct, { color: level }]}>{chance == null ? '…' : `${chance}%`}</Text>
+            <Text style={styles.confT}>lasts to age {horizon} across 400 market scenarios</Text>
+          </View>
+        </View>
+
+        {/* SLIDERS */}
+        <View style={styles.card}>
+          {!isRetired && <SliderRow label="Retire at age" valueLabel={`${rAge}`} value={rAge} min={Math.max(age + 1, 45)} max={75} step={1} onChange={setRAge} onComplete={() => commit({ retireAge: rAge })} />}
+          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={12} step={0.5} onChange={setRetPct} onComplete={() => commit({ expectedReturn: retPct / 100 })} />
+          {!isRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={setSaveMo} onComplete={() => commit({ contribMonthly: saveMo })} />}
+          <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={setSpendMo} onComplete={() => commit({ spendMonthly: spendMo })} />
+          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={setInflPct} onComplete={() => commit({ inflation: inflPct / 100 })} />
+          <Text style={styles.note}>Return starts from your blended benchmark ({(benchReturn * 100).toFixed(1)}%). Drag to stress-test.</Text>
+        </View>
+
+        <TouchableOpacity style={styles.save} onPress={() => setSaveOpen(true)}><Text style={styles.saveT}>＋ Save this scenario</Text></TouchableOpacity>
+
+        {(store.retirementScenarios?.length ?? 0) > 0 && (
+          <View style={styles.chips}>
+            {store.retirementScenarios.map((sc: any) => (
+              <TouchableOpacity key={sc.id} style={styles.chip} onLongPress={() => store.deleteRetirementScenario(sc.id)}
+                onPress={() => {
+                  const a = sc.assumptions || {};
+                  setRAge(a.retireAge ?? rAge); setRetPct(Math.round((a.expectedReturn ?? retPct / 100) * 1000) / 10);
+                  setSaveMo(a.contribMonthly ?? saveMo); setSpendMo(a.spendMonthly ?? spendMo);
+                  setInflPct(Math.round((a.inflation ?? inflPct / 100) * 1000) / 10);
+                  setA({ ...a }); setCommitTick((t) => t + 1);
+                }}>
+                <Text style={styles.chipT}>{sc.name} · {sc.chance}%</Text>
+              </TouchableOpacity>
+            ))}
+            <Text style={styles.chipHint}>long-press a saved scenario to delete</Text>
+          </View>
+        )}
+
+        {/* BAND CHART */}
+        {band && band.length > 1 && (
+          <>
+            <Text style={styles.section}>PROJECTED BALANCE (10TH–90TH %)</Text>
+            <View style={styles.card}>
+              <BandChartAuto band={band} retireAge={isRetired ? null : Math.max(age + 1, rAge)} />
+              <View style={styles.axis}>
+                <Text style={styles.axisT}>{band[0].age}</Text>
+                {!isRetired && <Text style={styles.axisT}>retire {rAge}</Text>}
+                <Text style={styles.axisT}>{band[band.length - 1].age}</Text>
+              </View>
+              <Text style={styles.fx}>Shaded = 10th–90th percentile; line = median. Log scale — the lower edge hitting the floor means the money runs out in those scenarios.</Text>
+            </View>
+          </>
+        )}
+
+        <View style={{ height: 40 }} />
+        <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={isRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
+          onSave={(name) => { store.saveRetirementScenario(name, isRetired ? age : rAge, chance ?? 0); setSaveOpen(false); }} />
+      </ScrollView>
+    );
+  }
+
+  // ───────────────── SCREEN 1 — WHERE YOU STAND ─────────────────
+  return (
+    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
+
+      {/* DONUT — current earmarked nest egg */}
+      <View style={styles.donutCard}>
+        {nestEgg > 0 ? (
+          <>
+            <View style={styles.donutRow}>
+              <Donut segments={segs.map((s) => ({ value: s.amt, color: s.color }))}>
+                <Text style={styles.donutAmt}>{big(nestEgg)}</Text>
+                <Text style={styles.donutLab}>NEST EGG</Text>
+              </Donut>
+              <View style={{ flex: 1 }}>
+                {segs.map((s) => (
+                  <View key={s.label} style={styles.lg}>
+                    <View style={[styles.dot, { backgroundColor: s.color }]} />
+                    <Text style={styles.lgL} numberOfLines={1}>{s.label}{!s.full && <Text style={styles.lgPct}> ·partial</Text>}</Text>
+                    <Text style={styles.lgV}>{moneyCompact(s.amt, 'M')}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+            <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+          </>
+        ) : (
+          <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+            <Text style={styles.donutAmt}>{money(0)}</Text>
+            <Text style={styles.sub}>Add your accounts in the Net Worth tab to build your nest egg.</Text>
+          </View>
+        )}
+      </View>
+
+      {/* ESTIMATED RETURN — blended from per-type benchmarks */}
+      <View style={styles.card}>
+        <View style={styles.li}><Text style={styles.liK}>Estimated return (blended)</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr</Text></View>
+        <Text style={styles.note}>Different investments earn different returns — equity, bonds, private equity, hedge funds, etc. This is the value-weighted benchmark for your mix.</Text>
+        <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={[styles.editLink, { textAlign: 'left', marginTop: 8 }]}>Edit benchmark returns by type ›</Text></TouchableOpacity>
+      </View>
+
+      {/* GREEN INSIGHT — based on CURRENT nest egg + benchmark return */}
+      <View style={styles.gbox}>
+        {isRetired ? (
+          <>
+            <Text style={styles.gK}>YOUR MONEY SO FAR</Text>
+            <Text style={styles.gAge}>{chance == null ? '…' : `${chance}%`}</Text>
+            <Text style={styles.gD}>Your <Text style={styles.gB}>{big(nestEgg)}</Text> at ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
+          </>
+        ) : (
+          <>
+            <Text style={styles.gK}>EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</Text>
+            <Text style={styles.gAge}>{retireAtAge ? `Retire at ${retireAtAge}` : 'Keep saving'}</Text>
+            <Text style={styles.gD}>
+              Your <Text style={styles.gB}>{big(nestEgg)}</Text> growing ~<Text style={styles.gB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.gB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
+                ? <Text>covers spending of <Text style={styles.gB}>{money(spendMo)}/mo</Text> <Text style={styles.gB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
+                : <Text>doesn't yet cover <Text style={styles.gB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
+            </Text>
+          </>
+        )}
+      </View>
+
+      {/* SOCIAL SECURITY */}
+      <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
+        <Text style={styles.ssIc}>🏛️</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.ssName}>Social Security</Text>
+          <Text style={styles.ssSub}>{A.ssEligible == null ? 'Are you eligible? Tap to set up ›' : A.ssEligible ? `${money(ssIncome)}/mo starting at ${claimAge} · today's $` : 'Not eligible — tap to change'}</Text>
+        </View>
+        <Text style={[styles.ssPill, A.ssEligible === false && { backgroundColor: Colors.bgTertiary, color: Colors.textSecondary }]}>{A.ssEligible == null ? 'Set up' : A.ssEligible ? 'Eligible ✓' : 'None'}</Text>
+      </TouchableOpacity>
+
+      {/* SCENARIO BUTTON */}
+      <TouchableOpacity style={styles.save} onPress={() => setScreen('scenario')}><Text style={styles.saveT}>Run scenario analysis  →</Text></TouchableOpacity>
+      <Text style={styles.foot}>Test retiring earlier, saving more, market ups & downs.</Text>
+      <View style={{ height: 40 }} />
+
+      <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg}
+        onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => { setEarmarkOpen(false); setCommitTick((t) => t + 1); }} />
+      <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
+      <BenchmarkEditor open={benchOpen} onClose={() => setBenchOpen(false)} kinds={earmarkedKinds(assets)} overrides={benchOverrides}
+        onSet={(kind, ret) => store.setBenchmarkReturn(kind, ret)} onDone={() => { setBenchOpen(false); setCommitTick((t) => t + 1); }} blended={benchReturn} />
+    </ScrollView>
+  );
+}
+
+// auto-measuring band chart wrapper (keeps the screen JSX tidy)
+function BandChartAuto({ band, retireAge }: { band: any[]; retireAge: number | null }) {
+  const [w, setW] = useState(0);
+  return <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>{w > 0 && <BandChart band={band} width={w} retireAge={retireAge} />}</View>;
+}
+
+// ───────────────────────── Slider ─────────────────────────
+function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary }: {
+  value: number; min: number; max: number; step?: number; onChange: (v: number) => void; onComplete?: () => void; color?: string;
+}) {
+  const cfg = useRef<any>({}); cfg.current = { min, max, step, onChange, onComplete };
+  const xRef = useRef(0), wRef = useRef(0), viewRef = useRef<View>(null);
+  const measure = () => viewRef.current?.measureInWindow((x, _y, w) => { xRef.current = x; wRef.current = w; });
+  const setFromX = (px: number) => {
+    const c = cfg.current; const w = wRef.current; if (!w) return;
+    let p = clamp((px - xRef.current) / w, 0, 1);
+    let v = c.min + p * (c.max - c.min); v = Math.round(v / c.step) * c.step;
+    c.onChange(clamp(v, c.min, c.max));
+  };
+  const pan = useRef(PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderGrant: (e) => setFromX(e.nativeEvent.pageX),
+    onPanResponderMove: (e) => setFromX(e.nativeEvent.pageX),
+    onPanResponderRelease: () => cfg.current.onComplete?.(),
+    onPanResponderTerminate: () => cfg.current.onComplete?.(),
+  })).current;
+  const pct = clamp((value - min) / (max - min || 1), 0, 1) * 100;
+  return (
+    <View ref={viewRef} onLayout={measure} hitSlop={{ top: 14, bottom: 14 }} {...pan.panHandlers} style={styles.trackHit}>
+      <View style={styles.track}>
+        <View style={[styles.fill, { width: `${pct}%`, backgroundColor: color }]} />
+        <View style={[styles.thumb, { left: `${pct}%`, borderColor: color }]} />
+      </View>
+    </View>
+  );
+}
+function SliderRow(p: { label: string; valueLabel: string } & React.ComponentProps<typeof Slider>) {
+  const { label, valueLabel, ...rest } = p;
+  return <View style={styles.sl}><View style={styles.slTop}><Text style={styles.slL}>{label}</Text><Text style={styles.slV}>{valueLabel}</Text></View><Slider {...rest} /></View>;
+}
+
+// ───────────────────────── Donut ─────────────────────────
+function Donut({ segments, size = 124, stroke = 16, children }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode }) {
+  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
+  const total = segments.reduce((t, s) => t + Math.max(0, s.value), 0) || 1;
+  let acc = 0;
+  return (
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+      <Svg width={size} height={size} style={{ position: 'absolute' }}>
+        <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
+          <Circle cx={size / 2} cy={size / 2} r={r} stroke={Colors.bgTertiary} strokeWidth={stroke} fill="none" />
+          {segments.map((s, i) => {
+            const dash = (Math.max(0, s.value) / total) * c;
+            const el = <Circle key={i} cx={size / 2} cy={size / 2} r={r} stroke={s.color} strokeWidth={stroke} fill="none" strokeDasharray={`${dash} ${c - dash}`} strokeDashoffset={-acc} />;
+            acc += dash; return el;
+          })}
+        </G>
+      </Svg>
+      <View style={{ alignItems: 'center' }}>{children}</View>
+    </View>
+  );
+}
+
+// ───────────────────────── Earmark sheet ─────────────────────────
+function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
+  open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number) => void; onDone: () => void;
+}) {
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.sheetT}>What counts toward retirement?</Text>
+        <Text style={styles.sheetS}>Some money is for other goals. Set how much of each account funds retirement — the rest stays free for things like a home or college.</Text>
+        <ScrollView style={{ maxHeight: 380 }}>
+          {assets.map((a) => {
+            const isProp = a.tax_bucket === 'PROPERTY';
+            const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
+            return (
+              <View key={a.asset_id} style={[styles.acc, (isProp || pct === 0) && { opacity: 0.55 }]}>
+                <Text style={styles.accIc}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.accName}>{a.institution?.trim() || a.label}</Text>
+                  <Text style={styles.accBal}>{isProp ? 'excluded — you live in it' : `${assetKind(a.kind)?.label ?? 'Other'} · ${money(a.balance)}`}</Text>
+                </View>
+                {isProp ? <Text style={styles.counts}>—</Text> : (
+                  <>
+                    <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
+                    <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>
+                  </>
+                )}
+              </View>
+            );
+          })}
+        </ScrollView>
+        <TouchableOpacity style={styles.applyBtn} onPress={onDone}><Text style={styles.applyT}>Counts toward retirement: {big(nestEgg)} · Done</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
+// ───────────────────────── Benchmark-return editor ─────────────────────────
+function BenchmarkEditor({ open, onClose, kinds, overrides, onSet, onDone, blended }: {
+  open: boolean; onClose: () => void; kinds: string[]; overrides: Record<string, number>; onSet: (kind: string, ret: number) => void; onDone: () => void; blended: number;
+}) {
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.sheetT}>Benchmark returns by type</Text>
+        <Text style={styles.sheetS}>Expected long-run annual return for each kind of investment. Edit to be more or less optimistic — your blended return updates.</Text>
+        <ScrollView style={{ maxHeight: 360 }}>
+          {kinds.length === 0 && <Text style={styles.sub}>Add investment accounts in Net Worth to set their benchmarks.</Text>}
+          {kinds.map((k) => {
+            const r = benchmarkReturn(k, overrides);
+            return (
+              <View key={k} style={styles.acc}>
+                <Text style={styles.accIc}>{assetKind(k)?.icon ?? '📈'}</Text>
+                <View style={{ flex: 1 }}><Text style={styles.accName}>{assetKind(k)?.label ?? 'Other'}</Text><Text style={styles.accBal}>expected return / yr</Text></View>
+                <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="decimal-pad" value={(r * 100).toFixed(1)} onChangeText={(t) => onSet(k, clamp(num(t), 0, 30) / 100)} /><Text style={styles.pctU}>%</Text></View>
+              </View>
+            );
+          })}
+        </ScrollView>
+        <TouchableOpacity style={styles.applyBtn} onPress={onDone}><Text style={styles.applyT}>Blended return: {(blended * 100).toFixed(1)}% · Done</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
+// ───────────────────────── Social Security editor ─────────────────────────
+function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onClose: () => void; A: any; ssDefault: number; onApply: (patch: any) => void }) {
+  const [eligible, setEligible] = useState<boolean>(A.ssEligible ?? (ssDefault > 0));
+  const [amt, setAmt] = useState(String(A.ssMonthly ?? ssDefault ?? ''));
+  const [claim, setClaim] = useState<number>(A.ssClaimAge ?? 67);
+  useEffect(() => { if (open) { setEligible(A.ssEligible ?? (ssDefault > 0)); setAmt(String(A.ssMonthly ?? ssDefault ?? '')); setClaim(A.ssClaimAge ?? 67); } }, [open]);
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.sheetT}>Social Security</Text>
+        <Text style={styles.sheetS}>A monthly benefit from the government in retirement. If you've worked and paid in, you're likely eligible.</Text>
+        <View style={styles.acc}>
+          <View style={{ flex: 1 }}><Text style={styles.accName}>Eligible for Social Security?</Text><Text style={styles.accBal}>Turn off if you won't receive it.</Text></View>
+          <Switch value={eligible} onValueChange={setEligible} trackColor={{ true: Colors.primaryMid, false: Colors.border }} thumbColor={eligible ? Colors.primary : '#fff'} />
+        </View>
+        {eligible && (
+          <>
+            <View style={styles.acc}>
+              <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>Today's dollars, per month</Text></View>
+              <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><TextInput style={[styles.pctIn, { width: 78 }]} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+            </View>
+            <View style={styles.acc}>
+              <View style={{ flex: 1 }}><Text style={styles.accName}>Claim at age</Text><Text style={styles.accBal}>62 earliest · 67 full · 70 max</Text></View>
+              <View style={styles.stepper}>
+                <TouchableOpacity style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c - 1, 62, 70))}><Text style={styles.stepBtnT}>−</Text></TouchableOpacity>
+                <Text style={styles.stepVal}>{claim}</Text>
+                <TouchableOpacity style={styles.stepBtn} onPress={() => setClaim((c) => clamp(c + 1, 62, 70))}><Text style={styles.stepBtnT}>+</Text></TouchableOpacity>
+              </View>
+            </View>
+          </>
+        )}
+        <TouchableOpacity style={styles.applyBtn} onPress={() => onApply({ ssEligible: eligible, ssMonthly: eligible ? num(amt) : 0, ssClaimAge: claim })}><Text style={styles.applyT}>Done</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
+// ───────────────────────── Save-scenario prompt ─────────────────────────
+function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; onClose: () => void; defaultName: string; onSave: (name: string) => void }) {
+  const [name, setName] = useState(defaultName);
+  useEffect(() => { if (open) setName(defaultName); }, [open]);
+  return (
+    <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.dialog}>
+        <Text style={styles.sheetT}>Save scenario</Text>
+        <Text style={styles.sheetS}>Name this what-if so you can compare it later.</Text>
+        <TextInput style={styles.nameIn} value={name} onChangeText={setName} placeholder="e.g. Retire 60" placeholderTextColor={Colors.textTertiary} />
+        <TouchableOpacity style={styles.applyBtn} onPress={() => onSave(name.trim() || defaultName)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
+// log-scale 10–90 band + median
+function BandChart({ band, width, retireAge }: { band: { age: number; p10: number; p50: number; p90: number }[]; width: number; retireAge: number | null }) {
+  const H = 130, padTop = 8, padBot = 4;
+  const top = Math.max(...band.map((b) => b.p90), 1);
+  const hardFloor = Math.max(1000, top / 1000);
+  const positives = band.map((b) => b.p10).filter((v) => v > hardFloor);
+  const dataMin = positives.length ? Math.min(...positives) : hardFloor;
+  const floor = Math.max(hardFloor, dataMin * 0.7);
+  const lTop = Math.log(top), lFloor = Math.log(floor);
+  const minAge = band[0].age, maxAge = band[band.length - 1].age;
+  const x = (a: number) => ((a - minAge) / (maxAge - minAge || 1)) * width;
+  const y = (v: number) => { const ly = (Math.log(Math.max(floor, v)) - lFloor) / (lTop - lFloor || 1); return padTop + (1 - ly) * (H - padTop - padBot); };
+  const upper = band.map((b) => `${x(b.age).toFixed(1)},${y(b.p90).toFixed(1)}`).join(' L ');
+  const lower = [...band].reverse().map((b) => `${x(b.age).toFixed(1)},${y(b.p10).toFixed(1)}`).join(' L ');
+  const med = 'M ' + band.map((b) => `${x(b.age).toFixed(1)},${y(b.p50).toFixed(1)}`).join(' L ');
+  return (
+    <Svg width={width} height={H}>
+      <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
+      <Path d={`M ${upper} L ${lower} Z`} fill={Colors.primaryMid} fillOpacity={0.4} />
+      <Path d={med} stroke={Colors.primary} strokeWidth={2.5} fill="none" />
+      {retireAge != null && retireAge >= minAge && retireAge <= maxAge && (
+        <Line x1={x(retireAge)} y1={0} x2={x(retireAge)} y2={H - padBot} stroke={Colors.amber} strokeWidth={1.5} strokeDasharray="3,3" opacity={0.6} />
+      )}
+    </Svg>
+  );
+}
+
+const styles = StyleSheet.create({
+  content: { padding: Spacing.lg },
+  eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 8, marginBottom: 8 },
+  sub: { fontSize: 12, color: Colors.textSecondary, marginTop: 4, textAlign: 'center' },
+  note: { fontSize: 11, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
+
+  donutCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base },
+  donutRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
+  donutAmt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
+  donutLab: { fontSize: 9, fontWeight: '700', color: Colors.textTertiary },
+  lg: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 3 },
+  dot: { width: 9, height: 9, borderRadius: 3 },
+  lgL: { flex: 1, fontSize: 12, color: Colors.textPrimary },
+  lgPct: { color: Colors.textTertiary, fontSize: 11 },
+  lgV: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
+  editLink: { marginTop: 12, fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center' },
+
+  gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 10 },
+  gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
+  gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
+  gD: { color: '#DDF3EB', fontSize: 12.5, lineHeight: 18 },
+  gB: { color: '#fff', fontWeight: '800' },
+
+  ssRow: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: 12, marginTop: 10 },
+  ssIc: { fontSize: 18 },
+  ssName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  ssSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
+  ssPill: { backgroundColor: Colors.primaryLight, color: Colors.primary, borderRadius: Radii.pill, paddingHorizontal: 10, paddingVertical: 5, fontSize: 11, fontWeight: '800', overflow: 'hidden' },
+
+  section: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.base, marginBottom: 6 },
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 6 },
+
+  heroCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 6, alignItems: 'center' },
+  heroLabel: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.5 },
+  heroNum: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  heroMetaRow: { flexDirection: 'row', gap: 14, marginTop: 4 },
+  heroMeta: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
+  heroSs: { fontSize: 11, color: Colors.textTertiary, marginTop: 6 },
+
+  sl: { marginVertical: 9 },
+  slTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
+  slL: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
+  slV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  trackHit: { paddingVertical: 9 },
+  track: { height: 6, borderRadius: 3, backgroundColor: Colors.border, position: 'relative' },
+  fill: { position: 'absolute', left: 0, top: 0, height: 6, borderRadius: 3 },
+  thumb: { position: 'absolute', top: -7, width: 20, height: 20, borderRadius: 10, backgroundColor: '#fff', borderWidth: 3, marginLeft: -10 },
+
+  conf: { flexDirection: 'row', alignItems: 'center', gap: 8, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 11, marginTop: 8 },
+  confPct: { fontSize: 18, fontWeight: '800' },
+  confT: { fontSize: 12, color: Colors.primaryDark, flex: 1, lineHeight: 15 },
+  save: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 14 },
+  saveT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 },
+
+  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, alignItems: 'center' },
+  chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
+  chipT: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
+  chipHint: { fontSize: 10.5, color: Colors.textTertiary, width: '100%' },
+
+  topbar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
+  back: { fontSize: 15, fontWeight: '700', color: Colors.primary },
+  chip2: { borderRadius: Radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
+  chip2T: { color: '#fff', fontSize: 11, fontWeight: '700' },
+  axis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
+  axisT: { fontSize: 9, color: Colors.textTertiary },
+  fx: { fontSize: 11, color: Colors.textSecondary, marginTop: 8 },
+
+  li: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
+  liK: { fontSize: 13.5, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
+  liV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+
+  scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
+  sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
+  sheetS: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, marginBottom: 8, lineHeight: 17 },
+  acc: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderTopWidth: 1, borderTopColor: Colors.border },
+  accIc: { fontSize: 18 },
+  accName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  accBal: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
+  pctBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  pctIn: { width: 56, borderWidth: 1.5, borderColor: Colors.border, borderRadius: 8, padding: 6, textAlign: 'right', fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  pctU: { fontSize: 13, color: Colors.textSecondary },
+  counts: { fontSize: 12, fontWeight: '700', color: Colors.primary, minWidth: 60, textAlign: 'right' },
+  stepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  stepBtn: { width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
+  stepBtnT: { fontSize: 18, color: Colors.primary, fontWeight: '700' },
+  stepVal: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, minWidth: 30, textAlign: 'center' },
+  applyBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 16 },
+  applyT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  dialog: { position: 'absolute', left: 24, right: 24, top: '32%', backgroundColor: '#fff', borderRadius: Radii.lg, padding: 18 },
+  nameIn: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 15, color: Colors.textPrimary, marginTop: 4 },
+});
