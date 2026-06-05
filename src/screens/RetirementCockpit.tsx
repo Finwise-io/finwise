@@ -82,9 +82,9 @@ export default function RetirementCockpit() {
   // CURRENT insight (green box): based on the nest egg + BENCHMARK return + no further saving — not the sliders
   const greenInputs = buildInputs({ annual_contribution: 0, mean_return: benchReturn });
   const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, benchReturn, inflPct, spendMo, ssIncome, claimAge, horizon]);
-  // spend rises with inflation over the RETIREMENT period (retirement → horizon), not from today —
-  // otherwise we'd inflate over the pre-retirement years too and overstate end-of-life spend.
-  const spendEscFromAge = isRetired ? age : (retireAtAge ?? rAge);
+  // spend rises with inflation over the retirement period. Everything below the heroes is anchored to
+  // the TARGET retire age (rAge), so escalate from there (not from the never-save floor age).
+  const spendEscFromAge = isRetired ? age : rAge;
   const spendHi = Math.round(spendMo * Math.pow(1 + inflPct / 100, Math.max(0, horizon - spendEscFromAge)));
 
   // scenario deterministic (instant) + Monte-Carlo (on release)
@@ -222,35 +222,33 @@ export default function RetirementCockpit() {
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
 
-      {/* HERO — dark-green headline box (the one big number) */}
-      <View style={styles.gbox}>
-        {isRetired ? (
-          <>
-            <Text style={styles.gK}>YOUR MONEY SO FAR</Text>
-            <Text style={styles.gAge}>{chance == null ? '…' : `${chance}%`}</Text>
-            <Text style={styles.gSub}>chance it lasts to age {horizon}</Text>
-          </>
-        ) : (
-          <>
-            <Text style={styles.gK}>EVEN IF YOU NEVER SAVE ANOTHER DOLLAR</Text>
-            <Text style={styles.gAge}>{retireAtAge ? `Retire at ${retireAtAge}` : 'Keep saving'}</Text>
-            <Text style={styles.gSub}>on your {big(nestEgg)} nest egg today</Text>
-          </>
-        )}
-      </View>
+      {/* HERO — two dark-green cards: the never-save floor + the on-plan target */}
+      {isRetired ? (
+        <View style={styles.gbox}>
+          <Text style={styles.heroK}>YOUR MONEY SO FAR</Text>
+          <Text style={styles.heroBig}>{chance == null ? '…' : `${chance}%`}</Text>
+          <Text style={styles.heroSub}>chance your {big(nestEgg)} lasts to age {horizon}</Text>
+        </View>
+      ) : (
+        <>
+          <View style={styles.heroRow}>
+            <View style={[styles.heroCardG, { marginRight: 5 }]}>
+              <Text style={styles.heroK}>IF YOU NEVER SAVE AGAIN</Text>
+              <Text style={styles.heroBig}>{retireAtAge ? `Retire ${retireAtAge}` : 'Keep saving'}</Text>
+              <Text style={styles.heroSub}>on today's {big(nestEgg)}</Text>
+            </View>
+            <View style={[styles.heroCardG, { marginLeft: 5 }]}>
+              <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(rAge)}</Text>
+              <Text style={styles.heroBig}>{big(projEnd)}</Text>
+              <Text style={styles.heroSub}>{chance == null ? 'projected nest egg' : `${chance}% it lasts to ${horizon}`}</Text>
+            </View>
+          </View>
+          <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(rAge)}{saveMo > 0 ? `, keep saving ${money(saveMo)}/mo` : ''}.</Text>
+        </>
+      )}
 
-      {/* INSIGHT — light-green box underneath the hero */}
-      <View style={styles.insightBox}>
-        {isRetired ? (
-          <Text style={styles.insightTxt}>Your <Text style={styles.insightB}>{big(nestEgg)}</Text> at ~<Text style={styles.insightB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr covers spending of <Text style={styles.insightB}>{money(spendMo)}/mo</Text> <Text style={styles.insightB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text>{ssIncome > 0 ? <Text>, with Social Security on top,</Text> : null} to age {horizon} in this share of scenarios.</Text>
-        ) : (
-          <Text style={styles.insightTxt}>
-            Your <Text style={styles.insightB}>{big(nestEgg)}</Text> growing ~<Text style={styles.insightB}>{(benchReturn * 100).toFixed(1)}%</Text>/yr{ssIncome > 0 ? <Text>, topped up by <Text style={styles.insightB}>Social Security from {claimAge}</Text>,</Text> : null} {retireAtAge
-              ? <Text>covers spending of <Text style={styles.insightB}>{money(spendMo)}/mo</Text> <Text style={styles.insightB}>(rising {inflPct.toFixed(1)}%/yr to ~{big(spendHi)}/mo by {horizon})</Text> from {retireAtAge} in most scenarios.</Text>
-              : <Text>doesn't yet cover <Text style={styles.insightB}>{money(spendMo)}/mo</Text> by age 80 on its own — run the scenario to see what saving adds.</Text>}
-          </Text>
-        )}
-      </View>
+      {/* ── WHAT YOU HAVE (facts) ── */}
+      <Text style={styles.divider}>WHAT YOU HAVE</Text>
 
       {/* DONUT — current earmarked nest egg */}
       <View style={[styles.donutCard, { marginTop: 10 }]}>
@@ -310,27 +308,18 @@ export default function RetirementCockpit() {
           })}
           <View style={styles.instLinks}>
             <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={styles.editLink2}>Edit benchmarks ›</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => setPortfolioOpen(true)}>
+              {actualReturn == null
+                ? <Text style={styles.editLink2}>Compare your returns ›</Text>
+                : <Text style={[styles.editLink2, { color: beatBy! >= 0 ? Colors.primary : Colors.red }]}>You {beatBy! >= 0 ? '+' : ''}{(beatBy! * 100).toFixed(1)} pts vs benchmark ›</Text>}
+            </TouchableOpacity>
           </View>
-          <Text style={styles.tFoot}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the index's historical return — past performance isn't a guarantee.</Text>
+          <Text style={styles.tFoot}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the index's historical return; past performance isn't a guarantee. A 12-mo actual vs a ~30-yr average is directional only.</Text>
         </View>
       )}
 
-      {/* BEATING-BENCHMARK INSIGHT — self-reported actual portfolio return vs blended benchmark */}
-      <TouchableOpacity activeOpacity={0.85} style={[styles.benchBox, beatBy == null ? styles.benchNeutral : beatBy >= 0 ? styles.benchAhead : styles.benchBehind]} onPress={() => setPortfolioOpen(true)}>
-        {actualReturn == null ? (
-          <>
-            <Text style={styles.benchK}>ARE YOU BEATING YOUR BENCHMARK?</Text>
-            <Text style={styles.benchD}>Add your portfolio's actual 12-month return — or enter it per holding above — to compare against your {(benchReturn * 100).toFixed(1)}% blended benchmark.  <Text style={styles.benchLink}>Add portfolio return ›</Text></Text>
-          </>
-        ) : (
-          <>
-            <Text style={[styles.benchK, beatBy! >= 0 ? { color: Colors.primaryDark } : { color: Colors.red }]}>{beatBy! >= 0 ? '↑ AHEAD OF YOUR BENCHMARK' : '↓ BEHIND YOUR BENCHMARK'}</Text>
-            <Text style={styles.benchBig}>{beatBy! >= 0 ? '+' : ''}{(beatBy! * 100).toFixed(1)} pts</Text>
-            <Text style={styles.benchD}>Your <Text style={styles.benchB}>{(actualReturn * 100).toFixed(1)}%</Text> last-12-month return vs your <Text style={styles.benchB}>{(benchReturn * 100).toFixed(1)}%</Text> blended benchmark{A.actualReturn == null ? ' (from your per-holding entries)' : ''}.  <Text style={styles.benchLink}>Edit ›</Text></Text>
-            <Text style={styles.benchCaveat}>Comparison note: a 12-month actual vs a long-run (≈30-yr) benchmark average — different periods, so treat as directional.</Text>
-          </>
-        )}
-      </TouchableOpacity>
+      {/* ── YOUR PLAN (assumptions) ── */}
+      <Text style={styles.divider}>YOUR PLAN · assumes age {Math.round(rAge)}</Text>
 
       {/* PROJECTION — nest egg at end of each year, up to retirement */}
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
@@ -349,6 +338,12 @@ export default function RetirementCockpit() {
           </View>
         </View>
       )}
+
+      {/* IN RETIREMENT — spend, anchored to target age */}
+      <View style={styles.card}>
+        <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(spendMo)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {inflPct.toFixed(1)}%/yr.</Text>
+      </View>
 
       {/* SOCIAL SECURITY */}
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
@@ -689,6 +684,13 @@ const styles = StyleSheet.create({
   lgV: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
   editLink: { marginTop: 12, fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center' },
 
+  heroRow: { flexDirection: 'row', marginTop: 10 },
+  heroCardG: { flex: 1, backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: 13, paddingVertical: 14, minHeight: 96, justifyContent: 'center' },
+  heroK: { color: '#BEE7D8', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.3 },
+  heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
+  heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
+  planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 10, lineHeight: 16 },
+  divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
   gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
   gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
