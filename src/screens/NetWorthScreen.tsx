@@ -55,6 +55,7 @@ const WIZ_HINT: Record<string, string> = {
 export default function NetWorthScreen() {
   const router = useRouter();
   const store = useStore() as any;
+  useEffect(() => { store.maybeRefreshPrices?.(); }, []);   // keep balances live with the market
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
   const assets: AssetAccount[] = store.assetAccounts ?? [];

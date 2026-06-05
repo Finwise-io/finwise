@@ -263,6 +263,7 @@ type AppState = {
   updatePosition: (accountId: string, positionId: string, patch: Partial<Position>) => void;
   deletePosition: (accountId: string, positionId: string) => void;
   refreshPrices: () => Promise<void>;
+  maybeRefreshPrices: () => Promise<void>;   // throttled (10 min) — safe to call on screen open
   addLiability: (d: Omit<Debt, 'debt_id'>) => void;
   updateLiability: (id: string, updates: Partial<Debt>) => void;
   deleteLiability: (id: string) => void;
@@ -484,6 +485,13 @@ export const useStore = create<AppState>()(
           return mv > 0 ? { ...a, balance: round2(mv) } : a;   // don't zero a balance if prices missing
         });
         set({ priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: updated });
+      },
+      maybeRefreshPrices: async () => {
+        const s = get();
+        if (!s.assetAccounts.some((a) => a.positions?.length)) return;
+        const last = s.pricesFetchedAt ? Date.parse(s.pricesFetchedAt) : 0;
+        if (Date.now() - last < 10 * 60 * 1000) return;   // fetched within 10 min → skip
+        await s.refreshPrices();
       },
       addLiability:   (d) => set((s) => ({ liabilities: [{ ...d, debt_id: newEntityId('debt') }, ...s.liabilities] })),
       updateLiability:(id, u) => set((s) => ({ liabilities: s.liabilities.map((x) => x.debt_id === id ? { ...x, ...u } : x) })),

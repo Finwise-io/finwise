@@ -26,6 +26,7 @@ const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_buck
 export default function RetirementCockpit() {
   const router = useRouter();
   const store = useStore() as any;
+  useEffect(() => { store.maybeRefreshPrices?.(); }, []);   // nest egg tracks live market value
   const op = store.onboardingProfile ?? {};
   const A = store.retirementAssumptions ?? {};
   const setA = store.setRetirementAssumptions as (p: any) => void;
