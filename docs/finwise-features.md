@@ -1,11 +1,12 @@
 # FinWise — Features & Capabilities Tracker
 
 > One place to see every capability, what it does, who it's for, and whether it's built.
-> Tick the box as things ship. Last updated: 2026-06-05.
+> Tick the box as things ship. Last updated: 2026-06-05 (Portfolio Performance service shipped).
+> **See the "Parked / backlog" list at the bottom for everything we've consciously deferred.**
 
 **Legend**
 - `[x]` = built & working   ·   `[~]` = partially built / needs finishing   ·   `[ ]` = not built yet
-- 🟢 shipped · 🟡 partial · 🔵 next up · ⚪ later / deferred
+- 🟢 shipped · 🟡 partial · 🔵 next up · ⚪ later / deferred · 🚧 launch-blocker
 
 **At a glance**
 
@@ -15,14 +16,14 @@
 | Home / Dashboard | 4 | 1 | 2 |
 | Income | 6 | 0 | 1 |
 | Budget & Expenses | 5 | 1 | 1 |
-| Net Worth (Assets & Debt) | 5 | 0 | 2 |
-| Retirement | 8 | 1 | 2 |
+| Net Worth (Assets & Debt) | 6 | 0 | 1 |
+| Retirement | 10 | 1 | 1 |
 | Goals & Savings | 1 | 1 | 3 |
-| Portfolio Performance | 0 | 0 | 3 |
+| Portfolio Performance | 4 | 0 | 0 (v2 parked) |
 | Insights | 2 | 0 | 1 |
 | Foundations (i18n, security, history) | 3 | 2 | 3 |
 | Engagement & Intelligence | 3 | 1 | 1 |
-| Account & Launch | 4 | 2 | 3 |
+| Account & Launch | 4 | 2 | 3 + 1 🚧 |
 
 ---
 
@@ -107,28 +108,30 @@
   - *Use:* Set private-equity benchmark higher than bonds.
 - [x] 🟢 **Asset earmarking for retirement** — Set what % of each account counts toward retirement vs other goals.
   - *Use:* Count 100% of the IRA but only 50% of cash toward the nest egg.
-- [ ] 🔵 **Benchmark ROI on the Net Worth screen** — Surface the per-type benchmark return on NW too (currently only on Retirement).
-  - *Use:* Judge each holding's expected return from the NW view.
+- [x] 🟢 **Ticker holdings drive account value** — A position-based account's value = Σ(shares × live price), so net worth auto-updates with the market. Cash/property stay manual. (See Portfolio Performance.)
+  - *Use:* Your brokerage balance moves with the market, no manual edits.
+- [x] 🟢 **Performance launch from Net Worth** — "📈 Portfolio performance vs benchmark" entry under the net-worth hero.
+  - *Use:* Jump from net worth into per-holding performance.
 - [ ] ⚪ **Runway / emergency-fund insight** — "Your cash covers N months of spending."
   - *Use:* "You have 4.2 months of expenses in cash."
 
 ## 6. Retirement
 
-- [x] 🟢 **Two-screen cockpit** — Screen 1 "Where you stand" (facts) + Screen 2 "Scenario" (what-ifs).
-  - *Use:* Read your status, then jump in to test changes.
-- [x] 🟢 **"Retire at age Y" hero** — Plain-English headline: the age you could retire even if you never save again, from current nest egg + blended benchmark.
-  - *Use:* Instant gut-check: "I could retire at 66 today."
+- [x] 🟢 **Two-screen cockpit (plan vs sandbox)** — Screen 1 "Where you stand" (your committed plan/facts) + Screen 2 "Scenario" (a what-if sandbox that only changes the plan via "Use as my plan"). State is fully separated.
+  - *Use:* Experiment freely without your real plan shifting under you.
+- [x] 🟢 **Twin hero (floor + target)** — "If you never save again → retire at X" + "At your target age → $Y, Z% chance it lasts"; each shows the assumed ROI.
+  - *Use:* See your safety floor and your on-plan outcome side by side.
 - [x] 🟢 **Earmarked nest-egg donut** — Nest egg (not net worth) split by section with per-account edit.
   - *Use:* See that property is excluded and why.
-- [x] 🟢 **Instruments table** — Each holding's balance + benchmark ROI with the return's source and period.
-  - *Use:* "My Morgan Stanley account benchmarks to S&P 500, 30-yr, 7%."
-- [x] 🟢 **Beating-benchmark insight** — Compares your self-reported actual return to your blended benchmark (ahead/behind).
-  - *Use:* "You're beating your benchmark by +2.9 pts."
-- [x] 🟢 **Projected nest-egg chart** — Year-by-year column chart to retirement (stops contributions at retirement; amber retirement marker).
-  - *Use:* Watch the nest egg climb to ~$8.8M by your retirement year.
-- [x] 🟢 **Monte Carlo + percentile band** — Probability-of-success and a 10th–90th percentile balance band (log-scaled).
-  - *Use:* "78% chance your money lasts to 90."
-- [x] 🟢 **What-if scenarios + Social Security** — Sliders (retire age, return, save, spend, inflation) with save/compare; SS modeled from claim age.
+- [x] 🟢 **Holdings table + historic benchmarks** — Each holding's balance + real 30-yr historic benchmark (source + period, not editable) + your-12-mo vs benchmark weighted row + "set a type" for uncategorized.
+  - *Use:* "Morgan Stanley benchmarks to S&P 500 TR, 30-yr, 10.4%."
+- [x] 🟢 **Return-basis selector** — Choose what grows the projection: benchmark / your 12-mo (⚠ cautioned) / scenario return.
+  - *Use:* Project on prudent benchmark, or stress with your own number.
+- [x] 🟢 **Projected nest-egg chart** — Year-by-year column chart to retirement with value labels on every bar; stops contributions at retirement; amber retirement marker; now/saved/growth breakdown.
+  - *Use:* Watch the nest egg climb, and see exactly what's contributions vs growth.
+- [x] 🟢 **Monte Carlo (run on demand)** — Gated behind a "Run simulation" button with a plain-English explainer; p10–p90 band + median, age axis + legend.
+  - *Use:* "60% chance your money lasts to 90, across ~400 markets."
+- [x] 🟢 **What-if scenarios + Social Security** — Sliders with benchmark/plan reference markers; save/compare scenarios; SS modeled from claim age.
   - *Use:* Compare "retire at 60" vs "retire at 65" side by side.
 - [~] 🟡 **Drawdown / decumulation view for retirees** — Accumulation is solid; the "will it last?" retired-user surfaces need finishing.
   - *Use:* A retiree sees depletion, not accumulation, framing.
@@ -150,14 +153,19 @@
 - [ ] ⚪ **Goal target dates picker** — Month/year picker per goal to back-calc the monthly amount.
   - *Use:* Set "new car by Dec 2027" and get the monthly number.
 
-## 8. Portfolio Performance Analysis (NEXT major service)
+## 8. Portfolio Performance Analysis ✅ SHIPPED (v1)
 
-- [ ] 🔵 **Trailing-12-month actual ROI per instrument** — Real per-holding return vs benchmark, sourced trustworthily (ticker data or a contribution ledger).
-  - *Use:* "Your tech ETF returned 14% vs its 7% benchmark."
-- [ ] 🔵 **Service launchable from NW *or* Retirement** — One performance engine surfaced from both screens.
-  - *Use:* Open the same analysis whether you start from net worth or retirement.
-- [ ] 🔵 **Per-account contribution ledger / ticker pricing** — The data foundation that makes actual returns accurate (separates deposits from market growth).
-  - *Use:* Distinguish "I added $10k" from "the market grew $10k."
+- [x] 🟢 **Per-holding return vs same-period benchmark** — Each ticker holding's price return over the selected period vs the matching index over the SAME period (like-for-like — no more "directional only" caveat) + total ROI since purchase.
+  - *Use:* "AAPL +53% vs SPY +24% over 1Y."
+- [x] 🟢 **Cost-basis lots (robust, build-once)** — A holding = ticker + lots (shares, cost/share, purchase date); market value, gain, and ROI all derive from lots + live price.
+  - *Use:* Two buys at different prices roll into one true cost basis.
+- [x] 🟢 **Live pricing behind a swappable provider** — `PriceProvider` interface; data source can be changed in one file without touching model/UI. Positions drive account value → net worth auto-updates.
+  - *Use:* Swap the data vendor at launch with zero rework.
+- [x] 🟢 **Launchable from Net Worth *and* Retirement** — One screen: period selector (1M…3Y), portfolio value, you-vs-benchmark, per-holding table, add/edit holding sheet.
+  - *Use:* Open the same analysis from either surface.
+- [ ] 🚧 **Production data licensing (LAUNCH-BLOCKER)** — Dev uses the unofficial Yahoo endpoint, which is **not licensed for a commercial app**. Must swap to a licensed EOD vendor (Tiingo / EODHD / Alpha Vantage / Twelve Data) before release. One-file adapter swap. *(See Account & Launch + Parked list.)*
+  - *Use:* Ship legally with reliable prices.
+- *(v2 — attribution, allocation, trend chart, ticker autocomplete — see Parked list.)*
 
 ## 9. Insights
 
@@ -210,9 +218,67 @@
   - *Use:* Reset a forgotten password; verify email at signup.
 - [~] 🟡 **App Store submission package** — Listing created; needs screenshots, description, keywords, and the `EXPO_PUBLIC_` key fix.
   - *Use:* Pass App Store review and go live.
-- [ ] ⚪ **Live market pricing** — Auto-update holding values from market data.
+- [x] 🟢 **Live market pricing (EOD)** — Holding values auto-update from end-of-day market data (via the Performance service). *(Production needs a licensed vendor — see below.)*
   - *Use:* Portfolio value moves with the market without manual edits.
+- [ ] 🚧 **Market-data licensing (LAUNCH-BLOCKER)** — The dev Yahoo Finance endpoint is unofficial and **not licensed for commercial/App-Store use**; Yahoo grants only personal viewing. Swap to a licensed EOD vendor before release (EOD/delayed data is cheap, ~$10–50/mo; real-time triggers costly exchange agreements). Confirm the vendor's commercial terms + any attribution. One-file `PriceProvider` adapter swap.
+  - *Use:* Avoid a ToS violation and unstable/blocked prices in production.
 - [ ] ⚪ **Detail-screen redesigns** — Refresh remaining legacy tab/detail screens.
   - *Use:* Consistent polish across every surface.
 - [ ] ⚪ **Push notifications** — Reminders/nudges (plugin configured).
   - *Use:* "You're near your dining budget this month."
+
+---
+
+## 🅿️ Parked / backlog — consciously deferred (running list)
+
+> Things we've decided to do later, grouped by when. Add here whenever we park something so nothing is lost.
+> Priority: 🚧 launch-blocker · 🔵 next-up · ⚪ later.
+
+### Must-do before public launch
+- [ ] 🚧 **Market-data licensing** — swap the dev Yahoo endpoint for a licensed EOD vendor (Tiingo/EODHD/Alpha Vantage/Twelve Data); confirm commercial terms + attribution. *(one-file `PriceProvider` swap)*
+- [ ] 🚧 **`EXPO_PUBLIC_` env keys** — AI tips + receipt OCR are silently off in release builds until keys are prefixed/inlined.
+- [ ] 🚧 **Deploy Firestore security rules** — `firebase deploy --only firestore:rules` (written, not deployed).
+- [ ] 🚧 **App Store submission package** — screenshots (6.7"/6.5"), description, keywords, category.
+- [ ] 🔵 **Email verification + forgot password** — queued auth quick-wins.
+- [ ] 🔵 **Encrypted local storage** — move sensitive data to expo-secure-store (currently plain JSON).
+- [ ] 🔵 **Receipt OCR native rebuild** — `npx expo run:ios` to activate ML Kit, then test scan.
+
+### Portfolio Performance — v2
+- [ ] 🔵 **Attribution** — which holdings drove / dragged your return.
+- [ ] ⚪ **Allocation view** — your mix vs a target.
+- [ ] ⚪ **Trend chart** — portfolio value vs benchmark over time.
+- [ ] ⚪ **Ticker autocomplete / validation** — catch typos, show company names.
+- [ ] ⚪ **Price-cache TTL + per-lot edit polish.**
+
+### Retirement
+- [ ] 🟡 **Drawdown / decumulation view for retirees** — "will it last?" framing (accumulation done).
+- [ ] ⚪ **Tax-aware drawdown** — withdrawal order, capital gains, RMDs, healthcare/LTC.
+- [ ] ⚪ **Salary-growth assumption** — contributions rise with raises.
+
+### Goals & Savings
+- [ ] 🔵 **Savings goals full UI** — finish the waterfall-backed goals screen.
+- [ ] 🔵 **Per-month available-to-save** — use lumpy monthly cash flow, not annual ÷ 12.
+- [ ] 🔵 **Non-monthly → sinking-fund goals** — auto-create save-by-date goals (needs target dates).
+- [ ] ⚪ **Goal target-date picker.**
+
+### Foundations & i18n
+- [ ] 🔵 **Currency picker UI** + on-device `Intl` verify.
+- [ ] ⚪ **Full string internationalization** (translate copy, not just numbers).
+
+### Insights & Intelligence
+- [ ] 🔵 **Centralized insight service** — rank insights by relevance instead of hardcoding per screen.
+- [ ] ⚪ **Plaid bank linking** — auto-pull balances/transactions.
+
+### Home, Nav & Polish
+- [ ] 🟡 **Header + bottom tab bar redesign.**
+- [ ] ⚪ **Detail-screen redesigns** (legacy tab/detail surfaces).
+- [ ] ⚪ **Net-worth-over-time card on Home.**
+- [ ] ⚪ **Runway / emergency-fund insight** (needs cash balance).
+
+### Income & Budget
+- [ ] 🔵 **Single-total vs categories reconciliation** — one source of truth for spending.
+- [ ] ⚪ **Configurable bonus month** (recap assumes December).
+
+### Phase 2 (personas / stickiness)
+- [ ] ⚪ **Gen-Z motivational framing** + app-wide **Simple Mode**.
+- [ ] ⚪ **"Sharpen your plan" dashboard** — complete onboarding steps skipped earlier.
