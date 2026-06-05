@@ -13,7 +13,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -34,6 +34,7 @@ export default function RetirementCockpit() {
   const [ssOpen, setSsOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [ttmEdit, setTtmEdit] = useState<AssetAccount | null>(null);
+  const [kindPick, setKindPick] = useState<AssetAccount | null>(null);
 
   // ---- data-derived ----
   const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
@@ -54,47 +55,42 @@ export default function RetirementCockpit() {
   const ssIncome = A.ssEligible ? Math.round(A.ssMonthly ?? ssDefault) : 0;
   const claimAge = A.ssClaimAge ?? 67;
 
-  // ---- scenario slider state ----
-  const [rAge, setRAge] = useState<number>(A.retireAge ?? retireDefault);
-  const [retPct, setRetPct] = useState<number>(Math.round((A.expectedReturn ?? benchBlended) * 1000) / 10);
-  const [saveMo, setSaveMo] = useState<number>(A.contribMonthly ?? contribDefault);
-  const [spendMo, setSpendMo] = useState<number>(A.spendMonthly ?? spendDefault);
-  const [inflPct, setInflPct] = useState<number>(Math.round((A.inflation ?? inflDefault) * 1000) / 10);
-  const [chance, setChance] = useState<number | null>(null);
-  const [band, setBand] = useState<any>(null);
-  const [commitTick, setCommitTick] = useState(0);
+  // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
+  const planRetireAge = A.retireAge ?? retireDefault;
+  const planSave = A.contribMonthly ?? contribDefault;
+  const planSpend = A.spendMonthly ?? spendDefault;
+  const planInfl = inflDefault;                       // Screen 1 always uses ACTUAL inflation (economic data)
+  const planGrowth = growthRate;                      // from the basis selector (benchmark / 12-mo / scenario)
+  const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
+  const commit = (patch: any) => setA(patch);
 
-  const isRetired = store.employmentStatus === 'retired' || age >= rAge;
-
-  const buildInputs = (over: any = {}) => ({
+  const planInputs = (over: any = {}) => ({
     current_age: age,
-    retire_age: isRetired ? age : Math.max(age + 1, rAge),
-    horizon_age: Math.max((isRetired ? age : rAge) + 1, horizon),
+    retire_age: isRetired ? age : Math.max(age + 1, planRetireAge),
+    horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
     start_balance: nestEgg,
-    annual_contribution: (isRetired ? 0 : saveMo) * 12,
-    retire_monthly_spend_today: spendMo,
+    annual_contribution: (isRetired ? 0 : planSave) * 12,
+    retire_monthly_spend_today: planSpend,
     guaranteed_monthly_income: ssIncome,
     guaranteed_start_age: claimAge,
-    inflation: inflPct / 100,
-    mean_return: retPct / 100,
-    vol_return: volOf(retPct / 100),
+    inflation: planInfl,
+    mean_return: planGrowth,
+    vol_return: volOf(planGrowth),
     paths: 400, seed: 42,
     ...over,
   });
 
-  // CURRENT insight (green box): based on the nest egg + BENCHMARK return + no further saving — not the sliders
-  const greenInputs = buildInputs({ annual_contribution: 0, mean_return: growthRate });
-  const retireAtAge = useMemo(() => solveRetireAge(greenInputs), [age, nestEgg, growthRate, inflPct, spendMo, ssIncome, claimAge, horizon]);
-  // spend rises with inflation over the retirement period. Everything below the heroes is anchored to
-  // the TARGET retire age (rAge), so escalate from there (not from the never-save floor age).
-  const spendEscFromAge = isRetired ? age : rAge;
-  const spendHi = Math.round(spendMo * Math.pow(1 + inflPct / 100, Math.max(0, horizon - spendEscFromAge)));
+  // Screen 1 LEFT hero — age you could retire on today's egg with NO more saving (uses the plan growth)
+  const retireAtAge = useMemo(() => solveRetireAge(planInputs({ annual_contribution: 0, mean_return: planGrowth })),
+    [age, nestEgg, planGrowth, planInfl, planSpend, ssIncome, claimAge, horizon]);
+  const spendEscFromAge = isRetired ? age : planRetireAge;
+  const spendHi = Math.round(planSpend * Math.pow(1 + planInfl, Math.max(0, horizon - spendEscFromAge)));
 
-  // scenario deterministic (instant) + Monte-Carlo (on release)
-  const proj = projectNestEgg(buildInputs());
-  useEffect(() => { const s = simulate(buildInputs({ with_band: true })); setChance(s.chance_of_success); setBand(s.band); }, [commitTick, nestEgg, ssIncome, claimAge]);
-  const commit = (patch: any) => { setA(patch); setCommitTick((t) => t + 1); };
-  const level = chance == null ? Colors.textTertiary : chance >= 80 ? Colors.primary : chance >= 60 ? Colors.amber : Colors.red;
+  // Screen 1 RIGHT hero confidence — Monte Carlo on the PLAN (summary % only; the band chart is gated on Screen 2)
+  const [planChance, setPlanChance] = useState<number | null>(null);
+  useEffect(() => { setPlanChance(simulate(planInputs()).chance_of_success); },
+    [age, nestEgg, planRetireAge, planSave, planSpend, planInfl, planGrowth, ssIncome, claimAge, horizon]);
+  const level = planChance == null ? Colors.textTertiary : planChance >= 80 ? Colors.primary : planChance >= 60 ? Colors.amber : Colors.red;
 
   // donut segments (earmarked, grouped by section, Net-Worth colors)
   const earmarked = assets.filter((a) => earmarkedAmount(a) > 0);
@@ -121,22 +117,55 @@ export default function RetirementCockpit() {
   // trajectory doesn't overstate the nest egg past retirement.
   const projYears = useMemo(() => {
     const out: { year: number; age: number; bal: number; isRetire: boolean }[] = [];
-    const retAge = Math.round(rAge);
+    const retAge = Math.round(planRetireAge);
     const span = clamp(retAge - age, 3, 20);
     let bal = nestEgg;
     const yr0 = new Date().getFullYear();
     for (let i = 1; i <= span; i++) {
       const a = age + i;
-      bal = bal * (1 + growthRate) + (a <= retAge ? saveMo * 12 : 0);
+      bal = bal * (1 + planGrowth) + (a <= retAge ? planSave * 12 : 0);
       out.push({ year: yr0 + i, age: a, bal, isRetire: a === retAge });
     }
     return out;
-  }, [nestEgg, growthRate, saveMo, age, rAge]);
+  }, [nestEgg, planGrowth, planSave, age, planRetireAge]);
   const hasRetireBar = projYears.some((d) => d.isRetire);
   // transparency: split the final projected balance into starting egg + contributions you add + growth
   const projEnd = projYears.length ? projYears[projYears.length - 1].bal : nestEgg;
-  const projContrib = projYears.reduce((t, d) => t + (d.age <= Math.round(rAge) ? saveMo * 12 : 0), 0);
+  const projContrib = projYears.reduce((t, d) => t + (d.age <= Math.round(planRetireAge) ? planSave * 12 : 0), 0);
   const projGrowth = Math.max(0, projEnd - nestEgg - projContrib);
+
+  // ---- SCENARIO sandbox (Screen 2 only) — starts from the plan, never writes back unless "Use as my plan" ----
+  const [rAge, setRAge] = useState<number>(planRetireAge);
+  const [retPct, setRetPct] = useState<number>(Math.round(planGrowth * 1000) / 10);
+  const [saveMo, setSaveMo] = useState<number>(planSave);
+  const [spendMo, setSpendMo] = useState<number>(planSpend);
+  const [inflPct, setInflPct] = useState<number>(Math.round(planInfl * 1000) / 10);
+  const [scChance, setScChance] = useState<number | null>(null);
+  const [scBand, setScBand] = useState<any>(null);
+  const resetSandbox = () => {
+    setRAge(planRetireAge); setRetPct(Math.round(planGrowth * 1000) / 10); setSaveMo(planSave);
+    setSpendMo(planSpend); setInflPct(Math.round(planInfl * 1000) / 10); setScChance(null); setScBand(null);
+  };
+  const openScenario = () => { resetSandbox(); setScreen('scenario'); };
+  const loadScenario = (a: any) => {
+    setRAge(a.retireAge ?? planRetireAge); setRetPct(Math.round((a.expectedReturn ?? planGrowth) * 1000) / 10);
+    setSaveMo(a.contribMonthly ?? planSave); setSpendMo(a.spendMonthly ?? planSpend);
+    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setScChance(null); setScBand(null);
+  };
+  const scRetired = store.employmentStatus === 'retired' || age >= rAge;
+  const scInputs = (over: any = {}) => ({
+    current_age: age, retire_age: scRetired ? age : Math.max(age + 1, rAge),
+    horizon_age: Math.max((scRetired ? age : rAge) + 1, horizon), start_balance: nestEgg,
+    annual_contribution: (scRetired ? 0 : saveMo) * 12, retire_monthly_spend_today: spendMo,
+    guaranteed_monthly_income: ssIncome, guaranteed_start_age: claimAge,
+    inflation: inflPct / 100, mean_return: retPct / 100, vol_return: volOf(retPct / 100),
+    paths: 400, seed: 42, ...over,
+  });
+  const scProj = projectNestEgg(scInputs());
+  const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
+  const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
+  const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
+  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, returnBasis: 'scenario' }); setScreen('current'); };
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -144,77 +173,87 @@ export default function RetirementCockpit() {
       <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.topbar}>
           <TouchableOpacity onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
-          <View style={[styles.chip2, { backgroundColor: level }]}><Text style={styles.chip2T}>{chance ?? '…'}% {isRetired ? 'lasts' : 'success'}</Text></View>
+          <Text style={styles.sandboxTag}>SANDBOX</Text>
         </View>
 
-        <Text style={styles.section}>{isRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF YOU PLANNED IT? — DRAG TO EXPLORE'}</Text>
+        <Text style={styles.section}>{scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'}</Text>
+        <Text style={styles.note}>This is a what-if sandbox. It won't change your plan until you tap “Use as my plan”.</Text>
 
-        {/* HERO */}
-        <View style={styles.heroCard}>
-          <Text style={styles.heroLabel}>{isRetired ? 'PROJECTED NEST EGG' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
-          <Text style={styles.heroNum}>{big(proj.will_have)}</Text>
+        {/* HERO — deterministic projection (instant) */}
+        <View style={[styles.heroCard, { marginTop: 8 }]}>
+          <Text style={styles.heroLabel}>{scRetired ? 'PROJECTED NEST EGG' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
+          <Text style={styles.heroNum}>{big(scProj.will_have)}</Text>
           <View style={styles.heroMetaRow}>
-            <Text style={styles.heroMeta}>you'll need {big(proj.will_need)}</Text>
-            {proj.shortfall > 0
-              ? <Text style={[styles.heroMeta, { color: Colors.red, fontWeight: '800' }]}>short {big(proj.shortfall)}</Text>
-              : <Text style={[styles.heroMeta, { color: Colors.primary, fontWeight: '800' }]}>surplus {big(proj.will_have - proj.will_need)}</Text>}
+            <Text style={styles.heroMeta}>you'll need {big(scProj.will_need)}</Text>
+            {scProj.shortfall > 0
+              ? <Text style={[styles.heroMeta, { color: Colors.red, fontWeight: '800' }]}>short {big(scProj.shortfall)}</Text>
+              : <Text style={[styles.heroMeta, { color: Colors.primary, fontWeight: '800' }]}>surplus {big(scProj.will_have - scProj.will_need)}</Text>}
           </View>
           {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
-          <View style={[styles.conf, { alignSelf: 'stretch' }, chance != null && chance < 60 && { backgroundColor: Colors.redLight }]}>
-            <Text style={[styles.confPct, { color: level }]}>{chance == null ? '…' : `${chance}%`}</Text>
-            <Text style={styles.confT}>lasts to age {horizon} across 400 market scenarios</Text>
-          </View>
         </View>
 
-        {/* SLIDERS */}
+        {/* SLIDERS — with benchmark + current-plan reference markers */}
         <View style={styles.card}>
-          {!isRetired && <SliderRow label="Retire at age" valueLabel={`${rAge}`} value={rAge} min={Math.max(age + 1, 45)} max={75} step={1} onChange={setRAge} onComplete={() => commit({ retireAge: rAge })} />}
-          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={12} step={0.5} onChange={setRetPct} onComplete={() => commit({ expectedReturn: retPct / 100 })} />
-          {!isRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={setSaveMo} onComplete={() => commit({ contribMonthly: saveMo })} />}
-          <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={setSpendMo} onComplete={() => commit({ spendMonthly: spendMo })} />
-          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={setInflPct} onComplete={() => commit({ inflation: inflPct / 100 })} />
-          <Text style={styles.note}>Return starts from your blended benchmark ({(benchBlended * 100).toFixed(1)}%). Drag to stress-test.</Text>
+          {!scRetired && <SliderRow label="Retire at age" valueLabel={`${rAge}`} value={rAge} min={Math.max(age + 1, 45)} max={75} step={1} onChange={(v) => { setRAge(v); invalidateMC(); }} markers={[{ value: planRetireAge, label: 'plan' }]} fmt={(v) => `${Math.round(v)}`} />}
+          <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
+            markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
+          <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
+          <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: 'actual' }]} fmt={(v) => `${v.toFixed(1)}%`} />
+          <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
         </View>
 
-        <TouchableOpacity style={styles.save} onPress={() => setSaveOpen(true)}><Text style={styles.saveT}>＋ Save this scenario</Text></TouchableOpacity>
+        {/* MONTE CARLO — gated behind an explicit run */}
+        <View style={styles.card}>
+          <Text style={styles.liK}>How confident is this?</Text>
+          <Text style={styles.note}>A Monte Carlo simulation runs this scenario through ~400 random market futures (good and bad return sequences) and counts how often your money lasts to {horizon}. Markets aren't a straight line, so this shows the range of outcomes — not a promise.</Text>
+          {scBand == null ? (
+            <TouchableOpacity style={[styles.save, { marginTop: 10 }]} onPress={runMC}><Text style={styles.saveT}>Run Monte Carlo simulation</Text></TouchableOpacity>
+          ) : (
+            <>
+              <View style={[styles.conf, { alignSelf: 'stretch', marginTop: 10 }, scChance != null && scChance < 60 && { backgroundColor: Colors.redLight }]}>
+                <Text style={[styles.confPct, { color: scLevel }]}>{scChance}%</Text>
+                <Text style={styles.confT}>your money lasts to age {horizon} in {scChance}% of ~400 simulated markets</Text>
+              </View>
+              <Text style={[styles.section, { marginTop: 14 }]}>RANGE OF OUTCOMES BY AGE</Text>
+              <BandChartAuto band={scBand} retireAge={scRetired ? null : Math.max(age + 1, rAge)} />
+              <View style={styles.axis}>
+                <Text style={styles.axisT}>age {scBand[0].age}</Text>
+                {!scRetired && <Text style={styles.axisT}>retire {rAge}</Text>}
+                <Text style={styles.axisT}>age {scBand[scBand.length - 1].age}</Text>
+              </View>
+              <View style={styles.legendRow}>
+                <View style={styles.legItem}><View style={[styles.legSwatch, { backgroundColor: Colors.primaryMid, opacity: 0.4 }]} /><Text style={styles.legT}>10th–90th percentile (range)</Text></View>
+                <View style={styles.legItem}><View style={[styles.legSwatch, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>median (typical)</Text></View>
+              </View>
+              <Text style={styles.fx}>Y-axis is log-scaled. When the lower edge drops to the floor, the money has run out in those scenarios.</Text>
+              <TouchableOpacity onPress={runMC}><Text style={[styles.editLink2, { marginTop: 8 }]}>↻ Re-run</Text></TouchableOpacity>
+            </>
+          )}
+        </View>
+
+        {/* ACTIONS */}
+        <TouchableOpacity style={styles.save} onPress={useAsPlan}><Text style={styles.saveT}>Use as my plan</Text></TouchableOpacity>
+        <View style={styles.scenarioBtnRow}>
+          <TouchableOpacity style={styles.scenarioBtn2} onPress={() => setSaveOpen(true)}><Text style={styles.scenarioBtn2T}>＋ Save scenario</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.scenarioBtn2} onPress={resetSandbox}><Text style={styles.scenarioBtn2T}>↺ Reset to plan</Text></TouchableOpacity>
+        </View>
 
         {(store.retirementScenarios?.length ?? 0) > 0 && (
           <View style={styles.chips}>
+            <Text style={styles.chipHint}>Saved scenarios — tap to load, long-press to delete</Text>
             {store.retirementScenarios.map((sc: any) => (
               <TouchableOpacity key={sc.id} style={styles.chip} onLongPress={() => store.deleteRetirementScenario(sc.id)}
-                onPress={() => {
-                  const a = sc.assumptions || {};
-                  setRAge(a.retireAge ?? rAge); setRetPct(Math.round((a.expectedReturn ?? retPct / 100) * 1000) / 10);
-                  setSaveMo(a.contribMonthly ?? saveMo); setSpendMo(a.spendMonthly ?? spendMo);
-                  setInflPct(Math.round((a.inflation ?? inflPct / 100) * 1000) / 10);
-                  setA({ ...a }); setCommitTick((t) => t + 1);
-                }}>
+                onPress={() => loadScenario(sc.assumptions || {})}>
                 <Text style={styles.chipT}>{sc.name} · {sc.chance}%</Text>
               </TouchableOpacity>
             ))}
-            <Text style={styles.chipHint}>long-press a saved scenario to delete</Text>
           </View>
         )}
 
-        {/* BAND CHART */}
-        {band && band.length > 1 && (
-          <>
-            <Text style={styles.section}>PROJECTED BALANCE (10TH–90TH %)</Text>
-            <View style={styles.card}>
-              <BandChartAuto band={band} retireAge={isRetired ? null : Math.max(age + 1, rAge)} />
-              <View style={styles.axis}>
-                <Text style={styles.axisT}>{band[0].age}</Text>
-                {!isRetired && <Text style={styles.axisT}>retire {rAge}</Text>}
-                <Text style={styles.axisT}>{band[band.length - 1].age}</Text>
-              </View>
-              <Text style={styles.fx}>Shaded = 10th–90th percentile; line = median. Log scale — the lower edge hitting the floor means the money runs out in those scenarios.</Text>
-            </View>
-          </>
-        )}
-
         <View style={{ height: 40 }} />
-        <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={isRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
-          onSave={(name) => { store.saveRetirementScenario(name, isRetired ? age : rAge, chance ?? 0); setSaveOpen(false); }} />
+        <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={scRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
+          onSave={(name) => { store.saveRetirementScenario(name, { retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100 }, scRetired ? age : rAge, scChance ?? 0); setSaveOpen(false); }} />
       </ScrollView>
     );
   }
@@ -228,7 +267,7 @@ export default function RetirementCockpit() {
       {isRetired ? (
         <View style={styles.gbox}>
           <Text style={styles.heroK}>YOUR MONEY SO FAR</Text>
-          <Text style={styles.heroBig}>{chance == null ? '…' : `${chance}%`}</Text>
+          <Text style={styles.heroBig}>{planChance == null ? '…' : `${planChance}%`}</Text>
           <Text style={styles.heroSub}>chance your {big(nestEgg)} lasts to age {horizon}</Text>
         </View>
       ) : (
@@ -240,13 +279,13 @@ export default function RetirementCockpit() {
               <Text style={styles.heroSub}>on today's {big(nestEgg)}</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
-              <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(rAge)}</Text>
+              <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
               <Text style={styles.heroBig}>{big(projEnd)}</Text>
-              <Text style={styles.heroSub}>{chance == null ? 'projected nest egg' : `${chance}% chance it lasts to ${horizon}`}</Text>
+              <Text style={styles.heroSub}>{planChance == null ? 'projected nest egg' : `${planChance}% chance it lasts to ${horizon}`}</Text>
             </View>
           </View>
-          {chance != null && <Text style={styles.heroExplain}>“{chance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {chance}% of them.</Text>}
-          <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(rAge)}{saveMo > 0 ? `, keep saving ${money(saveMo)}/mo` : ''}.</Text>
+          {planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
+          <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/mo` : ''}.</Text>
         </>
       )}
 
@@ -293,19 +332,24 @@ export default function RetirementCockpit() {
           </View>
           {instruments.map(({ a, info }) => {
             const ttm = a.actual_ttm;
+            const uncategorized = !assetKind(a.kind);
             return (
               <View key={a.asset_id} style={styles.tRow}>
-                <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '📈'}</Text>
-                <View style={{ flex: 1 }}>
+                <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '❓'}</Text>
+                <TouchableOpacity style={{ flex: 1 }} disabled={!uncategorized} onPress={() => setKindPick(a)}>
                   <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
-                  <Text style={styles.instSrc} numberOfLines={2}>{moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>
-                </View>
+                  {uncategorized
+                    ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a), 'M')} · ⚠ Set a type ›</Text>
+                    : <Text style={styles.instSrc} numberOfLines={2}>{moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>}
+                </TouchableOpacity>
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
                     ? <Text style={styles.ttmAdd}>+ Add</Text>
                     : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.primary : Colors.red }]}>{(ttm * 100).toFixed(1)}%</Text>}
                 </TouchableOpacity>
-                <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(1)}%</Text>
+                {uncategorized
+                  ? <Text style={[styles.tColNum, styles.instBench, { color: Colors.textTertiary }]}>—</Text>
+                  : <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(1)}%</Text>}
               </View>
             );
           })}
@@ -325,7 +369,7 @@ export default function RetirementCockpit() {
       )}
 
       {/* ── YOUR PLAN (assumptions) ── */}
-      <Text style={styles.divider}>YOUR PLAN · assumes age {Math.round(rAge)}</Text>
+      <Text style={styles.divider}>YOUR PLAN · assumes age {Math.round(planRetireAge)}</Text>
 
       {/* GROWTH-RATE BASIS — which return drives the projection */}
       <View style={styles.card}>
@@ -356,7 +400,7 @@ export default function RetirementCockpit() {
       {!isRetired && nestEgg > 0 && projYears.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Projected nest egg</Text><Text style={[styles.liV, { color: Colors.primary }]}>{big(projYears[projYears.length - 1].bal)} by {projYears[projYears.length - 1].year}</Text></View>
-          <Text style={styles.note}>If your {big(nestEgg)} grows at {(growthRate * 100).toFixed(1)}% ({basisLabel}){saveMo > 0 ? ` and you keep saving ${money(saveMo)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(rAge)}.` : ''}</Text>
+          <Text style={styles.note}>If your {big(nestEgg)} grows at {(planGrowth * 100).toFixed(1)}% ({basisLabel}){planSave > 0 ? ` and you keep saving ${money(planSave)}/mo` : ''}.{hasRetireBar ? ` Amber bar = retirement at ${Math.round(planRetireAge)}.` : ''}</Text>
           <ProjectionChartAuto data={projYears} />
           <View style={styles.breakdown}>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(nestEgg)}</Text><Text style={styles.bdL}>now</Text></View>
@@ -365,7 +409,7 @@ export default function RetirementCockpit() {
             <Text style={styles.bdOp}>+</Text>
             <View style={styles.bdItem}><Text style={styles.bdV}>{big(projGrowth)}</Text><Text style={styles.bdL}>growth</Text></View>
             <Text style={styles.bdOp}>=</Text>
-            <View style={styles.bdItem}><Text style={[styles.bdV, { color: Colors.primary }]}>{big(projEnd)}</Text><Text style={styles.bdL}>at {Math.round(rAge)}</Text></View>
+            <View style={styles.bdItem}><Text style={[styles.bdV, { color: Colors.primary }]}>{big(projEnd)}</Text><Text style={styles.bdL}>at {Math.round(planRetireAge)}</Text></View>
           </View>
         </View>
       )}
@@ -373,7 +417,7 @@ export default function RetirementCockpit() {
       {/* IN RETIREMENT — spend, anchored to target age */}
       <View style={styles.card}>
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
-        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(spendMo)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {inflPct.toFixed(1)}%/yr.</Text>
+        <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>actual</Text>.</Text>
       </View>
 
       {/* SOCIAL SECURITY */}
@@ -387,7 +431,7 @@ export default function RetirementCockpit() {
       </TouchableOpacity>
 
       {/* SCENARIO BUTTON */}
-      <TouchableOpacity style={styles.save} onPress={() => setScreen('scenario')}><Text style={styles.saveT}>Run scenario analysis  →</Text></TouchableOpacity>
+      <TouchableOpacity style={styles.save} onPress={openScenario}><Text style={styles.saveT}>Run scenario analysis  →</Text></TouchableOpacity>
       <Text style={styles.foot}>Test retiring earlier, saving more, market ups & downs.</Text>
       <View style={{ height: 40 }} />
 
@@ -397,6 +441,8 @@ export default function RetirementCockpit() {
       <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind) : 0}
         onApply={(ret) => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: ret }); setTtmEdit(null); }}
         onClear={() => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: null }); setTtmEdit(null); }} />
+      <KindPicker account={kindPick} onClose={() => setKindPick(null)}
+        onPick={(kind, bucket) => { if (kindPick) store.updateAsset(kindPick.asset_id, { kind, tax_bucket: bucket }); setKindPick(null); }} />
     </ScrollView>
   );
 }
@@ -414,23 +460,27 @@ function ProjectionChartAuto({ data }: { data: { year: number; age: number; bal:
 }
 // column chart: nest-egg balance at the end of each of the next N years; retirement-age column tinted amber
 function ProjectionChart({ data, width }: { data: { year: number; age: number; bal: number; isRetire: boolean }[]; width: number }) {
-  const H = 132, padTop = 6, padBot = 18, gap = 4;
+  const H = 150, padTop = 16, padBot = 18, gap = 4;
   const n = data.length;
   const bw = Math.max(4, (width - gap * (n - 1)) / n);
   const top = Math.max(...data.map((d) => d.bal), 1);
   const h = (v: number) => Math.max(2, (v / top) * (H - padTop - padBot));
+  const vfs = n > 14 ? 6 : 7;                       // value-label font
+  const vlabel = (v: number) => (v >= 1e6 ? `$${(v / 1e6).toFixed(v / 1e6 >= 10 ? 0 : 1)}M` : `$${Math.round(v / 1e3)}k`);
   return (
     <Svg width={width} height={H}>
       <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
       {data.map((d, i) => {
         const bh = h(d.bal), x = i * (bw + gap), y = H - padBot - bh;
-        // every bar gets a label; tiny font + edge anchoring keeps them readable even at 20 bars
         const anchor = i === n - 1 ? 'end' : i === 0 ? 'start' : 'middle';
         const lx = i === n - 1 ? x + bw : i === 0 ? x : x + bw / 2;
         const fs = n > 16 ? 6.5 : 7.5;
+        // value atop every bar; for dense charts (>14) thin to alternate + first/last/retire to avoid overlap
+        const showVal = n <= 14 || i % 2 === 0 || i === n - 1 || d.isRetire;
         return (
           <G key={d.year}>
             <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
+            {showVal && <SvgText x={x + bw / 2} y={y - 3} fontSize={vfs} fontWeight="700" fill={d.isRetire ? Colors.amber : Colors.textSecondary} textAnchor="middle">{vlabel(d.bal)}</SvgText>}
             <SvgText x={lx} y={H - 5} fontSize={fs} fontWeight={d.isRetire ? '700' : '400'} fill={d.isRetire ? Colors.amber : Colors.textTertiary} textAnchor={anchor}>{`'${String(d.year).slice(2)}`}</SvgText>
           </G>
         );
@@ -440,8 +490,8 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
 }
 
 // ───────────────────────── Slider ─────────────────────────
-function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary }: {
-  value: number; min: number; max: number; step?: number; onChange: (v: number) => void; onComplete?: () => void; color?: string;
+function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary, markers }: {
+  value: number; min: number; max: number; step?: number; onChange: (v: number) => void; onComplete?: () => void; color?: string; markers?: { value: number; label: string }[];
 }) {
   const cfg = useRef<any>({}); cfg.current = { min, max, step, onChange, onComplete };
   const xRef = useRef(0), wRef = useRef(0), viewRef = useRef<View>(null);
@@ -465,14 +515,25 @@ function Slider({ value, min, max, step = 1, onChange, onComplete, color = Color
     <View ref={viewRef} onLayout={measure} hitSlop={{ top: 14, bottom: 14 }} {...pan.panHandlers} style={styles.trackHit}>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${pct}%`, backgroundColor: color }]} />
+        {(markers ?? []).map((m, i) => {
+          const mp = clamp((m.value - min) / (max - min || 1), 0, 1) * 100;
+          return <View key={i} style={[styles.tick, { left: `${mp}%` }]} pointerEvents="none" />;
+        })}
         <View style={[styles.thumb, { left: `${pct}%`, borderColor: color }]} />
       </View>
     </View>
   );
 }
-function SliderRow(p: { label: string; valueLabel: string } & React.ComponentProps<typeof Slider>) {
-  const { label, valueLabel, ...rest } = p;
-  return <View style={styles.sl}><View style={styles.slTop}><Text style={styles.slL}>{label}</Text><Text style={styles.slV}>{valueLabel}</Text></View><Slider {...rest} /></View>;
+function SliderRow(p: { label: string; valueLabel: string; fmt?: (v: number) => string } & React.ComponentProps<typeof Slider>) {
+  const { label, valueLabel, fmt, markers, ...rest } = p;
+  const f = fmt ?? ((v: number) => `${v}`);
+  return (
+    <View style={styles.sl}>
+      <View style={styles.slTop}><Text style={styles.slL}>{label}</Text><Text style={styles.slV}>{valueLabel}</Text></View>
+      <Slider {...rest} markers={markers} />
+      {markers && markers.length > 0 && <Text style={styles.markerCap}>{markers.map((m) => `▲ ${m.label} ${f(m.value)}`).join('   ')}</Text>}
+    </View>
+  );
 }
 
 // ───────────────────────── Donut ─────────────────────────
@@ -591,6 +652,34 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
   );
 }
 
+// ───────────────────────── Asset-type picker (categorize a holding) ─────────────────────────
+function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null; onClose: () => void; onPick: (kind: string, bucket: any) => void }) {
+  return (
+    <Modal visible={account != null} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.sheetT}>What is {account?.institution?.trim() || account?.label}?</Text>
+        <Text style={styles.sheetS}>Pick the type so we can use the right historical benchmark return for it.</Text>
+        <ScrollView style={{ maxHeight: 400 }}>
+          {ASSET_SECTIONS.map((sec) => (
+            <View key={sec}>
+              <Text style={styles.kindSec}>{sec.toUpperCase()}</Text>
+              <View style={styles.kindGrid}>
+                {ASSET_KINDS.filter((k) => k.section === sec).map((k) => (
+                  <TouchableOpacity key={k.id} style={styles.kindChip} onPress={() => onPick(k.id, k.bucket)}>
+                    <Text style={styles.kindIc}>{k.icon}</Text><Text style={styles.kindT}>{k.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          ))}
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+}
+
 // ───────────────────────── Per-instrument TTM editor ─────────────────────────
 function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
   account: AssetAccount | null; onClose: () => void; benchmark: number; onApply: (ret: number) => void; onClear: () => void;
@@ -676,6 +765,24 @@ const styles = StyleSheet.create({
   basisWarn: { fontSize: 11, color: Colors.amber, fontWeight: '600', marginTop: 8, lineHeight: 15 },
   tTotal: { borderBottomWidth: 0, borderTopWidth: 1.5, borderTopColor: Colors.border, marginTop: 2 },
   tFootMuted: { fontSize: 10, color: Colors.textTertiary, lineHeight: 13.5, marginTop: 6 },
+  srcTag: { fontSize: 9.5, color: Colors.textTertiary, fontWeight: '700' },
+  instWarn: { fontSize: 11.5, color: Colors.amber, fontWeight: '700', marginTop: 1 },
+  kindSec: { fontSize: 10, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 12, marginBottom: 4 },
+  kindGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 8 },
+  kindIc: { fontSize: 15 },
+  kindT: { fontSize: 12.5, fontWeight: '700', color: Colors.textPrimary },
+
+  sandboxTag: { fontSize: 10, fontWeight: '800', color: Colors.amber, letterSpacing: 0.6, backgroundColor: Colors.amberLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radii.pill, overflow: 'hidden' },
+  scenarioBtnRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  scenarioBtn2: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center' },
+  scenarioBtn2T: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 8 },
+  legItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  legSwatch: { width: 12, height: 12, borderRadius: 3 },
+  legT: { fontSize: 11, color: Colors.textSecondary },
+  tick: { position: 'absolute', top: -3, width: 2, height: 12, marginLeft: -1, backgroundColor: Colors.textTertiary, borderRadius: 1 },
+  markerCap: { fontSize: 9.5, color: Colors.textTertiary, marginTop: 6 },
   gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
   gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },

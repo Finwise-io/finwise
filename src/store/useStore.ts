@@ -263,7 +263,7 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
-  saveRetirementScenario: (name: string, retireAge: number, chance: number) => void;
+  saveRetirementScenario: (name: string, assumptions: Partial<RetirementAssumptions>, retireAge: number, chance: number) => void;
   deleteRetirementScenario: (id: string) => void;
   setBenchmarkReturn: (kind: string, ret: number) => void;
   setCurrency: (currency: string, locale?: string) => void;
@@ -470,10 +470,10 @@ export const useStore = create<AppState>()(
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
-      saveRetirementScenario: (name, retireAge, chance) => set((s) => ({
+      saveRetirementScenario: (name, assumptions, retireAge, chance) => set((s) => ({
         retirementScenarios: [
           ...s.retirementScenarios,
-          { id: newEntityId('scn'), name, createdAt: new Date().toISOString(), assumptions: { ...s.retirementAssumptions }, retireAge, chance },
+          { id: newEntityId('scn'), name, createdAt: new Date().toISOString(), assumptions: { ...s.retirementAssumptions, ...assumptions }, retireAge, chance },
         ],
       })),
       deleteRetirementScenario: (id) => set((s) => ({ retirementScenarios: s.retirementScenarios.filter((x) => x.id !== id) })),
