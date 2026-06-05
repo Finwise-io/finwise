@@ -235,10 +235,12 @@ export default function RetirementCockpit() {
 
         {/* ACTIONS */}
         <TouchableOpacity style={styles.save} onPress={useAsPlan}><Text style={styles.saveT}>Use as my plan</Text></TouchableOpacity>
+        <Text style={styles.actionHint}>Makes these your real numbers — updates “Where you stand”.</Text>
         <View style={styles.scenarioBtnRow}>
           <TouchableOpacity style={styles.scenarioBtn2} onPress={() => setSaveOpen(true)}><Text style={styles.scenarioBtn2T}>＋ Save scenario</Text></TouchableOpacity>
           <TouchableOpacity style={styles.scenarioBtn2} onPress={resetSandbox}><Text style={styles.scenarioBtn2T}>↺ Reset to plan</Text></TouchableOpacity>
         </View>
+        <Text style={styles.actionHint}>Save = bookmark this what-if to compare later (doesn't change your plan). Reset = pull the sliders back to your current plan.</Text>
 
         {(store.retirementScenarios?.length ?? 0) > 0 && (
           <View style={styles.chips}>
@@ -778,7 +780,8 @@ const styles = StyleSheet.create({
   kindT: { fontSize: 12.5, fontWeight: '700', color: Colors.textPrimary },
 
   sandboxTag: { fontSize: 10, fontWeight: '800', color: Colors.amber, letterSpacing: 0.6, backgroundColor: Colors.amberLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radii.pill, overflow: 'hidden' },
-  scenarioBtnRow: { flexDirection: 'row', gap: 10, marginTop: 10 },
+  actionHint: { fontSize: 11, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 15 },
+  scenarioBtnRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   scenarioBtn2: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center' },
   scenarioBtn2T: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   legendRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 14, marginTop: 8 },
