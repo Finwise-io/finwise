@@ -2,6 +2,9 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { benchmarkTicker, marketValue, latestClose, type Position, type PriceSeries } from '../domain/performance';
+import { round2 } from '../domain/_shared/num';
+import { fetchPriceSeries } from '../services/marketData';
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { newEntityId } from '../domain/_shared/ids';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
@@ -201,6 +204,8 @@ type AppState = {
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   retirementScenarios: RetirementScenario[];      // saved what-if scenarios
   benchmarkReturns: Record<string, number>;       // asset-kind → expected annual return (decimal); overrides ASSET_KINDS defaults
+  priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
+  pricesFetchedAt: string | null;                 // ISO of last successful market-data refresh
 
   // Gamification
   xp: number;
@@ -254,6 +259,10 @@ type AppState = {
   addAsset: (a: Omit<AssetAccount, 'asset_id'>) => void;
   updateAsset: (id: string, updates: Partial<AssetAccount>) => void;
   deleteAsset: (id: string) => void;
+  addPosition: (accountId: string, position: Omit<Position, 'position_id'>) => void;
+  updatePosition: (accountId: string, positionId: string, patch: Partial<Position>) => void;
+  deletePosition: (accountId: string, positionId: string) => void;
+  refreshPrices: () => Promise<void>;
   addLiability: (d: Omit<Debt, 'debt_id'>) => void;
   updateLiability: (id: string, updates: Partial<Debt>) => void;
   deleteLiability: (id: string) => void;
@@ -364,6 +373,8 @@ export const useStore = create<AppState>()(
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       retirementScenarios: [],
       benchmarkReturns: {},
+      priceCache: {},
+      pricesFetchedAt: null,
       goals: [],
       badges: DEFAULT_BADGES,
 
@@ -444,6 +455,36 @@ export const useStore = create<AppState>()(
       addAsset:       (a) => set((s) => ({ assetAccounts: [{ ...a, asset_id: newEntityId('ast') }, ...s.assetAccounts] })),
       updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
+      addPosition: (accountId, position) => set((s) => ({
+        assetAccounts: s.assetAccounts.map((a) => a.asset_id === accountId
+          ? { ...a, positions: [...(a.positions ?? []), { ...position, position_id: newEntityId('pos') }] } : a),
+      })),
+      updatePosition: (accountId, positionId, patch) => set((s) => ({
+        assetAccounts: s.assetAccounts.map((a) => a.asset_id === accountId
+          ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...patch } : p) } : a),
+      })),
+      deletePosition: (accountId, positionId) => set((s) => ({
+        assetAccounts: s.assetAccounts.map((a) => a.asset_id === accountId
+          ? { ...a, positions: (a.positions ?? []).filter((p) => p.position_id !== positionId) } : a),
+      })),
+      // Fetch live prices for every held ticker (+ its benchmark) and refresh each position-account's
+      // balance = Σ(shares × latest price). Balance becomes a cache derived from positions.
+      refreshPrices: async () => {
+        const accts = get().assetAccounts;
+        const tickers: string[] = [];
+        accts.forEach((a) => (a.positions ?? []).forEach((p) => { tickers.push(p.ticker); tickers.push(benchmarkTicker(p.kind)); }));
+        if (!tickers.length) return;
+        const fetched = await fetchPriceSeries(tickers);
+        if (!Object.keys(fetched).length) return;            // offline/blocked → keep cache
+        const cache = { ...get().priceCache, ...fetched };
+        const priceOf = (t: string) => latestClose(cache[t.trim().toUpperCase()]);
+        const updated = get().assetAccounts.map((a) => {
+          if (!a.positions?.length) return a;
+          const mv = a.positions.reduce((t, p) => { const px = priceOf(p.ticker); return t + (px == null ? 0 : marketValue(p, px)); }, 0);
+          return mv > 0 ? { ...a, balance: round2(mv) } : a;   // don't zero a balance if prices missing
+        });
+        set({ priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: updated });
+      },
       addLiability:   (d) => set((s) => ({ liabilities: [{ ...d, debt_id: newEntityId('debt') }, ...s.liabilities] })),
       updateLiability:(id, u) => set((s) => ({ liabilities: s.liabilities.map((x) => x.debt_id === id ? { ...x, ...u } : x) })),
       deleteLiability:(id) => set((s) => ({ liabilities: s.liabilities.filter((x) => x.debt_id !== id) })),
@@ -650,6 +691,7 @@ export const useStore = create<AppState>()(
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
         retirementScenarios: [],
         benchmarkReturns: {},
+        priceCache: {}, pricesFetchedAt: null,
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],

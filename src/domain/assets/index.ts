@@ -23,6 +23,8 @@ export interface AssetAccount {
                                   // (rest is for other goals); defaults per kind via earmarkDefault()
   actual_ttm?: number;            // user-reported ACTUAL trailing-12-month return (decimal), for
                                   // performance-vs-benchmark; null/undefined = not reported
+  positions?: import('../performance').Position[];  // ticker holdings (lots); when present, this account's
+                                  // value is DERIVED from live prices (balance is a refreshed cache)
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
