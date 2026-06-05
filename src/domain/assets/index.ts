@@ -21,27 +21,41 @@ export interface AssetAccount {
   change_month?: string;          // 'YYYY-MM' the change applies to
   retirement_pct?: number;        // 0–100, how much of this account is earmarked for retirement
                                   // (rest is for other goals); defaults per kind via earmarkDefault()
+  actual_ttm?: number;            // user-reported ACTUAL trailing-12-month return (decimal), for
+                                  // performance-vs-benchmark; null/undefined = not reported
+}
+
+/** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
+ *  Returns null when none are reported (so the UI can prompt instead of showing a fake 0%). */
+export function portfolioActualReturn(accounts: AssetAccount[]): number | null {
+  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY' && a.actual_ttm != null && earmarkedAmount(a) > 0);
+  const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
+  if (total <= 0) return null;
+  const weighted = items.reduce((t, a) => t + (a.actual_ttm as number) * earmarkedAmount(a), 0);
+  return Math.round((weighted / total) * 1e4) / 1e4;
 }
 
 // Capture types for assets. `section` groups them on the Net Worth screen.
+// `ret` = benchmark annual return (nominal). Where a clean 30-yr index series exists it's the real
+// historical figure (see BENCHMARK_META for source/period); otherwise it's a flagged estimate.
 export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: TaxBucket; section: string; ret: number }[] = [
   { id: 'checking', label: 'Checking', icon: '💵', bucket: 'CASH', section: 'Cash', ret: 0.005 },
-  { id: 'savings', label: 'Savings', icon: '🏦', bucket: 'CASH', section: 'Cash', ret: 0.04 },
-  { id: 'stocks_etf', label: 'Stocks / ETFs', icon: '📈', bucket: 'TAXABLE', section: 'Investments', ret: 0.07 },
-  { id: 'fixed_income', label: 'Fixed income', icon: '📜', bucket: 'TAXABLE', section: 'Investments', ret: 0.04 },
-  { id: 'private_equity', label: 'Private equity', icon: '🏢', bucket: 'TAXABLE', section: 'Investments', ret: 0.10 },
+  { id: 'savings', label: 'Savings', icon: '🏦', bucket: 'CASH', section: 'Cash', ret: 0.024 },
+  { id: 'stocks_etf', label: 'Stocks / ETFs', icon: '📈', bucket: 'TAXABLE', section: 'Investments', ret: 0.104 },
+  { id: 'fixed_income', label: 'Fixed income', icon: '📜', bucket: 'TAXABLE', section: 'Investments', ret: 0.042 },
+  { id: 'private_equity', label: 'Private equity', icon: '🏢', bucket: 'TAXABLE', section: 'Investments', ret: 0.13 },
   { id: 'hedge_funds', label: 'Hedge funds', icon: '📊', bucket: 'TAXABLE', section: 'Investments', ret: 0.06 },
-  { id: 'commodities', label: 'Commodities', icon: '🥇', bucket: 'TAXABLE', section: 'Investments', ret: 0.05 },
-  { id: 'crypto', label: 'Crypto', icon: '🪙', bucket: 'TAXABLE', section: 'Investments', ret: 0.07 },
-  { id: 'annuities', label: 'Annuities', icon: '📃', bucket: 'TAXABLE', section: 'Investments', ret: 0.04 },
-  { id: 'college_529', label: '529 / College', icon: '🎓', bucket: 'TAXABLE', section: 'Investments', ret: 0.06 },
-  { id: '401k', label: '401(k)', icon: '🏛️', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.07 },
-  { id: 'trad_ira', label: 'Traditional IRA', icon: '🏛️', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.07 },
-  { id: 'roth_ira', label: 'Roth IRA', icon: '🌱', bucket: 'ROTH', section: 'Retirement', ret: 0.07 },
-  { id: 'hsa', label: 'HSA', icon: '🩺', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.06 },
-  { id: 'home', label: 'Home', icon: '🏠', bucket: 'PROPERTY', section: 'Property', ret: 0.03 },
+  { id: 'commodities', label: 'Gold / commodities', icon: '🥇', bucket: 'TAXABLE', section: 'Investments', ret: 0.082 },
+  { id: 'crypto', label: 'Crypto', icon: '🪙', bucket: 'TAXABLE', section: 'Investments', ret: 0.08 },
+  { id: 'annuities', label: 'Annuities', icon: '📃', bucket: 'TAXABLE', section: 'Investments', ret: 0.045 },
+  { id: 'college_529', label: '529 / College', icon: '🎓', bucket: 'TAXABLE', section: 'Investments', ret: 0.07 },
+  { id: '401k', label: '401(k)', icon: '🏛️', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.079 },
+  { id: 'trad_ira', label: 'Traditional IRA', icon: '🏛️', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.079 },
+  { id: 'roth_ira', label: 'Roth IRA', icon: '🌱', bucket: 'ROTH', section: 'Retirement', ret: 0.079 },
+  { id: 'hsa', label: 'HSA', icon: '🩺', bucket: 'PRE_TAX', section: 'Retirement', ret: 0.079 },
+  { id: 'home', label: 'Home', icon: '🏠', bucket: 'PROPERTY', section: 'Property', ret: 0.045 },
   { id: 'vehicle', label: 'Vehicle', icon: '🚗', bucket: 'PROPERTY', section: 'Property', ret: -0.05 },
-  { id: 'other_asset', label: 'Other', icon: '📦', bucket: 'TAXABLE', section: 'Investments', ret: 0.04 },
+  { id: 'other_asset', label: 'Other', icon: '📦', bucket: 'TAXABLE', section: 'Investments', ret: 0.05 },
 ];
 export const ASSET_SECTIONS = ['Cash', 'Investments', 'Retirement', 'Property'] as const;
 export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id === id); }
@@ -75,32 +89,35 @@ export function benchmarkReturn(kind: string | undefined, overrides?: Record<str
   return assetKind(kind)?.ret ?? 0.06;
 }
 
-/** Where each benchmark return comes from + the window it's measured over. Forward-looking nominal
- *  planning estimates (the retirement engine applies inflation separately, so these are NOMINAL). */
-export const BENCHMARK_META: Record<string, { source: string; period: string }> = {
-  checking:       { source: 'FDIC national average, interest checking', period: '2026' },
-  savings:        { source: 'High-yield savings APY, national top-tier', period: '2026' },
-  stocks_etf:     { source: 'S&P 500, long-run nominal planning estimate', period: '30-yr' },
-  fixed_income:   { source: 'US Aggregate Bond / 10-yr Treasury yield', period: '2026' },
-  private_equity: { source: 'Cambridge Associates US PE index', period: '10-yr' },
-  hedge_funds:    { source: 'HFRI Fund Weighted Composite', period: '10-yr' },
-  commodities:    { source: 'Bloomberg Commodity Index', period: '10-yr' },
-  crypto:         { source: 'Blended digital-asset estimate (high uncertainty)', period: '—' },
-  annuities:      { source: 'Typical fixed-annuity crediting rate', period: '2026' },
-  college_529:    { source: 'Age-based 529 blended portfolio', period: 'long-run' },
-  '401k':         { source: 'Diversified equity/bond mix', period: 'long-run' },
-  trad_ira:       { source: 'Diversified equity/bond mix', period: 'long-run' },
-  roth_ira:       { source: 'Diversified equity/bond mix', period: 'long-run' },
-  hsa:            { source: 'Invested HSA, balanced allocation', period: 'long-run' },
-  home:           { source: 'US home-price appreciation (FHFA/Case-Shiller)', period: 'long-run' },
-  vehicle:        { source: 'Vehicle depreciation', period: 'annual' },
-  other_asset:    { source: 'Generic blended estimate', period: '—' },
+/** Where each benchmark return comes from + the window it's measured over. NOMINAL (the retirement
+ *  engine applies inflation separately). `estimate: true` = no clean 30-yr index series exists, so the
+ *  figure is a flagged estimate, not an actual historical return. Historical figures are through 2025;
+ *  past performance is not a guarantee of future results. */
+export const BENCHMARK_META: Record<string, { source: string; period: string; estimate?: boolean }> = {
+  checking:       { source: 'Interest checking, ~0%', period: 'current', estimate: true },
+  savings:        { source: '3-mo Treasury bill (cash)', period: '30-yr' },
+  stocks_etf:     { source: 'S&P 500 total return', period: '30-yr' },
+  fixed_income:   { source: 'US Aggregate Bond index', period: '30-yr' },
+  private_equity: { source: 'Cambridge Associates US PE', period: '~25-yr', estimate: true },
+  hedge_funds:    { source: 'HFRI Fund Weighted Composite', period: '~10-yr', estimate: true },
+  commodities:    { source: 'Gold (SPDR GLD)', period: '30-yr' },
+  crypto:         { source: 'No long-run benchmark — set your own', period: '—', estimate: true },
+  annuities:      { source: 'Typical fixed-annuity rate', period: 'current', estimate: true },
+  college_529:    { source: 'Age-based 529 blend', period: 'assumed', estimate: true },
+  '401k':         { source: 'Assumed 60/40 mix', period: '30-yr', estimate: true },
+  trad_ira:       { source: 'Assumed 60/40 mix', period: '30-yr', estimate: true },
+  roth_ira:       { source: 'Assumed 60/40 mix', period: '30-yr', estimate: true },
+  hsa:            { source: 'Invested HSA, assumed 60/40', period: '30-yr', estimate: true },
+  home:           { source: 'Case-Shiller US home price (nominal)', period: '30-yr' },
+  vehicle:        { source: 'Vehicle depreciation', period: 'annual', estimate: true },
+  other_asset:    { source: 'Generic blended estimate', period: '—', estimate: true },
 };
-/** Benchmark return + its source/period for an asset kind. `edited` flags a user override. */
-export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean } {
-  const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—' };
+/** Benchmark return + its source/period for an asset kind. `edited` flags a user override;
+ *  `estimate` flags that there's no clean 30-yr series so the figure is an estimate. */
+export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean; estimate: boolean } {
+  const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—', estimate: true };
   const edited = !!(kind && overrides && overrides[kind] != null);
-  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: meta.period, edited };
+  return { ret: benchmarkReturn(kind, overrides), source: edited ? 'Your custom estimate' : meta.source, period: edited ? '—' : meta.period, edited, estimate: !!meta.estimate };
 }
 /** Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the

@@ -13,7 +13,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
-import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, earmarkedKinds, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -36,6 +36,7 @@ export default function RetirementCockpit() {
   const [benchOpen, setBenchOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
   const [portfolioOpen, setPortfolioOpen] = useState(false);
+  const [ttmEdit, setTtmEdit] = useState<AssetAccount | null>(null);
 
   // ---- data-derived ----
   const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
@@ -107,8 +108,10 @@ export default function RetirementCockpit() {
     .map((a) => ({ a, info: benchmarkInfo(a.kind, benchOverrides) }))
     .sort((x, y) => earmarkedAmount(y.a) - earmarkedAmount(x.a));
 
-  // beating-benchmark: self-reported actual portfolio return vs the blended benchmark
-  const actualReturn: number | null = A.actualReturn != null ? A.actualReturn : null;   // decimal
+  // beating-benchmark: actual portfolio return vs the blended benchmark. Portfolio actual =
+  // explicit override if set, else value-weighted from the per-instrument actuals the user entered.
+  const portfolioActual = portfolioActualReturn(assets);
+  const actualReturn: number | null = A.actualReturn != null ? A.actualReturn : portfolioActual;   // decimal
   const beatBy = actualReturn != null ? actualReturn - benchReturn : null;              // +ve = ahead
 
   // projected nest-egg, end of each year up to retirement (blended return + current contributions).
@@ -278,27 +281,37 @@ export default function RetirementCockpit() {
         )}
       </View>
 
-      {/* INSTRUMENTS — per-holding benchmark ROI with source + period */}
+      {/* INSTRUMENTS — your 12-mo actual vs benchmark (30-yr) per holding */}
       {instruments.length > 0 && (
         <View style={styles.card}>
           <View style={styles.li}><Text style={styles.liK}>Your investments</Text><Text style={[styles.liV, { color: Colors.primary }]}>{(benchReturn * 100).toFixed(1)}% / yr blended</Text></View>
           <View style={styles.tHead}>
             <Text style={[styles.tHL, { flex: 1 }]} numberOfLines={1}>INSTRUMENT</Text>
-            <Text style={[styles.tHL, styles.tColBal]} numberOfLines={1}>BALANCE</Text>
-            <Text style={[styles.tHL, styles.tColRet]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>BENCHMARK</Text>
+            <Text style={[styles.tHL, styles.tColNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>YOUR 12-MO</Text>
+            <Text style={[styles.tHL, styles.tColNum]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>BENCHMARK</Text>
           </View>
-          {instruments.map(({ a, info }) => (
-            <View key={a.asset_id} style={styles.tRow}>
-              <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '📈'}</Text>
-              <View style={{ flex: 1 }}>
-                <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
-                <Text style={styles.instSrc} numberOfLines={2}>{info.source} · {info.period}{info.edited ? ' · edited' : ''}</Text>
+          {instruments.map(({ a, info }) => {
+            const ttm = a.actual_ttm;
+            return (
+              <View key={a.asset_id} style={styles.tRow}>
+                <Text style={styles.instIc}>{assetKind(a.kind)?.icon ?? '📈'}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
+                  <Text style={styles.instSrc} numberOfLines={2}>{moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>
+                </View>
+                <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
+                  {ttm == null
+                    ? <Text style={styles.ttmAdd}>+ Add</Text>
+                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.primary : Colors.red }]}>{ttm >= 0 ? '' : ''}{(ttm * 100).toFixed(1)}%</Text>}
+                </TouchableOpacity>
+                <Text style={[styles.tColNum, styles.instBench]}>{(info.ret * 100).toFixed(1)}%</Text>
               </View>
-              <Text style={[styles.tColBal, styles.instBal]}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>
-              <Text style={[styles.tColRet, styles.instRet]}>{(info.ret * 100).toFixed(1)}%</Text>
-            </View>
-          ))}
-          <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={[styles.editLink, { textAlign: 'left', marginTop: 10 }]}>Edit benchmark returns by type ›</Text></TouchableOpacity>
+            );
+          })}
+          <View style={styles.instLinks}>
+            <TouchableOpacity onPress={() => setBenchOpen(true)}><Text style={styles.editLink2}>Edit benchmarks ›</Text></TouchableOpacity>
+          </View>
+          <Text style={styles.tFoot}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the index's historical return — past performance isn't a guarantee.</Text>
         </View>
       )}
 
@@ -307,13 +320,14 @@ export default function RetirementCockpit() {
         {actualReturn == null ? (
           <>
             <Text style={styles.benchK}>ARE YOU BEATING YOUR BENCHMARK?</Text>
-            <Text style={styles.benchD}>Add your portfolio's actual return over the last 12 months to compare it against your {(benchReturn * 100).toFixed(1)}% blended benchmark.  <Text style={styles.benchLink}>Add return ›</Text></Text>
+            <Text style={styles.benchD}>Add your portfolio's actual 12-month return — or enter it per holding above — to compare against your {(benchReturn * 100).toFixed(1)}% blended benchmark.  <Text style={styles.benchLink}>Add portfolio return ›</Text></Text>
           </>
         ) : (
           <>
-            <Text style={[styles.benchK, beatBy! >= 0 ? { color: Colors.primaryDark } : { color: Colors.red }]}>{beatBy! >= 0 ? '↑ BEATING YOUR BENCHMARK' : '↓ TRAILING YOUR BENCHMARK'}</Text>
+            <Text style={[styles.benchK, beatBy! >= 0 ? { color: Colors.primaryDark } : { color: Colors.red }]}>{beatBy! >= 0 ? '↑ AHEAD OF YOUR BENCHMARK' : '↓ BEHIND YOUR BENCHMARK'}</Text>
             <Text style={styles.benchBig}>{beatBy! >= 0 ? '+' : ''}{(beatBy! * 100).toFixed(1)} pts</Text>
-            <Text style={styles.benchD}>Your <Text style={styles.benchB}>{(actualReturn * 100).toFixed(1)}%</Text> actual return vs a <Text style={styles.benchB}>{(benchReturn * 100).toFixed(1)}%</Text> blended benchmark.  <Text style={styles.benchLink}>Edit ›</Text></Text>
+            <Text style={styles.benchD}>Your <Text style={styles.benchB}>{(actualReturn * 100).toFixed(1)}%</Text> last-12-month return vs your <Text style={styles.benchB}>{(benchReturn * 100).toFixed(1)}%</Text> blended benchmark{A.actualReturn == null ? ' (from your per-holding entries)' : ''}.  <Text style={styles.benchLink}>Edit ›</Text></Text>
+            <Text style={styles.benchCaveat}>Comparison note: a 12-month actual vs a long-run (≈30-yr) benchmark average — different periods, so treat as directional.</Text>
           </>
         )}
       </TouchableOpacity>
@@ -356,8 +370,11 @@ export default function RetirementCockpit() {
       <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
       <BenchmarkEditor open={benchOpen} onClose={() => setBenchOpen(false)} kinds={earmarkedKinds(assets)} overrides={benchOverrides}
         onSet={(kind, ret) => store.setBenchmarkReturn(kind, ret)} onDone={() => { setBenchOpen(false); setCommitTick((t) => t + 1); }} blended={benchReturn} />
-      <PortfolioReturnEditor open={portfolioOpen} onClose={() => setPortfolioOpen(false)} current={actualReturn} benchmark={benchReturn}
+      <PortfolioReturnEditor open={portfolioOpen} onClose={() => setPortfolioOpen(false)} current={A.actualReturn != null ? A.actualReturn : null} benchmark={benchReturn}
         onApply={(ret) => { commit({ actualReturn: ret }); setPortfolioOpen(false); }} />
+      <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind, benchOverrides) : 0}
+        onApply={(ret) => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: ret }); setTtmEdit(null); }}
+        onClear={() => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: null }); setTtmEdit(null); }} />
     </ScrollView>
   );
 }
@@ -604,6 +621,30 @@ function PortfolioReturnEditor({ open, onClose, current, benchmark, onApply }: {
   );
 }
 
+// ───────────────────────── Per-instrument TTM editor ─────────────────────────
+function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
+  account: AssetAccount | null; onClose: () => void; benchmark: number; onApply: (ret: number) => void; onClear: () => void;
+}) {
+  const open = account != null;
+  const [val, setVal] = useState('');
+  useEffect(() => { if (account) setVal(account.actual_ttm != null ? (account.actual_ttm * 100).toFixed(1) : ''); }, [account]);
+  return (
+    <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.dialog}>
+        <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — actual return</Text>
+        <Text style={styles.sheetS}>This holding's actual return over the last 12 months. Benchmark for its type is {(benchmark * 100).toFixed(1)}%.</Text>
+        <View style={styles.pctBox}>
+          <TextInput style={[styles.pctIn, { width: 90 }]} keyboardType="numbers-and-punctuation" value={val} onChangeText={setVal} placeholder="0.0" placeholderTextColor={Colors.textTertiary} autoFocus />
+          <Text style={styles.pctU}>% last 12 mo</Text>
+        </View>
+        <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
+        {account?.actual_ttm != null && <TouchableOpacity onPress={onClear}><Text style={styles.clearLink}>Clear</Text></TouchableOpacity>}
+      </View>
+    </Modal>
+  );
+}
+
 // log-scale 10–90 band + median
 function BandChart({ band, width, retireAge }: { band: { age: number; p10: number; p50: number; p90: number }[]; width: number; retireAge: number | null }) {
   const H = 130, padTop = 8, padBot = 4;
@@ -670,12 +711,20 @@ const styles = StyleSheet.create({
   tHL: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   tColBal: { width: 60, textAlign: 'right' },
   tColRet: { width: 72, textAlign: 'right' },
+  tColNum: { width: 64, alignItems: 'flex-end', justifyContent: 'center' },
   tRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   instIc: { fontSize: 16 },
   instName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   instSrc: { fontSize: 10.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 14 },
   instBal: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
-  instRet: { fontSize: 13.5, fontWeight: '800', color: Colors.primary },
+  instRet: { fontSize: 13.5, fontWeight: '800', color: Colors.primary, textAlign: 'right' },
+  instBench: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary, textAlign: 'right' },
+  ttmAdd: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'right' },
+  instLinks: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+  editLink2: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+  tFoot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 8 },
+  benchCaveat: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 6, fontStyle: 'italic' },
+  clearLink: { fontSize: 12.5, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 12 },
 
   // projection breakdown (now + you add + growth = total)
   breakdown: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },

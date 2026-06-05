@@ -1,4 +1,4 @@
-import { buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, benchmarkInfo, blendedReturn, type AssetAccount } from './assets';
+import { buildAssetsState, assetsFromOnboarding, monthlyContributionsFromOnboarding, benchmarkInfo, blendedReturn, portfolioActualReturn, type AssetAccount } from './assets';
 import { buildDebtState, debtsFromOnboarding } from './debt';
 import { buildNetWorth } from './networth';
 import { buildBudgetState, budgetFromOnboarding } from './budget';
@@ -17,12 +17,14 @@ describe('assets', () => {
   test('monthly contributions sum types + employer match', () => {
     expect(monthlyContributionsFromOnboarding({ c_401k: '1000', c_roth: '500', employerMatchMode: 'dollar', employerMatchValue: '250' })).toBe(1750);
   });
-  test('benchmarkInfo: default carries source + period; override flags edited', () => {
+  test('benchmarkInfo: real 30-yr default with source/period; override flags edited; estimate flag', () => {
     const def = benchmarkInfo('stocks_etf');
-    expect(def.ret).toBeCloseTo(0.07, 4);
+    expect(def.ret).toBeCloseTo(0.104, 4);                 // S&P 500 TR, 30-yr historical
     expect(def.source).toMatch(/S&P 500/);
     expect(def.period).toBe('30-yr');
     expect(def.edited).toBe(false);
+    expect(def.estimate).toBe(false);                      // clean index series
+    expect(benchmarkInfo('private_equity').estimate).toBe(true);   // no clean 30-yr series
     const ov = benchmarkInfo('stocks_etf', { stocks_etf: 0.05 });
     expect(ov.ret).toBeCloseTo(0.05, 4);
     expect(ov.edited).toBe(true);
@@ -30,11 +32,20 @@ describe('assets', () => {
   });
   test('blendedReturn: value-weighted across earmarked holdings, property excluded', () => {
     const accts: AssetAccount[] = [
-      { asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 100000, target_return: 0.07, retirement_pct: 100 },
-      { asset_id: 'a2', label: 'Bonds', kind: 'fixed_income', tax_bucket: 'TAXABLE', balance: 100000, target_return: 0.04, retirement_pct: 100 },
-      { asset_id: 'a3', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000, target_return: 0.03, retirement_pct: 0 },
+      { asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 100000, target_return: 0.104, retirement_pct: 100 },
+      { asset_id: 'a2', label: 'Bonds', kind: 'fixed_income', tax_bucket: 'TAXABLE', balance: 100000, target_return: 0.042, retirement_pct: 100 },
+      { asset_id: 'a3', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000, target_return: 0.045, retirement_pct: 0 },
     ];
-    expect(blendedReturn(accts)).toBeCloseTo(0.055, 4);   // (7%+4%)/2, home ignored
+    expect(blendedReturn(accts)).toBeCloseTo(0.073, 4);   // (10.4%+4.2%)/2, home ignored
+  });
+  test('portfolioActualReturn: weighted from per-instrument actuals; null when none reported', () => {
+    const base = { tax_bucket: 'TAXABLE' as const, target_return: 0.1, retirement_pct: 100 };
+    expect(portfolioActualReturn([{ asset_id: 'x', label: 'A', kind: 'stocks_etf', balance: 100000, ...base }])).toBeNull();
+    const accts: AssetAccount[] = [
+      { asset_id: 'a1', label: 'A', kind: 'stocks_etf', balance: 300000, actual_ttm: 0.12, ...base },
+      { asset_id: 'a2', label: 'B', kind: 'fixed_income', balance: 100000, actual_ttm: 0.04, ...base },
+    ];
+    expect(portfolioActualReturn(accts)).toBeCloseTo(0.10, 4);   // (0.12*3 + 0.04*1)/4
   });
 });
 
