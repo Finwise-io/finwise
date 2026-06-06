@@ -5,7 +5,7 @@ import type { EntityId, UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
 import { round2 } from '../_shared/num';
 import type { AssetAccount } from '../assets';
-import type { Position } from '../performance';
+import { totalShares, type Position } from '../performance';
 
 export type TxnType =
   | 'OPENING_POSITION'   // first-time capture of a holding you already own (no cash counterparty)
@@ -98,7 +98,12 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'BUY':
       return map(accounts, t.account_id, (a) => addLot(bumpCash(a, -((t.shares || 0) * (t.price || 0))), t, t.shares || 0, t.price || 0));
     case 'SELL':
-      return map(accounts, t.account_id, (a) => removeShares(bumpCash(a, (t.shares || 0) * (t.price || 0)), t, t.shares || 0));
+      // can't sell more than you own — clamp so cash isn't over-credited
+      return map(accounts, t.account_id, (a) => {
+        const pos = findPos(a, t);
+        const sell = Math.min(t.shares || 0, pos ? totalShares(pos) : 0);
+        return removeShares(bumpCash(a, sell * (t.price || 0)), t, sell);
+      });
     case 'TRANSFER': {
       const amt = t.amount || 0;
       let out = map(accounts, t.account_id, (a) => bumpCash(a, -amt));

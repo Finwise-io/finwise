@@ -289,7 +289,9 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
   const cost = num(shares) * num(price);
   const enough = isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
   const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
-  const valid = !!accountId && enough && (
+  const ownedShares = isSell ? totalShares((acct?.positions ?? []).find((p) => p.ticker === ticker) ?? { lots: [] } as any) : 0;
+  const sellOk = !isSell || num(shares) <= ownedShares;
+  const valid = !!accountId && enough && sellOk && (
     isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0) :
     isCash ? num(amount) > 0 :
     isTransfer ? (num(amount) > 0 && !!counterId && counterId !== accountId) :
@@ -358,6 +360,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
                     <Text style={[styles.kindChipT, ticker === tk && styles.kindChipTOn]}>{tk}</Text>
                   </TouchableOpacity>))}
                 </View>}
+            {isSell && ticker !== '' && <Text style={[styles.note, !sellOk && { color: Colors.red, fontWeight: '700' }]}>You own {ownedShares} shares{!sellOk ? "  ⚠ can't sell more than you own" : ''}</Text>}
           </>)}
 
           {isDiv && (

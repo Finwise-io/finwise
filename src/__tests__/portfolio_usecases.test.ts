@@ -83,6 +83,48 @@ describe('portfolio use-cases', () => {
     f = run(f, { type: 'BUY', account_id: 'MS', ticker: 'VTI', shares: 20, price: 300 });
     check('C5 savings→buy $6k VTI → NW unchanged', NW(f) === nwF, `NW ${nwF}→${NW(f)}`);
 
+    // ---------- EDGE CASES ----------
+    const ms = (o: Partial<AssetAccount> = {}) => [acct('MS', { kind: 'brokerage', cash_balance: 0, positions: [{ position_id: 'p', ticker: 'AAPL', kind: 'stocks_etf', lots: [{ lot_id: 'l', shares: 4, cost_per_share: 100, purchase_date: '2024-01-01' }] }], ...o })];
+
+    // E1: over-sell (own 4, sell 10) → cash credited for only 4×$200, position emptied
+    let e1 = recompute(ms({ cash_balance: 0 }), CACHE);
+    e1 = run(e1, { type: 'SELL', account_id: 'MS', ticker: 'AAPL', shares: 10, price: 200 });
+    check('E1 over-sell clamps to owned (4×$200=$800, not $2,000)', e1[0].cash_balance === 800 && totalShares(e1[0].positions?.[0] ?? { lots: [] } as any) === 0, `cash=${e1[0].cash_balance}`);
+
+    // E2: reinvested dividend on a HELD stock → shares grow, no cash, no phantom
+    let e2 = recompute(ms({ cash_balance: 0 }), CACHE);
+    e2 = run(e2, { type: 'DIVIDEND', account_id: 'MS', ticker: 'AAPL', reinvested: true, shares: 1, price: 200 });
+    check('E2 reinvest on held → 5 shares, cash still 0', totalShares(e2[0].positions![0]) === 5 && e2[0].cash_balance === 0, `shares=${totalShares(e2[0].positions![0])}, cash=${e2[0].cash_balance}`);
+
+    // E3: FIFO cost basis after partial sell across 2 lots (10@100 + 10@200, sell 12) → 8 left, basis = 8×200=1600
+    let e3 = [acct('MS', { kind: 'brokerage', cash_balance: 0, positions: [{ position_id: 'p', ticker: 'AAPL', kind: 'stocks_etf', lots: [{ lot_id: 'a', shares: 10, cost_per_share: 100, purchase_date: '2023-01-01' }, { lot_id: 'b', shares: 10, cost_per_share: 200, purchase_date: '2024-01-01' }] }] })];
+    e3 = run(e3, { type: 'SELL', account_id: 'MS', ticker: 'AAPL', shares: 12, price: 250 });
+    const e3basis = round2((e3[0].positions![0].lots).reduce((t, l) => t + l.shares * l.cost_per_share, 0));
+    check('E3 FIFO leaves 8 sh, basis $1,600 (from the $200 lot)', totalShares(e3[0].positions![0]) === 8 && e3basis === 1600, `sh=${totalShares(e3[0].positions![0])}, basis=${e3basis}`);
+
+    // E4: withdrawal spends cash → NW DROPS by the amount (money left the tracked system)
+    let e4 = recompute([acct('Save', { kind: 'savings', tax_bucket: 'CASH', balance: 5000 })], CACHE);
+    const nwE4 = NW(e4);
+    e4 = run(e4, { type: 'WITHDRAWAL', account_id: 'Save', amount: 1500 });
+    check('E4 withdraw $1,500 → NW −$1,500, balance $3,500', NW(e4) === nwE4 - 1500 && e4[0].balance === 3500, `NW ${nwE4}→${NW(e4)}, bal=${e4[0].balance}`);
+
+    // E5: withdraw more than available → UI guard predicate blocks
+    const e5acct = acct('Save', { kind: 'savings', tax_bucket: 'CASH', balance: 1000 });
+    check('E5 over-withdraw blocked (UI guard)', !(2000 <= availableCash(e5acct)), `avail=${availableCash(e5acct)} < 2000 → blocked`);
+
+    // E6: property/cash accounts untouched by an unrelated brokerage transaction → NW only moves by that txn
+    let e6 = recompute([acct('Home', { kind: 'home', tax_bucket: 'PROPERTY', balance: 600000 }), acct('MS', { kind: 'brokerage', cash_balance: 1000 })], CACHE);
+    const nwE6 = NW(e6);
+    e6 = run(e6, { type: 'DEPOSIT', account_id: 'MS', amount: 500 });
+    check('E6 home untouched by brokerage deposit; NW +$500 only', e6[0].balance === 600000 && NW(e6) === nwE6 + 500, `home=${e6[0].balance}, NW ${nwE6}→${NW(e6)}`);
+
+    // E7: nest egg (earmarked) reflects account value after a price move
+    let e7 = recompute([acct('IRA', { kind: 'roth_ira', tax_bucket: 'ROTH', cash_balance: 0, retirement_pct: 100, positions: [{ position_id: 'p', ticker: 'AAPL', kind: 'stocks_etf', lots: [{ lot_id: 'l', shares: 10, cost_per_share: 100, purchase_date: '2024-01-01' }] }] })], CACHE);
+    const egg1 = retirementEarmarkedValue(e7);                       // 10×$200 = 2000
+    const e7b = recompute(e7, { ...CACHE, AAPL: { ticker: 'AAPL', points: [{ date: '2025-02-01', close: 250 }] } });
+    const egg2 = retirementEarmarkedValue(e7b);                      // 10×$250 = 2500
+    check('E7 nest egg tracks price move ($2,000 → $2,500)', egg1 === 2000 && egg2 === 2500, `egg ${egg1}→${egg2}`);
+
     // ---------- report ----------
     const pass = results.filter((r) => r.pass).length;
     // eslint-disable-next-line no-console
