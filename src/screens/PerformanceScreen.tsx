@@ -234,8 +234,9 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   }, [open]);
 
   const setLot = (i: number, patch: Partial<Lot>) => setLots((ls) => ls.map((l, j) => j === i ? { ...l, ...patch } : l));
-  // require full lots: every lot needs shares, cost/share, and a purchase date
-  const valid = ticker.trim().length > 0 && lots.length > 0 && lots.every((l) => l.shares > 0 && l.cost_per_share > 0 && !!l.purchase_date);
+  // new-investor friendly: only ticker + shares are required; cost/share + date are optional
+  // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
+  const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0);
 
   const save = () => {
     const clean = lots.filter((l) => l.shares > 0).map((l) => ({ ...l, lot_id: l.lot_id || `lot_${Math.random().toString(36).slice(2, 8)}` }));
@@ -268,12 +269,13 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
             ))}
           </View>
 
-          <Text style={styles.fieldL}>Lots — what you bought</Text>
+          <Text style={styles.fieldL}>Shares you hold</Text>
+          <Text style={styles.beginnerHint}>New to this? Just enter shares — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.shares ? String(l.shares) : ''} onChangeText={(t) => setLot(i, { shares: num(t) })} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.cost_per_share ? String(l.cost_per_share) : ''} onChangeText={(t) => setLot(i, { cost_per_share: num(t) })} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.cost_per_share ? String(l.cost_per_share) : ''} onChangeText={(t) => setLot(i, { cost_per_share: num(t) })} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
               {lots.length > 1 && <TouchableOpacity onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
           ))}
@@ -298,7 +300,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           )}
 
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}>
-            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid ? ` · cost ${moneyCompact(costBasis({ position_id: '', ticker, lots } as Position), 'M')}` : ''}</Text>
+            <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && costBasis({ position_id: '', ticker, lots } as Position) > 0 ? ` · cost ${moneyCompact(costBasis({ position_id: '', ticker, lots } as Position), 'M')}` : ''}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
@@ -585,6 +587,7 @@ const styles = StyleSheet.create({
   lotRow: { flexDirection: 'row', alignItems: 'flex-end', gap: 8, marginBottom: 8 },
   lotCell: { flex: 1 },
   lotL: { fontSize: 10, color: Colors.textTertiary, marginBottom: 3 },
+  beginnerHint: { fontSize: 11, color: Colors.textTertiary, lineHeight: 15, marginBottom: 8 },
   lotIn: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: 8, padding: 8, fontSize: 13, color: Colors.textPrimary },
   lotDel: { fontSize: 16, color: Colors.red, padding: 8 },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 20 },
