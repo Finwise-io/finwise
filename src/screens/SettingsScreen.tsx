@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { logoutUser, submitFeedback } from '../services/firebase';
+import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified } from '../services/firebase';
 import Constants from 'expo-constants';
 
 const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
@@ -33,6 +33,17 @@ export default function SettingsScreen() {
   const [fbSubject, setFbSubject] = useState('');
   const [fbMessage, setFbMessage] = useState('');
   const [fbSending, setFbSending] = useState(false);
+  const [verified, setVerified] = useState(isEmailVerified());
+  useEffect(() => { if (user) refreshEmailVerified().then(setVerified).catch(() => {}); }, [user]);
+  const handleResendVerify = async () => {
+    try { await resendVerification(); Alert.alert('Verification sent', `Check ${user?.email ?? 'your inbox'} for the link.`); }
+    catch { Alert.alert('Could not send', 'Please try again in a moment.'); }
+  };
+  const handleCheckVerified = async () => {
+    const v = await refreshEmailVerified().catch(() => false);
+    setVerified(v);
+    Alert.alert(v ? 'Email verified ✓' : 'Not verified yet', v ? 'Thanks — you\'re all set.' : 'Click the link in the email, then try again.');
+  };
 
   function handleLogout() {
     Alert.alert(
@@ -127,9 +138,19 @@ export default function SettingsScreen() {
         </View>
         <View>
           <Text style={styles.userName}>{user?.name || 'FinWise User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@finwise.app'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'user@finwise.app'}{user && verified ? '  ✓ verified' : ''}</Text>
         </View>
       </Card>
+
+      {user && !verified && (
+        <View style={styles.verifyBanner}>
+          <Text style={styles.verifyTxt}>⚠ Verify your email so you can recover your account. We sent a link to {user?.email}.</Text>
+          <View style={styles.verifyRow}>
+            <TouchableOpacity onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
+            <TouchableOpacity onPress={handleCheckVerified}><Text style={styles.verifyAction}>I've verified ›</Text></TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* Current settings */}
       <Card>
@@ -352,6 +373,10 @@ const styles = StyleSheet.create({
   avatarText: { fontSize: 24, fontWeight: '700', color: '#fff' },
   userName: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary },
   userEmail: { fontSize: Typography.sizes.sm, color: Colors.textSecondary },
+  verifyBanner: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  verifyTxt: { fontSize: 12.5, color: Colors.textPrimary, lineHeight: 17 },
+  verifyRow: { flexDirection: 'row', gap: 20, marginTop: 8 },
+  verifyAction: { fontSize: 13, fontWeight: '800', color: Colors.primary },
   sectionTitle: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary, marginBottom: Spacing.sm },
   modeRow: { flexDirection: 'row', gap: 10 },
   modeBtn: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 10, alignItems: 'center' },

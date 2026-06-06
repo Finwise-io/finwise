@@ -5,6 +5,7 @@ import {
   signInWithEmailAndPassword,
   signOut,
   sendPasswordResetEmail,
+  sendEmailVerification,
   onAuthStateChanged,
   updateProfile,
 } from 'firebase/auth';
@@ -47,12 +48,27 @@ export const db = getFirestore(firebaseApp);
 export async function registerUser(email: string, password: string, name: string) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName: name });
+  try { await sendEmailVerification(cred.user); } catch { /* non-blocking — they can resend later */ }
   await setDoc(doc(db, 'users', cred.user.uid), {
     email,
     name,
     createdAt: serverTimestamp(),
   });
   return cred.user;
+}
+
+/** Resend the verification email to the signed-in user. */
+export async function resendVerification() {
+  if (auth.currentUser) await sendEmailVerification(auth.currentUser);
+}
+/** Re-check verification status from the server (call after the user clicks the email link). */
+export async function refreshEmailVerified(): Promise<boolean> {
+  if (!auth.currentUser) return false;
+  await auth.currentUser.reload();
+  return !!auth.currentUser.emailVerified;
+}
+export function isEmailVerified(): boolean {
+  return !!auth.currentUser?.emailVerified;
 }
 
 export async function loginUser(email: string, password: string) {
