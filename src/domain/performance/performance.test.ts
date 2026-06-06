@@ -1,7 +1,7 @@
 import {
   costBasis, totalShares, avgCost, marketValue, unrealizedGain, totalROI,
   periodReturn, latestClose, buildPerformance, portfolioPeriodReturn, benchmarkTicker,
-  attribution, allocation,
+  attribution, allocation, portfolioTrend,
   type Position, type PriceSeries,
 } from './index';
 
@@ -113,5 +113,15 @@ describe('performance — attribution + allocation', () => {
     const cash = slices.find((s) => s.key === 'cash')!;
     expect(cash.pct).toBeCloseTo(23.0, 1);
     expect(slices.reduce((t, s) => t + s.pct, 0)).toBeCloseTo(100, 0);
+  });
+
+  test('portfolioTrend: value + rebased benchmark over time', () => {
+    const p2 = [pos('AAPL', 'stocks_etf', [[10, 50, '2023-01-01']])];   // 10 shares
+    const trend = portfolioTrend(p2, priceOf, '1Y', 'SPY', now);
+    expect(trend.length).toBe(13);                        // N+1 sample points
+    expect(trend[trend.length - 1].value).toBeCloseTo(10 * 130, 0);   // ends at 10×130
+    // benchmark rebased to the portfolio's starting value
+    expect(trend[0].bench).toBeCloseTo(trend[0].value, 0);
+    expect(trend[trend.length - 1].bench).toBeGreaterThan(trend[0].bench);  // SPY rose over the window
   });
 });

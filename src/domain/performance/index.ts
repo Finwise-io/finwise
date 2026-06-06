@@ -55,7 +55,6 @@ export function totalROI(p: Position, price: number | null | undefined): number 
 }
 
 // ---- period returns from a price series (price return of the security itself) ----
-const MS_DAY = 86400000;
 function startDateFor(period: Period, now: Date): Date {
   const d = new Date(now);
   switch (period) {
@@ -69,8 +68,8 @@ function startDateFor(period: Period, now: Date): Date {
   return d;
 }
 /** Close on/just-before a target date (series oldest→newest). */
-function closeAsOf(series: PriceSeries, target: Date): number | null {
-  const pts = series.points ?? [];
+function closeAsOf(series: PriceSeries | null | undefined, target: Date): number | null {
+  const pts = series?.points ?? [];
   if (!pts.length) return null;
   const t = target.getTime();
   let chosen: number | null = null;
@@ -170,6 +169,34 @@ export function allocation(rows: PerformanceRow[], cash = 0): AllocSlice[] {
   const slices: AllocSlice[] = Object.entries(byKind).map(([key, v]) => ({ key, value: round2(v), pct: Math.round((v / total) * 1000) / 10 }));
   if (cash > 0) slices.push({ key: 'cash', value: round2(cash), pct: Math.round((cash / total) * 1000) / 10 });
   return slices.sort((a, b) => b.value - a.value);
+}
+
+/** Portfolio value over time vs a benchmark rebased to the same starting value.
+ *  Uses CURRENT holdings across the window (growth-of-holdings view; ignores past buys/sells). */
+export interface TrendPoint { date: string; value: number; bench: number; }
+export function portfolioTrend(
+  positions: Position[],
+  priceOf: (t: string) => PriceSeries | null | undefined,
+  period: Period,
+  benchTickerSym = 'SPY',
+  now = new Date(),
+): TrendPoint[] {
+  if (!positions?.length) return [];
+  const start = startDateFor(period, now);
+  const span = now.getTime() - start.getTime();
+  if (span <= 0) return [];
+  const N = 12;
+  const dates = Array.from({ length: N + 1 }, (_, i) => new Date(start.getTime() + (span * i) / N));
+  const benchSeries = priceOf(benchTickerSym);
+  const valueAt = (d: Date) => positions.reduce((t, p) => { const c = closeAsOf(priceOf(p.ticker), d); return t + (c == null ? 0 : totalShares(p) * c); }, 0);
+  const v0 = valueAt(dates[0]);
+  const b0 = closeAsOf(benchSeries, dates[0]);
+  return dates.map((d) => {
+    const value = Math.round(valueAt(d) * 100) / 100;
+    const braw = closeAsOf(benchSeries, d);
+    const bench = (b0 && braw != null && v0 > 0) ? Math.round(v0 * (braw / b0) * 100) / 100 : value;
+    return { date: d.toISOString().slice(0, 10), value, bench };
+  });
 }
 
 /** Value-weighted portfolio period return across holdings that have one (decimal), or null. */

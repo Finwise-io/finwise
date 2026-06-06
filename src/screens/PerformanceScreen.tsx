@@ -1,6 +1,7 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, type LayoutChangeEvent } from 'react-native';
+import Svg, { Path, Line } from 'react-native-svg';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -8,7 +9,7 @@ import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
-  attribution, allocation, PERIODS, type Period, type Position, type Lot,
+  attribution, allocation, portfolioTrend, PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 
@@ -46,6 +47,8 @@ export default function PerformanceScreen() {
   const totalValue = investedValue + cashTotal;
   const attr = useMemo(() => attribution(rows), [rows]);
   const alloc = useMemo(() => allocation(rows, cashTotal), [rows, cashTotal]);
+  const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
+  const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
   const ALLOC_COLORS = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'];
 
@@ -88,6 +91,22 @@ export default function PerformanceScreen() {
               <View style={styles.sumCell}><Text style={styles.sumCellL}>VS BENCH</Text><Text style={[styles.sumCellV, portBeat != null && { color: portBeat >= 0 ? Colors.primary : Colors.red }]}>{portBeat == null ? '—' : `${portBeat >= 0 ? '+' : ''}${(portBeat * 100).toFixed(1)}`}</Text></View>
             </View>
           </View>
+
+          {/* TREND — portfolio vs benchmark over time */}
+          {trend.length > 1 && (
+            <View style={styles.card}>
+              <View style={styles.trendHead}>
+                <Text style={styles.cardTitle}>Portfolio vs S&P 500 · {period}</Text>
+                {trendChange && <Text style={styles.trendChg}><Text style={{ color: trendChange.you >= 0 ? Colors.primary : Colors.red }}>{pct(trendChange.you)}</Text> <Text style={styles.trendVs}>vs {pct(trendChange.bench)}</Text></Text>}
+              </View>
+              <TrendChartAuto data={trend} />
+              <View style={styles.legendRow}>
+                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>Your portfolio</Text></View>
+                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.textTertiary }]} /><Text style={styles.legT}>S&P 500 (same start)</Text></View>
+              </View>
+              <Text style={styles.tinyFoot}>Based on your current holdings across the period (ignores past buys/sells).</Text>
+            </View>
+          )}
 
           {/* PER-HOLDING TABLE */}
           <View style={styles.card}>
@@ -289,6 +308,27 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   );
 }
 const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: new Date().toISOString().slice(0, 10) });
+
+// ── trend line chart (portfolio vs rebased benchmark) ──
+function TrendChartAuto({ data }: { data: TrendPoint[] }) {
+  const [w, setW] = useState(0);
+  return <View onLayout={(e: LayoutChangeEvent) => setW(e.nativeEvent.layout.width)}>{w > 0 && <TrendChart data={data} width={w} />}</View>;
+}
+function TrendChart({ data, width }: { data: TrendPoint[]; width: number }) {
+  const H = 120, padTop = 8, padBot = 6;
+  const vals = data.flatMap((d) => [d.value, d.bench]);
+  const min = Math.min(...vals), max = Math.max(...vals);
+  const x = (i: number) => (i / (data.length - 1 || 1)) * width;
+  const y = (v: number) => padTop + (1 - (v - min) / ((max - min) || 1)) * (H - padTop - padBot);
+  const path = (key: 'value' | 'bench') => 'M ' + data.map((d, i) => `${x(i).toFixed(1)},${y(d[key]).toFixed(1)}`).join(' L ');
+  return (
+    <Svg width={width} height={H}>
+      <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
+      <Path d={path('bench')} stroke={Colors.textTertiary} strokeWidth={1.5} strokeDasharray="4,3" fill="none" />
+      <Path d={path('value')} stroke={Colors.primary} strokeWidth={2.5} fill="none" />
+    </Svg>
+  );
+}
 
 // ───────────────────────── Record a transaction ─────────────────────────
 const TXN_TYPES: { k: TxnType; label: string }[] = [
@@ -503,6 +543,13 @@ const styles = StyleSheet.create({
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
   cardTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  trendHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  trendChg: { fontSize: 13.5, fontWeight: '800' },
+  trendVs: { fontSize: 12, fontWeight: '700', color: Colors.textTertiary },
+  legendRow: { flexDirection: 'row', gap: 16, marginTop: 8 },
+  legItem: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  legLine: { width: 14, height: 3, borderRadius: 2 },
+  legT: { fontSize: 11, color: Colors.textSecondary },
   attrRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   attrName: { flex: 1, fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   attrWt: { width: 44, textAlign: 'right', fontSize: 12, color: Colors.textTertiary },
