@@ -10,7 +10,7 @@ import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
   PERIODS, type Period, type Position, type Lot,
 } from '../domain/performance';
-import { txnLabel, cashEffect, type Transaction, type TxnType } from '../domain/transactions';
+import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -275,15 +275,25 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
   useEffect(() => { if (open) { setType('BUY'); setAccountId((accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(new Date().toISOString().slice(0, 10)); } }, [open]);
 
   const isTrade = type === 'BUY' || type === 'SELL';
+  const isBuy = type === 'BUY';
+  const isSell = type === 'SELL';
   const isCash = type === 'DEPOSIT' || type === 'WITHDRAWAL';
   const isTransfer = type === 'TRANSFER';
   const isDiv = type === 'DIVIDEND';
   const acctList = isTrade ? eligible : cashAccts;
-  const valid = !!accountId && (
-    isTrade ? (ticker.trim() && num(shares) > 0 && num(price) > 0) :
+  const acct = accounts.find((a) => a.asset_id === accountId);
+  const avail = acct ? availableCash(acct) : 0;
+  const held = (acct?.positions ?? []).map((p) => p.ticker);          // holdings you can sell / receive dividends from
+  useEffect(() => { setTicker(''); }, [accountId, type]);              // don't carry a stale holding across account/type
+  // cash guards: can't spend more than the account's available cash
+  const cost = num(shares) * num(price);
+  const enough = isBuy ? cost <= avail : (type === 'WITHDRAWAL' || isTransfer) ? num(amount) <= avail : true;
+  const tickerOk = isBuy ? !!ticker.trim() : (isSell || isDiv) ? held.includes(ticker) : true;
+  const valid = !!accountId && enough && (
+    isTrade ? (tickerOk && num(shares) > 0 && num(price) > 0) :
     isCash ? num(amount) > 0 :
-    isTransfer ? (num(amount) > 0 && counterId && counterId !== accountId) :
-    isDiv ? (ticker.trim() && (reinvest ? (num(shares) > 0 && num(price) > 0) : num(amount) > 0)) : false
+    isTransfer ? (num(amount) > 0 && !!counterId && counterId !== accountId) :
+    isDiv ? (tickerOk && (reinvest ? (num(shares) > 0 && num(price) > 0) : num(amount) > 0)) : false
   );
   const save = () => {
     const base = { date, type, account_id: accountId };
@@ -331,8 +341,24 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
             </>
           )}
 
-          {(isTrade || isDiv) && (<><Text style={styles.fieldL}>Ticker</Text>
+          {/* available-cash note for spend actions */}
+          {(isBuy || type === 'WITHDRAWAL' || isTransfer) && acct && (
+            <Text style={[styles.note, !enough && { color: Colors.red, fontWeight: '700' }]}>Available cash: {money(avail)}{!enough ? '  ⚠ not enough — deposit or transfer cash in first' : ''}</Text>
+          )}
+
+          {isBuy && (<><Text style={styles.fieldL}>Ticker</Text>
             <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL" placeholderTextColor={Colors.textTertiary} /></>)}
+
+          {(isSell || isDiv) && (<>
+            <Text style={styles.fieldL}>Holding</Text>
+            {held.length === 0
+              ? <Text style={styles.note}>No holdings in this account to {isSell ? 'sell' : 'record a dividend for'}. {isDiv ? 'A dividend can only come from a stock you hold here.' : ''}</Text>
+              : <View style={styles.kindWrap}>{held.map((tk) => (
+                  <TouchableOpacity key={tk} style={[styles.kindChip, ticker === tk && styles.kindChipOn]} onPress={() => setTicker(tk)}>
+                    <Text style={[styles.kindChipT, ticker === tk && styles.kindChipTOn]}>{tk}</Text>
+                  </TouchableOpacity>))}
+                </View>}
+          </>)}
 
           {isDiv && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>

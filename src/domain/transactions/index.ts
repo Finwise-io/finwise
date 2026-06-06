@@ -40,6 +40,16 @@ export interface Transaction {
 const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetAccount) =>
   accs.map((a) => (a.asset_id === id ? fn(a) : a));
 const cashOf = (a: AssetAccount) => a.cash_balance || 0;
+// Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash
+// accounts (checking/savings) and property hold their money in `balance`. Moving cash must hit the
+// right field, or a transfer/deposit on a savings account corrupts net worth.
+const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY';
+const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0) : (a.balance || 0));
+function bumpCash(a: AssetAccount, delta: number): AssetAccount {
+  return usesSleeve(a)
+    ? { ...a, cash_balance: round2((a.cash_balance || 0) + delta) }
+    : { ...a, balance: round2((a.balance || 0) + delta) };
+}
 const findPos = (a: AssetAccount, t: Transaction) =>
   (a.positions ?? []).find((p) => (t.position_id && p.position_id === t.position_id) || (t.ticker && p.ticker === t.ticker?.toUpperCase()));
 
@@ -81,18 +91,18 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'OPENING_CASH':
       return map(accounts, t.account_id, (a) => ({ ...a, cash_balance: round2((t.amount || 0)) }));
     case 'DEPOSIT':
-      return map(accounts, t.account_id, (a) => ({ ...a, cash_balance: round2(cashOf(a) + (t.amount || 0)) }));
+      return map(accounts, t.account_id, (a) => bumpCash(a, (t.amount || 0)));
     case 'WITHDRAWAL':
     case 'FEE':
-      return map(accounts, t.account_id, (a) => ({ ...a, cash_balance: round2(cashOf(a) - (t.amount || 0)) }));
+      return map(accounts, t.account_id, (a) => bumpCash(a, -(t.amount || 0)));
     case 'BUY':
-      return map(accounts, t.account_id, (a) => addLot({ ...a, cash_balance: round2(cashOf(a) - (t.shares || 0) * (t.price || 0)) }, t, t.shares || 0, t.price || 0));
+      return map(accounts, t.account_id, (a) => addLot(bumpCash(a, -((t.shares || 0) * (t.price || 0))), t, t.shares || 0, t.price || 0));
     case 'SELL':
-      return map(accounts, t.account_id, (a) => removeShares({ ...a, cash_balance: round2(cashOf(a) + (t.shares || 0) * (t.price || 0)) }, t, t.shares || 0));
+      return map(accounts, t.account_id, (a) => removeShares(bumpCash(a, (t.shares || 0) * (t.price || 0)), t, t.shares || 0));
     case 'TRANSFER': {
       const amt = t.amount || 0;
-      let out = map(accounts, t.account_id, (a) => ({ ...a, cash_balance: round2(cashOf(a) - amt) }));
-      if (t.counter_account_id) out = map(out, t.counter_account_id, (a) => ({ ...a, cash_balance: round2(cashOf(a) + amt) }));
+      let out = map(accounts, t.account_id, (a) => bumpCash(a, -amt));
+      if (t.counter_account_id) out = map(out, t.counter_account_id, (a) => bumpCash(a, amt));
       return out;
     }
     case 'TRANSFER_IN_KIND': {
@@ -106,12 +116,15 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'DIVIDEND':
     case 'INTEREST':
     case 'COUPON':
-      if (t.reinvested && t.shares && t.price) return map(accounts, t.account_id, (a) => addLot(a, t, t.shares!, t.price!));
-      return map(accounts, t.account_id, (a) => ({ ...a, cash_balance: round2(cashOf(a) + (t.amount || 0)) }));
+      // reinvested → add to the EXISTING holding only (never create a phantom position for an un-held ticker)
+      if (t.reinvested && t.shares && t.price) return map(accounts, t.account_id, (a) => (findPos(a, t) ? addLot(a, t, t.shares!, t.price!) : a));
+      return map(accounts, t.account_id, (a) => bumpCash(a, (t.amount || 0)));
     default:
       return accounts;
   }
 }
+
+export { availableCash };
 
 /** Build a full transaction (id + created_at) from a partial. */
 export function makeTransaction(p: Omit<Transaction, 'id' | 'created_at'>): Transaction {
