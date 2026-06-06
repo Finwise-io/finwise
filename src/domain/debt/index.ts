@@ -28,6 +28,42 @@ export function totalDebtMonthly(debts: Debt[]): number {
   return debts.reduce((t, d) => t + requiredPayment(d), 0);
 }
 
+// ── Debt-payoff plan (avalanche = highest APR first; snowball = smallest balance first) ──
+export type PayoffMethod = 'avalanche' | 'snowball';
+export interface PayoffResult {
+  months: number;                 // months to debt-free (0 = already free)
+  totalInterest: number;          // interest paid over the plan
+  neverPaysOff: boolean;          // payments can't cover interest
+  order: { debt_id: EntityId; label: string; payoffMonth: number; interestPaid: number }[];
+}
+/** Simulate paying off debts with a constant monthly budget (sum of minimums + extra), rolling each
+ *  cleared debt's freed-up payment into the next per the chosen method. */
+export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMethod = 'avalanche'): PayoffResult {
+  const live = (debts ?? []).filter((d) => d.remaining_balance > 0)
+    .map((d) => ({ id: d.debt_id, label: d.label, bal: d.remaining_balance, apr: d.interest_rate_apr, min: d.minimum_monthly_payment, interest: 0, payoffMonth: 0 }));
+  if (!live.length) return { months: 0, totalInterest: 0, neverPaysOff: false, order: [] };
+  const budget = live.reduce((t, d) => t + d.min, 0) + Math.max(0, extraMonthly);
+  const cleared: typeof live = [];
+  let month = 0;
+  while (live.some((d) => d.bal > 0) && month < 600) {
+    month++;
+    for (const d of live) { const i = (d.bal * d.apr) / 12; d.bal += i; d.interest += i; }            // accrue interest
+    let pool = budget;
+    for (const d of live) { const pay = Math.min(d.min, d.bal, pool); d.bal -= pay; pool -= pay; }     // pay minimums
+    const priority = [...live].filter((d) => d.bal > 0).sort((a, b) => (method === 'avalanche' ? b.apr - a.apr : a.bal - b.bal));
+    for (const d of priority) { if (pool <= 0) break; const pay = Math.min(pool, d.bal); d.bal -= pay; pool -= pay; }   // extra to priority
+    for (let j = live.length - 1; j >= 0; j--) { if (live[j].bal <= 0.01) { live[j].payoffMonth = month; cleared.push(live[j]); live.splice(j, 1); } }
+  }
+  const neverPaysOff = live.length > 0;
+  const all = [...cleared, ...live];
+  return {
+    months: neverPaysOff ? 600 : month,
+    totalInterest: round2(all.reduce((t, d) => t + d.interest, 0)),
+    neverPaysOff,
+    order: cleared.sort((a, b) => a.payoffMonth - b.payoffMonth).map((d) => ({ debt_id: d.id, label: d.label, payoffMonth: d.payoffMonth, interestPaid: round2(d.interest) })),
+  };
+}
+
 // Capture types for debts (id maps to DebtType).
 export const DEBT_KINDS: { id: DebtType; label: string; icon: string }[] = [
   { id: 'MORTGAGE', label: 'Mortgage', icon: '🏠' },
