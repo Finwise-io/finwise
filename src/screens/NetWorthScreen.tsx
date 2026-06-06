@@ -265,6 +265,10 @@ export default function NetWorthScreen() {
           <Text style={styles.perfBtnT}>📜  Bonds — coupons, maturity & yield</Text>
           <Text style={styles.perfBtnArrow}>›</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/other-investments')}>
+          <Text style={styles.perfBtnT}>🪙  Other investments — crypto, PE, commodities</Text>
+          <Text style={styles.perfBtnArrow}>›</Text>
+        </TouchableOpacity>
 
         {/* insight */}
         {totalAssets > 0 && (
