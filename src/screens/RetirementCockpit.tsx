@@ -16,6 +16,9 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
+import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
+import { marginalBracket } from '../domain/income/tax';
+import { totalGrossAnnual } from '../domain/income';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -143,6 +146,14 @@ export default function RetirementCockpit() {
   const dOrder = withdrawalOrder(dSplit);
   const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, RMD_START_AGE));   // first-year RMD on pre-tax balances
   const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
+
+  // ---- TAX-SMART MOVES ----
+  const annual401k = num(op.c_401k) * 12;
+  const k401 = k401Headroom(age, annual401k);
+  const marginalNow = marginalBracket(totalGrossAnnual(op));
+  const marginalRetire = marginalBracket(planSpend * 12);
+  const rvt = rothVsTraditional(marginalNow, marginalRetire);
+  const inRothWindow = rothConversionWindow(age, Math.round(planRetireAge), claimAge);
   // transparency: split the final projected balance into starting egg + contributions you add + growth
   const projEnd = projYears.length ? projYears[projYears.length - 1].bal : nestEgg;
   const projContrib = projYears.reduce((t, d) => t + (d.age <= Math.round(planRetireAge) ? planSave * 12 : 0), 0);
@@ -361,6 +372,7 @@ export default function RetirementCockpit() {
             <Text style={styles.liK}>Heads-up</Text>
             {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> start at {RMD_START_AGE}. On today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year — taxed as income whether you need it or not.</Text>}
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.</Text>
+            {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before RMDs/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future RMDs and lifetime tax.</Text>}
           </View>
         </>
       )}
@@ -495,6 +507,19 @@ export default function RetirementCockpit() {
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
         <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
       </View>
+
+      {/* TAX-SMART MOVES (accumulators) */}
+      {!isRetired && (
+        <View style={styles.card}>
+          <Text style={styles.liK}>Tax-smart moves</Text>
+          {k401.remaining > 0
+            ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ' (incl. the $8,000 age-50+ catch-up)' : ''} — up to {money(k401.limit)}.</Text>
+            : <Text style={styles.note}>💼 401(k) maxed for the year ✓{k401.catchUp ? ' (incl. catch-up)' : ''}.</Text>}
+          <Text style={[styles.note, { marginTop: 6 }]}>🏦 You can also contribute up to <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(annualIraLimit(age))}</Text> to an IRA{age >= 50 ? ' (incl. catch-up)' : ''}.</Text>
+          {!simple && <Text style={[styles.note, { marginTop: 6 }]}>⚖️ <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{rvt.lean === 'roth' ? 'Lean Roth' : rvt.lean === 'traditional' ? 'Lean Traditional' : 'Roth or Traditional'}</Text> — {rvt.why} <Text style={styles.srcTag}>marginal ~{Math.round(marginalNow * 100)}% now</Text></Text>}
+          <Text style={styles.tFootMuted}>General guidance, not tax advice.</Text>
+        </View>
+      )}
 
       {/* SOCIAL SECURITY */}
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
