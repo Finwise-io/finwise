@@ -15,6 +15,7 @@ import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -133,6 +134,14 @@ export default function RetirementCockpit() {
     return out;
   }, [nestEgg, planGrowth, planSave, age, planRetireAge]);
   const hasRetireBar = projYears.some((d) => d.isRetire);
+
+  // ---- DECUMULATION (retired "will it last?") ----
+  const dSplit = taxBucketSplit(assets);
+  const dPlan = withdrawalPlan(planSpend, ssIncome, nestEgg);
+  const dDeplete = depletionAge({ age, horizon, nestEgg, netWithdrawalNow: dPlan.netWithdrawal, returnRate: planGrowth, inflation: planInfl });
+  const dOrder = withdrawalOrder(dSplit);
+  const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, RMD_START_AGE));   // first-year RMD on pre-tax balances
+  const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
   // transparency: split the final projected balance into starting egg + contributions you add + growth
   const projEnd = projYears.length ? projYears[projYears.length - 1].bal : nestEgg;
   const projContrib = projYears.reduce((t, d) => t + (d.age <= Math.round(planRetireAge) ? planSave * 12 : 0), 0);
@@ -295,6 +304,63 @@ export default function RetirementCockpit() {
           </View>
           {planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
           <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/mo` : ''}.</Text>
+        </>
+      )}
+
+      {/* ── DECUMULATION (retired: will it last?) ── */}
+      {isRetired && nestEgg > 0 && (
+        <>
+          <Text style={styles.divider}>YOUR DRAWDOWN</Text>
+
+          {/* net withdrawal + rate */}
+          <View style={styles.card}>
+            <View style={styles.dwRow}><Text style={styles.dwL}>You plan to spend</Text><Text style={styles.dwV}>{money(dPlan.spendAnnual)}/yr</Text></View>
+            {dPlan.guaranteedAnnual > 0 && <View style={styles.dwRow}><Text style={styles.dwL}>− Social Security / pension</Text><Text style={[styles.dwV, { color: Colors.primary }]}>−{money(dPlan.guaranteedAnnual)}/yr</Text></View>}
+            <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/yr</Text></View>
+            {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
+              <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : '#FBE9E9' }]}>
+                <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(1)}%</Text>
+                <Text style={styles.rateTxt}>withdrawal rate · {dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit above 4% — watch it' : 'above 5% — high risk of running short'}</Text>
+              </View>
+            )}
+            {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your spending — your portfolio can keep growing.</Text>}
+          </View>
+
+          {/* how long it lasts */}
+          <View style={styles.card}>
+            <Text style={styles.liK}>Will it last?</Text>
+            <Text style={styles.dwBig}>{dDeplete == null ? `Lasts beyond ${horizon}` : `Runs low around ${dDeplete}`}</Text>
+            <Text style={styles.note}>Deterministic estimate at {(planGrowth * 100).toFixed(1)}%/yr growth, spending rising {(planInfl * 100).toFixed(1)}%/yr.{planChance != null ? ` Across ~400 market simulations it lasts to ${horizon} in ${planChance}% of them.` : ''}</Text>
+          </View>
+
+          {/* where the money sits (tax buckets) */}
+          <View style={styles.card}>
+            <Text style={styles.liK}>Where your money sits</Text>
+            {([['cash', 'Cash'], ['taxable', 'Taxable / brokerage'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
+              <View key={k} style={styles.dwRow}><Text style={styles.dwL}>{lbl}</Text><Text style={styles.dwV}>{money(dSplit[k])}</Text></View>
+            ) : null))}
+          </View>
+
+          {/* suggested withdrawal order */}
+          {dOrder.length > 0 && (
+            <View style={styles.card}>
+              <Text style={styles.liK}>Suggested withdrawal order</Text>
+              {dOrder.map((s, i) => (
+                <View key={s.bucket} style={styles.orderRow}>
+                  <Text style={styles.orderNum}>{i + 1}</Text>
+                  <View style={{ flex: 1 }}><Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}</Text></Text><Text style={styles.orderWhy}>{s.why}</Text></View>
+                </View>
+              ))}
+              <Text style={styles.tFootMuted}>General guidance, not tax advice — your situation (brackets, Roth conversions) may change the order.</Text>
+            </View>
+          )}
+
+          {/* RMDs + healthcare */}
+          <View style={styles.card}>
+            <Text style={styles.liK}>Heads-up</Text>
+            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> start at {RMD_START_AGE}. On today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year — taxed as income whether you need it or not.</Text>}
+            <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.</Text>
+          </View>
         </>
       )}
 
@@ -763,6 +829,19 @@ const styles = StyleSheet.create({
   heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
   heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
   heroRoi: { color: '#9FD9C6', fontSize: 10.5, fontWeight: '700', marginTop: 5 },
+  dwRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
+  dwL: { fontSize: 13, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
+  dwV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  dwTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
+  dwBig: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary, marginVertical: 2 },
+  rateBox: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: Radii.md, padding: 11, marginTop: 10 },
+  ratePct: { fontSize: 20, fontWeight: '800' },
+  rateTxt: { flex: 1, fontSize: 12, color: Colors.textSecondary, lineHeight: 16 },
+  orderRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
+  orderNum: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primaryLight, color: Colors.primaryDark, fontWeight: '800', fontSize: 12, textAlign: 'center', lineHeight: 22, overflow: 'hidden' },
+  orderName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  orderAmt: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
+  orderWhy: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 2, lineHeight: 15 },
   heroExplain: { fontSize: 10.5, color: Colors.textSecondary, lineHeight: 14, marginTop: 8 },
   planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },

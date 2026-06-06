@@ -1,1 +1,1 @@
-export { default } from "../src/screens/RetirementScreen";
+export { default } from '../src/screens/RetirementCockpit';

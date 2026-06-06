@@ -3,6 +3,11 @@
 > One place to see every capability, what it does, who it's for, and whether it's built.
 > Tick the box as things ship. Last updated: 2026-06-05 (Portfolio Performance service shipped).
 > **See the "Parked / backlog" list at the bottom for everything we've consciously deferred.**
+>
+> 🎯 **ACTIVE BUILD ORDER (agreed 2026-06-05, from the persona design review):**
+> **1. Decumulation / drawdown** (50yo's #1 need: will it last, withdrawal order, SS timing, RMDs, healthcare) →
+> **2. Goals + debt-payoff** (30yo: emergency fund / house / loans; avalanche-snowball) →
+> **3. Persona-adaptive home + Simple-vs-Advisor mode.**
 
 **Legend**
 - `[x]` = built & working   ·   `[~]` = partially built / needs finishing   ·   `[ ]` = not built yet
