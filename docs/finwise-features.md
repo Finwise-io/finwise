@@ -261,7 +261,8 @@
 - [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
 - [x] 🟢 **Attribution** — "what drove your {period}": per-holding contribution (weight × return), winners/detractors.
 - [x] 🟢 **Allocation view** — mix by asset class + cash (bar + per-class value/%).
-- [ ] ⚪ **Trend chart (portfolio vs benchmark over time) · ticker autocomplete · price-cache TTL.**
+- [x] 🟢 **Trend chart** — portfolio value vs S&P 500 (rebased) over the period, line chart with %-change.
+- [ ] ⚪ **Ticker autocomplete · price-cache TTL.** (Perf v2 otherwise complete: attribution + allocation + trend.)
 
 ### Retirement
 - [ ] 🟡 **Drawdown / decumulation view for retirees** — "will it last?" framing (accumulation done).
