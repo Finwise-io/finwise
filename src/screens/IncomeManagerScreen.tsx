@@ -8,6 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
+import { couponIncomeAnnual } from '../domain/bonds';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -28,7 +29,7 @@ export default function IncomeManagerScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   const sources = useMemo(() => incomeFromOnboarding(uid, op).sources, [op, uid]);
-  const investIncome = investmentIncomeAnnual(transactions);
+  const investIncome = investmentIncomeAnnual(transactions) + couponIncomeAnnual(store.assetAccounts ?? []);
   const oneOffTotal = incomes.reduce((t: number, i: any) => t + (i.amount || 0), 0);
   const totalAnnual = Math.round(totalGrossAnnual(op)) + investIncome + oneOffTotal;
 
@@ -70,8 +71,8 @@ export default function IncomeManagerScreen() {
       <View style={styles.card}>
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
-            <Text style={styles.rowName}>Dividends & interest</Text>
-            <Text style={styles.rowSub}>{investIncome > 0 ? 'cash payouts, last 12 months · from your holdings' : 'recorded automatically when you log a cash dividend'}</Text>
+            <Text style={styles.rowName}>Dividends, interest & coupons</Text>
+            <Text style={styles.rowSub}>{investIncome > 0 ? 'from your holdings & bonds (last 12 months + bond coupons)' : 'recorded when you log a cash dividend or add a bond'}</Text>
           </View>
           <Text style={styles.rowVal}>{money(investIncome)}</Text>
         </View>

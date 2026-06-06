@@ -261,6 +261,10 @@ export default function NetWorthScreen() {
           <Text style={styles.perfBtnT}>📈  Portfolio performance vs benchmark</Text>
           <Text style={styles.perfBtnArrow}>›</Text>
         </TouchableOpacity>
+        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/bonds')}>
+          <Text style={styles.perfBtnT}>📜  Bonds — coupons, maturity & yield</Text>
+          <Text style={styles.perfBtnArrow}>›</Text>
+        </TouchableOpacity>
 
         {/* insight */}
         {totalAssets > 0 && (

@@ -27,6 +27,10 @@ export interface AssetAccount {
                                   // value is DERIVED from live prices (balance is a refreshed cache)
   cash_balance?: number;          // uninvested cash sleeve in an investment account (a brokerage isn't 100%
                                   // invested). Account value = cash_balance + Σ(position market value).
+  // Individual bond fields (Phase B) — present → this account is a bond; balance = current value.
+  face_value?: number;            // par/face value (total)
+  coupon_rate?: number;           // annual coupon, decimal (e.g. 0.045)
+  maturity_date?: string;         // 'YYYY-MM-DD'
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
