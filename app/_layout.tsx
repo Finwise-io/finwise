@@ -6,9 +6,12 @@ import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { setMoneyFormat } from '../src/domain/_shared/money';
+import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
 import { onAuthChange, loadUserData, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
+
+patchTextScaling();   // install the global font-scale hook once
 
 // Fields synced to Firestore (excludes auth user + ephemeral economic data)
 const SYNC_FIELDS = [
@@ -38,7 +41,8 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale, fontScale } = useStore() as any;
+  setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
   // Keep the app-wide money formatter in sync with the (persisted / cloud-loaded) region.
   // Done in render so children format with the right currency on the same pass it changes.
   setMoneyFormat(currency, locale);

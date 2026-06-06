@@ -239,6 +239,7 @@ type AppState = {
 
   // Display mode — Simple hides jargon/advanced detail; Advisor shows full depth
   displayMode: 'simple' | 'advisor';
+  fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
 
   // Economic data
   inflationRate: number;
@@ -296,6 +297,7 @@ type AppState = {
   setBenchmarkReturn: (kind: string, ret: number) => void;
   setCurrency: (currency: string, locale?: string) => void;
   setDisplayMode: (m: 'simple' | 'advisor') => void;
+  setFontScale: (s: number) => void;
   addRecurringIncome: (entry: Omit<RecurringIncome, 'id'>) => void;
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
   deleteRecurringIncome: (id: string) => void;
@@ -416,6 +418,7 @@ export const useStore = create<AppState>()(
       currency: 'USD',
       locale: 'en-US',
       displayMode: 'simple',
+      fontScale: 1,
       inflationRate: 3.2,
       treasuryYield: 4.35,
       lastEconomicFetch: null,
@@ -559,6 +562,7 @@ export const useStore = create<AppState>()(
         set({ currency, locale: resolved });
       },
       setDisplayMode: (m) => set({ displayMode: m }),
+      setFontScale: (s) => set({ fontScale: s }),
 
       addRecurringIncome: (entry) => {
         const r: RecurringIncome = { ...entry, id: uid() };

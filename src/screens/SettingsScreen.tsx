@@ -5,6 +5,7 @@ import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified } from '../services/firebase';
+import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
 
 const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
@@ -26,7 +27,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale } = useStore() as any;
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -180,6 +181,19 @@ export default function SettingsScreen() {
           ))}
         </View>
         <Text style={styles.modeNote}>Simple hides technical detail (benchmarks, Monte-Carlo jargon, caveats). Advisor shows everything.</Text>
+      </Card>
+
+      {/* Text size (accessibility) */}
+      <Card>
+        <Text style={styles.sectionTitle}>Text size</Text>
+        <View style={styles.modeRow}>
+          {FONT_SCALES.map((f) => (
+            <TouchableOpacity key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
+              <Text style={[styles.modeT, (fontScale ?? 1) === f.value && styles.modeTOn, { fontSize: 13 * f.value }]}>{f.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.modeNote}>Make text bigger across the whole app for easier reading.</Text>
       </Card>
 
       {/* Actions */}
