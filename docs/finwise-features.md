@@ -219,7 +219,7 @@
   - *Use:* Required App Store compliance + graceful crash recovery.
 - [x] 🟢 **App icon, splash & EAS build pipeline** — Branded assets + production build/submit config (launch crash fixed).
   - *Use:* Build #18 opens cleanly on device.
-- [~] 🟡 **Email verification + forgot password** — Queued auth quick-wins.
+- [x] 🟢 **Email verification + forgot password** — reset-password email + verify-on-register with a Settings resend/recheck banner.
   - *Use:* Reset a forgotten password; verify email at signup.
 - [~] 🟡 **App Store submission package** — Listing created; needs screenshots, description, keywords, and the `EXPO_PUBLIC_` key fix.
   - *Use:* Pass App Store review and go live.
@@ -244,7 +244,7 @@
 - [x] 🟢 **API keys in release builds** — RESOLVED: services read `Constants.expoConfig.extra` (populated by app.config.js from EAS secrets at build time), the correct prod pattern. Verify the EAS secrets are set before submit.
 - [ ] 🚧 **Deploy Firestore security rules** — `firebase deploy --only firestore:rules` (written, not deployed).
 - [ ] 🚧 **App Store submission package** — screenshots (6.7"/6.5"), description, keywords, category.
-- [ ] 🔵 **Email verification + forgot password** — queued auth quick-wins.
+- [x] 🟢 **Email verification + forgot password** — forgot-password (reset email) + verify-email on register with Settings resend/recheck banner. (Confirm email delivery with a real account before submit.)
 - [ ] 🔵 **Encrypted local storage** — move sensitive data to expo-secure-store (currently plain JSON).
 - [ ] 🔵 **Receipt OCR native rebuild** — `npx expo run:ios` to activate ML Kit, then test scan.
 
