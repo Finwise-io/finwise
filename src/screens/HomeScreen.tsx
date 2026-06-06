@@ -522,6 +522,7 @@ function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, monthLabe
   visible: boolean; onClose: () => void; op: any; isCurrentMonth: boolean; baseDate: Date; monthLabel: string;
 }) {
   const store = useStore() as any;
+  const router = useRouter();
   const [tab, setTab] = useState<'add' | 'base'>('add');
   // add one-off income
   const [amount, setAmount] = useState('');
@@ -569,6 +570,9 @@ function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, monthLabe
               <TouchableOpacity style={[sh.tab, tab === 'add' && sh.tabOn]} onPress={() => setTab('add')}><Text style={[sh.tabTxt, tab === 'add' && sh.tabTxtOn]}>Add income</Text></TouchableOpacity>
               <TouchableOpacity style={[sh.tab, tab === 'base' && sh.tabOn]} onPress={() => setTab('base')}><Text style={[sh.tabTxt, tab === 'base' && sh.tabTxtOn]}>Edit base pay</Text></TouchableOpacity>
             </View>
+            <TouchableOpacity onPress={() => { onClose(); router.push('/income-manager'); }}>
+              <Text style={sh.manageLink}>See & edit all your income sources ›</Text>
+            </TouchableOpacity>
 
             {tab === 'add' ? (
               <>
@@ -849,6 +853,7 @@ const sh = StyleSheet.create({
   amtPrefix: { fontSize: 30, fontWeight: '800', color: Colors.textSecondary },
   amtInput: { fontSize: 44, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
   bucketHint: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm },
+  manageLink: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 10 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
   chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },

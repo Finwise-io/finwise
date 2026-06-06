@@ -137,4 +137,13 @@ export function cashEffect(t: Transaction): number {
   }
 }
 
+/** Investment income (cash dividends/interest/coupons, not reinvested) over the trailing window — feeds
+ *  the Income module. Reinvested payouts grow the position instead, so they're excluded. */
+export function investmentIncomeAnnual(txns: Transaction[], now: Date = new Date()): number {
+  const cutoff = new Date(now); cutoff.setFullYear(cutoff.getFullYear() - 1);
+  return round2((txns ?? [])
+    .filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST' || t.type === 'COUPON') && !t.reinvested && new Date(t.date) >= cutoff)
+    .reduce((s, t) => s + (t.amount || 0), 0));
+}
+
 export interface TxnDoc { user_id: UserId; transactions: Transaction[]; }

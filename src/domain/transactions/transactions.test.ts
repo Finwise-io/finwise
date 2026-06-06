@@ -1,4 +1,4 @@
-import { applyTransaction, makeTransaction, cashEffect, type Transaction } from './index';
+import { applyTransaction, makeTransaction, cashEffect, investmentIncomeAnnual, type Transaction } from './index';
 import type { AssetAccount } from '../assets';
 
 const acct = (id: string, over: Partial<AssetAccount> = {}): AssetAccount => ({
@@ -68,6 +68,16 @@ describe('transaction engine — applyTransaction', () => {
     expect(sh).toBe(102);
   });
 
+  test('investmentIncomeAnnual sums trailing cash payouts, excludes reinvested + stale', () => {
+    const now = new Date('2025-06-01');
+    const txns = [
+      makeTransaction({ date: '2025-03-01', type: 'DIVIDEND', account_id: 'A', amount: 100 }),
+      makeTransaction({ date: '2025-04-01', type: 'INTEREST', account_id: 'A', amount: 50 }),
+      makeTransaction({ date: '2025-05-01', type: 'DIVIDEND', account_id: 'A', reinvested: true, shares: 1, price: 10 }), // reinvested → excluded
+      makeTransaction({ date: '2023-01-01', type: 'DIVIDEND', account_id: 'A', amount: 999 }),  // older than 1yr → excluded
+    ];
+    expect(investmentIncomeAnnual(txns, now)).toBe(150);
+  });
   test('cashEffect sign matches intent', () => {
     expect(cashEffect(txn({ type: 'BUY', shares: 10, price: 50 }))).toBe(-500);
     expect(cashEffect(txn({ type: 'SELL', shares: 10, price: 50 }))).toBe(500);
