@@ -256,7 +256,7 @@
 - [x] 🟢 **Refresh-on-open** — throttled price refresh when NW/Retirement open (live everywhere).
 - [x] 🟢 **Dividend/interest → Income module** — investmentIncomeAnnual() sums trailing cash payouts (reinvested excluded) and surfaces them in the income manager.
 - [x] 🟢 **Income manager screen** — see/add/edit ALL income sources (salary/bonus/equity/rental/one-off/investment) from Home → take-home sheet → "See & edit all your income sources".
-- [ ] 🔵 **Phase B — Bond management** — coupon/maturity/yield + coupon income.
+- [x] 🟢 **Phase B — Bond management** — individual bonds (face/coupon/maturity), coupon income → income, metrics (yield/YTM), counts in NW. Bonds screen launched from Net Worth.
 - [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
 - [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
 - [x] 🟢 **Attribution** — "what drove your {period}": per-holding contribution (weight × return), winners/detractors.
@@ -300,10 +300,10 @@
 ### From the 30yo / 50yo design review (2026-06-05)
 - [x] 🟢 **Persona-adaptive home emphasis** — Home "Your focus" card adapts (building → goals/debt; preretiree/retired → retirement/portfolio). utils/persona.
 - [x] 🟢 **Simple vs Advisor mode** — store displayMode + Settings toggle; Simple hides Retirement jargon (Monte-Carlo explainer, benchmark source/period, caveats).
-- [x] 🟢 **30yo: debt-payoff plan** (avalanche/snowball, payoffPlan engine) + **goals/savings** (Goals & Debt screen with progress + monthly-to-target). *(Lighter "new investor" path still open.)*
+- [x] 🟢 **30yo: debt-payoff plan** (avalanche/snowball, payoffPlan engine) + **goals/savings** (Goals & Debt screen with progress + monthly-to-target) + **lighter "new investor" path** (cost basis optional). All shipped.
 - [x] 🟢 **50yo: decumulation/drawdown** — drawdown view: net withdrawal + rate vs 4%, depletion age, tax-bucket split, withdrawal order, RMDs (73), healthcare note. *(Deeper tax-awareness — Roth conversions, cap gains, catch-up — still open.)*
 - [ ] 🔵 **Bank/brokerage linking (Plaid)** — biggest stickiness lever for BOTH; manual entry doesn't scale.
-- [ ] ⚪ **Lighter "new investor" onboarding** (no lots/cost-basis required to start).
+- [x] 🟢 **Lighter "new investor" onboarding** — cost basis optional when adding a holding (ticker + shares only).
 - [x] 🟢 **Tax-awareness v1:** contribution headroom + 50+ catch-up (401k/IRA/HSA), Roth-vs-Traditional lean, Roth-conversion-window insight. *(Capital-gains harvesting + full Roth-conversion modeling still open.)*
-- [ ] ⚪ **Accessibility / large-text mode** — many 10–11px captions; tight tap targets.
+- [x] 🟢 **Accessibility / large-text mode** — app-wide font scale (Default/Large/Larger) in Settings.
 - [ ] ⚪ **Life-stage gaps:** 529 college planning, life/long-term-care insurance, estate/legacy.
