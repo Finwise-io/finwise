@@ -67,6 +67,7 @@ export default function RetirementCockpit() {
   const inflIsActual = A.inflation == null;
   const planGrowth = growthRate;                      // from the basis selector (benchmark / 12-mo / scenario)
   const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
+  const simple = (store.displayMode ?? 'simple') === 'simple';   // hide technical detail in Simple mode
   const commit = (patch: any) => setA(patch);
 
   const planInputs = (over: any = {}) => ({
@@ -302,7 +303,7 @@ export default function RetirementCockpit() {
               <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
             </View>
           </View>
-          {planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
+          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
           <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/mo` : ''}.</Text>
         </>
       )}
@@ -414,7 +415,7 @@ export default function RetirementCockpit() {
                   <Text style={styles.instName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
                   {uncategorized
                     ? <Text style={styles.instWarn} numberOfLines={1}>{moneyCompact(earmarkedAmount(a), 'M')} · ⚠ Set a type ›</Text>
-                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a), 'M')} · {info.source} · {info.period}{info.estimate ? ' · est.' : ''}</Text>}
+                    : <Text style={styles.instSrc} numberOfLines={2}>{assetKind(a.kind)?.label} · {moneyCompact(earmarkedAmount(a), 'M')}{simple ? '' : ` · ${info.source} · ${info.period}${info.estimate ? ' · est.' : ''}`}</Text>}
                 </TouchableOpacity>
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
@@ -438,7 +439,7 @@ export default function RetirementCockpit() {
               ? 'Add your actual 12-month return on each holding to see how you compare to the benchmark.'
               : `You returned ${(actualReturn * 100).toFixed(1)}% over the last 12 months vs a ${(benchBlended * 100).toFixed(1)}% benchmark — ${beatBy! >= 0 ? `${(beatBy! * 100).toFixed(1)} pts ahead` : `${(Math.abs(beatBy!) * 100).toFixed(1)} pts behind`}.`}
           </Text>
-          <Text style={styles.tFootMuted}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>
+          {!simple && <Text style={styles.tFootMuted}>“Your 12-mo” = your actual trailing-12-month return (you enter it). Benchmark = the asset class's historical index return (not editable); past performance isn't a guarantee, and a 12-mo actual vs a ~30-yr average is directional only.</Text>}
           <TouchableOpacity onPress={() => router.push('/performance')}><Text style={[styles.editLink2, { marginTop: 10 }]}>📈 Track live performance vs benchmark ›</Text></TouchableOpacity>
         </View>
       )}

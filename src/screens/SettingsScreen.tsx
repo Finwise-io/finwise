@@ -26,7 +26,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode } = useStore() as any;
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -145,6 +145,20 @@ export default function SettingsScreen() {
         <TouchableOpacity style={styles.linkBtn} onPress={handleRerunOnboarding}>
           <Text style={styles.linkText}>Change settings →</Text>
         </TouchableOpacity>
+      </Card>
+
+      {/* Display mode */}
+      <Card>
+        <Text style={styles.sectionTitle}>Display mode</Text>
+        <View style={styles.modeRow}>
+          {(['simple', 'advisor'] as const).map((m) => (
+            <TouchableOpacity key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
+              <Text style={[styles.modeT, (displayMode ?? 'simple') === m && styles.modeTOn]}>{m === 'simple' ? 'Simple' : 'Advisor'}</Text>
+              <Text style={styles.modeSub}>{m === 'simple' ? 'plain language, less detail' : 'full depth & metrics'}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+        <Text style={styles.modeNote}>Simple hides technical detail (benchmarks, Monte-Carlo jargon, caveats). Advisor shows everything.</Text>
       </Card>
 
       {/* Actions */}
@@ -339,6 +353,13 @@ const styles = StyleSheet.create({
   userName: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary },
   userEmail: { fontSize: Typography.sizes.sm, color: Colors.textSecondary },
   sectionTitle: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary, marginBottom: Spacing.sm },
+  modeRow: { flexDirection: 'row', gap: 10 },
+  modeBtn: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 10, alignItems: 'center' },
+  modeBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  modeT: { fontSize: 14, fontWeight: '800', color: Colors.textSecondary },
+  modeTOn: { color: Colors.primaryDark },
+  modeSub: { fontSize: 10, color: Colors.textTertiary, marginTop: 2 },
+  modeNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 10, lineHeight: 15 },
   settingRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.sm, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   settingLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   settingValue: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },

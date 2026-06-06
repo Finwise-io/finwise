@@ -2,6 +2,7 @@
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
+import { personaOf, ageFromProfile } from '../utils/persona';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -29,6 +30,13 @@ export default function HomeScreen() {
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
   const name = (store.user?.name || op?.name || 'there').split(' ')[0];
+  // persona-adaptive focus shortcuts
+  const persona = personaOf({ age: ageFromProfile(op), employmentStatus: store.employmentStatus, targetRetireAge: parseInt(String(op?.targetRetirementAge ?? '65'), 10) || 65 });
+  const FOCUS = {
+    building: { title: 'Your focus — goals & growth', actions: [{ icon: '🎯', label: 'Goals & debt', route: '/goals' }, { icon: '📈', label: 'Grow investments', route: '/performance' }] },
+    preretiree: { title: 'Your focus — get retirement-ready', actions: [{ icon: '🏖️', label: 'Retirement outlook', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
+    retired: { title: 'Your focus — make it last', actions: [{ icon: '🏖️', label: 'Your drawdown', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
+  }[persona];
   const expenses = (store.expenses ?? []) as any[];
   const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
   const [sheet, setSheet] = useState(false);
@@ -197,6 +205,20 @@ export default function HomeScreen() {
                 <View style={styles.streakChip}><Text style={styles.streakTxt}>🔥 {store.streak}-day streak</Text></View>
               </View>
             )}
+          </View>
+        </View>
+
+        {/* persona-adaptive focus */}
+        <View style={styles.focusCard}>
+          <Text style={styles.focusTitle}>{FOCUS.title}</Text>
+          <View style={styles.focusRow}>
+            {FOCUS.actions.map((a) => (
+              <TouchableOpacity key={a.route} style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push(a.route as any)}>
+                <Text style={styles.focusIcon}>{a.icon}</Text>
+                <Text style={styles.focusLabel} numberOfLines={1}>{a.label}</Text>
+                <Text style={styles.focusArrow}>›</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </View>
 
@@ -835,6 +857,13 @@ const styles = StyleSheet.create({
   addBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg },
   ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  focusCard: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  focusTitle: { fontSize: 11, fontWeight: '800', color: '#BEE7D8', letterSpacing: 0.4, marginBottom: 8 },
+  focusRow: { marginTop: 0 },
+  focusBtn: { flexDirection: 'row', alignItems: 'center', gap: 9, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 12, marginTop: 8 } as any,
+  focusIcon: { fontSize: 17 },
+  focusLabel: { flex: 1, fontSize: 14, fontWeight: '800', color: '#fff' },
+  focusArrow: { fontSize: 20, color: '#BEE7D8', fontWeight: '400' },
 });
 
 const sh = StyleSheet.create({

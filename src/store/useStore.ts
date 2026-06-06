@@ -237,6 +237,9 @@ type AppState = {
   currency: string;   // ISO 4217, e.g. 'USD'
   locale: string;     // BCP-47, e.g. 'en-US'
 
+  // Display mode — Simple hides jargon/advanced detail; Advisor shows full depth
+  displayMode: 'simple' | 'advisor';
+
   // Economic data
   inflationRate: number;
   treasuryYield: number;
@@ -292,6 +295,7 @@ type AppState = {
   deleteRetirementScenario: (id: string) => void;
   setBenchmarkReturn: (kind: string, ret: number) => void;
   setCurrency: (currency: string, locale?: string) => void;
+  setDisplayMode: (m: 'simple' | 'advisor') => void;
   addRecurringIncome: (entry: Omit<RecurringIncome, 'id'>) => void;
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
   deleteRecurringIncome: (id: string) => void;
@@ -411,6 +415,7 @@ export const useStore = create<AppState>()(
       // Economic
       currency: 'USD',
       locale: 'en-US',
+      displayMode: 'simple',
       inflationRate: 3.2,
       treasuryYield: 4.35,
       lastEconomicFetch: null,
@@ -553,6 +558,7 @@ export const useStore = create<AppState>()(
         setMoneyFormat(currency, resolved);                 // apply immediately to all formatters
         set({ currency, locale: resolved });
       },
+      setDisplayMode: (m) => set({ displayMode: m }),
 
       addRecurringIncome: (entry) => {
         const r: RecurringIncome = { ...entry, id: uid() };
@@ -724,7 +730,7 @@ export const useStore = create<AppState>()(
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],
-        currency: 'USD', locale: 'en-US',
+        currency: 'USD', locale: 'en-US', displayMode: 'simple',
       }),
 
       loadFromCloud: (data) => set((s) => ({
