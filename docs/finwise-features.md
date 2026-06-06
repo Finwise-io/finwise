@@ -204,7 +204,7 @@
   - *Use:* Projections default to current inflation, not a stale guess.
 - [x] 🟢 **CSV import** — Bulk-import transactions.
   - *Use:* Import a year of bank transactions at once.
-- [~] 🟡 **AI/economic API keys in production** — Keys need `EXPO_PUBLIC_` prefix or AI tips + OCR are silently off in release builds.
+- [x] 🟢 **AI/economic API keys in production** — services read `Constants.expoConfig.extra` (app.config.js ← EAS secrets at build). Just confirm the EAS secrets exist before submit.
   - *Use:* Shipped app actually returns AI tips and scans receipts.
 - [ ] ⚪ **Plaid bank linking** — Auto-pull balances/transactions.
   - *Use:* Connect a bank so balances update without manual entry.
@@ -241,7 +241,7 @@
 
 ### Must-do before public launch
 - [ ] 🚧 **Market-data licensing** — swap the dev Yahoo endpoint for a licensed EOD vendor (Tiingo/EODHD/Alpha Vantage/Twelve Data); confirm commercial terms + attribution. *(one-file `PriceProvider` swap)*
-- [ ] 🚧 **`EXPO_PUBLIC_` env keys** — AI tips + receipt OCR are silently off in release builds until keys are prefixed/inlined.
+- [x] 🟢 **API keys in release builds** — RESOLVED: services read `Constants.expoConfig.extra` (populated by app.config.js from EAS secrets at build time), the correct prod pattern. Verify the EAS secrets are set before submit.
 - [ ] 🚧 **Deploy Firestore security rules** — `firebase deploy --only firestore:rules` (written, not deployed).
 - [ ] 🚧 **App Store submission package** — screenshots (6.7"/6.5"), description, keywords, category.
 - [ ] 🔵 **Email verification + forgot password** — queued auth quick-wins.
@@ -259,8 +259,9 @@
 - [ ] 🔵 **Phase B — Bond management** — coupon/maturity/yield + coupon income.
 - [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
 - [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
-- [ ] 🔵 **Attribution** — which holdings drove / dragged your return.
-- [ ] ⚪ **Allocation view · trend chart · ticker autocomplete · price-cache TTL.**
+- [x] 🟢 **Attribution** — "what drove your {period}": per-holding contribution (weight × return), winners/detractors.
+- [x] 🟢 **Allocation view** — mix by asset class + cash (bar + per-class value/%).
+- [ ] ⚪ **Trend chart (portfolio vs benchmark over time) · ticker autocomplete · price-cache TTL.**
 
 ### Retirement
 - [ ] 🟡 **Drawdown / decumulation view for retirees** — "will it last?" framing (accumulation done).
