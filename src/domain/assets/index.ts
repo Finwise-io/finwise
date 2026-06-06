@@ -25,6 +25,8 @@ export interface AssetAccount {
                                   // performance-vs-benchmark; null/undefined = not reported
   positions?: import('../performance').Position[];  // ticker holdings (lots); when present, this account's
                                   // value is DERIVED from live prices (balance is a refreshed cache)
+  cash_balance?: number;          // uninvested cash sleeve in an investment account (a brokerage isn't 100%
+                                  // invested). Account value = cash_balance + Σ(position market value).
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
