@@ -10,6 +10,7 @@ import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
   PERIODS, type Period, type Position, type Lot,
 } from '../domain/performance';
+import { txnLabel, cashEffect, type Transaction, type TxnType } from '../domain/transactions';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -25,6 +26,8 @@ export default function PerformanceScreen() {
   const [loading, setLoading] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
+  const [txnOpen, setTxnOpen] = useState(false);
+  const [historyOpen, setHistoryOpen] = useState(false);
 
   // every position across accounts, tagged with its owning account
   const owned = useMemo(() => accounts.flatMap((a) => (a.positions ?? []).map((p) => ({ accountId: a.asset_id, p }))), [accounts]);
@@ -38,7 +41,9 @@ export default function PerformanceScreen() {
     return tot > 0 ? usable.reduce((t, r) => t + (r.benchReturn as number) * r.marketValue, 0) / tot : null;
   })();
   const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
-  const totalValue = rows.reduce((t, r) => t + r.marketValue, 0);
+  const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
+  const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
+  const totalValue = investedValue + cashTotal;
 
   const refresh = async () => { setLoading(true); try { await store.refreshPrices(); } finally { setLoading(false); } };
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
@@ -72,7 +77,7 @@ export default function PerformanceScreen() {
           {/* PORTFOLIO SUMMARY */}
           <View style={styles.summary}>
             <Text style={styles.sumVal}>{money(totalValue)}</Text>
-            <Text style={styles.sumLab}>portfolio value · live</Text>
+            <Text style={styles.sumLab}>portfolio value · live{cashTotal > 0 ? ` · incl. ${money(cashTotal)} cash` : ''}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>YOUR {period}</Text><Text style={[styles.sumCellV, portReturn != null && { color: portReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(portReturn)}</Text></View>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>BENCHMARK</Text><Text style={styles.sumCellV}>{pct(benchPort)}</Text></View>
@@ -104,7 +109,11 @@ export default function PerformanceScreen() {
                 </TouchableOpacity>
               );
             })}
-            <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add holding</Text></TouchableOpacity>
+            <View style={styles.actionRow}>
+              <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add holding</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setTxnOpen(true)}><Text style={styles.addLink}>＋ Record transaction</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => setHistoryOpen(true)}><Text style={styles.addLink}>Activity ›</Text></TouchableOpacity>
+            </View>
           </View>
 
           <Text style={styles.foot}>
@@ -137,6 +146,10 @@ export default function PerformanceScreen() {
         }}
         onDelete={edit ? () => { store.deletePosition(edit.accountId, edit.position.position_id); setEdit(null); } : undefined}
       />
+      <TransactionSheet open={txnOpen} accounts={accounts} onClose={() => setTxnOpen(false)}
+        onSave={(t) => { store.recordTransaction(t); setTxnOpen(false); setTimeout(refresh, 50); }} />
+      <HistorySheet open={historyOpen} transactions={store.transactions ?? []} accounts={accounts}
+        onClose={() => setHistoryOpen(false)} onDelete={(id) => store.deleteTransaction(id)} />
     </ScrollView>
   );
 }
@@ -240,6 +253,151 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
 }
 const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: new Date().toISOString().slice(0, 10) });
 
+// ───────────────────────── Record a transaction ─────────────────────────
+const TXN_TYPES: { k: TxnType; label: string }[] = [
+  { k: 'BUY', label: 'Buy' }, { k: 'SELL', label: 'Sell' }, { k: 'DEPOSIT', label: 'Deposit cash' },
+  { k: 'WITHDRAWAL', label: 'Withdraw' }, { k: 'TRANSFER', label: 'Transfer' }, { k: 'DIVIDEND', label: 'Dividend' },
+];
+function TransactionSheet({ open, accounts, onClose, onSave }: {
+  open: boolean; accounts: AssetAccount[]; onClose: () => void; onSave: (t: Omit<Transaction, 'id' | 'created_at'>) => void;
+}) {
+  const eligible = accounts.filter(accountAllowsTicker);
+  const cashAccts = accounts.filter((a) => a.tax_bucket !== 'PROPERTY');
+  const [type, setType] = useState<TxnType>('BUY');
+  const [accountId, setAccountId] = useState('');
+  const [counterId, setCounterId] = useState('');
+  const [ticker, setTicker] = useState('');
+  const [shares, setShares] = useState('');
+  const [price, setPrice] = useState('');
+  const [amount, setAmount] = useState('');
+  const [reinvest, setReinvest] = useState(false);
+  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
+  useEffect(() => { if (open) { setType('BUY'); setAccountId((accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(new Date().toISOString().slice(0, 10)); } }, [open]);
+
+  const isTrade = type === 'BUY' || type === 'SELL';
+  const isCash = type === 'DEPOSIT' || type === 'WITHDRAWAL';
+  const isTransfer = type === 'TRANSFER';
+  const isDiv = type === 'DIVIDEND';
+  const acctList = isTrade ? eligible : cashAccts;
+  const valid = !!accountId && (
+    isTrade ? (ticker.trim() && num(shares) > 0 && num(price) > 0) :
+    isCash ? num(amount) > 0 :
+    isTransfer ? (num(amount) > 0 && counterId && counterId !== accountId) :
+    isDiv ? (ticker.trim() && (reinvest ? (num(shares) > 0 && num(price) > 0) : num(amount) > 0)) : false
+  );
+  const save = () => {
+    const base = { date, type, account_id: accountId };
+    if (isTrade) onSave({ ...base, ticker: ticker.trim().toUpperCase(), shares: num(shares), price: num(price) });
+    else if (isCash) onSave({ ...base, amount: num(amount) });
+    else if (isTransfer) onSave({ ...base, counter_account_id: counterId, amount: num(amount) });
+    else onSave({ ...base, ticker: ticker.trim().toUpperCase(), reinvested: reinvest, ...(reinvest ? { shares: num(shares), price: num(price) } : { amount: num(amount) }) });
+  };
+  const acctName = (a: AssetAccount) => a.institution?.trim() || a.label;
+
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+          <Text style={styles.sheetT}>Record a transaction</Text>
+          <View style={[styles.kindWrap, { marginTop: 8 }]}>
+            {TXN_TYPES.map((t) => (
+              <TouchableOpacity key={t.k} style={[styles.kindChip, type === t.k && styles.kindChipOn]} onPress={() => setType(t.k)}>
+                <Text style={[styles.kindChipT, type === t.k && styles.kindChipTOn]}>{t.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          <Text style={styles.fieldL}>{isTransfer ? 'From account' : 'Account'}</Text>
+          <View style={styles.kindWrap}>
+            {acctList.map((a) => (
+              <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} onPress={() => setAccountId(a.asset_id)}>
+                <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{acctName(a)}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+
+          {isTransfer && (
+            <>
+              <Text style={styles.fieldL}>To account</Text>
+              <View style={styles.kindWrap}>
+                {cashAccts.filter((a) => a.asset_id !== accountId).map((a) => (
+                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, counterId === a.asset_id && styles.kindChipOn]} onPress={() => setCounterId(a.asset_id)}>
+                    <Text style={[styles.kindChipT, counterId === a.asset_id && styles.kindChipTOn]}>{acctName(a)}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </>
+          )}
+
+          {(isTrade || isDiv) && (<><Text style={styles.fieldL}>Ticker</Text>
+            <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL" placeholderTextColor={Colors.textTertiary} /></>)}
+
+          {isDiv && (
+            <View style={[styles.lotRow, { marginTop: 12 }]}>
+              <TouchableOpacity style={[styles.kindChip, !reinvest && styles.kindChipOn]} onPress={() => setReinvest(false)}><Text style={[styles.kindChipT, !reinvest && styles.kindChipTOn]}>Paid as cash</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.kindChip, reinvest && styles.kindChipOn]} onPress={() => setReinvest(true)}><Text style={[styles.kindChipT, reinvest && styles.kindChipTOn]}>Reinvested</Text></TouchableOpacity>
+            </View>
+          )}
+
+          {(isTrade || (isDiv && reinvest)) && (
+            <View style={[styles.lotRow, { marginTop: 12 }]}>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+            </View>
+          )}
+          {(isCash || isTransfer || (isDiv && !reinvest)) && (
+            <View style={[styles.lotRow, { marginTop: 12 }]}>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+            </View>
+          )}
+
+          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}><Text style={styles.saveBtnT}>Record {txnLabel(type).toLowerCase()}</Text></TouchableOpacity>
+          <View style={{ height: 16 }} />
+        </ScrollView>
+      </View>
+    </Modal>
+  );
+}
+
+// ───────────────────────── Activity / history ─────────────────────────
+function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
+  open: boolean; transactions: Transaction[]; accounts: AssetAccount[]; onClose: () => void; onDelete: (id: string) => void;
+}) {
+  const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (a.institution?.trim() || a.label) : '—'; };
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <View style={styles.sheet}>
+        <View style={styles.grab} />
+        <Text style={styles.sheetT}>Activity</Text>
+        <Text style={styles.sheetS}>Every transaction you've recorded — your full history.</Text>
+        <ScrollView style={{ maxHeight: 460 }}>
+          {transactions.length === 0 && <Text style={styles.hEmpty}>No transactions yet.</Text>}
+          {transactions.map((t) => {
+            const eff = cashEffect(t);
+            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${money(t.price)}` : ''}` : acctName(t.account_id);
+            return (
+              <View key={t.id} style={styles.hRow}>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.hType}>{txnLabel(t.type)} <Text style={styles.hDetail}>{detail}</Text></Text>
+                  <Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
+                </View>
+                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.primary : Colors.red }]}>{eff >= 0 ? '+' : ''}{money(eff)}</Text>}
+                <TouchableOpacity onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
+              </View>
+            );
+          })}
+        </ScrollView>
+        <TouchableOpacity style={styles.applyBtn2} onPress={onClose}><Text style={styles.saveBtnT}>Done</Text></TouchableOpacity>
+      </View>
+    </Modal>
+  );
+}
+
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
@@ -277,7 +435,16 @@ const styles = StyleSheet.create({
   cellV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   cellB: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
   foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
+  applyBtn2: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 12 },
+  hEmpty: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', paddingVertical: 24 },
+  hRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  hType: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  hDetail: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  hMeta: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
+  hAmt: { fontSize: 14, fontWeight: '800' },
+  hDel: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
