@@ -245,11 +245,11 @@
 
 ### Portfolio module — transaction ledger + 3 services (see docs/portfolio-module.md)
 - [x] 🟢 **Total-return prices** — performance now uses dividend/split-adjusted close.
-- [ ] 🔵 **Phase A — foundation** — cash sleeve on investment accounts; transaction ledger
-  (OPENING/BUY/SELL/DEPOSIT/WITHDRAWAL/TRANSFER/DIVIDEND); instrument eligibility (529 fix);
-  per-account history (auditability); flows to NW/Retire/Income. *(in progress)*
-- [ ] 🔵 **Refresh-on-open** — throttled price refresh when NW/Retirement open (live everywhere).
-- [ ] 🔵 **Dividend/interest as income** — manual capture: source + reinvested-vs-cash; reinvest grows position.
+- [x] 🟢 **Phase A — foundation** — cash sleeve on accounts; transaction ledger
+  (OPENING/BUY/SELL/DEPOSIT/WITHDRAWAL/TRANSFER/DIVIDEND, FIFO sells); instrument eligibility (529 fix);
+  record-transaction sheet + activity history (auditability); flows to NW/Retire via balance recompute.
+- [x] 🟢 **Refresh-on-open** — throttled price refresh when NW/Retirement open (live everywhere).
+- [ ] 🔵 **Dividend/interest → Income module** — ledger captures the cash effect; still need to surface it as income (source + reinvest already in ledger).
 - [ ] 🔵 **Income manager screen** — review/add/edit ALL income sources from Home (#4).
 - [ ] 🔵 **Phase B — Bond management** — coupon/maturity/yield + coupon income.
 - [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
