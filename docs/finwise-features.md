@@ -302,6 +302,6 @@
 - [x] 🟢 **50yo: decumulation/drawdown** — drawdown view: net withdrawal + rate vs 4%, depletion age, tax-bucket split, withdrawal order, RMDs (73), healthcare note. *(Deeper tax-awareness — Roth conversions, cap gains, catch-up — still open.)*
 - [ ] 🔵 **Bank/brokerage linking (Plaid)** — biggest stickiness lever for BOTH; manual entry doesn't scale.
 - [ ] ⚪ **Lighter "new investor" onboarding** (no lots/cost-basis required to start).
-- [ ] ⚪ **Deeper tax-awareness:** Roth-vs-trad, capital gains, 50+ catch-up contributions, Roth conversions.
+- [x] 🟢 **Tax-awareness v1:** contribution headroom + 50+ catch-up (401k/IRA/HSA), Roth-vs-Traditional lean, Roth-conversion-window insight. *(Capital-gains harvesting + full Roth-conversion modeling still open.)*
 - [ ] ⚪ **Accessibility / large-text mode** — many 10–11px captions; tight tap targets.
 - [ ] ⚪ **Life-stage gaps:** 529 college planning, life/long-term-care insurance, estate/legacy.
