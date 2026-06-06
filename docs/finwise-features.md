@@ -257,7 +257,7 @@
 - [x] 🟢 **Dividend/interest → Income module** — investmentIncomeAnnual() sums trailing cash payouts (reinvested excluded) and surfaces them in the income manager.
 - [x] 🟢 **Income manager screen** — see/add/edit ALL income sources (salary/bonus/equity/rental/one-off/investment) from Home → take-home sheet → "See & edit all your income sources".
 - [x] 🟢 **Phase B — Bond management** — individual bonds (face/coupon/maturity), coupon income → income, metrics (yield/YTM), counts in NW. Bonds screen launched from Net Worth.
-- [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
+- [x] 🟢 **Phase C — Other investments** — crypto/PE/hedge/commodities/annuities at manual value; summary (value, % of investable, expected return, est growth); launched from Net Worth. 3-service vision complete.
 - [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
 - [x] 🟢 **Attribution** — "what drove your {period}": per-holding contribution (weight × return), winners/detractors.
 - [x] 🟢 **Allocation view** — mix by asset class + cash (bar + per-class value/%).
