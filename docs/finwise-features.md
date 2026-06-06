@@ -289,3 +289,12 @@
 ### Phase 2 (personas / stickiness)
 - [ ] ⚪ **Gen-Z motivational framing** + app-wide **Simple Mode**.
 - [ ] ⚪ **"Sharpen your plan" dashboard** — complete onboarding steps skipped earlier.
+
+### From the 30yo / 50yo design review (2026-06-05)
+- [ ] 🔵 **Persona-adaptive home emphasis** — 30yo → goals/debt foregrounded; 50yo → retirement/drawdown/portfolio. Same app, different weighting.
+- [ ] 🔵 **Simple mode vs Advisor mode** — resolves jargon-vs-depth + mascot/streaks tone mismatch for older users.
+- [ ] 🔵 **Bank/brokerage linking (Plaid)** — biggest stickiness lever for BOTH personas; manual entry doesn't scale.
+- [ ] 🔵 **30yo: debt-payoff plan** (avalanche/snowball) + stronger **goals/savings** (emergency fund, house down payment) + **lighter "new investor" path** (no lots/cost-basis required to start).
+- [ ] 🔵 **50yo: decumulation/drawdown** (withdrawal order, Social Security timing, RMDs, healthcare/Medicare) — their #1 need; **tax-awareness** (Roth vs trad, cap gains, 50+ catch-up contributions).
+- [ ] ⚪ **Accessibility / large-text mode** — many 10–11px captions; tight tap targets.
+- [ ] ⚪ **Life-stage gaps:** 529 college planning, life/long-term-care insurance, estate/legacy.
