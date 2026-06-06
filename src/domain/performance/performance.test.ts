@@ -1,6 +1,7 @@
 import {
   costBasis, totalShares, avgCost, marketValue, unrealizedGain, totalROI,
   periodReturn, latestClose, buildPerformance, portfolioPeriodReturn, benchmarkTicker,
+  attribution, allocation,
   type Position, type PriceSeries,
 } from './index';
 
@@ -80,5 +81,37 @@ describe('performance — table + benchmark comparison', () => {
   test('portfolio period return is value-weighted', () => {
     const rows = buildPerformance(positions, priceOf, '1Y', now);
     expect(portfolioPeriodReturn(rows)).toBeCloseTo(0.20, 4);
+  });
+});
+
+describe('performance — attribution + allocation', () => {
+  const now = new Date('2025-06-01');
+  const prices: Record<string, PriceSeries> = {
+    AAPL: series('AAPL', [['2024-06-01', 100], ['2025-06-01', 130]]),  // +30%
+    BND: series('BND', [['2024-06-01', 100], ['2025-06-01', 95]]),     // −5%
+    SPY: series('SPY', [['2024-06-01', 100], ['2025-06-01', 110]]),
+    AGG: series('AGG', [['2024-06-01', 100], ['2025-06-01', 100]]),
+  };
+  const priceOf = (t: string) => prices[t];
+  const positions = [
+    pos('AAPL', 'stocks_etf', [[30, 50, '2023-01-01']]),   // 30×130 = 3900 mkt
+    pos('BND', 'fixed_income', [[10, 100, '2023-01-01']]), // 10×95  = 950 mkt
+  ];
+  const rows = buildPerformance(positions, priceOf, '1Y', now);
+
+  test('attribution: AAPL is the top contributor, BND a detractor; sums ~ portfolio return', () => {
+    const a = attribution(rows);
+    expect(a[0].position.ticker).toBe('AAPL');
+    expect(a[a.length - 1].position.ticker).toBe('BND');
+    expect(a[a.length - 1].contribution).toBeLessThan(0);
+    const sum = a.reduce((t, x) => t + x.contribution, 0);
+    expect(sum).toBeCloseTo(portfolioPeriodReturn(rows) as number, 3);
+  });
+
+  test('allocation: by kind + cash, percentages of total', () => {
+    const slices = allocation(rows, 1450);              // 3900 + 950 + 1450 = 6300
+    const cash = slices.find((s) => s.key === 'cash')!;
+    expect(cash.pct).toBeCloseTo(23.0, 1);
+    expect(slices.reduce((t, s) => t + s.pct, 0)).toBeCloseTo(100, 0);
   });
 });

@@ -8,7 +8,7 @@ import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
-  PERIODS, type Period, type Position, type Lot,
+  attribution, allocation, PERIODS, type Period, type Position, type Lot,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 
@@ -44,6 +44,10 @@ export default function PerformanceScreen() {
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
+  const attr = useMemo(() => attribution(rows), [rows]);
+  const alloc = useMemo(() => allocation(rows, cashTotal), [rows, cashTotal]);
+  const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
+  const ALLOC_COLORS = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'];
 
   const refresh = async () => { setLoading(true); try { await store.refreshPrices(); } finally { setLoading(false); } };
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
@@ -115,6 +119,39 @@ export default function PerformanceScreen() {
               <TouchableOpacity onPress={() => setHistoryOpen(true)}><Text style={styles.addLink}>Activity ›</Text></TouchableOpacity>
             </View>
           </View>
+
+          {/* ATTRIBUTION — what drove the period return */}
+          {attr.length > 1 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>What drove your {period}</Text>
+              {attr.map((x) => (
+                <View key={x.position.position_id} style={styles.attrRow}>
+                  <Text style={styles.attrName} numberOfLines={1}>{x.position.ticker}</Text>
+                  <Text style={styles.attrWt}>{Math.round(x.weight * 100)}%</Text>
+                  <Text style={[styles.attrPts, { color: x.contribution >= 0 ? Colors.primary : Colors.red }]}>{x.contribution >= 0 ? '+' : ''}{(x.contribution * 100).toFixed(1)} pts</Text>
+                </View>
+              ))}
+              <Text style={styles.tinyFoot}>Each holding's share of your {period} return (weight × its return).</Text>
+            </View>
+          )}
+
+          {/* ALLOCATION — current mix */}
+          {alloc.length > 0 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Allocation</Text>
+              <View style={styles.allocBar}>
+                {alloc.map((s, i) => <View key={s.key} style={{ width: `${s.pct}%`, backgroundColor: ALLOC_COLORS[i % ALLOC_COLORS.length] }} />)}
+              </View>
+              {alloc.map((s, i) => (
+                <View key={s.key} style={styles.allocRow}>
+                  <View style={[styles.allocDot, { backgroundColor: ALLOC_COLORS[i % ALLOC_COLORS.length] }]} />
+                  <Text style={styles.allocName} numberOfLines={1}>{allocLabel(s.key)}</Text>
+                  <Text style={styles.allocVal}>{money(s.value)}</Text>
+                  <Text style={styles.allocPct}>{s.pct}%</Text>
+                </View>
+              ))}
+            </View>
+          )}
 
           <Text style={styles.foot}>
             Values are end-of-day from a free market-data source{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}.
@@ -465,6 +502,18 @@ const styles = StyleSheet.create({
   cellB: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
+  cardTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  attrRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  attrName: { flex: 1, fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  attrWt: { width: 44, textAlign: 'right', fontSize: 12, color: Colors.textTertiary },
+  attrPts: { width: 70, textAlign: 'right', fontSize: 13.5, fontWeight: '800' },
+  tinyFoot: { fontSize: 10.5, color: Colors.textTertiary, marginTop: 8 },
+  allocBar: { flexDirection: 'row', height: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: Colors.bgTertiary, marginBottom: 10 },
+  allocRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  allocDot: { width: 10, height: 10, borderRadius: 3 },
+  allocName: { flex: 1, fontSize: 13, color: Colors.textPrimary },
+  allocVal: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  allocPct: { width: 48, textAlign: 'right', fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
   foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
   applyBtn2: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 12 },
   hEmpty: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', paddingVertical: 24 },

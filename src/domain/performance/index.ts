@@ -149,6 +149,29 @@ export function buildPerformance(
   });
 }
 
+/** Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
+ *  The contributions sum (approx) to the portfolio return; sorted best→worst for winners/detractors. */
+export function attribution(rows: PerformanceRow[]): { position: Position; contribution: number; weight: number }[] {
+  const total = rows.reduce((t, r) => t + r.marketValue, 0);
+  if (total <= 0) return [];
+  return rows
+    .filter((r) => r.periodReturn != null && r.marketValue > 0)
+    .map((r) => ({ position: r.position, weight: r.marketValue / total, contribution: Math.round((r.marketValue / total) * (r.periodReturn as number) * 1e4) / 1e4 }))
+    .sort((a, b) => b.contribution - a.contribution);
+}
+
+/** Current allocation by asset kind (+ a cash slice), as value + % of the portfolio. */
+export interface AllocSlice { key: string; value: number; pct: number; }
+export function allocation(rows: PerformanceRow[], cash = 0): AllocSlice[] {
+  const byKind: Record<string, number> = {};
+  rows.forEach((r) => { const k = r.position.kind ?? 'other_asset'; byKind[k] = (byKind[k] || 0) + r.marketValue; });
+  const total = Object.values(byKind).reduce((t, v) => t + v, 0) + Math.max(0, cash);
+  if (total <= 0) return [];
+  const slices: AllocSlice[] = Object.entries(byKind).map(([key, v]) => ({ key, value: round2(v), pct: Math.round((v / total) * 1000) / 10 }));
+  if (cash > 0) slices.push({ key: 'cash', value: round2(cash), pct: Math.round((cash / total) * 1000) / 10 });
+  return slices.sort((a, b) => b.value - a.value);
+}
+
 /** Value-weighted portfolio period return across holdings that have one (decimal), or null. */
 export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
   const usable = rows.filter((r) => r.periodReturn != null && r.marketValue > 0);
