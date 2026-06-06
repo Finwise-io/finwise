@@ -249,8 +249,8 @@
   (OPENING/BUY/SELL/DEPOSIT/WITHDRAWAL/TRANSFER/DIVIDEND, FIFO sells); instrument eligibility (529 fix);
   record-transaction sheet + activity history (auditability); flows to NW/Retire via balance recompute.
 - [x] 🟢 **Refresh-on-open** — throttled price refresh when NW/Retirement open (live everywhere).
-- [ ] 🔵 **Dividend/interest → Income module** — ledger captures the cash effect; still need to surface it as income (source + reinvest already in ledger).
-- [ ] 🔵 **Income manager screen** — review/add/edit ALL income sources from Home (#4).
+- [x] 🟢 **Dividend/interest → Income module** — investmentIncomeAnnual() sums trailing cash payouts (reinvested excluded) and surfaces them in the income manager.
+- [x] 🟢 **Income manager screen** — see/add/edit ALL income sources (salary/bonus/equity/rental/one-off/investment) from Home → take-home sheet → "See & edit all your income sources".
 - [ ] 🔵 **Phase B — Bond management** — coupon/maturity/yield + coupon income.
 - [ ] ⚪ **Phase C — Other investments** — crypto/PE/commodities/REIT/annuity.
 - [ ] ⚪ **Auto-derive dividends from ticker** (Yahoo yield/events).
