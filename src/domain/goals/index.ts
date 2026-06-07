@@ -63,3 +63,22 @@ export function goalsFromOnboarding(uid: UserId, op: Record<string, any> | null)
 const COLLECTION = 'goals_v2';
 export async function loadGoals(uid: UserId) { return getUserDoc<GoalsDoc>(COLLECTION, uid); }
 export async function saveGoals(d: GoalsDoc) { await setUserDoc(COLLECTION, d.user_id, d); }
+
+// ── Smarter savings: capacity is lumpy (some months free up far more than others) ──
+export interface SaveCapacity { avg: number; min: number; max: number; lumpy: boolean; }
+/** Summarize per-month available-to-save from a 12-month cash-flow grid. */
+export function availableToSaveSummary(grid: { label: string; amount: number }[]): SaveCapacity {
+  const amts = (grid ?? []).map((g) => g.amount);
+  if (!amts.length) return { avg: 0, min: 0, max: 0, lumpy: false };
+  const avg = Math.round(amts.reduce((t, a) => t + a, 0) / amts.length);
+  const min = Math.round(Math.min(...amts));
+  const max = Math.round(Math.max(...amts));
+  return { avg, min, max, lumpy: max - min > Math.max(50, avg * 0.25) };   // meaningfully uneven
+}
+
+/** A sinking-fund suggestion for non-monthly costs (travel, gifts, repairs): save 1/12 each month. */
+export interface SinkingFund { annual: number; monthly: number; }
+export function sinkingFund(monthlyNonMonthly: number): SinkingFund {
+  const monthly = Math.max(0, Math.round(monthlyNonMonthly));
+  return { annual: monthly * 12, monthly };
+}

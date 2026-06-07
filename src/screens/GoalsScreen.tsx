@@ -7,6 +7,9 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, type PayoffMethod, type Debt } from '../domain/debt';
+import { availableToSaveSummary, sinkingFund } from '../domain/goals';
+import { incomeMonthlyGrid } from '../domain/income';
+import { spendBuckets } from '../domain/budget';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -21,6 +24,10 @@ export default function GoalsScreen() {
   const [method, setMethod] = useState<PayoffMethod>('avalanche');
   const [extra, setExtra] = useState('');
 
+  const op = store.onboardingProfile ?? {};
+  const capacity = useMemo(() => availableToSaveSummary(incomeMonthlyGrid(op, 'available')), [op]);
+  const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
+  const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
   const plan = useMemo(() => payoffPlan(liabilities, num(extra), method), [liabilities, extra, method]);
   const planMin = useMemo(() => payoffPlan(liabilities, 0, method), [liabilities, method]);
@@ -31,8 +38,25 @@ export default function GoalsScreen() {
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Goals & Debt</Text>
 
+      {/* WHAT YOU CAN SAVE */}
+      {capacity.avg > 0 && (
+        <View style={styles.capCard}>
+          <Text style={styles.capVal}>{money(capacity.avg)}/mo</Text>
+          <Text style={styles.capLab}>typical free cash to save{capacity.lumpy ? ` · ranges ${money(capacity.min)}–${money(capacity.max)} (some months free up more)` : ''}</Text>
+        </View>
+      )}
+
       {/* GOALS */}
       <Text style={styles.section}>YOUR GOALS</Text>
+      {sink.monthly > 0 && !hasSinkingGoal && (
+        <View style={styles.suggestCard}>
+          <Text style={styles.suggestTitle}>💡 Suggested: a sinking fund</Text>
+          <Text style={styles.suggestSub}>Your non-monthly costs (travel, gifts, repairs) run ~{money(sink.annual)}/yr. Save {money(sink.monthly)}/mo into a fund so they never blow the budget.</Text>
+          <TouchableOpacity onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
+            <Text style={styles.suggestCta}>Create this goal ›</Text>
+          </TouchableOpacity>
+        </View>
+      )}
       {goals.length === 0 && (
         <View style={styles.card}><Text style={styles.empty}>No goals yet. Save toward what matters — an emergency fund, a home, a trip.</Text></View>
       )}
@@ -153,6 +177,13 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
+  capCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 14 },
+  capVal: { fontSize: 22, fontWeight: '800', color: Colors.primaryDark },
+  capLab: { fontSize: 12, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },
+  suggestCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10, borderWidth: 1, borderColor: Colors.border },
+  suggestTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  suggestSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 4, lineHeight: 17 },
+  suggestCta: { fontSize: 13.5, fontWeight: '800', color: Colors.primary, marginTop: 8 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
   goalHead: { flexDirection: 'row', alignItems: 'center', gap: 8 },
