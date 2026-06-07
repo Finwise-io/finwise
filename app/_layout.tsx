@@ -41,7 +41,7 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale, fontScale } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale, fontScale, displayMode } = useStore() as any;
   setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
   // Keep the app-wide money formatter in sync with the (persisted / cloud-loaded) region.
   // Done in render so children format with the right currency on the same pass it changes.
@@ -135,6 +135,7 @@ export default function RootLayout() {
         <ErrorBoundary>
         <StatusBar style="dark" />
         <Stack
+          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size or display mode changes so it applies everywhere live */
           screenOptions={{
             headerStyle: { backgroundColor: Colors.bgSecondary },
             headerShadowVisible: false,

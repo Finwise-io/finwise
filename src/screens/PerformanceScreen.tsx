@@ -21,6 +21,7 @@ const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !A
 
 export default function PerformanceScreen() {
   const store = useStore() as any;
+  const simple = (store.displayMode ?? 'simple') === 'simple';   // Simple hides technical detail; Advisor shows it
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const priceCache = store.priceCache ?? {};
   const [period, setPeriod] = useState<Period>('1Y');
@@ -104,7 +105,7 @@ export default function PerformanceScreen() {
                 <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>Your portfolio</Text></View>
                 <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.textTertiary }]} /><Text style={styles.legT}>S&P 500 (same start)</Text></View>
               </View>
-              <Text style={styles.tinyFoot}>Based on your current holdings across the period (ignores past buys/sells).</Text>
+              {!simple && <Text style={styles.tinyFoot}>Based on your current holdings across the period (ignores past buys/sells).</Text>}
             </View>
           )}
 
@@ -124,7 +125,7 @@ export default function PerformanceScreen() {
                     <Text style={styles.hSub} numberOfLines={1}>
                       {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position)} sh`}
                       {r.totalROI != null ? ` · ${pct(r.totalROI)} since buy` : ''}
-                      {` · vs ${r.benchTicker}`}
+                      {!simple ? ` · vs ${r.benchTicker}` : ''}
                     </Text>
                   </View>
                   <Text style={[styles.col, styles.cellV, r.periodReturn != null && { color: r.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(r.periodReturn)}</Text>
@@ -146,11 +147,11 @@ export default function PerformanceScreen() {
               {attr.map((x) => (
                 <View key={x.position.position_id} style={styles.attrRow}>
                   <Text style={styles.attrName} numberOfLines={1}>{x.position.ticker}</Text>
-                  <Text style={styles.attrWt}>{Math.round(x.weight * 100)}%</Text>
+                  {!simple && <Text style={styles.attrWt}>{Math.round(x.weight * 100)}%</Text>}
                   <Text style={[styles.attrPts, { color: x.contribution >= 0 ? Colors.primary : Colors.red }]}>{x.contribution >= 0 ? '+' : ''}{(x.contribution * 100).toFixed(1)} pts</Text>
                 </View>
               ))}
-              <Text style={styles.tinyFoot}>Each holding's share of your {period} return (weight × its return).</Text>
+              {!simple && <Text style={styles.tinyFoot}>Each holding's share of your {period} return (weight × its return).</Text>}
             </View>
           )}
 
@@ -172,10 +173,12 @@ export default function PerformanceScreen() {
             </View>
           )}
 
-          <Text style={styles.foot}>
-            Values are end-of-day from a free market-data source{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}.
-            “Your {period}” is the holding's price return over the period; benchmark is the matching index over the SAME period — so the comparison is like-for-like. Past performance isn't a guarantee.
-          </Text>
+          {simple
+            ? <Text style={styles.foot}>End-of-day prices. Past performance isn't a guarantee.</Text>
+            : <Text style={styles.foot}>
+                Values are end-of-day from a free market-data source{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}.
+                “Your {period}” is the holding's price return over the period; benchmark is the matching index over the SAME period — so the comparison is like-for-like. Past performance isn't a guarantee.
+              </Text>}
         </>
       )}
 
