@@ -178,7 +178,7 @@
   - *Use:* "You keep $72 of every $100 you earn."
 - [x] 🟢 **AI expense tips** — Claude-generated suggestions from spending patterns.
   - *Use:* "Dining is 22% of spend — here's a target."
-- [ ] 🔵 **Centralized insight service** — Rules/data-driven engine that ranks insights by relevance instead of hardcoding per screen.
+- [x] 🟢 **Centralized insight service** — buildInsights() rules engine (9 rules, ranked P1→P3); Insights screen + Home top-2.
   - *Use:* The most relevant nudge surfaces first, consistently app-wide.
 
 ## 10. Foundations (i18n, Security, Data)
@@ -280,7 +280,7 @@
 - [ ] ⚪ **Full string internationalization** (translate copy, not just numbers).
 
 ### Insights & Intelligence
-- [ ] 🔵 **Centralized insight service** — rank insights by relevance instead of hardcoding per screen.
+- [x] 🟢 **Centralized insight service** — shipped (9-rule ranked engine + Insights screen + Home top-2).
 - [ ] ⚪ **Plaid bank linking** — auto-pull balances/transactions.
 
 ### Home, Nav & Polish
