@@ -151,9 +151,9 @@
   - *Use:* Save for a $30k down payment with a progress ring.
 - [x] 🟢 **Goal contribution waterfall (engine)** — Allocates available cash across goals by priority.
   - *Use:* Fund emergency fund first, then vacation, with what's left.
-- [ ] 🔵 **Per-month available-to-save** — Use lumpy monthly cash flow (not annual ÷ 12) to drive savings capacity.
+- [x] 🟢 **Per-month available-to-save** — "What you can save" card on Goals (avg + lumpy range from the cash-flow grid).
   - *Use:* Save more in bonus months, less in tight ones.
-- [ ] 🔵 **Non-monthly → sinking-fund goals** — Auto-create save-by-date goals from non-monthly categories (needs target dates).
+- [x] 🟢 **Non-monthly → sinking-fund goals** — one-tap "sinking fund" suggestion from non-monthly costs (~1/12 a month).
   - *Use:* "$5,000 for travel by July" → required $X/mo set-aside.
 - [ ] ⚪ **Goal target dates picker** — Month/year picker per goal to back-calc the monthly amount.
   - *Use:* Set "new car by Dec 2027" and get the monthly number.
@@ -271,8 +271,8 @@
 
 ### Goals & Savings
 - [ ] 🔵 **Savings goals full UI** — finish the waterfall-backed goals screen.
-- [ ] 🔵 **Per-month available-to-save** — use lumpy monthly cash flow, not annual ÷ 12.
-- [ ] 🔵 **Non-monthly → sinking-fund goals** — auto-create save-by-date goals (needs target dates).
+- [x] 🟢 **Per-month available-to-save** — "What you can save" card on Goals (avg + lumpy range from the cash-flow grid).
+- [x] 🟢 **Non-monthly → sinking-fund goals** — one-tap "sinking fund" suggestion from non-monthly costs (~1/12 a month).
 - [ ] ⚪ **Goal target-date picker.**
 
 ### Foundations & i18n
