@@ -16,6 +16,7 @@ import { totalDebtMonthly, requiredPayment, buildDebtState } from '../domain/deb
 import { buildNetWorth } from '../domain/networth';
 import { pickReceipt, ocrReceipt, ocrAvailable } from '../services/receiptScan';
 import { usePlanCompleteness } from './SharpenPlanScreen';
+import { useInsights } from './InsightsScreen';
 
 const BUCKET_META: Record<string, { title: string; color: string }> = {
   fixed: { title: 'Fixed', color: Colors.blue },
@@ -28,6 +29,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 export default function HomeScreen() {
   const router = useRouter();
   const sharpen = usePlanCompleteness();
+  const topInsights = useInsights(2);
   const store = useStore() as any;
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
@@ -234,6 +236,25 @@ export default function HomeScreen() {
             </View>
             <Text style={styles.focusArrow}>›</Text>
           </TouchableOpacity>
+        )}
+
+        {/* insights for you (top 2) */}
+        {topInsights.length > 0 && (
+          <View style={styles.insightsBlock}>
+            <View style={styles.insightsHead}>
+              <Text style={styles.insightsTitle}>Insights for you</Text>
+              <TouchableOpacity onPress={() => router.push('/insights')}><Text style={styles.insightsAll}>See all ›</Text></TouchableOpacity>
+            </View>
+            {topInsights.map((i) => (
+              <TouchableOpacity key={i.id} style={styles.insightRow} activeOpacity={0.85} onPress={() => i.route && router.push(i.route as any)}>
+                <Text style={styles.insightIcon}>{i.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.insightTitle}>{i.title}</Text>
+                  <Text style={styles.insightBody} numberOfLines={2}>{i.body}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
         )}
 
         {/* month switcher */}
@@ -883,6 +904,14 @@ const styles = StyleSheet.create({
   sharpenSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 2 },
   sharpenBar: { height: 6, borderRadius: 3, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   sharpenFill: { height: 6, borderRadius: 3, backgroundColor: Colors.primary },
+  insightsBlock: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  insightsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
+  insightsTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  insightsAll: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+  insightRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 8, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
+  insightIcon: { fontSize: 18 },
+  insightTitle: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  insightBody: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 15 },
 });
 
 const sh = StyleSheet.create({
