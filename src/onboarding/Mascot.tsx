@@ -11,10 +11,25 @@ type Mood = 'happy' | 'cool' | 'celebrate';
 // Accessories that should put the coin in shades 😎
 const COOL = new Set(['🏖️', '🛟', '🌴', '✈️']);
 
+// Linear-interpolate two hex colors (0 = a, 1 = b).
+function lerpHex(a: string, b: string, t: number): string {
+  const x = Math.max(0, Math.min(1, t));
+  const pa = [1, 3, 5].map((i) => parseInt(a.slice(i, i + 2), 16));
+  const pb = [1, 3, 5].map((i) => parseInt(b.slice(i, i + 2), 16));
+  const c = pa.map((v, i) => Math.round(v + (pb[i] - v) * x).toString(16).padStart(2, '0'));
+  return `#${c.join('')}`;
+}
+
 export default function Mascot({
-  accessory, size = 96, mood,
-}: { accessory?: string; size?: number; mood?: Mood }) {
-  const resolvedMood: Mood = mood ?? (accessory && COOL.has(accessory) ? 'cool' : 'happy');
+  accessory, size = 96, mood, progress = 1,
+}: { accessory?: string; size?: number; mood?: Mood; progress?: number }) {
+  // Centi warms up from a pale, neutral coin to a vibrant gold (and a bigger grin) as onboarding fills in.
+  const p = Math.max(0, Math.min(1, progress));
+  const coinTop = lerpHex('#E6E6DC', '#FBE08A', p);
+  const coinBottom = lerpHex('#C2C2B4', '#EBB23A', p);
+  const rimColor = lerpHex('#AEAEA2', '#D99A26', p);
+  const cheek = `rgba(232,90,90,${(0.12 + 0.23 * p).toFixed(2)})`;   // cheeks flush as it gets happier
+  const resolvedMood: Mood = mood ?? (accessory && COOL.has(accessory) ? 'cool' : p >= 0.99 ? 'celebrate' : 'happy');
 
   const bob = useRef(new Animated.Value(0)).current;
   const wiggle = useRef(new Animated.Value(0)).current;
@@ -69,18 +84,18 @@ export default function Mascot({
         <Svg width={size} height={size} viewBox="0 0 100 100">
           <Defs>
             <LinearGradient id="coin" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#FBE08A" />
-              <Stop offset="1" stopColor="#EBB23A" />
+              <Stop offset="0" stopColor={coinTop} />
+              <Stop offset="1" stopColor={coinBottom} />
             </LinearGradient>
           </Defs>
           {/* rim + body */}
-          <Circle cx="50" cy="52" r="40" fill="#D99A26" />
+          <Circle cx="50" cy="52" r="40" fill={rimColor} />
           <Circle cx="50" cy="52" r="35" fill="url(#coin)" />
           {/* shine */}
           <Ellipse cx="37" cy="36" rx="9" ry="6" fill="rgba(255,255,255,0.45)" />
           {/* cheeks */}
-          <Circle cx="33" cy="58" r="5" fill="rgba(232,90,90,0.35)" />
-          <Circle cx="67" cy="58" r="5" fill="rgba(232,90,90,0.35)" />
+          <Circle cx="33" cy="58" r="5" fill={cheek} />
+          <Circle cx="67" cy="58" r="5" fill={cheek} />
           {/* eyes */}
           {resolvedMood === 'cool' ? (
             <>
@@ -103,8 +118,8 @@ export default function Mascot({
             fill={resolvedMood === 'celebrate' ? '#7A1F1F' : 'none'}
           />
           {/* little feet */}
-          <Ellipse cx="40" cy="92" rx="7" ry="4" fill="#D99A26" />
-          <Ellipse cx="60" cy="92" rx="7" ry="4" fill="#D99A26" />
+          <Ellipse cx="40" cy="92" rx="7" ry="4" fill={rimColor} />
+          <Ellipse cx="60" cy="92" rx="7" ry="4" fill={rimColor} />
         </Svg>
       </Animated.View>
 

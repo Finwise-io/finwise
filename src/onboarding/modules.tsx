@@ -37,10 +37,14 @@ function fmtMonthYear(v?: string): string {
 }
 
 // ── reusable inputs ─────────────────────────────────────────────────────────
+// Onboarding progress (0-1), set by OnboardingScreen each render so Centi (in Header) can warm up.
+let _onbProgress = 1;
+export function setOnboardingProgress(p: number) { _onbProgress = Math.max(0, Math.min(1, p)); }
+export function onbProgress() { return _onbProgress; }
 function Header({ emoji, title, sub }: { emoji: string; title: string; sub?: string }) {
   return (
     <View style={s.head}>
-      <Mascot accessory={emoji} size={88} />
+      <Mascot accessory={emoji} size={88} progress={_onbProgress} />
       <Text style={s.title}>{title}</Text>
       {!!sub && <Text style={s.sub}>{sub}</Text>}
     </View>

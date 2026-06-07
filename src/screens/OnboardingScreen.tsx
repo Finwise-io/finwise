@@ -9,7 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import {
   Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional,
 } from '../onboarding/engine';
-import { renderStep, stepValid, StepCtx } from '../onboarding/modules';
+import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
 import { registerUser, loginUser } from '../services/firebase';
@@ -47,6 +47,7 @@ export default function OnboardingScreen() {
   const current = steps[Math.min(stepIndex, steps.length - 1)];
   const totalSteps = steps.length;
   const progress = totalSteps > 1 ? (stepIndex / (totalSteps - 1)) * 100 : 0;
+  setOnboardingProgress(progress / 100);   // Centi warms up neutral → happy as you advance
   const isLast = current === 'summary';
   const alreadyAuthed = !!store.user;
   const ctx: StepCtx = { status, tracks, answers, setAnswer };
@@ -283,7 +284,7 @@ export default function OnboardingScreen() {
 function Header({ emoji, title, sub }: { emoji: string; title: string; sub: string }) {
   return (
     <View style={styles.headWrap}>
-      <Mascot accessory={emoji} size={88} />
+      <Mascot accessory={emoji} size={88} progress={onbProgress()} />
       <Text style={styles.heading}>{title}</Text>
       {!!sub && <Text style={styles.sub}>{sub}</Text>}
     </View>
