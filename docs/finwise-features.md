@@ -47,7 +47,7 @@
   - *Use:* User reviews their income breakdown before moving on.
 - [x] 🟢 **Onboarding design standard** — Hero-amount inputs, segmented pills, green "smart insight" callouts applied to every amount screen.
   - *Use:* Salary screen shows tax-bracket insight as the user types.
-- [ ] 🔵 **"Sharpen your plan" dashboard** — A place to complete the optional steps the user skipped during onboarding.
+- [x] 🟢 **"Sharpen your plan" dashboard** — completeness checklist (income/accounts/spending/investments/retirement/goals) + score; Home nudge card; each item routes to its edit surface.
   - *Use:* User skipped debts at signup; later a card nudges them to add it.
 
 ## 2. Home / Dashboard
@@ -295,7 +295,7 @@
 
 ### Phase 2 (personas / stickiness)
 - [ ] ⚪ **Gen-Z motivational framing** + app-wide **Simple Mode**.
-- [ ] ⚪ **"Sharpen your plan" dashboard** — complete onboarding steps skipped earlier.
+- [x] 🟢 **"Sharpen your plan" dashboard** — shipped (completeness checklist + Home nudge).
 
 ### From the 30yo / 50yo design review (2026-06-05)
 - [x] 🟢 **Persona-adaptive home emphasis** — Home "Your focus" card adapts (building → goals/debt; preretiree/retired → retirement/portfolio). utils/persona.
