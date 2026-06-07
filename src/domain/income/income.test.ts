@@ -2,7 +2,7 @@ import {
   annualNet, grossAnnualBaseline, estimateEffectiveTaxRate, effectiveTaxRate,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
-import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome } from './onboarding';
+import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual } from './onboarding';
 import { grossFromNet, taxOwed } from './tax';
 import { IncomeSource } from './types';
 
@@ -140,6 +140,18 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(g[5].amount).toBe(3000);   // Jun (end month) — still paid
     expect(g[6].amount).toBe(0);      // Jul — job ended
     expect(g[11].amount).toBe(0);     // Dec — still ended
+  });
+
+  test('temporary job honors BOTH start and end dates (not just Jan→end)', () => {
+    const now = new Date(2026, 0, 1);
+    const op = { baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', jobType: 'temporary', jobStartDate: '2026-03', jobEndDate: '2026-09' };
+    const g = incomeMonthlyGrid(op, 'gross', now);
+    expect(g[0].amount).toBe(0);    // Jan — before it starts
+    expect(g[1].amount).toBe(0);    // Feb
+    expect(g[2].amount).toBe(3000); // Mar — starts
+    expect(g[8].amount).toBe(3000); // Sep — ends
+    expect(g[9].amount).toBe(0);    // Oct — after it ends
+    expect(salaryAnnual(op, now)).toBe(3000 * 7);   // Mar–Sep = 7 months, not a full year
   });
 
   test('multiple scholarships sum (non-taxable) into monthly income', () => {

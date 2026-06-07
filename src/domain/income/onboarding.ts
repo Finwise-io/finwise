@@ -173,20 +173,44 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
   return { user_id: uid, sources, tax };
 }
 
-/** Total annual income across every inflow (salary grossed-up + bonus + signing + equity + net rental
- *  + self-employment/investment/benefits/support/scholarship/other). Includes non-taxable income. */
-export function totalGrossAnnual(op: Record<string, any> | null): number {
+function parseYM(s: any): { y: number; m: number } | null {
+  const m = String(s ?? '').match(/(\d{4})-(\d{1,2})/);
+  return m ? { y: +m[1], m: +m[2] } : null;
+}
+/** Is the job active in calendar month i (0-11) of `now`'s year? Ongoing → always. Temporary →
+ *  within [start, end] (missing start = already started; missing end = still going). */
+export function jobActiveMonth(op: Record<string, any> | null, i: number, now: Date = new Date()): boolean {
+  const a = op ?? {};
+  if (a.jobType !== 'temporary') return true;
+  const cur = now.getFullYear() * 12 + i;
+  const start = parseYM(a.jobStartDate), end = parseYM(a.jobEndDate);
+  const startIdx = start ? start.y * 12 + (start.m - 1) : -Infinity;
+  const endIdx = end ? end.y * 12 + (end.m - 1) : Infinity;
+  return cur >= startIdx && cur <= endIdx;
+}
+/** How many months of `now`'s calendar year the job is active (12 for an ongoing job). */
+export function salaryActiveMonths(op: Record<string, any> | null, now: Date = new Date()): number {
+  let n = 0; for (let i = 0; i < 12; i++) if (jobActiveMonth(op, i, now)) n++; return n;
+}
+/** Salary income for the calendar year, honoring a temporary job's active months. */
+export function salaryAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
+  return grossSalaryMonthly(op) * salaryActiveMonths(op, now);
+}
+
+/** Total annual income across every inflow (salary for months worked + bonus + signing + equity + net
+ *  rental + self-employment/investment/benefits/support/scholarship/other). Includes non-taxable income. */
+export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
-  return grossSalaryMonthly(op) * 12 + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+  return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
     + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan;
 }
 
 /** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
-export function taxableAnnual(op: Record<string, any> | null): number {
+export function taxableAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
-  return grossSalaryMonthly(op) * 12 + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+  return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
     + ex.taxableMonthly * 12 + ex.onetimeJan;
 }
 
@@ -205,17 +229,8 @@ export function effectiveRate(op: Record<string, any> | null): number {
 export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
   const a = op ?? {};
   const salaryM = grossSalaryMonthly(op);
-  // Short-term job: stop counting salary after its end month (within the displayed calendar year).
-  const endM = a.jobType === 'temporary' ? String(a.jobEndDate ?? '').match(/(\d{4})-(\d{1,2})/) : null;
-  const endYear = endM ? +endM[1] : null;
-  const endMonth = endM ? +endM[2] : null;   // 1-12
-  const curYear = now.getFullYear();
-  const salaryActive = (i: number) => {
-    if (endYear == null) return true;
-    if (endYear < curYear) return false;
-    if (endYear > curYear) return true;
-    return i + 1 <= (endMonth as number);    // active through the end month
-  };
+  // Temporary job: salary only counts in months between its start and end dates.
+  const salaryActive = (i: number) => jobActiveMonth(op, i, now);
   const rentalM = rentalNetAnnual(op) / 12;
   const bonus = toNum(a.bonusAnnual);
   const signing = toNum(a.signingOnetime);

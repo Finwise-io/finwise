@@ -5,7 +5,7 @@ import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
-import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome } from '../domain/income';
+import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths } from '../domain/income';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
@@ -488,10 +488,12 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const mode = a.salaryMode ?? 'gross';
       const FREQ_LABEL: Record<string, string> = { hourly: 'hour', weekly: 'week', biweekly: '2 weeks', monthly: 'month' };
       const freq = a.salaryFreq ?? 'monthly';
-      const annualEntered = annualizedEnteredSalary(a);     // what they typed, annualized
-      const annualGross = grossSalaryMonthly(a) * 12;        // grossed up if they entered net
-      const bracketPct = Math.round(marginalBracket(annualGross) * 100);
-      const effPct = Math.round(estimateEffectiveTaxRate(annualGross) * 100);
+      const annualEntered = annualizedEnteredSalary(a);     // what they typed, annualized (full year)
+      const temp = a.jobType === 'temporary';
+      const months = salaryActiveMonths(a);                 // months worked this calendar year
+      const periodGross = temp ? salaryAnnual(a) : grossSalaryMonthly(a) * 12;  // grossed-up, prorated for temp jobs
+      const bracketPct = Math.round(marginalBracket(periodGross) * 100);
+      const effPct = Math.round(estimateEffectiveTaxRate(periodGross) * 100);
       const hasAmt = num(a.baseSalary) > 0;
       const hrsWk = freq === 'hourly' ? (num(a.hoursPerWeek) || 40) : 0;
       return (<>
@@ -527,11 +529,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.label}>Is this job ongoing or temporary?</Text>
           <Segmented ctx={ctx} k="jobType" defaultValue="ongoing" options={[
             { value: 'ongoing', label: 'Ongoing' }, { value: 'temporary', label: 'Temporary' }]} />
-          {a.jobType === 'temporary' && (
+          {temp && (
             <>
-              <Text style={s.label}>When does it end?</Text>
-              <MonthYearCell value={a.jobEndDate} onChange={(v) => ctx.setAnswer('jobEndDate', v)} style={s.input} />
-              <Text style={s.hint}>We'll stop counting this income after that date in your projections.</Text>
+              <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.label}>Starts</Text>
+                  <MonthYearCell value={a.jobStartDate} onChange={(v) => ctx.setAnswer('jobStartDate', v)} style={s.input} />
+                </View>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.label}>Ends</Text>
+                  <MonthYearCell value={a.jobEndDate} onChange={(v) => ctx.setAnswer('jobEndDate', v)} style={s.input} />
+                </View>
+              </View>
+              <Text style={s.hint}>We'll only count this income for the months you actually work.</Text>
             </>
           )}
         </Card>
@@ -546,9 +556,11 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                   : `~${effPct}% effective rate · ${bracketPct}% bracket (${TAX_YEAR})`}
               </Text>
               <Text style={s.calloutSub}>
-                {mode === 'gross'
-                  ? `Annualized gross ${money(annualGross)}${hrsWk ? ` (${hrsWk} hrs/wk × 52)` : ''}`
-                  : `Take-home ${money(annualEntered)}/yr · gross ${money(annualGross)}/yr${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`}
+                {temp
+                  ? `≈ ${money(periodGross)} from this job this year (${months} month${months !== 1 ? 's' : ''})${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`
+                  : mode === 'gross'
+                    ? `Annualized gross ${money(periodGross)}${hrsWk ? ` (${hrsWk} hrs/wk × 52)` : ''}`
+                    : `Take-home ${money(annualEntered)}/yr · gross ${money(periodGross)}/yr${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`}
               </Text>
               <Text style={s.calloutSub}>Your effective rate is below your bracket thanks to the standard deduction and lower brackets on your first dollars.</Text>
             </View>
@@ -966,7 +978,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     : (a.scholarshipFreq === 'monthly' ? num(a.scholarshipAmount) * 12 : num(a.scholarshipAmount));
   // every source, annualized — listed so the line items visibly add up to the total
   const lines: { label: string; value: number; once?: boolean }[] = [
-    { label: 'Job (salary/wages)', value: grossSalaryMonthly(a) * 12 },
+    { label: 'Job (salary/wages)', value: salaryAnnual(a) },
     { label: 'Bonus', value: num(a.bonusAnnual) },
     { label: 'Signing bonus', value: num(a.signingOnetime), once: true },
     { label: 'Equity (vesting)', value: rsuAnnual(a) },
@@ -1069,7 +1081,14 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
           ))}
         </View>
       )}
-      <Text style={s.note2}>{modeLabel}. Salary is steady; bonus lands in December; signing bonus is one-time; equity follows your vesting months — so months vary (not just the yearly figure ÷ 12).</Text>
+      <Text style={s.note2}>{modeLabel}. {(() => {
+        const why: string[] = [];
+        if (num(a.bonusAnnual) > 0) why.push('a bonus lands in December');
+        if (num(a.signingOnetime) > 0 || ex.onetimeJan > 0) why.push('one-time payments land in their month');
+        if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
+        if (a.jobType === 'temporary') why.push('your job runs only part of the year');
+        return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';
+      })()}</Text>
     </Card>
   </>);
 }
