@@ -193,7 +193,7 @@
   - *Use:* "Gas spending is up 15% vs last quarter."
 - [~] 🟡 **Firestore security rules** — Per-user read/write rules written; must be deployed.
   - *Use:* A user can only ever read their own data. *(Run `firebase deploy --only firestore:rules`.)*
-- [ ] 🔵 **Encrypted local storage** — Move sensitive local data to expo-secure-store (currently plain JSON).
+- [x] 🟢 **Encrypted local storage** — AES-encrypted state at rest; key in SecureStore; legacy plaintext auto-migrates. (Keychain needs a dev-client rebuild; safe fallback until then.)
   - *Use:* Financial data on-device isn't readable in plaintext.
 
 ## 11. Engagement & Intelligence
@@ -245,7 +245,7 @@
 - [ ] 🚧 **Deploy Firestore security rules** — `firebase deploy --only firestore:rules` (written, not deployed).
 - [ ] 🚧 **App Store submission package** — screenshots (6.7"/6.5"), description, keywords, category.
 - [x] 🟢 **Email verification + forgot password** — forgot-password (reset email) + verify-email on register with Settings resend/recheck banner. (Confirm email delivery with a real account before submit.)
-- [ ] 🔵 **Encrypted local storage** — move sensitive data to expo-secure-store (currently plain JSON).
+- [x] 🟢 **Encrypted local storage** — shipped (AES at rest, key in SecureStore, plaintext migration).
 - [ ] 🔵 **Receipt OCR native rebuild** — `npx expo run:ios` to activate ML Kit, then test scan.
 
 ### Portfolio module — transaction ledger + 3 services (see docs/portfolio-module.md)
