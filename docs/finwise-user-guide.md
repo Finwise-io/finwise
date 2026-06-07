@@ -12,10 +12,19 @@ investments).
 
 ## 1. Getting started (Onboarding & Profile)
 
-1. **Adaptive sign-up wizard** — A one-question-at-a-time setup that changes based on who you are. If
-   you say you're retired it skips salary questions; if you pick "buy a home" it only asks what that
-   goal needs. *Test:* run through sign-up (or Settings → "Re-run setup wizard") and notice questions
-   adapt to your answers.
+1. **Adaptive sign-up wizard** — A one-question-at-a-time setup that changes based on who you are.
+   - **Employment status reshapes the goal list** on the next screen: *employed/partial/student* see
+     "Plan for retirement"; *retired/partial* see "Make my money last"; *retired* also see "Leave a
+     legacy"; *student* also see "Pay down student debt." The full goal options are: Track income &
+     spending · Track my investments · Save for big purchases & goals · (the retirement/legacy/debt ones
+     above) · Manage money with a partner · Manage money with family. **(There is no "buy a home"
+     option — the closest is "Save for big purchases & goals.")**
+   - **Status also changes what's asked next:** a retiree is asked about retirement income sources
+     instead of salary / 401(k) / bonus / RSU.
+   - **The goals you pick decide which later steps appear** (e.g. "Track my investments" adds investment
+     questions; "Pay down student debt" adds a debts step).
+   - *Test:* re-run setup, change the employment status, and watch the goal options change; then pick /
+     deselect goals and watch the remaining steps change.
 2. **The "aha" summary** — At the end of onboarding you see an animated count-up of your readiness
    score, a gauge, and a projected savings trajectory. *Test:* finish onboarding and watch the numbers
    animate in.
