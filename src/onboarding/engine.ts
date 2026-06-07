@@ -40,25 +40,26 @@ export const STATUS_OPTIONS: { value: Status; icon: string; title: string; sub: 
 ];
 
 export function goalOptionsFor(status: Status | null): { value: Track; icon: string; title: string }[] {
-  const core: { value: Track; icon: string; title: string }[] = [
-    { value: 'spend',  icon: '📊', title: 'Track income & spending' },
-    { value: 'invest', icon: '📈', title: 'Track my investments' },
-    { value: 'goals',  icon: '🎯', title: 'Save for big purchases & goals' },
-  ];
-  const retire: { value: Track; icon: string; title: string }[] = [];
-  if (status === 'employed' || status === 'partial' || status === 'student')
-    retire.push({ value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement / when can I retire' });
-  if (status === 'retired' || status === 'partial')
-    retire.push({ value: 'retire_dec', icon: '🛟', title: 'Make my money last' });
-  if (status === 'retired')
-    retire.push({ value: 'legacy', icon: '🎁', title: 'Leave a legacy / estate' });
-  if (status === 'student')
-    retire.push({ value: 'debt', icon: '🎓', title: 'Pay down student debt' });
-  const manage: { value: Track; icon: string; title: string }[] = [
-    { value: 'partner', icon: '👫',   title: 'Manage money with a partner' },
-    { value: 'family',  icon: '👨‍👩‍👧', title: 'Manage money with family' },
-  ];
-  return [...core, ...retire, ...manage];
+  // One definition per option…
+  const O: Record<Track, { value: Track; icon: string; title: string }> = {
+    spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending' },
+    goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals' },
+    invest:     { value: 'invest',     icon: '📈', title: 'Track my investments' },
+    retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement / when can I retire' },
+    retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last' },
+    legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave a legacy / estate' },
+    debt:       { value: 'debt',       icon: '🎓', title: 'Pay down student debt' },
+    partner:    { value: 'partner',    icon: '👫',   title: 'Manage money with a partner' },
+    family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Manage money with family' },
+  };
+  // …ordered most→least relevant for each life stage (only valid options per stage are listed).
+  const ORDER: Record<Status, Track[]> = {
+    student:  ['spend', 'goals', 'debt', 'invest', 'retire_acc', 'partner', 'family'],
+    employed: ['spend', 'retire_acc', 'invest', 'goals', 'partner', 'family'],
+    partial:  ['spend', 'retire_acc', 'retire_dec', 'invest', 'goals', 'partner', 'family'],
+    retired:  ['retire_dec', 'spend', 'invest', 'legacy', 'goals', 'partner', 'family'],
+  };
+  return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
 }
 
 // Optional (skippable) field steps — rendered with a "Skip for now".

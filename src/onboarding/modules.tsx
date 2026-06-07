@@ -351,6 +351,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const bracketPct = Math.round(marginalBracket(annualGross) * 100);
       const effPct = Math.round(estimateEffectiveTaxRate(annualGross) * 100);
       const hasAmt = num(a.baseSalary) > 0;
+      const hrsWk = freq === 'hourly' ? (num(a.hoursPerWeek) || 40) : 0;
       return (<>
         <Header emoji="💵" title="Your salary" sub="Enter gross or take-home — we handle the tax math." />
         <Card>
@@ -366,12 +367,31 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             { value: 'hourly', label: 'Hourly' }, { value: 'weekly', label: 'Weekly' },
             { value: 'biweekly', label: 'Bi-weekly' }, { value: 'monthly', label: 'Monthly' }]} />
 
+          {freq === 'hourly' && (
+            <>
+              <Text style={s.label}>Hours per week</Text>
+              <TextInput style={s.input} keyboardType="decimal-pad" placeholder="e.g. 20" placeholderTextColor={Colors.textTertiary}
+                value={a.hoursPerWeek ?? ''} onChangeText={(t) => ctx.setAnswer('hoursPerWeek', t)} />
+            </>
+          )}
+
           {/* hero amount */}
           <Text style={s.heroLabel}>Base salary (per {FREQ_LABEL[freq] ?? 'month'})</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.baseSalary ?? ''} onChangeText={(t) => ctx.setAnswer('baseSalary', t)} />
           <Segmented ctx={ctx} k="salaryMode" defaultValue="gross" options={[
             { value: 'gross', label: 'Gross' }, { value: 'takehome', label: 'Take-home' }]} />
+
+          <Text style={s.label}>Is this job ongoing or temporary?</Text>
+          <Segmented ctx={ctx} k="jobType" defaultValue="ongoing" options={[
+            { value: 'ongoing', label: 'Ongoing' }, { value: 'temporary', label: 'Temporary' }]} />
+          {a.jobType === 'temporary' && (
+            <>
+              <Text style={s.label}>When does it end?</Text>
+              <MonthYearCell value={a.jobEndDate} onChange={(v) => ctx.setAnswer('jobEndDate', v)} style={s.input} />
+              <Text style={s.hint}>We'll stop counting this income after that date in your projections.</Text>
+            </>
+          )}
         </Card>
 
         {hasAmt && (
@@ -385,8 +405,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               </Text>
               <Text style={s.calloutSub}>
                 {mode === 'gross'
-                  ? `Annualized gross ${money(annualGross)}`
-                  : `Take-home ${money(annualEntered)}/yr · gross ${money(annualGross)}/yr`}
+                  ? `Annualized gross ${money(annualGross)}${hrsWk ? ` (${hrsWk} hrs/wk × 52)` : ''}`
+                  : `Take-home ${money(annualEntered)}/yr · gross ${money(annualGross)}/yr${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`}
               </Text>
               <Text style={s.calloutSub}>Your effective rate is below your bracket thanks to the standard deduction and lower brackets on your first dollars.</Text>
             </View>
@@ -1344,6 +1364,7 @@ const s = StyleSheet.create({
   title: { fontSize: 23, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 14, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
   label: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6, marginTop: 4 },
+  hint: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   cap: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 16, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center' },

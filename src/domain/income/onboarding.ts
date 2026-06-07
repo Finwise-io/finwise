@@ -15,9 +15,17 @@ export const SALARY_PERIODS: Record<string, number> = {
   hourly: 2080, weekly: 52, biweekly: 26, monthly: 12, annually: 1,
 };
 
-/** Annual amount of what the user ENTERED (not grossed up) — for display. */
+/** Default weekly hours for an hourly worker when they haven't said otherwise. */
+export const DEFAULT_HOURS_PER_WEEK = 40;
+
+/** Annual amount of what the user ENTERED (not grossed up) — for display.
+ *  Hourly annualizes by the user's actual hours/week × 52 (no fixed 40h assumption). */
 export function annualizedEnteredSalary(op: Record<string, any> | null): number {
   const a = op ?? {};
+  if ((a.salaryFreq ?? 'monthly') === 'hourly') {
+    const hrs = toNum(a.hoursPerWeek) || DEFAULT_HOURS_PER_WEEK;
+    return toNum(a.baseSalary) * hrs * 52;
+  }
   return toNum(a.baseSalary) * (SALARY_PERIODS[a.salaryFreq] ?? 12);
 }
 
@@ -147,9 +155,20 @@ export function effectiveRate(op: Record<string, any> | null): number {
  *  signing bonus is one-time (January); equity is the level annual vesting spread across the
  *  month-of-year its vest dates fall on (so quarterly vesting shows up as quarterly spikes).
  *  mode: 'gross' (pre-tax), 'net' (after tax), or 'available' (net minus the locked 401(k)). */
-export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available'): { label: string; amount: number }[] {
+export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
   const a = op ?? {};
   const salaryM = grossSalaryMonthly(op);
+  // Short-term job: stop counting salary after its end month (within the displayed calendar year).
+  const endM = a.jobType === 'temporary' ? String(a.jobEndDate ?? '').match(/(\d{4})-(\d{1,2})/) : null;
+  const endYear = endM ? +endM[1] : null;
+  const endMonth = endM ? +endM[2] : null;   // 1-12
+  const curYear = now.getFullYear();
+  const salaryActive = (i: number) => {
+    if (endYear == null) return true;
+    if (endYear < curYear) return false;
+    if (endYear > curYear) return true;
+    return i + 1 <= (endMonth as number);    // active through the end month
+  };
   const rentalM = rentalNetAnnual(op) / 12;
   const bonus = toNum(a.bonusAnnual);
   const signing = toNum(a.signingOnetime);
@@ -173,7 +192,7 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
 
   return MONTH_ABBR.map((label, i) => {
-    let gross = salaryM + rentalM + equityByMonth[i];
+    let gross = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i];
     if (i === 11) gross += bonus;     // annual bonus → December
     if (i === 0) gross += signing;    // signing bonus → one-time, first month
     let amount = mode === 'gross' ? gross : gross * (1 - rate);

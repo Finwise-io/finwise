@@ -126,6 +126,22 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(avail[1].amount).toBe(6000 - 500);        // Feb, 0% tax: salary − 401k
   });
 
+  test('hourly annualizes by the entered hours/week, not a fixed 40', () => {
+    const at20 = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', hoursPerWeek: '20', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
+    expect(at20[0].amount).toBeCloseTo(20 * 20 * 52 / 12, 2);     // $20/hr × 20 hrs/wk
+    const at40 = incomeMonthlyGrid({ baseSalary: '20', salaryMode: 'gross', salaryFreq: 'hourly', taxMode: 'manual', manualTaxRate: '0' }, 'gross');
+    expect(at40[0].amount).toBeCloseTo(20 * 40 * 52 / 12, 2);     // defaults to 40 when blank
+  });
+
+  test('short-term job: salary stops after the end month within the year', () => {
+    const now = new Date(2026, 0, 1);   // local Jan 2026 (avoid UTC-parse timezone rollback)
+    const op = { baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', jobType: 'temporary', jobEndDate: '2026-06' };
+    const g = incomeMonthlyGrid(op, 'gross', now);
+    expect(g[5].amount).toBe(3000);   // Jun (end month) — still paid
+    expect(g[6].amount).toBe(0);      // Jul — job ended
+    expect(g[11].amount).toBe(0);     // Dec — still ended
+  });
+
   test('no income entered → no sources', () => {
     expect(incomeFromOnboarding('u1', {}).sources).toHaveLength(0);
   });
