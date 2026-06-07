@@ -7,7 +7,7 @@ export type Status = 'employed' | 'retired' | 'partial' | 'student';
 // Q2 service selections (tracks). Retirement/legacy/debt are stage-gated in Q2.
 export type Track =
   | 'spend' | 'invest' | 'goals' | 'partner' | 'family'
-  | 'retire_acc' | 'retire_dec' | 'legacy' | 'debt';
+  | 'retire_acc' | 'retire_dec' | 'legacy' | 'debt' | 'networth';
 
 // Field/step ids. Meta steps + per-field question steps + recaps + summary.
 export type StepId =
@@ -40,27 +40,59 @@ export const STATUS_OPTIONS: { value: Status; icon: string; title: string; sub: 
   { value: 'student',  icon: '🎓',   title: 'Student',            sub: 'Studying' },
 ];
 
-export function goalOptionsFor(status: Status | null): { value: Track; icon: string; title: string }[] {
-  // One definition per option…
-  const O: Record<Track, { value: Track; icon: string; title: string }> = {
-    spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending' },
-    goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals' },
-    invest:     { value: 'invest',     icon: '📈', title: 'Track my investments' },
-    retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement / when can I retire' },
-    retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last' },
-    legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave a legacy / estate' },
-    debt:       { value: 'debt',       icon: '🎓', title: 'Pay down student debt' },
-    partner:    { value: 'partner',    icon: '👫',   title: 'Manage money with a partner' },
-    family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Manage money with family' },
-  };
-  // …ordered most→least relevant for each life stage (only valid options per stage are listed).
-  const ORDER: Record<Status, Track[]> = {
-    student:  ['spend', 'goals', 'debt', 'invest', 'retire_acc', 'partner', 'family'],
-    employed: ['spend', 'retire_acc', 'invest', 'goals', 'partner', 'family'],
-    partial:  ['spend', 'retire_acc', 'retire_dec', 'invest', 'goals', 'partner', 'family'],
-    retired:  ['retire_dec', 'spend', 'invest', 'legacy', 'goals', 'partner', 'family'],
-  };
-  return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
+export interface GoalOption { value: Track; icon: string; title: string }
+export interface GoalGroup { title: string; items: GoalOption[] }
+
+// Plain-language option labels (one definition each).
+const GOAL_DEF: Record<Track, GoalOption> = {
+  spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending' },
+  debt:       { value: 'debt',       icon: '💳', title: 'Pay off my debt' },
+  goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals' },
+  invest:     { value: 'invest',     icon: '📈', title: 'Track my investments' },
+  networth:   { value: 'networth',   icon: '📊', title: 'See my net worth' },
+  retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement' },
+  retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last' },
+  legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave money to family or a cause' },
+  partner:    { value: 'partner',    icon: '👫',   title: 'Plan with a partner' },
+  family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Plan with family' },
+};
+
+// Which life stages each option is offered to (others are offered to everyone).
+const STAGE_ONLY: Partial<Record<Track, Status[]>> = {
+  retire_acc: ['employed', 'partial', 'student'],
+  retire_dec: ['retired', 'partial'],
+  legacy: ['retired'],
+};
+function validFor(track: Track, status: Status | null): boolean {
+  const only = STAGE_ONLY[track];
+  return !only || (status != null && only.includes(status));
+}
+
+// Themed sections; their order flexes by life stage (most relevant first).
+const SECTION_ITEMS: Record<string, Track[]> = {
+  'Manage money now': ['spend', 'goals', 'debt'],
+  'Grow & track':     ['invest', 'networth'],
+  'Plan ahead':       ['retire_acc', 'retire_dec', 'legacy'],
+  'With others':      ['partner', 'family'],
+};
+const SECTION_ORDER: Record<Status, string[]> = {
+  student:  ['Manage money now', 'Grow & track', 'Plan ahead', 'With others'],
+  employed: ['Manage money now', 'Plan ahead', 'Grow & track', 'With others'],
+  partial:  ['Manage money now', 'Plan ahead', 'Grow & track', 'With others'],
+  retired:  ['Plan ahead', 'Grow & track', 'Manage money now', 'With others'],
+};
+
+/** Grouped, stage-ordered goal sections (headers + selectable items) for the goals screen. */
+export function goalGroupsFor(status: Status | null): GoalGroup[] {
+  const order = SECTION_ORDER[status ?? 'employed'];
+  return order
+    .map((title) => ({ title, items: SECTION_ITEMS[title].filter((t) => validFor(t, status)).map((t) => GOAL_DEF[t]) }))
+    .filter((g) => g.items.length > 0);
+}
+
+/** Flat list of valid options for a stage (used for validation / filtering). */
+export function goalOptionsFor(status: Status | null): GoalOption[] {
+  return goalGroupsFor(status).flatMap((g) => g.items);
 }
 
 // Q "Where does your money come from?" — income sources the user can pick (multi-select). The chosen
@@ -135,7 +167,7 @@ const RECAP_OF: Partial<Record<Track, StepId>> = {
 
 // Service order for emission (so recaps land in a sensible sequence).
 const SERVICE_ORDER: Track[] = [
-  'spend', 'retire_acc', 'retire_dec', 'invest', 'goals', 'debt', 'legacy', 'partner', 'family',
+  'spend', 'retire_acc', 'retire_dec', 'invest', 'networth', 'goals', 'debt', 'legacy', 'partner', 'family',
 ];
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
@@ -168,6 +200,8 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
       return { must: hasSpend ? ['debts'] : ['debts', 'monthlySavingsCapacity'], optional: [] };
     case 'legacy':
       return { must: ['legacyTarget'], optional: [] };
+    case 'networth':
+      return { must: [], optional: [] };   // interest marker — net worth is built in-app from accounts + debts
   }
 }
 

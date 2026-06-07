@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { Button, Card, ProgressBar } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import {
-  Status, Track, STATUS_OPTIONS, goalOptionsFor, buildSteps, isOptional,
+  Status, Track, STATUS_OPTIONS, goalOptionsFor, goalGroupsFor, buildSteps, isOptional,
 } from '../onboarding/engine';
 import { renderStep, stepValid, StepCtx } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
@@ -165,22 +165,27 @@ export default function OnboardingScreen() {
     }
 
     if (current === 'goals') {
-      const opts = goalOptionsFor(status);
+      const groups = goalGroupsFor(status);
       return (
         <>
-          <Header emoji="🎯" title="What brings you to FinWise?" sub="Pick all that apply." />
-          {opts.map(opt => {
-            const on = tracks.includes(opt.value);
-            return (
-              <TouchableOpacity key={opt.value}
-                style={[styles.choice, on && styles.choiceOn]}
-                onPress={() => toggleTrack(opt.value)}>
-                <Text style={styles.choiceIcon}>{opt.icon}</Text>
-                <Text style={[styles.choiceTitle, { flex: 1 }, on && styles.choiceTitleOn]}>{opt.title}</Text>
-                <View style={[styles.check, on && styles.checkOn]}>{on && <Text style={styles.checkMark}>✓</Text>}</View>
-              </TouchableOpacity>
-            );
-          })}
+          <Header emoji="🎯" title="What brings you to FinWise?" sub="Pick anything that fits — you can change this later." />
+          {groups.map(group => (
+            <View key={group.title}>
+              <Text style={styles.groupHeader}>{group.title.toUpperCase()}</Text>
+              {group.items.map(opt => {
+                const on = tracks.includes(opt.value);
+                return (
+                  <TouchableOpacity key={opt.value}
+                    style={[styles.choice, on && styles.choiceOn]}
+                    onPress={() => toggleTrack(opt.value)}>
+                    <Text style={styles.choiceIcon}>{opt.icon}</Text>
+                    <Text style={[styles.choiceTitle, { flex: 1 }, on && styles.choiceTitleOn]}>{opt.title}</Text>
+                    <View style={[styles.check, on && styles.checkOn]}>{on && <Text style={styles.checkMark}>✓</Text>}</View>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          ))}
         </>
       );
     }
@@ -291,6 +296,7 @@ const styles = StyleSheet.create({
   headWrap: { alignItems: 'center', marginBottom: Spacing.lg },
   heading: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
+  groupHeader: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },
   choiceOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   choiceIcon: { fontSize: 24, marginRight: Spacing.md },
