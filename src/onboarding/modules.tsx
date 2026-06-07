@@ -5,7 +5,7 @@ import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
-import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid } from '../domain/income';
+import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome } from '../domain/income';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
@@ -274,19 +274,19 @@ function Bar({ aPct, color }: { aPct: number; color: string }) {
 }
 
 // ── recap math ──────────────────────────────────────────────────────────────
-// Total annual gross across every income source (salary grossed-up + bonus + RSUs + signing + net rental).
+// Total annual income across EVERY source (salary, bonus, RSUs, signing, rental, self-employment,
+// investment, benefits, support, scholarships, other). Includes non-taxable income.
 export function grossAnnual(a: Record<string, any>): number {
-  return grossSalaryMonthly(a) * 12 + num(a.bonusAnnual) + rsuAnnual(a)
-    + num(a.signingOnetime) + rentalNetAnnual(a);
+  return totalGrossAnnual(a);
 }
-// Effective tax rate in use: the user's own (manual) rate, else the IRS-schedule estimate.
+// Effective tax rate in use: the user's own (manual) rate, else the IRS-schedule estimate on TAXABLE income.
 export function incomeTaxRate(a: Record<string, any>): number {
-  return a.taxMode === 'manual' ? num(a.manualTaxRate) / 100 : estimateEffectiveTaxRate(grossAnnual(a));
+  return a.taxMode === 'manual' ? num(a.manualTaxRate) / 100 : estimateEffectiveTaxRate(taxableAnnual(a));
 }
 export function monthlyIncome(a: Record<string, any>): number {
-  const gross = grossAnnual(a);
-  if (gross <= 0) return 0;
-  return (gross * (1 - incomeTaxRate(a))) / 12;
+  const total = totalGrossAnnual(a);
+  if (total <= 0) return 0;
+  return (total - taxableAnnual(a) * incomeTaxRate(a)) / 12;   // tax only the taxable part
 }
 export function retirementMonthlyIncome(a: Record<string, any>): number {
   return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + num(a['ri_' + k]), 0);
@@ -960,27 +960,42 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const [view, setView] = React.useState<'chart' | 'table'>('chart');
   const [mode, setMode] = React.useState<'gross' | 'net' | 'available'>('available');
 
-  const salary = grossSalaryMonthly(a) * 12;
-  const bonus = num(a.bonusAnnual);
-  const signing = num(a.signingOnetime);
-  const equity = rsuAnnual(a);
-  const rental = rentalNetAnnual(a);
-  const gross = grossAnnual(a);
+  const ex = extraIncome(a);
+  const scholarshipAnnual = Array.isArray(a.scholarships)
+    ? a.scholarships.reduce((t: number, x: any) => t + (x?.freq === 'monthly' ? num(x?.amount) * 12 : num(x?.amount)), 0)
+    : (a.scholarshipFreq === 'monthly' ? num(a.scholarshipAmount) * 12 : num(a.scholarshipAmount));
+  // every source, annualized — listed so the line items visibly add up to the total
+  const lines: { label: string; value: number; once?: boolean }[] = [
+    { label: 'Job (salary/wages)', value: grossSalaryMonthly(a) * 12 },
+    { label: 'Bonus', value: num(a.bonusAnnual) },
+    { label: 'Signing bonus', value: num(a.signingOnetime), once: true },
+    { label: 'Equity (vesting)', value: rsuAnnual(a) },
+    { label: 'Rental income (net)', value: rentalNetAnnual(a) },
+    { label: 'Self-employment', value: a.seFreq === 'annual' ? num(a.seAmount) : num(a.seAmount) * 12 },
+    { label: 'Interest & dividends', value: num(a.invAnnual) },
+    { label: 'Benefits', value: num(a.benefitMonthly) * 12 },
+    { label: 'Child support / alimony', value: num(a.supportMonthly) * 12 },
+    { label: 'Scholarships & grants', value: scholarshipAnnual },
+    { label: 'Other income', value: a.otherFreq === 'annual' ? num(a.otherAmount) : a.otherFreq === 'onetime' ? num(a.otherAmount) : num(a.otherAmount) * 12 },
+  ].filter((l) => l.value > 0);
+
+  const total = totalGrossAnnual(a);              // sum of all the lines above
   const rate = incomeTaxRate(a);
-  const net = gross * (1 - rate);
+  const tax = taxableAnnual(a) * rate;            // tax applies to the taxable part only
+  const net = total - tax;
   const k401 = num(a.c_401k) * 12;
   const availableYr = net - k401;
+  const nonTaxable = ex.nontaxMonthly * 12;       // benefits + support + scholarships
 
   const grid = incomeMonthlyGrid(a, mode);
   const gridMax = Math.max(...grid.map((g) => g.amount), 1);
   const gridMin = Math.min(...grid.map((g) => g.amount), 0);
-  const modeLabel = mode === 'gross' ? 'Gross' : mode === 'net' ? 'Net (after tax)' : 'Available (after tax & 401k)';
+  const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : 'Available (after tax & 401k)';
 
-  // insight: average monthly available + the lumpy "extra" months (equity vests, bonus)
+  // insight: average monthly + any lumpy "extra" months (equity vests, bonus, one-time)
   const availGrid = incomeMonthlyGrid(a, 'available');
   const avgMo = availableYr / 12;
   const baseMo = Math.min(...availGrid.map((g) => g.amount));
-  const keepPct = gross > 0 ? Math.round((net / gross) * 100) : 0;
   const spikes = availGrid
     .map((g) => ({ label: g.label, extra: g.amount - baseMo }))
     .filter((sp) => sp.extra > Math.max(1000, baseMo * 0.15))
@@ -993,30 +1008,31 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     <View style={s.heroCard}>
       <Text style={s.heroCardLabel}>Available to use / year</Text>
       <Text style={s.heroCardValue}>{money(availableYr)}</Text>
-      <Text style={s.heroCardSub}>≈ {money(avgMo)}/mo average · you keep {keepPct}% after tax</Text>
+      <Text style={s.heroCardSub}>≈ {money(avgMo)}/mo average</Text>
     </View>
 
     {/* insight: steady baseline + lumpy windfalls */}
     {availableYr > 0 && (
       <Callout
-        text={`About ${money(Math.max(0, baseMo))}/mo steady to spend or save`}
+        text={Math.abs(baseMo - avgMo) < 1
+          ? `About ${money(Math.max(0, avgMo))} a month, steady all year`
+          : `About ${money(Math.max(0, baseMo))} most months`}
         sub={spikes.length
-          ? `Plus windfalls: ${spikes.map((sp) => `+${money(sp.extra)} in ${sp.label}`).join(', ')} — plan ahead for these.`
+          ? `with extra in ${spikes.map((sp) => `${sp.label} (+${money(sp.extra)})`).join(', ')} — plan ahead for those.`
           : 'Your income is steady month to month.'} />
     )}
 
-    {/* full breakdown, grouped */}
+    {/* full breakdown — every source adds up to the total */}
     <Card>
-      <Text style={s.sectionLabel}>INFLOWS</Text>
-      {salary > 0 && <RecapStat plain label="Base salary" value={`${money(salary)}/yr`} />}
-      {bonus > 0 && <RecapStat plain label="Bonus" value={`${money(bonus)}/yr`} />}
-      {signing > 0 && <RecapStat plain label="Signing bonus" value={`${money(signing)} once`} />}
-      {equity > 0 && <RecapStat plain label="Equity (vesting)" value={`${money(equity)}/yr`} />}
-      {rental !== 0 && <RecapStat plain label="Rental income (net)" value={`${money(rental)}/yr`} />}
-      <RecapBox label="Gross / yr" value={money(gross)} />
+      <Text style={s.sectionLabel}>WHERE IT COMES FROM</Text>
+      {lines.map((l) => (
+        <RecapStat key={l.label} plain label={l.label} value={`${money(l.value)}${l.once ? ' once' : '/yr'}`} />
+      ))}
+      <RecapBox label="Total income / yr" value={money(total)} />
 
-      <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>LESS</Text>
-      <RecapStat plain label={`Tax (~${Math.round(rate * 100)}%)`} value={`-${money(gross - net)}`} color={Colors.amber} />
+      <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>WHAT'S TAKEN OUT</Text>
+      <RecapStat plain label={`Tax (~${Math.round(rate * 100)}% on taxable income)`} value={`-${money(tax)}`} color={Colors.amber} />
+      {nonTaxable > 0 && <RecapStat plain label="Tax-free (benefits, support, scholarships)" value={money(nonTaxable)} color={Colors.textTertiary} />}
       {k401 > 0 && <RecapStat plain label="401(k), locked to retirement" value={`-${money(k401)}`} color={Colors.amber} />}
       <RecapBox label="Available / yr" value={money(availableYr)} tone="green" />
     </Card>
