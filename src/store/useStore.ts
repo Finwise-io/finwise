@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { benchmarkTicker, marketValue, latestClose, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, type Transaction } from '../domain/transactions';
@@ -745,7 +746,7 @@ export const useStore = create<AppState>()(
     }),
     {
       name: 'finwise-storage-v3',
-      storage: createJSONStorage(() => AsyncStorage),
+      storage: createJSONStorage(() => secureStorage),   // AES-encrypted at rest (key in SecureStore)
     }
   )
 );
