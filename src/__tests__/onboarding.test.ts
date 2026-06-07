@@ -23,18 +23,34 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     expect(isOptional('retLocation')).toBe(true);    // ...but skippable
   });
 
-  test('employed + spend + retire_acc: focused income flow + recaps, 401k deduped', () => {
-    const steps = buildSteps('employed', ['spend', 'retire_acc']);
+  test('income sources gate the income detail screens (pick employment → salary/401k flow)', () => {
+    // Without picking sources, only the source picker shows — no detail screens yet.
+    const noSrc = buildSteps('employed', ['spend', 'retire_acc']);
+    expect(noSrc).toContain('income_sources');
+    expect(noSrc).not.toContain('income_salary');
+
+    // Pick "employment" (ongoing) → salary + 401k/RSU/bonus appear; tax + recap too.
+    const steps = buildSteps('employed', ['spend', 'retire_acc'], { incomeSources: ['employment'] });
     expect(steps).toEqual(
       expect.arrayContaining([
-        'income_salary', 'income_401k', 'income_rsu', 'income_tax', 'recap_income',
+        'income_sources', 'income_salary', 'income_401k', 'income_rsu', 'income_tax', 'recap_income',
         'monthlySpending', 'recap_spend', 'contributionsByType', 'targetRetirementAge', 'recap_retire',
       ]),
     );
-    // income_401k appears once even though both spend and retire_acc reference it
-    expect(steps.filter((s) => s === 'income_401k')).toHaveLength(1);
+    expect(steps.filter((s) => s === 'income_401k')).toHaveLength(1);   // deduped across tracks
     expect(steps).not.toContain('horizonAge');
-    expect(steps).not.toContain('retirementIncomeSources');
+  });
+
+  test('temporary job hides 401k/RSU/bonus; benefits/scholarship add their own screens', () => {
+    const temp = buildSteps('student', ['spend'], { incomeSources: ['employment'], jobType: 'temporary' });
+    expect(temp).toContain('income_salary');
+    expect(temp).not.toContain('income_401k');
+    expect(temp).not.toContain('income_rsu');
+
+    const benefits = buildSteps('student', ['spend'], { incomeSources: ['benefits', 'scholarship'] });
+    expect(benefits).toContain('income_benefits');
+    expect(benefits).toContain('income_scholarship');
+    expect(benefits).not.toContain('income_tax');     // benefits + scholarship are non-taxable → no tax screen
   });
 
   test('goals reuses income/spending when spend also selected (no duplicate capacity ask)', () => {

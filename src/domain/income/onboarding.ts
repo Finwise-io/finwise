@@ -4,7 +4,7 @@
 // and the tax config (SYSTEM_CALCULATED vs MANUAL_OVERRIDE).
 import type { UserId } from '../_shared/ids';
 import { newEntityId } from '../_shared/ids';
-import { toNum } from '../_shared/num';
+import { toNum, round2 } from '../_shared/num';
 import { grossFromNet, effectiveRateOnGross } from './tax';
 import { IncomeDoc, IncomeSource, WhoEarns, DEFAULT_TAX } from './types';
 
@@ -99,6 +99,26 @@ export function rentalNetAnnual(op: Record<string, any> | null): number {
   return rentalList(op).reduce((t, r) => t + (r.income - r.expenses), 0) * 12;
 }
 
+/** Extra income sources beyond salary/rental/equity (self-employment, investment, benefits, support,
+ *  scholarship, other), split into taxable vs non-taxable steady monthly amounts + a one-time Jan amount.
+ *  Benefits, support, and scholarships are treated as non-taxable for planning. */
+export function extraIncome(op: Record<string, any> | null): { taxableMonthly: number; nontaxMonthly: number; onetimeJan: number } {
+  const a = op ?? {};
+  const seM = (a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount));
+  const invM = toNum(a.invAnnual) / 12;
+  const benM = toNum(a.benefitMonthly);
+  const supM = toNum(a.supportMonthly);
+  const schM = (a.scholarshipFreq === 'monthly' ? toNum(a.scholarshipAmount) : toNum(a.scholarshipAmount) / 12);
+  const othFreq = a.otherFreq ?? 'monthly';
+  const othM = othFreq === 'annual' ? toNum(a.otherAmount) / 12 : othFreq === 'monthly' ? toNum(a.otherAmount) : 0;
+  const othOnce = othFreq === 'onetime' ? toNum(a.otherAmount) : 0;
+  return {
+    taxableMonthly: round2(seM + invM + othM),
+    nontaxMonthly: round2(benM + supM + schM),
+    onetimeJan: round2(othOnce),
+  };
+}
+
 /** Employer match resolved to $/month. A % is of YOUR 401(k) contribution (e.g. a
  *  "50% match" adds half of what you put in), not of salary. */
 export function employerMatchMonthly(op: Record<string, any> | null): number {
@@ -130,6 +150,15 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
     gross_amount: r.income, frequency: 'MONTHLY', operating_expenses: r.expenses, who_earns: who,
   });
 
+  // Additional sources (self-employment, investment, benefits, support, scholarship, other)
+  add('Self-employment', 'SELF_EMPLOYMENT', a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount), a.seFreq === 'annual' ? 'ANNUAL' : 'MONTHLY');
+  add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');
+  add('Benefits', 'BENEFIT', toNum(a.benefitMonthly), 'MONTHLY');
+  add('Child support / alimony', 'SUPPORT', toNum(a.supportMonthly), 'MONTHLY');
+  add('Scholarship / grant', 'SCHOLARSHIP', toNum(a.scholarshipAmount), a.scholarshipFreq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
+  add(a.otherLabel?.trim() || 'Other income', 'OTHER', toNum(a.otherAmount),
+      a.otherFreq === 'annual' ? 'ANNUAL' : a.otherFreq === 'onetime' ? 'ONETIME' : 'MONTHLY');
+
   const tax = a.taxMode === 'manual'
     ? { use_manual_tax_override: true, manual_effective_tax_rate: Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1) }
     : { ...DEFAULT_TAX };  // system-calculated (progressive estimate)
@@ -137,17 +166,28 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
   return { user_id: uid, sources, tax };
 }
 
-/** Total annual gross across every inflow (salary grossed-up + bonus + signing + equity vesting + net rental). */
+/** Total annual income across every inflow (salary grossed-up + bonus + signing + equity + net rental
+ *  + self-employment/investment/benefits/support/scholarship/other). Includes non-taxable income. */
 export function totalGrossAnnual(op: Record<string, any> | null): number {
   const a = op ?? {};
-  return grossSalaryMonthly(op) * 12 + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op);
+  const ex = extraIncome(op);
+  return grossSalaryMonthly(op) * 12 + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan;
 }
 
-/** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on total gross. */
+/** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
+export function taxableAnnual(op: Record<string, any> | null): number {
+  const a = op ?? {};
+  const ex = extraIncome(op);
+  return grossSalaryMonthly(op) * 12 + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+    + ex.taxableMonthly * 12 + ex.onetimeJan;
+}
+
+/** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
 export function effectiveRate(op: Record<string, any> | null): number {
   const a = op ?? {};
   if (a.taxMode === 'manual') return Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
-  return effectiveRateOnGross(totalGrossAnnual(op));
+  return effectiveRateOnGross(taxableAnnual(op));
 }
 
 /** A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness:
@@ -191,13 +231,16 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   const eqAnnual = rsuAnnual(op);
   if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
 
+  const ex = extraIncome(op);
   return MONTH_ABBR.map((label, i) => {
-    let gross = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i];
-    if (i === 11) gross += bonus;     // annual bonus → December
-    if (i === 0) gross += signing;    // signing bonus → one-time, first month
-    let amount = mode === 'gross' ? gross : gross * (1 - rate);
-    if (mode === 'available') amount -= c401kM;   // employee 401(k) is locked away
-    return { label, amount };
+    // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
+    let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly;
+    if (i === 11) taxable += bonus;                 // annual bonus → December
+    if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
+    const gross = taxable + ex.nontaxMonthly;       // benefits/support/scholarship are non-taxable
+    let amount = mode === 'gross' ? gross : taxable * (1 - rate) + ex.nontaxMonthly;
+    if (mode === 'available') amount -= c401kM;     // employee 401(k) is locked away
+    return { label, amount: round2(amount) };
   });
 }
 

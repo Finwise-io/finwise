@@ -3,7 +3,7 @@ import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView 
 import Svg, { Circle, G } from 'react-native-svg';
 import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { Status, Track, StepId } from './engine';
+import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
 import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid } from '../domain/income';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
@@ -308,7 +308,14 @@ export function fv(principal: number, monthly: number, years: number, rate = 0.0
 
 // ── must-have validation ────────────────────────────────────────────────────
 const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
+  income_sources: a => Array.isArray(a.incomeSources) && a.incomeSources.length > 0,
   income_salary: a => num(a.baseSalary) > 0,
+  income_self: a => num(a.seAmount) > 0,
+  income_investment: a => num(a.invAnnual) > 0,
+  income_benefits: a => num(a.benefitMonthly) > 0,
+  income_support: a => num(a.supportMonthly) > 0,
+  income_scholarship: a => num(a.scholarshipAmount) > 0,
+  income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
   birth: a => !!a.birthYear && !!a.birthMonth,
@@ -341,7 +348,124 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
   const household = ctx.tracks.includes('partner') || ctx.tracks.includes('family');
 
   switch (step) {
-    // ── income: one focused screen per type ──
+    // ── income: pick your sources, then one focused screen per source ──
+    case 'income_sources': {
+      const picked: string[] = Array.isArray(a.incomeSources) ? a.incomeSources : [];
+      const toggle = (v: string) => ctx.setAnswer('incomeSources', picked.includes(v) ? picked.filter((x) => x !== v) : [...picked, v]);
+      return (<>
+        <Header emoji="💰" title="Where does your money come from?" sub="Pick everything that applies. We'll only ask about what you choose." />
+        {incomeSourceOptionsFor(ctx.status).map((o) => {
+          const on = picked.includes(o.value);
+          return (
+            <TouchableOpacity key={o.value} style={[s.srcCard, on && s.srcCardOn]} onPress={() => toggle(o.value)} activeOpacity={0.8}>
+              <Text style={s.srcIcon}>{o.icon}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={[s.srcTitle, on && s.srcTitleOn]}>{o.title}</Text>
+                <Text style={s.srcSub}>{o.sub}</Text>
+              </View>
+              <View style={[s.srcCheck, on && s.srcCheckOn]}>{on && <Text style={s.srcCheckMark}>✓</Text>}</View>
+            </TouchableOpacity>
+          );
+        })}
+      </>);
+    }
+
+    case 'income_self': {
+      const freq = a.seFreq ?? 'monthly';
+      return (<>
+        <Header emoji="🧰" title="Self-employment income" sub="Freelance, consulting, a side business, or gig work." />
+        <Card>
+          <Text style={s.label}>How often?</Text>
+          <Segmented ctx={ctx} k="seFreq" defaultValue="monthly" options={[{ value: 'monthly', label: 'Per month' }, { value: 'annual', label: 'Per year' }]} />
+          <Text style={s.heroLabel}>About how much ({freq === 'annual' ? 'per year' : 'per month'})</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.seAmount ?? ''} onChangeText={(t) => ctx.setAnswer('seAmount', t)} />
+          <Text style={s.hint}>Enter what's left after business costs, before income tax. A rough number is fine.</Text>
+        </Card>
+      </>);
+    }
+
+    case 'income_investment': {
+      return (<>
+        <Header emoji="💵" title="Interest & dividends" sub="Money your savings and investments pay you." />
+        <Card>
+          <Text style={s.heroLabel}>About how much per year</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.invAnnual ?? ''} onChangeText={(t) => ctx.setAnswer('invAnnual', t)} />
+          <Text style={s.hint}>Interest from savings accounts plus dividends from stocks or funds, in a typical year.</Text>
+        </Card>
+      </>);
+    }
+
+    case 'income_benefits': {
+      const types = Array.isArray(a.benefitTypes) ? a.benefitTypes : [];
+      const toggleT = (v: string) => ctx.setAnswer('benefitTypes', types.includes(v) ? types.filter((x: string) => x !== v) : [...types, v]);
+      const BT = [
+        { value: 'snap', label: 'SNAP (food)' }, { value: 'tanf', label: 'TANF' }, { value: 'disability', label: 'Disability' },
+        { value: 'unemployment', label: 'Unemployment' }, { value: 'housing', label: 'Housing help' }, { value: 'other', label: 'Other' },
+      ];
+      return (<>
+        <Header emoji="🛟" title="Benefits" sub="Money or help from government or assistance programs." />
+        <Card>
+          <Text style={s.label}>Which ones? (optional)</Text>
+          <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 6 }}>
+            {BT.map((b) => {
+              const on = types.includes(b.value);
+              return <TouchableOpacity key={b.value} style={[s.chip, on && s.chipOn]} onPress={() => toggleT(b.value)}><Text style={[s.chipTxt, on && s.chipTxtOn]}>{b.label}</Text></TouchableOpacity>;
+            })}
+          </View>
+          <Text style={s.heroLabel}>Total benefits per month</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.benefitMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('benefitMonthly', t)} />
+          <Text style={s.hint}>Heads up: some benefits can only be spent on certain things (like SNAP on food), and a few have limits on how much you can save. We won't tax this income.</Text>
+        </Card>
+      </>);
+    }
+
+    case 'income_support': {
+      return (<>
+        <Header emoji="👪" title="Child support or alimony" sub="Support payments you receive." />
+        <Card>
+          <Text style={s.heroLabel}>How much per month</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.supportMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('supportMonthly', t)} />
+          <Text style={s.hint}>Enter what you actually receive in a typical month.</Text>
+        </Card>
+      </>);
+    }
+
+    case 'income_scholarship': {
+      const freq = a.scholarshipFreq ?? 'annual';
+      return (<>
+        <Header emoji="🎓" title="Scholarships, grants & stipends" sub="Money for school, training, or research." />
+        <Card>
+          <Text style={s.label}>How often?</Text>
+          <Segmented ctx={ctx} k="scholarshipFreq" defaultValue="annual" options={[{ value: 'annual', label: 'Per year' }, { value: 'monthly', label: 'Per month' }]} />
+          <Text style={s.heroLabel}>About how much ({freq === 'monthly' ? 'per month' : 'per year'})</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.scholarshipAmount ?? ''} onChangeText={(t) => ctx.setAnswer('scholarshipAmount', t)} />
+          <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
+        </Card>
+      </>);
+    }
+
+    case 'income_other': {
+      const freq = a.otherFreq ?? 'monthly';
+      const freqLabel = freq === 'annual' ? 'per year' : freq === 'onetime' ? 'one time' : 'per month';
+      return (<>
+        <Header emoji="🧾" title="Other income" sub="Anything else — a gift, royalties, a one-off payment." />
+        <Card>
+          <Text style={s.label}>What is it? (optional)</Text>
+          <TextInput style={s.input} value={a.otherLabel ?? ''} onChangeText={(t) => ctx.setAnswer('otherLabel', t)} placeholder="e.g. tutoring, a gift" placeholderTextColor={Colors.textTertiary} />
+          <Text style={s.label}>How often?</Text>
+          <Segmented ctx={ctx} k="otherFreq" defaultValue="monthly" options={[{ value: 'monthly', label: 'Per month' }, { value: 'annual', label: 'Per year' }, { value: 'onetime', label: 'One time' }]} />
+          <Text style={s.heroLabel}>How much ({freqLabel})</Text>
+          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.otherAmount ?? ''} onChangeText={(t) => ctx.setAnswer('otherAmount', t)} />
+        </Card>
+      </>);
+    }
+
     case 'income_salary': {
       const mode = a.salaryMode ?? 'gross';
       const FREQ_LABEL: Record<string, string> = { hourly: 'hour', weekly: 'week', biweekly: '2 weeks', monthly: 'month' };
@@ -1365,6 +1489,15 @@ const s = StyleSheet.create({
   sub: { fontSize: 14, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
   label: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6, marginTop: 4 },
   hint: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
+  srcCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, borderWidth: 1.5, borderColor: Colors.border },
+  srcCardOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  srcIcon: { fontSize: 24 },
+  srcTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  srcTitleOn: { color: Colors.primaryDark },
+  srcSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
+  srcCheck: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  srcCheckOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  srcCheckMark: { color: '#fff', fontSize: 13, fontWeight: '800' },
   cap: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 16, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center' },

@@ -1,7 +1,10 @@
 import type { UserId, EntityId } from '../_shared/ids';
 
 export type Frequency = 'ONETIME' | 'WEEKLY' | 'BIWEEKLY' | 'MONTHLY' | 'QUARTERLY' | 'ANNUAL';
-export type IncomeType = 'W2_JOB' | 'LONG_TERM_RENTAL' | 'SHORT_TERM_RENTAL' | 'OTHER';
+export type IncomeType =
+  | 'W2_JOB' | 'LONG_TERM_RENTAL' | 'SHORT_TERM_RENTAL'
+  | 'SELF_EMPLOYMENT' | 'INVESTMENT' | 'BENEFIT' | 'SUPPORT' | 'SCHOLARSHIP'
+  | 'OTHER';
 export type WhoEarns = 'you' | 'partner' | 'both';
 
 /** One income stream (spec Table 2). Rentals carry operating_expenses. */

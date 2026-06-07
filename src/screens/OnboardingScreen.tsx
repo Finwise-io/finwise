@@ -43,7 +43,7 @@ export default function OnboardingScreen() {
   const [pw, setPw] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
 
-  const steps = buildSteps(status, tracks);
+  const steps = buildSteps(status, tracks, answers);
   const current = steps[Math.min(stepIndex, steps.length - 1)];
   const totalSteps = steps.length;
   const progress = totalSteps > 1 ? (stepIndex / (totalSteps - 1)) * 100 : 0;

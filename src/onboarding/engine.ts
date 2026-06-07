@@ -14,7 +14,8 @@ export type StepId =
   // meta
   | 'status' | 'goals' | 'account' | 'name'
   // S1 — income captured as focused, one-type-per-screen sub-steps
-  | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
+  | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
+  | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_other'
   | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget'
   // S2 accumulation
   | 'birth' | 'currentRetirementSavings' | 'contributionsByType' | 'employerContribution'
@@ -62,6 +63,35 @@ export function goalOptionsFor(status: Status | null): { value: Track; icon: str
   return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
 }
 
+// Q "Where does your money come from?" — income sources the user can pick (multi-select). The chosen
+// sources decide which income detail screens appear. Ordered by relevance to life stage.
+export type IncomeSourceKey =
+  | 'employment' | 'self_employment' | 'investment_income' | 'rental'
+  | 'benefits' | 'support' | 'scholarship' | 'other_income';
+
+export function incomeSourceOptionsFor(status: Status | null): { value: IncomeSourceKey; icon: string; title: string; sub: string }[] {
+  const O: Record<IncomeSourceKey, { value: IncomeSourceKey; icon: string; title: string; sub: string }> = {
+    employment:        { value: 'employment',        icon: '💼', title: 'A job (wages or salary)',     sub: 'Paycheck from an employer' },
+    self_employment:   { value: 'self_employment',   icon: '🧰', title: 'Self-employed / side gig',     sub: 'Freelance, consulting, a small business' },
+    scholarship:       { value: 'scholarship',       icon: '🎓', title: 'Scholarships, grants, stipend', sub: 'Money for school or research' },
+    benefits:          { value: 'benefits',          icon: '🛟', title: 'Benefits',                     sub: 'SNAP, TANF, disability, unemployment, housing help' },
+    support:           { value: 'support',           icon: '👪', title: 'Child support or alimony',     sub: 'Support payments you receive' },
+    investment_income: { value: 'investment_income', icon: '💵', title: 'Interest & dividends',         sub: 'Money your savings or investments pay you' },
+    rental:            { value: 'rental',            icon: '🏠', title: 'Rent from a property',         sub: 'You rent out a place you own' },
+    other_income:      { value: 'other_income',      icon: '🧾', title: 'Something else',               sub: 'Gifts, a one-off payment, anything else' },
+  };
+  const ORDER: Record<Status, IncomeSourceKey[]> = {
+    student:  ['employment', 'scholarship', 'self_employment', 'support', 'benefits', 'investment_income', 'other_income'],
+    employed: ['employment', 'self_employment', 'investment_income', 'rental', 'benefits', 'support', 'other_income'],
+    partial:  ['employment', 'self_employment', 'benefits', 'investment_income', 'rental', 'support', 'other_income'],
+    retired:  ['investment_income', 'rental', 'benefits', 'support', 'other_income'],
+  };
+  return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
+}
+
+// Which selected sources are taxable (drive whether we show the tax screen + count toward the tax base).
+const TAXABLE_SOURCES: IncomeSourceKey[] = ['employment', 'self_employment', 'investment_income', 'rental', 'other_income'];
+
 // Optional (skippable) field steps — rendered with a "Skip for now".
 export const OPTIONAL_STEPS = new Set<StepId>([
   'income_401k', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
@@ -72,11 +102,27 @@ export const OPTIONAL_STEPS = new Set<StepId>([
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
 // Retired users instead give their retirement-income sources directly.
-function incomeBlock(status: Status | null): StepId[] {
-  return status === 'retired'
-    ? ['retirementIncomeSources']
-    // birth before the 401(k) screen — the contribution limit depends on age (50+ catch-up)
-    : ['income_salary', 'birth', 'income_401k', 'income_bonus', 'income_rsu', 'income_rental', 'income_tax', 'recap_income'];
+function incomeBlock(status: Status | null, answers?: Record<string, any>): StepId[] {
+  if (status === 'retired' && !answers?.incomeSources) return ['retirementIncomeSources'];  // legacy retired flow
+  const srcs: IncomeSourceKey[] = Array.isArray(answers?.incomeSources) ? answers!.incomeSources : [];
+  if (!srcs.length) return ['income_sources'];   // pick sources first; details appear once chosen
+  const ongoing = answers?.jobType !== 'temporary';
+  const out: StepId[] = ['income_sources'];
+  if (srcs.includes('employment')) {
+    out.push('income_salary');
+    // 401(k)/bonus/RSU only make sense for an ongoing/permanent job (birth first: limit depends on age)
+    if (ongoing) out.push('birth', 'income_401k', 'income_bonus', 'income_rsu');
+  }
+  if (srcs.includes('self_employment')) out.push('income_self');
+  if (srcs.includes('investment_income')) out.push('income_investment');
+  if (srcs.includes('rental')) out.push('income_rental');
+  if (srcs.includes('benefits')) out.push('income_benefits');
+  if (srcs.includes('support')) out.push('income_support');
+  if (srcs.includes('scholarship')) out.push('income_scholarship');
+  if (srcs.includes('other_income')) out.push('income_other');
+  if (srcs.some((s) => TAXABLE_SOURCES.includes(s))) out.push('income_tax');
+  out.push('recap_income');
+  return out;
 }
 
 const RECAP_OF: Partial<Record<Track, StepId>> = {
@@ -93,9 +139,9 @@ const SERVICE_ORDER: Track[] = [
 ];
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
-function requirements(track: Track, status: Status | null, tracks: Track[]): { must: StepId[]; optional: StepId[] } {
+function requirements(track: Track, status: Status | null, tracks: Track[], answers?: Record<string, any>): { must: StepId[]; optional: StepId[] } {
   const hasSpend = tracks.includes('spend');
-  const income = incomeBlock(status);   // focused income sub-steps (deduped across tracks by buildSteps)
+  const income = incomeBlock(status, answers);   // source-driven income sub-steps (deduped across tracks by buildSteps)
   switch (track) {
     case 'spend':
       return { must: [...income, 'monthlySpending'],
@@ -125,13 +171,13 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
   }
 }
 
-export function buildSteps(status: Status | null, tracks: Track[]): StepId[] {
+export function buildSteps(status: Status | null, tracks: Track[], answers?: Record<string, any>): StepId[] {
   const steps: StepId[] = ['status', 'goals', 'account', 'name'];
   const seen = new Set<StepId>(steps);
 
   for (const track of SERVICE_ORDER) {
     if (!tracks.includes(track)) continue;
-    const { must, optional } = requirements(track, status, tracks);
+    const { must, optional } = requirements(track, status, tracks, answers);
     for (const f of [...must, ...optional]) {
       if (!seen.has(f)) { seen.add(f); steps.push(f); }
     }
