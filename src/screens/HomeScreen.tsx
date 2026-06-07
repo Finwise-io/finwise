@@ -15,6 +15,7 @@ import { assetKind, buildAssetsState } from '../domain/assets';
 import { totalDebtMonthly, requiredPayment, buildDebtState } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { pickReceipt, ocrReceipt, ocrAvailable } from '../services/receiptScan';
+import { usePlanCompleteness } from './SharpenPlanScreen';
 
 const BUCKET_META: Record<string, { title: string; color: string }> = {
   fixed: { title: 'Fixed', color: Colors.blue },
@@ -26,6 +27,7 @@ const iso = (d: Date) => d.toISOString().slice(0, 10);
 
 export default function HomeScreen() {
   const router = useRouter();
+  const sharpen = usePlanCompleteness();
   const store = useStore() as any;
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
@@ -221,6 +223,18 @@ export default function HomeScreen() {
             ))}
           </View>
         </View>
+
+        {/* sharpen-your-plan nudge (only when incomplete) */}
+        {sharpen.pct < 100 && (
+          <TouchableOpacity style={styles.sharpenCard} activeOpacity={0.85} onPress={() => router.push('/sharpen')}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sharpenTitle}>Sharpen your plan · {sharpen.pct}%</Text>
+              <Text style={styles.sharpenSub}>{sharpen.total - sharpen.doneCount} step{sharpen.total - sharpen.doneCount > 1 ? 's' : ''} left to complete your plan</Text>
+              <View style={styles.sharpenBar}><View style={[styles.sharpenFill, { width: `${sharpen.pct}%` }]} /></View>
+            </View>
+            <Text style={styles.focusArrow}>›</Text>
+          </TouchableOpacity>
+        )}
 
         {/* month switcher */}
         <View style={styles.monthRow}>
@@ -864,6 +878,11 @@ const styles = StyleSheet.create({
   focusIcon: { fontSize: 17 },
   focusLabel: { flex: 1, fontSize: 14, fontWeight: '800', color: '#fff' },
   focusArrow: { fontSize: 20, color: '#BEE7D8', fontWeight: '400' },
+  sharpenCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
+  sharpenTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  sharpenSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 2 },
+  sharpenBar: { height: 6, borderRadius: 3, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
+  sharpenFill: { height: 6, borderRadius: 3, backgroundColor: Colors.primary },
 });
 
 const sh = StyleSheet.create({
