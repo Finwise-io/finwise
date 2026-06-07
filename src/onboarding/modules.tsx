@@ -314,7 +314,7 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_investment: a => num(a.invAnnual) > 0,
   income_benefits: a => num(a.benefitMonthly) > 0,
   income_support: a => num(a.supportMonthly) > 0,
-  income_scholarship: a => num(a.scholarshipAmount) > 0,
+  income_scholarship: a => Array.isArray(a.scholarships) ? a.scholarships.some((x: any) => num(x?.amount) > 0) : num(a.scholarshipAmount) > 0,
   income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
@@ -435,17 +435,35 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
 
     case 'income_scholarship': {
-      const freq = a.scholarshipFreq ?? 'annual';
+      const list: any[] = Array.isArray(a.scholarships) && a.scholarships.length ? a.scholarships : [{ label: '', amount: '', freq: 'annual' }];
+      const setList = (next: any[]) => ctx.setAnswer('scholarships', next);
+      const setRow = (i: number, patch: any) => setList(list.map((r, j) => j === i ? { ...r, ...patch } : r));
       return (<>
-        <Header emoji="🎓" title="Scholarships, grants & stipends" sub="Money for school, training, or research." />
-        <Card>
-          <Text style={s.label}>How often?</Text>
-          <Segmented ctx={ctx} k="scholarshipFreq" defaultValue="annual" options={[{ value: 'annual', label: 'Per year' }, { value: 'monthly', label: 'Per month' }]} />
-          <Text style={s.heroLabel}>About how much ({freq === 'monthly' ? 'per month' : 'per year'})</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-            value={a.scholarshipAmount ?? ''} onChangeText={(t) => ctx.setAnswer('scholarshipAmount', t)} />
-          <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
-        </Card>
+        <Header emoji="🎓" title="Scholarships, grants & stipends" sub="Money for school, training, or research. Add each one you get." />
+        {list.map((row, i) => (
+          <Card key={i}>
+            {list.length > 1 && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={s.label}>Scholarship {i + 1}</Text>
+                <TouchableOpacity onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
+              </View>
+            )}
+            <Text style={s.label}>Name (optional)</Text>
+            <TextInput style={s.input} value={row.label ?? ''} onChangeText={(t) => setRow(i, { label: t })} placeholder="e.g. Pell Grant, merit award" placeholderTextColor={Colors.textTertiary} />
+            <Text style={s.label}>How often?</Text>
+            <View style={s.segRow}>
+              {[{ value: 'annual', label: 'Per year' }, { value: 'monthly', label: 'Per month' }].map((o) => {
+                const on = (row.freq ?? 'annual') === o.value;
+                return <TouchableOpacity key={o.value} style={[s.seg, on && s.segOn]} onPress={() => setRow(i, { freq: o.value })}><Text style={[s.segTxt, on && s.segTxtOn]}>{o.label}</Text></TouchableOpacity>;
+              })}
+            </View>
+            <Text style={s.heroLabel}>How much ({(row.freq ?? 'annual') === 'monthly' ? 'per month' : 'per year'})</Text>
+            <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+              value={row.amount ?? ''} onChangeText={(t) => setRow(i, { amount: t })} />
+          </Card>
+        ))}
+        <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
+        <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
       </>);
     }
 
@@ -1618,5 +1636,6 @@ const s = StyleSheet.create({
   unitToggle: { width: 34, height: 34, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgSecondary },
   unitToggleTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   addRow: { paddingVertical: 8, marginTop: 2 },
+  addAnother: { fontSize: 14, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
   addRowTxt: { fontSize: 13, fontWeight: '600', color: Colors.primary },
 });

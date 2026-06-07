@@ -2,7 +2,7 @@ import {
   annualNet, grossAnnualBaseline, estimateEffectiveTaxRate, effectiveTaxRate,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
-import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid } from './onboarding';
+import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome } from './onboarding';
 import { grossFromNet, taxOwed } from './tax';
 import { IncomeSource } from './types';
 
@@ -140,6 +140,14 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(g[5].amount).toBe(3000);   // Jun (end month) — still paid
     expect(g[6].amount).toBe(0);      // Jul — job ended
     expect(g[11].amount).toBe(0);     // Dec — still ended
+  });
+
+  test('multiple scholarships sum (non-taxable) into monthly income', () => {
+    const op = { scholarships: [{ label: 'Pell', amount: '6000', freq: 'annual' }, { label: 'Stipend', amount: '200', freq: 'monthly' }] };
+    expect(extraIncome(op).nontaxMonthly).toBeCloseTo(6000 / 12 + 200, 2);   // 500 + 200 = 700
+    // each scholarship becomes its own labeled source
+    const labels = incomeFromOnboarding('u1', op).sources.filter((s) => s.income_type === 'SCHOLARSHIP').map((s) => s.label);
+    expect(labels).toEqual(['Pell', 'Stipend']);
   });
 
   test('no income entered → no sources', () => {

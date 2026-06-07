@@ -7,7 +7,7 @@ export type Status = 'employed' | 'retired' | 'partial' | 'student';
 // Q2 service selections (tracks). Retirement/legacy/debt are stage-gated in Q2.
 export type Track =
   | 'spend' | 'invest' | 'goals' | 'partner' | 'family'
-  | 'retire_acc' | 'retire_dec' | 'legacy' | 'debt' | 'networth';
+  | 'retire_acc' | 'retire_dec' | 'legacy' | 'debt' | 'networth' | 'property';
 
 // Field/step ids. Meta steps + per-field question steps + recaps + summary.
 export type StepId =
@@ -40,21 +40,22 @@ export const STATUS_OPTIONS: { value: Status; icon: string; title: string; sub: 
   { value: 'student',  icon: '🎓',   title: 'Student',            sub: 'Studying' },
 ];
 
-export interface GoalOption { value: Track; icon: string; title: string }
+export interface GoalOption { value: Track; icon: string; title: string; sub: string }
 export interface GoalGroup { title: string; items: GoalOption[] }
 
-// Plain-language option labels (one definition each).
+// Plain-language option labels + a one-line scope hint each.
 const GOAL_DEF: Record<Track, GoalOption> = {
-  spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending' },
-  debt:       { value: 'debt',       icon: '💳', title: 'Pay off my debt' },
-  goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals' },
-  invest:     { value: 'invest',     icon: '📈', title: 'Track my investments' },
-  networth:   { value: 'networth',   icon: '📊', title: 'See my net worth' },
-  retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement' },
-  retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last' },
-  legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave money to family or a cause' },
-  partner:    { value: 'partner',    icon: '👫',   title: 'Plan with a partner' },
-  family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Plan with family' },
+  spend:      { value: 'spend',      icon: '📊', title: 'Track income & spending', sub: 'See what comes in and where it goes' },
+  debt:       { value: 'debt',       icon: '💳', title: 'Pay off my debt',          sub: 'A plan to clear what you owe' },
+  goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals', sub: 'Set targets and track progress' },
+  invest:     { value: 'invest',     icon: '📈', title: 'Track my investments',     sub: 'Stocks, funds, bonds, crypto — vs the market' },
+  property:   { value: 'property',   icon: '🏠', title: 'Track my property & belongings', sub: 'Home, car, valuables' },
+  networth:   { value: 'networth',   icon: '🧮', title: 'See my net worth',         sub: 'Everything you own minus what you owe' },
+  retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement',      sub: 'Are you on track — and when can you retire?' },
+  retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last',        sub: 'Will your savings last through retirement?' },
+  legacy:     { value: 'legacy',     icon: '🎁', title: 'Leave money to family or a cause', sub: 'Plan what you pass on' },
+  partner:    { value: 'partner',    icon: '👫',   title: 'Plan with a partner',     sub: 'Manage money together' },
+  family:     { value: 'family',     icon: '👨‍👩‍👧', title: 'Plan with family',        sub: 'Dependents and family finances' },
 };
 
 // Which life stages each option is offered to (others are offered to everyone).
@@ -71,7 +72,7 @@ function validFor(track: Track, status: Status | null): boolean {
 // Themed sections; their order flexes by life stage (most relevant first).
 const SECTION_ITEMS: Record<string, Track[]> = {
   'Manage money now': ['spend', 'goals', 'debt'],
-  'Grow & track':     ['invest', 'networth'],
+  'Grow & track':     ['invest', 'property', 'networth'],
   'Plan ahead':       ['retire_acc', 'retire_dec', 'legacy'],
   'With others':      ['partner', 'family'],
 };
@@ -167,7 +168,7 @@ const RECAP_OF: Partial<Record<Track, StepId>> = {
 
 // Service order for emission (so recaps land in a sensible sequence).
 const SERVICE_ORDER: Track[] = [
-  'spend', 'retire_acc', 'retire_dec', 'invest', 'networth', 'goals', 'debt', 'legacy', 'partner', 'family',
+  'spend', 'retire_acc', 'retire_dec', 'invest', 'property', 'networth', 'goals', 'debt', 'legacy', 'partner', 'family',
 ];
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
@@ -202,6 +203,8 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
       return { must: ['legacyTarget'], optional: [] };
     case 'networth':
       return { must: [], optional: [] };   // interest marker — net worth is built in-app from accounts + debts
+    case 'property':
+      return { must: [], optional: [] };   // interest marker — home/car/valuables are added in the assets module
   }
 }
 

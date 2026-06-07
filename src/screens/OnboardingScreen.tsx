@@ -179,7 +179,10 @@ export default function OnboardingScreen() {
                     style={[styles.choice, on && styles.choiceOn]}
                     onPress={() => toggleTrack(opt.value)}>
                     <Text style={styles.choiceIcon}>{opt.icon}</Text>
-                    <Text style={[styles.choiceTitle, { flex: 1 }, on && styles.choiceTitleOn]}>{opt.title}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={[styles.choiceTitle, on && styles.choiceTitleOn]}>{opt.title}</Text>
+                      <Text style={styles.choiceSub}>{opt.sub}</Text>
+                    </View>
                     <View style={[styles.check, on && styles.checkOn]}>{on && <Text style={styles.checkMark}>✓</Text>}</View>
                   </TouchableOpacity>
                 );

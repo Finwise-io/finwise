@@ -108,7 +108,10 @@ export function extraIncome(op: Record<string, any> | null): { taxableMonthly: n
   const invM = toNum(a.invAnnual) / 12;
   const benM = toNum(a.benefitMonthly);
   const supM = toNum(a.supportMonthly);
-  const schM = (a.scholarshipFreq === 'monthly' ? toNum(a.scholarshipAmount) : toNum(a.scholarshipAmount) / 12);
+  const schList = Array.isArray(a.scholarships) ? a.scholarships : null;
+  const schM = schList
+    ? schList.reduce((t: number, x: any) => t + (x?.freq === 'monthly' ? toNum(x?.amount) : toNum(x?.amount) / 12), 0)
+    : (a.scholarshipFreq === 'monthly' ? toNum(a.scholarshipAmount) : toNum(a.scholarshipAmount) / 12);
   const othFreq = a.otherFreq ?? 'monthly';
   const othM = othFreq === 'annual' ? toNum(a.otherAmount) / 12 : othFreq === 'monthly' ? toNum(a.otherAmount) : 0;
   const othOnce = othFreq === 'onetime' ? toNum(a.otherAmount) : 0;
@@ -155,7 +158,11 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
   add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');
   add('Benefits', 'BENEFIT', toNum(a.benefitMonthly), 'MONTHLY');
   add('Child support / alimony', 'SUPPORT', toNum(a.supportMonthly), 'MONTHLY');
-  add('Scholarship / grant', 'SCHOLARSHIP', toNum(a.scholarshipAmount), a.scholarshipFreq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
+  if (Array.isArray(a.scholarships)) {
+    for (const x of a.scholarships) add(x?.label?.trim() || 'Scholarship / grant', 'SCHOLARSHIP', toNum(x?.amount), x?.freq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
+  } else {
+    add('Scholarship / grant', 'SCHOLARSHIP', toNum(a.scholarshipAmount), a.scholarshipFreq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
+  }
   add(a.otherLabel?.trim() || 'Other income', 'OTHER', toNum(a.otherAmount),
       a.otherFreq === 'annual' ? 'ANNUAL' : a.otherFreq === 'onetime' ? 'ONETIME' : 'MONTHLY');
 
