@@ -617,11 +617,16 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Segmented ctx={ctx} k="salaryMode" defaultValue="gross" options={[
             { value: 'gross', label: 'Gross' }, { value: 'takehome', label: 'Take-home' }]} />
 
-          <Text style={s.label}>Tips, on average (per month) — optional</Text>
-          <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-            value={a.tipsMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('tipsMonthly', t)} />
+          {freq === 'hourly' && (
+            <>
+              <Text style={s.label}>Tips, on average (per month) — optional</Text>
+              <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                value={a.tipsMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('tipsMonthly', t)} />
+            </>
+          )}
 
-          <Text style={s.label}>Is your income steady or does it vary?</Text>
+          <Text style={s.label}>Is your overall monthly income steady, or does it vary?</Text>
+          <Text style={s.hint}>Across everything you bring in — wages{freq === 'hourly' ? ', tips' : ''}, commission. Salaried pay is usually steady.</Text>
           <Segmented ctx={ctx} k="incomeVaries" defaultValue="steady" options={[
             { value: 'steady', label: 'About the same' }, { value: 'varies', label: 'It varies' }]} />
           {a.incomeVaries === 'varies' && (
