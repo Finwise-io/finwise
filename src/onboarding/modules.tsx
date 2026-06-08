@@ -321,6 +321,7 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_support: a => num(a.supportMonthly) > 0,
   income_scholarship: a => Array.isArray(a.scholarships) ? a.scholarships.some((x: any) => num(x?.amount) > 0) : num(a.scholarshipAmount) > 0,
   income_loans: a => Array.isArray(a.loans) && a.loans.some((x: any) => num(x?.amount) > 0),
+  income_retirement: a => retirementMonthlyIncome(a) > 0,
   income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
@@ -479,6 +480,20 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       </>);
     }
 
+    case 'income_retirement': {
+      const tot = retirementMonthlyIncome(a);
+      return (<>
+        <Header emoji="🏖️" title="Retirement income" sub="What you receive each month in retirement." />
+        <Card>
+          <MoneyRow ctx={ctx} k="ri_ss" label="Social Security" />
+          <MoneyRow ctx={ctx} k="ri_pension" label="Pension" />
+          <MoneyRow ctx={ctx} k="ri_withdrawals" label="401(k) / IRA withdrawals" />
+          <MoneyRow ctx={ctx} k="ri_annuities" label="Annuity / other" />
+        </Card>
+        {tot > 0 && <Callout text={`${money(tot)}/mo in retirement income`} sub={`About ${money(tot * 12)} a year. We'll use this in your cash flow and taxes.`} />}
+      </>);
+    }
+
     case 'income_loans': {
       const list: any[] = Array.isArray(a.loans) && a.loans.length ? a.loans : [{ label: '', amount: '', months: [] }];
       const setList = (next: any[]) => ctx.setAnswer('loans', next);
@@ -599,6 +614,15 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             value={a.baseSalary ?? ''} onChangeText={(t) => ctx.setAnswer('baseSalary', t)} />
           <Segmented ctx={ctx} k="salaryMode" defaultValue="gross" options={[
             { value: 'gross', label: 'Gross' }, { value: 'takehome', label: 'Take-home' }]} />
+
+          <Text style={s.label}>Tips, on average (per month) — optional</Text>
+          <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={a.tipsMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('tipsMonthly', t)} />
+
+          <Text style={s.label}>Is your income steady or does it vary?</Text>
+          <Segmented ctx={ctx} k="incomeVaries" defaultValue="steady" options={[
+            { value: 'steady', label: 'About the same' }, { value: 'varies', label: 'It varies' }]} />
+          {a.incomeVaries === 'varies' && <Text style={s.hint}>Good to know — we'll suggest a bigger cash cushion and plan around your leaner months.</Text>}
 
           <Text style={s.label}>Is this job ongoing or temporary?</Text>
           <Segmented ctx={ctx} k="jobType" defaultValue="ongoing" options={[
@@ -1065,6 +1089,8 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   // every source, annualized — listed so the line items visibly add up to the total
   const lines: { label: string; value: number; once?: boolean }[] = [
     { label: 'Job (salary/wages)', value: salaryAnnual(a) },
+    { label: 'Tips', value: num(a.tipsMonthly) * 12 },
+    { label: 'Retirement income', value: retirementMonthlyIncome(a) * 12 },
     { label: 'Bonus', value: num(a.bonusAnnual) },
     { label: 'Signing bonus', value: num(a.signingOnetime), once: true },
     { label: 'Equity (vesting)', value: rsuAnnual(a) },

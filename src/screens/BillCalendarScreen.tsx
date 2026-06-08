@@ -95,6 +95,12 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
+      {op.incomeVaries === 'varies' && (
+        <View style={[styles.verdict, { backgroundColor: '#FFF7E6', marginTop: 10 }]}>
+          <Text style={styles.verdictTitle}>📉 Your income varies</Text>
+          <Text style={styles.verdictSub}>This view uses a typical month. Since your income swings, keep a bigger cushion and plan around your leaner weeks.</Text>
+        </View>
+      )}
       <Text style={styles.foot}>Money in is shown after estimated tax. Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
       <View style={{ height: 40 }} />
     </ScrollView>

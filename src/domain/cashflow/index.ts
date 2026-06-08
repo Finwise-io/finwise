@@ -4,7 +4,7 @@
 import { toNum, round2 } from '../_shared/num';
 import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, jobActiveMonth,
-  effectiveRate, totalGrossAnnual, taxableAnnual,
+  effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
 } from '../income';
 import { spendBuckets } from '../budget';
 
@@ -59,8 +59,9 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const otherFreq = a.otherFreq ?? 'monthly';
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
+  const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
   for (let i = 0; i < 12; i++) {
-    taxableMo[i] += (jobActiveMonth(op, i, now) ? salaryM : 0) + rentalM + seM + invM + otherM + eq[i];
+    taxableMo[i] += (jobActiveMonth(op, i, now) ? salaryM : 0) + rentalM + seM + invM + otherM + eq[i] + retIncM + tipsM;
     nontaxMo[i] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))] += toNum(a.bonusAnnual);   // bonus → its month (default Dec)

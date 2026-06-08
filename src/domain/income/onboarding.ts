@@ -115,11 +115,18 @@ export function extraIncome(op: Record<string, any> | null): { taxableMonthly: n
   const othFreq = a.otherFreq ?? 'monthly';
   const othM = othFreq === 'annual' ? toNum(a.otherAmount) / 12 : othFreq === 'monthly' ? toNum(a.otherAmount) : 0;
   const othOnce = othFreq === 'onetime' ? toNum(a.otherAmount) : 0;
+  const tipsM = toNum(a.tipsMonthly);   // average monthly tips (variable; taxable)
   return {
-    taxableMonthly: round2(seM + invM + othM),
+    taxableMonthly: round2(seM + invM + othM + tipsM),
     nontaxMonthly: round2(benM + supM + schM),
     onetimeJan: round2(othOnce),
   };
+}
+
+/** Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable. */
+export function retirementIncomeMonthly(op: Record<string, any> | null): number {
+  const a = op ?? {};
+  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + toNum(a['ri_' + k]), 0);
 }
 
 /** Employer match resolved to $/month. A % is of YOUR 401(k) contribution (e.g. a
@@ -154,6 +161,8 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
   });
 
   // Additional sources (self-employment, investment, benefits, support, scholarship, other)
+  add('Tips', 'W2_JOB', toNum(a.tipsMonthly), 'MONTHLY');
+  add('Retirement income', 'OTHER', retirementIncomeMonthly(op), 'MONTHLY');
   add('Self-employment', 'SELF_EMPLOYMENT', a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount), a.seFreq === 'annual' ? 'ANNUAL' : 'MONTHLY');
   add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');
   add('Benefits', 'BENEFIT', toNum(a.benefitMonthly), 'MONTHLY');
@@ -203,7 +212,7 @@ export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan;
+    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
 }
 
 /** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
@@ -211,7 +220,7 @@ export function taxableAnnual(op: Record<string, any> | null, now: Date = new Da
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.onetimeJan;
+    + ex.taxableMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
@@ -254,10 +263,11 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
 
   const ex = extraIncome(op);
+  const retIncMonthly = retirementIncomeMonthly(op);
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
-    let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly;
+    let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
     const gross = taxable + ex.nontaxMonthly;       // benefits/support/scholarship are non-taxable

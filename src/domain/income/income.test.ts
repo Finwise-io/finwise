@@ -169,6 +169,19 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(g[11].amount).toBe(0);      // not December
   });
 
+  test('retirement income (SS/pension/withdrawals) counts as monthly income', () => {
+    const op = { taxMode: 'manual', manualTaxRate: '0', ri_ss: '2000', ri_pension: '1500', ri_withdrawals: '500' };
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[3].amount).toBe(4000);                 // any month: SS + pension + withdrawals
+    expect(g[3].amount).toBe(g[7].amount);          // steady every month
+  });
+
+  test('tips add to monthly (taxable) income', () => {
+    expect(extraIncome({ tipsMonthly: '800' }).taxableMonthly).toBe(800);
+    const g = incomeMonthlyGrid({ baseSalary: '2000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' }, 'gross');
+    expect(g[0].amount).toBe(2800);                 // wage + tips
+  });
+
   test('no income entered → no sources', () => {
     expect(incomeFromOnboarding('u1', {}).sources).toHaveLength(0);
   });
