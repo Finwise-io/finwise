@@ -1205,6 +1205,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
         if (num(a.bonusAnnual) > 0) why.push(`a bonus lands in ${MONTHS3[Math.min(11, Math.max(0, (num(a.bonusMonth) || 12) - 1))]}`);
         if (num(a.signingOnetime) > 0 || ex.onetimeJan > 0) why.push('one-time payments land in their month');
         if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
+        if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they\'re disbursed');
         if (a.jobType === 'temporary') why.push('your job runs only part of the year');
         return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';
       })()}</Text>
@@ -1403,7 +1404,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
           </View>
         ))}
       </View>
-      <Text style={s.note2}>Net of tax, 401(k), and your spending. Months with equity or bonus stand out.</Text>
+      <Text style={s.note2}>Net of tax, 401(k), and your spending — each in the month it actually happens. Big one-off bills (like tuition) show up as a dip in that month, not spread across the year.</Text>
     </Card>
 
     {/* keep the suggested amounts, or edit any month */}

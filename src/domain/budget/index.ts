@@ -59,13 +59,45 @@ export function spendBuckets(op: Record<string, any> | null): { fixed: number; n
   return { fixed: round2(fixed), non_monthly: round2(nonMo), flexible: round2(flex), monthly_total: round2(fixed + nonMo + flex) };
 }
 
-/** Discretionary amount free to save each month = monthly take-home (after tax & 401k) minus
- *  the spending entered. Lumpy because income is (equity vests, bonus, signing). This is savings
- *  ON TOP of the 401(k), which is already set aside in the available figure. */
+/** Spending placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
+ *  Monthly bills repeat; non-monthly costs (tuition, insurance) land in the months chosen;
+ *  any estimated-but-uncategorized spend is spread evenly. */
+export function spendByMonth(op: Record<string, any> | null): number[] {
+  const a = op ?? {};
+  const out = new Array(12).fill(0);
+  const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
+  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  if (cats) {
+    for (const c of cats) {
+      const amt = toNum(c?.amount); if (amt <= 0) continue;
+      const pct = c?.unit === 'pct';
+      if (c?.bucket === 'nonmonthly') {
+        const yearly = pct ? (amt / 100) * netMonthly * 12 : amt;
+        const months = Array.isArray(c?.months) && c.months.length ? c.months : null;
+        if (months) for (const m of months) out[Math.min(11, Math.max(0, m - 1))] += yearly / months.length;
+        else for (let i = 0; i < 12; i++) out[i] += yearly / 12;
+      } else {
+        const m = pct ? (amt / 100) * netMonthly : amt;
+        for (let i = 0; i < 12; i++) out[i] += m;
+      }
+    }
+  } else {
+    const flat = spendBuckets(op).monthly_total;
+    for (let i = 0; i < 12; i++) out[i] += flat;
+  }
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - spendBuckets(op).monthly_total);
+  if (uncategorized > 0) for (let i = 0; i < 12; i++) out[i] += uncategorized;
+  return out.map(round2);
+}
+
+/** Discretionary amount free to save each month = take-home that month (after tax & 401k) minus
+ *  the spending due that month. Lumpy on BOTH sides — income (equity/bonus/scholarships in their
+ *  months) and bills (tuition/insurance in their months) — so a big bill shows up as a real dip,
+ *  not smeared across the year. This is savings ON TOP of the 401(k). */
 export function savingsByMonth(op: Record<string, any> | null): { label: string; amount: number }[] {
   const avail = incomeMonthlyGrid(op, 'available');
-  const monthlySpend = spendBuckets(op).monthly_total;
-  return avail.map((m) => ({ label: m.label, amount: round2(m.amount - monthlySpend) }));
+  const spend = spendByMonth(op);
+  return avail.map((m, i) => ({ label: m.label, amount: round2(m.amount - spend[i]) }));
 }
 
 export function budgetFromOnboarding(uid: UserId, op: Record<string, any> | null): BudgetDoc {

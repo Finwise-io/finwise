@@ -29,10 +29,11 @@ function equityByMonth(op: Record<string, any>): number[] {
   return out;
 }
 
-/** A yearly amount placed into chosen months (split evenly); falls back to spread across all 12. */
-function placeYearly(out: number[], yearly: number, months?: number[]) {
+/** A yearly amount placed into chosen months (split evenly), mapped onto the rolling timeline via
+ *  `slotOf`; with no months given it spreads across all 12 slots. */
+function placeYearly(out: number[], yearly: number, months: number[] | undefined, slotOf: (m: number) => number) {
   const ms = Array.isArray(months) && months.length ? months : null;
-  if (ms) for (const m of ms) out[m - 1] += yearly / ms.length;
+  if (ms) for (const m of ms) out[slotOf(m)] += yearly / ms.length;
   else for (let i = 0; i < 12; i++) out[i] += yearly / 12;
 }
 
@@ -53,6 +54,14 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const rate = effectiveRate(op);
   const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;   // for % expense conversion
 
+  // Rolling 12-month window anchored to THIS month, so timing is real: each chosen month maps to
+  // its NEXT occurrence (e.g. with "now" = June, "September" = this Sep, "January" = next Jan, which
+  // therefore lands AFTER September — never propping up an earlier month's balance).
+  const startMonth = now.getMonth();                          // 0–11
+  const startYear = now.getFullYear();
+  const calMonth = (s: number) => (startMonth + s) % 12;      // calendar month (0–11) at slot s
+  const slotOf = (m1to12: number) => ((m1to12 - 1) - startMonth + 12) % 12;   // slot for a calendar month
+
   // ── money in (net of tax for taxable sources; non-taxable lands in full) ──
   const taxableMo = zero12(), nontaxMo = zero12();
   const salaryM = grossSalaryMonthly(op), rentalM = rentalNetAnnual(op) / 12;
@@ -63,26 +72,26 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const eq = equityByMonth(a);
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
   const lowMonthly = toNum(a.lowMonthly);   // a variable earner's slow-month total earnings (gross)
-  for (let i = 0; i < 12; i++) {
-    const earnedNormal = (jobActiveMonth(op, i, now) ? salaryM : 0) + seM + tipsM;       // wage + self-employment + tips
-    const earned = lean && lowMonthly > 0 ? lowMonthly : earnedNormal;                    // slow-month scenario
-    taxableMo[i] += earned + rentalM + invM + otherM + eq[i] + retIncM;
-    nontaxMo[i] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
+  for (let s = 0; s < 12; s++) {
+    const earnedNormal = (jobActiveMonth(op, startMonth + s, now) ? salaryM : 0) + seM + tipsM;   // wage + self-employment + tips
+    const earned = lean && lowMonthly > 0 ? lowMonthly : earnedNormal;                            // slow-month scenario
+    taxableMo[s] += earned + rentalM + invM + otherM + eq[calMonth(s)] + retIncM;
+    nontaxMo[s] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
-  if (toNum(a.bonusAnnual) > 0) taxableMo[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))] += toNum(a.bonusAnnual);   // bonus → its month (default Dec)
-  if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing → January
+  if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month
+  if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing / one-time → now
   if (otherFreq === 'onetime') taxableMo[0] += toNum(a.otherAmount);
 
   // scholarships/grants land on their disbursement months (yearly total split across them)
   for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {
-    if (sc?.freq === 'monthly') { for (let i = 0; i < 12; i++) nontaxMo[i] += toNum(sc.amount); }
-    else placeYearly(nontaxMo, toNum(sc?.amount), sc?.months);
+    if (sc?.freq === 'monthly') { for (let s = 0; s < 12; s++) nontaxMo[s] += toNum(sc.amount); }
+    else placeYearly(nontaxMo, toNum(sc?.amount), sc?.months, slotOf);
   }
   // student loans disburse (per-occurrence amount) in each chosen month — borrowed cash in
   for (const ln of (Array.isArray(a.loans) ? a.loans : [])) {
     const ms = Array.isArray(ln?.months) && ln.months.length ? ln.months : null;
-    if (ms) for (const m of ms) nontaxMo[m - 1] += toNum(ln.amount);
-    else nontaxMo[0] += toNum(ln?.amount);   // unspecified → assume first month
+    if (ms) for (const m of ms) nontaxMo[slotOf(m)] += toNum(ln.amount);
+    else nontaxMo[0] += toNum(ln?.amount);   // unspecified → assume this month
   }
 
   // ── money out (bills by due month) ──
@@ -90,19 +99,22 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   for (const c of (Array.isArray(a.spendCats) ? a.spendCats : [])) {
     const amt = toNum(c?.amount); if (amt <= 0) continue;
     const pct = c?.unit === 'pct';
-    if (c?.bucket === 'nonmonthly') placeYearly(out, pct ? (amt / 100) * netMonthly * 12 : amt, c?.months);
-    else { const m = pct ? (amt / 100) * netMonthly : amt; for (let i = 0; i < 12; i++) out[i] += m; }
+    if (c?.bucket === 'nonmonthly') placeYearly(out, pct ? (amt / 100) * netMonthly * 12 : amt, c?.months, slotOf);
+    else { const m = pct ? (amt / 100) * netMonthly : amt; for (let s = 0; s < 12; s++) out[s] += m; }
   }
   // any spending estimated but not itemized — spread evenly so we don't understate bills
   const itemizedMo = spendBuckets(op).monthly_total;
   const uncategorized = Math.max(0, toNum(a.monthlySpending) - itemizedMo);
-  if (uncategorized > 0) for (let i = 0; i < 12; i++) out[i] += uncategorized;
+  if (uncategorized > 0) for (let s = 0; s < 12; s++) out[s] += uncategorized;
 
-  // ── roll into a running balance ──
+  // ── roll into a running balance over the real timeline ──
   let bal = startBalance, totalIn = 0, totalOut = 0;
-  const months: MonthFlow[] = MONTHS.map((label, i) => {
-    const inflow = taxableMo[i] * (1 - rate) + nontaxMo[i];
-    const outflow = out[i];
+  const months: MonthFlow[] = Array.from({ length: 12 }, (_, s) => {
+    const cm = calMonth(s);
+    const yr = startYear + Math.floor((startMonth + s) / 12);
+    const label = MONTHS[cm] + (yr > startYear ? ` ’${String(yr).slice(2)}` : '');
+    const inflow = taxableMo[s] * (1 - rate) + nontaxMo[s];
+    const outflow = out[s];
     bal += inflow - outflow;
     totalIn += inflow; totalOut += outflow;
     return { label, inflow: round2(inflow), outflow: round2(outflow), net: round2(inflow - outflow), balance: round2(bal) };

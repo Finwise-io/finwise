@@ -1,5 +1,31 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth } from './index';
 import { categoryBucketFor } from '../../constants/categories';
+
+describe('spending placed in actual months (not averaged)', () => {
+  test('a non-monthly bill lands in its month; monthly bills repeat', () => {
+    const op = {
+      taxMode: 'manual', manualTaxRate: '0', monthlySpending: '0',
+      spendCats: [
+        { id: 'tuition', bucket: 'nonmonthly', amount: '12000', unit: 'dollar', months: [8] },  // Aug
+        { id: 'rent', bucket: 'fixed', amount: '500', unit: 'dollar' },                          // every month
+      ],
+    };
+    const s = spendByMonth(op);
+    expect(s[7]).toBeCloseTo(12500, 0);   // August: tuition $12k + rent $500
+    expect(s[6]).toBeCloseTo(500, 0);     // July: just rent
+    expect(s.reduce((t, x) => t + x, 0)).toBeCloseTo(12000 + 500 * 12, 0);
+  });
+  test('savings dips in the month a big bill is due', () => {
+    const op = {
+      taxMode: 'manual', manualTaxRate: '0',
+      baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', monthlySpending: '0',
+      spendCats: [{ id: 'tuition', bucket: 'nonmonthly', amount: '12000', unit: 'dollar', months: [8] }],
+    };
+    const s = savingsByMonth(op);
+    expect(s[7].amount).toBeLessThan(s[6].amount);   // August (tuition due) saves far less than July
+    expect(s[7].amount).toBeCloseTo(3000 - 12000, 0);
+  });
+});
 
 describe('spending categories → buckets', () => {
   test('rolls categories into monthly-normalized buckets ($ amounts)', () => {

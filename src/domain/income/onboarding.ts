@@ -129,6 +129,27 @@ export function retirementIncomeMonthly(op: Record<string, any> | null): number 
   return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + toNum(a['ri_' + k]), 0);
 }
 
+/** Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.
+ *  A yearly award is split across the months chosen; a monthly award repeats every month. */
+export function scholarshipByCalendarMonth(op: Record<string, any> | null): number[] {
+  const a = op ?? {};
+  const out = new Array(12).fill(0);
+  const list = Array.isArray(a.scholarships) ? a.scholarships : null;
+  if (list) {
+    for (const sc of list) {
+      const amt = toNum(sc?.amount); if (amt <= 0) continue;
+      if (sc?.freq === 'monthly') { for (let i = 0; i < 12; i++) out[i] += amt; continue; }
+      const months = Array.isArray(sc?.months) && sc.months.length ? sc.months : null;
+      if (months) for (const m of months) out[Math.min(11, Math.max(0, m - 1))] += amt / months.length;
+      else for (let i = 0; i < 12; i++) out[i] += amt / 12;
+    }
+  } else {
+    const amt = toNum(a.scholarshipAmount);
+    if (amt > 0) { const m = a.scholarshipFreq === 'monthly' ? amt : amt / 12; for (let i = 0; i < 12; i++) out[i] += m; }
+  }
+  return out;
+}
+
 /** Employer match resolved to $/month. A % is of YOUR 401(k) contribution (e.g. a
  *  "50% match" adds half of what you put in), not of salary. */
 export function employerMatchMonthly(op: Record<string, any> | null): number {
@@ -264,14 +285,17 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
 
   const ex = extraIncome(op);
   const retIncMonthly = retirementIncomeMonthly(op);
+  const nontaxFlat = toNum(a.benefitMonthly) + toNum(a.supportMonthly);   // genuinely monthly, non-taxable
+  const schByMonth = scholarshipByCalendarMonth(op);                       // lumpy — placed in its months
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
     let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
-    const gross = taxable + ex.nontaxMonthly;       // benefits/support/scholarship are non-taxable
-    let amount = mode === 'gross' ? gross : taxable * (1 - rate) + ex.nontaxMonthly;
+    const nontax = nontaxFlat + schByMonth[i];      // benefits/support steady; scholarships in their months
+    const gross = taxable + nontax;                 // benefits/support/scholarship are non-taxable
+    let amount = mode === 'gross' ? gross : taxable * (1 - rate) + nontax;
     if (mode === 'available') amount -= c401kM;     // employee 401(k) is locked away
     return { label, amount: round2(amount) };
   });

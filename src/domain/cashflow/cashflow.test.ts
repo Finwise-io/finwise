@@ -1,6 +1,7 @@
 import { cashflowYear } from './index';
 
 const NO_TAX = { taxMode: 'manual', manualTaxRate: '0' };
+const JAN = new Date(2026, 0, 1);   // pin "now" to January so slot index == calendar month - 1
 
 describe('cashflow / bill calendar', () => {
   test('scholarship lands in its months; tuition due in its months; balance dips then recovers', () => {
@@ -11,7 +12,7 @@ describe('cashflow / bill calendar', () => {
       monthlySpending: '0',
       spendCats: [{ id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '10000', unit: 'dollar', months: [1, 8] }], // $5k Jan, $5k Aug
     };
-    const cf = cashflowYear(op, 0);
+    const cf = cashflowYear(op, 0, JAN);
     expect(cf.months[0].inflow).toBeCloseTo(6000, 0);   // Jan scholarship
     expect(cf.months[0].outflow).toBeCloseTo(5000, 0);  // Jan tuition
     expect(cf.months[7].inflow).toBeCloseTo(6000, 0);   // Aug scholarship
@@ -42,9 +43,27 @@ describe('cashflow / bill calendar', () => {
 
   test('loan disbursement shows as cash in (per-occurrence in each chosen month)', () => {
     const op = { ...NO_TAX, incomeSources: ['loans'], loans: [{ amount: '5000', months: [1, 8] }], monthlySpending: '0' };
-    const cf = cashflowYear(op, 0);
+    const cf = cashflowYear(op, 0, JAN);
     expect(cf.months[0].inflow).toBeCloseTo(5000, 0);
     expect(cf.months[7].inflow).toBeCloseTo(5000, 0);
     expect(cf.totalIn).toBeCloseTo(10000, 0);
+  });
+
+  test('rolling-from-now: a January award lands AFTER this September (real timeline)', () => {
+    // "now" = June 2026. Two $7k scholarships (Sept + Jan) and $15k tuition due Sept.
+    const op = {
+      ...NO_TAX,
+      incomeSources: ['scholarship'],
+      scholarships: [{ amount: '7000', freq: 'annual', months: [9] }, { amount: '7000', freq: 'annual', months: [1] }],
+      monthlySpending: '0',
+      spendCats: [{ id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '15000', unit: 'dollar', months: [9] }],
+    };
+    const cf = cashflowYear(op, 0, new Date(2026, 5, 1));   // June
+    const sep = cf.months.findIndex((m) => m.label.startsWith('Sep'));
+    const jan = cf.months.findIndex((m) => m.label.startsWith('Jan'));
+    expect(jan).toBeGreaterThan(sep);                       // Jan 2027 comes AFTER Sept 2026
+    expect(cf.months[sep].balance).toBeCloseTo(-8000, 0);   // Sept: +7k aid − 15k tuition = short $8k
+    expect(cf.months[jan].label).toContain('’27');          // labelled as next year
+    expect(cf.shortMonths.length).toBeGreaterThan(0);
   });
 });
