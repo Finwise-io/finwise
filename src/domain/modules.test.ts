@@ -3,7 +3,7 @@ import { buildDebtState, debtsFromOnboarding } from './debt';
 import { buildNetWorth } from './networth';
 import { buildBudgetState, budgetFromOnboarding } from './budget';
 import { buildGoalsState, goalsFromOnboarding, waterfall } from './goals';
-import { simulate, buildRetirementState } from './retirement';
+import { simulate, buildRetirementState, projectNestEgg } from './retirement';
 import { buildSnapshot } from './snapshot';
 
 describe('assets', () => {
@@ -112,6 +112,11 @@ describe('retirement Monte Carlo', () => {
     const st = buildRetirementState('u', base);
     expect(st.chance_of_success).toBeGreaterThanOrEqual(0);
     if (st.gap > 0) expect(st.suggested_extra_monthly).toBeGreaterThan(0);
+  });
+  test('salary growth (contribution_growth) raises the projected nest egg', () => {
+    const flat = projectNestEgg({ ...base, vol_return: 0 } as any).will_have;
+    const grown = projectNestEgg({ ...base, vol_return: 0, contribution_growth: 0.03 } as any).will_have;
+    expect(grown).toBeGreaterThan(flat);   // raises → more contributed → bigger nest egg
   });
 });
 

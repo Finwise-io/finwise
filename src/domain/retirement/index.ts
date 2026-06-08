@@ -14,6 +14,7 @@ export interface RetirementInputs {
   guaranteed_monthly_income: number; // Social Security / pension (0 if unknown), today's $
   guaranteed_start_age?: number;     // age guaranteed income begins (SS claim age); defaults to retire_age
   inflation: number;                 // annual, decimal (default from economic data)
+  contribution_growth?: number;      // annual raise applied to contributions (decimal, default 0)
   mean_return: number;               // annual nominal, decimal
   vol_return: number;                // annual stdev, decimal
   paths?: number;
@@ -80,8 +81,9 @@ export function simulate(inp: RetirementInputs) {
   for (let p = 0; p < paths; p++) {
     let bal = inp.start_balance;
     if (yearly) yearly[0].push(bal);
+    const g = inp.contribution_growth ?? 0;
     for (let y = 0; y < nAcc; y++) {
-      bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) + inp.annual_contribution;
+      bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) + inp.annual_contribution * Math.pow(1 + g, y);
       if (yearly) yearly[y + 1].push(Math.max(0, bal));
     }
     atRetire.push(bal);
@@ -149,9 +151,10 @@ export function projectNestEgg(inp: RetirementInputs): NestEggProjection {
   const nDec = Math.max(0, inp.horizon_age - inp.retire_age);
   const claimAge = Math.max(inp.guaranteed_start_age ?? inp.retire_age, inp.retire_age);
 
-  // accumulate: current balance compounds; each year's contribution compounds for the years left
+  // accumulate: current balance compounds; each year's contribution (growing with raises) compounds for the years left
+  const g = inp.contribution_growth ?? 0;
   let have = inp.start_balance * Math.pow(1 + r, nAcc);
-  for (let y = 0; y < nAcc; y++) have += inp.annual_contribution * Math.pow(1 + r, nAcc - y - 1);
+  for (let y = 0; y < nAcc; y++) have += inp.annual_contribution * Math.pow(1 + g, y) * Math.pow(1 + r, nAcc - y - 1);
 
   // need: present value (at retirement) of the inflation-growing net withdrawal stream
   const inflFactor = Math.pow(1 + f, nAcc);

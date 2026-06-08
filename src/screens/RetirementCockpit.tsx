@@ -69,6 +69,7 @@ export default function RetirementCockpit() {
   const planInfl = A.inflation ?? inflDefault;        // your applied inflation if set, else ACTUAL (economic data)
   const inflIsActual = A.inflation == null;
   const planGrowth = growthRate;                      // from the basis selector (benchmark / 12-mo / scenario)
+  const planSalaryGrowth = A.salaryGrowth ?? 0;       // raises applied to contributions each year (0 by default)
   const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
   const simple = (store.displayMode ?? 'simple') === 'simple';   // hide technical detail in Simple mode
   const commit = (patch: any) => setA(patch);
@@ -79,6 +80,7 @@ export default function RetirementCockpit() {
     horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
     start_balance: nestEgg,
     annual_contribution: (isRetired ? 0 : planSave) * 12,
+    contribution_growth: planSalaryGrowth,
     retire_monthly_spend_today: planSpend,
     guaranteed_monthly_income: ssIncome,
     guaranteed_start_age: claimAge,
@@ -165,6 +167,7 @@ export default function RetirementCockpit() {
   const [saveMo, setSaveMo] = useState<number>(planSave);
   const [spendMo, setSpendMo] = useState<number>(planSpend);
   const [inflPct, setInflPct] = useState<number>(Math.round(planInfl * 1000) / 10);
+  const [salGrow, setSalGrow] = useState<number>(Math.round((A.salaryGrowth ?? 0) * 1000) / 10);   // raises %/yr
   const [scChance, setScChance] = useState<number | null>(null);
   const [scBand, setScBand] = useState<any>(null);
   const resetSandbox = () => {
@@ -175,13 +178,13 @@ export default function RetirementCockpit() {
   const loadScenario = (a: any) => {
     setRAge(a.retireAge ?? planRetireAge); setRetPct(Math.round((a.expectedReturn ?? planGrowth) * 1000) / 10);
     setSaveMo(a.contribMonthly ?? planSave); setSpendMo(a.spendMonthly ?? planSpend);
-    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setScChance(null); setScBand(null);
+    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setSalGrow(Math.round((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 1000) / 10); setScChance(null); setScBand(null);
   };
   const scRetired = store.employmentStatus === 'retired' || age >= rAge;
   const scInputs = (over: any = {}) => ({
     current_age: age, retire_age: scRetired ? age : Math.max(age + 1, rAge),
     horizon_age: Math.max((scRetired ? age : rAge) + 1, horizon), start_balance: nestEgg,
-    annual_contribution: (scRetired ? 0 : saveMo) * 12, retire_monthly_spend_today: spendMo,
+    annual_contribution: (scRetired ? 0 : saveMo) * 12, contribution_growth: salGrow / 100, retire_monthly_spend_today: spendMo,
     guaranteed_monthly_income: ssIncome, guaranteed_start_age: claimAge,
     inflation: inflPct / 100, mean_return: retPct / 100, vol_return: volOf(retPct / 100),
     paths: 400, seed: 42, ...over,
@@ -190,7 +193,7 @@ export default function RetirementCockpit() {
   const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
   const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
   const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
-  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, returnBasis: 'scenario' }); setScreen('current'); };
+  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, salaryGrowth: salGrow / 100, returnBasis: 'scenario' }); setScreen('current'); };
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -223,6 +226,7 @@ export default function RetirementCockpit() {
           <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
             markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
+          {!scRetired && <SliderRow label="Pay raises / year" valueLabel={salGrow === 0 ? 'none' : `${salGrow.toFixed(1)}%`} value={salGrow} min={0} max={6} step={0.5} onChange={(v) => { setSalGrow(v); invalidateMC(); }} fmt={(v) => v === 0 ? 'none' : `${v.toFixed(1)}%`} />}
           <SliderRow label="Spend / month in retirement" valueLabel={money(spendMo)} value={spendMo} min={1000} max={20000} step={100} onChange={(v) => { setSpendMo(v); invalidateMC(); }} markers={[{ value: planSpend, label: 'plan' }]} fmt={(v) => money(v)} />
           <SliderRow label="Inflation" valueLabel={`${inflPct.toFixed(1)}%`} value={inflPct} min={0} max={6} step={0.5} onChange={(v) => { setInflPct(v); invalidateMC(); }} markers={[{ value: planInfl * 100, label: inflIsActual ? 'actual' : 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
           <Text style={styles.note}>▲ marks your benchmark, current plan, and 12-mo actual where relevant — so you can see how far a what-if drifts from them.</Text>
