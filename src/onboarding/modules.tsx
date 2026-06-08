@@ -319,6 +319,7 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_benefits: a => num(a.benefitMonthly) > 0,
   income_support: a => num(a.supportMonthly) > 0,
   income_scholarship: a => Array.isArray(a.scholarships) ? a.scholarships.some((x: any) => num(x?.amount) > 0) : num(a.scholarshipAmount) > 0,
+  income_loans: a => Array.isArray(a.loans) && a.loans.some((x: any) => num(x?.amount) > 0),
   income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
@@ -464,10 +465,48 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <Text style={s.heroLabel}>How much ({(row.freq ?? 'annual') === 'monthly' ? 'per month' : 'per year'})</Text>
             <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
               value={row.amount ?? ''} onChangeText={(t) => setRow(i, { amount: t })} />
+            {(row.freq ?? 'annual') !== 'monthly' && num(row.amount) > 0 && (
+              <>
+                <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
+                <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
+              </>
+            )}
           </Card>
         ))}
         <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
         <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
+      </>);
+    }
+
+    case 'income_loans': {
+      const list: any[] = Array.isArray(a.loans) && a.loans.length ? a.loans : [{ label: '', amount: '', months: [] }];
+      const setList = (next: any[]) => ctx.setAnswer('loans', next);
+      const setRow = (i: number, patch: any) => setList(list.map((r, j) => j === i ? { ...r, ...patch } : r));
+      return (<>
+        <Header emoji="🏦" title="Student loans" sub="Money you borrow now and repay later. Add each loan you plan to take." />
+        {list.map((row, i) => (
+          <Card key={i}>
+            {list.length > 1 && (
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
+                <Text style={s.label}>Loan {i + 1}</Text>
+                <TouchableOpacity onPress={() => setList(list.filter((_, j) => j !== i))}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: 13 }}>Remove</Text></TouchableOpacity>
+              </View>
+            )}
+            <Text style={s.label}>Name (optional)</Text>
+            <TextInput style={s.input} value={row.label ?? ''} onChangeText={(t) => setRow(i, { label: t })} placeholder="e.g. Federal subsidized, private" placeholderTextColor={Colors.textTertiary} />
+            <Text style={s.heroLabel}>How much (this disbursement)</Text>
+            <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+              value={row.amount ?? ''} onChangeText={(t) => setRow(i, { amount: t })} />
+            {num(row.amount) > 0 && (
+              <>
+                <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
+                <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
+              </>
+            )}
+          </Card>
+        ))}
+        <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', months: [] }])}><Text style={s.addAnother}>＋ Add another loan</Text></TouchableOpacity>
+        <Text style={s.hint}>This is borrowed money — it shows as cash arriving in your bill calendar, and you'll repay it later (we'll help track that).</Text>
       </>);
     }
 

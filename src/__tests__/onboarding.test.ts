@@ -51,6 +51,10 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     expect(benefits).toContain('income_benefits');
     expect(benefits).toContain('income_scholarship');
     expect(benefits).not.toContain('income_tax');     // benefits + scholarship are non-taxable → no tax screen
+
+    const loans = buildSteps('student', ['spend'], { incomeSources: ['loans'] });
+    expect(loans).toContain('income_loans');
+    expect(loans).not.toContain('income_tax');        // borrowed money isn't taxable income
   });
 
   test('goals reuses income/spending when spend also selected (no duplicate capacity ask)', () => {

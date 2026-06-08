@@ -15,7 +15,7 @@ export type StepId =
   | 'status' | 'goals' | 'account' | 'name'
   // S1 — income captured as focused, one-type-per-screen sub-steps
   | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
-  | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_other'
+  | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_loans' | 'income_other'
   | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget'
   // S2 accumulation
   | 'birth' | 'currentRetirementSavings' | 'contributionsByType' | 'employerContribution'
@@ -100,13 +100,14 @@ export function goalOptionsFor(status: Status | null): GoalOption[] {
 // sources decide which income detail screens appear. Ordered by relevance to life stage.
 export type IncomeSourceKey =
   | 'employment' | 'self_employment' | 'investment_income' | 'rental'
-  | 'benefits' | 'support' | 'scholarship' | 'other_income';
+  | 'benefits' | 'support' | 'scholarship' | 'loans' | 'other_income';
 
 export function incomeSourceOptionsFor(status: Status | null): { value: IncomeSourceKey; icon: string; title: string; sub: string }[] {
   const O: Record<IncomeSourceKey, { value: IncomeSourceKey; icon: string; title: string; sub: string }> = {
     employment:        { value: 'employment',        icon: '💼', title: 'A job (wages or salary)',     sub: 'Paycheck from an employer' },
     self_employment:   { value: 'self_employment',   icon: '🧰', title: 'Self-employed / side gig',     sub: 'Freelance, consulting, a small business' },
     scholarship:       { value: 'scholarship',       icon: '🎓', title: 'Scholarships, grants, stipend', sub: 'Money for school or research' },
+    loans:             { value: 'loans',             icon: '🏦', title: 'Student loans',               sub: 'Money you borrow now and repay later' },
     benefits:          { value: 'benefits',          icon: '🛟', title: 'Benefits',                     sub: 'SNAP, TANF, disability, unemployment, housing help' },
     support:           { value: 'support',           icon: '👪', title: 'Child support or alimony',     sub: 'Support payments you receive' },
     investment_income: { value: 'investment_income', icon: '💵', title: 'Interest & dividends',         sub: 'Money your savings or investments pay you' },
@@ -114,9 +115,9 @@ export function incomeSourceOptionsFor(status: Status | null): { value: IncomeSo
     other_income:      { value: 'other_income',      icon: '🧾', title: 'Something else',               sub: 'Gifts, a one-off payment, anything else' },
   };
   const ORDER: Record<Status, IncomeSourceKey[]> = {
-    student:  ['employment', 'scholarship', 'self_employment', 'support', 'benefits', 'investment_income', 'other_income'],
-    employed: ['employment', 'self_employment', 'investment_income', 'rental', 'benefits', 'support', 'other_income'],
-    partial:  ['employment', 'self_employment', 'benefits', 'investment_income', 'rental', 'support', 'other_income'],
+    student:  ['employment', 'scholarship', 'loans', 'self_employment', 'support', 'benefits', 'investment_income', 'other_income'],
+    employed: ['employment', 'self_employment', 'investment_income', 'rental', 'benefits', 'support', 'loans', 'other_income'],
+    partial:  ['employment', 'self_employment', 'benefits', 'investment_income', 'rental', 'support', 'loans', 'other_income'],
     retired:  ['investment_income', 'rental', 'benefits', 'support', 'other_income'],
   };
   return (status ? ORDER[status] : ORDER.employed).map((k) => O[k]);
@@ -152,6 +153,7 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('benefits')) out.push('income_benefits');
   if (srcs.includes('support')) out.push('income_support');
   if (srcs.includes('scholarship')) out.push('income_scholarship');
+  if (srcs.includes('loans')) out.push('income_loans');
   if (srcs.includes('other_income')) out.push('income_other');
   if (srcs.some((s) => TAXABLE_SOURCES.includes(s))) out.push('income_tax');
   out.push('recap_income');
