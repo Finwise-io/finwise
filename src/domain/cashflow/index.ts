@@ -45,8 +45,10 @@ export interface CashflowYear {
   totalOut: number;
 }
 
-/** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0). */
-export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date()): CashflowYear {
+/** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0).
+ *  `lean` models a variable earner's slow stretch — earned income (wage + tips + self-employment)
+ *  drops to their "slow month" figure. */
+export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date(), lean = false): CashflowYear {
   const a = op ?? {};
   const rate = effectiveRate(op);
   const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;   // for % expense conversion
@@ -60,8 +62,11 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
+  const lowMonthly = toNum(a.lowMonthly);   // a variable earner's slow-month total earnings (gross)
   for (let i = 0; i < 12; i++) {
-    taxableMo[i] += (jobActiveMonth(op, i, now) ? salaryM : 0) + rentalM + seM + invM + otherM + eq[i] + retIncM + tipsM;
+    const earnedNormal = (jobActiveMonth(op, i, now) ? salaryM : 0) + seM + tipsM;       // wage + self-employment + tips
+    const earned = lean && lowMonthly > 0 ? lowMonthly : earnedNormal;                    // slow-month scenario
+    taxableMo[i] += earned + rentalM + invM + otherM + eq[i] + retIncM;
     nontaxMo[i] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))] += toNum(a.bonusAnnual);   // bonus → its month (default Dec)

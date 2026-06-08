@@ -1,7 +1,7 @@
 // Bill calendar — month-by-month money in vs bills out, with a running balance so you can see when
 // you'll come up short and which bills to prioritize. Built on the cashflow domain (CFPB-style).
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -16,8 +16,10 @@ export default function BillCalendarScreen() {
   const cashOnHand = accounts.filter((x: any) => x.tax_bucket === 'CASH').reduce((t: number, x: any) => t + (x.balance || 0), 0);
   const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
   const start = num(startStr);
+  const varies = op.incomeVaries === 'varies' && num(op.lowMonthly) > 0;
+  const [lean, setLean] = useState(false);
 
-  const cf = useMemo(() => cashflowYear(op, start), [op, start]);
+  const cf = useMemo(() => cashflowYear(op, start, undefined, varies && lean), [op, start, varies, lean]);
   const critical = (Array.isArray(op.spendCats) ? op.spendCats : []).filter((c: any) => (c.tier ?? 'flex') === 'critical' && num(c.amount) > 0);
 
   // bar scale across the running balance (can go negative)
@@ -39,6 +41,17 @@ export default function BillCalendarScreen() {
           value={startStr} onChangeText={setStartStr} />
         <Text style={styles.tiny}>Your starting balance — we carry it forward month to month.</Text>
       </View>
+
+      {/* typical vs slow-month scenario (variable earners) */}
+      {varies && (
+        <View style={styles.scenRow}>
+          {[{ k: false, label: 'Typical month' }, { k: true, label: 'Slow month' }].map((o) => (
+            <TouchableOpacity key={String(o.k)} style={[styles.scenBtn, lean === o.k && styles.scenBtnOn]} onPress={() => setLean(o.k)}>
+              <Text style={[styles.scenTxt, lean === o.k && styles.scenTxtOn]}>{o.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+      )}
 
       {/* verdict */}
       <View style={[styles.verdict, short ? styles.verdictBad : styles.verdictGood]}>
@@ -95,10 +108,10 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
-      {op.incomeVaries === 'varies' && (
+      {varies && (
         <View style={[styles.verdict, { backgroundColor: '#FFF7E6', marginTop: 10 }]}>
           <Text style={styles.verdictTitle}>📉 Your income varies</Text>
-          <Text style={styles.verdictSub}>This view uses a typical month. Since your income swings, keep a bigger cushion and plan around your leaner weeks.</Text>
+          <Text style={styles.verdictSub}>Toggle <Text style={{ fontWeight: '800' }}>Slow month</Text> above to stress-test a lean stretch. Keep a bigger cushion than a steady earner would.</Text>
         </View>
       )}
       <Text style={styles.foot}>Money in is shown after estimated tax. Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
@@ -116,6 +129,11 @@ const styles = StyleSheet.create({
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginBottom: 5 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 16, color: Colors.textPrimary },
   tiny: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
+  scenRow: { flexDirection: 'row', gap: 8, marginTop: 10 },
+  scenBtn: { flex: 1, paddingVertical: 9, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', backgroundColor: Colors.cardBg },
+  scenBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  scenTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
+  scenTxtOn: { color: Colors.primaryDark },
   verdict: { borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   verdictGood: { backgroundColor: Colors.primaryLight },
   verdictBad: { backgroundColor: '#FBE9E7' },

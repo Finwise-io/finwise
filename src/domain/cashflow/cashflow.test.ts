@@ -34,6 +34,12 @@ describe('cashflow / bill calendar', () => {
     expect(cf.lowestBalance).toBeLessThan(0);
   });
 
+  test('lean (slow-month) scenario drops earned income to the low figure', () => {
+    const op = { ...NO_TAX, baseSalary: '4000', salaryMode: 'gross', salaryFreq: 'monthly', incomeSources: ['employment'], monthlySpending: '0', lowMonthly: '1500' };
+    expect(cashflowYear(op, 0, undefined, false).months[0].inflow).toBeCloseTo(4000, 0);
+    expect(cashflowYear(op, 0, undefined, true).months[0].inflow).toBeCloseTo(1500, 0);   // slow month
+  });
+
   test('loan disbursement shows as cash in (per-occurrence in each chosen month)', () => {
     const op = { ...NO_TAX, incomeSources: ['loans'], loans: [{ amount: '5000', months: [1, 8] }], monthlySpending: '0' };
     const cf = cashflowYear(op, 0);

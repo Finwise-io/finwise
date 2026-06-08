@@ -622,7 +622,14 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.label}>Is your income steady or does it vary?</Text>
           <Segmented ctx={ctx} k="incomeVaries" defaultValue="steady" options={[
             { value: 'steady', label: 'About the same' }, { value: 'varies', label: 'It varies' }]} />
-          {a.incomeVaries === 'varies' && <Text style={s.hint}>Good to know — we'll suggest a bigger cash cushion and plan around your leaner months.</Text>}
+          {a.incomeVaries === 'varies' && (
+            <>
+              <Text style={s.label}>In a slow month, about how much do you bring in (total earnings)?</Text>
+              <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                value={a.lowMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('lowMonthly', t)} />
+              <Text style={s.hint}>We'll plan around your slow months so a lean stretch doesn't catch you out.</Text>
+            </>
+          )}
 
           <Text style={s.label}>Is this job ongoing or temporary?</Text>
           <Segmented ctx={ctx} k="jobType" defaultValue="ongoing" options={[
