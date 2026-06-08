@@ -62,6 +62,12 @@ export default function HomeScreen() {
   const liabilities = (store.liabilities ?? []) as any[];
   const debtMonthly = totalDebtMonthly(liabilities);
   const bva = useMemo(() => budgetVsActual(expenses, op, selDate), [expenses, op, monthOffset]);
+  // net-worth-over-time from frozen monthly snapshots
+  const nwSeries = useMemo(() => {
+    const snaps = (store.monthlySnapshots ?? {}) as Record<string, any>;
+    return Object.values(snaps).filter((s) => s && s.net_worth != null && s.month).map((s) => ({ month: s.month as string, nw: s.net_worth as number }))
+      .sort((a, b) => (a.month < b.month ? -1 : 1)).slice(-12);
+  }, [store.monthlySnapshots]);
   const baseNet = useMemo(() => {
     const g = op ? incomeMonthlyGrid(op, 'net') : [];
     return g[selDate.getMonth()]?.amount ?? 0;
@@ -256,6 +262,29 @@ export default function HomeScreen() {
             ))}
           </View>
         )}
+
+        {/* net worth over time */}
+        {nwSeries.length >= 2 && (() => {
+          const vals = nwSeries.map((p) => p.nw);
+          const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+          const change = vals[vals.length - 1] - vals[0];
+          return (
+            <View style={styles.nwotCard}>
+              <View style={styles.nwotHead}>
+                <Text style={styles.nwotTitle}>Net worth over time</Text>
+                <Text style={[styles.nwotChange, { color: change >= 0 ? Colors.primary : Colors.red }]}>{change >= 0 ? '+' : ''}{money(change)} · {nwSeries.length} mo</Text>
+              </View>
+              <View style={styles.nwotBars}>
+                {nwSeries.map((p) => (
+                  <View key={p.month} style={styles.nwotBarCol}>
+                    <View style={[styles.nwotBar, { height: `${20 + ((p.nw - lo) / span) * 80}%`, backgroundColor: Colors.primary }]} />
+                    <Text style={styles.nwotBarLbl}>{p.month.slice(5)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        })()}
 
         {/* bill calendar / cash flow */}
         <TouchableOpacity style={styles.billCalCard} activeOpacity={0.85} onPress={() => router.push('/bill-calendar')}>
@@ -914,6 +943,14 @@ const styles = StyleSheet.create({
   sharpenSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 2 },
   sharpenBar: { height: 6, borderRadius: 3, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   sharpenFill: { height: 6, borderRadius: 3, backgroundColor: Colors.primary },
+  nwotCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  nwotHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
+  nwotTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  nwotChange: { fontSize: 12.5, fontWeight: '800' },
+  nwotBars: { flexDirection: 'row', alignItems: 'flex-end', height: 72, gap: 3 },
+  nwotBarCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' },
+  nwotBar: { width: '70%', borderTopLeftRadius: 3, borderTopRightRadius: 3, minHeight: 4 },
+  nwotBarLbl: { fontSize: 8, color: Colors.textTertiary, marginTop: 3 },
   billCalCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   billCalIcon: { fontSize: 22 },
   billCalTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
