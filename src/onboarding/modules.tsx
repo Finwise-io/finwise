@@ -1147,8 +1147,8 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     {availableYr > 0 && (() => {
       const steady = lowMo.length === 0 && highMo.length === 0;
       const pieces: string[] = [];
+      if (highMo.length) pieces.push(`extra in ${monthRanges(highMo.map((o) => o.i), labels)} (+${money(maxHigh - typical)}, ~${money(maxHigh)}/mo)`);
       if (lowMo.length) pieces.push(`lower in ${monthRanges(lowMo.map((o) => o.i), labels)} (~${money(Math.max(0, minLow))}/mo)`);
-      if (highMo.length) pieces.push(`more in ${monthRanges(highMo.map((o) => o.i), labels)} (~${money(maxHigh)}/mo)`);
       return (
         <Callout
           text={steady ? `About ${money(Math.max(0, avgMo))} a month, steady all year` : `About ${money(Math.max(0, typical))} most months`}
