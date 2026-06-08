@@ -47,6 +47,27 @@ export function marketValue(p: Position, price: number | null | undefined): numb
 export function unrealizedGain(p: Position, price: number | null | undefined): number {
   return price == null ? 0 : round2(marketValue(p, price) - costBasis(p));
 }
+/** Unrealized capital gains split by holding period — long-term (held ≥ 1 year) vs short-term.
+ *  Computed per lot from its purchase date; lots without a cost basis are skipped. */
+export interface CapGains { longGain: number; shortGain: number; totalGain: number; }
+export function capGains(p: Position, price: number | null | undefined, now: Date = new Date()): CapGains {
+  if (price == null) return { longGain: 0, shortGain: 0, totalGain: 0 };
+  let lg = 0, sg = 0;
+  for (const lot of (p.lots ?? [])) {
+    if (!(lot.cost_per_share > 0) || !(lot.shares > 0)) continue;
+    const gain = lot.shares * (price - lot.cost_per_share);
+    const bought = new Date(lot.purchase_date);
+    const heldMonths = isNaN(bought.getTime()) ? 0 : (now.getFullYear() - bought.getFullYear()) * 12 + (now.getMonth() - bought.getMonth());
+    if (heldMonths >= 12) lg += gain; else sg += gain;
+  }
+  return { longGain: round2(lg), shortGain: round2(sg), totalGain: round2(lg + sg) };
+}
+/** Estimated tax if sold now: long-term gains at the LT rate, short-term at the ordinary rate.
+ *  Losses don't create a positive tax. */
+export function capGainsTax(longGain: number, shortGain: number, ltRate = 0.15, ordinaryRate = 0.24): number {
+  return round2(Math.max(0, longGain) * ltRate + Math.max(0, shortGain) * ordinaryRate);
+}
+
 /** Total return since purchase = gain / cost basis (decimal). null price or zero basis → null. */
 export function totalROI(p: Position, price: number | null | undefined): number | null {
   const basis = costBasis(p);

@@ -1,7 +1,7 @@
 import {
   costBasis, totalShares, avgCost, marketValue, unrealizedGain, totalROI,
   periodReturn, latestClose, buildPerformance, portfolioPeriodReturn, benchmarkTicker,
-  attribution, allocation, portfolioTrend,
+  attribution, allocation, portfolioTrend, capGains, capGainsTax,
   type Position, type PriceSeries,
 } from './index';
 
@@ -113,6 +113,15 @@ describe('performance — attribution + allocation', () => {
     const cash = slices.find((s) => s.key === 'cash')!;
     expect(cash.pct).toBeCloseTo(23.0, 1);
     expect(slices.reduce((t, s) => t + s.pct, 0)).toBeCloseTo(100, 0);
+  });
+
+  test('capGains: splits long- vs short-term by holding period; tax applies the rates', () => {
+    const now = new Date(2026, 0, 1);
+    const p = pos('AAPL', 'stocks_etf', [[10, 100, '2024-06-01'], [5, 100, '2025-10-01']]);  // 10sh held >1y, 5sh <1y
+    const cg = capGains(p, 130, now);                 // price 130 → $30/sh gain
+    expect(cg.longGain).toBeCloseTo(300, 0);          // 10 × 30
+    expect(cg.shortGain).toBeCloseTo(150, 0);         // 5 × 30
+    expect(capGainsTax(cg.longGain, cg.shortGain, 0.15, 0.24)).toBeCloseTo(300 * 0.15 + 150 * 0.24, 1);
   });
 
   test('portfolioTrend: value + rebased benchmark over time', () => {

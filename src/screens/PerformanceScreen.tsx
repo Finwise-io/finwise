@@ -9,7 +9,7 @@ import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
-  attribution, allocation, portfolioTrend, PERIODS, type Period, type Position, type Lot, type TrendPoint,
+  attribution, allocation, portfolioTrend, capGains, capGainsTax, PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 
@@ -48,6 +48,11 @@ export default function PerformanceScreen() {
   const totalValue = investedValue + cashTotal;
   const attr = useMemo(() => attribution(rows), [rows]);
   const alloc = useMemo(() => allocation(rows, cashTotal), [rows, cashTotal]);
+  const cg = useMemo(() => {
+    let lg = 0, sg = 0;
+    rows.forEach((r) => { const c = capGains(r.position, r.price); lg += c.longGain; sg += c.shortGain; });
+    return { longGain: lg, shortGain: sg, total: lg + sg, tax: capGainsTax(lg, sg) };
+  }, [rows]);
   const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
   const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
@@ -170,6 +175,18 @@ export default function PerformanceScreen() {
                   <Text style={styles.allocPct}>{s.pct}%</Text>
                 </View>
               ))}
+            </View>
+          )}
+
+          {/* CAP GAINS — tax if you sold now */}
+          {Math.abs(cg.total) > 1 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>If you sold everything now</Text>
+              <View style={styles.cgRow}><Text style={styles.cgL}>Unrealized gain</Text><Text style={[styles.cgV, { color: cg.total >= 0 ? Colors.primary : Colors.red }]}>{cg.total >= 0 ? '+' : ''}{money(cg.total)}</Text></View>
+              {cg.total > 0 && <View style={styles.cgRow}><Text style={styles.cgL}>Est. tax if sold</Text><Text style={styles.cgV}>−{money(cg.tax)}</Text></View>}
+              {!simple && (cg.longGain !== 0 || cg.shortGain !== 0) && (
+                <Text style={styles.foot}>Long-term (held &gt; 1 yr): {money(cg.longGain)} at ~15% · short-term: {money(cg.shortGain)} at your income rate. Holding &gt; 1 year is taxed less — a reason not to sell winners too soon. Estimate only.</Text>
+              )}
             </View>
           )}
 
@@ -548,6 +565,9 @@ const styles = StyleSheet.create({
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
   cardTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  cgRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 },
+  cgL: { fontSize: 13, color: Colors.textSecondary },
+  cgV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   trendHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   trendChg: { fontSize: 13.5, fontWeight: '800' },
   trendVs: { fontSize: 12, fontWeight: '700', color: Colors.textTertiary },
