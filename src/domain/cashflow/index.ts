@@ -63,7 +63,7 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
     taxableMo[i] += (jobActiveMonth(op, i, now) ? salaryM : 0) + rentalM + seM + invM + otherM + eq[i];
     nontaxMo[i] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
-  if (toNum(a.bonusAnnual) > 0) taxableMo[11] += toNum(a.bonusAnnual);                 // bonus → December
+  if (toNum(a.bonusAnnual) > 0) taxableMo[Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1))] += toNum(a.bonusAnnual);   // bonus → its month (default Dec)
   if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing → January
   if (otherFreq === 'onetime') taxableMo[0] += toNum(a.otherAmount);
 

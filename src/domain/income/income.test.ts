@@ -162,6 +162,13 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(labels).toEqual(['Pell', 'Stipend']);
   });
 
+  test('bonus lands in its chosen month (not always December)', () => {
+    const op = { baseSalary: '0', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', bonusAnnual: '12000', bonusMonth: '6' };
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[5].amount).toBe(12000);   // June
+    expect(g[11].amount).toBe(0);      // not December
+  });
+
   test('no income entered → no sources', () => {
     expect(incomeFromOnboarding('u1', {}).sources).toHaveLength(0);
   });

@@ -182,14 +182,20 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
   const [label, setLabel] = useState('');
   const [target, setTarget] = useState('');
   const [saved, setSaved] = useState('');
-  const [months, setMonths] = useState('');
+  const [tMonth, setTMonth] = useState('');
+  const [tYear, setTYear] = useState('');
   const [icon, setIcon] = useState('🎯');
   React.useEffect(() => {
     if (!open) return;
     setLabel(goal?.label ?? ''); setTarget(goal ? String(goal.target) : ''); setSaved(goal ? String(goal.saved) : '');
-    setMonths(goal?.duration ? String(num(goal.duration)) : ''); setIcon(goal?.icon || '🎯');
+    const m = String(goal?.targetDate ?? '').match(/(\d{4})-(\d{1,2})/);
+    setTMonth(m ? m[2] : ''); setTYear(m ? m[1] : ''); setIcon(goal?.icon || '🎯');
   }, [open]);
   const valid = label.trim() && num(target) > 0;
+  // months until the target date (if both set), used to back-calc the monthly amount
+  const now = new Date();
+  const monthsUntil = (num(tYear) >= now.getFullYear() && num(tMonth) >= 1 && num(tMonth) <= 12)
+    ? Math.max(1, (num(tYear) - now.getFullYear()) * 12 + (num(tMonth) - (now.getMonth() + 1))) : 0;
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
@@ -206,11 +212,14 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={target} onChangeText={setTarget} placeholder="0" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Saved so far</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={saved} onChangeText={setSaved} placeholder="0" placeholderTextColor={Colors.textTertiary} />
-          <Text style={styles.fieldL}>Reach it in (months, optional)</Text>
-          <TextInput style={styles.input} keyboardType="number-pad" value={months} onChangeText={setMonths} placeholder="e.g. 18" placeholderTextColor={Colors.textTertiary} />
-          {valid && num(months) > 0 && <Text style={styles.note}>~{money(Math.max(0, (num(target) - num(saved)) / num(months)))}/mo to hit it.</Text>}
+          <Text style={styles.fieldL}>Target date (optional)</Text>
+          <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+            <TextInput style={[styles.input, { flex: 1 }]} keyboardType="number-pad" value={tMonth} onChangeText={setTMonth} placeholder="Month (MM)" placeholderTextColor={Colors.textTertiary} />
+            <TextInput style={[styles.input, { flex: 1.3 }]} keyboardType="number-pad" value={tYear} onChangeText={setTYear} placeholder="Year (YYYY)" placeholderTextColor={Colors.textTertiary} />
+          </View>
+          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(Math.max(0, (num(target) - num(saved)) / monthsUntil))}/mo for {monthsUntil} months to hit it by then.</Text>}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: months ? String(num(months)) : undefined, icon, color: Colors.primary })}>
+            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, icon, color: Colors.primary })}>
             <Text style={styles.saveBtnT}>{goal ? 'Save' : 'Add goal'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete goal</Text></TouchableOpacity>}

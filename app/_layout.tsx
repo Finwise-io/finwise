@@ -135,7 +135,7 @@ export default function RootLayout() {
         <ErrorBoundary>
         <StatusBar style="dark" />
         <Stack
-          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size or display mode changes so it applies everywhere live */
+          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}-${currency ?? 'USD'}`}   /* remount the tree when text size / display mode / currency changes so it applies everywhere live */
           screenOptions={{
             headerStyle: { backgroundColor: Colors.bgSecondary },
             headerShadowVisible: false,

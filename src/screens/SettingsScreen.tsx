@@ -6,6 +6,7 @@ import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified } from '../services/firebase';
 import { FONT_SCALES } from '../utils/fontScale';
+import { CURRENCIES } from '../domain/_shared/money';
 import Constants from 'expo-constants';
 
 const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
@@ -27,7 +28,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, currency, setCurrency } = useStore() as any;
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -194,6 +195,24 @@ export default function SettingsScreen() {
           ))}
         </View>
         <Text style={styles.modeNote}>Make text bigger across the whole app for easier reading.</Text>
+      </Card>
+
+      {/* Currency */}
+      <Card>
+        <Text style={styles.sectionTitle}>Currency</Text>
+        <View style={styles.curWrap}>
+          {CURRENCIES.map((c) => {
+            const on = (currency ?? 'USD') === c.code;
+            return (
+              <TouchableOpacity key={c.code} style={[styles.curBtn, on && styles.curBtnOn]} onPress={() => setCurrency(c.code, c.locale)}>
+                <Text style={styles.curFlag}>{c.flag}</Text>
+                <Text style={[styles.curCode, on && styles.curCodeOn]}>{c.code}</Text>
+                <Text style={styles.curName} numberOfLines={1}>{c.symbol}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text style={styles.modeNote}>Formats every amount in the app for your region.</Text>
       </Card>
 
       {/* Actions */}
@@ -399,6 +418,13 @@ const styles = StyleSheet.create({
   modeTOn: { color: Colors.primaryDark },
   modeSub: { fontSize: 10, color: Colors.textTertiary, marginTop: 2 },
   modeNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 10, lineHeight: 15 },
+  curWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  curBtn: { width: '31%', alignItems: 'center', paddingVertical: 10, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  curBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  curFlag: { fontSize: 20 },
+  curCode: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  curCodeOn: { color: Colors.primaryDark },
+  curName: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   settingRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.sm, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   settingLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   settingValue: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },

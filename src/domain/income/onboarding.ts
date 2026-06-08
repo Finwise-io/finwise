@@ -254,10 +254,11 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
 
   const ex = extraIncome(op);
+  const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
     let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly;
-    if (i === 11) taxable += bonus;                 // annual bonus → December
+    if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
     const gross = taxable + ex.nontaxMonthly;       // benefits/support/scholarship are non-taxable
     let amount = mode === 'gross' ? gross : taxable * (1 - rate) + ex.nontaxMonthly;

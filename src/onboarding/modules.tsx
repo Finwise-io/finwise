@@ -667,10 +667,22 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'income_bonus': {
       const b = num(a.bonusAnnual), sign = num(a.signingOnetime);
+      const bonusMo = num(a.bonusMonth) || 12;
       return (<>
         <Header emoji="🎉" title="Bonuses" sub="Cash bonuses beyond your salary." />
         <Card>
           <HeroAmount ctx={ctx} k="bonusAnnual" label="Annual bonus (per year)" />
+          {b > 0 && (
+            <>
+              <Text style={s.label}>Which month does it usually land?</Text>
+              <View style={s.monthGrid}>
+                {MONTHS3.map((lbl, idx) => {
+                  const m = idx + 1, on = bonusMo === m;
+                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => ctx.setAnswer('bonusMonth', m)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
+                })}
+              </View>
+            </>
+          )}
           <MoneyRow ctx={ctx} k="signingOnetime" label="Signing bonus (one-time)" />
         </Card>
         {(b > 0 || sign > 0) && <Callout text={`${money(b + sign)} in bonus income`}
@@ -1157,7 +1169,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       )}
       <Text style={s.note2}>{modeLabel}. {(() => {
         const why: string[] = [];
-        if (num(a.bonusAnnual) > 0) why.push('a bonus lands in December');
+        if (num(a.bonusAnnual) > 0) why.push(`a bonus lands in ${MONTHS3[Math.min(11, Math.max(0, (num(a.bonusMonth) || 12) - 1))]}`);
         if (num(a.signingOnetime) > 0 || ex.onetimeJan > 0) why.push('one-time payments land in their month');
         if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
         if (a.jobType === 'temporary') why.push('your job runs only part of the year');
