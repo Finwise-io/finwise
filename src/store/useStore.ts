@@ -215,6 +215,7 @@ type AppState = {
   allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
+  estatePlan: Record<string, boolean>;            // estate checklist: item id → done
   retirementScenarios: RetirementScenario[];      // saved what-if scenarios
   benchmarkReturns: Record<string, number>;       // asset-kind → expected annual return (decimal); overrides ASSET_KINDS defaults
   priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
@@ -293,6 +294,7 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
+  toggleEstateItem: (id: string) => void;
   saveRetirementScenario: (name: string, assumptions: Partial<RetirementAssumptions>, retireAge: number, chance: number) => void;
   deleteRetirementScenario: (id: string) => void;
   setBenchmarkReturn: (kind: string, ret: number) => void;
@@ -394,6 +396,7 @@ export const useStore = create<AppState>()(
       allocPromptSkipped: {},
       monthlySnapshots: {},
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+      estatePlan: {},
       retirementScenarios: [],
       benchmarkReturns: {},
       priceCache: {},
@@ -549,6 +552,7 @@ export const useStore = create<AppState>()(
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
+      toggleEstateItem: (id) => set((s) => ({ estatePlan: { ...s.estatePlan, [id]: !s.estatePlan?.[id] } })),
       saveRetirementScenario: (name, assumptions, retireAge, chance) => set((s) => ({
         retirementScenarios: [
           ...s.retirementScenarios,
@@ -729,6 +733,7 @@ export const useStore = create<AppState>()(
         assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null,
         allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {},
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+      estatePlan: {},
         retirementScenarios: [],
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [],
