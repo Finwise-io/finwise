@@ -1,4 +1,4 @@
-import { cashflowYear } from './index';
+import { cashflowYear, upcomingBills } from './index';
 
 const NO_TAX = { taxMode: 'manual', manualTaxRate: '0' };
 const JAN = new Date(2026, 0, 1);   // pin "now" to January so slot index == calendar month - 1
@@ -65,5 +65,35 @@ describe('cashflow / bill calendar', () => {
     expect(cf.months[sep].balance).toBeCloseTo(-8000, 0);   // Sept: +7k aid − 15k tuition = short $8k
     expect(cf.months[jan].label).toContain('’27');          // labelled as next year
     expect(cf.shortMonths.length).toBeGreaterThan(0);
+  });
+});
+
+describe('day-level bill planner — "how much to ask, by when"', () => {
+  const base = {
+    ...NO_TAX, incomeSources: ['employment', 'support'],
+    baseSalary: '1000', salaryMode: 'gross', salaryFreq: 'monthly', jobType: 'ongoing',
+    supportMonthly: '400', monthlySpending: '0',
+    spendCats: [
+      { id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '15000', unit: 'dollar', months: [9], dueDay: 15 },
+      { id: 'rent', tier: 'critical', bucket: 'fixed', amount: '700', unit: 'dollar' },
+      { id: 'food', tier: 'critical', bucket: 'fixed', amount: '300', unit: 'dollar' },
+    ],
+  };
+  const JUN = new Date(2026, 5, 1);
+
+  test('aid that arrives AFTER the due date does not help — big shortfall', () => {
+    const op = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 20, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 20, year: '2026' }] };
+    const [t] = upcomingBills(op, 500, JUN);
+    expect(t.dueDate).toBe('2026-09-15');
+    expect(t.needByDate).toBe('2026-09-13');     // 2-day buffer
+    expect(t.askByDate).toBe('2026-09-03');      // 10-day lead
+    expect(t.shortfall).toBeGreaterThan(12000);  // $12k aid lands Sep 20 — not in time
+    expect(t.coverSource).toBe('your family');
+  });
+
+  test('same aid arriving BEFORE the need-by date slashes the shortfall', () => {
+    const op = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 5, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 5, year: '2026' }] };
+    const [t] = upcomingBills(op, 500, JUN);
+    expect(t.shortfall).toBeLessThan(2500);      // aid (Sep 5) is available by Sep 13
   });
 });

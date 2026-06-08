@@ -37,6 +37,106 @@ function placeYearly(out: number[], yearly: number, months: number[] | undefined
   else for (let i = 0; i < 12; i++) out[i] += yearly / 12;
 }
 
+// ───────────────────────── Day-level "big bill" planner ─────────────────────────
+// Answers the real question for a dated bill (e.g. tuition due Sep 15): on the day you need the
+// money in the bank, how much will you actually have — and how much (and by when) to ask whoever
+// covers your shortfall. Works at DAY resolution for dated items; steady income/spend accrues daily.
+const DAY_MS = 86400000;
+function daysBetween(a: Date, b: Date): number { return Math.round((b.getTime() - a.getTime()) / DAY_MS); }
+function addDays(d: Date, n: number): Date { return new Date(d.getTime() + n * DAY_MS); }
+function iso(d: Date): string { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
+/** The next time (month, day) occurs on/after `now`, unless an explicit year is given. */
+function nextOccurrence(month1to12: number, day: number, now: Date, year?: number): Date {
+  const d0 = day > 0 ? day : 1;
+  if (year && year > 0) return new Date(year, month1to12 - 1, d0);
+  let d = new Date(now.getFullYear(), month1to12 - 1, d0);
+  if (d.getTime() < now.getTime()) d = new Date(now.getFullYear() + 1, month1to12 - 1, d0);
+  return d;
+}
+
+export interface UpcomingBill {
+  id: string;
+  label: string;
+  amount: number;
+  dueDate: string;          // ISO — when the bill is due
+  needByDate: string;       // dueDate − buffer (money must be in the account)
+  askByDate: string;        // needByDate − lead (when to request the shortfall)
+  availableByNeed: number;  // projected cash on the need-by date (after earlier commitments)
+  shortfall: number;        // how much more you need for this bill
+  coverSource: string;      // who/what covers the gap
+  daysAway: number;         // days from now until due
+}
+
+export function upcomingBills(
+  op: Record<string, any> | null,
+  startBalance = 0,
+  now: Date = new Date(),
+  opts: { bufferDays?: number; askLeadDays?: number; horizonDays?: number } = {},
+): UpcomingBill[] {
+  const a = op ?? {};
+  const buffer = opts.bufferDays ?? 2, lead = opts.askLeadDays ?? 10, horizon = opts.horizonDays ?? 365;
+  const rate = effectiveRate(op);
+
+  // steady, recurring monthly net (excludes the dated lumps handled below)
+  const monthlySch = (Array.isArray(a.scholarships) ? a.scholarships : [])
+    .filter((s: any) => s?.freq === 'monthly').reduce((t: number, s: any) => t + toNum(s.amount), 0);
+  const steadyInMonthly =
+    grossSalaryMonthly(op) * (1 - rate) + toNum(a.tipsMonthly) * (1 - rate)
+    + toNum(a.supportMonthly) + toNum(a.benefitMonthly) + monthlySch
+    + retirementIncomeMonthly(op) * (1 - rate) + (rentalNetAnnual(op) / 12) * (1 - rate);
+  const b = spendBuckets(op);
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - b.monthly_total);
+  const steadyOutMonthly = b.fixed + b.flexible + uncategorized;       // monthly bills only (non-monthly are dated)
+  const steadyDailyNet = (steadyInMonthly - steadyOutMonthly) * 12 / 365;
+
+  // dated cash IN (scholarships/grants & loans on their disbursement dates)
+  const inflows: { date: Date; amt: number }[] = [];
+  for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {
+    if (sc?.freq === 'monthly') continue;
+    const amt = toNum(sc?.amount); if (amt <= 0) continue;
+    const ms = Array.isArray(sc?.months) && sc.months.length ? sc.months : [1];
+    for (const m of ms) inflows.push({ date: nextOccurrence(m, toNum(sc?.day), now, toNum(sc?.year)), amt: amt / ms.length });
+  }
+  for (const ln of (Array.isArray(a.loans) ? a.loans : [])) {
+    const amt = toNum(ln?.amount); if (amt <= 0) continue;
+    const ms = Array.isArray(ln?.months) && ln.months.length ? ln.months : [1];
+    for (const m of ms) inflows.push({ date: nextOccurrence(m, toNum(ln?.day), now, toNum(ln?.year)), amt });
+  }
+
+  // dated bills OUT (non-monthly categories on their due dates)
+  const billsOut: { id: string; label: string; amount: number; date: Date; critical: boolean }[] = [];
+  const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;
+  for (const c of (Array.isArray(a.spendCats) ? a.spendCats : [])) {
+    if (c?.bucket !== 'nonmonthly') continue;
+    const amt = toNum(c?.amount); if (amt <= 0) continue;
+    const yearly = c?.unit === 'pct' ? (amt / 100) * netMonthly * 12 : amt;
+    const ms = Array.isArray(c?.months) && c.months.length ? c.months : [1];
+    for (const m of ms) billsOut.push({ id: `${c.id}-${m}`, label: c.label ?? c.id ?? 'Bill', amount: yearly / ms.length, date: nextOccurrence(m, toNum(c?.dueDay), now), critical: (c.tier ?? 'flex') === 'critical' });
+  }
+
+  const balanceOn = (target: Date, excludeId: string): number => {
+    let bal = startBalance + steadyDailyNet * Math.max(0, daysBetween(now, target));
+    for (const f of inflows) if (f.date.getTime() <= target.getTime()) bal += f.amt;
+    for (const o of billsOut) if (o.id !== excludeId && o.date.getTime() <= target.getTime()) bal -= o.amount;
+    return bal;
+  };
+
+  const coverSource = (a.incomeSources ?? []).includes('support') ? 'your family' : 'your savings or a backup';
+  return billsOut
+    .filter((bill) => { const d = daysBetween(now, bill.date); return d >= 0 && d <= horizon; })
+    .sort((x, y) => x.date.getTime() - y.date.getTime())
+    .map((bill) => {
+      const needBy = addDays(bill.date, -buffer);
+      const avail = balanceOn(needBy, bill.id);
+      const shortfall = Math.max(0, round2(bill.amount - avail));
+      return {
+        id: bill.id, label: bill.label, amount: round2(bill.amount),
+        dueDate: iso(bill.date), needByDate: iso(needBy), askByDate: iso(addDays(needBy, -lead)),
+        availableByNeed: round2(avail), shortfall, coverSource, daysAway: daysBetween(now, bill.date),
+      };
+    });
+}
+
 export interface MonthFlow { label: string; inflow: number; outflow: number; net: number; balance: number; }
 export interface CashflowYear {
   months: MonthFlow[];

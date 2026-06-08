@@ -5,7 +5,9 @@ import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { cashflowYear } from '../domain/cashflow';
+import { cashflowYear, upcomingBills } from '../domain/cashflow';
+
+const fmtDate = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]} ${d}`; };
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -20,6 +22,7 @@ export default function BillCalendarScreen() {
   const [lean, setLean] = useState(false);
 
   const cf = useMemo(() => cashflowYear(op, start, undefined, varies && lean), [op, start, varies, lean]);
+  const bills = useMemo(() => upcomingBills(op, start).filter((b) => b.daysAway <= 150).slice(0, 3), [op, start]);
   const critical = (Array.isArray(op.spendCats) ? op.spendCats : []).filter((c: any) => (c.tier ?? 'flex') === 'critical' && num(c.amount) > 0);
 
   // bar scale across the running balance (can go negative)
@@ -64,6 +67,27 @@ export default function BillCalendarScreen() {
             : `Lowest point in the year is ${money(cf.lowestBalance)}.`}
         </Text>
       </View>
+
+      {/* coming-up big bills — day-level "how much, by when" */}
+      {bills.length > 0 && (
+        <View style={styles.card}>
+          <Text style={styles.cardTitle}>Coming up — what to line up</Text>
+          {bills.map((b) => (
+            <View key={b.id} style={styles.billRow}>
+              <Text style={styles.billName}>{b.label} · {money(b.amount)} due {fmtDate(b.dueDate)}</Text>
+              {b.shortfall > 0 ? (
+                <>
+                  <Text style={styles.billShort}>By {fmtDate(b.needByDate)} you'll have about {money(b.availableByNeed)} — short {money(b.shortfall)}.</Text>
+                  <Text style={styles.billAsk}>👉 Ask {b.coverSource} for {money(b.shortfall)} by {fmtDate(b.askByDate)} so it clears in time.</Text>
+                </>
+              ) : (
+                <Text style={styles.billOk}>✓ You'll have about {money(b.availableByNeed)} by {fmtDate(b.needByDate)} — covered.</Text>
+              )}
+            </View>
+          ))}
+          <Text style={styles.tiny}>Assumes money must be in your account 2 days before the due date, and you ask 10 days ahead. Set a “day” on each bill and disbursement for the sharpest estimate.</Text>
+        </View>
+      )}
 
       {/* month-by-month running balance */}
       <View style={styles.card}>
@@ -126,6 +150,11 @@ const styles = StyleSheet.create({
   sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  billRow: { paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  billName: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  billShort: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
+  billAsk: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, marginTop: 4, lineHeight: 18 },
+  billOk: { fontSize: 12.5, color: Colors.primary, fontWeight: '700', marginTop: 3 },
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginBottom: 5 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 16, color: Colors.textPrimary },
   tiny: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },

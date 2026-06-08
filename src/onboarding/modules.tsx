@@ -471,7 +471,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <>
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
-                <YearField value={row.year} onChange={(t) => setRow(i, { year: t })} />
+                <WhenField day={row.day} year={row.year} onDay={(t) => setRow(i, { day: t })} onYear={(t) => setRow(i, { year: t })} />
               </>
             )}
           </Card>
@@ -518,7 +518,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <>
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
-                <YearField value={row.year} onChange={(t) => setRow(i, { year: t })} />
+                <WhenField day={row.day} year={row.year} onDay={(t) => setRow(i, { day: t })} onYear={(t) => setRow(i, { year: t })} />
                 <Text style={[s.label, { marginTop: 12 }]}>Repayment, once you graduate (optional)</Text>
                 <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
                   <View style={{ flex: 1 }}>
@@ -1496,14 +1496,19 @@ function MonthMultiSelect({ value, onChange }: { value: number[]; onChange: (v: 
   );
 }
 
-// Optional year for a disbursement — left blank means "the next time that month comes around".
-function YearField({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+// Optional exact day + year for a disbursement. Blank day → assume the 1st; blank year → the next
+// time that month comes around. A day makes the bill-calendar "what to ask, by when" precise.
+function WhenField({ day, year, onDay, onYear }: { day?: string; year?: string; onDay: (v: string) => void; onYear: (v: string) => void }) {
   return (
     <View style={{ marginTop: 8 }}>
-      <Text style={s.dueLabel}>Which year? (optional)</Text>
-      <TextInput style={[s.input, { maxWidth: 160 }]} keyboardType="number-pad" placeholder="e.g. 2027" placeholderTextColor={Colors.textTertiary}
-        value={value ?? ''} onChangeText={onChange} maxLength={4} />
-      <Text style={s.hint}>Leave blank for the next time that month comes around. Set a year for a future disbursement (e.g. Jan 2027).</Text>
+      <Text style={s.dueLabel}>Exact day & year (optional)</Text>
+      <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+        <TextInput style={[s.input, { flex: 1 }]} keyboardType="number-pad" placeholder="Day (e.g. 15)" placeholderTextColor={Colors.textTertiary}
+          value={day ?? ''} onChangeText={onDay} maxLength={2} />
+        <TextInput style={[s.input, { flex: 1 }]} keyboardType="number-pad" placeholder="Year (e.g. 2027)" placeholderTextColor={Colors.textTertiary}
+          value={year ?? ''} onChangeText={onYear} maxLength={4} />
+      </View>
+      <Text style={s.hint}>Add the day so we can tell you exactly how much to have — and ask for — before it's due.</Text>
     </View>
   );
 }
@@ -1569,6 +1574,13 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
           <View style={{ marginLeft: 2, marginTop: 2 }}>
             <Text style={s.dueLabel}>When is it due? (pick the months)</Text>
             <MonthMultiSelect value={months} onChange={(v) => upsert(cat.id, { months: v }, seed)} />
+            {months.length > 0 && (
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginTop: 8 }}>
+                <Text style={s.dueLabel}>Due day (optional)</Text>
+                <TextInput style={[s.input, { width: 90 }]} keyboardType="number-pad" placeholder="e.g. 15" placeholderTextColor={Colors.textTertiary}
+                  value={e.dueDay ?? ''} onChangeText={(t) => upsert(cat.id, { dueDay: t }, seed)} maxLength={2} />
+              </View>
+            )}
           </View>
         )}
       </View>
