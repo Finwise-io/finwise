@@ -2,6 +2,7 @@
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -16,6 +17,7 @@ const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMont
 const GOAL_ICONS = ['🎯', '🏠', '🚗', '✈️', '🎓', '💍', '👶', '🏖️', '🛟', '💰'];
 
 export default function GoalsScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const goals: Goal[] = store.goals ?? [];
   const liabilities: Debt[] = store.liabilities ?? [];
@@ -91,6 +93,16 @@ export default function GoalsScreen() {
         );
       })}
       <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
+
+      {/* BUILD CREDIT */}
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/credit')}>
+        <Text style={styles.creditIcon}>📊</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Build credit</Text>
+          <Text style={styles.creditSub}>Check your utilization + the habits that raise your score</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
 
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
@@ -234,6 +246,11 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
+  creditCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 18, borderWidth: 1, borderColor: Colors.border },
+  creditIcon: { fontSize: 22 },
+  creditTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  creditSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
+  creditArrow: { fontSize: 22, color: Colors.textTertiary },
   loanBig: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
   loanBigSub: { fontSize: 14, fontWeight: '600', color: Colors.textTertiary },
   loanLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },

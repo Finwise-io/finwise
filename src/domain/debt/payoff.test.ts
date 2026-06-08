@@ -1,7 +1,23 @@
-import { payoffPlan, loanPayment, debtToIncome, type Debt } from './index';
+import { payoffPlan, loanPayment, debtToIncome, creditUtilization, creditScoreBand, type Debt } from './index';
 
 const d = (id: string, bal: number, apr: number, min: number): Debt =>
   ({ debt_id: id, label: id, debt_type: 'CREDIT_CARD', remaining_balance: bal, interest_rate_apr: apr, minimum_monthly_payment: min });
+
+describe('credit health', () => {
+  test('utilization status: ≤30% good, ≤50% caution, else high', () => {
+    expect(creditUtilization(200, 1000).ratio).toBeCloseTo(0.2, 3);
+    expect(creditUtilization(200, 1000).status).toBe('good');
+    expect(creditUtilization(450, 1000).status).toBe('caution');
+    expect(creditUtilization(800, 1000).status).toBe('high');
+    expect(creditUtilization(100, 0).ratio).toBe(0);   // no limit → 0
+  });
+  test('score bands', () => {
+    expect(creditScoreBand(810).label).toBe('Excellent');
+    expect(creditScoreBand(700).label).toBe('Good');
+    expect(creditScoreBand(620).good).toBe(false);
+    expect(creditScoreBand(500).label).toBe('Poor');
+  });
+});
 
 describe('loan repayment + DTI', () => {
   test('loanPayment: amortizes principal over the term (standard formula)', () => {

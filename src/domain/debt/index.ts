@@ -38,6 +38,21 @@ export function loanPayment(principal: number, aprPct: number, termYears: number
   return { monthly: round2(monthly), totalInterest: round2(totalPaid - principal), totalPaid: round2(totalPaid) };
 }
 
+// ── Credit health — utilization (balance ÷ limit) + score band ──
+export interface CreditUtil { ratio: number; status: 'good' | 'caution' | 'high'; }
+export function creditUtilization(balance: number, limit: number): CreditUtil {
+  const ratio = limit > 0 ? balance / limit : 0;
+  const status: CreditUtil['status'] = ratio <= 0.30 ? 'good' : ratio <= 0.50 ? 'caution' : 'high';
+  return { ratio: Math.round(ratio * 1000) / 1000, status };
+}
+export function creditScoreBand(score: number): { label: string; good: boolean } {
+  if (score >= 800) return { label: 'Excellent', good: true };
+  if (score >= 740) return { label: 'Very good', good: true };
+  if (score >= 670) return { label: 'Good', good: true };
+  if (score >= 580) return { label: 'Fair', good: false };
+  return { label: 'Poor', good: false };
+}
+
 // ── Debt-to-income ratio (CFPB) — how much of your gross income goes to debt payments ──
 export interface DTI { ratio: number; monthlyDebt: number; grossMonthly: number; guideline: number; status: 'good' | 'caution' | 'high'; }
 export function debtToIncome(monthlyDebt: number, grossMonthly: number, homeowner = false): DTI {
