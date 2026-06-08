@@ -1562,6 +1562,16 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
           </TouchableOpacity>
           {custom && <TouchableOpacity onPress={() => remove(cat.id)} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}><Text style={s.removeX}>✕</Text></TouchableOpacity>}
         </View>
+        {custom && (
+          <View style={{ flexDirection: 'row', gap: 8, marginLeft: 2, marginTop: 6 }}>
+            {[{ v: 'fixed', l: 'Monthly' }, { v: 'nonmonthly', l: 'Yearly' }].map((o) => (
+              <TouchableOpacity key={o.v} style={[s.cadChip, bucket === o.v && s.cadChipOn]} onPress={() => upsert(cat.id, { bucket: o.v }, seed)}>
+                <Text style={[s.cadTxt, bucket === o.v && s.cadTxtOn]}>{o.l}</Text>
+              </TouchableOpacity>
+            ))}
+            <Text style={s.cadHint}>{isNonMonthly ? 'Enter the full yearly amount' : 'Enter the monthly amount'}</Text>
+          </View>
+        )}
         {isNonMonthly && num(e.amount) > 0 && (
           <View style={{ marginLeft: 2, marginTop: 2 }}>
             <Text style={s.dueLabel}>When is it due? (pick the months)</Text>
@@ -1856,6 +1866,11 @@ const s = StyleSheet.create({
   unitToggleTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   addRow: { paddingVertical: 8, marginTop: 2 },
   addAnother: { fontSize: 14, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
+  cadChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  cadChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  cadTxt: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary },
+  cadTxtOn: { color: Colors.primaryDark },
+  cadHint: { fontSize: 11, color: Colors.textTertiary, alignSelf: 'center', flex: 1 },
   salMonthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5 },
   salMonthLbl: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, width: 44 },
   salMonthInputWrap: { flexDirection: 'row', alignItems: 'center', flex: 1, marginLeft: 10, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10 },
