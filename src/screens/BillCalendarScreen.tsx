@@ -18,10 +18,7 @@ export default function BillCalendarScreen() {
   const cashOnHand = accounts.filter((x: any) => x.tax_bucket === 'CASH').reduce((t: number, x: any) => t + (x.balance || 0), 0);
   const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
   const start = num(startStr);
-  const varies = op.incomeVaries === 'varies' && num(op.lowMonthly) > 0;
-  const [lean, setLean] = useState(false);
-
-  const cf = useMemo(() => cashflowYear(op, start, undefined, varies && lean), [op, start, varies, lean]);
+  const cf = useMemo(() => cashflowYear(op, start), [op, start]);
   const bills = useMemo(() => upcomingBills(op, start).filter((b) => b.daysAway <= 150).slice(0, 3), [op, start]);
   const critical = (Array.isArray(op.spendCats) ? op.spendCats : []).filter((c: any) => (c.tier ?? 'flex') === 'critical' && num(c.amount) > 0);
 
@@ -46,16 +43,6 @@ export default function BillCalendarScreen() {
       </View>
 
       {/* typical vs slow-month scenario (variable earners) */}
-      {varies && (
-        <View style={styles.scenRow}>
-          {[{ k: false, label: 'Typical month' }, { k: true, label: 'Slow month' }].map((o) => (
-            <TouchableOpacity key={String(o.k)} style={[styles.scenBtn, lean === o.k && styles.scenBtnOn]} onPress={() => setLean(o.k)}>
-              <Text style={[styles.scenTxt, lean === o.k && styles.scenTxtOn]}>{o.label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
-      )}
-
       {/* verdict */}
       <View style={[styles.verdict, short ? styles.verdictBad : styles.verdictGood]}>
         <Text style={[styles.verdictTitle, short && { color: Colors.red }]}>
@@ -132,12 +119,6 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
-      {varies && (
-        <View style={[styles.verdict, { backgroundColor: '#FFF7E6', marginTop: 10 }]}>
-          <Text style={styles.verdictTitle}>📉 Your income varies</Text>
-          <Text style={styles.verdictSub}>Toggle <Text style={{ fontWeight: '800' }}>Slow month</Text> above to stress-test a lean stretch. Keep a bigger cushion than a steady earner would.</Text>
-        </View>
-      )}
       <Text style={styles.foot}>Money in is shown after estimated tax. Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
       <View style={{ height: 40 }} />
     </ScrollView>

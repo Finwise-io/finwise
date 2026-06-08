@@ -314,7 +314,7 @@ export function fv(principal: number, monthly: number, years: number, rate = 0.0
 // ── must-have validation ────────────────────────────────────────────────────
 const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_sources: a => Array.isArray(a.incomeSources) && a.incomeSources.length > 0,
-  income_salary: a => num(a.baseSalary) > 0,
+  income_salary: a => num(a.baseSalary) > 0 || (Array.isArray(a.salaryByMonth) && a.salaryByMonth.some((x: any) => num(x) > 0)),
   income_self: a => num(a.seAmount) > 0,
   income_investment: a => num(a.invAnnual) > 0,
   income_benefits: a => num(a.benefitMonthly) > 0,
@@ -579,16 +579,20 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const mode = a.salaryMode ?? 'gross';
       const FREQ_LABEL: Record<string, string> = { hourly: 'hour', weekly: 'week', biweekly: '2 weeks', monthly: 'month' };
       const freq = a.salaryFreq ?? 'monthly';
-      const annualEntered = annualizedEnteredSalary(a);     // what they typed, annualized (full year)
-      const temp = a.jobType === 'temporary';
-      const months = salaryActiveMonths(a);                 // months worked this calendar year
-      const periodGross = temp ? salaryAnnual(a) : grossSalaryMonthly(a) * 12;  // grossed-up, prorated for temp jobs
-      const bracketPct = Math.round(marginalBracket(periodGross) * 100);
-      const effPct = Math.round(estimateEffectiveTaxRate(periodGross) * 100);
-      const hasAmt = num(a.baseSalary) > 0;
-      const hrsWk = freq === 'hourly' ? (num(a.hoursPerWeek) || 40) : 0;
+      const FREQ_MULT: Record<string, number> = { weekly: 52 / 12, biweekly: 26 / 12, monthly: 1 };
+      const enteredMonthly = freq === 'hourly'
+        ? num(a.baseSalary) * (num(a.hoursPerWeek) || 40) * 52 / 12
+        : num(a.baseSalary) * (FREQ_MULT[freq] ?? 1);   // entered base expressed per month (gross-or-takehome terms)
+      const byMonth = a.salaryMonthMode === 'months';
+      const tbl: string[] = Array.isArray(a.salaryByMonth) && a.salaryByMonth.length === 12 ? a.salaryByMonth : new Array(12).fill('');
+      const setMonth = (i: number, v: string) => { const arr = [...tbl]; arr[i] = v; ctx.setAnswer('salaryByMonth', arr); };
+      const goSame = () => { ctx.setAnswer('salaryMonthMode', 'same'); ctx.setAnswer('salaryByMonth', undefined); };
+      const goMonths = () => { ctx.setAnswer('salaryMonthMode', 'months'); ctx.setAnswer('salaryByMonth', new Array(12).fill(enteredMonthly > 0 ? String(Math.round(enteredMonthly)) : '')); };
+      const annualGross = salaryAnnual(a);
+      const bracketPct = Math.round(marginalBracket(annualGross) * 100);
+      const hasAmt = annualGross > 0;
       return (<>
-        <Header emoji="💵" title="Your salary" sub="Enter gross or take-home — we handle the tax math." />
+        <Header emoji="💵" title="Base salary" sub="Just your base pay — bonuses, equity & other income come on the next screens." />
         <Card>
           {household && (
             <>
@@ -597,7 +601,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
                 { value: 'you', label: 'You' }, { value: 'partner', label: 'Partner' }, { value: 'both', label: 'Both' }]} />
             </>
           )}
-          <Text style={s.label}>How often are you paid?</Text>
+          <Text style={s.label}>How are you paid?</Text>
           <Segmented ctx={ctx} k="salaryFreq" defaultValue="monthly" options={[
             { value: 'hourly', label: 'Hourly' }, { value: 'weekly', label: 'Weekly' },
             { value: 'biweekly', label: 'Bi-weekly' }, { value: 'monthly', label: 'Monthly' }]} />
@@ -610,8 +614,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             </>
           )}
 
-          {/* hero amount */}
-          <Text style={s.heroLabel}>Base salary (per {FREQ_LABEL[freq] ?? 'month'})</Text>
+          <Text style={s.heroLabel}>Base pay (per {FREQ_LABEL[freq] ?? 'month'})</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.baseSalary ?? ''} onChangeText={(t) => ctx.setAnswer('baseSalary', t)} />
           <Segmented ctx={ctx} k="salaryMode" defaultValue="gross" options={[
@@ -625,35 +628,30 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             </>
           )}
 
-          <Text style={s.label}>Is your overall monthly income steady, or does it vary?</Text>
-          <Text style={s.hint}>Across everything you bring in — wages{freq === 'hourly' ? ', tips' : ''}, commission. Salaried pay is usually steady.</Text>
-          <Segmented ctx={ctx} k="incomeVaries" defaultValue="steady" options={[
-            { value: 'steady', label: 'About the same' }, { value: 'varies', label: 'It varies' }]} />
-          {a.incomeVaries === 'varies' && (
-            <>
-              <Text style={s.label}>In a slow month, about how much do you bring in (total earnings)?</Text>
-              <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-                value={a.lowMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('lowMonthly', t)} />
-              <Text style={s.hint}>We'll plan around your slow months so a lean stretch doesn't catch you out.</Text>
-            </>
-          )}
+          {/* same every month, or a per-month table (handles raises, gaps, seasonal work) */}
+          <Text style={[s.label, { marginTop: 12 }]}>Is your base pay the same every month?</Text>
+          <View style={s.segRow}>
+            <TouchableOpacity style={[s.seg, !byMonth && s.segOn]} onPress={goSame}><Text style={[s.segTxt, !byMonth && s.segTxtOn]}>Same each month</Text></TouchableOpacity>
+            <TouchableOpacity style={[s.seg, byMonth && s.segOn]} onPress={goMonths}><Text style={[s.segTxt, byMonth && s.segTxtOn]}>Set by month</Text></TouchableOpacity>
+          </View>
 
-          <Text style={s.label}>Is this job ongoing or temporary?</Text>
-          <Segmented ctx={ctx} k="jobType" defaultValue="ongoing" options={[
-            { value: 'ongoing', label: 'Ongoing' }, { value: 'temporary', label: 'Temporary' }]} />
-          {temp && (
+          {byMonth && (
             <>
-              <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.label}>Starts</Text>
-                  <MonthYearCell value={a.jobStartDate} onChange={(v) => ctx.setAnswer('jobStartDate', v)} style={s.input} />
-                </View>
-                <View style={{ flex: 1 }}>
-                  <Text style={s.label}>Ends</Text>
-                  <MonthYearCell value={a.jobEndDate} onChange={(v) => ctx.setAnswer('jobEndDate', v)} style={s.input} />
-                </View>
+              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
+                <Text style={s.dueLabel}>{mode === 'gross' ? 'Gross' : 'Take-home'} pay each month</Text>
+                {enteredMonthly > 0 && <TouchableOpacity onPress={() => ctx.setAnswer('salaryByMonth', new Array(12).fill(String(Math.round(enteredMonthly))))}><Text style={s.addAnother}>Fill all · {money(enteredMonthly)}</Text></TouchableOpacity>}
               </View>
-              <Text style={s.hint}>We'll only count this income for the months you actually work.</Text>
+              {MONTHS3.map((lbl, i) => (
+                <View key={lbl} style={s.salMonthRow}>
+                  <Text style={s.salMonthLbl}>{lbl}</Text>
+                  <View style={s.salMonthInputWrap}>
+                    <Text style={s.salPre}>{currencySymbol()}</Text>
+                    <TextInput style={s.salMonthInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
+                      value={tbl[i] ?? ''} onChangeText={(t) => setMonth(i, t)} />
+                  </View>
+                </View>
+              ))}
+              <Text style={s.hint}>Set $0 for months you're not working (a gap, summer off), or raise a month after a pay bump.</Text>
             </>
           )}
         </Card>
@@ -662,19 +660,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <View style={s.callout}>
             <Text style={s.calloutIcon}>✨</Text>
             <View style={{ flex: 1 }}>
-              <Text style={s.calloutTxt}>
-                {mode === 'gross'
-                  ? `You're in the ${bracketPct}% federal tax bracket (${TAX_YEAR})`
-                  : `~${effPct}% effective rate · ${bracketPct}% bracket (${TAX_YEAR})`}
-              </Text>
-              <Text style={s.calloutSub}>
-                {temp
-                  ? `≈ ${money(periodGross)} from this job this year (${months} month${months !== 1 ? 's' : ''})${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`
-                  : mode === 'gross'
-                    ? `Annualized gross ${money(periodGross)}${hrsWk ? ` (${hrsWk} hrs/wk × 52)` : ''}`
-                    : `Take-home ${money(annualEntered)}/yr · gross ${money(periodGross)}/yr${hrsWk ? ` · ${hrsWk} hrs/wk` : ''}`}
-              </Text>
-              <Text style={s.calloutSub}>Your effective rate is below your bracket thanks to the standard deduction and lower brackets on your first dollars.</Text>
+              <Text style={s.calloutTxt}>≈ {money(annualGross)} base{mode === 'takehome' ? ' (gross, grossed up from take-home)' : ''} this year</Text>
+              <Text style={s.calloutSub}>{byMonth ? `${salaryActiveMonths(a)} month${salaryActiveMonths(a) !== 1 ? 's' : ''} of pay` : 'Same each month'} · {bracketPct}% federal bracket ({TAX_YEAR}). Bonuses & equity are added on the next screens.</Text>
             </View>
           </View>
         )}
@@ -1869,5 +1856,10 @@ const s = StyleSheet.create({
   unitToggleTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   addRow: { paddingVertical: 8, marginTop: 2 },
   addAnother: { fontSize: 14, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
+  salMonthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5 },
+  salMonthLbl: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, width: 44 },
+  salMonthInputWrap: { flexDirection: 'row', alignItems: 'center', flex: 1, marginLeft: 10, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10 },
+  salPre: { fontSize: 13, color: Colors.textTertiary, fontWeight: '700' },
+  salMonthInput: { flex: 1, paddingVertical: 9, paddingHorizontal: 4, fontSize: 15, color: Colors.textPrimary },
   addRowTxt: { fontSize: 13, fontWeight: '600', color: Colors.primary },
 });

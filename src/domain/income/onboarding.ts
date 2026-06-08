@@ -29,13 +29,36 @@ export function annualizedEnteredSalary(op: Record<string, any> | null): number 
   return toNum(a.baseSalary) * (SALARY_PERIODS[a.salaryFreq] ?? 12);
 }
 
-/** Monthly GROSS salary — annualizes by cadence and backs out gross from take-home
- *  via the IRS schedule when the user entered take-home. */
-export function grossSalaryMonthly(op: Record<string, any> | null): number {
+/** A single entered base amount expressed per month, before tax gross-up (hourly/weekly/… → monthly). */
+function enteredMonthlyRaw(a: Record<string, any>): number {
+  if ((a.salaryFreq ?? 'monthly') === 'hourly') {
+    const hrs = toNum(a.hoursPerWeek) || DEFAULT_HOURS_PER_WEEK;
+    return (toNum(a.baseSalary) * hrs * 52) / 12;
+  }
+  return (toNum(a.baseSalary) * (SALARY_PERIODS[a.salaryFreq] ?? 12)) / 12;
+}
+
+/** Per-month GROSS base salary, Jan→Dec. The `salaryByMonth` table (12 entries) is the source of
+ *  truth when present — set $0 for a gap, raise mid-year, etc.; otherwise a single entered amount is
+ *  applied to every month. Take-home entries are grossed up (annual net → gross via the tax schedule,
+ *  scaled per month so the month-to-month shape is preserved). */
+export function salaryGrossByMonth(op: Record<string, any> | null): number[] {
   const a = op ?? {};
-  const annualEntered = annualizedEnteredSalary(op);
-  const annualGross = a.salaryMode === 'takehome' ? grossFromNet(annualEntered) : annualEntered;
-  return annualGross / 12;
+  const tbl = Array.isArray(a.salaryByMonth) && a.salaryByMonth.length === 12 ? a.salaryByMonth : null;
+  const raw: number[] = tbl ? tbl.map((x: any) => toNum(x)) : new Array(12).fill(enteredMonthlyRaw(a));
+  if (a.salaryMode === 'takehome') {
+    const net = raw.reduce((t, x) => t + x, 0);
+    const gross = net > 0 ? grossFromNet(net) : 0;
+    const scale = net > 0 ? gross / net : 1;
+    return raw.map((x) => round2(x * scale));
+  }
+  return raw.map((x) => round2(x));
+}
+
+/** A representative full-month GROSS salary (the highest month — undiluted by $0 gap months). */
+export function grossSalaryMonthly(op: Record<string, any> | null): number {
+  const arr = salaryGrossByMonth(op);
+  return arr.length ? Math.max(...arr) : 0;
 }
 
 /** Value of one vesting-schedule row. RSUs vest at face value (shares × price); stock
@@ -209,28 +232,17 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
   return { user_id: uid, sources, tax };
 }
 
-function parseYM(s: any): { y: number; m: number } | null {
-  const m = String(s ?? '').match(/(\d{4})-(\d{1,2})/);
-  return m ? { y: +m[1], m: +m[2] } : null;
+/** Is base salary present in calendar month i (0-11)? Driven by the per-month table. */
+export function jobActiveMonth(op: Record<string, any> | null, i: number, _now: Date = new Date()): boolean {
+  return salaryGrossByMonth(op)[((i % 12) + 12) % 12] > 0;
 }
-/** Is the job active in calendar month i (0-11) of `now`'s year? Ongoing → always. Temporary →
- *  within [start, end] (missing start = already started; missing end = still going). */
-export function jobActiveMonth(op: Record<string, any> | null, i: number, now: Date = new Date()): boolean {
-  const a = op ?? {};
-  if (a.jobType !== 'temporary') return true;
-  const cur = now.getFullYear() * 12 + i;
-  const start = parseYM(a.jobStartDate), end = parseYM(a.jobEndDate);
-  const startIdx = start ? start.y * 12 + (start.m - 1) : -Infinity;
-  const endIdx = end ? end.y * 12 + (end.m - 1) : Infinity;
-  return cur >= startIdx && cur <= endIdx;
+/** How many months of the year you draw a salary. */
+export function salaryActiveMonths(op: Record<string, any> | null, _now: Date = new Date()): number {
+  return salaryGrossByMonth(op).filter((x) => x > 0).length;
 }
-/** How many months of `now`'s calendar year the job is active (12 for an ongoing job). */
-export function salaryActiveMonths(op: Record<string, any> | null, now: Date = new Date()): number {
-  let n = 0; for (let i = 0; i < 12; i++) if (jobActiveMonth(op, i, now)) n++; return n;
-}
-/** Salary income for the calendar year, honoring a temporary job's active months. */
-export function salaryAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
-  return grossSalaryMonthly(op) * salaryActiveMonths(op, now);
+/** Salary income for the year = sum of the per-month gross salary. */
+export function salaryAnnual(op: Record<string, any> | null, _now: Date = new Date()): number {
+  return salaryGrossByMonth(op).reduce((t, x) => t + x, 0);
 }
 
 /** Total annual income across every inflow (salary for months worked + bonus + signing + equity + net
@@ -264,10 +276,8 @@ export function effectiveRate(op: Record<string, any> | null): number {
  *  mode: 'gross' (pre-tax), 'net' (after tax), or 'available' (net minus the locked 401(k)). */
 export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
   const a = op ?? {};
-  const salaryM = grossSalaryMonthly(op);
-  const tipsM = toNum(a.tipsMonthly);   // tips ride with the job (only in active months)
-  // Temporary job: salary only counts in months between its start and end dates.
-  const salaryActive = (i: number) => jobActiveMonth(op, i, now);
+  const salByMonth = salaryGrossByMonth(op);   // per-month gross base salary (table-driven)
+  const tipsM = toNum(a.tipsMonthly);          // tips ride with the job (only in months you're paid)
   const rentalM = rentalNetAnnual(op) / 12;
   const bonus = toNum(a.bonusAnnual);
   const signing = toNum(a.signingOnetime);
@@ -297,7 +307,7 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
-    let taxable = (salaryActive(i) ? salaryM + tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
+    let taxable = salByMonth[i] + (salByMonth[i] > 0 ? tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
     const nontax = nontaxFlat + schByMonth[i];      // benefits/support steady; scholarships in their months

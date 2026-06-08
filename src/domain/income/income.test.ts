@@ -133,25 +133,25 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(at40[0].amount).toBeCloseTo(20 * 40 * 52 / 12, 2);     // defaults to 40 when blank
   });
 
-  test('short-term job: salary stops after the end month within the year', () => {
-    const now = new Date(2026, 0, 1);   // local Jan 2026 (avoid UTC-parse timezone rollback)
-    const op = { baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', jobType: 'temporary', jobEndDate: '2026-06' };
-    const g = incomeMonthlyGrid(op, 'gross', now);
-    expect(g[5].amount).toBe(3000);   // Jun (end month) — still paid
-    expect(g[6].amount).toBe(0);      // Jul — job ended
-    expect(g[11].amount).toBe(0);     // Dec — still ended
+  // per-month base-salary table — set $0 in months you're not paid
+  const monthsArr = (active: number[], amt = '3000') => Array.from({ length: 12 }, (_, i) => (active.includes(i) ? amt : '0'));
+
+  test('per-month table: salary only in the months you set (a gap = $0)', () => {
+    const op = { salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Jan–Jun
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[5].amount).toBe(3000);   // Jun — paid
+    expect(g[6].amount).toBe(0);      // Jul — $0 month
+    expect(g[11].amount).toBe(0);     // Dec — $0
   });
 
-  test('temporary job honors BOTH start and end dates (not just Jan→end)', () => {
-    const now = new Date(2026, 0, 1);
-    const op = { baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', jobType: 'temporary', jobStartDate: '2026-03', jobEndDate: '2026-09' };
-    const g = incomeMonthlyGrid(op, 'gross', now);
-    expect(g[0].amount).toBe(0);    // Jan — before it starts
-    expect(g[1].amount).toBe(0);    // Feb
-    expect(g[2].amount).toBe(3000); // Mar — starts
-    expect(g[8].amount).toBe(3000); // Sep — ends
-    expect(g[9].amount).toBe(0);    // Oct — after it ends
-    expect(salaryAnnual(op, now)).toBe(3000 * 7);   // Mar–Sep = 7 months, not a full year
+  test('per-month table: arbitrary worked range + prorated annual', () => {
+    const op = { salaryByMonth: monthsArr([2, 3, 4, 5, 6, 7, 8]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Mar–Sep
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[0].amount).toBe(0);    // Jan — $0
+    expect(g[2].amount).toBe(3000); // Mar
+    expect(g[8].amount).toBe(3000); // Sep
+    expect(g[9].amount).toBe(0);    // Oct — $0
+    expect(salaryAnnual(op)).toBe(3000 * 7);   // 7 paid months
   });
 
   test('multiple scholarships sum (non-taxable) into monthly income', () => {
@@ -176,14 +176,13 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(g[3].amount).toBe(g[7].amount);          // steady every month
   });
 
-  test('tips ride with the job — counted in active months, gone when the job ends', () => {
-    const base = { baseSalary: '2000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' };
-    const ongoing = incomeMonthlyGrid(base, 'gross');
-    expect(ongoing[0].amount).toBe(2800);           // ongoing job: wage + tips every month
-    // temporary job ending in March → April has no salary AND no tips
-    const temp = incomeMonthlyGrid({ ...base, jobType: 'temporary', jobStartDate: '2026-01', jobEndDate: '2026-03' }, 'gross', new Date(2026, 0, 1));
-    expect(temp[1].amount).toBe(2800);              // Feb: active → wage + tips
-    expect(temp[3].amount).toBe(0);                 // Apr: job over → no wage, no tips
+  test('tips ride with the job — counted only in months you draw a salary', () => {
+    const ongoing = incomeMonthlyGrid({ baseSalary: '2000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' }, 'gross');
+    expect(ongoing[0].amount).toBe(2800);           // wage + tips every month
+    // per-month table with Jan–Mar only → April has no salary AND no tips
+    const temp = incomeMonthlyGrid({ salaryByMonth: monthsArr([0, 1, 2], '2000'), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' }, 'gross');
+    expect(temp[1].amount).toBe(2800);              // Feb: paid → wage + tips
+    expect(temp[3].amount).toBe(0);                 // Apr: $0 month → no wage, no tips
   });
 
   test('no income entered → no sources', () => {

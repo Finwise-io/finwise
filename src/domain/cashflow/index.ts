@@ -3,7 +3,7 @@
 // with a running balance so we can flag the months where you'd come up short.
 import { toNum, round2 } from '../_shared/num';
 import {
-  grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, jobActiveMonth,
+  grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
   effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
 } from '../income';
 import { spendBuckets } from '../budget';
@@ -148,9 +148,8 @@ export interface CashflowYear {
 }
 
 /** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0).
- *  `lean` models a variable earner's slow stretch — earned income (wage + tips + self-employment)
- *  drops to their "slow month" figure. */
-export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date(), lean = false): CashflowYear {
+ *  Salary timing comes from the per-month base-salary table (a $0 month = no pay that month). */
+export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date()): CashflowYear {
   const a = op ?? {};
   const rate = effectiveRate(op);
   const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;   // for % expense conversion
@@ -173,18 +172,18 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
 
   // ── money in (net of tax for taxable sources; non-taxable lands in full) ──
   const taxableMo = zero12(), nontaxMo = zero12();
-  const salaryM = grossSalaryMonthly(op), rentalM = rentalNetAnnual(op) / 12;
+  const salByMonth = salaryGrossByMonth(op), rentalM = rentalNetAnnual(op) / 12;
   const seM = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
   const invM = toNum(a.invAnnual) / 12;
   const otherFreq = a.otherFreq ?? 'monthly';
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
-  const lowMonthly = toNum(a.lowMonthly);   // a variable earner's slow-month total earnings (gross)
   for (let s = 0; s < 12; s++) {
-    const active = jobActiveMonth(op, startMonth + s, now);               // temp job: only its active months
-    const job = active ? (lean && lowMonthly > 0 ? lowMonthly : salaryM + tipsM) : 0;   // wage + tips, gated to the job; no job → no tips
-    taxableMo[s] += job + seM + rentalM + invM + otherM + eq[calMonth(s)] + retIncM;
+    const cm = calMonth(s);
+    const sal = salByMonth[cm];                                           // base salary for that calendar month
+    const job = sal + (sal > 0 ? tipsM : 0);                              // wage + tips (tips only in paid months)
+    taxableMo[s] += job + seM + rentalM + invM + otherM + eq[cm] + retIncM;
     nontaxMo[s] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month

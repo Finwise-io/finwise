@@ -37,11 +37,13 @@ describe('Student scenarios', () => {
     expect(cf.shortMonths.length).toBeGreaterThan(0);   // the app shows the emergency tips them short
   });
 
-  test('3. Part-time job ends in December (temporary) — income + tips stop', () => {
-    const temp = { ...student, jobType: 'temporary', jobStartDate: '2026-01', jobEndDate: '2026-12', tipsMonthly: '200' };
-    expect(tipsAnnual(temp, new Date(2026, 0, 1))).toBe(2400);       // works all 12 months this year
-    const next = { ...temp, jobStartDate: '2026-01', jobEndDate: '2026-06' };
-    expect(salaryAnnual(next, new Date(2026, 0, 1))).toBeLessThan(salaryAnnual(temp, new Date(2026, 0, 1)));
+  test('3. Part-time job only some months (per-month table) — pay + tips stop in $0 months', () => {
+    const monthsArr = (active: number[], amt: string) => Array.from({ length: 12 }, (_, i) => (active.includes(i) ? amt : '0'));
+    const allYear = { ...student, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], '1000'), salaryMode: 'gross', salaryFreq: 'hourly', tipsMonthly: '200' };
+    const halfYear = { ...allYear, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5], '1000') };
+    expect(tipsAnnual(allYear)).toBe(2400);                          // 12 paid months × $200
+    expect(tipsAnnual(halfYear)).toBe(1200);                         // 6 paid months × $200
+    expect(salaryAnnual(halfYear)).toBeLessThan(salaryAnnual(allYear));
   });
 
   test('4. Is taking the $5k loan affordable later?', () => {
@@ -53,17 +55,18 @@ describe('Student scenarios', () => {
 
 // ───────────────────────── 🍽️ VARIABLE INCOME (server/gig) ─────────────────────────
 describe('Variable-income scenarios', () => {
+  // a variable earner enters their actual (uneven) months — some strong, some lean
+  const swingMonths = Array.from({ length: 12 }, (_, i) => (i % 3 === 0 ? '1400' : '2600'));
   const server = {
-    ...NO_TAX, incomeSources: ['employment'], baseSalary: '2600', salaryMode: 'gross', salaryFreq: 'monthly', jobType: 'ongoing',
-    incomeVaries: 'varies', lowMonthly: '1400', tipsMonthly: '0', monthlySpending: '0',
-    spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '1500', unit: 'dollar' }, { id: 'food', tier: 'important', bucket: 'fixed', amount: '500', unit: 'dollar' }],
+    ...NO_TAX, incomeSources: ['employment'], salaryByMonth: swingMonths, salaryMode: 'gross', monthlySpending: '0',
+    spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '1900', unit: 'dollar' }, { id: 'food', tier: 'important', bucket: 'fixed', amount: '500', unit: 'dollar' }],
   };
+  const steady = { ...server, salaryByMonth: new Array(12).fill('2600') };
 
-  test('1. "Will I make it through a slow stretch?"', () => {
-    const typical = cashflowYear(server, 800, JUN, false);
-    const slow = cashflowYear(server, 800, JUN, true);
-    expect(slow.lowestBalance).toBeLessThan(typical.lowestBalance);   // slow months are tighter
-    expect(slow.shortMonths.length).toBeGreaterThan(0);              // and can go short
+  test('1. "Will I make it through a slow stretch?" (uneven months are tighter)', () => {
+    const cf = cashflowYear(server, 0, JUN);
+    expect(cf.lowestBalance).toBeLessThan(cashflowYear(steady, 0, JUN).lowestBalance);   // the lean months bite
+    expect(cf.shortMonths.length).toBeGreaterThan(0);                                    // and tip you short
   });
 
   test('2. Medical emergency with no cushion', () => {
