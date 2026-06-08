@@ -1097,34 +1097,39 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   </>);
 }
 
-// Common spending categories, pre-grouped into the three budget buckets. Frequency is implied
-// by the bucket (fixed & flexible = monthly, non-monthly = yearly/per-semester). `stages` limits a
-// category to certain life stages (e.g. tuition/meal plan for students); no `stages` = everyone.
-const SPEND_CATS: { id: string; label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string; stages?: Status[] }[] = [
-  { id: 'rent', label: 'Rent / Housing', bucket: 'fixed', icon: '🏠' },
-  { id: 'tuition', label: 'Tuition & fees', bucket: 'nonmonthly', icon: '🎓', stages: ['student'] },
-  { id: 'mealplan', label: 'Meal plan', bucket: 'nonmonthly', icon: '🍽️', stages: ['student'] },
-  { id: 'books', label: 'Books & supplies', bucket: 'nonmonthly', icon: '📚', stages: ['student'] },
-  { id: 'utilities', label: 'Utilities', bucket: 'fixed', icon: '⚡' },
-  { id: 'phone', label: 'Phone / Internet', bucket: 'fixed', icon: '📶' },
-  { id: 'insurance', label: 'Insurance', bucket: 'fixed', icon: '🛡️' },
-  { id: 'subs', label: 'Subscriptions', bucket: 'fixed', icon: '📺' },
-  { id: 'groceries', label: 'Groceries', bucket: 'flexible', icon: '🛒' },
-  { id: 'gas', label: 'Gas / Transport', bucket: 'flexible', icon: '⛽' },
-  { id: 'dining', label: 'Dining out', bucket: 'flexible', icon: '🍔' },
-  { id: 'shopping', label: 'Shopping', bucket: 'flexible', icon: '🛍️' },
-  { id: 'fun', label: 'Entertainment', bucket: 'flexible', icon: '🎉' },
-  { id: 'repairs', label: 'Repairs / maintenance', bucket: 'nonmonthly', icon: '🔧' },
-  { id: 'travel', label: 'Travel / holidays', bucket: 'nonmonthly', icon: '✈️' },
-  { id: 'gifts', label: 'Gifts', bucket: 'nonmonthly', icon: '🎁' },
+// Spending categories. `tier` = priority (how the screen is grouped: Critical → Important →
+// Nice-to-have). `bucket` = frequency for the budget math (fixed/flexible = monthly, nonmonthly =
+// yearly/per-semester) — the budget domain reads this. `stages` limits a category to a life stage.
+type Tier = 'critical' | 'important' | 'flex';
+const SPEND_CATS: { id: string; label: string; tier: Tier; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string; stages?: Status[] }[] = [
+  // Critical — must-pay
+  { id: 'rent', label: 'Rent / Housing', tier: 'critical', bucket: 'fixed', icon: '🏠' },
+  { id: 'tuition', label: 'Tuition & fees', tier: 'critical', bucket: 'nonmonthly', icon: '🎓', stages: ['student'] },
+  { id: 'mealplan', label: 'Meal plan', tier: 'critical', bucket: 'nonmonthly', icon: '🍽️', stages: ['student'] },
+  { id: 'utilities', label: 'Utilities', tier: 'critical', bucket: 'fixed', icon: '⚡' },
+  { id: 'groceries', label: 'Groceries', tier: 'critical', bucket: 'flexible', icon: '🛒' },
+  // Important
+  { id: 'phone', label: 'Phone / Internet', tier: 'important', bucket: 'fixed', icon: '📶' },
+  { id: 'insurance', label: 'Insurance', tier: 'important', bucket: 'fixed', icon: '🛡️' },
+  { id: 'gas', label: 'Gas / Transport', tier: 'important', bucket: 'flexible', icon: '⛽' },
+  { id: 'books', label: 'Books & supplies', tier: 'important', bucket: 'nonmonthly', icon: '📚', stages: ['student'] },
+  { id: 'repairs', label: 'Repairs / maintenance', tier: 'important', bucket: 'nonmonthly', icon: '🔧' },
+  // Nice-to-have — wants
+  { id: 'dining', label: 'Dining out', tier: 'flex', bucket: 'flexible', icon: '🍔' },
+  { id: 'fun', label: 'Entertainment', tier: 'flex', bucket: 'flexible', icon: '🎉' },
+  { id: 'shopping', label: 'Shopping', tier: 'flex', bucket: 'flexible', icon: '🛍️' },
+  { id: 'subs', label: 'Subscriptions', tier: 'flex', bucket: 'fixed', icon: '📺' },
+  { id: 'travel', label: 'Travel / holidays', tier: 'flex', bucket: 'nonmonthly', icon: '✈️' },
+  { id: 'gifts', label: 'Gifts', tier: 'flex', bucket: 'nonmonthly', icon: '🎁' },
 ];
-const SPEND_BUCKETS: { key: 'fixed' | 'nonmonthly' | 'flexible'; title: string; note: string }[] = [
-  { key: 'fixed', title: 'Fixed', note: 'monthly' },
-  { key: 'flexible', title: 'Flexible', note: 'monthly' },
-  { key: 'nonmonthly', title: 'Now & then', note: 'e.g. each semester / yearly' },
+const TIERS: { key: Tier; title: string; note: string }[] = [
+  { key: 'critical', title: 'Critical', note: 'must-pay' },
+  { key: 'important', title: 'Important', note: 'needed' },
+  { key: 'flex', title: 'Nice-to-have', note: 'wants' },
 ];
-// distinct color per bucket for the spectrum bar + legend dots; green reserved for "left to save"
-const BUCKET_COLOR: Record<string, string> = { fixed: Colors.blue, nonmonthly: Colors.amber, flexible: '#7A5AA7' };
+// distinct color per tier for the spectrum bar + legend dots; green reserved for "left to save"
+const TIER_COLOR: Record<string, string> = { critical: Colors.blue, important: Colors.amber, flex: '#7A5AA7' };
+const BUCKET_COLOR = TIER_COLOR;   // legacy alias (kept for any older refs)
 const SAVE_COLOR = Colors.primary;
 
 // Final cash-flow recap — hero totals (gross/net/spend/save), an insight, and a stacked
@@ -1354,6 +1359,25 @@ function Legend({ color, label, value }: { color: string; label: string; value: 
 
 // Group your spending — common categories grouped into the three buckets; amount in $ or % of
 // take-home; non-monthly entered yearly. Totals roll up live with a "% of take-home" insight.
+const MONTHS3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Multi-select of calendar months (1-12) — used for "when is this due / when does this land".
+function MonthMultiSelect({ value, onChange }: { value: number[]; onChange: (v: number[]) => void }) {
+  const sel = Array.isArray(value) ? value : [];
+  const toggle = (m: number) => onChange(sel.includes(m) ? sel.filter((x) => x !== m) : [...sel, m].sort((a, b) => a - b));
+  return (
+    <View style={s.monthGrid}>
+      {MONTHS3.map((lbl, i) => {
+        const m = i + 1, on = sel.includes(m);
+        return (
+          <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => toggle(m)}>
+            <Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text>
+          </TouchableOpacity>
+        );
+      })}
+    </View>
+  );
+}
+
 function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const cats = (a.spendCats ?? []) as any[];
@@ -1367,8 +1391,8 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
     ctx.setAnswer('spendCats', next);
   };
   const remove = (id: string) => ctx.setAnswer('spendCats', cats.filter((c) => c.id !== id));
-  const addCustom = (bucket: string) =>
-    ctx.setAnswer('spendCats', [...cats, { id: 'c' + Date.now(), label: '', bucket, amount: '', unit: 'dollar', custom: true }]);
+  const addCustom = (tier: Tier) =>
+    ctx.setAnswer('spendCats', [...cats, { id: 'c' + Date.now(), label: '', tier, bucket: 'fixed', amount: '', unit: 'dollar', custom: true }]);
 
   const monthlyOf = (c: any) => {
     const amt = num(c.amount); if (amt <= 0) return 0;
@@ -1376,9 +1400,10 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
     if (c.bucket === 'nonmonthly') return (pct ? (amt / 100) * net * 12 : amt) / 12;
     return pct ? (amt / 100) * net : amt;
   };
-  const bucketTotal = (b: string) => cats.filter((c) => c.bucket === b).reduce((t, c) => t + monthlyOf(c), 0);
-  const fixedT = bucketTotal('fixed'), nonT = bucketTotal('nonmonthly'), flexT = bucketTotal('flexible');
-  const totalMo = fixedT + nonT + flexT;
+  const tierOf = (c: any): Tier => c.tier ?? (SPEND_CATS.find((x) => x.id === c.id)?.tier) ?? 'flex';
+  const tierTotal = (t: Tier) => cats.filter((c) => tierOf(c) === t).reduce((s, c) => s + monthlyOf(c), 0);
+  const critT = tierTotal('critical'), impT = tierTotal('important'), flexT = tierTotal('flex');
+  const totalMo = critT + impT + flexT;
   const estimated = num(a.monthlySpending);                 // the single number from the prior screen
   const uncategorized = Math.max(0, estimated - totalMo);   // estimate not yet broken into categories
   const spend = totalMo + uncategorized;                    // = max(itemized, estimate) — don't ignore the estimate
@@ -1392,19 +1417,30 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const renderRow = (cat: any, custom: boolean) => {
     const e = get(cat.id);
     const unit = e.unit ?? 'dollar';
-    const seed = { label: cat.label, bucket: cat.bucket, unit, amount: e.amount, custom };
+    const bucket = e.bucket ?? cat.bucket ?? 'fixed';
+    const seed = { label: cat.label, tier: cat.tier ?? tierOf(e), bucket: cat.bucket ?? bucket, unit, amount: e.amount, custom };
+    const isNonMonthly = bucket === 'nonmonthly';
+    const months: number[] = Array.isArray(e.months) ? e.months : [];
     return (
-      <View key={cat.id} style={s.spendRow}>
-        {custom
-          ? <TextInput style={[s.spendName, s.spendNameInput]} placeholder="Category" placeholderTextColor={Colors.textTertiary}
-              value={e.label ?? ''} onChangeText={(t) => upsert(cat.id, { label: t }, seed)} />
-          : <Text style={s.spendName} numberOfLines={1}>{cat.icon}  {cat.label}</Text>}
-        <TextInput style={s.spendAmt} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-          value={e.amount ?? ''} onChangeText={(t) => upsert(cat.id, { amount: t }, seed)} />
-        <TouchableOpacity style={s.unitToggle} onPress={() => upsert(cat.id, { unit: unit === 'pct' ? 'dollar' : 'pct' }, seed)}>
-          <Text style={s.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
-        </TouchableOpacity>
-        {custom && <TouchableOpacity onPress={() => remove(cat.id)} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}><Text style={s.removeX}>✕</Text></TouchableOpacity>}
+      <View key={cat.id} style={{ paddingVertical: 3 }}>
+        <View style={s.spendRow}>
+          {custom
+            ? <TextInput style={[s.spendName, s.spendNameInput]} placeholder="Category" placeholderTextColor={Colors.textTertiary}
+                value={e.label ?? ''} onChangeText={(t) => upsert(cat.id, { label: t }, seed)} />
+            : <Text style={s.spendName} numberOfLines={1}>{cat.icon}  {cat.label}{isNonMonthly ? <Text style={s.perYr}>  /yr</Text> : null}</Text>}
+          <TextInput style={s.spendAmt} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+            value={e.amount ?? ''} onChangeText={(t) => upsert(cat.id, { amount: t }, seed)} />
+          <TouchableOpacity style={s.unitToggle} onPress={() => upsert(cat.id, { unit: unit === 'pct' ? 'dollar' : 'pct' }, seed)}>
+            <Text style={s.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
+          </TouchableOpacity>
+          {custom && <TouchableOpacity onPress={() => remove(cat.id)} hitSlop={{ top: 8, bottom: 8, left: 6, right: 6 }}><Text style={s.removeX}>✕</Text></TouchableOpacity>}
+        </View>
+        {isNonMonthly && num(e.amount) > 0 && (
+          <View style={{ marginLeft: 2, marginTop: 2 }}>
+            <Text style={s.dueLabel}>When is it due? (pick the months)</Text>
+            <MonthMultiSelect value={months} onChange={(v) => upsert(cat.id, { months: v }, seed)} />
+          </View>
+        )}
       </View>
     );
   };
@@ -1420,16 +1456,16 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
         <View style={[s.sumStat, { alignItems: 'flex-end' }]}><Text style={s.sumLabel}>Itemized</Text><Text style={[s.sumValue, totalMo > net && net > 0 && { color: Colors.red }]}>{money(totalMo)}</Text></View>
       </View>
       <View style={s.sumBar}>
-        <View style={{ width: seg(fixedT), backgroundColor: BUCKET_COLOR.fixed }} />
-        <View style={{ width: seg(nonT), backgroundColor: BUCKET_COLOR.nonmonthly }} />
-        <View style={{ width: seg(flexT), backgroundColor: BUCKET_COLOR.flexible }} />
+        <View style={{ width: seg(critT), backgroundColor: TIER_COLOR.critical }} />
+        <View style={{ width: seg(impT), backgroundColor: TIER_COLOR.important }} />
+        <View style={{ width: seg(flexT), backgroundColor: TIER_COLOR.flex }} />
         {uncategorized > 0 && <View style={{ width: seg(uncategorized), backgroundColor: Colors.textTertiary }} />}
         {save > 0 && <View style={{ width: seg(save), backgroundColor: SAVE_COLOR }} />}
       </View>
       <View style={s.legendWrap}>
-        <Legend color={BUCKET_COLOR.fixed} label="Fixed" value={money(fixedT)} />
-        <Legend color={BUCKET_COLOR.flexible} label="Flexible" value={money(flexT)} />
-        <Legend color={BUCKET_COLOR.nonmonthly} label="Now & then" value={money(nonT)} />
+        <Legend color={TIER_COLOR.critical} label="Critical" value={money(critT)} />
+        <Legend color={TIER_COLOR.important} label="Important" value={money(impT)} />
+        <Legend color={TIER_COLOR.flex} label="Nice-to-have" value={money(flexT)} />
         {uncategorized > 0 && <Legend color={Colors.textTertiary} label="Uncategorized (from your estimate)" value={money(uncategorized)} />}
         <Legend color={SAVE_COLOR} label={save >= 0 ? 'Left to save' : 'Over budget'} value={money(Math.abs(save))} />
       </View>
@@ -1453,20 +1489,20 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
         : `About ${money(totalMo * 12)} a year.`}
       warn={net > 0 && save < 0} />}
 
-    {SPEND_BUCKETS.map((bk) => {
-      const tot = bucketTotal(bk.key);
+    {TIERS.map((tk) => {
+      const tot = tierTotal(tk.key);
       return (
-        <Card key={bk.key}>
+        <Card key={tk.key}>
           <View style={s.dotRow}>
-            <View style={[s.dot, { backgroundColor: BUCKET_COLOR[bk.key] }]} />
-            <Text style={s.sectionLabel}>{bk.title.toUpperCase()} · {bk.note}</Text>
+            <View style={[s.dot, { backgroundColor: TIER_COLOR[tk.key] }]} />
+            <Text style={s.sectionLabel}>{tk.title.toUpperCase()} · {tk.note}</Text>
           </View>
-          {SPEND_CATS.filter((c) => c.bucket === bk.key && (!c.stages || c.stages.includes(ctx.status as Status))).map((c) => renderRow(c, false))}
-          {cats.filter((c) => c.custom && c.bucket === bk.key).map((c) => renderRow(c, true))}
-          <TouchableOpacity style={s.addRow} onPress={() => addCustom(bk.key)}><Text style={s.addRowTxt}>+ Add {bk.title.toLowerCase()}</Text></TouchableOpacity>
+          {SPEND_CATS.filter((c) => c.tier === tk.key && (!c.stages || c.stages.includes(ctx.status as Status))).map((c) => renderRow(c, false))}
+          {cats.filter((c) => c.custom && tierOf(c) === tk.key).map((c) => renderRow(c, true))}
+          <TouchableOpacity style={s.addRow} onPress={() => addCustom(tk.key)}><Text style={s.addRowTxt}>+ Add {tk.title.toLowerCase()}</Text></TouchableOpacity>
           {tot > 0 && (
             <View style={s.bucketTotalRow}>
-              <Text style={s.bucketTotalLabel}>{bk.title} total</Text>
+              <Text style={s.bucketTotalLabel}>{tk.title} total</Text>
               <Text style={s.bucketTotalVal}>{money(tot)}/mo</Text>
             </View>
           )}
@@ -1678,6 +1714,8 @@ const s = StyleSheet.create({
   savingsInput: { width: 110, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 7, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
   spendRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5 },
   spendName: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  perYr: { fontSize: 11, color: Colors.textTertiary, fontWeight: '600' },
+  dueLabel: { fontSize: 11, color: Colors.textTertiary, marginBottom: 2 },
   spendNameInput: { borderBottomWidth: 1, borderBottomColor: Colors.border, paddingVertical: 4 },
   spendAmt: { width: 78, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
   unitToggle: { width: 34, height: 34, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgSecondary },
