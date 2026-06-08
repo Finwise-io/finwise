@@ -1098,26 +1098,30 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
 }
 
 // Common spending categories, pre-grouped into the three budget buckets. Frequency is implied
-// by the bucket (fixed & flexible = monthly, non-monthly = yearly).
-const SPEND_CATS: { id: string; label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string }[] = [
-  { id: 'rent', label: 'Rent / Mortgage', bucket: 'fixed', icon: '🏠' },
+// by the bucket (fixed & flexible = monthly, non-monthly = yearly/per-semester). `stages` limits a
+// category to certain life stages (e.g. tuition/meal plan for students); no `stages` = everyone.
+const SPEND_CATS: { id: string; label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string; stages?: Status[] }[] = [
+  { id: 'rent', label: 'Rent / Housing', bucket: 'fixed', icon: '🏠' },
+  { id: 'tuition', label: 'Tuition & fees', bucket: 'nonmonthly', icon: '🎓', stages: ['student'] },
+  { id: 'mealplan', label: 'Meal plan', bucket: 'nonmonthly', icon: '🍽️', stages: ['student'] },
+  { id: 'books', label: 'Books & supplies', bucket: 'nonmonthly', icon: '📚', stages: ['student'] },
   { id: 'utilities', label: 'Utilities', bucket: 'fixed', icon: '⚡' },
   { id: 'phone', label: 'Phone / Internet', bucket: 'fixed', icon: '📶' },
   { id: 'insurance', label: 'Insurance', bucket: 'fixed', icon: '🛡️' },
   { id: 'subs', label: 'Subscriptions', bucket: 'fixed', icon: '📺' },
-  { id: 'repairs', label: 'Repairs / maintenance', bucket: 'nonmonthly', icon: '🔧' },
-  { id: 'travel', label: 'Travel / holidays', bucket: 'nonmonthly', icon: '✈️' },
-  { id: 'gifts', label: 'Gifts', bucket: 'nonmonthly', icon: '🎁' },
   { id: 'groceries', label: 'Groceries', bucket: 'flexible', icon: '🛒' },
   { id: 'gas', label: 'Gas / Transport', bucket: 'flexible', icon: '⛽' },
   { id: 'dining', label: 'Dining out', bucket: 'flexible', icon: '🍔' },
   { id: 'shopping', label: 'Shopping', bucket: 'flexible', icon: '🛍️' },
   { id: 'fun', label: 'Entertainment', bucket: 'flexible', icon: '🎉' },
+  { id: 'repairs', label: 'Repairs / maintenance', bucket: 'nonmonthly', icon: '🔧' },
+  { id: 'travel', label: 'Travel / holidays', bucket: 'nonmonthly', icon: '✈️' },
+  { id: 'gifts', label: 'Gifts', bucket: 'nonmonthly', icon: '🎁' },
 ];
 const SPEND_BUCKETS: { key: 'fixed' | 'nonmonthly' | 'flexible'; title: string; note: string }[] = [
   { key: 'fixed', title: 'Fixed', note: 'monthly' },
-  { key: 'nonmonthly', title: 'Non-monthly', note: 'yearly' },
   { key: 'flexible', title: 'Flexible', note: 'monthly' },
+  { key: 'nonmonthly', title: 'Now & then', note: 'e.g. each semester / yearly' },
 ];
 // distinct color per bucket for the spectrum bar + legend dots; green reserved for "left to save"
 const BUCKET_COLOR: Record<string, string> = { fixed: Colors.blue, nonmonthly: Colors.amber, flexible: '#7A5AA7' };
@@ -1421,8 +1425,8 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
       </View>
       <View style={s.legendWrap}>
         <Legend color={BUCKET_COLOR.fixed} label="Fixed" value={money(fixedT)} />
-        <Legend color={BUCKET_COLOR.nonmonthly} label="Non-monthly" value={money(nonT)} />
         <Legend color={BUCKET_COLOR.flexible} label="Flexible" value={money(flexT)} />
+        <Legend color={BUCKET_COLOR.nonmonthly} label="Now & then" value={money(nonT)} />
         <Legend color={SAVE_COLOR} label={save >= 0 ? 'Left to save' : 'Over budget'} value={money(Math.abs(save))} />
       </View>
       {estimated > 0 && (
@@ -1453,7 +1457,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
             <View style={[s.dot, { backgroundColor: BUCKET_COLOR[bk.key] }]} />
             <Text style={s.sectionLabel}>{bk.title.toUpperCase()} · {bk.note}</Text>
           </View>
-          {SPEND_CATS.filter((c) => c.bucket === bk.key).map((c) => renderRow(c, false))}
+          {SPEND_CATS.filter((c) => c.bucket === bk.key && (!c.stages || c.stages.includes(ctx.status as Status))).map((c) => renderRow(c, false))}
           {cats.filter((c) => c.custom && c.bucket === bk.key).map((c) => renderRow(c, true))}
           <TouchableOpacity style={s.addRow} onPress={() => addCustom(bk.key)}><Text style={s.addRowTxt}>+ Add {bk.title.toLowerCase()}</Text></TouchableOpacity>
           {tot > 0 && (
