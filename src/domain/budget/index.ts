@@ -90,6 +90,51 @@ export function spendByMonth(op: Record<string, any> | null): number[] {
   return out.map(round2);
 }
 
+/** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
+ *  bills. Falls back to total monthly spend if categories aren't itemized. */
+export function monthlyEssentials(op: Record<string, any> | null): number {
+  const a = op ?? {};
+  const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
+  if (!cats) return spendBuckets(op).monthly_total;
+  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  let ess = 0;
+  for (const c of cats) {
+    if (c?.bucket === 'nonmonthly') continue;                 // lumpy, planned separately
+    if ((c?.tier ?? 'flex') === 'flex') continue;             // wants aren't essentials
+    const amt = toNum(c?.amount); if (amt <= 0) continue;
+    ess += c?.unit === 'pct' ? (amt / 100) * netMonthly : amt;
+  }
+  const uncategorized = Math.max(0, toNum(a.monthlySpending) - spendBuckets(op).monthly_total);
+  return round2(ess + uncategorized);
+}
+
+export interface ShockResult {
+  shock: number;
+  cashAfter: number;          // cash left right after the hit
+  monthlyEssentials: number;  // what you must keep paying each month
+  runwayAfter: number;        // months your remaining cash covers essentials after the hit
+  jobLossRunway: number;      // months your cash lasts with NO income (no shock)
+  coversIt: boolean;          // cash absorbs the shock without going negative
+  recommendedFund: number;    // low end of a 3–6 month emergency fund (3× essentials)
+  gapToFund: number;          // how far your cash is from that
+}
+/** "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last. */
+export function emergencyTest(op: Record<string, any> | null, cash: number, shock: number): ShockResult {
+  const ess = monthlyEssentials(op);
+  const cashAfter = round2(cash - shock);
+  const recommendedFund = round2(ess * 3);
+  return {
+    shock: round2(shock),
+    cashAfter,
+    monthlyEssentials: ess,
+    runwayAfter: ess > 0 ? round2(Math.max(0, cashAfter) / ess) : 0,
+    jobLossRunway: ess > 0 ? round2(cash / ess) : 0,
+    coversIt: cashAfter >= 0,
+    recommendedFund,
+    gapToFund: round2(Math.max(0, recommendedFund - cash)),
+  };
+}
+
 /** Discretionary amount free to save each month = take-home that month (after tax & 401k) minus
  *  the spending due that month. Lumpy on BOTH sides — income (equity/bonus/scholarships in their
  *  months) and bills (tuition/insurance in their months) — so a big bill shows up as a real dip,

@@ -268,6 +268,9 @@ export default function NetWorthScreen() {
             <View style={{ flex: 1 }}>
               <Text style={styles.runwayTitle}>Your cash covers ~{runwayMonths.toFixed(1)} month{runwayMonths >= 1.95 || runwayMonths < 1 ? 's' : ''} of spending</Text>
               <Text style={styles.runwaySub}>{money(cashOnHand)} cash ÷ {money(monthlySpend)}/mo · {runwayMonths >= 6 ? 'a strong cushion.' : runwayMonths >= 3 ? 'aim for 3–6 months.' : 'build toward 3–6 months.'}</Text>
+              <TouchableOpacity onPress={() => router.push('/stress-test')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                <Text style={styles.runwayLink}>Stress-test an emergency →</Text>
+              </TouchableOpacity>
             </View>
           </View>
         )}
@@ -443,6 +446,7 @@ const styles = StyleSheet.create({
   runwayIcon: { fontSize: 22 },
   runwayTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   runwaySub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
+  runwayLink: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginTop: 6 },
   perfBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   perfBtnT: { flex: 1, fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   perfBtnArrow: { fontSize: 22, color: Colors.textTertiary, fontWeight: '400' },

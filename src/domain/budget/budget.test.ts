@@ -1,5 +1,34 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials } from './index';
 import { categoryBucketFor } from '../../constants/categories';
+
+describe('emergency stress test', () => {
+  const op = {
+    taxMode: 'manual', manualTaxRate: '0', monthlySpending: '0',
+    spendCats: [
+      { id: 'rent', tier: 'critical', bucket: 'fixed', amount: '1500', unit: 'dollar' },
+      { id: 'food', tier: 'important', bucket: 'fixed', amount: '500', unit: 'dollar' },
+      { id: 'dining', tier: 'flex', bucket: 'flexible', amount: '400', unit: 'dollar' },   // a want — not essential
+      { id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '12000', unit: 'dollar', months: [9] }, // lumpy — excluded
+    ],
+  };
+  test('essentials = recurring critical + important only', () => {
+    expect(monthlyEssentials(op)).toBe(2000);   // rent 1500 + food 500 (dining + tuition excluded)
+  });
+  test('absorbing a shock + runway after', () => {
+    const r = emergencyTest(op, 5000, 3000);
+    expect(r.coversIt).toBe(true);
+    expect(r.cashAfter).toBe(2000);
+    expect(r.runwayAfter).toBe(1);              // $2k left ÷ $2k/mo
+    expect(r.jobLossRunway).toBe(2.5);          // $5k ÷ $2k/mo with no income
+    expect(r.recommendedFund).toBe(6000);       // 3 × essentials
+    expect(r.gapToFund).toBe(1000);             // 6000 − 5000
+  });
+  test('a shock bigger than cash goes red', () => {
+    const r = emergencyTest(op, 1000, 3000);
+    expect(r.coversIt).toBe(false);
+    expect(r.cashAfter).toBe(-2000);
+  });
+});
 
 describe('spending placed in actual months (not averaged)', () => {
   test('a non-monthly bill lands in its month; monthly bills repeat', () => {
