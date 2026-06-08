@@ -104,6 +104,16 @@ export default function GoalsScreen() {
         <Text style={styles.creditArrow}>›</Text>
       </TouchableOpacity>
 
+      {/* COLLEGE PLANNER */}
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/education')}>
+        <Text style={styles.creditIcon}>🎓</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>College planner</Text>
+          <Text style={styles.creditSub}>What school will cost and the monthly savings to get there</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>
