@@ -949,7 +949,7 @@ const styles = StyleSheet.create({
   nwotChange: { fontSize: 12.5, fontWeight: '800' },
   nwotBars: { flexDirection: 'row', alignItems: 'flex-end', height: 72, gap: 3 },
   nwotBarCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' },
-  nwotBar: { width: '70%', borderTopLeftRadius: 3, borderTopRightRadius: 3, minHeight: 4 },
+  nwotBar: { width: '70%', maxWidth: 26, borderTopLeftRadius: 3, borderTopRightRadius: 3, minHeight: 4 },
   nwotBarLbl: { fontSize: 8, color: Colors.textTertiary, marginTop: 3 },
   billCalCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   billCalIcon: { fontSize: 22 },
