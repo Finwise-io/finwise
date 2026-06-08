@@ -11,6 +11,7 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
+import { spendBuckets } from '../domain/budget';
 
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
@@ -64,6 +65,11 @@ export default function NetWorthScreen() {
   const choice = (store.nwSetupChoice as ('guided' | 'self' | null)) ?? ((assets.length || liabilities.length || store.nwSeeded) ? 'self' : null);
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
+  // emergency-fund runway: cash ÷ monthly spending
+  const op = store.onboardingProfile ?? {};
+  const cashOnHand = assets.filter((a) => a.tax_bucket === 'CASH').reduce((t, a) => t + (a.balance || 0), 0);
+  const monthlySpend = spendBuckets(op).monthly_total || (parseFloat(String(op.monthlySpending ?? '').replace(/[^0-9.]/g, '')) || 0);
+  const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
   const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);
 
   const [assetSheet, setAssetSheet] = useState<{ open: boolean; section?: string; edit?: AssetAccount }>({ open: false });
@@ -256,6 +262,17 @@ export default function NetWorthScreen() {
           </View>
         </View>
 
+        {/* emergency-fund runway */}
+        {runwayMonths != null && (
+          <View style={[styles.runway, { backgroundColor: runwayMonths >= 6 ? Colors.primaryLight : runwayMonths >= 3 ? '#FFF7E6' : '#FBE9E7' }]}>
+            <Text style={styles.runwayIcon}>🛟</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.runwayTitle}>Your cash covers ~{runwayMonths.toFixed(1)} month{runwayMonths >= 1.95 || runwayMonths < 1 ? 's' : ''} of spending</Text>
+              <Text style={styles.runwaySub}>{money(cashOnHand)} cash ÷ {money(monthlySpend)}/mo · {runwayMonths >= 6 ? 'a strong cushion.' : runwayMonths >= 3 ? 'aim for 3–6 months.' : 'build toward 3–6 months.'}</Text>
+            </View>
+          </View>
+        )}
+
         {/* performance launch */}
         <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/performance')}>
           <Text style={styles.perfBtnT}>📈  Portfolio performance vs benchmark</Text>
@@ -423,6 +440,10 @@ const styles = StyleSheet.create({
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
   lgVal: { fontSize: 13, fontWeight: '500', color: Colors.textSecondary, minWidth: 56, textAlign: 'right' },
   lgPct: { fontSize: 12, fontWeight: '600', color: Colors.textTertiary, width: 34, textAlign: 'right' },
+  runway: { flexDirection: 'row', alignItems: 'center', gap: 10, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  runwayIcon: { fontSize: 22 },
+  runwayTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  runwaySub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   perfBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   perfBtnT: { flex: 1, fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   perfBtnArrow: { fontSize: 22, color: Colors.textTertiary, fontWeight: '400' },

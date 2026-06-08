@@ -6,7 +6,7 @@ import { useStore, type Goal } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { payoffPlan, totalDebtMonthly, debtToIncome, type PayoffMethod, type Debt } from '../domain/debt';
+import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund } from '../domain/goals';
 import { incomeMonthlyGrid, totalGrossAnnual } from '../domain/income';
 import { spendBuckets } from '../domain/budget';
@@ -32,6 +32,16 @@ export default function GoalsScreen() {
   const grossMonthly = totalGrossAnnual(op) / 12;
   const homeowner = liabilities.some((d) => d.debt_type === 'MORTGAGE');
   const dti = useMemo(() => debtToIncome(totalDebtMonthly(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);
+  // student-loan outlook (borrowed now, repaid after graduation)
+  const loans = (Array.isArray(op.loans) ? op.loans : []) as any[];
+  const loanOutlook = useMemo(() => {
+    let borrowed = 0, monthly = 0, interest = 0;
+    for (const l of loans) {
+      borrowed += num(l.amount);
+      if (num(l.apr) > 0 && num(l.termYears) > 0) { const p = loanPayment(num(l.amount), num(l.apr), num(l.termYears)); monthly += p.monthly; interest += p.totalInterest; }
+    }
+    return { borrowed, monthly, interest, projDti: grossMonthly > 0 ? monthly / grossMonthly : 0 };
+  }, [loans, grossMonthly]);
   const plan = useMemo(() => payoffPlan(liabilities, num(extra), method), [liabilities, extra, method]);
   const planMin = useMemo(() => payoffPlan(liabilities, 0, method), [liabilities, method]);
   const savedInterest = Math.max(0, planMin.totalInterest - plan.totalInterest);
@@ -81,6 +91,24 @@ export default function GoalsScreen() {
         );
       })}
       <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
+
+      {/* STUDENT LOAN OUTLOOK */}
+      {loanOutlook.borrowed > 0 && (
+        <>
+          <Text style={styles.section}>STUDENT LOAN OUTLOOK</Text>
+          <View style={styles.card}>
+            <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
+            {loanOutlook.monthly > 0 ? (
+              <>
+                <Text style={styles.loanLine}>≈ <Text style={{ fontWeight: '800' }}>{money(loanOutlook.monthly)}/mo</Text> once you're repaying · {money(loanOutlook.interest)} total interest</Text>
+                {grossMonthly > 0 && <Text style={styles.note}>That's ~{Math.round(loanOutlook.projDti * 100)}% of today's income — keeping total debt under 20% keeps you comfortable.</Text>}
+              </>
+            ) : (
+              <Text style={styles.note}>Add an interest rate and term to each loan (in setup) to see the monthly repayment.</Text>
+            )}
+          </View>
+        </>
+      )}
 
       {/* DEBT-TO-INCOME */}
       {liabilities.length > 0 && grossMonthly > 0 && (
@@ -197,6 +225,9 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
+  loanBig: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
+  loanBigSub: { fontSize: 14, fontWeight: '600', color: Colors.textTertiary },
+  loanLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   dtiHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   dtiPct: { fontSize: 30, fontWeight: '800' },
   dtiTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
