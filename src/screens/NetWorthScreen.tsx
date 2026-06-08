@@ -66,9 +66,8 @@ export default function NetWorthScreen() {
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
   // emergency-fund runway: cash ÷ monthly spending
-  const op = store.onboardingProfile ?? {};
   const cashOnHand = assets.filter((a) => a.tax_bucket === 'CASH').reduce((t, a) => t + (a.balance || 0), 0);
-  const monthlySpend = spendBuckets(op).monthly_total || (parseFloat(String(op.monthlySpending ?? '').replace(/[^0-9.]/g, '')) || 0);
+  const monthlySpend = spendBuckets(op).monthly_total || (parseFloat(String(op?.monthlySpending ?? '').replace(/[^0-9.]/g, '')) || 0);
   const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
   const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);
 
