@@ -28,6 +28,25 @@ export function totalDebtMonthly(debts: Debt[]): number {
   return debts.reduce((t, d) => t + requiredPayment(d), 0);
 }
 
+// ── Loan repayment (standard amortization) — e.g. what a student loan costs once you're repaying ──
+export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: number; }
+export function loanPayment(principal: number, aprPct: number, termYears: number): LoanPlan {
+  const n = Math.round(termYears * 12), r = aprPct / 100 / 12;
+  if (principal <= 0 || n <= 0) return { monthly: 0, totalInterest: 0, totalPaid: 0 };
+  const monthly = r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
+  const totalPaid = monthly * n;
+  return { monthly: round2(monthly), totalInterest: round2(totalPaid - principal), totalPaid: round2(totalPaid) };
+}
+
+// ── Debt-to-income ratio (CFPB) — how much of your gross income goes to debt payments ──
+export interface DTI { ratio: number; monthlyDebt: number; grossMonthly: number; guideline: number; status: 'good' | 'caution' | 'high'; }
+export function debtToIncome(monthlyDebt: number, grossMonthly: number, homeowner = false): DTI {
+  const ratio = grossMonthly > 0 ? monthlyDebt / grossMonthly : 0;
+  const guideline = homeowner ? 0.36 : 0.20;   // CFPB: renters 15–20%, homeowners ≤36% (incl. mortgage)
+  const status: DTI['status'] = ratio <= guideline ? 'good' : ratio <= guideline * 1.4 ? 'caution' : 'high';
+  return { ratio: Math.round(ratio * 1000) / 1000, monthlyDebt: round2(monthlyDebt), grossMonthly: round2(grossMonthly), guideline, status };
+}
+
 // ── Debt-payoff plan (avalanche = highest APR first; snowball = smallest balance first) ──
 export type PayoffMethod = 'avalanche' | 'snowball';
 export interface PayoffResult {

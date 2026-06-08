@@ -1,7 +1,27 @@
-import { payoffPlan, type Debt } from './index';
+import { payoffPlan, loanPayment, debtToIncome, type Debt } from './index';
 
 const d = (id: string, bal: number, apr: number, min: number): Debt =>
   ({ debt_id: id, label: id, debt_type: 'CREDIT_CARD', remaining_balance: bal, interest_rate_apr: apr, minimum_monthly_payment: min });
+
+describe('loan repayment + DTI', () => {
+  test('loanPayment: amortizes principal over the term (standard formula)', () => {
+    const p = loanPayment(10000, 6, 10);   // $10k at 6% over 10y
+    expect(p.monthly).toBeCloseTo(111.02, 0);
+    expect(p.totalInterest).toBeGreaterThan(0);
+    expect(p.totalPaid).toBeCloseTo(p.monthly * 120, 0);
+    expect(loanPayment(0, 6, 10).monthly).toBe(0);
+    expect(loanPayment(1200, 0, 1).monthly).toBe(100);   // 0% → principal / months
+  });
+  test('debtToIncome: ratio + renter/homeowner guideline + status', () => {
+    const renter = debtToIncome(300, 3000);              // 10% — good for a renter
+    expect(renter.ratio).toBeCloseTo(0.1, 3);
+    expect(renter.guideline).toBe(0.20);
+    expect(renter.status).toBe('good');
+    expect(debtToIncome(900, 3000).status).toBe('high'); // 30% renter → high
+    expect(debtToIncome(900, 3000, true).status).toBe('good'); // 30% homeowner (≤36%) → good
+    expect(debtToIncome(100, 0).ratio).toBe(0);          // no income → 0
+  });
+});
 
 describe('debt payoff', () => {
   test('no debts → already free', () => {

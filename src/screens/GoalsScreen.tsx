@@ -6,9 +6,9 @@ import { useStore, type Goal } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { payoffPlan, type PayoffMethod, type Debt } from '../domain/debt';
+import { payoffPlan, totalDebtMonthly, debtToIncome, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund } from '../domain/goals';
-import { incomeMonthlyGrid } from '../domain/income';
+import { incomeMonthlyGrid, totalGrossAnnual } from '../domain/income';
 import { spendBuckets } from '../domain/budget';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -29,6 +29,9 @@ export default function GoalsScreen() {
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
+  const grossMonthly = totalGrossAnnual(op) / 12;
+  const homeowner = liabilities.some((d) => d.debt_type === 'MORTGAGE');
+  const dti = useMemo(() => debtToIncome(totalDebtMonthly(liabilities), grossMonthly, homeowner), [liabilities, grossMonthly, homeowner]);
   const plan = useMemo(() => payoffPlan(liabilities, num(extra), method), [liabilities, extra, method]);
   const planMin = useMemo(() => payoffPlan(liabilities, 0, method), [liabilities, method]);
   const savedInterest = Math.max(0, planMin.totalInterest - plan.totalInterest);
@@ -78,6 +81,23 @@ export default function GoalsScreen() {
         );
       })}
       <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
+
+      {/* DEBT-TO-INCOME */}
+      {liabilities.length > 0 && grossMonthly > 0 && (
+        <>
+          <Text style={styles.section}>DEBT-TO-INCOME</Text>
+          <View style={styles.card}>
+            <View style={styles.dtiHead}>
+              <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{Math.round(dti.ratio * 100)}%</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.dtiTitle}>{dti.status === 'good' ? 'Healthy' : dti.status === 'caution' ? 'Getting high' : 'High'}</Text>
+                <Text style={styles.dtiSub}>{money(dti.monthlyDebt)}/mo in debt payments ÷ {money(dti.grossMonthly)}/mo income</Text>
+              </View>
+            </View>
+            <Text style={styles.note}>{homeowner ? 'Aim for 36% or less (homeowners, incl. mortgage).' : 'Aim for 20% or less (renters; rent isn\'t counted).'} {dti.status !== 'good' ? 'Paying debt down lowers this.' : 'You\'re in good shape.'}</Text>
+          </View>
+        </>
+      )}
 
       {/* DEBT PAYOFF */}
       {liabilities.length > 0 && (
@@ -177,6 +197,10 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
+  dtiHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
+  dtiPct: { fontSize: 30, fontWeight: '800' },
+  dtiTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  dtiSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   capCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 14 },
   capVal: { fontSize: 22, fontWeight: '800', color: Colors.primaryDark },
   capLab: { fontSize: 12, color: Colors.textSecondary, marginTop: 2, lineHeight: 16 },

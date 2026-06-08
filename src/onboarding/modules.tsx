@@ -6,6 +6,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
 import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths } from '../domain/income';
+import { loanPayment } from '../domain/debt';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
@@ -501,12 +502,42 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <>
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
+                <Text style={[s.label, { marginTop: 12 }]}>Repayment, once you graduate (optional)</Text>
+                <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.dueLabel}>Interest rate %</Text>
+                    <TextInput style={s.input} keyboardType="decimal-pad" placeholder="e.g. 6" placeholderTextColor={Colors.textTertiary}
+                      value={row.apr ?? ''} onChangeText={(t) => setRow(i, { apr: t })} />
+                  </View>
+                  <View style={{ flex: 1 }}>
+                    <Text style={s.dueLabel}>Pay off over (years)</Text>
+                    <TextInput style={s.input} keyboardType="decimal-pad" placeholder="e.g. 10" placeholderTextColor={Colors.textTertiary}
+                      value={row.termYears ?? ''} onChangeText={(t) => setRow(i, { termYears: t })} />
+                  </View>
+                </View>
+                {num(row.apr) > 0 && num(row.termYears) > 0 && (() => {
+                  const lp = loanPayment(num(row.amount), num(row.apr), num(row.termYears));
+                  return <Text style={s.note2}>≈ <Text style={{ fontWeight: '800' }}>{money(lp.monthly)}/mo</Text> for {num(row.termYears)} years · {money(lp.totalInterest)} total interest.</Text>;
+                })()}
               </>
             )}
           </Card>
         ))}
         <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', months: [] }])}><Text style={s.addAnother}>＋ Add another loan</Text></TouchableOpacity>
-        <Text style={s.hint}>This is borrowed money — it shows as cash arriving in your bill calendar, and you'll repay it later (we'll help track that).</Text>
+        {(() => {
+          const borrowed = list.reduce((t, r) => t + num(r.amount), 0);
+          const repay = list.reduce((t, r) => t + (num(r.apr) > 0 && num(r.termYears) > 0 ? loanPayment(num(r.amount), num(r.apr), num(r.termYears)).monthly : 0), 0);
+          return borrowed > 0 ? (
+            <View style={s.callout}>
+              <Text style={s.calloutIcon}>🏦</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.calloutTxt}>{money(borrowed)} borrowed{repay > 0 ? ` · ≈ ${money(repay)}/mo after graduation` : ''}</Text>
+                <Text style={s.calloutSub}>It lands as cash now in your bill calendar; repayment starts after you graduate.</Text>
+              </View>
+            </View>
+          ) : null;
+        })()}
+        <Text style={s.hint}>This is borrowed money — it shows as cash arriving in your bill calendar, and you'll repay it later.</Text>
       </>);
     }
 
