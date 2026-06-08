@@ -81,7 +81,7 @@
   - *Use:* December bonus and January signing bonus land in the right months.
 - [x] 🟢 **Income recap + lumpy monthly cash-flow** — Distributes salary steady, bonus to Dec, equity by vest month → available-by-month grid/chart.
   - *Use:* See that some months free up far more cash to save than others.
-- [ ] ⚪ **Configurable bonus month** — Recap currently assumes December; let the user pick.
+- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
   - *Use:* User whose bonus pays in March sets it correctly.
 
 ## 4. Budget & Expenses
@@ -185,7 +185,7 @@
 
 - [~] 🟡 **Currency & locale formatting** — Money model + app-wide formatter wired on active screens; picker UI + on-device verify pending.
   - *Use:* A UK user sees £ and UK number formatting.
-- [ ] 🔵 **Currency picker UI** — Let the user choose currency/locale.
+- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
   - *Use:* Switch the whole app from USD to EUR.
 - [ ] ⚪ **Full string internationalization** — Translate UI copy, not just numbers.
   - *Use:* Use the app in Spanish.
@@ -273,10 +273,10 @@
 - [ ] 🔵 **Savings goals full UI** — finish the waterfall-backed goals screen.
 - [x] 🟢 **Per-month available-to-save** — "What you can save" card on Goals (avg + lumpy range from the cash-flow grid).
 - [x] 🟢 **Non-monthly → sinking-fund goals** — one-tap "sinking fund" suggestion from non-monthly costs (~1/12 a month).
-- [ ] ⚪ **Goal target-date picker.**
+- [x] 🟢 **Goal target-date picker** � MM/YYYY back-calcs the monthly amount.
 
 ### Foundations & i18n
-- [ ] 🔵 **Currency picker UI** + on-device `Intl` verify.
+- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
 - [ ] ⚪ **Full string internationalization** (translate copy, not just numbers).
 
 ### Insights & Intelligence
@@ -291,7 +291,7 @@
 
 ### Income & Budget
 - [ ] 🔵 **Single-total vs categories reconciliation** — one source of truth for spending.
-- [ ] ⚪ **Configurable bonus month** (recap assumes December).
+- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
 
 ### Phase 2 (personas / stickiness)
 - [ ] ⚪ **Gen-Z motivational framing** + app-wide **Simple Mode**.
