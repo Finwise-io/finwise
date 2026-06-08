@@ -1006,7 +1006,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const grid = incomeMonthlyGrid(a, mode);
   const gridMax = Math.max(...grid.map((g) => g.amount), 1);
   const gridMin = Math.min(...grid.map((g) => g.amount), 0);
-  const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : 'Available (after tax & 401k)';
+  const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : (k401 > 0 ? 'Available (after tax & 401(k))' : 'Available (after tax)');
 
   // insight: average monthly + any lumpy "extra" months (equity vests, bonus, one-time)
   const availGrid = incomeMonthlyGrid(a, 'available');
@@ -1379,10 +1379,12 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const bucketTotal = (b: string) => cats.filter((c) => c.bucket === b).reduce((t, c) => t + monthlyOf(c), 0);
   const fixedT = bucketTotal('fixed'), nonT = bucketTotal('nonmonthly'), flexT = bucketTotal('flexible');
   const totalMo = fixedT + nonT + flexT;
-  const pctOfNet = net > 0 ? Math.round((totalMo / net) * 100) : 0;
-  const save = net - totalMo;
-  const estimated = num(a.monthlySpending);
-  const denom = Math.max(net, totalMo, 1);
+  const estimated = num(a.monthlySpending);                 // the single number from the prior screen
+  const uncategorized = Math.max(0, estimated - totalMo);   // estimate not yet broken into categories
+  const spend = totalMo + uncategorized;                    // = max(itemized, estimate) — don't ignore the estimate
+  const pctOfNet = net > 0 ? Math.round((spend / net) * 100) : 0;
+  const save = net - spend;
+  const denom = Math.max(net, spend, 1);
   const seg = (v: number): any => `${(v / denom) * 100}%`;
 
   // NOTE: a plain function we CALL (not a <Component/>), so the TextInputs aren't remounted
@@ -1421,22 +1423,24 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
         <View style={{ width: seg(fixedT), backgroundColor: BUCKET_COLOR.fixed }} />
         <View style={{ width: seg(nonT), backgroundColor: BUCKET_COLOR.nonmonthly }} />
         <View style={{ width: seg(flexT), backgroundColor: BUCKET_COLOR.flexible }} />
+        {uncategorized > 0 && <View style={{ width: seg(uncategorized), backgroundColor: Colors.textTertiary }} />}
         {save > 0 && <View style={{ width: seg(save), backgroundColor: SAVE_COLOR }} />}
       </View>
       <View style={s.legendWrap}>
         <Legend color={BUCKET_COLOR.fixed} label="Fixed" value={money(fixedT)} />
         <Legend color={BUCKET_COLOR.flexible} label="Flexible" value={money(flexT)} />
         <Legend color={BUCKET_COLOR.nonmonthly} label="Now & then" value={money(nonT)} />
+        {uncategorized > 0 && <Legend color={Colors.textTertiary} label="Uncategorized (from your estimate)" value={money(uncategorized)} />}
         <Legend color={SAVE_COLOR} label={save >= 0 ? 'Left to save' : 'Over budget'} value={money(Math.abs(save))} />
       </View>
       {estimated > 0 && (
         <Text style={s.note2}>
           You estimated {money(estimated)}/mo earlier — {totalMo === 0
-            ? 'itemize it below.'
+            ? 'itemize it below (we\'re counting the full estimate until you do).'
             : Math.abs(totalMo - estimated) <= 50
               ? 'your categories match nicely.'
               : totalMo < estimated
-                ? `${money(estimated - totalMo)}/mo still to categorize.`
+                ? `${money(uncategorized)}/mo still to categorize — counted in "Uncategorized" for now.`
                 : `${money(totalMo - estimated)}/mo over your estimate.`}
         </Text>
       )}
