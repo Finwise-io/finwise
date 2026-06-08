@@ -1,4 +1,18 @@
-import { educationPlan } from './index';
+import { educationPlan, lifeInsuranceNeed } from './index';
+
+describe('life-insurance need', () => {
+  test('DIME-style: income replacement + debts + goals + final, minus what you have', () => {
+    const n = lifeInsuranceNeed({ annualIncome: 80000, yearsToReplace: 10, debts: 300000, futureGoals: 120000, finalExpenses: 15000, liquidSavings: 50000, existingCoverage: 200000 });
+    expect(n.incomeReplacement).toBe(800000);
+    expect(n.totalNeed).toBe(800000 + 300000 + 120000 + 15000);
+    expect(n.covered).toBe(250000);
+    expect(n.gap).toBe(1235000 - 250000);
+  });
+  test('well-covered → no gap', () => {
+    const n = lifeInsuranceNeed({ annualIncome: 50000, yearsToReplace: 5, debts: 0, futureGoals: 0, finalExpenses: 15000, liquidSavings: 100000, existingCoverage: 500000 });
+    expect(n.gap).toBe(0);
+  });
+});
 
 describe('529 / education savings planner', () => {
   test('projects inflated cost, grows current savings, solves the monthly contribution', () => {

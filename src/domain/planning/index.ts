@@ -38,3 +38,31 @@ export function educationPlan(inp: EduPlanInput): EduPlan {
     onTrackPct: futureTotalCost > 0 ? Math.round((savingsAtStart / futureTotalCost) * 100) : 0,
   };
 }
+
+// ───────────────────────── Life-insurance need (DIME-style) ─────────────────────────
+export interface InsuranceInput {
+  annualIncome: number;     // income your family would lose
+  yearsToReplace: number;   // how many years to replace it (e.g. until kids are independent)
+  debts: number;            // mortgage + other debts to clear
+  futureGoals: number;      // e.g. kids' college fund
+  finalExpenses: number;    // funeral / estate settling (~$15k default)
+  liquidSavings: number;    // assets your family could use
+  existingCoverage: number; // life insurance you already have
+}
+export interface InsuranceNeed {
+  incomeReplacement: number;
+  totalNeed: number;        // income replacement + debts + goals + final expenses
+  covered: number;          // savings + existing coverage
+  gap: number;              // additional coverage to buy
+}
+export function lifeInsuranceNeed(inp: InsuranceInput): InsuranceNeed {
+  const incomeReplacement = Math.max(0, inp.annualIncome) * Math.max(0, inp.yearsToReplace);
+  const totalNeed = incomeReplacement + Math.max(0, inp.debts) + Math.max(0, inp.futureGoals) + Math.max(0, inp.finalExpenses);
+  const covered = Math.max(0, inp.liquidSavings) + Math.max(0, inp.existingCoverage);
+  return {
+    incomeReplacement: round2(incomeReplacement),
+    totalNeed: round2(totalNeed),
+    covered: round2(covered),
+    gap: round2(Math.max(0, totalNeed - covered)),
+  };
+}
