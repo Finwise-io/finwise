@@ -257,6 +257,16 @@ export default function HomeScreen() {
           </View>
         )}
 
+        {/* bill calendar / cash flow */}
+        <TouchableOpacity style={styles.billCalCard} activeOpacity={0.85} onPress={() => router.push('/bill-calendar')}>
+          <Text style={styles.billCalIcon}>📅</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.billCalTitle}>Bill calendar</Text>
+            <Text style={styles.billCalSub}>See when money lands, when bills hit, and any tight months</Text>
+          </View>
+          <Text style={styles.focusArrow}>›</Text>
+        </TouchableOpacity>
+
         {/* month switcher */}
         <View style={styles.monthRow}>
           <TouchableOpacity onPress={() => setMonthOffset((m) => m - 1)} hitSlop={hit}><Text style={styles.monthArrow}>‹</Text></TouchableOpacity>
@@ -904,6 +914,10 @@ const styles = StyleSheet.create({
   sharpenSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 2 },
   sharpenBar: { height: 6, borderRadius: 3, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   sharpenFill: { height: 6, borderRadius: 3, backgroundColor: Colors.primary },
+  billCalCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
+  billCalIcon: { fontSize: 22 },
+  billCalTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  billCalSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   insightsBlock: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   insightsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   insightsTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
