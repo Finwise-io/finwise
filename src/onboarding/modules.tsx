@@ -1117,14 +1117,21 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const gridMin = Math.min(...grid.map((g) => g.amount), 0);
   const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : (k401 > 0 ? 'Available (after tax & 401(k))' : 'Available (after tax)');
 
-  // insight: average monthly + any lumpy "extra" months (equity vests, bonus, one-time)
+  // insight: the typical (most-common) month, plus the lean stretch and the windfall months —
+  // each described by its month range, e.g. "$19k most months · lower May–Jul (~$10k)".
   const availGrid = incomeMonthlyGrid(a, 'available');
+  const labels = availGrid.map((g) => g.label);
+  const amounts = availGrid.map((g) => g.amount);
   const avgMo = availableYr / 12;
-  const baseMo = Math.min(...availGrid.map((g) => g.amount));
-  const spikes = availGrid
-    .map((g) => ({ label: g.label, extra: g.amount - baseMo }))
-    .filter((sp) => sp.extra > Math.max(1000, baseMo * 0.15))
-    .sort((x, y) => y.extra - x.extra).slice(0, 3);
+  // most-common month = mode of the rounded amounts (ties → the higher value)
+  const round100 = (x: number) => Math.round(x / 100) * 100;
+  const freq: Record<number, number> = {};
+  amounts.forEach((x) => { const k = round100(x); freq[k] = (freq[k] ?? 0) + 1; });
+  const typical = Number(Object.keys(freq).sort((p, q) => (freq[+q] - freq[+p]) || (+q - +p))[0] ?? 0);
+  const lowMo = amounts.map((x, i) => ({ x, i })).filter((o) => o.x < typical * 0.9);
+  const highMo = amounts.map((x, i) => ({ x, i })).filter((o) => o.x > typical * 1.1);
+  const minLow = lowMo.length ? Math.min(...lowMo.map((o) => o.x)) : 0;
+  const maxHigh = highMo.length ? Math.max(...highMo.map((o) => o.x)) : 0;
 
   return (<>
     <Header emoji="📊" title="Your income" sub="Here's what you actually have to work with." />
@@ -1136,16 +1143,18 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       <Text style={s.heroCardSub}>≈ {money(avgMo)}/mo average</Text>
     </View>
 
-    {/* insight: steady baseline + lumpy windfalls */}
-    {availableYr > 0 && (
-      <Callout
-        text={Math.abs(baseMo - avgMo) < 1
-          ? `About ${money(Math.max(0, avgMo))} a month, steady all year`
-          : `About ${money(Math.max(0, baseMo))} most months`}
-        sub={spikes.length
-          ? `with extra in ${spikes.map((sp) => `${sp.label} (+${money(sp.extra)})`).join(', ')} — plan ahead for those.`
-          : 'Your income is steady month to month.'} />
-    )}
+    {/* insight: typical month + the lean stretch + the windfall months */}
+    {availableYr > 0 && (() => {
+      const steady = lowMo.length === 0 && highMo.length === 0;
+      const pieces: string[] = [];
+      if (lowMo.length) pieces.push(`lower in ${monthRanges(lowMo.map((o) => o.i), labels)} (~${money(Math.max(0, minLow))}/mo)`);
+      if (highMo.length) pieces.push(`more in ${monthRanges(highMo.map((o) => o.i), labels)} (~${money(maxHigh)}/mo)`);
+      return (
+        <Callout
+          text={steady ? `About ${money(Math.max(0, avgMo))} a month, steady all year` : `About ${money(Math.max(0, typical))} most months`}
+          sub={steady ? 'Your income is steady month to month.' : `${pieces.join('; ')} — plan ahead for those.`} />
+      );
+    })()}
 
     {/* full breakdown — every source adds up to the total */}
     <Card>
@@ -1470,6 +1479,20 @@ function Legend({ color, label, value }: { color: string; label: string; value: 
 // Group your spending — common categories grouped into the three buckets; amount in $ or % of
 // take-home; non-monthly entered yearly. Totals roll up live with a "% of take-home" insight.
 const MONTHS3 = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+// Turn month indices into readable ranges: [4,5,6] → "May–Jul"; [0,4] → "Jan, May".
+function monthRanges(idxs: number[], labels: string[]): string {
+  const sorted = [...idxs].sort((a, b) => a - b);
+  if (!sorted.length) return '';
+  const parts: string[] = [];
+  let start = sorted[0], prev = sorted[0];
+  for (let k = 1; k < sorted.length; k++) {
+    if (sorted[k] === prev + 1) { prev = sorted[k]; continue; }
+    parts.push(start === prev ? labels[start] : `${labels[start]}–${labels[prev]}`);
+    start = prev = sorted[k];
+  }
+  parts.push(start === prev ? labels[start] : `${labels[start]}–${labels[prev]}`);
+  return parts.join(', ');
+}
 // Multi-select of calendar months (1-12) — used for "when is this due / when does this land".
 function MonthMultiSelect({ value, onChange }: { value: number[]; onChange: (v: number[]) => void }) {
   const sel = Array.isArray(value) ? value : [];
