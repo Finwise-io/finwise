@@ -130,6 +130,10 @@ const TAXABLE_SOURCES: IncomeSourceKey[] = ['employment', 'self_employment', 'in
 // Optional (skippable) field steps — rendered with a "Skip for now".
 export const OPTIONAL_STEPS = new Set<StepId>([
   'income_401k', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
+  // per-source detail steps: you picked the source, but you can still skip if it turns out to be
+  // nothing (e.g. "I selected loans but don't actually have any") — never trap the user.
+  'income_self', 'income_investment', 'income_benefits', 'income_support',
+  'income_scholarship', 'income_loans', 'income_retirement', 'income_other',
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
   'investRefine', 'invitePartner',
