@@ -115,12 +115,18 @@ export function extraIncome(op: Record<string, any> | null): { taxableMonthly: n
   const othFreq = a.otherFreq ?? 'monthly';
   const othM = othFreq === 'annual' ? toNum(a.otherAmount) / 12 : othFreq === 'monthly' ? toNum(a.otherAmount) : 0;
   const othOnce = othFreq === 'onetime' ? toNum(a.otherAmount) : 0;
-  const tipsM = toNum(a.tipsMonthly);   // average monthly tips (variable; taxable)
+  // NOTE: tips are job income — handled with salary (gated to active job months), NOT here.
   return {
-    taxableMonthly: round2(seM + invM + othM + tipsM),
+    taxableMonthly: round2(seM + invM + othM),
     nontaxMonthly: round2(benM + supM + schM),
     onetimeJan: round2(othOnce),
   };
+}
+
+/** Tips are part of employment income — they only count in the months the job is active, and the
+ *  annual figure is prorated like salary (a temp job that ends stops the tips too). */
+export function tipsAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
+  return toNum((op ?? {}).tipsMonthly) * salaryActiveMonths(op, now);
 }
 
 /** Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable. */
@@ -232,7 +238,7 @@ export function salaryAnnual(op: Record<string, any> | null, now: Date = new Dat
 export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
-  return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+  return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
     + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
 }
 
@@ -240,7 +246,7 @@ export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new
 export function taxableAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
-  return salaryAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
+  return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
     + ex.taxableMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
 }
 
@@ -259,6 +265,7 @@ export function effectiveRate(op: Record<string, any> | null): number {
 export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
   const a = op ?? {};
   const salaryM = grossSalaryMonthly(op);
+  const tipsM = toNum(a.tipsMonthly);   // tips ride with the job (only in active months)
   // Temporary job: salary only counts in months between its start and end dates.
   const salaryActive = (i: number) => jobActiveMonth(op, i, now);
   const rentalM = rentalNetAnnual(op) / 12;
@@ -290,7 +297,7 @@ export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' 
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
-    let taxable = (salaryActive(i) ? salaryM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
+    let taxable = (salaryActive(i) ? salaryM + tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
     const nontax = nontaxFlat + schByMonth[i];      // benefits/support steady; scholarships in their months

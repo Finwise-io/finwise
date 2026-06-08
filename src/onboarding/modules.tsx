@@ -471,6 +471,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <>
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
+                <YearField value={row.year} onChange={(t) => setRow(i, { year: t })} />
               </>
             )}
           </Card>
@@ -517,6 +518,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <>
                 <Text style={s.dueLabel}>When does it land? (pick the months)</Text>
                 <MonthMultiSelect value={Array.isArray(row.months) ? row.months : []} onChange={(v) => setRow(i, { months: v })} />
+                <YearField value={row.year} onChange={(t) => setRow(i, { year: t })} />
                 <Text style={[s.label, { marginTop: 12 }]}>Repayment, once you graduate (optional)</Text>
                 <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
                   <View style={{ flex: 1 }}>
@@ -1490,6 +1492,18 @@ function MonthMultiSelect({ value, onChange }: { value: number[]; onChange: (v: 
           </TouchableOpacity>
         );
       })}
+    </View>
+  );
+}
+
+// Optional year for a disbursement — left blank means "the next time that month comes around".
+function YearField({ value, onChange }: { value?: string; onChange: (v: string) => void }) {
+  return (
+    <View style={{ marginTop: 8 }}>
+      <Text style={s.dueLabel}>Which year? (optional)</Text>
+      <TextInput style={[s.input, { maxWidth: 160 }]} keyboardType="number-pad" placeholder="e.g. 2027" placeholderTextColor={Colors.textTertiary}
+        value={value ?? ''} onChangeText={onChange} maxLength={4} />
+      <Text style={s.hint}>Leave blank for the next time that month comes around. Set a year for a future disbursement (e.g. Jan 2027).</Text>
     </View>
   );
 }

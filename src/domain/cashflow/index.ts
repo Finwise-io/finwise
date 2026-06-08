@@ -44,6 +44,7 @@ export interface CashflowYear {
   lowestBalance: number;
   totalIn: number;
   totalOut: number;
+  beyondWindow: number;       // dated items (scholarships/loans) that fall outside the next 12 months
 }
 
 /** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0).
@@ -60,7 +61,15 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const startMonth = now.getMonth();                          // 0–11
   const startYear = now.getFullYear();
   const calMonth = (s: number) => (startMonth + s) % 12;      // calendar month (0–11) at slot s
-  const slotOf = (m1to12: number) => ((m1to12 - 1) - startMonth + 12) % 12;   // slot for a calendar month
+  const slotOf = (m1to12: number) => ((m1to12 - 1) - startMonth + 12) % 12;   // slot for a calendar month (next occurrence)
+  const nowIdx = startYear * 12 + startMonth;
+  // slot for an explicit month + year; -1 if outside the next-12-month window. No year → next occurrence.
+  const slotForMY = (m1to12: number, year: number) => {
+    if (!year) return slotOf(m1to12);
+    const idx = year * 12 + (m1to12 - 1) - nowIdx;
+    return idx >= 0 && idx < 12 ? idx : -1;
+  };
+  let beyondWindow = 0;
 
   // ── money in (net of tax for taxable sources; non-taxable lands in full) ──
   const taxableMo = zero12(), nontaxMo = zero12();
@@ -73,25 +82,31 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
   const lowMonthly = toNum(a.lowMonthly);   // a variable earner's slow-month total earnings (gross)
   for (let s = 0; s < 12; s++) {
-    const earnedNormal = (jobActiveMonth(op, startMonth + s, now) ? salaryM : 0) + seM + tipsM;   // wage + self-employment + tips
-    const earned = lean && lowMonthly > 0 ? lowMonthly : earnedNormal;                            // slow-month scenario
-    taxableMo[s] += earned + rentalM + invM + otherM + eq[calMonth(s)] + retIncM;
+    const active = jobActiveMonth(op, startMonth + s, now);               // temp job: only its active months
+    const job = active ? (lean && lowMonthly > 0 ? lowMonthly : salaryM + tipsM) : 0;   // wage + tips, gated to the job; no job → no tips
+    taxableMo[s] += job + seM + rentalM + invM + otherM + eq[calMonth(s)] + retIncM;
     nontaxMo[s] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month
   if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing / one-time → now
   if (otherFreq === 'onetime') taxableMo[0] += toNum(a.otherAmount);
 
-  // scholarships/grants land on their disbursement months (yearly total split across them)
+  // scholarships/grants land on their disbursement months (+ optional year); yearly total split across them
   for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {
-    if (sc?.freq === 'monthly') { for (let s = 0; s < 12; s++) nontaxMo[s] += toNum(sc.amount); }
-    else placeYearly(nontaxMo, toNum(sc?.amount), sc?.months, slotOf);
+    if (sc?.freq === 'monthly') { for (let s = 0; s < 12; s++) nontaxMo[s] += toNum(sc.amount); continue; }
+    const amt = toNum(sc?.amount); if (amt <= 0) continue;
+    const ms = Array.isArray(sc?.months) && sc.months.length ? sc.months : null;
+    const yr = toNum(sc?.year);
+    if (ms) for (const m of ms) { const slot = slotForMY(m, yr); if (slot >= 0) nontaxMo[slot] += amt / ms.length; else beyondWindow++; }
+    else for (let s = 0; s < 12; s++) nontaxMo[s] += amt / 12;
   }
-  // student loans disburse (per-occurrence amount) in each chosen month — borrowed cash in
+  // student loans disburse (per-occurrence amount) in each chosen month (+ optional year) — borrowed cash in
   for (const ln of (Array.isArray(a.loans) ? a.loans : [])) {
+    const amt = toNum(ln?.amount); if (amt <= 0) continue;
     const ms = Array.isArray(ln?.months) && ln.months.length ? ln.months : null;
-    if (ms) for (const m of ms) nontaxMo[slotOf(m)] += toNum(ln.amount);
-    else nontaxMo[0] += toNum(ln?.amount);   // unspecified → assume this month
+    const yr = toNum(ln?.year);
+    if (ms) for (const m of ms) { const slot = slotForMY(m, yr); if (slot >= 0) nontaxMo[slot] += amt; else beyondWindow++; }
+    else nontaxMo[0] += amt;   // unspecified → assume this month
   }
 
   // ── money out (bills by due month) ──
@@ -121,5 +136,5 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
   });
   const shortMonths = months.filter((m) => m.balance < -0.005).map((m) => m.label);
   const lowestBalance = round2(Math.min(...months.map((m) => m.balance)));
-  return { months, shortMonths, lowestBalance, totalIn: round2(totalIn), totalOut: round2(totalOut) };
+  return { months, shortMonths, lowestBalance, totalIn: round2(totalIn), totalOut: round2(totalOut), beyondWindow };
 }

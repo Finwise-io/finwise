@@ -176,10 +176,14 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(g[3].amount).toBe(g[7].amount);          // steady every month
   });
 
-  test('tips add to monthly (taxable) income', () => {
-    expect(extraIncome({ tipsMonthly: '800' }).taxableMonthly).toBe(800);
-    const g = incomeMonthlyGrid({ baseSalary: '2000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' }, 'gross');
-    expect(g[0].amount).toBe(2800);                 // wage + tips
+  test('tips ride with the job — counted in active months, gone when the job ends', () => {
+    const base = { baseSalary: '2000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', tipsMonthly: '800' };
+    const ongoing = incomeMonthlyGrid(base, 'gross');
+    expect(ongoing[0].amount).toBe(2800);           // ongoing job: wage + tips every month
+    // temporary job ending in March → April has no salary AND no tips
+    const temp = incomeMonthlyGrid({ ...base, jobType: 'temporary', jobStartDate: '2026-01', jobEndDate: '2026-03' }, 'gross', new Date(2026, 0, 1));
+    expect(temp[1].amount).toBe(2800);              // Feb: active → wage + tips
+    expect(temp[3].amount).toBe(0);                 // Apr: job over → no wage, no tips
   });
 
   test('no income entered → no sources', () => {
