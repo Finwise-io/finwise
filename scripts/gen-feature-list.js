@@ -106,7 +106,7 @@ const MODULES = [
   ]},
 ];
 
-const HEADER = ['#', 'Main Feature or Service or Module', 'Sub-Feature', 'Details Captured', 'Description', 'Status'];
+const HEADER = ['#', 'Main Feature or Service or Module', 'Sub-Feature', 'Details Captured', 'Description', 'Status', 'Notes / Test result'];
 
 // Flatten to AOA with blanks for merged cells, and record merge ranges.
 const aoa = [HEADER];
@@ -117,7 +117,7 @@ MODULES.forEach((mod, i) => {
   mod.rows.forEach((row, j) => {
     const num = j === 0 ? String(i + 1) : '';
     const main = j === 0 ? mod.main : '';
-    aoa.push([num, main, row[0], row[1], row[2], row[3]]);
+    aoa.push([num, main, row[0], row[1], row[2], row[3], '']);   // last col = empty for you to fill in
     r++;
   });
   const end = r - 1;
@@ -145,7 +145,7 @@ fs.writeFileSync(path.join(__dirname, '..', 'docs', 'finwise-feature-list.csv'),
 // ---- XLSX ----
 const ws = XLSX.utils.aoa_to_sheet(aoa);
 ws['!merges'] = merges;
-ws['!cols'] = [{ wch: 4 }, { wch: 26 }, { wch: 30 }, { wch: 56 }, { wch: 50 }, { wch: 16 }];
+ws['!cols'] = [{ wch: 4 }, { wch: 26 }, { wch: 30 }, { wch: 56 }, { wch: 50 }, { wch: 16 }, { wch: 30 }];
 // vertically center the merged cells + bold the header
 const range = XLSX.utils.decode_range(ws['!ref']);
 for (let R = range.s.r; R <= range.e.r; R++) {
