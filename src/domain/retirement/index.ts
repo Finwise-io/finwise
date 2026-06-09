@@ -3,11 +3,12 @@
 // guaranteed income out of required spending. Pure + seedable for tests.
 import type { UserId } from '../_shared/ids';
 import { round2, toNum } from '../_shared/num';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 /** All-in monthly retirement spend = base + travel + medical (annual→monthly), adjusted by the
  *  expected trajectory (spend less / same / more later). Wires travelBudget, medicalBudget and
  *  spendingChangeLater into the projection. Returns 0 if nothing's set (caller falls back). */
-export function retirementSpendMonthly(op: Record<string, any> | null): number {
+export function retirementSpendMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const base = toNum(a.expectedRetirementSpending) || toNum(a.monthlySpending) || 0;
   const travel = toNum(a.travelBudget) / 12;

@@ -1,4 +1,5 @@
 // Life-stage planning calculators (529 education, life-insurance need, estate checklist, Roth conversion).
+import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { round2, toNum } from '../_shared/num';
 import { TAX_BRACKETS, STANDARD_DEDUCTION, taxableIncome, taxOwed } from '../income/tax';
@@ -18,7 +19,7 @@ export interface TaxOrganizer {
   accounts: { label: string; kind: string; balance: number }[];
   documents: string[];
 }
-export function taxOrganizer(op: Record<string, any> | null, opts: { accounts?: any[]; liabilities?: any[]; actualPassive?: number; year: number }): TaxOrganizer {
+export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: any[]; liabilities?: any[]; actualPassive?: number; year: number }): TaxOrganizer {
   const a = op ?? {};
   const accounts = opts.accounts ?? [], liabilities = opts.liabilities ?? [];
   const seAnnual = a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount) * 12;

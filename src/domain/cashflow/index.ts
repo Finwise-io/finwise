@@ -1,4 +1,5 @@
 // Cash-flow / bill-calendar engine. Turns onboarding answers into a 12-month picture of money IN
+import type { OnboardingProfile } from '../onboardingProfile';
 // (paychecks, scholarships, loan disbursements, benefits…) vs money OUT (bills by their due months),
 // with a running balance so we can flag the months where you'd come up short.
 import { toNum, round2 } from '../_shared/num';
@@ -61,7 +62,7 @@ export interface UpcomingBill {
 }
 
 export function upcomingBills(
-  op: Record<string, any> | null,
+  op: OnboardingProfile | null,
   startBalance = 0,
   now: Date = new Date(),
   opts: { bufferDays?: number; askLeadDays?: number; horizonDays?: number } = {},
@@ -142,7 +143,7 @@ export interface CashflowYear {
 
 /** Build the 12-month cash-flow picture. `startBalance` = cash on hand today (default 0).
  *  Salary timing comes from the per-month base-salary table (a $0 month = no pay that month). */
-export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date()): CashflowYear {
+export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now: Date = new Date()): CashflowYear {
   const a = op ?? {};
   const rate = effectiveRate(op);
 

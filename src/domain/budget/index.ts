@@ -1,4 +1,5 @@
 // Dynamic Expense & Budget module (spec service 8). Owns `budgets/{uid}`.
+import type { OnboardingProfile } from '../onboardingProfile';
 // THE single source of truth for "projected to save" (surplus) — Goals & Retirement read it.
 import type { UserId } from '../_shared/ids';
 import { toNum, round2 } from '../_shared/num';
@@ -40,7 +41,7 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
 /** Roll the per-category spending up into the three monthly-normalized buckets.
  *  Categories carry a bucket (fixed/nonmonthly/flexible) and an amount in $ or % of take-home;
  *  non-monthly (yearly) amounts are divided by 12. Falls back to the legacy b_* fields. */
-export function spendBuckets(op: Record<string, any> | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number } {
+export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number } {
   const a = op ?? {};
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
   if (!cats) {
@@ -62,7 +63,7 @@ export function spendBuckets(op: Record<string, any> | null): { fixed: number; n
 /** Spending placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
  *  Monthly bills repeat; non-monthly costs (tuition, insurance) land in the months chosen;
  *  any estimated-but-uncategorized spend is spread evenly. */
-export function spendByMonth(op: Record<string, any> | null): number[] {
+export function spendByMonth(op: OnboardingProfile | null): number[] {
   const a = op ?? {};
   const out = new Array(12).fill(0);
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
@@ -92,7 +93,7 @@ export function spendByMonth(op: Record<string, any> | null): number[] {
 
 /** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
  *  bills. Falls back to total monthly spend if categories aren't itemized. */
-export function monthlyEssentials(op: Record<string, any> | null): number {
+export function monthlyEssentials(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
   if (!cats) return spendBuckets(op).monthly_total;
@@ -119,7 +120,7 @@ export interface ShockResult {
   gapToFund: number;          // how far your cash is from that
 }
 /** "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last. */
-export function emergencyTest(op: Record<string, any> | null, cash: number, shock: number): ShockResult {
+export function emergencyTest(op: OnboardingProfile | null, cash: number, shock: number): ShockResult {
   const ess = monthlyEssentials(op);
   const cashAfter = round2(cash - shock);
   const recommendedFund = round2(ess * 3);
@@ -139,13 +140,13 @@ export function emergencyTest(op: Record<string, any> | null, cash: number, shoc
  *  the spending due that month. Lumpy on BOTH sides — income (equity/bonus/scholarships in their
  *  months) and bills (tuition/insurance in their months) — so a big bill shows up as a real dip,
  *  not smeared across the year. This is savings ON TOP of the 401(k). */
-export function savingsByMonth(op: Record<string, any> | null): { label: string; amount: number }[] {
+export function savingsByMonth(op: OnboardingProfile | null): { label: string; amount: number }[] {
   const avail = incomeMonthlyGrid(op, 'available');
   const spend = spendByMonth(op);
   return avail.map((m, i) => ({ label: m.label, amount: round2(m.amount - spend[i]) }));
 }
 
-export function budgetFromOnboarding(uid: UserId, op: Record<string, any> | null): BudgetDoc {
+export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null): BudgetDoc {
   const a = op ?? {};
   const b = spendBuckets(op);
   return {
@@ -166,7 +167,7 @@ export interface BudgetVsActual {
 
 /** Month-to-date actual spending vs the planned budget, bucketed. `expenses` is the store's
  *  ExpenseEntry[] (each has amount, category, date 'YYYY-MM-DD'). */
-export function budgetVsActual(expenses: any[], op: Record<string, any> | null, now: Date = new Date()): BudgetVsActual {
+export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): BudgetVsActual {
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const planned = spendBuckets(op);
   const custom = (Array.isArray(op?.spendCats) ? op!.spendCats : []).filter((c: any) => c?.custom);

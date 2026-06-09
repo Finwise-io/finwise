@@ -7,6 +7,7 @@ import { newEntityId } from '../_shared/ids';
 import { toNum, round2 } from '../_shared/num';
 import { grossFromNet, effectiveRateOnGross } from './tax';
 import { IncomeDoc, IncomeSource, WhoEarns, DEFAULT_TAX } from './types';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -20,7 +21,7 @@ export const DEFAULT_HOURS_PER_WEEK = 40;
 
 /** Annual amount of what the user ENTERED (not grossed up) — for display.
  *  Hourly annualizes by the user's actual hours/week × 52 (no fixed 40h assumption). */
-export function annualizedEnteredSalary(op: Record<string, any> | null): number {
+export function annualizedEnteredSalary(op: OnboardingProfile | null): number {
   const a = op ?? {};
   if ((a.salaryFreq ?? 'monthly') === 'hourly') {
     const hrs = toNum(a.hoursPerWeek) || DEFAULT_HOURS_PER_WEEK;
@@ -42,7 +43,7 @@ function enteredMonthlyRaw(a: Record<string, any>): number {
  *  truth when present — set $0 for a gap, raise mid-year, etc.; otherwise a single entered amount is
  *  applied to every month. Take-home entries are grossed up (annual net → gross via the tax schedule,
  *  scaled per month so the month-to-month shape is preserved). */
-export function salaryGrossByMonth(op: Record<string, any> | null): number[] {
+export function salaryGrossByMonth(op: OnboardingProfile | null): number[] {
   const a = op ?? {};
   const tbl = Array.isArray(a.salaryByMonth) && a.salaryByMonth.length === 12 ? a.salaryByMonth : null;
   const raw: number[] = tbl ? tbl.map((x: any) => toNum(x)) : new Array(12).fill(enteredMonthlyRaw(a));
@@ -56,7 +57,7 @@ export function salaryGrossByMonth(op: Record<string, any> | null): number[] {
 }
 
 /** A representative full-month GROSS salary (the highest month — undiluted by $0 gap months). */
-export function grossSalaryMonthly(op: Record<string, any> | null): number {
+export function grossSalaryMonthly(op: OnboardingProfile | null): number {
   const arr = salaryGrossByMonth(op);
   return arr.length ? Math.max(...arr) : 0;
 }
@@ -76,7 +77,7 @@ export function rowVestYear(row: any): number {
 }
 
 /** Per-calendar-year vesting cash flow across all schedule rows — drives the chart & table. */
-export function equityCashFlow(op: Record<string, any> | null): { year: number; amount: number }[] {
+export function equityCashFlow(op: OnboardingProfile | null): { year: number; amount: number }[] {
   const a = op ?? {};
   const type = a.equityType ?? 'rsu';
   const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
@@ -90,7 +91,7 @@ export function equityCashFlow(op: Record<string, any> | null): { year: number; 
 
 /** Annual equity-comp run-rate: total scheduled value spread over the years it vests across
  *  (a level annual figure for the income estimate). Falls back to legacy single shares/price. */
-export function rsuAnnual(op: Record<string, any> | null): number {
+export function rsuAnnual(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const type = a.equityType ?? 'rsu';
   const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
@@ -105,7 +106,7 @@ export function rsuAnnual(op: Record<string, any> | null): number {
 
 /** Normalized list of rental properties. Uses the new `rentals` array when present,
  *  otherwise falls back to the legacy single rentalIncome/rentalExpenses/rentalType fields. */
-export function rentalList(op: Record<string, any> | null): { type: 'long' | 'short'; income: number; expenses: number }[] {
+export function rentalList(op: OnboardingProfile | null): { type: 'long' | 'short'; income: number; expenses: number }[] {
   const a = op ?? {};
   const norm = (t: any): 'long' | 'short' => (t === 'short' ? 'short' : 'long');
   if (Array.isArray(a.rentals)) {
@@ -118,14 +119,14 @@ export function rentalList(op: Record<string, any> | null): { type: 'long' | 'sh
 }
 
 /** Total net rental income per year, across all properties (income − operating expenses). */
-export function rentalNetAnnual(op: Record<string, any> | null): number {
+export function rentalNetAnnual(op: OnboardingProfile | null): number {
   return rentalList(op).reduce((t, r) => t + (r.income - r.expenses), 0) * 12;
 }
 
 /** Extra income sources beyond salary/rental/equity (self-employment, investment, benefits, support,
  *  scholarship, other), split into taxable vs non-taxable steady monthly amounts + a one-time Jan amount.
  *  Benefits, support, and scholarships are treated as non-taxable for planning. */
-export function extraIncome(op: Record<string, any> | null): { taxableMonthly: number; nontaxMonthly: number; onetimeJan: number } {
+export function extraIncome(op: OnboardingProfile | null): { taxableMonthly: number; nontaxMonthly: number; onetimeJan: number } {
   const a = op ?? {};
   const seM = (a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount));
   const invM = toNum(a.invAnnual) / 12;
@@ -148,19 +149,19 @@ export function extraIncome(op: Record<string, any> | null): { taxableMonthly: n
 
 /** Tips are part of employment income — they only count in the months the job is active, and the
  *  annual figure is prorated like salary (a temp job that ends stops the tips too). */
-export function tipsAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
+export function tipsAnnual(op: OnboardingProfile | null, now: Date = new Date()): number {
   return toNum((op ?? {}).tipsMonthly) * salaryActiveMonths(op, now);
 }
 
 /** Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable. */
-export function retirementIncomeMonthly(op: Record<string, any> | null): number {
+export function retirementIncomeMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
-  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + toNum(a['ri_' + k]), 0);
+  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + toNum((a as any)['ri_' + k]), 0);
 }
 
 /** Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.
  *  A yearly award is split across the months chosen; a monthly award repeats every month. */
-export function scholarshipByCalendarMonth(op: Record<string, any> | null): number[] {
+export function scholarshipByCalendarMonth(op: OnboardingProfile | null): number[] {
   const a = op ?? {};
   const out = new Array(12).fill(0);
   const list = Array.isArray(a.scholarships) ? a.scholarships : null;
@@ -181,13 +182,13 @@ export function scholarshipByCalendarMonth(op: Record<string, any> | null): numb
 
 /** Employer match resolved to $/month. A % is of YOUR 401(k) contribution (e.g. a
  *  "50% match" adds half of what you put in), not of salary. */
-export function employerMatchMonthly(op: Record<string, any> | null): number {
+export function employerMatchMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const val = toNum(a.employerMatchValue);
   return a.employerMatchMode === 'pct' ? (toNum(a.c_401k) * val) / 100 : val;
 }
 
-export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null): IncomeDoc {
+export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null): IncomeDoc {
   const a = op ?? {};
   const who = (a.whoEarns as WhoEarns) ?? 'you';
   const sources: IncomeSource[] = [];
@@ -233,21 +234,21 @@ export function incomeFromOnboarding(uid: UserId, op: Record<string, any> | null
 }
 
 /** Is base salary present in calendar month i (0-11)? Driven by the per-month table. */
-export function jobActiveMonth(op: Record<string, any> | null, i: number, _now: Date = new Date()): boolean {
+export function jobActiveMonth(op: OnboardingProfile | null, i: number, _now: Date = new Date()): boolean {
   return salaryGrossByMonth(op)[((i % 12) + 12) % 12] > 0;
 }
 /** How many months of the year you draw a salary. */
-export function salaryActiveMonths(op: Record<string, any> | null, _now: Date = new Date()): number {
+export function salaryActiveMonths(op: OnboardingProfile | null, _now: Date = new Date()): number {
   return salaryGrossByMonth(op).filter((x) => x > 0).length;
 }
 /** Salary income for the year = sum of the per-month gross salary. */
-export function salaryAnnual(op: Record<string, any> | null, _now: Date = new Date()): number {
+export function salaryAnnual(op: OnboardingProfile | null, _now: Date = new Date()): number {
   return salaryGrossByMonth(op).reduce((t, x) => t + x, 0);
 }
 
 /** Total annual income across every inflow (salary for months worked + bonus + signing + equity + net
  *  rental + self-employment/investment/benefits/support/scholarship/other). Includes non-taxable income. */
-export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
+export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
@@ -255,7 +256,7 @@ export function totalGrossAnnual(op: Record<string, any> | null, now: Date = new
 }
 
 /** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
-export function taxableAnnual(op: Record<string, any> | null, now: Date = new Date()): number {
+export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date()): number {
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
@@ -263,7 +264,7 @@ export function taxableAnnual(op: Record<string, any> | null, now: Date = new Da
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
-export function effectiveRate(op: Record<string, any> | null): number {
+export function effectiveRate(op: OnboardingProfile | null): number {
   const a = op ?? {};
   if (a.taxMode === 'manual') return Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
   return effectiveRateOnGross(taxableAnnual(op));
@@ -274,7 +275,7 @@ export function effectiveRate(op: Record<string, any> | null): number {
  *  signing bonus is one-time (January); equity is the level annual vesting spread across the
  *  month-of-year its vest dates fall on (so quarterly vesting shows up as quarterly spikes).
  *  mode: 'gross' (pre-tax), 'net' (after tax), or 'available' (net minus the locked 401(k)). */
-export function incomeMonthlyGrid(op: Record<string, any> | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
+export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 'net' | 'available' = 'available', now: Date = new Date()): { label: string; amount: number }[] {
   const a = op ?? {};
   const salByMonth = salaryGrossByMonth(op);   // per-month gross base salary (table-driven)
   const tipsM = toNum(a.tipsMonthly);          // tips ride with the job (only in months you're paid)
