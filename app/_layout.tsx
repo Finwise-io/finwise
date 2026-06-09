@@ -16,7 +16,7 @@ patchTextScaling();   // install the global font-scale hook once
 // Fields synced to Firestore (excludes auth user + ephemeral economic data)
 const SYNC_FIELDS = [
   'onboardingComplete', 'selectedGoals', 'budgetFrequency', 'payFrequency',
-  'incomeIsFixed', 'budgetCategories', 'expenseTargetType', 'expenseTargetAmount',
+  'budgetCategories', 'expenseTargetType', 'expenseTargetAmount',
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
   'recurringIncomes', 'recurringExpenses', 'debts', 'customCategories',

@@ -3,7 +3,18 @@ import { buildDebtState, debtsFromOnboarding } from './debt';
 import { buildNetWorth } from './networth';
 import { buildBudgetState, budgetFromOnboarding } from './budget';
 import { buildGoalsState, goalsFromOnboarding, waterfall } from './goals';
-import { simulate, buildRetirementState, projectNestEgg } from './retirement';
+import { simulate, buildRetirementState, projectNestEgg, retirementSpendMonthly } from './retirement';
+
+describe('retirement spend wiring (travel + medical + trajectory)', () => {
+  test('travel & medical add; "less/more" adjust the trajectory', () => {
+    const base = { expectedRetirementSpending: '5000' };
+    expect(retirementSpendMonthly(base)).toBe(5000);
+    expect(retirementSpendMonthly({ ...base, travelBudget: '6000', medicalBudget: '12000' })).toBe(5000 + 500 + 1000);   // +annual/12
+    expect(retirementSpendMonthly({ ...base, spendingChangeLater: 'less' })).toBe(4250);   // ×0.85
+    expect(retirementSpendMonthly({ ...base, spendingChangeLater: 'more' })).toBe(5750);   // ×1.15
+    expect(retirementSpendMonthly({})).toBe(0);   // nothing set → caller falls back
+  });
+});
 import { buildSnapshot } from './snapshot';
 
 describe('assets', () => {

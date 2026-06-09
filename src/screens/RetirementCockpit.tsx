@@ -13,7 +13,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { simulate, projectNestEgg, solveRetireAge } from '../domain/retirement';
+import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
@@ -56,7 +56,7 @@ export default function RetirementCockpit() {
   const inflDefault = (store.inflationRate ?? 2.5) / 100;
   const ssDefault = Math.round(num(op.ri_ss));
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
-  const spendDefault = Math.round(num(op.expectedRetirementSpending) || num(op.monthlySpending) || 5000);
+  const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
   const retireDefault = num(op.targetRetirementAge) || 65;
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssIncome = A.ssEligible ? Math.round(A.ssMonthly ?? ssDefault) : 0;

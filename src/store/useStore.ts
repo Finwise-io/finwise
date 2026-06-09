@@ -186,7 +186,6 @@ type AppState = {
   selectedGoals: string[];
   budgetFrequency: 'daily' | 'weekly' | 'monthly' | 'annually';
   payFrequency: string;
-  incomeIsFixed: boolean;
   budgetCategories: BudgetCategory[];
   expenseTargetType: 'fixed' | 'percent';
   expenseTargetAmount: number;
@@ -246,7 +245,6 @@ type AppState = {
   // Economic data
   inflationRate: number;
   treasuryYield: number;
-  lastEconomicFetch: string | null;
 
   // Actions - Auth
   setUser: (user: UserProfile | null) => void;
@@ -260,7 +258,6 @@ type AppState = {
   setSelectedGoals: (goals: string[]) => void;
   setBudgetFrequency: (f: 'daily' | 'weekly' | 'monthly' | 'annually') => void;
   setPayFrequency: (f: string) => void;
-  setIncomeIsFixed: (v: boolean) => void;
   setBudgetCategories: (cats: BudgetCategory[]) => void;
   setExpenseTarget: (type: 'fixed' | 'percent', amount: number, percent: number) => void;
   setSavingsDistribution: (type: 'fixed' | 'percent' | 'leftover') => void;
@@ -371,7 +368,6 @@ export const useStore = create<AppState>()(
       selectedGoals: [],
       budgetFrequency: 'monthly',
       payFrequency: 'monthly',
-      incomeIsFixed: true,
       budgetCategories: [],
       expenseTargetType: 'percent',
       expenseTargetAmount: 0,
@@ -425,7 +421,6 @@ export const useStore = create<AppState>()(
       fontScale: 1,
       inflationRate: 3.2,
       treasuryYield: 4.35,
-      lastEconomicFetch: null,
 
       // ── Auth actions ─────────────────────────────────────────────
       setUser: (user) => set({ user }),
@@ -439,7 +434,6 @@ export const useStore = create<AppState>()(
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
-      setIncomeIsFixed: (v) => set({ incomeIsFixed: v }),
       setBudgetCategories: (cats) => set({ budgetCategories: cats }),
       setExpenseTarget: (type, amount, percent) => set({ expenseTargetType: type, expenseTargetAmount: amount, expenseTargetPercent: percent }),
       setSavingsDistribution: (type) => set({ savingsDistribution: type }),
@@ -725,7 +719,7 @@ export const useStore = create<AppState>()(
       setMonthlyBudgetTarget: (amount) => set({ monthlyBudgetTarget: amount }),
       setHourlyRate: (rate) => set({ hourlyRate: rate }),
       setEconomicData: (inflation, treasury) =>
-        set({ inflationRate: inflation, treasuryYield: treasury, lastEconomicFetch: new Date().toISOString() }),
+        set({ inflationRate: inflation, treasuryYield: treasury }),
 
       resetAll: () => set({
         incomes: [], expenses: [], savings: [], investments: [],

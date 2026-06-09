@@ -12,7 +12,7 @@ import { debtsFromOnboarding, buildDebtState, DebtState } from './debt';
 import { buildNetWorth, NetWorthState } from './networth';
 import { budgetFromOnboarding, buildBudgetState, BudgetState } from './budget';
 import { goalsFromOnboarding, buildGoalsState, GoalsState } from './goals';
-import { buildRetirementState, RetirementState } from './retirement';
+import { buildRetirementState, retirementSpendMonthly, RetirementState } from './retirement';
 
 export interface EconomicData { inflationRate: number; treasuryYield: number; } // percentages
 
@@ -53,7 +53,7 @@ export function buildSnapshot(uid: UserId, op: Record<string, any> | null, econ:
     horizon_age: profile.plan_to_age ?? 90,
     start_balance: assets.total_asset_value,
     annual_contribution: monthlyContributionsFromOnboarding(op) * 12,
-    retire_monthly_spend_today: toNum(a.expectedRetirementSpending) || budget.monthly_spending,
+    retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
     guaranteed_monthly_income: guaranteedMonthly,
     inflation: (econ.inflationRate || 2.4) / 100,
     mean_return: assets.average_target_return || 0.07,
