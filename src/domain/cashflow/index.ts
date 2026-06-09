@@ -6,7 +6,7 @@ import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
   effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
 } from '../income';
-import { spendBuckets } from '../budget';
+import { spendBuckets, spendByMonth } from '../budget';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -29,13 +29,6 @@ function equityByMonth(op: Record<string, any>): number[] {
   return out;
 }
 
-/** A yearly amount placed into chosen months (split evenly), mapped onto the rolling timeline via
- *  `slotOf`; with no months given it spreads across all 12 slots. */
-function placeYearly(out: number[], yearly: number, months: number[] | undefined, slotOf: (m: number) => number) {
-  const ms = Array.isArray(months) && months.length ? months : null;
-  if (ms) for (const m of ms) out[slotOf(m)] += yearly / ms.length;
-  else for (let i = 0; i < 12; i++) out[i] += yearly / 12;
-}
 
 // ───────────────────────── Day-level "big bill" planner ─────────────────────────
 // Answers the real question for a dated bill (e.g. tuition due Sep 15): on the day you need the
@@ -152,7 +145,6 @@ export interface CashflowYear {
 export function cashflowYear(op: Record<string, any> | null, startBalance = 0, now: Date = new Date()): CashflowYear {
   const a = op ?? {};
   const rate = effectiveRate(op);
-  const netMonthly = (totalGrossAnnual(op) - taxableAnnual(op) * rate) / 12;   // for % expense conversion
 
   // Rolling 12-month window anchored to THIS month, so timing is real: each chosen month maps to
   // its NEXT occurrence (e.g. with "now" = June, "September" = this Sep, "January" = next Jan, which
@@ -208,18 +200,11 @@ export function cashflowYear(op: Record<string, any> | null, startBalance = 0, n
     else nontaxMo[0] += amt;   // unspecified → assume this month
   }
 
-  // ── money out (bills by due month) ──
+  // ── money out (bills by due month) — single source of truth: budget.spendByMonth (calendar),
+  //    remapped onto the rolling timeline. ──
   const out = zero12();
-  for (const c of (Array.isArray(a.spendCats) ? a.spendCats : [])) {
-    const amt = toNum(c?.amount); if (amt <= 0) continue;
-    const pct = c?.unit === 'pct';
-    if (c?.bucket === 'nonmonthly') placeYearly(out, pct ? (amt / 100) * netMonthly * 12 : amt, c?.months, slotOf);
-    else { const m = pct ? (amt / 100) * netMonthly : amt; for (let s = 0; s < 12; s++) out[s] += m; }
-  }
-  // any spending estimated but not itemized — spread evenly so we don't understate bills
-  const itemizedMo = spendBuckets(op).monthly_total;
-  const uncategorized = Math.max(0, toNum(a.monthlySpending) - itemizedMo);
-  if (uncategorized > 0) for (let s = 0; s < 12; s++) out[s] += uncategorized;
+  const spendCal = spendByMonth(op);                       // Jan→Dec: monthly bills + non-monthly in their months + uncategorized
+  for (let s = 0; s < 12; s++) out[s] += spendCal[calMonth(s)];
 
   // ── roll into a running balance over the real timeline ──
   let bal = startBalance, totalIn = 0, totalOut = 0;
