@@ -252,6 +252,7 @@ type AppState = {
   setUser: (user: UserProfile | null) => void;
   setOnboardingComplete: (v: boolean) => void;
   setOnboardingPaused: (v: boolean) => void;
+  restartOnboarding: () => void;   // clean overwrite: clear setup answers + onboarding-seeded data
 
   // Actions - Onboarding
   setEmploymentStatus: (s: string | null) => void;
@@ -738,6 +739,17 @@ export const useStore = create<AppState>()(
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],
         currency: 'USD', locale: 'en-US', displayMode: 'simple',
       }),
+
+      // Re-run setup as a CLEAN OVERWRITE: wipe the onboarding answers + everything setup derived
+      // (so Home doesn't keep showing stale figures), but KEEP prefs, login, gamification, and anything
+      // the user entered themselves (logged transactions; Net Worth accounts they added by hand —
+      // only the onboarding-SEEDED net worth, flagged by nwSeeded, is cleared).
+      restartOnboarding: () => set((s) => ({
+        onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,
+        selectedGoals: [], retirementPlan: null, retirementScenarios: [],
+        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+        ...(s.nwSeeded ? { assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null, monthlySnapshots: {} } : {}),
+      })),
 
       loadFromCloud: (data) => set((s) => ({
         ...s,

@@ -153,10 +153,15 @@ export function tipsAnnual(op: OnboardingProfile | null, now: Date = new Date())
   return toNum((op ?? {}).tipsMonthly) * salaryActiveMonths(op, now);
 }
 
-/** Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable. */
+/** Per-month divisor for a cadence (monthly=1, quarterly=3, annual=12). */
+const RI_CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 12 };
+
+/** Retirement income (Social Security, pension, withdrawals, RMDs, annuities) per month — taxable.
+ *  Each source carries its own cadence in `ri_<k>_freq`; normalize to per-month. */
 export function retirementIncomeMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
-  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + toNum((a as any)['ri_' + k]), 0);
+  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other']
+    .reduce((t, k) => t + toNum((a as any)['ri_' + k]) / (RI_CAD_DIV[(a as any)['ri_' + k + '_freq']] ?? 1), 0);
 }
 
 /** Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.

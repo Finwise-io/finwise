@@ -6,7 +6,7 @@ import type { UserId } from './_shared/ids';
 import { toNum } from './_shared/num';
 
 import { profileFromOnboarding, toReadModel, ProfileReadModel } from './profile';
-import { incomeFromOnboarding, buildIncomeState, IncomeState } from './income';
+import { incomeFromOnboarding, buildIncomeState, IncomeState, retirementIncomeMonthly } from './income';
 import { assetsFromOnboarding, buildAssetsState, monthlyContributionsFromOnboarding, AssetsState } from './assets';
 import { debtsFromOnboarding, buildDebtState, DebtState } from './debt';
 import { buildNetWorth, NetWorthState } from './networth';
@@ -43,9 +43,8 @@ export function buildSnapshot(uid: UserId, op: Record<string, any> | null, econ:
   const capacity = toNum(a.monthlySavingsCapacity) || budget.projected_to_save;
   const goals = buildGoalsState(uid, goalsFromOnboarding(uid, op).goals, capacity);
 
-  // guaranteed retirement income (Social Security/pension) — present only in the retired flow; 0 otherwise
-  const guaranteedMonthly = ['ri_ss', 'ri_pension', 'ri_withdrawals', 'ri_rmd', 'ri_annuities', 'ri_other']
-    .reduce((t, k) => t + toNum(a[k]), 0);
+  // guaranteed retirement income (Social Security/pension/etc.) — cadence-normalized; 0 outside retired flow
+  const guaranteedMonthly = retirementIncomeMonthly(a);
 
   const retirement = buildRetirementState(uid, {
     current_age: profile.current_age ?? 35,

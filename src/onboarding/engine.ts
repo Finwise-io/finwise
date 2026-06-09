@@ -143,11 +143,12 @@ export const OPTIONAL_STEPS = new Set<StepId>([
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
 // Retired users instead give their retirement-income sources directly.
 function incomeBlock(status: Status | null, answers?: Record<string, any>): StepId[] {
-  if (status === 'retired' && !answers?.incomeSources) return ['retirementIncomeSources'];  // legacy retired flow
+  if (status === 'retired' && !answers?.incomeSources) return ['birth', 'retirementIncomeSources'];  // legacy retired flow
   const srcs: IncomeSourceKey[] = Array.isArray(answers?.incomeSources) ? answers!.incomeSources : [];
   if (!srcs.length) return ['income_sources'];   // pick sources first; details appear once chosen
   const ongoing = answers?.jobType !== 'temporary';
   const out: StepId[] = ['income_sources'];
+  if (status === 'retired') out.push('birth');   // age drives RMDs + life-expectancy planning — ask before retirement income
   if (srcs.includes('employment')) {
     out.push('income_salary');
     // 401(k)/bonus/RSU only make sense for an ongoing/permanent job (birth first: limit depends on age)
@@ -156,7 +157,9 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('self_employment')) out.push('income_self');
   if (srcs.includes('investment_income')) out.push('income_investment');
   if (srcs.includes('rental')) out.push('income_rental');
-  if (srcs.includes('retirement_income')) out.push('income_retirement');
+  // Retirement income uses the SAME rich screen as the decumulation track (retirementIncomeSources),
+  // so a retiree who picks "retirement income" + "make my money last" is asked ONCE (buildSteps dedupes).
+  if (srcs.includes('retirement_income')) out.push('retirementIncomeSources');
   if (srcs.includes('benefits')) out.push('income_benefits');
   if (srcs.includes('support')) out.push('income_support');
   if (srcs.includes('scholarship')) out.push('income_scholarship');
@@ -184,10 +187,12 @@ const SERVICE_ORDER: Track[] = [
 function requirements(track: Track, status: Status | null, tracks: Track[], answers?: Record<string, any>): { must: StepId[]; optional: StepId[] } {
   const hasSpend = tracks.includes('spend');
   const income = incomeBlock(status, answers);   // source-driven income sub-steps (deduped across tracks by buildSteps)
+  const decumulating = status === 'retired';
   switch (track) {
     case 'spend':
+      // A retiree is drawing down, not saving — drop the savings-rate target for them.
       return { must: [...income, 'monthlySpending'],
-               optional: ['flexBuckets', 'savingsRateTarget'] };
+               optional: decumulating ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
       // 401(k) + employer match captured on the income_401k screen (deduped if income flow also present).
       return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'contributionsByType',
@@ -197,9 +202,14 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
       // Retirement income sources ARE the income here.
       return { must: ['birth', 'currentSavingsPortfolio', 'retirementIncomeSources', 'monthlySpending', 'horizonAge'],
                optional: ['retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater'] };
-    case 'invest':
-      // No income / retirement / spending.
-      return { must: ['investObjective', 'trackingLevel', 'investmentHoldings'], optional: ['investRefine'] };
+    case 'invest': {
+      // If the decumulation track already asks "your savings & investments" (the same total pool),
+      // don't ask the investable total again here. Dropped the dead "Refine — skip for now" step.
+      const totalAlreadyAsked = tracks.includes('retire_dec');
+      return { must: totalAlreadyAsked ? ['investObjective', 'trackingLevel']
+                                       : ['investObjective', 'trackingLevel', 'investmentHoldings'],
+               optional: [] };
+    }
     case 'goals':
       return { must: hasSpend ? ['goals_detail'] : ['goals_detail', 'monthlySavingsCapacity'], optional: [] };
     case 'partner':

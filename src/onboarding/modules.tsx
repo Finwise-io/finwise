@@ -62,6 +62,31 @@ function MoneyRow({ ctx, k, label, ph }: { ctx: StepCtx; k: string; label?: stri
   );
 }
 
+// Cadence-aware money row: an amount + a Monthly / Quarterly / Annual selector (stored in `<k>_freq`).
+// Different retirement-income & dividend sources pay on different schedules.
+export const CAD_DIV: Record<string, number> = { monthly: 1, quarterly: 3, annual: 12 };  // → divide to get per-month
+const CAD_OPTS = [{ v: 'monthly', l: 'Monthly' }, { v: 'quarterly', l: 'Quarterly' }, { v: 'annual', l: 'Annual' }];
+function MoneyCadenceRow({ ctx, k, label }: { ctx: StepCtx; k: string; label: string }) {
+  const freq = ctx.answers[k + '_freq'] ?? 'monthly';
+  return (
+    <View style={{ marginBottom: Spacing.md }}>
+      <Text style={s.label}>{label}</Text>
+      <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+        value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
+      <View style={{ flexDirection: 'row', gap: 6, marginTop: 6 }}>
+        {CAD_OPTS.map((o) => {
+          const on = freq === o.v;
+          return <TouchableOpacity key={o.v} style={[s.chip, on && s.chipOn]} onPress={() => ctx.setAnswer(k + '_freq', o.v)}>
+            <Text style={[s.chipTxt, on && s.chipTxtOn]}>{o.l}</Text></TouchableOpacity>;
+        })}
+      </View>
+    </View>
+  );
+}
+
+// RMD start age (SECURE 2.0): born 1951–1959 → 73; born 1960+ → 75 (earlier cohorts already at/after 73).
+export function rmdStartAge(birthYear: number): number { return birthYear >= 1960 ? 75 : 73; }
+
 // Hero amount — the screen's ONE primary number, large and centered (the design standard).
 function HeroAmount({ ctx, k, label, ph, kind = 'money' }: {
   ctx: StepCtx; k: string; label?: string; ph?: string; kind?: 'money' | 'number';
@@ -316,7 +341,9 @@ export function monthlyIncome(a: Record<string, any>): number {
   return (total - taxableAnnual(a) * incomeTaxRate(a)) / 12;   // tax only the taxable part
 }
 export function retirementMonthlyIncome(a: Record<string, any>): number {
-  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other'].reduce((t, k) => t + num(a['ri_' + k]), 0);
+  // each source carries its own cadence (ri_<k>_freq) → normalize to per-month
+  return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other']
+    .reduce((t, k) => t + num(a['ri_' + k]) / (CAD_DIV[a['ri_' + k + '_freq']] ?? 1), 0);
 }
 export function employerMatchMonthly(a: Record<string, any>): number {
   const val = num(a.employerMatchValue);
@@ -415,14 +442,24 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
 
     case 'income_investment': {
+      const freq = a.invFreq ?? 'annual';
+      const MULT: Record<string, number> = { monthly: 12, quarterly: 4, annual: 1 };   // → annualize
+      const setAmt = (t: string) => { ctx.setAnswer('invAmount', t); ctx.setAnswer('invAnnual', String(num(t) * MULT[freq])); };
+      const setFreq = (f: string) => { ctx.setAnswer('invFreq', f); ctx.setAnswer('invAnnual', String(num(a.invAmount ?? a.invAnnual) * MULT[f])); };
+      const annual = num(a.invAnnual);
       return (<>
         <Header emoji="💵" title="Interest & dividends" sub="Money your savings and investments pay you." />
         <Card>
-          <Text style={s.heroLabel}>About how much per year</Text>
+          <Text style={s.heroLabel}>How much</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-            value={a.invAnnual ?? ''} onChangeText={(t) => ctx.setAnswer('invAnnual', t)} />
-          <Text style={s.hint}>Interest from savings accounts plus dividends from stocks or funds, in a typical year.</Text>
+            value={a.invAmount ?? a.invAnnual ?? ''} onChangeText={setAmt} />
+          <View style={{ flexDirection: 'row', gap: 6, marginTop: 8, justifyContent: 'center' }}>
+            {CAD_OPTS.map((o) => { const on = freq === o.v; return (
+              <TouchableOpacity key={o.v} style={[s.chip, on && s.chipOn]} onPress={() => setFreq(o.v)}><Text style={[s.chipTxt, on && s.chipTxtOn]}>{o.l}</Text></TouchableOpacity>); })}
+          </View>
+          <Text style={s.hint}>Interest from savings plus dividends from stocks or funds — pick how often you receive it (monthly bond funds, quarterly stock dividends, annual distributions).</Text>
         </Card>
+        {annual > 0 && <Callout text={`About ${money(annual)} a year`} />}
       </>);
     }
 
@@ -832,15 +869,25 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'retirementIncomeSources': {
       const tot = retirementMonthlyIncome(a);
-      return (<><Header emoji="📨" title="Retirement income" sub="Monthly income from each source." />
+      const by = num(a.birthYear);
+      const startAge = by > 0 ? rmdStartAge(by) : 0;
+      const age = currentAge(a);
+      return (<><Header emoji="📨" title="Retirement income" sub="Enter each source and how often you receive it." />
         <Card>
-          <MoneyRow ctx={ctx} k="ri_ss" label="Social Security" />
-          <MoneyRow ctx={ctx} k="ri_pension" label="Pension" />
-          <MoneyRow ctx={ctx} k="ri_withdrawals" label="401(k)/IRA withdrawals" />
-          <MoneyRow ctx={ctx} k="ri_rmd" label="RMDs" />
-          <MoneyRow ctx={ctx} k="ri_annuities" label="Annuities" />
-          <MoneyRow ctx={ctx} k="ri_other" label="Dividends / rental / other" />
+          <MoneyCadenceRow ctx={ctx} k="ri_ss" label="Social Security" />
+          <MoneyCadenceRow ctx={ctx} k="ri_pension" label="Pension" />
+          <MoneyCadenceRow ctx={ctx} k="ri_withdrawals" label="401(k) / IRA withdrawals" />
+          <MoneyCadenceRow ctx={ctx} k="ri_rmd" label="Required Minimum Distributions (RMDs)" />
+          <MoneyCadenceRow ctx={ctx} k="ri_annuities" label="Annuities" />
+          <MoneyCadenceRow ctx={ctx} k="ri_other" label="Dividends / rental / other" />
         </Card>
+        {startAge > 0 && (
+          <Callout
+            text={age >= startAge ? `You're past your RMD age (${startAge}) — RMDs are required` : `Your RMDs begin at age ${startAge}`}
+            sub={age >= startAge
+              ? `Traditional 401(k)/IRA balances must be drawn down yearly (Roth is exempt). Add yours above.`
+              : `Born ${by < 1960 ? '1951–1959 → 73' : '1960 or later → 75'}. Traditional 401(k)/IRA will require yearly withdrawals then; Roth is exempt.`} />
+        )}
         {tot > 0 && <Callout text={`${money(tot)}/mo in retirement income`} sub={`About ${money(tot * 12)} a year before drawing on savings.`} />}
       </>);
     }
@@ -959,6 +1006,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         const lastsYears = netDraw > 0 ? pool / netDraw : 99;
         const startAge = currentAge(a, 65);
         const lastsToAge = Math.round(startAge + lastsYears);
+        const ok = lastsToAge >= num(a.horizonAge || 90);
         return (<><Header emoji="🛟" title="Will your money last?" />
           <Card>
             <RecapStat label="Portfolio" value={money(pool)} />
@@ -966,8 +1014,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             <RecapStat label="Spending" value={'-' + money(spendAnnual) + '/yr'} />
             <View style={s.divider} />
             <RecapStat label="Projected to last to age" value={lastsYears >= 99 ? '90+' : String(lastsToAge)}
-              color={lastsToAge >= num(a.horizonAge || 90) ? Colors.primary : Colors.red} />
-          </Card></>);
+              color={ok ? Colors.primary : Colors.red} />
+          </Card>
+          {netDraw > 0
+            ? <Callout text={`Your ${money(pool)} covers ~${money(netDraw)}/yr of drawdown for about ${Math.round(lastsYears)} years (you're ${startAge}).`}
+                sub={ok ? `That reaches your plan-to age of ${num(a.horizonAge || 90)}.` : `Short of your plan-to age (${num(a.horizonAge || 90)}) — trim spending, add income, or we can refine this in the app.`} warn={!ok} />
+            : <Callout text={`Your income covers your spending — you're not drawing down your ${money(pool)} portfolio yet.`} />}
+        </>);
       }
       const age = currentAge(a);
       const years = Math.max(1, num(a.targetRetirementAge) - age);
@@ -985,7 +1038,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </Card></>);
     }
     case 'recap_invest': {
-      const total = num(a.investmentHoldings);
+      const total = num(a.investmentHoldings) || num(a.currentSavingsPortfolio);   // deduped: retiree's pool comes from the savings & investments step
       const levels = Array.isArray(a.trackingLevel) ? a.trackingLevel : (a.trackingLevel ? [a.trackingLevel] : []);
       const objs = Array.isArray(a.investObjective) ? a.investObjective : (a.investObjective ? [a.investObjective] : []);
       const objLabel = objs.map((o: string) => o === 'pnl' ? 'performance / P&L' : 'net worth over time').join(' + ') || '—';

@@ -28,7 +28,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, currency, setCurrency } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, currency, setCurrency } = useStore() as any;
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -114,15 +114,16 @@ export default function SettingsScreen() {
   function handleRerunOnboarding() {
     Alert.alert(
       'Re-run setup',
-      'This will take you back through the setup wizard. Your existing data will be kept.',
+      'This clears your setup answers and the figures setup created, then restarts the wizard. ' +
+      'Your login, preferences, and anything you added yourself (logged transactions, accounts you ' +
+      'added in Net Worth) are kept.',
       [
         { text: 'Cancel', style: 'cancel' },
         {
-          text: 'Continue',
+          text: 'Start over',
+          style: 'destructive',
           onPress: () => {
-            setOnboardingComplete(false);
-            setOnboardingPaused(false);   // clear pause so the guard lets us into onboarding
-            setOnboardingDraft(null);     // start the wizard fresh, not resumed mid-flow
+            restartOnboarding();          // clean overwrite — clears profile + onboarding-seeded data
             router.replace('/onboarding');
           },
         },
