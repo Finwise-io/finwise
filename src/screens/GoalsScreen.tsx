@@ -144,6 +144,16 @@ export default function GoalsScreen() {
         <Text style={styles.creditArrow}>›</Text>
       </TouchableOpacity>
 
+      {/* TAX ORGANIZER */}
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/tax-organizer')}>
+        <Text style={styles.creditIcon}>🧾</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Tax organizer</Text>
+          <Text style={styles.creditSub}>A year-end summary + document checklist for your accountant</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>

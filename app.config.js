@@ -36,6 +36,7 @@ module.exports = {
     'expo-secure-store',
     'expo-camera',
     'expo-system-ui',
+    'expo-sharing',
     [
       'expo-notifications',
       {

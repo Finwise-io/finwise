@@ -1,4 +1,26 @@
-import { educationPlan, lifeInsuranceNeed, rothConversion } from './index';
+import { educationPlan, lifeInsuranceNeed, rothConversion, taxOrganizer } from './index';
+
+describe('tax organizer', () => {
+  const op = {
+    taxMode: 'manual', manualTaxRate: '22',
+    baseSalary: '8000', salaryFreq: 'monthly', salaryMode: 'gross', bonusAnnual: '10000',
+    invAnnual: '2000', c_401k: '1500', incomeSources: ['employment', 'investment_income'],
+    scholarships: [], loans: [{ amount: '5000' }],
+  };
+  test('assembles income lines, separates taxable vs non-taxable, tailors documents', () => {
+    const o = taxOrganizer(op, { accounts: [{ kind: 'brokerage', balance: 50000 }], liabilities: [{ debt_type: 'MORTGAGE' }], year: 2026 });
+    expect(o.income.find((l) => l.label === 'Wages (W-2)')!.amount).toBe(96000);
+    expect(o.income.find((l) => l.label === 'Bonus')!.amount).toBe(10000);
+    expect(o.taxableTotal).toBeGreaterThan(100000);
+    expect(o.contributions.find((c) => c.label.startsWith('401'))!.amount).toBe(18000);
+    expect(o.documents).toEqual(expect.arrayContaining(['W-2 from each employer', '1099-INT, 1099-DIV, and 1099-B (brokerage)', '1098-E (student-loan interest)']));
+    expect(o.documents.some((d) => d.includes('1098 (mortgage'))).toBe(true);
+  });
+  test('actual passive income overrides the estimate', () => {
+    const o = taxOrganizer(op, { actualPassive: 3500, year: 2026 });
+    expect(o.income.find((l) => l.label === 'Interest & dividends')!.amount).toBe(3500);
+  });
+});
 
 describe('Roth conversion (fill a bracket)', () => {
   test('converts up to the bracket ceiling and prices the tax', () => {
