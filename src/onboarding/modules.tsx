@@ -863,9 +863,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       </>);
     }
 
-    case 'currentSavingsPortfolio':
-      return (<><Header emoji="🏦" title="Your savings & investments" sub="Everything you can draw on in retirement." />
-        <Card><HeroAmount ctx={ctx} k="currentSavingsPortfolio" label="Total portfolio" /></Card></>);
+    case 'currentSavingsPortfolio': {
+      // If a 401(k)/IRA question is also in this flow, scope THIS to non-retirement money so nothing is double-counted.
+      const hasRet = ctx.tracks.includes('retire_acc');
+      return (<><Header emoji="🏦" title={hasRet ? 'Your other savings & investments' : 'Your savings & investments'}
+        sub={hasRet ? 'Taxable brokerage & cash — not the retirement accounts above.' : 'Everything you can draw on in retirement.'} />
+        <Card><HeroAmount ctx={ctx} k="currentSavingsPortfolio" label={hasRet ? 'Taxable + cash' : 'Total portfolio'} /></Card></>);
+    }
 
     case 'retirementIncomeSources': {
       const tot = retirementMonthlyIncome(a);
@@ -930,9 +934,12 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           { value: 'account', title: 'By account' }, { value: 'asset', title: 'By asset type' },
           { value: 'holding', title: 'Each individual holding' }]} /></Card></>);
 
-    case 'investmentHoldings':
-      return (<><Header emoji="📊" title="Your investments" sub="Total value for now — add detail in the app later." />
-        <Card><HeroAmount ctx={ctx} k="investmentHoldings" label="Total portfolio value" /></Card></>);
+    case 'investmentHoldings': {
+      const hasRet = ctx.tracks.includes('retire_acc');   // scope to non-retirement money if 401(k)/IRA is asked elsewhere
+      return (<><Header emoji="📊" title={hasRet ? 'Your other investments' : 'Your investments'}
+        sub={hasRet ? 'Taxable brokerage, cash & crypto — not the retirement savings above.' : 'Total value for now — add detail in the app later.'} />
+        <Card><HeroAmount ctx={ctx} k="investmentHoldings" label={hasRet ? 'Taxable + cash' : 'Total portfolio value'} /></Card></>);
+    }
 
     case 'investRefine':
       return (<><Header emoji="⚙️" title="Refine (optional)" sub="Allocation, cost basis & risk — set later in the app." />
