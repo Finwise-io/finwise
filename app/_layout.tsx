@@ -19,7 +19,7 @@ const SYNC_FIELDS = [
   'budgetCategories', 'expenseTargetType', 'expenseTargetAmount',
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
-  'recurringIncomes', 'recurringExpenses', 'debts', 'customCategories',
+  'recurringIncomes', 'recurringExpenses', 'customCategories',
   'assetAccounts', 'liabilities', 'nwSeeded', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
   'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',

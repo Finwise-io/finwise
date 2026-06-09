@@ -27,9 +27,23 @@ export default function BudgetScreen() {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
     budgetCategories, setBudgetCategories,
     expenseTargetPercent,
-    debts, addDebt, updateDebt, deleteDebt,
+    liabilities, addLiability, updateLiability, deleteLiability,
+    debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
     customCategories, addCustomCategory, deleteCustomCategory,
   } = useStore() as any;
+  // Single source of truth for debt = `liabilities` (Net Worth model). Adapt it to the
+  // DebtEntry shape this screen's UI already renders.
+  const TYPE_UP: Record<string, string> = { credit_card: 'CREDIT_CARD', student_loan: 'STUDENT_LOAN', car_loan: 'AUTO', mortgage: 'MORTGAGE', personal_loan: 'PERSONAL', other: 'OTHER' };
+  const TYPE_DOWN: Record<string, DebtEntry['type']> = { CREDIT_CARD: 'credit_card', STUDENT_LOAN: 'student_loan', AUTO: 'car_loan', MORTGAGE: 'mortgage', PERSONAL: 'personal_loan', OTHER: 'other' };
+  const toEntry = (d: any): DebtEntry => ({ id: d.debt_id, name: d.label, type: TYPE_DOWN[d.debt_type] ?? 'other', balance: d.remaining_balance || 0, interestRate: (d.interest_rate_apr || 0) * 100, minimumPayment: d.minimum_monthly_payment || 0, date: '' });
+  const toDebt = (e: { name: string; type: string; balance: number; interestRate: number; minimumPayment: number }) => ({ label: e.name, debt_type: TYPE_UP[e.type] ?? 'OTHER', remaining_balance: e.balance, interest_rate_apr: (e.interestRate || 0) / 100, minimum_monthly_payment: e.minimumPayment || 0 });
+  const debtsView: DebtEntry[] = (liabilities ?? []).map(toEntry);
+  // one-time migration of any legacy `debts` into `liabilities`
+  React.useEffect(() => {
+    if (Array.isArray(debts) && debts.length) {
+      debts.forEach((d: DebtEntry) => { addLiability(toDebt(d)); deleteDebt(d.id); });
+    }
+  }, []);   // eslint-disable-line react-hooks/exhaustive-deps
   const allCategories = useAllCategories(customCategories || []);
   const { monthIncome, monthSpend } = useMonthlyStats();
   const categorySpend = useCategorySpend();
@@ -65,7 +79,7 @@ export default function BudgetScreen() {
   const [debtRate, setDebtRate] = useState('');
   const [debtMinPayment, setDebtMinPayment] = useState('');
 
-  const totalDebt = (debts as DebtEntry[]).reduce((s: number, d: DebtEntry) => s + d.balance, 0);
+  const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
 
   function openAddDebt() {
     setEditDebtId(null);
@@ -99,9 +113,9 @@ export default function BudgetScreen() {
       date: new Date().toISOString(),
     };
     if (editDebtId) {
-      updateDebt(editDebtId, entry);
+      updateLiability(editDebtId, toDebt(entry));
     } else {
-      addDebt(entry);
+      addLiability(toDebt(entry));
     }
     setDebtFormVisible(false);
   }
@@ -109,7 +123,7 @@ export default function BudgetScreen() {
   function handleDeleteDebt(id: string) {
     Alert.alert('Delete debt', 'Remove this debt entry?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteDebt(id) },
+      { text: 'Delete', style: 'destructive', onPress: () => deleteLiability(id) },
     ]);
   }
 
@@ -467,7 +481,7 @@ export default function BudgetScreen() {
               <View>
                 <Text style={styles.budgetCardTitle}>Total debt</Text>
                 <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
-                  {(debts as DebtEntry[]).length} account{(debts as DebtEntry[]).length !== 1 ? 's' : ''}
+                  {debtsView.length} account{debtsView.length !== 1 ? 's' : ''}
                 </Text>
               </View>
               <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
@@ -484,7 +498,7 @@ export default function BudgetScreen() {
           </Card>
 
           {/* Debt list */}
-          {(debts as DebtEntry[]).length === 0 ? (
+          {debtsView.length === 0 ? (
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>🦸</Text>
@@ -493,7 +507,7 @@ export default function BudgetScreen() {
               </View>
             </Card>
           ) : (
-            (debts as DebtEntry[])
+            debtsView
               .slice()
               .sort((a: DebtEntry, b: DebtEntry) => b.balance - a.balance)
               .map((d: DebtEntry) => {

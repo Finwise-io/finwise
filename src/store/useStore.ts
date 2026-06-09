@@ -199,6 +199,8 @@ type AppState = {
   recurringExpenses: RecurringExpense[];
   savings: SavingsEntry[];
   investments: InvestmentEntry[];
+  /** @deprecated legacy debt list — superseded by `liabilities`. BudgetScreen migrates these into
+   *  liabilities on mount; kept (unsynced) only as the migration landing spot. Remove once migrated. */
   debts: DebtEntry[];
   goals: Goal[];
   badges: Badge[];
