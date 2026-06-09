@@ -7,6 +7,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
+import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
   attribution, allocation, portfolioTrend, capGains, capGainsTax, PERIODS, type Period, type Position, type Lot, type TrendPoint,
@@ -242,6 +243,14 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   const [label, setLabel] = useState('');
   const [kind, setKind] = useState<string>('stocks_etf');
   const [lots, setLots] = useState<Lot[]>([]);
+  const [tickerFocus, setTickerFocus] = useState(false);
+  // autocomplete: suggest common tickers as they type (hidden once it's an exact symbol match)
+  const suggestions = useMemo(() => {
+    const q = ticker.trim().toUpperCase();
+    if (!q || !tickerFocus) return [];
+    const hits = searchTickers(q);
+    return hits.length === 1 && hits[0].sym === q ? [] : hits;
+  }, [ticker, tickerFocus]);
 
   useEffect(() => {
     if (!open) return;
@@ -276,7 +285,21 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           <Text style={styles.sheetT}>{isNew ? 'Add a holding' : 'Edit holding'}</Text>
 
           <Text style={styles.fieldL}>Ticker</Text>
-          <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL, VTI, SPY" placeholderTextColor={Colors.textTertiary} />
+          <TextInput style={styles.input} value={ticker} onChangeText={setTicker} autoCapitalize="characters" autoCorrect={false}
+            onFocus={() => setTickerFocus(true)} onBlur={() => setTimeout(() => setTickerFocus(false), 150)}
+            placeholder="e.g. AAPL, VTI, SPY" placeholderTextColor={Colors.textTertiary} />
+          {suggestions.length > 0 && (
+            <View style={styles.acBox}>
+              {suggestions.map((sug) => (
+                <TouchableOpacity key={sug.sym} style={styles.acRow} onPress={() => {
+                  setTicker(sug.sym); setKind(sug.kind); if (!label.trim()) setLabel(sug.name); setTickerFocus(false);
+                }}>
+                  <Text style={styles.acSym}>{sug.sym}</Text>
+                  <Text style={styles.acName} numberOfLines={1}>{sug.name}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
           <Text style={styles.fieldL}>Name (optional)</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
 
@@ -601,6 +624,10 @@ const styles = StyleSheet.create({
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
+  acBox: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, marginTop: 4, backgroundColor: Colors.cardBg, overflow: 'hidden' },
+  acRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  acSym: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, width: 60 },
+  acName: { fontSize: 12.5, color: Colors.textSecondary, flex: 1 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 11, fontSize: 15, color: Colors.textPrimary },
   kindWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 7 },
   kindChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 7 },
