@@ -53,7 +53,8 @@ export default function TopBar() {
     <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
       <TouchableOpacity onPress={() => setMenu(true)} hitSlop={hit} style={s.menuBtn}><Ionicons name="grid" size={20} color={Colors.textSecondary} /></TouchableOpacity>
       <TouchableOpacity style={s.nwChip} onPress={() => router.push('/(tabs)/analytics')}>
-        <Ionicons name="trending-up" size={13} color="#fff" style={{ marginRight: 5 }} />
+        <Text style={s.nwLabel}>NW</Text>
+        <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
         <Text style={s.nwTxt}>{money(nw)}</Text>
         <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
       </TouchableOpacity>
@@ -83,6 +84,7 @@ const s = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
   menuBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   nwChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryDark, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 8 },
+  nwLabel: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5, marginRight: 5 },
   nwTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
