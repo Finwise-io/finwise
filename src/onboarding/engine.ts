@@ -26,6 +26,7 @@ export type StepId =
   | 'retLocation' | 'travelBudget' | 'medicalBudget' | 'spendingChangeLater'
   // S3
   | 'investObjective' | 'trackingLevel' | 'investmentHoldings' | 'investRefine'
+  | 'networthIntro'
   // S4
   | 'goals_detail' | 'monthlySavingsCapacity'
   // S5 / S6 / S7
@@ -136,7 +137,7 @@ export const OPTIONAL_STEPS = new Set<StepId>([
   'income_scholarship', 'income_loans', 'income_retirement', 'income_other',
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
-  'investRefine', 'invitePartner',
+  'investRefine', 'invitePartner', 'networthIntro',
 ]);
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
@@ -210,9 +211,9 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
     case 'legacy':
       return { must: ['legacyTarget'], optional: [] };
     case 'networth':
-      return { must: [], optional: [] };   // interest marker — net worth is built in-app from accounts + debts
+      return { must: ['networthIntro'], optional: [] };   // hand-off — net worth is built in-app from accounts + debts
     case 'property':
-      return { must: [], optional: [] };   // interest marker — home/car/valuables are added in the assets module
+      return { must: ['networthIntro'], optional: [] };   // hand-off — home/car/valuables are added in the assets module
   }
 }
 

@@ -240,6 +240,28 @@ function Choice({ ctx, k, options }: { ctx: StepCtx; k: string; options: { value
   );
 }
 
+// Multi-select version of Choice — stores an array; pick any combination.
+function MultiChoice({ ctx, k, options }: { ctx: StepCtx; k: string; options: { value: string; title: string; sub?: string }[] }) {
+  const sel: string[] = Array.isArray(ctx.answers[k]) ? ctx.answers[k] : (ctx.answers[k] ? [ctx.answers[k]] : []);
+  const toggle = (v: string) => ctx.setAnswer(k, sel.includes(v) ? sel.filter((x) => x !== v) : [...sel, v]);
+  return (
+    <>
+      {options.map((o) => {
+        const on = sel.includes(o.value);
+        return (
+          <TouchableOpacity key={o.value} style={[s.choice, on && s.choiceOn]} onPress={() => toggle(o.value)}>
+            <View style={{ flex: 1 }}>
+              <Text style={[s.choiceTitle, on && s.choiceTitleOn]}>{o.title}</Text>
+              {!!o.sub && <Text style={s.choiceSub}>{o.sub}</Text>}
+            </View>
+            <View style={[s.checkBox, on && s.checkBoxOn]}>{on ? <Text style={s.checkMark}>✓</Text> : null}</View>
+          </TouchableOpacity>
+        );
+      })}
+    </>
+  );
+}
+
 function Stepper({ ctx, k }: { ctx: StepCtx; k: string }) {
   const v = parseInt(ctx.answers[k] ?? '0') || 0;
   return (
@@ -333,8 +355,8 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   currentSavingsPortfolio: a => a.currentSavingsPortfolio != null && a.currentSavingsPortfolio !== '',
   retirementIncomeSources: a => retirementMonthlyIncome(a) > 0,
   horizonAge: a => num(a.horizonAge) > 0,
-  investObjective: a => !!a.investObjective,
-  trackingLevel: a => !!a.trackingLevel,
+  investObjective: a => Array.isArray(a.investObjective) ? a.investObjective.length > 0 : !!a.investObjective,
+  trackingLevel: a => Array.isArray(a.trackingLevel) ? a.trackingLevel.length > 0 : !!a.trackingLevel,
   investmentHoldings: a => num(a.investmentHoldings) > 0,
   goals_detail: a => Array.isArray(a.goals) && a.goals.length > 0,
   monthlySavingsCapacity: a => num(a.monthlySavingsCapacity) > 0,
@@ -850,14 +872,14 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           { value: 'same', title: 'About the same' }, { value: 'less', title: 'Less' }, { value: 'more', title: 'More' }]} /></Card></>);
 
     case 'investObjective':
-      return (<><Header emoji="📈" title="What's your investing goal?" />
-        <Card><Choice ctx={ctx} k="investObjective" options={[
+      return (<><Header emoji="📈" title="What's your investing goal?" sub="Pick any that apply." />
+        <Card><MultiChoice ctx={ctx} k="investObjective" options={[
           { value: 'pnl', title: 'Monitor performance', sub: 'Realized & unrealized P&L' },
-          { value: 'networth', title: 'Track everything in one place', sub: 'Net worth, MoM / YoY change' }]} /></Card></>);
+          { value: 'networth', title: 'Everything in one place', sub: 'Net worth, MoM / YoY change' }]} /></Card></>);
 
     case 'trackingLevel':
-      return (<><Header emoji="🔎" title="How detailed do you want to track?" />
-        <Card><Choice ctx={ctx} k="trackingLevel" options={[
+      return (<><Header emoji="🔎" title="How detailed do you want to track?" sub="Pick any — combine them for all levels." />
+        <Card><MultiChoice ctx={ctx} k="trackingLevel" options={[
           { value: 'account', title: 'By account' }, { value: 'asset', title: 'By asset type' },
           { value: 'holding', title: 'Each individual holding' }]} /></Card></>);
 
@@ -868,6 +890,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'investRefine':
       return (<><Header emoji="⚙️" title="Refine (optional)" sub="Allocation, cost basis & risk — set later in the app." />
         <Card><Text style={s.note}>Skip for now.</Text></Card></>);
+
+    case 'networthIntro':
+      return (<><Header emoji="🧮" title="Your net worth lives in the Net Worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
+        <Card>
+          <Text style={s.note}>Next, open the <Text style={{ fontWeight: '800' }}>Net Worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
+          <Text style={[s.hint, { marginTop: 10 }]}>You can finish setup now and add accounts anytime.</Text>
+        </Card></>);
 
     case 'goals_detail':
       return <GoalsEditor ctx={ctx} />;
@@ -957,9 +986,12 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
     case 'recap_invest': {
       const total = num(a.investmentHoldings);
+      const levels = Array.isArray(a.trackingLevel) ? a.trackingLevel : (a.trackingLevel ? [a.trackingLevel] : []);
+      const objs = Array.isArray(a.investObjective) ? a.investObjective : (a.investObjective ? [a.investObjective] : []);
+      const objLabel = objs.map((o: string) => o === 'pnl' ? 'performance / P&L' : 'net worth over time').join(' + ') || '—';
       return (<><Header emoji="📈" title="Your portfolio" />
         <Card><RecapStat label="Total value" value={money(total)} color={Colors.primary} />
-          <Text style={s.note}>Tracking {a.trackingLevel ? `by ${a.trackingLevel}` : ''} · {a.investObjective === 'pnl' ? 'performance / P&L' : 'net worth over time'}</Text></Card></>);
+          <Text style={s.note}>Tracking {levels.length ? `by ${levels.join(', ')}` : ''} · {objLabel}</Text></Card></>);
     }
     case 'recap_goals': {
       const goals = (a.goals ?? []) as any[];
@@ -1811,6 +1843,9 @@ const s = StyleSheet.create({
   choiceSub: { fontSize: 12, color: Colors.textTertiary, marginTop: 2 },
   radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: Colors.border },
   radioOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
+  checkBox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
+  checkBoxOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
+  checkMark: { color: '#fff', fontSize: 14, fontWeight: '900' },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.lg },
   stepBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   stepBtnT: { fontSize: 24, color: Colors.primary, fontWeight: '700' },

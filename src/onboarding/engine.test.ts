@@ -36,8 +36,8 @@ describe('onboarding goals — grouped, stage-ordered sections', () => {
       expect(steps[steps.length - 1]).toBe('summary');
     });
   });
-  test('net worth is an interest marker — adds no extra onboarding steps', () => {
+  test('net worth track adds only the hand-off step (capture happens in the Net Worth tab)', () => {
     const withNW = buildSteps('employed', ['networth']);
-    expect(withNW).toEqual(['status', 'goals', 'account', 'name', 'summary']);
+    expect(withNW).toEqual(['status', 'goals', 'account', 'name', 'networthIntro', 'summary']);
   });
 });
