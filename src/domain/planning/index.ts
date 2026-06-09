@@ -1,6 +1,36 @@
-// Life-stage planning calculators (529 education, life-insurance need, estate checklist).
+// Life-stage planning calculators (529 education, life-insurance need, estate checklist, Roth conversion).
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { round2 } from '../_shared/num';
+import { TAX_BRACKETS, STANDARD_DEDUCTION, taxableIncome, taxOwed } from '../income/tax';
+
+// ───────────────────────── Roth conversion (fill a low bracket) ─────────────────────────
+// In a low-income year (e.g. early retirement, before Social Security / RMDs), move pre-tax
+// 401(k)/IRA money to Roth, paying tax now at a low rate so it grows tax-free and dodges future RMDs.
+// The classic move: convert just enough to "fill up" a target tax bracket without spilling into the next.
+export interface RothInput {
+  preTaxBalance: number;    // Traditional 401(k)/IRA you could convert
+  otherIncome: number;      // this year's other taxable income (gross), before the conversion
+  fillToRate: number;       // the marginal bracket you're willing to pay up to (e.g. 0.12, 0.22, 0.24)
+}
+export interface RothPlan {
+  roomToConvert: number;    // how much you can convert staying within the target bracket
+  taxCost: number;          // federal tax on that conversion
+  effectiveRate: number;    // taxCost / roomToConvert
+  bracketTopGross: number;  // the gross-income level that fills the bracket
+}
+export function rothConversion(inp: RothInput): RothPlan {
+  const target = TAX_BRACKETS.find(([, r]) => r === inp.fillToRate) ?? TAX_BRACKETS[1];
+  const ceilingTaxable = target[0];                       // upper bound of that bracket (taxable terms)
+  const currentTI = taxableIncome(Math.max(0, inp.otherIncome));
+  const room = Math.max(0, Math.min(Math.max(0, inp.preTaxBalance), ceilingTaxable - currentTI));
+  const taxCost = taxOwed(inp.otherIncome + room) - taxOwed(inp.otherIncome);
+  return {
+    roomToConvert: round2(room),
+    taxCost: round2(taxCost),
+    effectiveRate: room > 0 ? Math.round((taxCost / room) * 1000) / 1000 : 0,
+    bracketTopGross: ceilingTaxable + STANDARD_DEDUCTION,
+  };
+}
 
 // ───────────────────────── 529 / education savings ─────────────────────────
 export interface EduPlanInput {

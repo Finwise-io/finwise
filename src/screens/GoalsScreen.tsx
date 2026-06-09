@@ -134,6 +134,16 @@ export default function GoalsScreen() {
         <Text style={styles.creditArrow}>›</Text>
       </TouchableOpacity>
 
+      {/* ROTH CONVERSION */}
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/roth')}>
+        <Text style={styles.creditIcon}>🔄</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Roth conversion</Text>
+          <Text style={styles.creditSub}>Convert pre-tax savings in a low-income year — tax-free growth</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>

@@ -1,4 +1,24 @@
-import { educationPlan, lifeInsuranceNeed } from './index';
+import { educationPlan, lifeInsuranceNeed, rothConversion } from './index';
+
+describe('Roth conversion (fill a bracket)', () => {
+  test('converts up to the bracket ceiling and prices the tax', () => {
+    // low-income retiree: $20k other income, wants to fill the 12% bracket
+    const r = rothConversion({ preTaxBalance: 500000, otherIncome: 20000, fillToRate: 0.12 });
+    expect(r.roomToConvert).toBeGreaterThan(0);
+    expect(r.taxCost).toBeGreaterThan(0);
+    expect(r.effectiveRate).toBeLessThanOrEqual(0.12);   // stays within the target bracket
+    expect(r.bracketTopGross).toBeGreaterThan(20000);
+  });
+  test('no room if income already past the bracket', () => {
+    const r = rothConversion({ preTaxBalance: 500000, otherIncome: 200000, fillToRate: 0.12 });
+    expect(r.roomToConvert).toBe(0);
+    expect(r.taxCost).toBe(0);
+  });
+  test('limited by the pre-tax balance you actually have', () => {
+    const r = rothConversion({ preTaxBalance: 5000, otherIncome: 20000, fillToRate: 0.22 });
+    expect(r.roomToConvert).toBe(5000);
+  });
+});
 
 describe('life-insurance need', () => {
   test('DIME-style: income replacement + debts + goals + final, minus what you have', () => {

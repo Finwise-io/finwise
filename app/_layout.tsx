@@ -107,7 +107,7 @@ export default function RootLayout() {
     const inTabs       = segments[0] === '(tabs)';
     const inOnboarding = segments[0] === 'onboarding';
     const inAuth       = segments[0] === 'auth';
-    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail','income-manager','performance','bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education','insurance','estate','retirement'].includes(segments[0] as string);
+    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail','income-manager','performance','bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education','insurance','estate','roth','retirement'].includes(segments[0] as string);
     if (user) {
       if (onboardingComplete) {
         if (!inTabs && !inModals) router.replace('/(tabs)/home');
