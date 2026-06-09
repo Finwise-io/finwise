@@ -21,9 +21,13 @@ We ask for these but nothing computes with them:
 | `medicalBudget` | retirement (medicalBudget step) | **unused** — never read (notable: medical is a top retiree risk) |
 | `spendingChangeLater` | retirement | **unused** — never feeds the projection (we even ask "will spending change?" then ignore it) |
 | `benefitTypes` | benefits step | descriptive only — not used in any calc |
-| store `incomeIsFixed` | onboarding | **unused** — 0 readers |
-| store `lastEconomicFetch` | economic data | **unused** — 0 readers |
-| store `allocPromptSkipped` | net-worth allocate prompt | effectively unused (1 stray ref) |
+| store `incomeIsFixed` | onboarding | ✅ **REMOVED** (was 0 readers) |
+| store `lastEconomicFetch` | economic data | ✅ **REMOVED** (was set-but-never-read) |
+| store `allocPromptSkipped` | net-worth allocate prompt | **actually wired** — HomeScreen reads it (earlier "unused" call was wrong); keep |
+
+**Update (2026-06-09):** `incomeIsFixed` and `lastEconomicFetch` removed; `travelBudget` /
+`medicalBudget` / `spendingChangeLater` now **wired** into retirement spend (`retirementSpendMonthly`).
+The remaining captured-only field is `benefitTypes` (harmless descriptive metadata — kept).
 
 **Action:** either wire them (medicalBudget → retirement spend; spendingChangeLater → a spend
 ramp in the projection) or stop asking. Asking for data we ignore erodes trust and lengthens
