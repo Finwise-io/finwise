@@ -1,70 +1,73 @@
-#,Main Feature or Service or Module,Sub-Feature,Details Captured,Description
-1,Onboarding & Profile,Life stage,Employed / partially employed / student / retired,Tailors the whole setup flow
-,,Goals picker,"Stage-ordered, grouped, multi-select","""What brings you to FinWise"""
-,,Income-source picker,Pick only the sources that apply,Shows only the relevant screens
-,,Household,Partner + dependents,Used by planning tools
-,,Mascot + progress,Centi warms neutral to happy as you advance,Engagement
-2,Income,Employment Income,Base + Tips (Tips for hourly only),Hourly / weekly / bi-weekly / monthly; same each month OR set by month ($0 for gap months)
-,,,Bonus,Annual amount + which month it lands
-,,,Signing Bonus,One-time
-,,,RSUs / stock options,Vesting schedule (shares x price); options use strike + market
-,,,401(k) contribution + employer match,% or $ match; ongoing jobs only
-,,Rental Income,Rent/month + operating expenses,Short-term or long-term; multiple properties
-,,Investment Income,Dividends + interest,Estimate; uses actual from holdings when available
-,,Benefits,"SNAP, TANF, disability, unemployment, housing",Select all that apply; total benefits per month (non-taxable)
-,,Self-Employed / Side Gig,Freelance / consulting / small-business,Monthly or yearly (taxable)
-,,Child Support or Alimony,Monthly amount,Non-taxable
-,,Student Loans,"Amount, disbursement month(s) + optional day/year, APR + term","Multi-entry; borrowed cash-in + repayment-after-graduation estimate"
-,,Scholarships / Grants,"Amount, monthly/yearly, which months + optional day/year",Multi-entry; non-taxable
-,,Retirement Income,"Social Security, pension, 401(k)/IRA withdrawals, RMDs, annuities",For retired / near-retired
-,,Something Else,"Gifts, one-off payment, anything else",Monthly / annual / one-time
-,,Tax,System estimate (IRS brackets) or manual effective rate,Drives net / take-home everywhere
-,,Income recap & detail,"Totals, effective tax rate, month-by-month cash-flow grid","Insight: typical month + lean/windfall stretches"
-3,Spending Plan,Average Monthly Spend,Single monthly estimate,Quick start before itemizing
-,,Budget by Category,Critical / Important / Nice-to-have tiers; $ or % of take-home,Custom categories supported
-,,Category timing,"Monthly vs yearly, due month(s) + due day",Yearly items (e.g. insurance premium) land in their month
-,,Save-by-month,Available to save each month,Income minus spending placed in actual months
-4,Bill Calendar & Cash Flow,Rolling 12-month running balance,Money-in vs bills-out by month,Flags tight/short months; rolls forward from this month
-,,"Day-level ""ask by date"" planner","Due date, need-by buffer, ask-by date, shortfall, who covers the gap","e.g. ""ask family for $X by [date]"" for tuition"
-,,Prioritize bills,Critical bills first when short,CFPB-style
-5,Net Worth,Cash,Checking / savings balances,
-,,Investments,"Stocks, ETFs, brokerage",Per-account + positions/lots
-,,Retirement,"401(k), IRA, HSA",
-,,Property & belongings,"Home, car, valuables",Manually valued
-,,Debts / Liabilities,"Balance, APR, minimum payment, due day",Shared with the Budget Debts tab
-,,Net worth + runway,Assets minus debts; cash / monthly spend,Donut + emergency-fund runway
-,,Net worth over time,Monthly snapshots,Trend chart on Home
-6,Investing & Performance,Portfolio vs benchmark,Per-holding return vs matching index (1M-3Y),Like-for-like same-period comparison
-,,Ticker autocomplete,Common tickers + name + type,Sets the right benchmark
-,,Capital gains,Long-term vs short-term gain + estimated tax,"""If you sold everything now"""
-,,Allocation / attribution / trend,"Mix, top contributors, value over time",
-,,Bonds,"Coupon income, maturity, yield",
-,,Other Investments,"Crypto, private equity, hedge funds, commodities, annuities",Manually valued; expected return
-7,Goals & Debt,Goals,Target amount + target date (MM/YYYY),Back-calculates the monthly amount
-,,Sinking fund,Non-monthly costs spread monthly,
-,,Debt payoff plan,Avalanche / snowball + extra-payment savings,
-,,Debt-to-income,Monthly debt / gross income,Renter / homeowner guideline
-,,Student-loan outlook,"Total borrowed, est. monthly after graduation, total interest",
-,,Build credit,"Utilization (balance / limit), score band, habits",
-8,Retirement,Where you stand,Nest egg + chance of success,
-,,Will it last,~400 Monte-Carlo market simulations,Through your plan-to age
-,,Decumulation,"Withdrawal rate vs 4%, withdrawal order, depletion age, RMDs",For retirees
-,,Scenario sandbox,"Retire age, monthly saving, return, inflation, pay raises",Save as your plan
-,,Retirement spend,"Base + travel + medical + ""spending change later"" trajectory",
-9,Planning & Tax Tools,College planner (529),"Cost, inflation, current savings -> monthly to fund",Save as a goal
-,,Life insurance check,"Income, debts, goals, savings, existing coverage -> gap",DIME method; prefilled
-,,Estate & legacy,"Will, beneficiaries, POA, healthcare directive, guardian, documents",Saved checklist + progress %
-,,Roth conversion,"Pre-tax balance, other income, target bracket -> amount + tax",Fill-a-bracket strategy
-,,Tax organizer,"Income by source, contributions, accounts, document checklist",Share as PDF for your CPA
-,,Emergency stress test,"Cash + surprise expense -> can you cover, job-loss runway, fund target",Presets: medical / car / job-loss
-10,Guidance & Engagement,Insights,"Ranked to-dos (emergency fund, 401k room, concentration, savings rate)",
-,,Sharpen your plan,Checklist of skipped setup steps,Completeness %
-,,Rewards,"XP, badges, daily streak",
-,,Tips,Educational content + AI expense tips,
-,,Job safety check,Income-stability questions -> safety plan,
-11,Settings & System,Currency,USD / EUR / GBP / INR / CAD / AUD ...,Reformats every amount app-wide
-,,Text size,Default / Large / Larger,App-wide text scaling
-,,Display mode,Simple vs Advisor,Hide or show technical detail
-,,Frequency,Budget + pay frequency,
-,,Data & security,"Encrypted on-device storage, cloud sync, email recovery",
-,,Native features,Receipt OCR scan + push notifications,Activate in the installed app build
+#,Main Feature or Service or Module,Sub-Feature,Details Captured,Description,Status
+1,Onboarding & Profile,Life stage,Employed / partially employed / student / retired,Tailors the whole setup flow,Live
+,,Goals picker,"Stage-ordered, grouped, multi-select","""What brings you to FinWise""",Live
+,,Income-source picker,Pick only the sources that apply,Shows only the relevant screens,Live
+,,Household,Partner + dependents,Used by planning tools,Live
+,,Mascot + progress,Centi warms neutral → happy as you advance,Engagement,Live
+2,Income,Employment Income,Base + Tips (Tips for hourly only),Hourly / weekly / bi-weekly / monthly; same each month OR set by month ($0 for gap months),Live
+,,,Bonus,Annual amount + which month it lands,Live
+,,,Signing Bonus,One-time,Live
+,,,RSUs / stock options,Vesting schedule (shares × price); options use strike + market,Live
+,,,401(k) contribution + employer match,% or $ match; ongoing jobs only,Live
+,,Rental Income,Rent/month + operating expenses,Short-term or long-term; multiple properties,Live
+,,Investment Income,Dividends + interest,Estimate; uses actual from holdings when available,Live
+,,Benefits,"SNAP, TANF, disability, unemployment, housing",Select all that apply; total per month (non-taxable),Live
+,,Self-Employed / Side Gig,Freelance / consulting / small-business,Monthly or yearly (taxable),Live
+,,Child Support or Alimony,Monthly amount,Non-taxable,Live
+,,Student Loans,"Amount, disbursement month(s) + optional day/year, APR + term",Multi-entry; cash-in + repayment-after-graduation estimate,Live
+,,Scholarships / Grants,"Amount, monthly/yearly, which months + optional day/year",Multi-entry; non-taxable,Live
+,,Retirement Income,"Social Security, pension, 401(k)/IRA withdrawals, RMDs, annuities",For retired / near-retired,Live
+,,Something Else,"Gifts, one-off payment, anything else",Monthly / annual / one-time,Live
+,,Tax,System estimate (IRS brackets) or manual effective rate,Drives net / take-home everywhere,Live
+,,Income recap & detail,"Totals, effective tax rate, month-by-month cash-flow grid",Insight: typical month + lean/windfall stretches,Live
+3,Spending Plan,Average Monthly Spend,Single monthly estimate,Quick start before itemizing,Live
+,,Budget by Category,Critical / Important / Nice-to-have tiers; $ or % of take-home,Custom categories supported,Live
+,,Category timing,"Monthly vs yearly, due month(s) + due day",Yearly items (e.g. insurance premium) land in their month,Live
+,,Save-by-month,Available to save each month,"Income − spending, placed in actual months",Live
+4,Bill Calendar & Cash Flow,Rolling 12-month running balance,Money-in vs bills-out by month,Flags tight/short months; rolls forward from this month,Live
+,,"Day-level ""ask by date"" planner","Due date, need-by buffer, ask-by date, shortfall, who covers the gap","e.g. ""ask family for $X by [date]"" for tuition",Live
+,,Prioritize bills,Critical bills first when short,CFPB-style,Live
+5,Net Worth,Cash,Checking / savings balances,,Live
+,,Investments,"Stocks, ETFs, brokerage",Per-account + positions/lots,Live
+,,Retirement,"401(k), IRA, HSA",,Live
+,,Property & belongings,"Home, car, valuables",Manually valued,Live
+,,Debts / Liabilities,"Balance, APR, minimum payment, due day",Shared with the Budget Debts tab,Live
+,,Net worth + runway,Assets − debts; cash ÷ monthly spend,Donut + emergency-fund runway,Live
+,,Net worth over time,Monthly snapshots,Trend chart on Home,Live
+,,Bank linking (Plaid),Auto-import accounts & balances,Planned integration,Coming soon
+6,Investing & Performance,Portfolio vs benchmark,Per-holding return vs matching index (1M–3Y),Like-for-like same-period comparison,Live
+,,Ticker autocomplete,Common tickers + name + type,Sets the right benchmark,Live
+,,Capital gains,Long-term vs short-term gain + estimated tax,"""If you sold everything now""",Live
+,,Allocation / attribution / trend,"Mix, top contributors, value over time",,Live
+,,Bonds,"Coupon income, maturity, yield",,Live
+,,Other Investments,"Crypto, private equity, hedge funds, commodities, annuities",Manually valued; expected return,Live
+,,Market prices,End-of-day quotes (free dev source),Provider upgrade planned for production,Live
+7,Goals & Debt,Goals,Target amount + target date (MM/YYYY),Back-calculates the monthly amount,Live
+,,Sinking fund,Non-monthly costs spread monthly,,Live
+,,Debt payoff plan,Avalanche / snowball + extra-payment savings,,Live
+,,Debt-to-income,Monthly debt ÷ gross income,Renter / homeowner guideline,Live
+,,Student-loan outlook,"Total borrowed, est. monthly after graduation, total interest",,Live
+,,Build credit,"Utilization (balance ÷ limit), score band, habits",,Live
+8,Retirement,Where you stand,Nest egg + chance of success,,Live
+,,Will it last,~400 Monte-Carlo market simulations,Through your plan-to age,Live
+,,Decumulation,"Withdrawal rate vs 4%, withdrawal order, depletion age, RMDs",For retirees,Live
+,,Scenario sandbox,"Retire age, monthly saving, return, inflation, pay raises",Save as your plan,Live
+,,Retirement spend,"Base + travel + medical + ""spending change later"" trajectory",,Live
+9,Planning & Tax Tools,College planner (529),"Cost, inflation, current savings → monthly to fund",Save as a goal,Live
+,,Life insurance check,"Income, debts, goals, savings, existing coverage → gap",DIME method; prefilled,Live
+,,Estate & legacy,"Will, beneficiaries, POA, healthcare directive, guardian, documents",Saved checklist + progress %,Live
+,,Roth conversion,"Pre-tax balance, other income, target bracket → amount + tax",Fill-a-bracket strategy,Live
+,,Tax organizer,"Income by source, contributions, accounts, document checklist",In-app review live; PDF export needs the native build,Native build
+,,Emergency stress test,"Cash + surprise expense → can-cover, job-loss runway, fund target",Presets: medical / car / job-loss,Live
+10,Guidance & Engagement,Insights,"Ranked to-dos (emergency fund, 401k room, concentration, savings rate)",,Live
+,,Sharpen your plan,Checklist of skipped setup steps,Completeness %,Live
+,,Rewards,"XP, badges, daily streak",,Live
+,,Tips,Educational content + AI expense tips,,Live
+,,Job safety check,Income-stability questions → safety plan,,Live
+11,Settings & System,Currency,USD / EUR / GBP / INR / CAD / AUD …,Reformats every amount app-wide,Live
+,,Text size,Default / Large / Larger,App-wide text scaling,Live
+,,Display mode,Simple vs Advisor,Hide or show technical detail,Live
+,,Frequency,Budget + pay frequency,,Live
+,,Data & security,"Encrypted on-device storage, cloud sync, email recovery",,Live
+,,Receipt OCR scan,Snap a receipt → expense,Runs in the installed app build,Native build
+,,Push notifications,Bill / check-in reminders,Runs in the installed app build,Native build
