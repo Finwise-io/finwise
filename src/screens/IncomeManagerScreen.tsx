@@ -28,10 +28,13 @@ export default function IncomeManagerScreen() {
   const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
   const [addOpen, setAddOpen] = useState(false);
 
-  const sources = useMemo(() => incomeFromOnboarding(uid, op).sources, [op, uid]);
   const investIncome = investmentIncomeAnnual(transactions) + couponIncomeAnnual(store.assetAccounts ?? []);
+  // When real holdings/bonds report income, drop the onboarding interest/dividends ESTIMATE so we
+  // don't double-count it with the actual "Investment income" row below.
+  const opLive = useMemo(() => (investIncome > 0 ? { ...op, invAnnual: 0 } : op), [op, investIncome]);
+  const sources = useMemo(() => incomeFromOnboarding(uid, opLive).sources, [opLive, uid]);
   const oneOffTotal = incomes.reduce((t: number, i: any) => t + (i.amount || 0), 0);
-  const totalAnnual = Math.round(totalGrossAnnual(op)) + investIncome + oneOffTotal;
+  const totalAnnual = Math.round(totalGrossAnnual(opLive)) + investIncome + oneOffTotal;
 
   const editableField = (s: any): null | 'bonusAnnual' | 'signingOnetime' =>
     s.label === 'Bonus' ? 'bonusAnnual' : s.label === 'Signing bonus' ? 'signingOnetime' : null;
