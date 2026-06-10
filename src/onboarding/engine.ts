@@ -148,7 +148,11 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (!srcs.length) return ['income_sources'];   // pick sources first; details appear once chosen
   const ongoing = answers?.jobType !== 'temporary';
   const out: StepId[] = ['income_sources'];
-  if (status === 'retired') out.push('birth');   // age drives RMDs + life-expectancy planning — ask before retirement income
+  // Age drives RMDs + life-expectancy planning — ask before retirement income so its insights can use it.
+  if (status === 'retired' || srcs.includes('retirement_income')) out.push('birth');
+  // Retirement income is the retiree's PRIMARY income — ask it first (before dividends/other). Uses the
+  // SAME rich screen as the decumulation track (retirementIncomeSources), so it's asked ONCE (deduped).
+  if (srcs.includes('retirement_income')) out.push('retirementIncomeSources');
   if (srcs.includes('employment')) {
     out.push('income_salary');
     // 401(k)/bonus/RSU only make sense for an ongoing/permanent job (birth first: limit depends on age)
@@ -157,9 +161,6 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('self_employment')) out.push('income_self');
   if (srcs.includes('investment_income')) out.push('income_investment');
   if (srcs.includes('rental')) out.push('income_rental');
-  // Retirement income uses the SAME rich screen as the decumulation track (retirementIncomeSources),
-  // so a retiree who picks "retirement income" + "make my money last" is asked ONCE (buildSteps dedupes).
-  if (srcs.includes('retirement_income')) out.push('retirementIncomeSources');
   if (srcs.includes('benefits')) out.push('income_benefits');
   if (srcs.includes('support')) out.push('income_support');
   if (srcs.includes('scholarship')) out.push('income_scholarship');

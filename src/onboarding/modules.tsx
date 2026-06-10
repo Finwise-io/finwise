@@ -87,6 +87,18 @@ function MoneyCadenceRow({ ctx, k, label }: { ctx: StepCtx; k: string; label: st
 // RMD start age (SECURE 2.0): born 1951–1959 → 73; born 1960+ → 75 (earlier cohorts already at/after 73).
 export function rmdStartAge(birthYear: number): number { return birthYear >= 1960 ? 75 : 73; }
 
+// IRS Uniform Lifetime Table (2022+) — distribution-period factors by age. RMD = balance ÷ factor.
+const UNIFORM_LIFETIME: Record<number, number> = {
+  73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1, 80: 20.2, 81: 19.4, 82: 18.5,
+  83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7, 89: 12.9, 90: 12.2, 91: 11.5, 92: 10.8,
+  93: 10.1, 94: 9.5, 95: 8.9,
+};
+/** Rough annual RMD on a pre-tax balance at a given age (0 below 73). */
+export function estimateAnnualRMD(balance: number, age: number): number {
+  const f = UNIFORM_LIFETIME[Math.max(73, Math.min(95, age))];
+  return f && balance > 0 ? balance / f : 0;
+}
+
 // Hero amount — the screen's ONE primary number, large and centered (the design standard).
 function HeroAmount({ ctx, k, label, ph, kind = 'money' }: {
   ctx: StepCtx; k: string; label?: string; ph?: string; kind?: 'money' | 'number';
@@ -866,9 +878,17 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'currentSavingsPortfolio': {
       // If a 401(k)/IRA question is also in this flow, scope THIS to non-retirement money so nothing is double-counted.
       const hasRet = ctx.tracks.includes('retire_acc');
+      const bal = num(a.currentSavingsPortfolio);
+      const by = num(a.birthYear), startAge = by > 0 ? rmdStartAge(by) : 0, age = currentAge(a);
+      const rmdAge = startAge > 0 ? Math.max(age, startAge) : 0;
+      const rmd = !hasRet && rmdAge > 0 ? estimateAnnualRMD(bal, rmdAge) : 0;   // RMD insight only when this is the full pre-tax-ish pool
       return (<><Header emoji="🏦" title={hasRet ? 'Your other savings & investments' : 'Your savings & investments'}
         sub={hasRet ? 'Taxable brokerage & cash — not the retirement accounts above.' : 'Everything you can draw on in retirement.'} />
-        <Card><HeroAmount ctx={ctx} k="currentSavingsPortfolio" label={hasRet ? 'Taxable + cash' : 'Total portfolio'} /></Card></>);
+        <Card><HeroAmount ctx={ctx} k="currentSavingsPortfolio" label={hasRet ? 'Taxable + cash' : 'Total portfolio'} /></Card>
+        {rmd > 0 && <Callout
+          text={age >= startAge ? `~${money(rmd)}/yr in required withdrawals at ${age}` : `~${money(rmd)}/yr required once you reach ${startAge}`}
+          sub="Rough RMD if this is mostly pre-tax (Traditional 401(k)/IRA). Roth accounts have no RMD." />}
+      </>);
     }
 
     case 'retirementIncomeSources': {
@@ -892,7 +912,9 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               ? `Traditional 401(k)/IRA balances must be drawn down yearly (Roth is exempt). Add yours above.`
               : `Born ${by < 1960 ? '1951–1959 → 73' : '1960 or later → 75'}. Traditional 401(k)/IRA will require yearly withdrawals then; Roth is exempt.`} />
         )}
-        {tot > 0 && <Callout text={`${money(tot)}/mo in retirement income`} sub={`About ${money(tot * 12)} a year before drawing on savings.`} />}
+        {tot > 0 && <Callout text={`${money(tot)}/mo in retirement income`}
+          sub={`About ${money(tot * 12)} a year before drawing on savings.`
+            + (num(a.ri_ss) > 0 ? ' Up to 85% of Social Security can be taxable, depending on your other income.' : '')} />}
       </>);
     }
 
@@ -1024,8 +1046,14 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               color={ok ? Colors.primary : Colors.red} />
           </Card>
           {netDraw > 0
-            ? <Callout text={`Your ${money(pool)} covers ~${money(netDraw)}/yr of drawdown for about ${Math.round(lastsYears)} years (you're ${startAge}).`}
-                sub={ok ? `That reaches your plan-to age of ${num(a.horizonAge || 90)}.` : `Short of your plan-to age (${num(a.horizonAge || 90)}) — trim spending, add income, or we can refine this in the app.`} warn={!ok} />
+            ? (() => {
+                const horizon = num(a.horizonAge || 90);
+                const targetYears = Math.max(1, horizon - startAge);
+                const monthlyLever = Math.max(0, (netDraw - pool / targetYears) / 12);   // cut to make it last to the horizon
+                return <Callout text={`Your ${money(pool)} covers ~${money(netDraw)}/yr of drawdown for about ${Math.round(lastsYears)} years (you're ${startAge}).`}
+                  sub={ok ? `That reaches your plan-to age of ${horizon}.`
+                    : `Short of age ${horizon} — trim about ${money(monthlyLever)}/mo of spending (or add that much income) to get there.`} warn={!ok} />;
+              })()
             : <Callout text={`Your income covers your spending — you're not drawing down your ${money(pool)} portfolio yet.`} />}
         </>);
       }
