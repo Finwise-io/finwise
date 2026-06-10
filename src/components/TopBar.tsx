@@ -19,7 +19,7 @@ const MODULES: Mod[] = [
   { e: '💎', t: 'Net Worth', route: '/(tabs)/analytics' },
   { e: '🏖', t: 'Retirement', route: '/(tabs)/retirement' },
   { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
-  { e: '🎯', t: 'Goals', route: '/(tabs)/goals' },
+  { e: '🎯', t: 'Plan', route: '/(tabs)/goals' },
   { e: '💡', t: 'Insights', route: '/insights' },
   { e: '📈', t: 'Invest', route: '/(tabs)/invest' },
   { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },

@@ -51,7 +51,7 @@ export default function GoalsScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Goals & Debt</Text>
+      <Text style={styles.h1}>Plan</Text>
 
       {/* WHAT YOU CAN SAVE */}
       {capacity.avg > 0 && (
@@ -94,17 +94,7 @@ export default function GoalsScreen() {
       })}
       <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a goal</Text></TouchableOpacity>
 
-      {/* BUILD CREDIT */}
-      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/credit')}>
-        <Text style={styles.creditIcon}>📊</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.creditTitle}>Build credit</Text>
-          <Text style={styles.creditSub}>Check your utilization + the habits that raise your score</Text>
-        </View>
-        <Text style={styles.creditArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* COLLEGE PLANNER */}
+      {/* college is a savings goal too — it lives with the goals */}
       <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/education')}>
         <Text style={styles.creditIcon}>🎓</Text>
         <View style={{ flex: 1 }}>
@@ -114,42 +104,13 @@ export default function GoalsScreen() {
         <Text style={styles.creditArrow}>›</Text>
       </TouchableOpacity>
 
-      {/* LIFE INSURANCE */}
-      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/insurance')}>
-        <Text style={styles.creditIcon}>🛡️</Text>
+      {/* ── DEBT & CREDIT ───────────────────────────────────────── */}
+      <Text style={styles.section}>DEBT & CREDIT</Text>
+      <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/credit')}>
+        <Text style={styles.creditIcon}>📊</Text>
         <View style={{ flex: 1 }}>
-          <Text style={styles.creditTitle}>Life insurance check</Text>
-          <Text style={styles.creditSub}>How much coverage would keep your family secure</Text>
-        </View>
-        <Text style={styles.creditArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* ESTATE */}
-      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/estate')}>
-        <Text style={styles.creditIcon}>📜</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.creditTitle}>Estate & legacy</Text>
-          <Text style={styles.creditSub}>Will, beneficiaries & directives — a short checklist</Text>
-        </View>
-        <Text style={styles.creditArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* ROTH CONVERSION */}
-      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/roth')}>
-        <Text style={styles.creditIcon}>🔄</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.creditTitle}>Roth conversion</Text>
-          <Text style={styles.creditSub}>Convert pre-tax savings in a low-income year — tax-free growth</Text>
-        </View>
-        <Text style={styles.creditArrow}>›</Text>
-      </TouchableOpacity>
-
-      {/* TAX ORGANIZER */}
-      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/tax-organizer')}>
-        <Text style={styles.creditIcon}>🧾</Text>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.creditTitle}>Tax organizer</Text>
-          <Text style={styles.creditSub}>A year-end summary + document checklist for your accountant</Text>
+          <Text style={styles.creditTitle}>Build credit</Text>
+          <Text style={styles.creditSub}>Check your utilization + the habits that raise your score</Text>
         </View>
         <Text style={styles.creditArrow}>›</Text>
       </TouchableOpacity>
@@ -157,7 +118,7 @@ export default function GoalsScreen() {
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>
-          <Text style={styles.section}>STUDENT LOAN OUTLOOK</Text>
+          <Text style={styles.cardKicker}>STUDENT LOAN OUTLOOK</Text>
           <View style={styles.card}>
             <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
             {loanOutlook.monthly > 0 ? (
@@ -175,7 +136,7 @@ export default function GoalsScreen() {
       {/* DEBT-TO-INCOME */}
       {liabilities.length > 0 && grossMonthly > 0 && (
         <>
-          <Text style={styles.section}>DEBT-TO-INCOME</Text>
+          <Text style={styles.cardKicker}>DEBT-TO-INCOME</Text>
           <View style={styles.card}>
             <View style={styles.dtiHead}>
               <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{Math.round(dti.ratio * 100)}%</Text>
@@ -192,7 +153,7 @@ export default function GoalsScreen() {
       {/* DEBT PAYOFF */}
       {liabilities.length > 0 && (
         <>
-          <Text style={styles.section}>DEBT PAYOFF PLAN</Text>
+          <Text style={styles.cardKicker}>DEBT PAYOFF PLAN</Text>
           <View style={styles.card}>
             <View style={styles.segRow}>
               <TouchableOpacity style={[styles.seg, method === 'avalanche' && styles.segOn]} onPress={() => setMethod('avalanche')}><Text style={[styles.segT, method === 'avalanche' && styles.segTOn]}>Avalanche</Text><Text style={styles.segSub}>least interest</Text></TouchableOpacity>
@@ -229,6 +190,41 @@ export default function GoalsScreen() {
           </View>
         </>
       )}
+
+      {/* ── PREPARE & PROTECT — plan for what's ahead ───────────── */}
+      <Text style={styles.section}>PREPARE & PROTECT</Text>
+      <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/insurance')}>
+        <Text style={styles.creditIcon}>🛡️</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Life insurance check</Text>
+          <Text style={styles.creditSub}>How much coverage would keep your family secure</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/estate')}>
+        <Text style={styles.creditIcon}>📜</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Estate & legacy</Text>
+          <Text style={styles.creditSub}>Will, beneficiaries & directives — a short checklist</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/roth')}>
+        <Text style={styles.creditIcon}>🔄</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Roth conversion</Text>
+          <Text style={styles.creditSub}>Convert pre-tax savings in a low-income year — tax-free growth</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.creditCard} activeOpacity={0.85} onPress={() => router.push('/tax-organizer')}>
+        <Text style={styles.creditIcon}>🧾</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.creditTitle}>Tax organizer</Text>
+          <Text style={styles.creditSub}>A year-end summary + document checklist for your accountant</Text>
+        </View>
+        <Text style={styles.creditArrow}>›</Text>
+      </TouchableOpacity>
 
       <View style={{ height: 40 }} />
       <GoalEditor goal={addOpen ? null : edit} open={addOpen || edit != null} onClose={() => { setAddOpen(false); setEdit(null); }}
@@ -295,8 +291,9 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
-  creditCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 18, borderWidth: 1, borderColor: Colors.border },
+  section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 22, marginBottom: 8 },
+  cardKicker: { fontSize: 10, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: 12, marginBottom: 4 },
+  creditCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10, borderWidth: 1, borderColor: Colors.border },
   creditIcon: { fontSize: 22 },
   creditTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   creditSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
