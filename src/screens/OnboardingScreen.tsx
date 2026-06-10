@@ -12,9 +12,36 @@ import {
 import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
-import { registerUser, loginUser } from '../services/firebase';
+import { registerUser, loginUser, lookupInvite, setUserHousehold, loadUserData } from '../services/firebase';
 import { saveProfile, profileFromOnboarding } from '../domain/profile';
 import { saveIncome, incomeFromOnboarding } from '../domain/income';
+
+// Human section per step — "Income · 3 of 7" reads far less daunting than "Step 9 of 27".
+const STEP_SECTION: Record<string, string> = {
+  status: 'Profile', goals: 'Profile', account: 'Profile', name: 'Profile',
+  income_sources: 'Income', income_salary: 'Income', income_401k: 'Income', employerContribution: 'Income',
+  income_bonus: 'Income', income_rsu: 'Income', income_rental: 'Income', income_self: 'Income',
+  income_investment: 'Income', income_benefits: 'Income', income_support: 'Income',
+  income_scholarship: 'Income', income_loans: 'Income', income_other: 'Income', income_tax: 'Income',
+  recap_income: 'Income', birth: 'About you',
+  monthlySpending: 'Spending', flexBuckets: 'Spending', savingsRateTarget: 'Spending', recap_spend: 'Spending',
+  currentRetirementSavings: 'Retirement', contributionsByType: 'Retirement', targetRetirementAge: 'Retirement',
+  expectedRetirementSpending: 'Retirement', currentSavingsPortfolio: 'Retirement',
+  retirementIncomeSources: 'Retirement', horizonAge: 'Retirement', retLocation: 'Retirement',
+  travelBudget: 'Retirement', medicalBudget: 'Retirement', spendingChangeLater: 'Retirement', recap_retire: 'Retirement',
+  investObjective: 'Investments', trackingLevel: 'Investments', investmentHoldings: 'Investments',
+  recap_invest: 'Investments', networthIntro: 'Investments',
+  goals_detail: 'Goals', monthlySavingsCapacity: 'Goals', recap_goals: 'Goals',
+  debts: 'Debt', legacyTarget: 'Legacy',
+  hasPartner: 'Household', invitePartner: 'Household', dependentsCount: 'Household',
+  summary: 'Wrap-up',
+};
+function sectionProgress(steps: string[], index: number): string {
+  const sec = STEP_SECTION[steps[index]] ?? 'Setup';
+  const inSec = steps.map((id, i) => ({ id, i })).filter((x) => (STEP_SECTION[x.id] ?? 'Setup') === sec);
+  const pos = inSec.findIndex((x) => x.i === index) + 1;
+  return inSec.length > 1 ? `${sec} · ${pos} of ${inSec.length}` : sec;
+}
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -41,6 +68,7 @@ export default function OnboardingScreen() {
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  const [inviteCode, setInviteCode] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
 
   const steps = buildSteps(status, tracks, answers);
@@ -94,6 +122,26 @@ export default function OnboardingScreen() {
     if (stepIndex > 0) setStepIndex(i => i - 1);
   }
 
+  // Redeem a partner-invite code: adopt the inviter's shared household doc, pull its data,
+  // and skip the rest of onboarding — the household plan already exists.
+  async function joinHousehold(uid: string): Promise<boolean> {
+    const inv = await lookupInvite(inviteCode);
+    if (!inv) {
+      Alert.alert('Invite code not found', 'Double-check the code with your partner — or continue without it and join later.');
+      return false;
+    }
+    await setUserHousehold(uid, inv.householdId);
+    store.setHouseholdId?.(inv.householdId);
+    const data = await loadUserData(inv.householdId);
+    if (data) store.loadFromCloud?.(data);
+    store.setOnboardingDraft?.(null);
+    store.setOnboardingPaused?.(false);
+    store.setOnboardingComplete?.(true);
+    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your partner'} — you'll both see the same accounts, plans and goals.`);
+    router.replace('/(tabs)/home');
+    return true;
+  }
+
   async function handleAccount() {
     if (!email.trim() || pw.length < 6) {
       Alert.alert('Check your details', 'Enter an email and a password (6+ characters).');
@@ -101,10 +149,16 @@ export default function OnboardingScreen() {
     }
     setAuthBusy(true);
     try {
-      if (authMode === 'signup') {
-        await registerUser(email.trim(), pw, email.trim().split('@')[0]);
-      } else {
-        await loginUser(email.trim(), pw);
+      const authedUser = authMode === 'signup'
+        ? await registerUser(email.trim(), pw, email.trim().split('@')[0])
+        : await loginUser(email.trim(), pw);
+      // Partner joining via invite code → shared household, skip the rest of setup.
+      if (inviteCode.trim() && authedUser?.uid) {
+        try {
+          if (await joinHousehold(authedUser.uid)) return;
+        } catch {
+          Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
+        }
       }
       // onAuthChange in _layout sets the user; we stay in onboarding and advance.
       advance();
@@ -209,6 +263,10 @@ export default function OnboardingScreen() {
             <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Password</Text>
             <TextInput style={styles.input} value={pw} onChangeText={setPw}
               placeholder="6+ characters" secureTextEntry placeholderTextColor={Colors.textTertiary} />
+            <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Partner invite code (optional)</Text>
+            <TextInput style={styles.input} value={inviteCode} onChangeText={(t) => setInviteCode(t.toUpperCase())}
+              placeholder="e.g. K7M2QX — joins your partner's plan" autoCapitalize="characters" autoCorrect={false}
+              placeholderTextColor={Colors.textTertiary} maxLength={6} />
           </Card>
           <TouchableOpacity onPress={() => setAuthMode(m => m === 'signup' ? 'login' : 'signup')}
             style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
@@ -249,7 +307,7 @@ export default function OnboardingScreen() {
       {/* progress bar — pinned at the top, always visible */}
       <View style={styles.progressBarFixed}>
         <ProgressBar pct={progress} />
-        <Text style={styles.progressText}>Step {stepIndex + 1} of {totalSteps}</Text>
+        <Text style={styles.progressText}>{sectionProgress(steps as string[], Math.min(stepIndex, steps.length - 1))}</Text>
       </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator>
@@ -270,7 +328,7 @@ export default function OnboardingScreen() {
 
       {/* pinned footer — Back / Continue always visible, never clipped by tall content */}
       <View style={styles.footer}>
-        {stepIndex > 0 && current !== 'account' && (
+        {stepIndex > 0 && (
           <Button label="← Back" onPress={back} variant="secondary" style={{ width: 104 }} size="md" />
         )}
         <Button label={primaryLabel} onPress={onPrimary} loading={authBusy}

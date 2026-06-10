@@ -130,7 +130,7 @@ const TAXABLE_SOURCES: IncomeSourceKey[] = ['employment', 'self_employment', 'in
 
 // Optional (skippable) field steps — rendered with a "Skip for now".
 export const OPTIONAL_STEPS = new Set<StepId>([
-  'income_401k', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
+  'income_401k', 'employerContribution', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
   // per-source detail steps: you picked the source, but you can still skip if it turns out to be
   // nothing (e.g. "I selected loans but don't actually have any") — never trap the user.
   'income_self', 'income_investment', 'income_benefits', 'income_support',
@@ -154,7 +154,8 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('retirement_income')) out.push('retirementIncomeSources');
   if (srcs.includes('employment')) {
     // birth first: the 401(k) limit depends on age. Gaps/seasonal work = $0 months in salaryByMonth.
-    out.push('income_salary', 'birth', 'income_401k', 'income_bonus', 'income_rsu');
+    // Employer match gets its own focused screen right after the contribution.
+    out.push('income_salary', 'birth', 'income_401k', 'employerContribution', 'income_bonus', 'income_rsu');
   }
   if (srcs.includes('self_employment')) out.push('income_self');
   if (srcs.includes('investment_income')) out.push('income_investment');
@@ -193,8 +194,8 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
       return { must: ['monthlySpending'],
                optional: decumulating ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
-      // 401(k) + employer match captured on the income_401k screen (deduped if income flow also present).
-      return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'contributionsByType',
+      // 401(k) contribution then its match on a dedicated screen (deduped if income flow also present).
+      return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'employerContribution', 'contributionsByType',
                       'targetRetirementAge', 'expectedRetirementSpending'],
                optional: ['retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater'] };
     case 'retire_dec':

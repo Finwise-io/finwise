@@ -4,17 +4,20 @@
 import type { UserId } from '../_shared/ids';
 import { round2, toNum } from '../_shared/num';
 import type { OnboardingProfile } from '../onboardingProfile';
+import { colFactor } from './col';
+
+export { colFactor, type ColMatch } from './col';
 
 /** All-in monthly retirement spend = base + travel + medical (annual→monthly), adjusted by the
- *  expected trajectory (spend less / same / more later). Wires travelBudget, medicalBudget and
- *  spendingChangeLater into the projection. Returns 0 if nothing's set (caller falls back). */
+ *  expected trajectory (spend less / same / more later) and the retirement location's
+ *  cost-of-living factor (retLocation). Returns 0 if nothing's set (caller falls back). */
 export function retirementSpendMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const base = toNum(a.expectedRetirementSpending) || toNum(a.monthlySpending) || 0;
   const travel = toNum(a.travelBudget) / 12;
   const medical = toNum(a.medicalBudget) / 12;
   const mult = a.spendingChangeLater === 'less' ? 0.85 : a.spendingChangeLater === 'more' ? 1.15 : 1;
-  return round2((base + travel + medical) * mult);
+  return round2((base + travel + medical) * mult * colFactor(a.retLocation).factor);
 }
 
 export interface RetirementInputs {

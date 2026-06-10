@@ -7,7 +7,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
 import { setMoneyFormat } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
-import { onAuthChange, loadUserData, saveUserData } from '../src/services/firebase';
+import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 
@@ -64,9 +64,13 @@ export default function RootLayout() {
         });
         currentUid.current = firebaseUser.uid;
 
-        // Hydrate local store from Firestore (best-effort — fail gracefully offline)
+        // Hydrate local store from Firestore (best-effort — fail gracefully offline).
+        // Household members read the SHARED doc (users/{householdId}); membership is
+        // recorded top-level on their own doc so it survives a fresh install.
         try {
-          const cloudData = await loadUserData(firebaseUser.uid);
+          const root = await loadUserRoot(firebaseUser.uid);
+          useStore.getState().setHouseholdId?.(root.householdId);
+          const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
           if (cloudData) loadFromCloud(cloudData);
           else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
         } catch (_) {
@@ -88,7 +92,8 @@ export default function RootLayout() {
       if (!uid) return;
       if (syncTimer.current) clearTimeout(syncTimer.current);
       syncTimer.current = setTimeout(() => {
-        saveUserData(uid, pickSyncFields(state as Record<string, any>)).catch(() => {
+        // Household members write to the shared doc so both partners stay in sync.
+        saveUserData((state as any).householdId ?? uid, pickSyncFields(state as Record<string, any>)).catch(() => {
           // Silently ignore offline write failures — next successful sync catches up
         });
       }, 2000);

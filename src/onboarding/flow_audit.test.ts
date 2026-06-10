@@ -28,7 +28,8 @@ const VALIDATORS = new Set([...src.matchAll(/^\s*([a-zA-Z0-9_]+): a =>/gm)].map(
 // Question screens = everything the user must look at except meta (status/goals/account/name/summary)
 // and recaps. Required = questions without a "Skip for now".
 const MAX_REQUIRED_QUESTIONS = 19;  // hard ceiling — worst legal flow today; ratchet DOWN, never up
-const MAX_TOTAL_QUESTIONS = 36;     // incl. optional/skippable — worst today; ratchet down
+const MAX_TOTAL_QUESTIONS = 37;     // incl. optional/skippable — worst today (36 + the dedicated
+                                    // employer-match screen split out of income_401k, 2026-06-10)
 
 // Income-detail step each source gates ON (presence required when the income block ran with sources).
 const SOURCE_STEP: Record<IncomeSourceKey, StepId> = {
@@ -46,7 +47,7 @@ const SOURCE_ONLY: [IncomeSourceKey, StepId][] = [
   ['benefits', 'income_benefits'], ['support', 'income_support'],
   ['scholarship', 'income_scholarship'], ['loans', 'income_loans'], ['other_income', 'income_other'],
 ];
-const EMPLOYMENT_EXTRAS: StepId[] = ['birth', 'income_401k', 'income_bonus', 'income_rsu'];
+const EMPLOYMENT_EXTRAS: StepId[] = ['birth', 'income_401k', 'employerContribution', 'income_bonus', 'income_rsu'];
 const ALL_INCOME_DETAILS: StepId[] = [...Object.values(SOURCE_STEP), 'income_tax', ...EMPLOYMENT_EXTRAS.slice(1)];
 const TAXABLE: Set<IncomeSourceKey> = new Set(['employment', 'self_employment', 'investment_income', 'rental', 'retirement_income', 'other_income']);
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];  // tracks that embed the income block
@@ -60,7 +61,7 @@ const ASSET_TOTALS: StepId[] = ['currentRetirementSavings', 'currentSavingsPortf
 const NEED: Partial<Record<Track, StepId[]>> = {
   spend: ['monthlySpending'],
   retire_dec: ['birth', 'currentSavingsPortfolio', 'retirementIncomeSources', 'monthlySpending', 'horizonAge'],
-  retire_acc: ['birth', 'currentRetirementSavings', 'income_401k', 'contributionsByType', 'targetRetirementAge', 'expectedRetirementSpending'],
+  retire_acc: ['birth', 'currentRetirementSavings', 'income_401k', 'employerContribution', 'contributionsByType', 'targetRetirementAge', 'expectedRetirementSpending'],
   invest: ['investObjective', 'trackingLevel'],
   goals: ['goals_detail'],
   debt: ['debts'],
@@ -73,7 +74,7 @@ const NEED: Partial<Record<Track, StepId[]>> = {
 
 // Recap → the section steps it summarizes; a recap must appear AFTER at least one of them.
 const RECAP_SECTION: Record<string, StepId[]> = {
-  recap_income: ['income_sources', 'income_salary', 'income_401k', 'income_bonus', 'income_rsu', 'income_self',
+  recap_income: ['income_sources', 'income_salary', 'income_401k', 'employerContribution', 'income_bonus', 'income_rsu', 'income_self',
     'income_investment', 'income_rental', 'income_benefits', 'income_support', 'income_scholarship',
     'income_loans', 'income_other', 'income_tax', 'retirementIncomeSources'],
   recap_spend: ['monthlySpending', 'flexBuckets', 'savingsRateTarget'],
@@ -182,13 +183,14 @@ function audit(): Audit {
         };
         before('birth', 'retirementIncomeSources', 'birth before retirement income');
         before('birth', 'income_401k', 'birth before 401(k) (limits are age-based)');
+        before('income_401k', 'employerContribution', '401(k) contribution before its match');
         if (stepSet.has('income_sources'))
           for (const s of ALL_INCOME_DETAILS) before('income_sources', s, 'source picker before income details');
         if (stepSet.has('recap_income'))
           for (const s of RECAP_SECTION.recap_income) {
             if (s === 'retirementIncomeSources') continue;  // retire_dec re-asks nothing; its copy may legitimately follow
-            // 401k contributed by retire_acc (no employment income) belongs to the retirement section
-            if (s === 'income_401k' && !v.srcs?.includes('employment')) continue;
+            // 401k + its match contributed by retire_acc (no employment income) belong to the retirement section
+            if ((s === 'income_401k' || s === 'employerContribution') && !v.srcs?.includes('employment')) continue;
             before(s, 'recap_income', 'income details before income recap');
           }
 
@@ -300,6 +302,7 @@ describe('onboarding flow audit — every persona × track-subset × source-subs
   test('retirees never get the savings-rate step', () => expectClean('retiree gets savings-rate'));
   test('birth precedes retirement income', () => expectClean('ordering: birth before retirement income'));
   test('birth precedes 401(k)', () => expectClean('ordering: birth before 401(k) (limits are age-based)'));
+  test('401(k) contribution precedes its match', () => expectClean('ordering: 401(k) contribution before its match'));
   test('source picker precedes income details', () => expectClean('ordering: source picker before income details'));
   test('income details precede the income recap', () => expectClean('ordering: income details before income recap'));
 

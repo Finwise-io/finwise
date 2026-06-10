@@ -46,6 +46,6 @@ export interface OnboardingProfile {
   investObjective?: 'pnl' | 'networth'; trackingLevel?: 'account' | 'asset' | 'holding'; investmentHoldings?: Money;
   // goals / household / debt / legacy
   goals?: GoalEntry[]; monthlySavingsCapacity?: Money;
-  hasPartner?: 'yes' | 'no'; partnerName?: string; partnerEmail?: string; dependentsCount?: Money;
+  hasPartner?: 'yes' | 'no'; partnerName?: string; inviteCode?: string; dependentsCount?: Money;
   debtName?: string; debtBalance?: Money; debtRate?: Money; debtPayment?: Money; legacyTarget?: Money;
 }

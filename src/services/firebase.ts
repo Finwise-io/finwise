@@ -102,6 +102,49 @@ export async function loadUserData(uid: string): Promise<Record<string, any> | n
   return snap.data()?.appState ?? null;
 }
 
+// ── Household / partner invites ─────────────────────────────────────
+// Partners share ONE data document: all reads/writes go to users/{householdId} where
+// householdId = the inviter's uid. Membership is recorded top-level on the member's own
+// user doc (users/{uid}.householdId, OUTSIDE appState) so it survives a fresh install.
+// Invites live at invites/{code} and are created client-side; the partner redeems the
+// code at sign-up (or later) — no email backend needed, the inviter shares the code.
+
+function makeInviteCode(): string {
+  const ALPHABET = 'ABCDEFGHJKMNPQRSTUVWXYZ23456789';   // no 0/O/1/I/L — easy to read aloud
+  return Array.from({ length: 6 }, () => ALPHABET[Math.floor(Math.random() * ALPHABET.length)]).join('');
+}
+
+/** Create an invite code pointing at this household's shared data doc. */
+export async function createInvite(householdId: string, inviterName: string | null): Promise<string> {
+  const code = makeInviteCode();
+  await setDoc(doc(db, 'invites', code), {
+    householdId,
+    inviterName: inviterName ?? null,
+    createdAt: serverTimestamp(),
+  });
+  return code;
+}
+
+export async function lookupInvite(code: string): Promise<{ householdId: string; inviterName: string | null } | null> {
+  const snap = await getDoc(doc(db, 'invites', code.trim().toUpperCase()));
+  if (!snap.exists()) return null;
+  const d = snap.data() as any;
+  return d?.householdId ? { householdId: d.householdId, inviterName: d.inviterName ?? null } : null;
+}
+
+/** Record household membership on the member's own user doc (survives reinstall/new device). */
+export async function setUserHousehold(uid: string, householdId: string): Promise<void> {
+  await setDoc(doc(db, 'users', uid), { householdId }, { merge: true });
+}
+
+/** The member's own top-level doc fields (householdId + appState) in one read. */
+export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null }> {
+  const snap = await getDoc(doc(db, 'users', uid));
+  if (!snap.exists()) return { householdId: null, appState: null };
+  const d = snap.data() as any;
+  return { householdId: d?.householdId ?? null, appState: d?.appState ?? null };
+}
+
 export async function submitFeedback(payload: {
   uid:       string | null;
   email:     string | null;

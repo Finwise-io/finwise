@@ -179,6 +179,9 @@ type AppState = {
   user: UserProfile | null;
   onboardingComplete: boolean;
   onboardingPaused: boolean;   // user tapped "Save & come back later" → allow them into the app
+  // Shared-household sync: when set, ALL cloud reads/writes target users/{householdId} instead of
+  // users/{uid} — both partners see and edit the same data. Device-local identity, never synced.
+  householdId: string | null;
 
   // Onboarding settings
   employmentStatus: string | null;
@@ -253,6 +256,7 @@ type AppState = {
   setUser: (user: UserProfile | null) => void;
   setOnboardingComplete: (v: boolean) => void;
   setOnboardingPaused: (v: boolean) => void;
+  setHouseholdId: (v: string | null) => void;
   restartOnboarding: () => void;   // clean overwrite: clear setup answers + onboarding-seeded data
 
   // Actions - Onboarding
@@ -364,6 +368,7 @@ export const useStore = create<AppState>()(
       user: null,
       onboardingComplete: false,
       onboardingPaused: false,
+      householdId: null,
 
       // Onboarding settings
       employmentStatus: null,
@@ -430,6 +435,7 @@ export const useStore = create<AppState>()(
       setUser: (user) => set({ user }),
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
       setOnboardingPaused: (v) => set({ onboardingPaused: v }),
+      setHouseholdId: (v) => set({ householdId: v }),
 
       // ── Onboarding actions ───────────────────────────────────────
       setEmploymentStatus: (s) => set({ employmentStatus: s }),

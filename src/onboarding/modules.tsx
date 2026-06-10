@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView } from 'react-native';
+import { View, Text, TextInput, TouchableOpacity, StyleSheet, Modal, ScrollView, Share } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -7,6 +7,9 @@ import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
 import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths } from '../domain/income';
 import { loanPayment } from '../domain/debt';
+import { colFactor } from '../domain/retirement/col';
+import { createInvite } from '../services/firebase';
+import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
@@ -177,11 +180,11 @@ function MonthYearCell({ value, onChange, style }: { value?: string; onChange: (
   );
 }
 
-function NumRow({ ctx, k, label, ph }: { ctx: StepCtx; k: string; label?: string; ph?: string }) {
+function NumRow({ ctx, k, label, ph, decimal }: { ctx: StepCtx; k: string; label?: string; ph?: string; decimal?: boolean }) {
   return (
     <View style={{ marginBottom: Spacing.sm }}>
       {!!label && <Text style={s.label}>{label}</Text>}
-      <TextInput style={s.input} keyboardType="number-pad" placeholderTextColor={Colors.textTertiary}
+      <TextInput style={s.input} keyboardType={decimal ? 'decimal-pad' : 'number-pad'} placeholderTextColor={Colors.textTertiary}
         placeholder={ph ?? ''} value={ctx.answers[k] ?? ''} onChangeText={(t) => ctx.setAnswer(k, t)} />
     </View>
   );
@@ -385,10 +388,17 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
-  birth: a => !!a.birthYear && !!a.birthMonth,
+  // a real calendar date — month 13 or year 12 would silently wreck the age math downstream
+  birth: a => {
+    const m = num(a.birthMonth), y = num(a.birthYear), nowY = new Date().getFullYear();
+    return m >= 1 && m <= 12 && y >= nowY - 120 && y <= nowY;
+  },
   currentRetirementSavings: a => a.currentRetirementSavings != null && a.currentRetirementSavings !== '',
-  contributionsByType: a => ['c_401k', 'c_roth', 'c_invest', 'c_property'].some(k => num(a[k]) >= 0) && (a.c_touched ?? true),
-  targetRetirementAge: a => num(a.targetRetirementAge) > 0,
+  // zero extra contributions is a legitimate answer — never blocks
+  contributionsByType: a => true,
+  // must be ahead of the user's current age (when we know it) and humanly plausible
+  targetRetirementAge: a => num(a.targetRetirementAge) > 0 && num(a.targetRetirementAge) < 100
+    && (!num(a.birthYear) ? true : num(a.targetRetirementAge) > currentAge(a)),
   expectedRetirementSpending: a => num(a.expectedRetirementSpending) > 0,
   currentSavingsPortfolio: a => a.currentSavingsPortfolio != null && a.currentSavingsPortfolio !== '',
   retirementIncomeSources: a => retirementMonthlyIncome(a) > 0,
@@ -399,7 +409,8 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   goals_detail: a => Array.isArray(a.goals) && a.goals.length > 0,
   monthlySavingsCapacity: a => num(a.monthlySavingsCapacity) > 0,
   hasPartner: a => !!a.hasPartner,
-  dependentsCount: a => a.dependentsCount != null && a.dependentsCount !== '',
+  // an untouched stepper means 0 dependents — a valid answer, don't force a tap
+  dependentsCount: a => true,
   debts: a => num(a.debtBalance) > 0,
   legacyTarget: a => num(a.legacyTarget) > 0,
 };
@@ -494,7 +505,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.heroLabel}>Total benefits per month</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.benefitMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('benefitMonthly', t)} />
-          <Text style={s.hint}>Heads up: some benefits can only be spent on certain things (like SNAP on food), and a few have limits on how much you can save. We won't tax this income.</Text>
+          <Text style={s.hint}>{(() => {
+            const notes: string[] = [];
+            if (types.includes('snap')) notes.push('SNAP can usually only buy food');
+            if (types.includes('housing')) notes.push('housing help often goes straight to your landlord');
+            if (types.includes('unemployment')) notes.push('unemployment benefits end after a set period — plan for that');
+            return (notes.length ? `Heads up: ${notes.join('; ')}. ` : 'Heads up: some benefits can only be spent on certain things, and a few have limits on how much you can save. ') + "We won't tax this income.";
+          })()}</Text>
         </Card>
       </>);
     }
@@ -667,6 +684,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <Text style={s.label}>Hours per week</Text>
               <TextInput style={s.input} keyboardType="decimal-pad" placeholder="e.g. 20" placeholderTextColor={Colors.textTertiary}
                 value={a.hoursPerWeek ?? ''} onChangeText={(t) => ctx.setAnswer('hoursPerWeek', t)} />
+              <Text style={s.hint}>Leave blank to use a 40-hour week.</Text>
             </>
           )}
 
@@ -729,20 +747,32 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const annual401k = monthly401k * 12;
       const limit = annual401kLimit(currentAge(a));
       const overLimit = annual401k > limit;
-      const matchMode = a.employerMatchMode ?? 'pct';
-      const matchMonthly = matchMode === 'pct' ? (monthly401k * num(a.employerMatchValue)) / 100 : num(a.employerMatchValue);
       return (<>
         <Header emoji="🏦" title="401(k) contributions" sub="Locked until retirement — we track it separately." />
         <Card>
           <HeroAmount ctx={ctx} k="c_401k" label="Your contribution (per month)" />
-          <View style={s.divider} />
-          <AmountUnitRow ctx={ctx} k="employerMatchValue" modeK="employerMatchMode" label="Employer match (of your contribution)" />
         </Card>
         {monthly401k > 0 && (overLimit
           ? <Callout warn text={`${money(annual401k)}/yr — over the ${IRS_LIMITS.year} limit by ${money(annual401k - limit)}`}
-              sub={`Limit is ${money(limit)}.${matchMonthly > 0 ? ` Employer adds ≈ ${money(matchMonthly)}/mo.` : ''}`} />
+              sub={`Limit is ${money(limit)}.`} />
           : <Callout text={`${money(annual401k)}/yr — within the ${IRS_LIMITS.year} limit of ${money(limit)}`}
-              sub={`Room for ${money(limit - annual401k)} more this year.${matchMonthly > 0 ? ` Employer adds ≈ ${money(matchMonthly)}/mo.` : ''}`} />)}
+              sub={`Room for ${money(limit - annual401k)} more this year.`} />)}
+      </>);
+    }
+
+    case 'employerContribution': {
+      const matchMode = a.employerMatchMode ?? 'pct';
+      const matchMonthly = matchMode === 'pct' ? (num(a.c_401k) * num(a.employerMatchValue)) / 100 : num(a.employerMatchValue);
+      return (<>
+        <Header emoji="🏢" title="Employer match" sub="What your employer adds to your 401(k)." />
+        <Card>
+          <AmountUnitRow ctx={ctx} k="employerMatchValue" modeK="employerMatchMode" label="Match (% of your contribution, or a flat amount per month)" />
+          {matchMode === 'pct' && num(a.c_401k) <= 0 && (
+            <Text style={s.hint}>You haven't set a contribution yet, so a % match counts as {currencySymbol()}0 — enter a flat amount instead, or go back and add your contribution.</Text>
+          )}
+        </Card>
+        {matchMonthly > 0 && <Callout text={`≈ ${money(matchMonthly)}/mo of free money`}
+          sub={`About ${money(matchMonthly * 12)} a year your employer adds on top of your own savings.`} />}
       </>);
     }
 
@@ -789,7 +819,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Choice ctx={ctx} k="taxMode" options={[
             { value: 'system', title: `Use this estimate (~${estPct}%)`, sub: 'From the IRS bracket schedule' },
             { value: 'manual', title: 'Enter my own rate', sub: 'e.g. from last year’s tax return' }]} />
-          {a.taxMode === 'manual' && <NumRow ctx={ctx} k="manualTaxRate" label="Effective tax rate % — from last year’s return (optional)" ph="22" />}
+          {a.taxMode === 'manual' && <NumRow ctx={ctx} k="manualTaxRate" decimal label="Effective tax rate % — from last year’s return" ph="22" />}
         </Card>
       </>);
     }
@@ -839,10 +869,6 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       </>);
     }
 
-    case 'employerContribution':
-      return (<><Header emoji="🏢" title="Employer contribution" sub="Match or contribution your employer adds monthly." />
-        <Card><HeroAmount ctx={ctx} k="employerContribution" label="Employer adds / month" /></Card></>);
-
     case 'targetRetirementAge': {
       const tgt = num(a.targetRetirementAge), age = currentAge(a), yrs = tgt - age;
       return (<><Header emoji="🏖️" title="When do you hope to retire?" sub="Your target age." />
@@ -887,6 +913,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <MoneyCadenceRow ctx={ctx} k="ri_pension" label="Pension" />
           <MoneyCadenceRow ctx={ctx} k="ri_withdrawals" label="401(k) / IRA withdrawals" />
           <MoneyCadenceRow ctx={ctx} k="ri_rmd" label="Required Minimum Distributions (RMDs)" />
+          <Text style={[s.hint, { marginTop: -8, marginBottom: 8 }]}>An RMD is a withdrawal — if it's already counted in the row above, leave this blank so it isn't counted twice.</Text>
           <MoneyCadenceRow ctx={ctx} k="ri_annuities" label="Annuities" />
           <MoneyCadenceRow ctx={ctx} k="ri_other" label="Dividends / rental / other" />
         </Card>
@@ -911,9 +938,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       </>);
     }
 
-    case 'retLocation':
-      return (<><Header emoji="🌍" title={retired ? 'Where do you live in retirement?' : 'Where do you plan to retire?'} sub="Affects cost of living (optional)." />
-        <Card><TextRow ctx={ctx} k="retLocation" label="Country / region" ph="e.g. USA" /></Card></>);
+    case 'retLocation': {
+      const loc = String(a.retLocation ?? '').trim();
+      const col = colFactor(loc);
+      const pct = Math.round(Math.abs(1 - col.factor) * 100);
+      return (<><Header emoji="🌍" title={retired ? 'Where do you live in retirement?' : 'Where do you plan to retire?'} sub="We adjust your retirement spending to local living costs (optional)." />
+        <Card><TextRow ctx={ctx} k="retLocation" label="Country / region" ph="e.g. Portugal" /></Card>
+        {col.name && col.factor !== 1 && <Callout
+          text={`${col.name}: about ${pct}% ${col.factor < 1 ? 'cheaper' : 'pricier'} than the US average`}
+          sub={`We scale the retirement spending you enter by this — a rough planning adjustment, not a quote.`} />}
+        {col.name && col.factor === 1 && <Callout text={`${col.name}: similar to the US average`} sub="No adjustment applied to your retirement spending." />}
+        {!col.name && loc.length > 2 && <Text style={s.hint}>We don't have living-cost data for "{loc}" yet — no adjustment applied.</Text>}
+      </>);
+    }
 
     case 'travelBudget':
       return (<><Header emoji="✈️" title="Travel budget (optional)" sub="Extra you'd budget for travel in retirement." />
@@ -932,7 +969,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'investObjective':
       return (<><Header emoji="📈" title="What's your investing goal?" sub="Pick any that apply." />
         <Card><MultiChoice ctx={ctx} k="investObjective" options={[
-          { value: 'pnl', title: 'Monitor performance', sub: 'Realized & unrealized P&L' },
+          { value: 'pnl', title: 'Monitor performance', sub: 'Gains & losses — sold and still on paper' },
           { value: 'networth', title: 'Everything in one place', sub: 'Net worth, MoM / YoY change' }]} /></Card></>);
 
     case 'trackingLevel':
@@ -967,14 +1004,13 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
 
     case 'hasPartner':
-      return (<><Header emoji="👫" title="Tell us about your partner" />
+      return (<><Header emoji="👫" title="Do you manage money with a partner?" />
         <Card><Choice ctx={ctx} k="hasPartner" options={[
           { value: 'yes', title: 'I have a partner' }, { value: 'no', title: 'Just me for now' }]} />
           {a.hasPartner === 'yes' && <TextRow ctx={ctx} k="partnerName" label="Partner's name (optional)" ph="Name" />}</Card></>);
 
     case 'invitePartner':
-      return (<><Header emoji="✉️" title="Invite your partner (optional)" sub="Manage money together." />
-        <Card><TextRow ctx={ctx} k="partnerEmail" label="Partner's email" ph="partner@email.com" /></Card></>);
+      return <InvitePartner ctx={ctx} />;
 
     case 'dependentsCount':
       return (<><Header emoji="👨‍👩‍👧" title="How many kids or dependents?" />
@@ -991,7 +1027,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return (<><Header emoji="🎓" title="Your debt" sub="Biggest balance to start — add more in the app." />
         <Card><TextRow ctx={ctx} k="debtName" label="What is it?" ph="e.g. Student loan" />
           <MoneyRow ctx={ctx} k="debtBalance" label="Balance" />
-          <NumRow ctx={ctx} k="debtRate" label="Interest rate %" ph="6.5" />
+          <NumRow ctx={ctx} k="debtRate" decimal label="Interest rate %" ph="6.5" />
           <MoneyRow ctx={ctx} k="debtPayment" label="Monthly payment" /></Card>
         {bal > 0 && pay > 0 && (interestOnly
           ? <Callout warn text="Your payment barely covers the interest" sub="At this rate the balance won't go down — worth paying more." />
@@ -1099,7 +1135,7 @@ function RsuEditor({ ctx }: { ctx: StepCtx }) {
   const cols = isOpt
     ? [{ key: 'shares', label: 'Options', ph: '100', kb: 'number-pad' as const }, { key: 'date', label: 'Vest date', ph: 'YYYY-MM', kb: 'default' as const }]
     : [{ key: 'shares', label: 'Shares', ph: '100', kb: 'number-pad' as const },
-       { key: 'price', label: 'Price/sh', ph: `${currencySymbol()}0`, kb: 'decimal-pad' as const },
+       { key: 'price', label: "Today's price", ph: `${currencySymbol()}0`, kb: 'decimal-pad' as const },
        { key: 'date', label: 'Vest date', ph: 'YYYY-MM', kb: 'default' as const }];
 
   const visible = Math.max(3, rows.length + 1) + extra;
@@ -1839,23 +1875,75 @@ function RentalEditor({ ctx }: { ctx: StepCtx }) {
   </>);
 }
 
-// Minimal goals editor
+// Partner invite — creates a real shareable invite code (invites/{code} → this household's shared
+// data doc) and hands it to the system share sheet. The partner enters the code at sign-up and
+// lands in the SAME household: both see and edit the same accounts, plans and goals.
+function InvitePartner({ ctx }: { ctx: StepCtx }) {
+  const code = ctx.answers.inviteCode as string | undefined;
+  const [busy, setBusy] = React.useState(false);
+  const [err, setErr] = React.useState('');
+  const shareCode = (c: string) =>
+    Share.share({ message: `Join me on FinWise so we can plan our money together! Get the app, create your account, and enter invite code ${c} on the sign-up screen.` });
+  const createAndShare = async () => {
+    setErr('');
+    const st = useStore.getState() as any;
+    const uid = st.user?.uid;
+    if (!uid) { setErr('Create your account first — it holds the plan you two will share.'); return; }
+    try {
+      setBusy(true);
+      const c = code ?? await createInvite(st.householdId ?? uid, st.user?.name ?? null);
+      if (!code) ctx.setAnswer('inviteCode', c);
+      await shareCode(c);
+    } catch {
+      setErr("Couldn't create the invite — check your connection and try again.");
+    } finally { setBusy(false); }
+  };
+  return (<>
+    <Header emoji="✉️" title="Invite your partner (optional)" sub="They'll see and manage the same accounts, plans and goals as you." />
+    <Card>
+      {code ? (<>
+        <Text style={s.heroLabel}>Their invite code</Text>
+        <Text style={{ fontSize: 32, fontWeight: '800', textAlign: 'center', letterSpacing: 6, color: Colors.textPrimary, paddingVertical: 8 }}>{code}</Text>
+        <Text style={[s.hint, { textAlign: 'center' }]}>They enter this on the sign-up screen. Re-share it anytime.</Text>
+      </>) : (
+        <Text style={s.note}>We'll create a one-time code your partner enters when they sign up — no email needed, share it however you like.</Text>
+      )}
+      <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy}
+        onPress={code ? () => shareCode(code) : createAndShare}>
+        <Text style={s.addBtnT}>{busy ? 'Creating…' : code ? 'Share the code' : '✉️ Create & share invite code'}</Text>
+      </TouchableOpacity>
+      {!!err && <Text style={[s.hint, { color: Colors.red, textAlign: 'center' }]}>{err}</Text>}
+    </Card>
+  </>);
+}
+
+// Goals editor — starter chips seed common goals; Add stays disabled until name + target exist.
+const GOAL_STARTERS = ['Emergency fund', 'House down payment', 'New car', 'Vacation', 'Wedding'];
 function GoalsEditor({ ctx }: { ctx: StepCtx }) {
   const goals = (ctx.answers.goals ?? []) as any[];
   const [label, setLabel] = React.useState(''); const [target, setTarget] = React.useState(''); const [year, setYear] = React.useState('');
+  const canAdd = !!label.trim() && num(target) > 0;
   const add = () => {
-    if (!label.trim() || !target) return;
+    if (!canAdd) return;
     ctx.setAnswer('goals', [...goals, { label: label.trim(), target, year }]);
     setLabel(''); setTarget(''); setYear('');
   };
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
     <Card>
+      <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm }}>
+        {GOAL_STARTERS.filter((g) => !goals.some((x) => x.label === g)).map((g) => {
+          const on = label === g;
+          return <TouchableOpacity key={g} style={[s.chip, on && s.chipOn]} onPress={() => setLabel(g)}>
+            <Text style={[s.chipTxt, on && s.chipTxtOn]}>{g}</Text></TouchableOpacity>;
+        })}
+      </View>
       <TextInput style={s.input} placeholder="Goal (e.g. House down payment)" placeholderTextColor={Colors.textTertiary} value={label} onChangeText={setLabel} />
       <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
-        <TextInput style={[s.input, { flex: 1 }]} placeholder="$ target" keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary} value={target} onChangeText={setTarget} />
+        <TextInput style={[s.input, { flex: 1 }]} placeholder={`${currencySymbol()} target`} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary} value={target} onChangeText={setTarget} />
         <TextInput style={[s.input, { flex: 1 }]} placeholder="By year" keyboardType="number-pad" placeholderTextColor={Colors.textTertiary} value={year} onChangeText={setYear} />
       </View>
-      <TouchableOpacity style={s.addBtn} onPress={add}><Text style={s.addBtnT}>+ Add goal</Text></TouchableOpacity>
+      <TouchableOpacity style={[s.addBtn, !canAdd && { opacity: 0.4 }]} disabled={!canAdd} onPress={add}><Text style={s.addBtnT}>+ Add goal</Text></TouchableOpacity>
+      {!canAdd && (label.trim() !== '' || target !== '') && <Text style={[s.hint, { textAlign: 'center' }]}>Give it a name and a target amount to add it.</Text>}
     </Card>
     {goals.map((g, i) => (
       <View key={i} style={s.goalRow}><Text style={s.goalLabel}>{g.label}</Text><Text style={s.goalVal}>{money(num(g.target))}{g.year ? ` · ${g.year}` : ''}</Text></View>

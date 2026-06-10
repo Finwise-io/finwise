@@ -1,18 +1,39 @@
 rules_version = '2';
 
 // FinWise Firestore security rules.
-// Principle: a signed-in user can read/write ONLY their own document. Everything else is denied.
+// Principle: a signed-in user can read/write their own document — or their HOUSEHOLD's shared
+// document (partner feature: users/{me}.householdId points at the inviter's users/{uid} doc,
+// which both partners read and write). Everything else is denied.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // Each user's data lives at users/{uid} (with appState payload + any subcollections).
-    // Only the authenticated owner may read or write it.
+    // True when the signed-in user's own doc names {uid} as their shared household.
+    function isHouseholdMember(uid) {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid))
+        .data.get('householdId', '') == uid;
+    }
+
+    // Each user's data lives at users/{uid} (appState payload + any subcollections).
+    // Readable/writable by the owner, or by a partner whose householdId points here.
     match /users/{uid} {
-      allow read, write: if request.auth != null && request.auth.uid == uid;
+      allow read, write: if request.auth != null
+        && (request.auth.uid == uid || isHouseholdMember(uid));
 
       match /{document=**} {
-        allow read, write: if request.auth != null && request.auth.uid == uid;
+        allow read, write: if request.auth != null
+          && (request.auth.uid == uid || isHouseholdMember(uid));
       }
+    }
+
+    // Partner invites: created by a signed-in user FOR their own household only;
+    // any signed-in user may redeem (get) a code they were given. No listing or edits.
+    match /invites/{code} {
+      allow create: if request.auth != null
+        && request.resource.data.householdId is string
+        && (request.resource.data.householdId == request.auth.uid
+            || isHouseholdMember(request.resource.data.householdId));
+      allow get: if request.auth != null;
+      allow list, update, delete: if false;
     }
 
     // Feedback: any signed-in user may submit (create); nobody may read/update/delete from the client.
