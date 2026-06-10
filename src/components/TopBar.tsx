@@ -1,7 +1,7 @@
 // Blend nav top bar: ☰ Menu (grid of every module) on the left, Net Worth chip on the right.
 // Rendered as the shared header for all bottom-tab screens.
 import React, { useMemo, useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -14,16 +14,26 @@ import { buildDebtState } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 
 type Mod = { e: string; t: string; route?: string; soon?: boolean };
+// Every tile must open a REAL screen — no "coming soon" placeholders in the hub.
 const MODULES: Mod[] = [
   { e: '💎', t: 'Net Worth', route: '/(tabs)/analytics' },
   { e: '🏖', t: 'Retirement', route: '/(tabs)/retirement' },
+  { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
   { e: '🎯', t: 'Goals', route: '/(tabs)/goals' },
-  { e: '🔮', t: 'Scenarios', soon: true },
-  { e: '💡', t: 'Insights', soon: true },
+  { e: '💡', t: 'Insights', route: '/insights' },
+  { e: '📈', t: 'Performance', route: '/performance' },
+  { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },
+  { e: '🌪', t: 'Stress test', route: '/stress-test' },
+  { e: '💵', t: 'Income', route: '/income-manager' },
+  { e: '💳', t: 'Build credit', route: '/credit' },
+  { e: '🎓', t: 'College planner', route: '/education' },
+  { e: '🛡️', t: 'Insurance check', route: '/insurance' },
+  { e: '🧾', t: 'Tax organizer', route: '/tax-organizer' },
+  { e: '🔁', t: 'Roth conversion', route: '/roth' },
+  { e: '🎁', t: 'Estate & legacy', route: '/estate' },
   { e: '🏅', t: 'Rewards', route: '/(tabs)/rewards' },
   { e: '📚', t: 'Tips', route: '/(tabs)/tips' },
   { e: '⚙️', t: 'Settings', route: '/(tabs)/settings' },
-  { e: '🔗', t: 'Link bank', soon: true },
 ];
 const hit = { top: 10, bottom: 10, left: 10, right: 10 };
 
@@ -64,15 +74,16 @@ export default function TopBar() {
           <View style={s.sheet} onStartShouldSetResponder={() => true}>
             <View style={s.grip} />
             <Text style={s.sTitle}>All modules</Text>
-            <View style={s.grid}>
-              {MODULES.map((m) => (
-                <TouchableOpacity key={m.t} style={s.gi} onPress={() => go(m)}>
-                  <Text style={s.giE}>{m.e}</Text>
-                  <Text style={s.giT}>{m.t}</Text>
-                  {m.soon && <Text style={s.giLk}>Soon</Text>}
-                </TouchableOpacity>
-              ))}
-            </View>
+            <ScrollView style={{ maxHeight: 520 }} showsVerticalScrollIndicator={false}>
+              <View style={s.grid}>
+                {MODULES.map((m) => (
+                  <TouchableOpacity key={m.t} style={s.gi} onPress={() => go(m)}>
+                    <Text style={s.giE}>{m.e}</Text>
+                    <Text style={s.giT}>{m.t}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
           </View>
         </TouchableOpacity>
       </Modal>
