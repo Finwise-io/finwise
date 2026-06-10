@@ -68,6 +68,7 @@ export type Goal = {
   saved: number;
   color: string;
   duration?: string;
+  targetDate?: string;   // 'YYYY-MM' — when the user wants to hit the goal
   savingsType?: 'fixed' | 'percent' | 'leftover';
   savingsAmount?: number;
   savingsPercent?: number;

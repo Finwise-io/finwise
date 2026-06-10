@@ -5,6 +5,7 @@ import {
 import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual } from './onboarding';
 import { grossFromNet, taxOwed } from './tax';
 import { IncomeSource } from './types';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 const job = (over: Partial<IncomeSource> = {}): IncomeSource => ({
   income_source_id: 'i1', income_type: 'W2_JOB', gross_amount: 5000,
@@ -110,7 +111,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('monthly cash flow is lumpy: signing in Jan, bonus in Dec, equity on its vest month', () => {
-    const op = {
+    const op: OnboardingProfile = {
       baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly',
       bonusAnnual: '12000', signingOnetime: '10000', taxMode: 'manual', manualTaxRate: '0',
       equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400', date: '2026-03' }],  // $40k vests in March
@@ -137,7 +138,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   const monthsArr = (active: number[], amt = '3000') => Array.from({ length: 12 }, (_, i) => (active.includes(i) ? amt : '0'));
 
   test('per-month table: salary only in the months you set (a gap = $0)', () => {
-    const op = { salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Jan–Jun
+    const op: OnboardingProfile = { salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Jan–Jun
     const g = incomeMonthlyGrid(op, 'gross');
     expect(g[5].amount).toBe(3000);   // Jun — paid
     expect(g[6].amount).toBe(0);      // Jul — $0 month
@@ -145,7 +146,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('per-month table: arbitrary worked range + prorated annual', () => {
-    const op = { salaryByMonth: monthsArr([2, 3, 4, 5, 6, 7, 8]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Mar–Sep
+    const op: OnboardingProfile = { salaryByMonth: monthsArr([2, 3, 4, 5, 6, 7, 8]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // Mar–Sep
     const g = incomeMonthlyGrid(op, 'gross');
     expect(g[0].amount).toBe(0);    // Jan — $0
     expect(g[2].amount).toBe(3000); // Mar
@@ -155,7 +156,7 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('multiple scholarships sum (non-taxable) into monthly income', () => {
-    const op = { scholarships: [{ label: 'Pell', amount: '6000', freq: 'annual' }, { label: 'Stipend', amount: '200', freq: 'monthly' }] };
+    const op: OnboardingProfile = { scholarships: [{ label: 'Pell', amount: '6000', freq: 'annual' }, { label: 'Stipend', amount: '200', freq: 'monthly' }] };
     expect(extraIncome(op).nontaxMonthly).toBeCloseTo(6000 / 12 + 200, 2);   // 500 + 200 = 700
     // each scholarship becomes its own labeled source
     const labels = incomeFromOnboarding('u1', op).sources.filter((s) => s.income_type === 'SCHOLARSHIP').map((s) => s.label);
@@ -163,14 +164,14 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   });
 
   test('bonus lands in its chosen month (not always December)', () => {
-    const op = { baseSalary: '0', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', bonusAnnual: '12000', bonusMonth: '6' };
+    const op: OnboardingProfile = { baseSalary: '0', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0', bonusAnnual: '12000', bonusMonth: '6' };
     const g = incomeMonthlyGrid(op, 'gross');
     expect(g[5].amount).toBe(12000);   // June
     expect(g[11].amount).toBe(0);      // not December
   });
 
   test('retirement income (SS/pension/withdrawals) counts as monthly income', () => {
-    const op = { taxMode: 'manual', manualTaxRate: '0', ri_ss: '2000', ri_pension: '1500', ri_withdrawals: '500' };
+    const op: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', ri_ss: '2000', ri_pension: '1500', ri_withdrawals: '500' };
     const g = incomeMonthlyGrid(op, 'gross');
     expect(g[3].amount).toBe(4000);                 // any month: SS + pension + withdrawals
     expect(g[3].amount).toBe(g[7].amount);          // steady every month

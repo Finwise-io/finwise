@@ -921,7 +921,6 @@ const styles = StyleSheet.create({
   removeTxt: { fontSize: 18, fontWeight: '800', color: Colors.textSecondary, marginTop: -2 },
   insightCard: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   insightWarn: { backgroundColor: '#FBE9E7' },
-  insightIcon: { fontSize: 15, lineHeight: 20 },
   insightTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
   insightSub: { fontSize: 12, color: Colors.primaryDark, opacity: 0.85, marginTop: 2 },
   empty: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', paddingVertical: 6 },

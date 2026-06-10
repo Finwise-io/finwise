@@ -6,16 +6,17 @@ import { savingsByMonth } from './budget';
 import { loanPayment, debtToIncome, creditUtilization, type Debt } from './debt';
 import { buildPerformance, capGains, capGainsTax, type Position, type PriceSeries } from './performance';
 import { simulate, solveRetireAge, projectNestEgg } from './retirement';
+import type { OnboardingProfile } from './onboardingProfile';
 
-const NO_TAX = { taxMode: 'manual', manualTaxRate: '0' };
+const NO_TAX: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0' };
 const JUN = new Date(2026, 5, 1);
 const runway = (cash: number, monthlySpend: number) => cash / monthlySpend;
 
 // ───────────────────────── 🎓 STUDENT ─────────────────────────
 describe('Student scenarios', () => {
-  const student = {
+  const student: OnboardingProfile = {
     ...NO_TAX, incomeSources: ['employment', 'scholarship', 'loans', 'support'],
-    baseSalary: '1000', salaryMode: 'gross', salaryFreq: 'monthly', jobType: 'ongoing', supportMonthly: '400', monthlySpending: '0',
+    baseSalary: '1000', salaryMode: 'gross', salaryFreq: 'monthly', supportMonthly: '400', monthlySpending: '0',
     scholarships: [{ amount: '4000', freq: 'annual', months: [9], day: 20, year: '2026' }],
     loans: [{ amount: '5000', months: [9], day: 20, year: '2026' }],
     spendCats: [
@@ -32,15 +33,15 @@ describe('Student scenarios', () => {
   });
 
   test('2. Medical emergency: a surprise $2,500 bill in October', () => {
-    const withER = { ...student, spendCats: [...student.spendCats, { id: 'er', tier: 'critical', bucket: 'nonmonthly', amount: '2500', unit: 'dollar', months: [10] }] };
+    const withER: OnboardingProfile = { ...student, spendCats: [...(student.spendCats ?? []), { id: 'er', tier: 'critical', bucket: 'nonmonthly', amount: '2500', unit: 'dollar', months: [10] }] };
     const cf = cashflowYear(withER, 500, JUN);
     expect(cf.shortMonths.length).toBeGreaterThan(0);   // the app shows the emergency tips them short
   });
 
   test('3. Part-time job only some months (per-month table) — pay + tips stop in $0 months', () => {
     const monthsArr = (active: number[], amt: string) => Array.from({ length: 12 }, (_, i) => (active.includes(i) ? amt : '0'));
-    const allYear = { ...student, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], '1000'), salaryMode: 'gross', salaryFreq: 'hourly', tipsMonthly: '200' };
-    const halfYear = { ...allYear, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5], '1000') };
+    const allYear: OnboardingProfile = { ...student, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11], '1000'), salaryMode: 'gross', salaryFreq: 'hourly', tipsMonthly: '200' };
+    const halfYear: OnboardingProfile = { ...allYear, salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5], '1000') };
     expect(tipsAnnual(allYear)).toBe(2400);                          // 12 paid months × $200
     expect(tipsAnnual(halfYear)).toBe(1200);                         // 6 paid months × $200
     expect(salaryAnnual(halfYear)).toBeLessThan(salaryAnnual(allYear));
@@ -57,11 +58,11 @@ describe('Student scenarios', () => {
 describe('Variable-income scenarios', () => {
   // a variable earner enters their actual (uneven) months — some strong, some lean
   const swingMonths = Array.from({ length: 12 }, (_, i) => (i % 3 === 0 ? '1400' : '2600'));
-  const server = {
+  const server: OnboardingProfile = {
     ...NO_TAX, incomeSources: ['employment'], salaryByMonth: swingMonths, salaryMode: 'gross', monthlySpending: '0',
     spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '1900', unit: 'dollar' }, { id: 'food', tier: 'important', bucket: 'fixed', amount: '500', unit: 'dollar' }],
   };
-  const steady = { ...server, salaryByMonth: new Array(12).fill('2600') };
+  const steady: OnboardingProfile = { ...server, salaryByMonth: new Array(12).fill('2600') };
 
   test('1. "Will I make it through a slow stretch?" (uneven months are tighter)', () => {
     const cf = cashflowYear(server, 0, JUN);
@@ -153,7 +154,7 @@ describe('Retiree scenarios', () => {
   });
 
   test('3. Social Security + pension cover most of the spend', () => {
-    const ri = { ...NO_TAX, ri_ss: '2000', ri_pension: '1500' };
+    const ri: OnboardingProfile = { ...NO_TAX, ri_ss: '2000', ri_pension: '1500' };
     expect(totalGrossAnnual(ri)).toBeCloseTo((2000 + 1500) * 12, 0);   // retirement income now counts
   });
 

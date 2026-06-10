@@ -382,7 +382,6 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_support: a => num(a.supportMonthly) > 0,
   income_scholarship: a => Array.isArray(a.scholarships) ? a.scholarships.some((x: any) => num(x?.amount) > 0) : num(a.scholarshipAmount) > 0,
   income_loans: a => Array.isArray(a.loans) && a.loans.some((x: any) => num(x?.amount) > 0),
-  income_retirement: a => retirementMonthlyIncome(a) > 0,
   income_other: a => num(a.otherAmount) > 0,
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
@@ -549,20 +548,6 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         ))}
         <TouchableOpacity onPress={() => setList([...list, { label: '', amount: '', freq: 'annual' }])}><Text style={s.addAnother}>＋ Add another scholarship</Text></TouchableOpacity>
         <Text style={s.hint}>Count money you receive to live on. We won't tax this.</Text>
-      </>);
-    }
-
-    case 'income_retirement': {
-      const tot = retirementMonthlyIncome(a);
-      return (<>
-        <Header emoji="🏖️" title="Retirement income" sub="What you receive each month in retirement." />
-        <Card>
-          <MoneyRow ctx={ctx} k="ri_ss" label="Social Security" />
-          <MoneyRow ctx={ctx} k="ri_pension" label="Pension" />
-          <MoneyRow ctx={ctx} k="ri_withdrawals" label="401(k) / IRA withdrawals" />
-          <MoneyRow ctx={ctx} k="ri_annuities" label="Annuity / other" />
-        </Card>
-        {tot > 0 && <Callout text={`${money(tot)}/mo in retirement income`} sub={`About ${money(tot * 12)} a year. We'll use this in your cash flow and taxes.`} />}
       </>);
     }
 
@@ -963,10 +948,6 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card><HeroAmount ctx={ctx} k="investmentHoldings" label={hasRet ? 'Taxable + cash' : 'Total portfolio value'} /></Card></>);
     }
 
-    case 'investRefine':
-      return (<><Header emoji="⚙️" title="Refine (optional)" sub="Allocation, cost basis & risk — set later in the app." />
-        <Card><Text style={s.note}>Skip for now.</Text></Card></>);
-
     case 'networthIntro':
       return (<><Header emoji="🧮" title="Your net worth lives in the Net Worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
         <Card>
@@ -1329,7 +1310,6 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
         if (num(a.signingOnetime) > 0 || ex.onetimeJan > 0) why.push('one-time payments land in their month');
         if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
         if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they\'re disbursed');
-        if (a.jobType === 'temporary') why.push('your job runs only part of the year');
         return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';
       })()}</Text>
     </Card>

@@ -5,7 +5,8 @@ import { Platform } from 'react-native';
 // Configure how notifications appear when app is in foreground
 Notifications.setNotificationHandler({
   handleNotification: async () => ({
-    shouldShowAlert: true,
+    shouldShowBanner: true,
+    shouldShowList: true,
     shouldPlaySound: false,
     shouldSetBadge: false,
   }),
@@ -33,9 +34,9 @@ export async function scheduleStreakReminder() {
       data: { screen: 'home' },
     },
     trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.DAILY,
       hour: 20,   // 8pm
       minute: 0,
-      repeats: true,
     },
   });
 }
@@ -69,10 +70,10 @@ export async function scheduleWeeklySummary() {
       data: { screen: 'budget' },
     },
     trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.WEEKLY,
       weekday: 1,  // Monday
       hour: 9,
       minute: 0,
-      repeats: true,
     },
   });
 }

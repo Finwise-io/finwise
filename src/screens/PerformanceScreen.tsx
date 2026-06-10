@@ -623,6 +623,8 @@ const styles = StyleSheet.create({
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  sheetS: { fontSize: 12.5, color: Colors.textSecondary, marginBottom: 8, lineHeight: 17 },
+  note: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 8, lineHeight: 15 },
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   acBox: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, marginTop: 4, backgroundColor: Colors.cardBg, overflow: 'hidden' },
   acRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, paddingHorizontal: 12, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },

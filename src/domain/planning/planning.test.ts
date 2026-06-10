@@ -1,7 +1,8 @@
 import { educationPlan, lifeInsuranceNeed, rothConversion, taxOrganizer } from './index';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 describe('tax organizer', () => {
-  const op = {
+  const op: OnboardingProfile = {
     taxMode: 'manual', manualTaxRate: '22',
     baseSalary: '8000', salaryFreq: 'monthly', salaryMode: 'gross', bonusAnnual: '10000',
     invAnnual: '2000', c_401k: '1500', incomeSources: ['employment', 'investment_income'],

@@ -139,8 +139,8 @@ export default function BudgetScreen() {
   }
 
   const allEntries = [
-    ...incomes.map((i) => ({ ...i, kind: 'income' as const })),
-    ...expenses.map((e) => ({ ...e, kind: 'expense' as const })),
+    ...incomes.map((i: any) => ({ ...i, kind: 'income' as const })),
+    ...expenses.map((e: any) => ({ ...e, kind: 'expense' as const })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
   const filtered = allEntries.filter((e) => {
@@ -345,7 +345,7 @@ export default function BudgetScreen() {
             </Card>
           ) : (
             categorySpend.map(({ category, total }) => {
-              const catDef = budgetCategories.find((c) => c.category === category);
+              const catDef = budgetCategories.find((c: any) => c.category === category);
               const limit = catDef?.limit ?? 0;
               const pct = limit > 0 ? (total / limit) * 100 : 0;
               const isOver = limit > 0 && total > limit;

@@ -118,7 +118,7 @@ export default function OnboardingScreen() {
   function finish() {
     store.setEmploymentStatus?.(status);
     store.setSelectedGoals?.(tracks);
-    const consolidated = { status, tracks, name: name.trim(), ...answers };
+    const consolidated = { status: status ?? undefined, tracks, name: name.trim(), ...answers };
     store.setOnboardingProfile?.(consolidated);
     // Persist the Profile domain module (blueprint §5: onboarding → modules).
     const uid = store.user?.uid;

@@ -541,7 +541,7 @@ export default function RetirementCockpit() {
       <View style={{ height: 40 }} />
 
       <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg}
-        onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => { setEarmarkOpen(false); setCommitTick((t) => t + 1); }} />
+        onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => setEarmarkOpen(false)} />
       <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
       <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind) : 0}
         onApply={(ret) => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: ret }); setTtmEdit(null); }}

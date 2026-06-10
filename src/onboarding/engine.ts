@@ -15,7 +15,7 @@ export type StepId =
   | 'status' | 'goals' | 'account' | 'name'
   // S1 — income captured as focused, one-type-per-screen sub-steps
   | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
-  | 'income_self' | 'income_investment' | 'income_retirement' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_loans' | 'income_other'
+  | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_loans' | 'income_other'
   | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget'
   // S2 accumulation
   | 'birth' | 'currentRetirementSavings' | 'contributionsByType' | 'employerContribution'
@@ -25,7 +25,7 @@ export type StepId =
   // S2 optional
   | 'retLocation' | 'travelBudget' | 'medicalBudget' | 'spendingChangeLater'
   // S3
-  | 'investObjective' | 'trackingLevel' | 'investmentHoldings' | 'investRefine'
+  | 'investObjective' | 'trackingLevel' | 'investmentHoldings'
   | 'networthIntro'
   // S4
   | 'goals_detail' | 'monthlySavingsCapacity'
@@ -134,10 +134,10 @@ export const OPTIONAL_STEPS = new Set<StepId>([
   // per-source detail steps: you picked the source, but you can still skip if it turns out to be
   // nothing (e.g. "I selected loans but don't actually have any") — never trap the user.
   'income_self', 'income_investment', 'income_benefits', 'income_support',
-  'income_scholarship', 'income_loans', 'income_retirement', 'income_other',
+  'income_scholarship', 'income_loans', 'income_other',
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
-  'investRefine', 'invitePartner', 'networthIntro',
+  'invitePartner', 'networthIntro',
 ]);
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
@@ -146,7 +146,6 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (status === 'retired' && !answers?.incomeSources) return ['birth', 'retirementIncomeSources'];  // legacy retired flow
   const srcs: IncomeSourceKey[] = Array.isArray(answers?.incomeSources) ? answers!.incomeSources : [];
   if (!srcs.length) return ['income_sources'];   // pick sources first; details appear once chosen
-  const ongoing = answers?.jobType !== 'temporary';
   const out: StepId[] = ['income_sources'];
   // Age drives RMDs + life-expectancy planning — ask before retirement income so its insights can use it.
   if (status === 'retired' || srcs.includes('retirement_income')) out.push('birth');
@@ -154,9 +153,8 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   // SAME rich screen as the decumulation track (retirementIncomeSources), so it's asked ONCE (deduped).
   if (srcs.includes('retirement_income')) out.push('retirementIncomeSources');
   if (srcs.includes('employment')) {
-    out.push('income_salary');
-    // 401(k)/bonus/RSU only make sense for an ongoing/permanent job (birth first: limit depends on age)
-    if (ongoing) out.push('birth', 'income_401k', 'income_bonus', 'income_rsu');
+    // birth first: the 401(k) limit depends on age. Gaps/seasonal work = $0 months in salaryByMonth.
+    out.push('income_salary', 'birth', 'income_401k', 'income_bonus', 'income_rsu');
   }
   if (srcs.includes('self_employment')) out.push('income_self');
   if (srcs.includes('investment_income')) out.push('income_investment');
@@ -185,14 +183,14 @@ const SERVICE_ORDER: Track[] = [
 ];
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
-function requirements(track: Track, status: Status | null, tracks: Track[], answers?: Record<string, any>): { must: StepId[]; optional: StepId[] } {
+// Income is NOT listed here — buildSteps hoists the income block for income-bearing tracks.
+function requirements(track: Track, status: Status | null, tracks: Track[]): { must: StepId[]; optional: StepId[] } {
   const hasSpend = tracks.includes('spend');
-  const income = incomeBlock(status, answers);   // source-driven income sub-steps (deduped across tracks by buildSteps)
   const decumulating = status === 'retired';
   switch (track) {
     case 'spend':
       // A retiree is drawing down, not saving — drop the savings-rate target for them.
-      return { must: [...income, 'monthlySpending'],
+      return { must: ['monthlySpending'],
                optional: decumulating ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
       // 401(k) + employer match captured on the income_401k screen (deduped if income flow also present).
@@ -205,7 +203,7 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
                optional: ['retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater'] };
     case 'invest': {
       // If the decumulation track already asks "your savings & investments" (the same total pool),
-      // don't ask the investable total again here. Dropped the dead "Refine — skip for now" step.
+      // don't ask the investable total again here.
       const totalAlreadyAsked = tracks.includes('retire_dec');
       return { must: totalAlreadyAsked ? ['investObjective', 'trackingLevel']
                                        : ['investObjective', 'trackingLevel', 'investmentHoldings'],
@@ -214,9 +212,9 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
     case 'goals':
       return { must: hasSpend ? ['goals_detail'] : ['goals_detail', 'monthlySavingsCapacity'], optional: [] };
     case 'partner':
-      return { must: ['hasPartner', ...income], optional: ['invitePartner'] };
+      return { must: ['hasPartner'], optional: ['invitePartner'] };
     case 'family':
-      return { must: ['dependentsCount', ...income], optional: [] };
+      return { must: ['dependentsCount'], optional: [] };
     case 'debt':
       return { must: hasSpend ? ['debts'] : ['debts', 'monthlySavingsCapacity'], optional: [] };
     case 'legacy':
@@ -245,7 +243,7 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
 
   for (const track of SERVICE_ORDER) {
     if (!tracks.includes(track)) continue;
-    const { must, optional } = requirements(track, status, tracks, answers);
+    const { must, optional } = requirements(track, status, tracks);
     for (const f of [...must, ...optional]) {
       if (!seen.has(f)) { seen.add(f); steps.push(f); }
     }

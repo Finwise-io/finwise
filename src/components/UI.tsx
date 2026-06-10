@@ -129,9 +129,9 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
 }
 
 // ── Tip Card ──────────────────────────────────────────────────────────
-export function TipCard({ children, color = 'green' }: { children: React.ReactNode; color?: 'green' | 'amber' | 'red' }) {
-  const bg = { green: Colors.primaryLight, amber: Colors.amberLight, red: Colors.redLight }[color];
-  const border = { green: Colors.primaryMid, amber: Colors.amberMid, red: Colors.redMid }[color];
+export function TipCard({ children, color = 'green' }: { children: React.ReactNode; color?: 'green' | 'amber' | 'red' | 'blue' }) {
+  const bg = { green: Colors.primaryLight, amber: Colors.amberLight, red: Colors.redLight, blue: Colors.blueLight }[color];
+  const border = { green: Colors.primaryMid, amber: Colors.amberMid, red: Colors.redMid, blue: Colors.blueMid }[color];
   return (
     <View style={[styles.tipCard, { backgroundColor: bg, borderColor: border }]}>{children}</View>
   );

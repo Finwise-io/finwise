@@ -1,8 +1,9 @@
 import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials } from './index';
 import { categoryBucketFor } from '../../constants/categories';
+import type { OnboardingProfile } from '../onboardingProfile';
 
 describe('emergency stress test', () => {
-  const op = {
+  const op: OnboardingProfile = {
     taxMode: 'manual', manualTaxRate: '0', monthlySpending: '0',
     spendCats: [
       { id: 'rent', tier: 'critical', bucket: 'fixed', amount: '1500', unit: 'dollar' },
@@ -32,7 +33,7 @@ describe('emergency stress test', () => {
 
 describe('spending placed in actual months (not averaged)', () => {
   test('a non-monthly bill lands in its month; monthly bills repeat', () => {
-    const op = {
+    const op: OnboardingProfile = {
       taxMode: 'manual', manualTaxRate: '0', monthlySpending: '0',
       spendCats: [
         { id: 'tuition', bucket: 'nonmonthly', amount: '12000', unit: 'dollar', months: [8] },  // Aug
@@ -45,7 +46,7 @@ describe('spending placed in actual months (not averaged)', () => {
     expect(s.reduce((t, x) => t + x, 0)).toBeCloseTo(12000 + 500 * 12, 0);
   });
   test('savings dips in the month a big bill is due', () => {
-    const op = {
+    const op: OnboardingProfile = {
       taxMode: 'manual', manualTaxRate: '0',
       baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', monthlySpending: '0',
       spendCats: [{ id: 'tuition', bucket: 'nonmonthly', amount: '12000', unit: 'dollar', months: [8] }],
@@ -58,7 +59,7 @@ describe('spending placed in actual months (not averaged)', () => {
 
 describe('spending categories → buckets', () => {
   test('rolls categories into monthly-normalized buckets ($ amounts)', () => {
-    const op = {
+    const op: OnboardingProfile = {
       spendCats: [
         { id: 'rent', bucket: 'fixed', amount: '2000', unit: 'dollar' },
         { id: 'groceries', bucket: 'flexible', amount: '500', unit: 'dollar' },
@@ -74,7 +75,7 @@ describe('spending categories → buckets', () => {
 
   test('percent amounts resolve against take-home income', () => {
     // gross 120k salary, 0% manual tax → net = 120k → net monthly 10k; 30% fixed = 3000/mo
-    const op = {
+    const op: OnboardingProfile = {
       baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
       spendCats: [{ id: 'rent', bucket: 'fixed', amount: '30', unit: 'pct' }],
     };
@@ -82,7 +83,7 @@ describe('spending categories → buckets', () => {
   });
 
   test('budgetVsActual rolls month-to-date expenses into buckets vs plan', () => {
-    const op = { spendCats: [
+    const op: OnboardingProfile = { spendCats: [
       { id: 'rent', bucket: 'fixed', amount: '2000', unit: 'dollar' },
       { id: 'groceries', bucket: 'flexible', amount: '600', unit: 'dollar' },
     ] };

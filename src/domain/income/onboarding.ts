@@ -27,7 +27,7 @@ export function annualizedEnteredSalary(op: OnboardingProfile | null): number {
     const hrs = toNum(a.hoursPerWeek) || DEFAULT_HOURS_PER_WEEK;
     return toNum(a.baseSalary) * hrs * 52;
   }
-  return toNum(a.baseSalary) * (SALARY_PERIODS[a.salaryFreq] ?? 12);
+  return toNum(a.baseSalary) * (SALARY_PERIODS[a.salaryFreq ?? 'monthly'] ?? 12);
 }
 
 /** A single entered base amount expressed per month, before tax gross-up (hourly/weekly/… → monthly). */

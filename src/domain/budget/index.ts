@@ -170,7 +170,9 @@ export interface BudgetVsActual {
 export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): BudgetVsActual {
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const planned = spendBuckets(op);
-  const custom = (Array.isArray(op?.spendCats) ? op!.spendCats : []).filter((c: any) => c?.custom);
+  const custom = (Array.isArray(op?.spendCats) ? op!.spendCats : [])
+    .filter((c) => c?.custom && !!c.label)
+    .map((c) => ({ label: c.label!, bucket: c.bucket }));
   const spent: Record<string, number> = { fixed: 0, nonmonthly: 0, flexible: 0 };
   for (const e of expenses ?? []) {
     if (!String(e?.date ?? '').startsWith(ym)) continue;

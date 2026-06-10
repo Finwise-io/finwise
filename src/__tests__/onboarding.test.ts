@@ -41,11 +41,12 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     expect(steps).not.toContain('horizonAge');
   });
 
-  test('temporary job hides 401k/RSU/bonus; benefits/scholarship add their own screens', () => {
-    const temp = buildSteps('student', ['spend'], { incomeSources: ['employment'], jobType: 'temporary' });
-    expect(temp).toContain('income_salary');
-    expect(temp).not.toContain('income_401k');
-    expect(temp).not.toContain('income_rsu');
+  test('employment brings 401k/RSU/bonus; benefits/scholarship add their own screens', () => {
+    // gaps/seasonal work are expressed as $0 months in the salary table, not a separate job type
+    const emp = buildSteps('student', ['spend'], { incomeSources: ['employment'] });
+    expect(emp).toContain('income_salary');
+    expect(emp).toContain('income_401k');
+    expect(emp).toContain('income_rsu');
 
     const benefits = buildSteps('student', ['spend'], { incomeSources: ['benefits', 'scholarship'] });
     expect(benefits).toContain('income_benefits');

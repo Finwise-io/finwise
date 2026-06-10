@@ -87,11 +87,11 @@ export default function ExpenseScreen() {
   // Category budget check
   const now = new Date();
   const catSpend = expenses
-    .filter(e => {
+    .filter((e: any) => {
       const d = new Date(e.date);
       return d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear() && e.category === category;
     })
-    .reduce((s, e) => s + e.amount, 0);
+    .reduce((s: number, e: any) => s + e.amount, 0);
   const catBudget = monthlyBudgetTarget * getCategoryBudgetPct(category);
   const catPct = catBudget > 0 ? ((catSpend + parsedAmount) / catBudget) * 100 : 0;
 

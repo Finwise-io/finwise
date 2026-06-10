@@ -1,11 +1,12 @@
 import { cashflowYear, upcomingBills } from './index';
+import type { OnboardingProfile } from '../onboardingProfile';
 
-const NO_TAX = { taxMode: 'manual', manualTaxRate: '0' };
+const NO_TAX: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0' };
 const JAN = new Date(2026, 0, 1);   // pin "now" to January so slot index == calendar month - 1
 
 describe('cashflow / bill calendar', () => {
   test('scholarship lands in its months; tuition due in its months; balance dips then recovers', () => {
-    const op = {
+    const op: OnboardingProfile = {
       ...NO_TAX,
       incomeSources: ['scholarship'],
       scholarships: [{ label: 'Aid', amount: '12000', freq: 'annual', months: [1, 8] }],   // $6k Jan, $6k Aug
@@ -23,7 +24,7 @@ describe('cashflow / bill calendar', () => {
   });
 
   test('flags short months when bills outrun cash on hand', () => {
-    const op = {
+    const op: OnboardingProfile = {
       ...NO_TAX,
       incomeSources: ['scholarship'],
       scholarships: [{ amount: '6000', freq: 'annual', months: [8] }],   // all aid in Aug
@@ -37,14 +38,14 @@ describe('cashflow / bill calendar', () => {
 
   test('per-month salary table drives cash flow (a $0 month shows no pay)', () => {
     const salaryByMonth = Array.from({ length: 12 }, (_, i) => (i === 0 ? '4000' : '1500'));   // Jan 4000, rest 1500
-    const op = { ...NO_TAX, salaryByMonth, salaryMode: 'gross', incomeSources: ['employment'], monthlySpending: '0' };
+    const op: OnboardingProfile = { ...NO_TAX, salaryByMonth, salaryMode: 'gross', incomeSources: ['employment'], monthlySpending: '0' };
     const cf = cashflowYear(op, 0, JAN);
     expect(cf.months[0].inflow).toBeCloseTo(4000, 0);   // Jan
     expect(cf.months[1].inflow).toBeCloseTo(1500, 0);   // Feb
   });
 
   test('loan disbursement shows as cash in (per-occurrence in each chosen month)', () => {
-    const op = { ...NO_TAX, incomeSources: ['loans'], loans: [{ amount: '5000', months: [1, 8] }], monthlySpending: '0' };
+    const op: OnboardingProfile = { ...NO_TAX, incomeSources: ['loans'], loans: [{ amount: '5000', months: [1, 8] }], monthlySpending: '0' };
     const cf = cashflowYear(op, 0, JAN);
     expect(cf.months[0].inflow).toBeCloseTo(5000, 0);
     expect(cf.months[7].inflow).toBeCloseTo(5000, 0);
@@ -53,7 +54,7 @@ describe('cashflow / bill calendar', () => {
 
   test('rolling-from-now: a January award lands AFTER this September (real timeline)', () => {
     // "now" = June 2026. Two $7k scholarships (Sept + Jan) and $15k tuition due Sept.
-    const op = {
+    const op: OnboardingProfile = {
       ...NO_TAX,
       incomeSources: ['scholarship'],
       scholarships: [{ amount: '7000', freq: 'annual', months: [9] }, { amount: '7000', freq: 'annual', months: [1] }],
@@ -71,9 +72,9 @@ describe('cashflow / bill calendar', () => {
 });
 
 describe('day-level bill planner — "how much to ask, by when"', () => {
-  const base = {
+  const base: OnboardingProfile = {
     ...NO_TAX, incomeSources: ['employment', 'support'],
-    baseSalary: '1000', salaryMode: 'gross', salaryFreq: 'monthly', jobType: 'ongoing',
+    baseSalary: '1000', salaryMode: 'gross', salaryFreq: 'monthly',
     supportMonthly: '400', monthlySpending: '0',
     spendCats: [
       { id: 'tuition', tier: 'critical', bucket: 'nonmonthly', amount: '15000', unit: 'dollar', months: [9], dueDay: 15 },
@@ -84,7 +85,7 @@ describe('day-level bill planner — "how much to ask, by when"', () => {
   const JUN = new Date(2026, 5, 1);
 
   test('aid that arrives AFTER the due date does not help — big shortfall', () => {
-    const op = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 20, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 20, year: '2026' }] };
+    const op: OnboardingProfile = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 20, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 20, year: '2026' }] };
     const [t] = upcomingBills(op, 500, JUN);
     expect(t.dueDate).toBe('2026-09-15');
     expect(t.needByDate).toBe('2026-09-13');     // 2-day buffer
@@ -94,7 +95,7 @@ describe('day-level bill planner — "how much to ask, by when"', () => {
   });
 
   test('same aid arriving BEFORE the need-by date slashes the shortfall', () => {
-    const op = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 5, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 5, year: '2026' }] };
+    const op: OnboardingProfile = { ...base, scholarships: [{ amount: '7000', freq: 'annual', months: [9], day: 5, year: '2026' }], loans: [{ amount: '5000', months: [9], day: 5, year: '2026' }] };
     const [t] = upcomingBills(op, 500, JUN);
     expect(t.shortfall).toBeLessThan(2500);      // aid (Sep 5) is available by Sep 13
   });
