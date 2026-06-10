@@ -55,6 +55,37 @@ no-sources-yet, all-sources, retired legacy) — and read each as the user would
   biggest conversion question in the flow. Test moving it after the income recap in Tier 4 /
   TestFlight rather than guessing.
 
+## Tier 4 — live simulator walkthrough results (2026-06-10)
+
+Walked the new/changed surfaces live on iPhone 17 Pro (dev client + Metro, forced-state +
+fast-refresh technique). **All verified working:**
+- Household-first: "Do you manage money with a partner?" is the first question after the
+  profile in partner flows, with "Household · 1 of 2" section progress.
+- Employer-match screen: %/$ toggle, live "≈ $750/mo of free money" callout (correct math),
+  "Income · 4 of 8", skippable.
+- Invite module: create state (honest "one-time code, no email needed" copy) and code state
+  (large spaced K7M2QX, Share button); account step shows the optional invite-code field and
+  the Back button now present.
+- retLocation: "Portugal: about 40% cheaper than the US average" callout with the
+  scale-your-spending explanation.
+- recap_debt: Student loan $24,000 @ 6.5%, $400/mo → "Debt-free Jul 2032", $5,200 total
+  interest, "6.1 years to debt-free" (math checks out).
+- Retirement income: RMD-is-a-withdrawal hint; "Rental / other" relabel + dividends-asked-
+  separately note when the investment-income source is picked; age-73 RMD callout correct
+  for a 1952 birth year; $3,500/mo summed callout.
+- Benefits adaptive hint (SNAP + housing compose correctly); goals starter chips with disabled
+  Add; hourly salary screen with the 40-hour default disclosed; birth screen explains why.
+- Earlier runtime fixes confirmed rendering: PerformanceScreen Activity-sheet subtitle and
+  available-cash note are styled; RetirementCockpit loads clean for the retired persona.
+
+Found & fixed during the pass: the invite-code placeholder truncated mid-sentence → shortened
+to "e.g. K7M2QX" with the explanation moved to a caption below.
+
+Observations (not fixed): TransactionSheet account chips can repeat identically when two
+accounts share a name (e.g. two "BofA") — consider appending a kind/last-4 disambiguator.
+Tap-interaction paths (earmark Done, share sheet, actual code redemption against Firestore)
+remain code/test-verified only — exercise on a real device or TestFlight.
+
 ## Bottom line ("would I use it?")
 Reading these fifty conversations end-to-end: yes — the flows ask only what the chosen goals
 need, in an order that now reads naturally, with an honest payoff at the end of every section.

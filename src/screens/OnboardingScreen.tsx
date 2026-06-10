@@ -265,8 +265,9 @@ export default function OnboardingScreen() {
               placeholder="6+ characters" secureTextEntry placeholderTextColor={Colors.textTertiary} />
             <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Partner invite code (optional)</Text>
             <TextInput style={styles.input} value={inviteCode} onChangeText={(t) => setInviteCode(t.toUpperCase())}
-              placeholder="e.g. K7M2QX — joins your partner's plan" autoCapitalize="characters" autoCorrect={false}
+              placeholder="e.g. K7M2QX" autoCapitalize="characters" autoCorrect={false}
               placeholderTextColor={Colors.textTertiary} maxLength={6} />
+            <Text style={{ fontSize: 11.5, color: Colors.textTertiary, marginTop: 4 }}>Got a code from your partner? Enter it to join their plan.</Text>
           </Card>
           <TouchableOpacity onPress={() => setAuthMode(m => m === 'signup' ? 'login' : 'signup')}
             style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
