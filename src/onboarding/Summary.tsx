@@ -2,7 +2,7 @@
 // Shows which money modules are now ACTIVE (from what the user set up) and which
 // complementary ones they can UNLOCK next. Adaptive to the chosen tracks.
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track } from './engine';
@@ -10,7 +10,9 @@ import { num, grossAnnual, retirementMonthlyIncome } from './modules';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income';
 import Mascot from './Mascot';
 
-type Props = { status: Status | null; tracks: Track[]; answers: Record<string, any>; name: string };
+// onOpen: finish onboarding FIRST, then deep-link into the module (wired by OnboardingScreen) —
+// navigating away without finishing would bounce the user straight back into onboarding.
+type Props = { status: Status | null; tracks: Track[]; answers: Record<string, any>; name: string; onOpen?: (route: string) => void };
 
 function joinHuman(parts: string[]): string {
   if (parts.length <= 1) return parts.join('');
@@ -28,7 +30,7 @@ function incomeStreams(a: Record<string, any>): string {
   return p.length ? `Monitoring your ${joinHuman(p)}.` : 'Tracking your income streams.';
 }
 
-export default function Summary({ status, tracks, answers: a, name }: Props) {
+export default function Summary({ status, tracks, answers: a, name, onOpen }: Props) {
   const firstName = name.trim();
   const hasSpend = tracks.includes('spend');
   const hasAcc = tracks.includes('retire_acc');
@@ -42,17 +44,17 @@ export default function Summary({ status, tracks, answers: a, name }: Props) {
   const retireActive = hasAcc || hasDec;
 
   const MODULES = [
-    { key: 'income', icon: '💵', title: 'Income Tracker', badge: 'SYNCED', active: incomeActive,
+    { key: 'income', icon: '💵', title: 'Income Tracker', badge: 'SYNCED', active: incomeActive, route: '/income-manager',
       activeDesc: incomeStreams(a), unlockDesc: 'Capture salary, bonus, equity and rental inflows.' },
-    { key: 'budget', icon: '🧾', title: 'Budget Ledger', badge: 'ACTIVE', active: hasSpend,
+    { key: 'budget', icon: '🧾', title: 'Budget Ledger', badge: 'ACTIVE', active: hasSpend, route: '/(tabs)/budget',
       activeDesc: 'Spending grouped into fixed, non-monthly & flexible.', unlockDesc: 'Group your spending and track it by category.' },
-    { key: 'savings', icon: '🐷', title: 'Savings Engine', badge: 'READY', active: hasSpend,
+    { key: 'savings', icon: '🐷', title: 'Savings Engine', badge: 'READY', active: hasSpend, route: '/savings',
       activeDesc: 'A month-by-month plan from your cash flow.', unlockDesc: 'Turn leftover cash flow into a monthly savings plan.' },
-    { key: 'networth', icon: '💎', title: 'Net Worth', badge: 'ACTIVE', active: netWorthActive,
+    { key: 'networth', icon: '💎', title: 'Net Worth', badge: 'ACTIVE', active: netWorthActive, route: '/(tabs)/analytics',
       activeDesc: 'Your assets minus liabilities, over time.', unlockDesc: 'Aggregate assets and subtract liabilities to find your baseline wealth.' },
-    { key: 'retire', icon: '🏖️', title: 'Retirement Planning', badge: 'ACTIVE', active: retireActive,
+    { key: 'retire', icon: '🏖️', title: 'Retirement Planning', badge: 'ACTIVE', active: retireActive, route: '/(tabs)/retirement',
       activeDesc: 'Projected readiness for your target age.', unlockDesc: 'Stress-test inflation, project decades ahead, and size your nest egg.' },
-    { key: 'goals', icon: '🎯', title: 'Advanced Goals', badge: 'ACTIVE', active: hasGoals,
+    { key: 'goals', icon: '🎯', title: 'Advanced Goals', badge: 'ACTIVE', active: hasGoals, route: '/(tabs)/goals',
       activeDesc: 'Custom milestones with a priority order.', unlockDesc: 'Set custom milestones — lifestyle or legacy — with priority tiers.' },
   ];
   const active = MODULES.filter((m) => m.active);
@@ -67,17 +69,17 @@ export default function Summary({ status, tracks, answers: a, name }: Props) {
         <Text style={s.heroSub}>You're all set to manage your income, spending and savings smartly.</Text>
       </View>
 
-      <Text style={s.section}>WHAT'S ACTIVE</Text>
+      <Text style={s.section}>WHAT'S ACTIVE — TAP TO OPEN</Text>
       <Card>
         {active.map((m, i) => (
-          <View key={m.key} style={[s.statusRow, i > 0 && s.rowDivider]}>
+          <TouchableOpacity key={m.key} style={[s.statusRow, i > 0 && s.rowDivider]} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
             <Text style={s.modIcon}>{m.icon}</Text>
             <View style={{ flex: 1 }}>
               <Text style={s.modTitle}>{m.title}</Text>
               <Text style={s.modDesc}>{m.activeDesc}</Text>
             </View>
             <View style={s.badge}><Text style={s.badgeTxt}>{m.badge}</Text></View>
-          </View>
+          </TouchableOpacity>
         ))}
       </Card>
 
@@ -86,14 +88,14 @@ export default function Summary({ status, tracks, answers: a, name }: Props) {
           <Text style={s.section}>UNLOCK NEXT — WHENEVER YOU'RE READY</Text>
           {unlock.map((m) => (
             <Card key={m.key}>
-              <View style={s.statusRow}>
+              <TouchableOpacity style={s.statusRow} onPress={() => onOpen?.(m.route)} disabled={!onOpen}>
                 <Text style={s.modIcon}>{m.icon}</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.modTitle}>{m.title}</Text>
                   <Text style={s.modDesc}>{m.unlockDesc}</Text>
                 </View>
                 <Text style={s.arrow}>➔</Text>
-              </View>
+              </TouchableOpacity>
             </Card>
           ))}
         </>

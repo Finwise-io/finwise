@@ -169,7 +169,8 @@ export default function OnboardingScreen() {
     }
   }
 
-  function finish() {
+  // dest: where to land after finishing — Summary's module rows deep-link via this.
+  function finish(dest: string = '/(tabs)/home') {
     store.setEmploymentStatus?.(status);
     store.setSelectedGoals?.(tracks);
     const consolidated = { status: status ?? undefined, tracks, name: name.trim(), ...answers };
@@ -189,7 +190,7 @@ export default function OnboardingScreen() {
     store.setOnboardingDraft?.(null);   // clear resume draft on completion
     store.setOnboardingPaused?.(false);
     store.setOnboardingComplete?.(true);
-    router.replace('/(tabs)/home');
+    router.replace(dest as any);
   }
 
   function onPrimary() {
@@ -292,7 +293,7 @@ export default function OnboardingScreen() {
     }
 
     if (current === 'summary') {
-      return <Summary status={status} tracks={tracks} answers={answers} name={name} />;
+      return <Summary status={status} tracks={tracks} answers={answers} name={name} onOpen={(route) => finish(route)} />;
     }
 
     // Field & recap steps are rendered by the data-driven module registry.

@@ -25,6 +25,7 @@ const MODULES: Mod[] = [
   { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },
   { e: '🌪', t: 'Stress test', route: '/stress-test' },
   { e: '💵', t: 'Income', route: '/income-manager' },
+  { e: '💸', t: 'Expenses', route: '/expense' },
   { e: '💳', t: 'Build credit', route: '/credit' },
   { e: '🎓', t: 'College planner', route: '/education' },
   { e: '🛡️', t: 'Insurance check', route: '/insurance' },
