@@ -35,6 +35,7 @@ export default function TabLayout() {
     >
       <Tabs.Screen name="home"       options={{ title: 'Home',   tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
       <Tabs.Screen name="budget"     options={{ title: 'Budget', tabBarIcon: ({ focused }) => <TabIcon name="pie-chart" focused={focused} /> }} />
+      <Tabs.Screen name="invest"     options={{ title: 'Invest', tabBarIcon: ({ focused }) => <TabIcon name="trending-up" focused={focused} /> }} />
       <Tabs.Screen name="retirement" options={{ title: 'Retire', tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
       <Tabs.Screen name="goals"      options={{ title: 'Goals',  tabBarIcon: ({ focused }) => <TabIcon name="flag" focused={focused} /> }} />
       {/* routable from the Menu grid, hidden from the bar */}

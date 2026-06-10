@@ -2,6 +2,7 @@
 // you'll come up short and which bills to prioritize. Built on the cashflow domain (CFPB-style).
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -13,7 +14,29 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 
 export default function BillCalendarScreen() {
   const store = useStore() as any;
+  const router = useRouter();
   const op = store.onboardingProfile ?? {};
+
+  // The calendar is built from setup answers (income timing + bills). Until setup is done,
+  // don't show an empty grid — explain and offer to finish (resumes a paused onboarding).
+  if (!store.onboardingComplete) {
+    return (
+      <View style={styles.gateWrap}>
+        <Text style={styles.gateEmoji}>🗓️</Text>
+        <Text style={styles.h1}>Bill calendar</Text>
+        <Text style={[styles.sub, { textAlign: 'center' }]}>
+          This calendar maps when your money lands against when your bills are due — it's built from
+          the income and spending you enter during setup.
+        </Text>
+        <TouchableOpacity style={styles.gateBtn}
+          onPress={() => { store.setOnboardingPaused?.(false); router.replace('/onboarding'); }}>
+          <Text style={styles.gateBtnT}>Finish my setup →</Text>
+        </TouchableOpacity>
+        <Text style={styles.tiny}>It picks up right where you left off.</Text>
+      </View>
+    );
+  }
+
   const accounts = store.assetAccounts ?? [];
   const cashOnHand = accounts.filter((x: any) => x.tax_bucket === 'CASH').reduce((t: number, x: any) => t + (x.balance || 0), 0);
   const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
@@ -128,6 +151,10 @@ export default function BillCalendarScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
+  gateWrap: { flex: 1, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
+  gateEmoji: { fontSize: 44 },
+  gateBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, paddingHorizontal: 28, marginTop: Spacing.md },
+  gateBtnT: { color: '#fff', fontWeight: '800', fontSize: 15 },
   sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },

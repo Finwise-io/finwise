@@ -21,7 +21,7 @@ const MODULES: Mod[] = [
   { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
   { e: '🎯', t: 'Goals', route: '/(tabs)/goals' },
   { e: '💡', t: 'Insights', route: '/insights' },
-  { e: '📈', t: 'Performance', route: '/performance' },
+  { e: '📈', t: 'Invest', route: '/(tabs)/invest' },
   { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },
   { e: '🌪', t: 'Stress test', route: '/stress-test' },
   { e: '💵', t: 'Income', route: '/income-manager' },
@@ -61,7 +61,10 @@ export default function TopBar() {
 
   return (
     <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity onPress={() => setMenu(true)} hitSlop={hit} style={s.menuBtn}><Ionicons name="grid" size={20} color={Colors.textSecondary} /></TouchableOpacity>
+      <TouchableOpacity onPress={() => setMenu(true)} hitSlop={hit} style={s.menuBtn}>
+        <Ionicons name="grid" size={16} color={Colors.textSecondary} />
+        <Text style={s.menuTxt}>Menu</Text>
+      </TouchableOpacity>
       <TouchableOpacity style={s.nwChip} onPress={() => router.push('/(tabs)/analytics')}>
         <Text style={s.nwLabel}>NW</Text>
         <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
@@ -93,7 +96,8 @@ export default function TopBar() {
 
 const s = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
-  menuBtn: { width: 38, height: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
+  menuBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 13, borderRadius: 19, backgroundColor: Colors.cardBg, justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
+  menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   nwChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryDark, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 8 },
   nwLabel: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5, marginRight: 5 },
   nwTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
