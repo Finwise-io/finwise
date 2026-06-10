@@ -228,9 +228,20 @@ function requirements(track: Track, status: Status | null, tracks: Track[], answ
   }
 }
 
+// Tracks that embed the income block (S1). Income is hoisted to the front for these so the
+// source picker always precedes any income-adjacent question (e.g. retire_acc's 401k screen) —
+// otherwise its position would depend on which selected track happens to carry it.
+const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];
+
 export function buildSteps(status: Status | null, tracks: Track[], answers?: Record<string, any>): StepId[] {
   const steps: StepId[] = ['status', 'goals', 'account', 'name'];
   const seen = new Set<StepId>(steps);
+
+  if (tracks.some((t) => INCOME_BEARING.includes(t))) {
+    for (const f of incomeBlock(status, answers)) {
+      if (!seen.has(f)) { seen.add(f); steps.push(f); }
+    }
+  }
 
   for (const track of SERVICE_ORDER) {
     if (!tracks.includes(track)) continue;
