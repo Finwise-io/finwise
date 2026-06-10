@@ -18,7 +18,7 @@ import {
 const STATUSES: Status[] = ['employed', 'retired', 'partial', 'student'];
 const META: StepId[] = ['status', 'goals', 'account', 'name'];
 const META_SET = new Set<string>([...META, 'summary']);
-const RECAPS = new Set<string>(['recap_income', 'recap_spend', 'recap_retire', 'recap_invest', 'recap_goals']);
+const RECAPS = new Set<string>(['recap_income', 'recap_spend', 'recap_retire', 'recap_invest', 'recap_goals', 'recap_debt']);
 
 const src = fs.readFileSync(path.join(__dirname, 'modules.tsx'), 'utf8');
 const RENDER_CASES = new Set([...src.matchAll(/case '([a-zA-Z0-9_]+)':/g)].map((m) => m[1]));
@@ -82,6 +82,7 @@ const RECAP_SECTION: Record<string, StepId[]> = {
     'expectedRetirementSpending', 'currentSavingsPortfolio', 'retirementIncomeSources', 'horizonAge'],
   recap_invest: ['investObjective', 'trackingLevel', 'investmentHoldings'],
   recap_goals: ['goals_detail', 'monthlySavingsCapacity'],
+  recap_debt: ['debts'],
 };
 
 function powerset<T>(arr: T[]): T[][] {
@@ -194,13 +195,16 @@ function audit(): Audit {
             before(s, 'recap_income', 'income details before income recap');
           }
 
-        // — recap placement: never summarize a section that asked nothing —
+        // — recap placement: never summarize a section that asked nothing; the retirement
+        //   recap must follow ALL its questions (both tracks), not just the first batch —
         for (const r of RECAPS) {
           if (!stepSet.has(r)) continue;
           const members = RECAP_SECTION[r].filter((s) => stepSet.has(s));
           if (!members.length) add('empty recap', () => `${r} with no section steps in ${lbl()}`);
           else if (Math.min(...members.map((s) => idx.get(s)!)) > idx.get(r)!)
             add('recap before its section', () => `${r} in ${lbl()}`);
+          else if (r === 'recap_retire' && Math.max(...members.map((s) => idx.get(s)!)) > idx.get(r)!)
+            add('retirement recap before all its questions', () => `${r} in ${lbl()}`);
         }
 
         // — completeness: each selected track contributes its required steps —
@@ -309,6 +313,7 @@ describe('onboarding flow audit — every persona × track-subset × source-subs
   // recaps
   test('no empty recaps; recaps follow their section', () => {
     expectClean('empty recap'); expectClean('recap before its section');
+    expectClean('retirement recap before all its questions');
   });
 
   // completeness + relevance

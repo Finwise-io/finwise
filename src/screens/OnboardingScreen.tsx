@@ -32,7 +32,7 @@ const STEP_SECTION: Record<string, string> = {
   investObjective: 'Investments', trackingLevel: 'Investments', investmentHoldings: 'Investments',
   recap_invest: 'Investments', networthIntro: 'Investments',
   goals_detail: 'Goals', monthlySavingsCapacity: 'Goals', recap_goals: 'Goals',
-  debts: 'Debt', legacyTarget: 'Legacy',
+  debts: 'Debt', recap_debt: 'Debt', legacyTarget: 'Legacy',
   hasPartner: 'Household', invitePartner: 'Household', dependentsCount: 'Household',
   summary: 'Wrap-up',
 };

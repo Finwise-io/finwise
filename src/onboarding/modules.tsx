@@ -375,6 +375,17 @@ export function fv(principal: number, monthly: number, years: number, rate = 0.0
   return principal * Math.pow(1 + r, m) + monthly * ((Math.pow(1 + r, m) - 1) / r);
 }
 
+// Debt payoff snapshot from the debts answers — shared by the debts screen + its recap.
+export function debtPayoff(a: Record<string, any>): { bal: number; pay: number; rate: number; months: number; interestOnly: boolean } {
+  const bal = num(a.debtBalance), pay = num(a.debtPayment), rate = num(a.debtRate) / 100;
+  const mRate = rate / 12, interestOnly = pay > 0 && pay <= bal * mRate;
+  let months = 0;
+  if (bal > 0 && pay > 0 && !interestOnly) {
+    months = mRate > 0 ? Math.ceil(Math.log(pay / (pay - bal * mRate)) / Math.log(1 + mRate)) : Math.ceil(bal / pay);
+  }
+  return { bal, pay, rate, months, interestOnly };
+}
+
 // ── must-have validation ────────────────────────────────────────────────────
 const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_sources: a => Array.isArray(a.incomeSources) && a.incomeSources.length > 0,
@@ -847,7 +858,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return <SavingsEditor ctx={ctx} />;
 
     case 'birth':
-      return (<><Header emoji="🎂" title="When were you born?" sub="Month and year." />
+      return (<><Header emoji="🎂" title="When were you born?" sub="Your age drives the rules we apply — 401(k) catch-up limits, Social Security timing, and when required withdrawals start." />
         <Card><View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><NumRow ctx={ctx} k="birthMonth" label="Month" ph="MM" /></View>
           <View style={{ flex: 1.4 }}><NumRow ctx={ctx} k="birthYear" label="Year" ph="YYYY" /></View>
@@ -915,7 +926,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <MoneyCadenceRow ctx={ctx} k="ri_rmd" label="Required Minimum Distributions (RMDs)" />
           <Text style={[s.hint, { marginTop: -8, marginBottom: 8 }]}>An RMD is a withdrawal — if it's already counted in the row above, leave this blank so it isn't counted twice.</Text>
           <MoneyCadenceRow ctx={ctx} k="ri_annuities" label="Annuities" />
-          <MoneyCadenceRow ctx={ctx} k="ri_other" label="Dividends / rental / other" />
+          {(() => {
+            // dividends/rental get their own screens when those sources are picked — don't double-count
+            const srcs: string[] = Array.isArray(a.incomeSources) ? a.incomeSources : [];
+            const div = srcs.includes('investment_income'), rent = srcs.includes('rental');
+            const label = div && rent ? 'Other income' : div ? 'Rental / other' : rent ? 'Dividends / other' : 'Dividends / rental / other';
+            return (<>
+              <MoneyCadenceRow ctx={ctx} k="ri_other" label={label} />
+              {(div || rent) && <Text style={[s.hint, { marginTop: -8 }]}>
+                {div && rent ? 'Dividends and rental income are asked on their own screens — don\'t repeat them here.'
+                  : div ? 'Dividends are asked on their own screen — don\'t repeat them here.'
+                  : 'Rental income is asked on its own screen — don\'t repeat it here.'}</Text>}
+            </>);
+          })()}
         </Card>
         {startAge > 0 && (
           <Callout
@@ -1017,12 +1040,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card><Stepper ctx={ctx} k="dependentsCount" /></Card></>);
 
     case 'debts': {
-      const bal = num(a.debtBalance), pay = num(a.debtPayment), rate = num(a.debtRate) / 100;
-      const mRate = rate / 12, interestOnly = pay <= bal * mRate;
-      let months = 0;
-      if (bal > 0 && pay > 0 && !interestOnly) {
-        months = mRate > 0 ? Math.ceil(Math.log(pay / (pay - bal * mRate)) / Math.log(1 + mRate)) : Math.ceil(bal / pay);
-      }
+      const { bal, pay, rate, months, interestOnly } = debtPayoff(a);
       const payoff = months >= 12 ? `${(months / 12).toFixed(1)} years` : `${months} months`;
       return (<><Header emoji="🎓" title="Your debt" sub="Biggest balance to start — add more in the app." />
         <Card><TextRow ctx={ctx} k="debtName" label="What is it?" ph="e.g. Student loan" />
@@ -1037,7 +1055,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'legacyTarget':
       return (<><Header emoji="🎁" title="What would you like to leave?" sub="A target for your estate / heirs." />
-        <Card><HeroAmount ctx={ctx} k="legacyTarget" label="Legacy target" /></Card></>);
+        <Card><HeroAmount ctx={ctx} k="legacyTarget" label="Legacy target" />
+          <Text style={s.hint}>We'll hold your plan to this on top of your own spending. The full estate checklist — will, beneficiaries, healthcare proxy — lives in Goals & Debt → Estate.</Text></Card></>);
 
     // ── recaps ──
     case 'recap_spend':
@@ -1097,6 +1116,28 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return (<><Header emoji="📈" title="Your portfolio" />
         <Card><RecapStat label="Total value" value={money(total)} color={Colors.primary} />
           <Text style={s.note}>Tracking {levels.length ? `by ${levels.join(', ')}` : ''} · {objLabel}</Text></Card></>);
+    }
+    case 'recap_debt': {
+      const { bal, pay, rate, months, interestOnly } = debtPayoff(a);
+      const totalPaid = pay * months;
+      const debtFree = months > 0 ? new Date(Date.now() + months * 30.44 * 86400000) : null;
+      return (<><Header emoji="💳" title="Your payoff plan" />
+        <Card>
+          <RecapStat label={a.debtName || 'Debt'} value={money(bal)} />
+          <RecapStat plain label="Monthly payment" value={`${money(pay)}/mo`} />
+          <RecapStat plain label="Interest rate" value={`${(rate * 100).toFixed(1)}%`} />
+          {months > 0 && (<>
+            <View style={s.divider} />
+            <RecapStat label="Debt-free" value={debtFree ? `${MONTHS[debtFree.getMonth()]} ${debtFree.getFullYear()}` : '—'} color={Colors.primary} />
+            <RecapStat plain label="Total interest" value={money(Math.max(0, totalPaid - bal))} />
+          </>)}
+        </Card>
+        {interestOnly
+          ? <Callout warn text="This payment never clears the balance" sub="It barely covers interest — even a little extra each month changes everything. The Goals & Debt tab compares avalanche vs snowball plans." />
+          : months > 0
+            ? <Callout text={`${months >= 12 ? `${(months / 12).toFixed(1)} years` : `${months} months`} to debt-free`} sub="Add every debt in the Goals & Debt tab to build a full avalanche/snowball payoff order." />
+            : <Callout text="Add a monthly payment to see your debt-free date" />}
+      </>);
     }
     case 'recap_goals': {
       const goals = (a.goals ?? []) as any[];

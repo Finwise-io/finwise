@@ -32,7 +32,7 @@ export type StepId =
   // S5 / S6 / S7
   | 'hasPartner' | 'invitePartner' | 'dependentsCount' | 'debts' | 'legacyTarget'
   // recaps + end
-  | 'recap_income' | 'recap_spend' | 'recap_retire' | 'recap_invest' | 'recap_goals' | 'summary';
+  | 'recap_income' | 'recap_spend' | 'recap_retire' | 'recap_invest' | 'recap_goals' | 'recap_debt' | 'summary';
 
 export const STATUS_OPTIONS: { value: Status; icon: string; title: string; sub: string }[] = [
   { value: 'employed', icon: '🧑‍💼', title: 'Employed',           sub: 'Working a job' },
@@ -176,6 +176,7 @@ const RECAP_OF: Partial<Record<Track, StepId>> = {
   retire_dec: 'recap_retire',
   invest: 'recap_invest',
   goals: 'recap_goals',
+  debt: 'recap_debt',
 };
 
 // Service order for emission (so recaps land in a sensible sequence).
@@ -236,20 +237,26 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
   const steps: StepId[] = ['status', 'goals', 'account', 'name'];
   const seen = new Set<StepId>(steps);
 
+  const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };
+
+  // Household context FIRST — "who earns this income?" on the salary screen only makes
+  // sense after we've asked whether a partner is in the picture.
+  if (tracks.includes('partner')) emit('hasPartner');
+  if (tracks.includes('family')) emit('dependentsCount');
+
   if (tracks.some((t) => INCOME_BEARING.includes(t))) {
-    for (const f of incomeBlock(status, answers)) {
-      if (!seen.has(f)) { seen.add(f); steps.push(f); }
-    }
+    for (const f of incomeBlock(status, answers)) emit(f);
   }
 
   for (const track of SERVICE_ORDER) {
     if (!tracks.includes(track)) continue;
     const { must, optional } = requirements(track, status, tracks);
-    for (const f of [...must, ...optional]) {
-      if (!seen.has(f)) { seen.add(f); steps.push(f); }
-    }
+    for (const f of [...must, ...optional]) emit(f);
     const recap = RECAP_OF[track];
-    if (recap && !seen.has(recap)) { seen.add(recap); steps.push(recap); }
+    // Both retirement tracks share one recap — hold it until AFTER the second track's
+    // questions, so the payoff covers the whole retirement picture.
+    if (recap === 'recap_retire' && track === 'retire_acc' && tracks.includes('retire_dec')) continue;
+    if (recap) emit(recap);
   }
 
   steps.push('summary');
