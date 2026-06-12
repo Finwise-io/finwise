@@ -5,7 +5,7 @@ import type { OnboardingProfile } from '../onboardingProfile';
 import { toNum, round2 } from '../_shared/num';
 import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
-  effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
+  effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly, currentRetirementIncomeMonthly,
   benefitAnnual, benefitActiveMonths, otherIncomeMonth,
 } from '../income';
 import { spendBuckets, spendByMonth } from '../budget';
@@ -78,7 +78,7 @@ export function upcomingBills(
   const steadyInMonthly =
     grossSalaryMonthly(op) * (1 - rate) + toNum(a.tipsMonthly) * (1 - rate)
     + toNum(a.supportMonthly) + benefitAnnual(op) / 12 + monthlySch
-    + retirementIncomeMonthly(op) * (1 - rate) + (rentalNetAnnual(op) / 12) * (1 - rate);
+    + currentRetirementIncomeMonthly(op) * (1 - rate) + (rentalNetAnnual(op) / 12) * (1 - rate);
   const b = spendBuckets(op);
   const uncategorized = Math.max(0, toNum(a.monthlySpending) - b.monthly_total);
   const steadyOutMonthly = b.fixed + b.flexible + uncategorized;       // monthly bills only (non-monthly are dated)
@@ -173,7 +173,7 @@ export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now
   const otherTaxable = a.otherTaxable !== 'no';
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
-  const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
+  const retIncM = currentRetirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
   const benM = toNum(a.benefitMonthly); const benSet = new Set(benefitActiveMonths(op));
   for (let s = 0; s < 12; s++) {
     const cm = calMonth(s);

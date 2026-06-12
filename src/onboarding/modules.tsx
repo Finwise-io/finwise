@@ -1161,18 +1161,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
     case 'recap_goals': {
       const goals = (a.goals ?? []) as any[];
-      // ONE pool of free cash: goals are funded by what's LEFT after the investing plan —
-      // the same dollars can't fund investments and goals twice.
-      const investMo = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
-      const freeMo = monthlyIncome(a) - num(a.monthlySpending) - num(a.c_401k);
-      const cap = num(a.monthlySavingsCapacity) || Math.max(0, freeMo - investMo);
-      return (<><Header emoji="🎯" title="Your goals" />
+      const { capMo, investMo } = goalCapacity(a);
+      return (<><Header emoji="🎯" title="Your goals" sub={capMo > 0 ? 'And how long each will take at your pace.' : undefined} />
         <Card>{goals.length === 0 ? <Text style={s.note}>No goals added.</Text> : goals.map((g, i) => {
-          const months = cap > 0 ? Math.ceil(num(g.target) / cap) : 0;
-          return <RecapStat key={i} label={g.label || 'Goal'} value={months ? `~${months} mo` : money(num(g.target))} />;
+          const months = capMo > 0 ? Math.ceil(num(g.target) / capMo) : 0;
+          return <RecapStat key={i} label={g.label || 'Goal'} value={months ? `ready in ~${months} mo` : money(num(g.target))} />;
         })}</Card>
-        {investMo > 0 && <Callout text={`${money(cap)}/mo funds these goals`}
-          sub={`That's your free cash after the ${money(investMo * 12)}/yr investing plan — the same dollars never count twice.`} />}
+        {capMo > 0
+          ? <Callout text={`You have about ${money(capMo)} a month for goals`}
+              sub={`That's what's left of your income after taxes, spending, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)} a year you're investing` : ''}. The timelines above assume all of it goes to these goals.`} />
+          : investMo > 0
+            ? <Callout warn text="Nothing is left over for these goals right now"
+                sub={`Your investing plan (${money(investMo * 12)}/yr) uses all your free cash. To fund goals, dial the investing number down — it's the same pot of money.`} />
+            : null}
       </>);
     }
     default:
@@ -1296,7 +1297,8 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const lines: { label: string; value: number; once?: boolean }[] = [
     { label: 'Job (salary/wages)', value: salaryAnnual(a) },
     { label: 'Tips', value: num(a.tipsMonthly) * 12 },
-    { label: 'Retirement income', value: retirementMonthlyIncome(a) * 12 },
+    // current income only when actually receiving it now — future SS (outlook editor) excluded
+    { label: 'Retirement income', value: (!Array.isArray(a.incomeSources) || a.incomeSources.includes('retirement_income')) ? retirementMonthlyIncome(a) * 12 : 0 },
     { label: 'Bonus', value: num(a.bonusAnnual) },
     { label: 'Signing bonus', value: num(a.signingOnetime), once: true },
     { label: 'Equity (vesting)', value: rsuAnnual(a) },
@@ -1699,6 +1701,19 @@ function WfRow({ dot, label, value, strong, color, topline, onPress }: {
   );
   if (onPress) return <TouchableOpacity style={[s.wfRow, topline && s.wfTopline]} onPress={onPress}>{body}</TouchableOpacity>;
   return <View style={[s.wfRow, topline && s.wfTopline]}>{body}</View>;
+}
+
+// ONE free-cash measure for goal capacity — the SAME month-aware number the save-plan screen
+// shows (income placed in its months, net of tax/401(k)/spending), minus the investing plan.
+// Two screens disagreeing about the same pool is how dollars get counted twice.
+function goalCapacity(a: Record<string, any>): { capMo: number; investMo: number; hasCashflow: boolean } {
+  const investMo = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
+  const hasCashflow = num(a.monthlySpending) > 0 || spendBuckets(a).monthly_total > 0;
+  const freeMo = hasCashflow
+    ? savingsByMonth(a).reduce((t, m) => t + m.amount, 0) / 12
+    : monthlyIncome(a) - num(a.monthlySpending) - num(a.c_401k);
+  const capMo = num(a.monthlySavingsCapacity) || Math.max(0, freeMo - investMo);
+  return { capMo, investMo, hasCashflow };
 }
 
 // Retirement outlook recap (accumulation) — amortization-based "needed" with the math on-screen.
@@ -2197,13 +2212,13 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
     ctx.setAnswer('goals', [...goals, { label: label.trim(), target, year }]);
     setLabel(''); setTarget(''); setYear('');
   };
-  const investMo0 = num(ctx.answers.c_roth) + num(ctx.answers.c_invest) + num(ctx.answers.c_property);
-  const goalCap = Math.max(0, monthlyIncome(ctx.answers) - num(ctx.answers.monthlySpending) - num(ctx.answers.c_401k) - investMo0);
+  const { capMo: goalCap, investMo: investMo0 } = goalCapacity(ctx.answers);
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
-    {investMo0 > 0 && goalCap >= 0 && (
-      <Callout text={`≈ ${money(goalCap)}/mo available for goals`}
-        sub={`Your free cash after the ${money(investMo0 * 12)}/yr investing plan you just set.`} />
-    )}
+    {investMo0 > 0 && (goalCap > 0
+      ? <Callout text={`You have about ${money(goalCap)} a month for goals`}
+          sub={`What's left of your income after taxes, spending, your 401(k), and the ${money(investMo0 * 12)} a year you're investing.`} />
+      : <Callout warn text="Nothing is left over for goals right now"
+          sub={`Your investing plan (${money(investMo0 * 12)}/yr) uses all your free cash — goals here would need that number dialed down. It's one pot of money.`} />)}
     <Card>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm }}>
         {GOAL_STARTERS.filter((g) => !goals.some((x) => x.label === g)).map((g) => {

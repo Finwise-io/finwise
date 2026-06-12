@@ -163,6 +163,17 @@ export function extraIncome(op: OnboardingProfile | null): {
   };
 }
 
+/** Retirement income (ri_*) counts as CURRENT income only when the user actually receives it
+ *  now — i.e. 'retirement_income' is among their selected income sources (or there's no source
+ *  list: the legacy retired flow). ri_* set elsewhere (e.g. the outlook's future-Social-Security
+ *  editor) feeds the retirement model, NOT today's cash flow — without this gate, a working
+ *  40-year-old's future SS inflates today's free cash. */
+export function currentRetirementIncomeMonthly(op: OnboardingProfile | null): number {
+  const srcs = op?.incomeSources;
+  if (Array.isArray(srcs) && !srcs.includes('retirement_income')) return 0;
+  return retirementIncomeMonthly(op);
+}
+
 /** Calendar month (1-12) a one-time "other income" lands in (default January). */
 export function otherIncomeMonth(op: OnboardingProfile | null): number {
   return Math.min(12, Math.max(1, toNum(op?.otherMonth) || 1));
@@ -239,7 +250,7 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
 
   // Additional sources (self-employment, investment, benefits, support, scholarship, other)
   add('Tips', 'W2_JOB', toNum(a.tipsMonthly), 'MONTHLY');
-  add('Retirement income', 'OTHER', retirementIncomeMonthly(op), 'MONTHLY');
+  add('Retirement income', 'OTHER', currentRetirementIncomeMonthly(op), 'MONTHLY');
   add('Self-employment', 'SELF_EMPLOYMENT', a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount), a.seFreq === 'annual' ? 'ANNUAL' : 'MONTHLY');
   add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');
   add('Benefits', 'BENEFIT', benefitAnnual(a) / 12, 'MONTHLY');
@@ -278,7 +289,7 @@ export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new D
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeTaxable + ex.onetimeNontax + retirementIncomeMonthly(op) * 12;
+    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeTaxable + ex.onetimeNontax + currentRetirementIncomeMonthly(op) * 12;
 }
 
 /** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
@@ -286,7 +297,7 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.onetimeTaxable + retirementIncomeMonthly(op) * 12;
+    + ex.taxableMonthly * 12 + ex.onetimeTaxable + currentRetirementIncomeMonthly(op) * 12;
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
@@ -328,7 +339,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
 
   const ex = extraIncome(op);
-  const retIncMonthly = retirementIncomeMonthly(op);
+  const retIncMonthly = currentRetirementIncomeMonthly(op);
   const nontaxFlat = toNum(a.supportMonthly);                              // genuinely monthly, non-taxable
   const benM = toNum(a.benefitMonthly);                                    // benefits land in THEIR months
   const benSet = new Set(benefitActiveMonths(op));

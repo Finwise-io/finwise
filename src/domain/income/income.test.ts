@@ -246,3 +246,21 @@ describe('one-time other income: month placement + gift taxability', () => {
     expect(g[8].amount).toBeCloseTo(5000 * 0.8 + 19000, 2);
   });
 });
+
+describe('future retirement income must not leak into CURRENT income', () => {
+  test('an employed person entering future Social Security keeps today\'s income unchanged', () => {
+    const working: OnboardingProfile = {
+      taxMode: 'manual', manualTaxRate: '0', incomeSources: ['employment'],
+      baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
+      ri_ss: '3500',                                   // future SS from the outlook editor
+    };
+    expect(totalGrossAnnual(working)).toBe(60000);     // SS NOT counted today
+    expect(incomeMonthlyGrid(working, 'gross')[0].amount).toBe(5000);
+  });
+  test('a retiree (retirement_income source, or legacy no-source flow) still counts it', () => {
+    const retiree: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', incomeSources: ['retirement_income'], ri_ss: '3500' };
+    expect(totalGrossAnnual(retiree)).toBe(42000);
+    const legacy: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', ri_ss: '3500' };   // no source list
+    expect(totalGrossAnnual(legacy)).toBe(42000);
+  });
+});
