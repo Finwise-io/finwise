@@ -52,8 +52,9 @@ const ALL_INCOME_DETAILS: StepId[] = [...Object.values(SOURCE_STEP), 'income_tax
 const TAXABLE: Set<IncomeSourceKey> = new Set(['employment', 'self_employment', 'investment_income', 'rental', 'retirement_income', 'other_income']);
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];  // tracks that embed the income block
 // Questions another track may legitimately ABSORB (the fact is computed, not lost):
-// retire_dec absorbs the invest total; spend absorbs savings capacity (income − spending).
-const ABSORBED = new Set<string>(['investmentHoldings', 'monthlySavingsCapacity']);
+// retire_dec absorbs the invest total; spend absorbs savings capacity (income − spending);
+// retire_acc's combined contributions screen absorbs the standalone savings view.
+const ABSORBED = new Set<string>(['investmentHoldings', 'monthlySavingsCapacity', 'savingsRateTarget']);
 // Overlapping "how much have you saved" totals — >1 in a flow is a curation smell (soft report).
 const ASSET_TOTALS: StepId[] = ['currentRetirementSavings', 'currentSavingsPortfolio', 'investmentHoldings'];
 

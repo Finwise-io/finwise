@@ -905,36 +905,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         sub="All retirement accounts: 401(k), Roth & Traditional IRA, 403(b), 457, TSP, SEP. Brokerage and other investments are excluded — we ask about those separately." />
         <Card><HeroAmount ctx={ctx} k="currentRetirementSavings" label="Total saved today" /></Card></>);
 
-    case 'contributionsByType': {
-      // what's free to save each month — same math as the full recap (tax on taxable base,
-      // minus 401(k), minus reconciled spending), so the number the user just saw carries over
-      const rate0 = incomeTaxRate(a);
-      const netYr0 = grossAnnual(a) - taxableAnnual(a) * rate0;
-      const spendMo0 = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
-      const saveMo = Math.max(0, (netYr0 - num(a.c_401k) * 12) / 12 - spendMo0);
-      const allocated = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
-      const leftover = saveMo - allocated;
-      return (<><Header emoji="📥" title="What you add monthly toward the future"
-        sub="Split your free cash between retirement accounts and other investing — % or $." />
-        {saveMo > 0 && (
-          <View style={s.heroCard}>
-            <Text style={s.heroCardLabel}>Available to save / month</Text>
-            <Text style={s.heroCardValue}>{money(saveMo)}</Text>
-            <Text style={s.heroCardSub}>after tax, 401(k), and spending</Text>
-          </View>
-        )}
-        <Card>
-          <ContribRow ctx={ctx} k="c_roth" label="Retirement accounts (Roth & IRAs)" base={saveMo} />
-          <ContribRow ctx={ctx} k="c_invest" label="Other investments (brokerage)" base={saveMo} />
-          <ContribRow ctx={ctx} k="c_property" label="Property / real estate" base={saveMo} />
-        </Card>
-        {allocated > 0 && (saveMo <= 0 || leftover >= 0
-          ? <Callout text={`Saving ${money(allocated)}/mo — about ${money(allocated * 12)} a year invested`}
-              sub={saveMo > 0 ? `${money(Math.max(0, leftover))}/mo stays as a cash buffer.` : undefined} />
-          : <Callout warn text={`That's ${money(-leftover)}/mo more than your free cash`}
-              sub={`You have ~${money(saveMo)}/mo available after tax, 401(k) and spending — trim the split or your spending.`} />)}
-      </>);
-    }
+    case 'contributionsByType':
+      return <SavePlanScreen ctx={ctx} />;
 
     case 'targetRetirementAge': {
       const tgt = num(a.targetRetirementAge), age = currentAge(a), yrs = tgt - age;
@@ -1197,12 +1169,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
     case 'recap_goals': {
       const goals = (a.goals ?? []) as any[];
-      const cap = num(a.monthlySavingsCapacity) || (monthlyIncome(a) - num(a.monthlySpending));
+      // ONE pool of free cash: goals are funded by what's LEFT after the investing plan —
+      // the same dollars can't fund investments and goals twice.
+      const investMo = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
+      const freeMo = monthlyIncome(a) - num(a.monthlySpending) - num(a.c_401k);
+      const cap = num(a.monthlySavingsCapacity) || Math.max(0, freeMo - investMo);
       return (<><Header emoji="🎯" title="Your goals" />
         <Card>{goals.length === 0 ? <Text style={s.note}>No goals added.</Text> : goals.map((g, i) => {
           const months = cap > 0 ? Math.ceil(num(g.target) / cap) : 0;
           return <RecapStat key={i} label={g.label || 'Goal'} value={months ? `~${months} mo` : money(num(g.target))} />;
-        })}</Card></>);
+        })}</Card>
+        {investMo > 0 && <Callout text={`${money(cap)}/mo funds these goals`}
+          sub={`That's your free cash after the ${money(investMo * 12)}/yr investing plan — the same dollars never count twice.`} />}
+      </>);
     }
     default:
       return (<><Header emoji="🛠" title={String(step)} /><Card><Text style={s.note}>Coming soon.</Text></Card></>);
@@ -1518,7 +1497,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const k401Yr = k401Mo * 12;                                                 // employee 401(k) — saved, but locked
   const availableYr = netYr - k401Yr;                                         // SAME number the income screen headlines
   const saveYr = availableYr - spendYr;                                       // FREE to save — matches the savings screen
-  const totalSaveYr = Math.max(0, saveYr) + k401Yr;                           // all savings incl. 401(k)
+  const totalSaveYr = saveYr + k401Yr;            // all savings incl. 401(k) — a deficit NETS against it (no floor)
   const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
   const taxPct = grossYr > 0 ? Math.round((taxYr / grossYr) * 100) : 0;       // effective tax rate
   const saveRateNet = netYr > 0 ? Math.round((totalSaveYr / netYr) * 100) : 0;     // total savings rate of take-home
@@ -1726,25 +1705,78 @@ function WfRow({ dot, label, value, strong, color, topline }: {
   );
 }
 
-// Contribution row — enter $ directly, or % of the available-to-save base. The resolved DOLLAR
-// amount is always written to the canonical key (every downstream consumer reads dollars); the
-// typed value + unit are kept in sibling keys so the screen redisplays what the user entered.
-function ContribRow({ ctx, k, label, base }: { ctx: StepCtx; k: string; label: string; base: number }) {
+// Savings plan — ONE allocation question on top of the month-by-month free-cash picture:
+// "of your free cash, how much will you invest per year?" ($ or %). The Roth/brokerage/property
+// SPLIT is deliberately NOT asked here (false precision at onboarding) — it lives in-app where it
+// has consequences (Retirement tax-smart moves, Net Worth accounts). Stored as monthly dollars in
+// c_invest (the canonical contribution key all projections read); goals draw from the REMAINDER.
+function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
-  const unit = base > 0 ? (a[k + '_unit'] ?? 'dollar') : 'dollar';
-  const raw = a[k + '_raw'] ?? a[k] ?? '';
+  const [view, setView] = React.useState<'chart' | 'table'>('chart');
+  const hasCashflow = num(a.monthlySpending) > 0 || spendBuckets(a).monthly_total > 0;
+  const sug = savingsByMonth(a);                              // [{label, amount}] × 12, net of tax+401(k)+spending
+  const annualSave = sug.reduce((t, m) => t + m.amount, 0);
+  const base = Math.max(0, annualSave);
+  const maxA = Math.max(...sug.map((m) => m.amount), 1);
+  const investMo = num(a.c_roth) + num(a.c_invest) + num(a.c_property);   // legacy keys still counted
+  const leanIdx = sug.map((m, i) => ({ m, i })).filter((x) => x.m.amount < investMo).map((x) => x.i);
+
+  const unit = base > 0 ? (a.investUnit ?? 'dollar') : 'dollar';
+  const raw = a.investRaw ?? (investMo > 0 ? String(investMo * 12) : '');
   const setVal = (t: string, u: string) => {
-    ctx.setAnswer(k + '_raw', t);
-    ctx.setAnswer(k + '_unit', u);
-    ctx.setAnswer(k, u === 'pct' ? String(Math.round((num(t) / 100) * base)) : t);
+    ctx.setAnswer('investRaw', t);
+    ctx.setAnswer('investUnit', u);
+    const annual = u === 'pct' ? (num(t) / 100) * base : num(t);
+    ctx.setAnswer('c_invest', String(Math.round(annual / 12)));
+    ctx.setAnswer('c_roth', ''); ctx.setAnswer('c_property', '');   // this screen owns ONE number now
   };
-  return (
-    <View style={{ marginBottom: Spacing.sm }}>
-      <Text style={s.label}>{label}</Text>
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+
+  return (<>
+    <Header emoji="📥" title="What you can save — and invest"
+      sub="Your free cash month by month, and how much of it you'll invest each year." />
+    {hasCashflow && (<>
+      <View style={s.heroCard}>
+        <Text style={s.heroCardLabel}>You can save / year</Text>
+        <Text style={[s.heroCardValue, annualSave < 0 && { color: Colors.red }]}>{money(annualSave)}</Text>
+        <Text style={s.heroCardSub}>≈ {money(annualSave / 12)}/mo average — but it varies, see below</Text>
+      </View>
+      <Card>
+        <Text style={s.cap}>Free to save, by month</Text>
+        <View style={{ marginTop: 4, marginBottom: 4 }}>
+          <Segmented ctx={{ ...ctx, answers: { v: view }, setAnswer: (_, v) => setView(v as any) }} k="v"
+            options={[{ value: 'chart', label: 'Chart' }, { value: 'table', label: 'Table' }]} />
+        </View>
+        {view === 'chart' ? (
+          <View style={s.colChart}>
+            {sug.map((m) => (
+              <View key={m.label} style={s.colItem}>
+                <View style={s.colBarWrap}>
+                  {m.amount !== 0 && <Text style={[s.colVal, m.amount < 0 && { color: Colors.red }]} numberOfLines={1}>{moneyShort(m.amount)}</Text>}
+                  <View style={[s.colBar, { height: `${Math.max(2, (Math.max(0, m.amount) / maxA) * 100)}%`, backgroundColor: m.amount < 0 ? Colors.red : Colors.primary }]} />
+                </View>
+                <Text style={s.colLabel}>{m.label[0]}</Text>
+              </View>
+            ))}
+          </View>
+        ) : (
+          <View style={{ marginTop: Spacing.sm }}>
+            {sug.map((m) => (
+              <View key={m.label} style={s.tableRow}>
+                <Text style={s.tableCell}>{m.label}</Text>
+                <Text style={[s.tableCell, { textAlign: 'right', fontWeight: '700', color: m.amount < 0 ? Colors.red : Colors.textPrimary }]}>{money(m.amount)}</Text>
+              </View>
+            ))}
+          </View>
+        )}
+        <Text style={s.note2}>Net of tax, 401(k), and spending — each in the month it actually happens (a gift month spikes, months without pay dip).</Text>
+      </Card>
+    </>)}
+    <Card>
+      <Text style={s.sectionLabel}>HOW MUCH WILL YOU INVEST PER YEAR?</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 6 }}>
         <TextInput style={[s.input, { flex: 1 }]} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
-          placeholder={unit === 'pct' ? 'e.g. 20' : `${currencySymbol()}0`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
-        {base > 0 && [{ v: 'dollar', l: currencySymbol() }, { v: 'pct', l: '%' }].map((o) => {
+          placeholder={unit === 'pct' ? 'e.g. 80' : `${currencySymbol()}0 / yr`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
+        {base > 0 && [{ v: 'dollar', l: `${currencySymbol()}/yr` }, { v: 'pct', l: '%' }].map((o) => {
           const on = unit === o.v;
           return (
             <TouchableOpacity key={o.v} style={[s.unitBtn, on && s.unitBtnOn]} onPress={() => setVal(String(raw), o.v)}>
@@ -1753,9 +1785,19 @@ function ContribRow({ ctx, k, label, base }: { ctx: StepCtx; k: string; label: s
           );
         })}
       </View>
-      {unit === 'pct' && num(raw) > 0 && <Text style={s.hint}>{num(raw)}% of your free cash = {money(num(a[k]))}/mo</Text>}
-    </View>
-  );
+      {num(raw) > 0 && (unit === 'pct'
+        ? <Text style={s.hint}>{num(raw)}% of your yearly free cash = {money(investMo * 12)}/yr (≈ {money(investMo)}/mo)</Text>
+        : <Text style={s.hint}>≈ {money(investMo)}/mo</Text>)}
+      <Text style={s.hint}>What's left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
+    </Card>
+    {investMo > 0 && (!hasCashflow
+      ? <Callout text={`Investing ${money(investMo * 12)} a year (≈ ${money(investMo)}/mo)`} />
+      : leanIdx.length === 0
+        ? <Callout text={`Investing ${money(investMo * 12)} a year (≈ ${money(investMo)}/mo)`}
+            sub={`Covered by your free cash in every month; ${money(Math.max(0, annualSave - investMo * 12))}/yr is left for goals and your cash buffer.`} />
+        : <Callout warn text={`That plan (≈ ${money(investMo)}/mo) outruns your free cash in ${leanIdx.length} month${leanIdx.length > 1 ? 's' : ''}`}
+            sub={`${monthRanges(leanIdx, sug.map((m) => m.label))} run${leanIdx.length === 1 ? 's' : ''} below it — those months draw from your cash buffer. Build the buffer in the strong months.`} />)}
+  </>);
 }
 
 // One legend row for the spending spectrum bar: colored dot + label + value.
@@ -2074,7 +2116,13 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
     ctx.setAnswer('goals', [...goals, { label: label.trim(), target, year }]);
     setLabel(''); setTarget(''); setYear('');
   };
+  const investMo0 = num(ctx.answers.c_roth) + num(ctx.answers.c_invest) + num(ctx.answers.c_property);
+  const goalCap = Math.max(0, monthlyIncome(ctx.answers) - num(ctx.answers.monthlySpending) - num(ctx.answers.c_401k) - investMo0);
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
+    {investMo0 > 0 && goalCap >= 0 && (
+      <Callout text={`≈ ${money(goalCap)}/mo available for goals`}
+        sub={`Your free cash after the ${money(investMo0 * 12)}/yr investing plan you just set.`} />
+    )}
     <Card>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: Spacing.sm }}>
         {GOAL_STARTERS.filter((g) => !goals.some((x) => x.label === g)).map((g) => {

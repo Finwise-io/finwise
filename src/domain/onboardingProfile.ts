@@ -41,6 +41,7 @@ export interface OnboardingProfile {
   // retirement plan
   birthYear?: Money; birthMonth?: Money; currentRetirementSavings?: Money;
   c_roth?: Money; c_invest?: Money; c_property?: Money; c_touched?: boolean;
+  investRaw?: Money; investUnit?: 'dollar' | 'pct';   // what the user typed on the save-plan screen
   targetRetirementAge?: Money; expectedRetirementSpending?: Money; horizonAge?: Money; currentSavingsPortfolio?: Money;
   retLocation?: string; travelBudget?: Money; medicalBudget?: Money; spendingChangeLater?: 'same' | 'less' | 'more';
   // investments

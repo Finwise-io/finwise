@@ -195,8 +195,11 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
   switch (track) {
     case 'spend':
       // A retiree is drawing down, not saving — drop the savings-rate target for them.
+      // With retire_acc selected, the combined contributions screen ABSORBS the savings view
+      // (month-by-month savable + where it goes), so the standalone savings screen is skipped.
       return { must: ['monthlySpending'],
-               optional: decumulating ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
+               optional: decumulating || tracks.includes('retire_acc')
+                 ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
       // 401(k) contribution then its match on a dedicated screen (deduped if income flow also present).
       return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'employerContribution', 'contributionsByType',

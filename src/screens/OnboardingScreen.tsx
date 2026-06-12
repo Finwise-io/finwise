@@ -36,12 +36,65 @@ const STEP_SECTION: Record<string, string> = {
   hasPartner: 'Household', invitePartner: 'Household', dependentsCount: 'Household',
   summary: 'Wrap-up',
 };
-function sectionProgress(steps: string[], index: number): string {
-  const sec = STEP_SECTION[steps[index]] ?? 'Setup';
-  const inSec = steps.map((id, i) => ({ id, i })).filter((x) => (STEP_SECTION[x.id] ?? 'Setup') === sec);
-  const pos = inSec.findIndex((x) => x.i === index) + 1;
-  return inSec.length > 1 ? `${sec} · ${pos} of ${inSec.length}` : sec;
+// Per-step module labels with INHERITANCE: 'About you' (birth) is embedded inside whatever module
+// asks it (Income's 401(k) limits, or Retirement) — it inherits that module so the breadcrumb
+// never splits one module into two ("Income › About you › Income" made duplicate crumbs).
+function sectionsFor(steps: string[]): string[] {
+  let last = 'Profile';
+  return steps.map((id) => {
+    let sec = STEP_SECTION[id] ?? last;
+    if (sec === 'About you') sec = last;
+    last = sec;
+    return sec;
+  });
 }
+
+function sectionProgress(steps: string[], index: number): string {
+  const secs = sectionsFor(steps);
+  const sec = secs[index];
+  const inSec = secs.map((sx, i) => ({ sx, i })).filter((x) => x.sx === sec);
+  const pos = inSec.findIndex((x) => x.i === index) + 1;
+  return inSec.length > 1 ? `${pos} of ${inSec.length}` : '';
+}
+
+// Module breadcrumb — every module in this user's flow, chevron-separated:
+// "✓ Profile › ✓ Income › [Spending] › Retirement › …" — done ✓, current highlighted, upcoming dim.
+function ModuleCrumbs({ steps, index }: { steps: string[]; index: number }) {
+  const secs = sectionsFor(steps);
+  const seq: string[] = [];
+  for (const sec of secs) {
+    if (seq[seq.length - 1] !== sec) seq.push(sec);
+  }
+  const currentSec = secs[index];
+  const curIdx = seq.indexOf(currentSec);
+  const within = sectionProgress(steps, index);
+  return (
+    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}
+      contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+      {seq.map((sec, i) => (
+        <View key={`${sec}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+          {i > 0 && <Text style={[crumb.chev, i === curIdx && crumb.chevOn]}>›</Text>}
+          {i === curIdx ? (
+            <View style={crumb.pill}>
+              <Text style={crumb.pillTxt}>{sec}{within ? ` · ${within}` : ''}</Text>
+            </View>
+          ) : (
+            <Text style={i < curIdx ? crumb.done : crumb.todo}>{i < curIdx ? `✓ ${sec}` : sec}</Text>
+          )}
+        </View>
+      ))}
+    </ScrollView>
+  );
+}
+
+const crumb = StyleSheet.create({
+  done: { fontSize: 11.5, fontWeight: '700', color: Colors.primary },
+  todo: { fontSize: 11.5, fontWeight: '600', color: Colors.textTertiary },
+  chev: { fontSize: 12, color: Colors.textTertiary },
+  chevOn: { color: Colors.primary, fontWeight: '800' },
+  pill: { backgroundColor: Colors.primaryLight, borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
+  pillTxt: { fontSize: 11.5, fontWeight: '800', color: Colors.primaryDark },
+});
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -311,7 +364,7 @@ export default function OnboardingScreen() {
       {/* progress bar — pinned at the top, always visible */}
       <View style={styles.progressBarFixed}>
         <ProgressBar pct={progress} />
-        <Text style={styles.progressText}>{sectionProgress(steps as string[], Math.min(stepIndex, steps.length - 1))}</Text>
+        <ModuleCrumbs steps={steps as string[]} index={Math.min(stepIndex, steps.length - 1)} />
       </View>
       <ScrollView style={styles.scrollView} contentContainerStyle={styles.scroll}
         keyboardShouldPersistTaps="handled" keyboardDismissMode="on-drag" showsVerticalScrollIndicator>

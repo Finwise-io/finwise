@@ -163,3 +163,27 @@ describe('Retiree scenarios', () => {
     expect(rich.chance_of_success).toBeGreaterThan(60);   // a big balance makes early retirement viable
   });
 });
+
+// ───────────────────────── 💸 NEGATIVE CASH FLOW drains wealth ─────────────────────────
+describe('Negative cash flow is deducted (never floored at zero)', () => {
+  const { effectiveAnnualContribution } = require('./snapshot');
+  test('funded contributions pass through at face value', () => {
+    expect(effectiveAnnualContribution({
+      ...NO_TAX, baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly',
+      monthlySpending: '3000', c_roth: '1000',
+    })).toBe(12000);                                  // $1k/mo Roth, fully covered by free cash
+  });
+  test('a household deficit makes the effective nest-egg inflow NEGATIVE (wealth declines)', () => {
+    expect(effectiveAnnualContribution({
+      ...NO_TAX, baseSalary: '4000', salaryMode: 'gross', salaryFreq: 'monthly',
+      monthlySpending: '15000', c_roth: '1000',
+    })).toBeLessThan(0);                              // burning ~$11k/mo: contributions can't save you
+  });
+  test('partial funding: shortfall is deducted, not ignored', () => {
+    const v = effectiveAnnualContribution({
+      ...NO_TAX, baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
+      monthlySpending: '4500', c_roth: '1000',        // free cash $500/mo < $1k/mo commitment
+    });
+    expect(v).toBeCloseTo(6000, 0);                   // only the funded $500/mo actually accrues
+  });
+});
