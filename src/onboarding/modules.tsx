@@ -1324,7 +1324,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const net = total - tax;
   const k401 = num(a.c_401k) * 12;
   const availableYr = net - k401;
-  const nonTaxable = ex.nontaxMonthly * 12;       // benefits + support + scholarships
+  const nonTaxable = ex.nontaxMonthly * 12 + ex.onetimeNontax;   // benefits + support + scholarships + gifts
 
   const grid = incomeMonthlyGrid(a, mode);
   const gridMax = Math.max(...grid.map((g) => g.amount), 1);
@@ -1380,7 +1380,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
 
       <Text style={[s.sectionLabel, { marginTop: Spacing.md }]}>WHAT'S TAKEN OUT</Text>
       <RecapStat plain label={`Tax (~${Math.round(rate * 100)}% on taxable income)`} value={`-${money(tax)}`} color={Colors.amber} />
-      {nonTaxable > 0 && <RecapStat plain label="Tax-free (benefits, support, scholarships)" value={money(nonTaxable)} color={Colors.textTertiary} />}
+      {nonTaxable > 0 && <RecapStat plain label="Tax-free (benefits, support, gifts…)" value={money(nonTaxable)} color={Colors.textTertiary} />}
       {k401 > 0 && <RecapStat plain label="401(k), locked to retirement" value={`-${money(k401)}`} color={Colors.amber} />}
       <RecapBox label="Available / yr" value={money(availableYr)} tone="green" />
     </Card>
@@ -2084,8 +2084,8 @@ const s = StyleSheet.create({
   stepBtnT: { fontSize: 24, color: Colors.primary, fontWeight: '700' },
   stepVal: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary, minWidth: 44, textAlign: 'center' },
   recapRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  recapLabel: { fontSize: 14, color: Colors.textSecondary },
-  recapVal: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary },
+  recapLabel: { flex: 1, fontSize: 14, color: Colors.textSecondary, marginRight: 10 },
+  recapVal: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' },
   recapValPlain: { fontSize: 15, fontWeight: '500', color: Colors.textSecondary },
   recapBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, borderRadius: Radii.md, marginTop: Spacing.sm },
   recapBoxNeutral: { backgroundColor: Colors.bgTertiary },
