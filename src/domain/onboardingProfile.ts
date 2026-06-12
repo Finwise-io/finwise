@@ -4,6 +4,7 @@
 // No index signature on purpose: a typo like `op.slaryByMonth` is a compile error. The one dynamic
 // access (`a['ri_'+k]`) is cast locally.
 export type Money = string | number;
+export type RiFreq = 'monthly' | 'quarterly' | 'annual';
 
 export interface ScholarshipEntry { label?: string; amount?: Money; freq?: 'annual' | 'monthly'; months?: number[]; day?: Money; year?: Money }
 export interface LoanEntry { label?: string; amount?: Money; months?: number[]; day?: Money; year?: Money; apr?: Money; termYears?: Money }
@@ -31,8 +32,9 @@ export interface OnboardingProfile {
   otherMonth?: Money; otherTaxable?: 'yes' | 'no';   // one-time landing month (1-12); gifts = not taxable
   benefitMonthly?: Money; benefitTypes?: string[]; benefitMonths?: number[]; supportMonthly?: Money;
   scholarships?: ScholarshipEntry[]; scholarshipAmount?: Money; scholarshipFreq?: 'annual' | 'monthly'; loans?: LoanEntry[];
-  // retirement income (also accessed dynamically as ri_<key>)
+  // retirement income (also accessed dynamically as ri_<key> / ri_<key>_freq)
   ri_ss?: Money; ri_pension?: Money; ri_withdrawals?: Money; ri_rmd?: Money; ri_annuities?: Money; ri_other?: Money;
+  ri_ss_freq?: RiFreq; ri_pension_freq?: RiFreq; ri_withdrawals_freq?: RiFreq; ri_rmd_freq?: RiFreq; ri_annuities_freq?: RiFreq; ri_other_freq?: RiFreq;
   // tax
   taxMode?: 'system' | 'manual'; manualTaxRate?: Money;
   // spending

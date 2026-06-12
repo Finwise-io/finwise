@@ -31,6 +31,8 @@ export interface AssetAccount {
   face_value?: number;            // par/face value (total)
   coupon_rate?: number;           // annual coupon, decimal (e.g. 0.045)
   maturity_date?: string;         // 'YYYY-MM-DD'
+  origin?: 'onboarding';          // seeded from onboarding answers; re-seeding replaces ONLY these
+                                  // rows (absent = user-created, never touched by seeding/restart)
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
@@ -180,7 +182,7 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
   const a = op ?? {};
   const accounts: AssetAccount[] = [];
   const add = (label: string, bucket: TaxBucket, bal: number, kind: string) => {
-    if (bal > 0) accounts.push({ asset_id: newEntityId('ast'), label, kind, tax_bucket: bucket, balance: bal, target_return: DEFAULT_RETURN });
+    if (bal > 0) accounts.push({ asset_id: newEntityId('ast'), label, kind, tax_bucket: bucket, balance: bal, target_return: DEFAULT_RETURN, origin: 'onboarding' });
   };
   add('Retirement savings', 'PRE_TAX', toNum(a.currentRetirementSavings), '401k');
   add('Investments', 'TAXABLE', toNum(a.investmentHoldings), 'stocks_etf');

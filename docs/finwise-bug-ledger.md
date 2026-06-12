@@ -1,0 +1,25 @@
+# Finwise Bug Ledger
+
+Single source of truth for bugs and design questions surfaced by the comprehensive-testing effort
+(see `docs/finwise-launch-test-plan.md` for the umbrella plan). Conventions:
+
+- Every newly **failing** test gets a row here BEFORE any fix lands.
+- Questionable-but-current behavior gets a **documenting test** (passes today, pins behavior) and a `by-design?` status until a decision is made.
+- A bug counts as "identified" once it has a row + a committed exposing/documenting test, even if the fix is deferred.
+
+Statuses: `open` · `fixed` · `by-design?` · `by-design` · `deferred`
+
+Baseline (2026-06-12, commit 4dbfe77): 264/264 tests green, `tsc --noEmit` clean.
+
+| ID | Severity | Area | Symptom | Root cause | Exposing test | Status | Notes |
+|----|----------|------|---------|------------|---------------|--------|-------|
+| B-15 | HIGH | Onboarding→Net Worth | Re-running onboarding never updates Net Worth accounts; stale balances drive retirement math | `seedNetWorth` one-time guard (`src/store/useStore.ts:536`): `s.nwSeeded ? {} : {...}` | `journeys.test.ts` "re-seeding with updated answers", `store_networth.test.ts` | **fixed** 2026-06-12 | = user-test feedback #15. Fixed via origin-tagged merge: seeded rows carry `origin: 'onboarding'`; re-seed replaces only those, manual accounts never touched, legacy untagged rows deduped by label+bucket |
+| B-16 | HIGH | Onboarding restart | `restartOnboarding` wiped ALL asset accounts/liabilities incl. user-created ones, contradicting its own comment | Blanket wipe at `src/store/useStore.ts` restartOnboarding; no per-account origin flag existed | `journeys.test.ts` "manual account survives restart", `store_networth.test.ts` | **fixed** 2026-06-12 | Same origin-tag mechanism: restart clears only `origin: 'onboarding'` rows |
+| B-17 | LOW | Income gate | Gate is on source selection, not amounts — but $0 amounts still yield $0 income, so selection alone can't fabricate income | `currentRetirementIncomeMonthly` (`src/domain/income/onboarding.ts:171-175`) | `invariants.test.ts` "selecting retirement_income with $0 amounts" | by-design | Verified harmless; gate correctly blocks the working-40yo future-SS leak both ways |
+| B-18 | MED | Market data | Network failure, invalid ticker, and malformed response all silently return `null` → stale cached prices shown with no staleness indicator, no retry, no ticker validation | `src/services/marketData.ts` fetchSeries try/catch → null; store `refreshPrices` falls back to cache silently | `marketData.test.ts` documenting tests | open | UX risk: user sees outdated portfolio values as if live |
+| B-19 | MED | Net worth accuracy | Position with a ticker missing from the price cache contributes $0 to account balance → silent net-worth understatement | `recomputeBalances` (`src/store/useStore.ts:13-20`) treats missing price as 0 | `store_prices.test.ts` documenting test | open | Should at least fall back to lot cost basis or flag the row |
+| B-20 | LOW | Goals capacity | Negative capacity (invest > surplus) — divide-by-negative risk in months-to-goal | `buildGoalsState` guards with `> 0` → `months_to_goal: null`; snapshot also clamps (`src/domain/snapshot.ts:60`) | `invariants.test.ts` negative-capacity probe | by-design | Verified guarded; negative capacity passes through for display but never divides |
+| B-24 | MED | Budget/Goals consistency | User states total spend AND itemizes part of it → month grid honors the full total, but `projected_to_save` (→ goal capacity) only sees the categorized part; goal pool overstates free cash by the uncategorized remainder | `budgetFromOnboarding` (`src/domain/budget/index.ts:154`) takes bucket total when > 0, ignoring `monthlySpending` remainder; `spendByMonth` (line 89-90) adds it | `invariants.test.ts` "stated-total vs itemized spending diverges" | open | Found by invariants suite 2026-06-12. Fix candidate: `monthly_spending: max(bucket total, monthlySpending)` |
+| B-21 | LOW | Onboarding seeding | Explicit $0 answers for retirement savings / holdings create no account at all (vs. a $0 account the user could edit later) | `assetsFromOnboarding` `bal > 0` filter (`src/domain/assets/index.ts:182-183`) | `journeys.test.ts` documenting test | by-design? | Probably fine; decide and flip to by-design |
+| B-22 | LOW | Retirement solver | `solveRetireAge` loops `projectNestEgg` with per-iteration rounding — possible non-monotonic results across adjacent inputs | `src/domain/retirement/index.ts` solver loop | `edge_extremes.test.ts` monotonicity probe (Phase 8) | open | Probe before judging severity |
+| B-23 | LOW | Currency | Store has `currency`/`locale` but all domain calcs assume USD (tax packs, thresholds) | Cross-cutting | `_shared/money.test.ts` currency-seam test (Phase 5) | deferred | Known launch constraint; US-only at launch |

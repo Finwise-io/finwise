@@ -17,6 +17,8 @@ export interface Debt {
   minimum_monthly_payment: number;
   monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
   due_day?: number;                // day of month the payment is due (1–31)
+  origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
+                                   // rows (absent = user-created, never touched by seeding/restart)
 }
 
 /** The payment reserved/required each month for a debt (planned payment, else the minimum). */
@@ -140,6 +142,7 @@ export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null)
     debts.push({
       debt_id: newEntityId('debt'), label: (a.debtName ?? 'Debt') || 'Debt', debt_type: 'OTHER',
       remaining_balance: bal, interest_rate_apr: toNum(a.debtRate) / 100, minimum_monthly_payment: toNum(a.debtPayment),
+      origin: 'onboarding',
     });
   }
   return { user_id: uid, debts };

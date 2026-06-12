@@ -533,11 +533,20 @@ export const useStore = create<AppState>()(
       addLiability:   (d) => set((s) => ({ liabilities: [{ ...d, debt_id: newEntityId('debt') }, ...s.liabilities] })),
       updateLiability:(id, u) => set((s) => ({ liabilities: s.liabilities.map((x) => x.debt_id === id ? { ...x, ...u } : x) })),
       deleteLiability:(id) => set((s) => ({ liabilities: s.liabilities.filter((x) => x.debt_id !== id) })),
-      seedNetWorth:   (op) => set((s) => s.nwSeeded ? {} : ({
-        assetAccounts: assetsFromOnboarding('local', op).accounts,
-        liabilities: debtsFromOnboarding('local', op).debts,
-        nwSeeded: true,
-      })),
+      // Re-seeding is an explicit "redo my setup": replace ONLY the onboarding-seeded rows (origin
+      // tag) — onboarding answers WIN for those; accounts/debts the user added by hand are never
+      // touched. Rows saved before the origin tag existed look user-created, so they're kept too —
+      // except when a fresh seeded row matches one by label+bucket, where the fresh row replaces it
+      // so existing users don't end up with duplicates. nwSeeded = "seeded at least once".
+      seedNetWorth:   (op) => set((s) => {
+        const freshAssets = assetsFromOnboarding('local', op).accounts;
+        const freshDebts = debtsFromOnboarding('local', op).debts;
+        const keptAssets = s.assetAccounts.filter((a) => a.origin !== 'onboarding'
+          && !freshAssets.some((f) => f.label === a.label && f.tax_bucket === a.tax_bucket));
+        const keptDebts = s.liabilities.filter((d) => d.origin !== 'onboarding'
+          && !freshDebts.some((f) => f.label === d.label));
+        return { assetAccounts: [...freshAssets, ...keptAssets], liabilities: [...freshDebts, ...keptDebts], nwSeeded: true };
+      }),
       setNwSetupChoice: (v) => set({ nwSetupChoice: v }),
       allocateSavings: (ym, items) => set((s) => {
         const now = new Date(); const cym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
@@ -755,7 +764,11 @@ export const useStore = create<AppState>()(
         onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,
         selectedGoals: [], retirementPlan: null, retirementScenarios: [],
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
-        ...(s.nwSeeded ? { assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null, monthlySnapshots: {} } : {}),
+        ...(s.nwSeeded ? {
+          assetAccounts: s.assetAccounts.filter((a) => a.origin !== 'onboarding'),
+          liabilities: s.liabilities.filter((d) => d.origin !== 'onboarding'),
+          nwSeeded: false, nwSetupChoice: null, monthlySnapshots: {},
+        } : {}),
       })),
 
       loadFromCloud: (data) => set((s) => ({
