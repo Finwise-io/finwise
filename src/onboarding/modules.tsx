@@ -901,7 +901,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </View></Card></>);
 
     case 'currentRetirementSavings':
-      return (<><Header emoji="🏦" title="Current retirement savings" sub="401(k), IRA, and similar." />
+      return (<><Header emoji="🏦" title="Your 401(k) & retirement savings"
+        sub="All retirement accounts: 401(k), Roth & Traditional IRA, 403(b), 457, TSP, SEP. Brokerage and other investments are excluded — we ask about those separately." />
         <Card><HeroAmount ctx={ctx} k="currentRetirementSavings" label="Total saved today" /></Card></>);
 
     case 'contributionsByType': {
