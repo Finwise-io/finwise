@@ -10,6 +10,13 @@ Single source of truth for bugs and design questions surfaced by the comprehensi
 Statuses: `open` · `fixed` · `by-design?` · `by-design` · `deferred`
 
 Baseline (2026-06-12, commit 4dbfe77): 264/264 tests green, `tsc --noEmit` clean.
+Closeout (2026-06-12): comprehensive-testing pass complete — **494 tests** (264 → 494: invariants,
+journeys, store seeding, services, shared utils, UI components, all-28-screen smoke + deep screens,
+edge extremes), both jest projects + `tsc` green. Open rows below each name their exposing test.
+
+**Summary: 2 HIGH fixed (B-15, B-16) · 4 open with fix candidates (B-24, B-18, B-19, B-25) ·
+2 by-design (B-17, B-20) · 1 by-design? pending decision (B-21) · 1 closed-not-a-bug (B-22) ·
+1 deferred (B-23).**
 
 | ID | Severity | Area | Symptom | Root cause | Exposing test | Status | Notes |
 |----|----------|------|---------|------------|---------------|--------|-------|
@@ -21,6 +28,6 @@ Baseline (2026-06-12, commit 4dbfe77): 264/264 tests green, `tsc --noEmit` clean
 | B-20 | LOW | Goals capacity | Negative capacity (invest > surplus) — divide-by-negative risk in months-to-goal | `buildGoalsState` guards with `> 0` → `months_to_goal: null`; snapshot also clamps (`src/domain/snapshot.ts:60`) | `invariants.test.ts` negative-capacity probe | by-design | Verified guarded; negative capacity passes through for display but never divides |
 | B-24 | MED | Budget/Goals consistency | User states total spend AND itemizes part of it → month grid honors the full total, but `projected_to_save` (→ goal capacity) only sees the categorized part; goal pool overstates free cash by the uncategorized remainder | `budgetFromOnboarding` (`src/domain/budget/index.ts:154`) takes bucket total when > 0, ignoring `monthlySpending` remainder; `spendByMonth` (line 89-90) adds it | `invariants.test.ts` "stated-total vs itemized spending diverges" | open | Found by invariants suite 2026-06-12. Fix candidate: `monthly_spending: max(bucket total, monthlySpending)` |
 | B-21 | LOW | Onboarding seeding | Explicit $0 answers for retirement savings / holdings create no account at all (vs. a $0 account the user could edit later) | `assetsFromOnboarding` `bal > 0` filter (`src/domain/assets/index.ts:182-183`) | `journeys.test.ts` documenting test | by-design? | Probably fine; decide and flip to by-design |
-| B-22 | LOW | Retirement solver | `solveRetireAge` loops `projectNestEgg` with per-iteration rounding — possible non-monotonic results across adjacent inputs | `src/domain/retirement/index.ts` solver loop | `edge_extremes.test.ts` monotonicity probe (Phase 8) | open | Probe before judging severity |
+| B-22 | LOW | Retirement solver | Suspected non-monotonic `solveRetireAge` results from per-iteration rounding | `src/domain/retirement/index.ts` solver loop | `edge_extremes.test.ts` "solveRetireAge is monotonic in starting balance" | closed — not a bug | Probe ran across 6 balance levels (100k→3.2M): strictly monotonic; rounding happens only on outputs |
 | B-25 | LOW | Economic data | Fallback inflation/treasury values (BLS/Treasury outage) carry no flag, so projections silently run on defaults and the UI can't label them as estimates | `fetchEconomicData` (`src/services/economicData.ts:28-39`) returns the same shape for live and fallback | `economicData.test.ts` "fallback data is indistinguishable" | open | Add `isFallback` (or per-source flags) and surface a subtle "using typical rates" note |
 | B-23 | LOW | Currency | Store has `currency`/`locale` but all domain calcs assume USD (tax packs, thresholds) | Cross-cutting | `_shared/money.test.ts` currency-seam test (Phase 5) | deferred | Known launch constraint; US-only at launch |
