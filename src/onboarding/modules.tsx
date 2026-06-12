@@ -906,14 +906,33 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card><HeroAmount ctx={ctx} k="currentRetirementSavings" label="Total saved today" /></Card></>);
 
     case 'contributionsByType': {
-      const extra = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
-      return (<><Header emoji="📥" title="Other contributions" sub="Beyond your 401(k) — how much you add each month." />
+      // what's free to save each month — same math as the full recap (tax on taxable base,
+      // minus 401(k), minus reconciled spending), so the number the user just saw carries over
+      const rate0 = incomeTaxRate(a);
+      const netYr0 = grossAnnual(a) - taxableAnnual(a) * rate0;
+      const spendMo0 = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
+      const saveMo = Math.max(0, (netYr0 - num(a.c_401k) * 12) / 12 - spendMo0);
+      const allocated = num(a.c_roth) + num(a.c_invest) + num(a.c_property);
+      const leftover = saveMo - allocated;
+      return (<><Header emoji="📥" title="What you add monthly toward the future"
+        sub="Split your free cash between retirement accounts and other investing — % or $." />
+        {saveMo > 0 && (
+          <View style={s.heroCard}>
+            <Text style={s.heroCardLabel}>Available to save / month</Text>
+            <Text style={s.heroCardValue}>{money(saveMo)}</Text>
+            <Text style={s.heroCardSub}>after tax, 401(k), and spending</Text>
+          </View>
+        )}
         <Card>
-          <MoneyRow ctx={ctx} k="c_roth" label="Roth IRA" />
-          <MoneyRow ctx={ctx} k="c_invest" label="Investments / brokerage" />
-          <MoneyRow ctx={ctx} k="c_property" label="Property / real estate" />
+          <ContribRow ctx={ctx} k="c_roth" label="Retirement accounts (Roth & IRAs)" base={saveMo} />
+          <ContribRow ctx={ctx} k="c_invest" label="Other investments (brokerage)" base={saveMo} />
+          <ContribRow ctx={ctx} k="c_property" label="Property / real estate" base={saveMo} />
         </Card>
-        {extra > 0 && <Callout text={`${money(extra)}/mo beyond your 401(k)`} sub={`About ${money(extra * 12)} a year invested.`} />}
+        {allocated > 0 && (saveMo <= 0 || leftover >= 0
+          ? <Callout text={`Saving ${money(allocated)}/mo — about ${money(allocated * 12)} a year invested`}
+              sub={saveMo > 0 ? `${money(Math.max(0, leftover))}/mo stays as a cash buffer.` : undefined} />
+          : <Callout warn text={`That's ${money(-leftover)}/mo more than your free cash`}
+              sub={`You have ~${money(saveMo)}/mo available after tax, 401(k) and spending — trim the split or your spending.`} />)}
       </>);
     }
 
@@ -1703,6 +1722,38 @@ function WfRow({ dot, label, value, strong, color, topline }: {
       <View style={[s.dot, { backgroundColor: dot ?? 'transparent' }]} />
       <Text style={[s.wfLabel, strong && { fontWeight: '800', color: color ?? Colors.textPrimary }]}>{label}</Text>
       <Text style={[s.wfVal, strong && { fontSize: 15, fontWeight: '800' }, color ? { color } : null]}>{value}</Text>
+    </View>
+  );
+}
+
+// Contribution row — enter $ directly, or % of the available-to-save base. The resolved DOLLAR
+// amount is always written to the canonical key (every downstream consumer reads dollars); the
+// typed value + unit are kept in sibling keys so the screen redisplays what the user entered.
+function ContribRow({ ctx, k, label, base }: { ctx: StepCtx; k: string; label: string; base: number }) {
+  const a = ctx.answers;
+  const unit = base > 0 ? (a[k + '_unit'] ?? 'dollar') : 'dollar';
+  const raw = a[k + '_raw'] ?? a[k] ?? '';
+  const setVal = (t: string, u: string) => {
+    ctx.setAnswer(k + '_raw', t);
+    ctx.setAnswer(k + '_unit', u);
+    ctx.setAnswer(k, u === 'pct' ? String(Math.round((num(t) / 100) * base)) : t);
+  };
+  return (
+    <View style={{ marginBottom: Spacing.sm }}>
+      <Text style={s.label}>{label}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+        <TextInput style={[s.input, { flex: 1 }]} keyboardType="decimal-pad" placeholderTextColor={Colors.textTertiary}
+          placeholder={unit === 'pct' ? 'e.g. 20' : `${currencySymbol()}0`} value={String(raw)} onChangeText={(t) => setVal(t, unit)} />
+        {base > 0 && [{ v: 'dollar', l: currencySymbol() }, { v: 'pct', l: '%' }].map((o) => {
+          const on = unit === o.v;
+          return (
+            <TouchableOpacity key={o.v} style={[s.unitBtn, on && s.unitBtnOn]} onPress={() => setVal(String(raw), o.v)}>
+              <Text style={[s.unitTxt, on && s.unitTxtOn]}>{o.l}</Text>
+            </TouchableOpacity>
+          );
+        })}
+      </View>
+      {unit === 'pct' && num(raw) > 0 && <Text style={s.hint}>{num(raw)}% of your free cash = {money(num(a[k]))}/mo</Text>}
     </View>
   );
 }
