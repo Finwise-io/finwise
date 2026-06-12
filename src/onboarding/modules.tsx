@@ -1733,6 +1733,13 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
       <View style={s.divider} />
       <RecapStat label={gap >= 0 ? 'Surplus' : 'Gap'} value={money(Math.abs(gap))} color={gap >= 0 ? Colors.primary : Colors.red} />
       <Bar aPct={need.needed > 0 ? (projected / need.needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
+      <Text style={[s.hint, { marginTop: 8 }]}>
+        Projected {money(projected)} = your {money(num(a.currentRetirementSavings))} retirement savings
+        {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
+        {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/mo you add` : ''}, growing ≈{(realAcc * 100).toFixed(1)}%/yr
+        after inflation for {years} year{years > 1 ? 's' : ''}.
+        {otherSavings <= 0 ? " It does NOT include other investments, property, or accounts not captured yet — add them in Net Worth and this updates." : ''}
+      </Text>
     </Card>
     <Card>
       <Text style={s.sectionLabel}>HOW "NEEDED" IS CALCULATED</Text>
