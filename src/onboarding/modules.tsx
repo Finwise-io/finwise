@@ -1790,13 +1790,23 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
         : <Text style={s.hint}>≈ {money(investMo)}/mo</Text>)}
       <Text style={s.hint}>What's left funds your goals and cash buffer. The Roth-vs-brokerage split comes later — the Retirement tab walks you through the tax-smart way.</Text>
     </Card>
-    {investMo > 0 && (!hasCashflow
-      ? <Callout text={`Investing ${money(investMo * 12)} a year (≈ ${money(investMo)}/mo)`} />
-      : leanIdx.length === 0
-        ? <Callout text={`Investing ${money(investMo * 12)} a year (≈ ${money(investMo)}/mo)`}
-            sub={`Covered by your free cash in every month; ${money(Math.max(0, annualSave - investMo * 12))}/yr is left for goals and your cash buffer.`} />
-        : <Callout warn text={`${leanIdx.length} of 12 months can't fund ${money(investMo)}/mo from that month's cash`}
-            sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} your free cash is below the plan (some months are negative). Investing in those months means pulling from savings — so the strong months must bank enough to cover them, or pick a smaller yearly amount that fits.`} />)}
+    {investMo > 0 && (() => {
+      const investYr = investMo * 12;
+      const leftover = annualSave - investYr;
+      if (!hasCashflow) return <Callout text={`Investing ${money(investYr)} a year (≈ ${money(investMo)}/mo)`} />;
+      // GENUINELY over the year's net free cash → the only case where "less" is the answer
+      if (investYr > annualSave) {
+        return <Callout warn text={`${money(investYr)}/yr is more than your ${money(annualSave)} of free cash`}
+          sub="The year doesn't generate that much after spending — this plan spends down savings. Lower it to fit." />;
+      }
+      // Funded over the year — lean months are a TIMING note, not a shortfall
+      if (leanIdx.length > 0) {
+        return <Callout text={`Funded for the year — timing matters`}
+          sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} free cash runs below ${money(investMo)}/mo, so those deposits come from the surplus you bank in the strong months — keep that surplus in cash until then. ${leftover > 0 ? `${money(leftover)}/yr is left for goals and buffer.` : 'At 100%, nothing is left for goals or emergencies — any surprise breaks the plan.'}`} />;
+      }
+      return <Callout text={`Investing ${money(investYr)} a year (≈ ${money(investMo)}/mo)`}
+        sub={`Covered by your free cash in every month; ${money(Math.max(0, leftover))}/yr is left for goals and your cash buffer.`} />;
+    })()}
   </>);
 }
 
