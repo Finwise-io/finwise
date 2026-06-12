@@ -1512,32 +1512,25 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   return (<>
     <Header emoji="📊" title="Your full recap" sub="Your full-year picture." />
 
-    {/* hero — ring of where gross goes, with the four totals beside it */}
+    {/* hero — donut on top, then a full-width waterfall: Gross − Tax − 401(k) = Available − Spending = Free to save */}
     <View style={s.heroCard}>
-      <View style={s.heroRingRow}>
-        <Donut segments={[
-          { value: taxYr, color: Colors.amber },
-          { value: k401Yr, color: C401 },
-          { value: spendYr, color: Colors.blue },
-          { value: Math.max(0, saveYr), color: Colors.primary },
-        ]}>
-          <Text style={s.ringPct}>{savePctGross}%</Text>
-          <Text style={s.ringPctSub}>to savings</Text>
-        </Donut>
-        <View style={{ flex: 1 }}>
-          {/* dotless rows get a transparent dot so labels + numbers align in clean columns */}
-          <Legend color="transparent" label="Gross / yr" value={money(grossYr)} />
-          <Legend color={Colors.amber} label="Tax" value={`−${money(taxYr)} · ${taxPct}%`} />
-          {k401Yr > 0 && <Legend color={C401} label="401(k) · locked" value={`−${money(k401Yr)}`} />}
-          <View style={s.divider} />
-          <View style={s.legendRow}>
-            <View style={[s.dot, { backgroundColor: 'transparent' }]} />
-            <Text style={[s.legendLabel, { fontWeight: '800', color: Colors.primaryDark }]}>Available to use / yr</Text>
-            <Text style={[s.legendVal, { color: Colors.primaryDark }]}>{money(availableYr)}</Text>
-          </View>
-          <Legend color={Colors.blue} label="Spending" value={`−${money(spendYr)} · ${spendPct}%`} />
-          <Legend color={Colors.primary} label="Free to save" value={`${money(Math.max(0, saveYr))} · ${grossYr > 0 ? Math.max(0, Math.round((saveYr / grossYr) * 100)) : 0}%`} />
-        </View>
+      <Donut segments={[
+        { value: taxYr, color: Colors.amber },
+        { value: k401Yr, color: C401 },
+        { value: spendYr, color: Colors.blue },
+        { value: Math.max(0, saveYr), color: Colors.primary },
+      ]}>
+        <Text style={s.ringPct}>{savePctGross}%</Text>
+        <Text style={s.ringPctSub}>to savings</Text>
+      </Donut>
+      <View style={{ width: '100%', marginTop: Spacing.md }}>
+        <WfRow label="Gross income / yr" value={money(grossYr)} />
+        <WfRow dot={Colors.amber} label={`Tax · ~${taxPct}% of gross`} value={`−${money(taxYr)}`} />
+        {k401Yr > 0 && <WfRow dot={C401} label="401(k) · locked for retirement" value={`−${money(k401Yr)}`} />}
+        <WfRow label="Available to use / yr" value={money(availableYr)} strong color={Colors.primaryDark} topline />
+        <WfRow dot={Colors.blue} label={`Spending · ${spendPct}% of gross`} value={`−${money(spendYr)}`} />
+        <WfRow dot={saveYr >= 0 ? Colors.primary : Colors.red} label="Free to save / yr" value={money(saveYr)} strong
+          color={saveYr >= 0 ? Colors.primary : Colors.red} topline />
       </View>
     </View>
 
@@ -1695,6 +1688,20 @@ function Donut({ segments, size = 116, stroke = 16, children }: {
         </G>
       </Svg>
       <View style={{ alignItems: 'center' }}>{children}</View>
+    </View>
+  );
+}
+
+// Waterfall row — full-width, dot column + label + right-aligned tabular amount. Used by the
+// full-recap hero so every number lines up in one clean column.
+function WfRow({ dot, label, value, strong, color, topline }: {
+  dot?: string; label: string; value: string; strong?: boolean; color?: string; topline?: boolean;
+}) {
+  return (
+    <View style={[s.wfRow, topline && s.wfTopline]}>
+      <View style={[s.dot, { backgroundColor: dot ?? 'transparent' }]} />
+      <Text style={[s.wfLabel, strong && { fontWeight: '800', color: color ?? Colors.textPrimary }]}>{label}</Text>
+      <Text style={[s.wfVal, strong && { fontSize: 15, fontWeight: '800' }, color ? { color } : null]}>{value}</Text>
     </View>
   );
 }
@@ -2162,6 +2169,10 @@ const s = StyleSheet.create({
   recapCellLabel: { fontSize: 12, color: Colors.textSecondary },
   recapCellVal: { fontSize: 19, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   heroRingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, width: '100%' },
+  wfRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5 },
+  wfTopline: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 3, paddingTop: 8 },
+  wfLabel: { flex: 1, fontSize: 13, color: Colors.textSecondary },
+  wfVal: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right', fontVariant: ['tabular-nums'] },
   ringPct: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   ringPctSub: { fontSize: 11, color: Colors.textSecondary, marginTop: -2 },
   savingsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
