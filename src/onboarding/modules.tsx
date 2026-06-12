@@ -913,6 +913,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return (<><Header emoji="🏖️" title="When do you hope to retire?" sub="Your target age." />
         <Card><HeroAmount ctx={ctx} k="targetRetirementAge" label="Target age" ph="65" kind="number" /></Card>
         {tgt > 0 && a.birthYear && yrs > 0 && <Callout text={`${yrs} years from now`} sub="That's your runway to save and invest." />}
+        {tgt > 0 && num(a.birthYear) > 0 && yrs <= 0 && <Callout warn
+          text={`Retiring at ${tgt} is in the past — you're ${age} now`}
+          sub={`Pick an age above ${age}. (We calculated ${age} from your birth year, ${num(a.birthYear)} — if that's a typo, go Back to fix it.)`} />}
+        {tgt >= 100 && <Callout warn text="Pick a target age below 100" />}
       </>);
     }
 
