@@ -661,6 +661,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'income_other': {
       const freq = a.otherFreq ?? 'monthly';
       const freqLabel = freq === 'annual' ? 'per year' : freq === 'onetime' ? 'one time' : 'per month';
+      const otherMo = num(a.otherMonth) || 1;
       return (<>
         <Header emoji="🧾" title="Other income" sub="Anything else — a gift, royalties, a one-off payment." />
         <Card>
@@ -671,6 +672,25 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.heroLabel}>How much ({freqLabel})</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.otherAmount ?? ''} onChangeText={(t) => ctx.setAnswer('otherAmount', t)} />
+          {freq === 'onetime' && num(a.otherAmount) > 0 && (
+            <>
+              <Text style={s.label}>Which month does it land?</Text>
+              <View style={s.monthGrid}>
+                {MONTHS3.map((lbl, idx) => {
+                  const m = idx + 1, on = otherMo === m;
+                  return <TouchableOpacity key={m} style={[s.monthChip, on && s.monthChipOn]} onPress={() => ctx.setAnswer('otherMonth', m)}><Text style={[s.monthTxt, on && s.monthTxtOn]}>{lbl}</Text></TouchableOpacity>;
+                })}
+              </View>
+            </>
+          )}
+          {num(a.otherAmount) > 0 && (
+            <>
+              <Text style={[s.label, { marginTop: 10 }]}>Is it taxable income?</Text>
+              <Segmented ctx={ctx} k="otherTaxable" defaultValue="yes" options={[
+                { value: 'yes', label: 'Taxable' }, { value: 'no', label: "No — it's a gift" }]} />
+              {a.otherTaxable === 'no' && <Text style={s.hint}>Personal gifts aren't taxable income to you — we'll count this money without taxing it.</Text>}
+            </>
+          )}
         </Card>
       </>);
     }
@@ -1400,7 +1420,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
       <Text style={s.note2}>{modeLabel}. {(() => {
         const why: string[] = [];
         if (num(a.bonusAnnual) > 0) why.push(`a bonus lands in ${MONTHS3[Math.min(11, Math.max(0, (num(a.bonusMonth) || 12) - 1))]}`);
-        if (num(a.signingOnetime) > 0 || ex.onetimeJan > 0) why.push('one-time payments land in their month');
+        if (num(a.signingOnetime) > 0 || ex.onetimeTaxable + ex.onetimeNontax > 0) why.push('one-time payments land in their month');
         if (rsuAnnual(a) > 0) why.push('equity follows your vesting months');
         if (Array.isArray(a.scholarships) && a.scholarships.some((x: any) => num(x?.amount) > 0 && x?.freq !== 'monthly')) why.push('scholarships land when they\'re disbursed');
         return why.length ? `Some months differ because ${why.join('; ')}.` : 'Your income is the same every month.';

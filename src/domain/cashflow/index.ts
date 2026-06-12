@@ -6,7 +6,7 @@ import { toNum, round2 } from '../_shared/num';
 import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
   effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
-  benefitAnnual, benefitActiveMonths,
+  benefitAnnual, benefitActiveMonths, otherIncomeMonth,
 } from '../income';
 import { spendBuckets, spendByMonth } from '../budget';
 
@@ -170,6 +170,7 @@ export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now
   const seM = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
   const invM = toNum(a.invAnnual) / 12;
   const otherFreq = a.otherFreq ?? 'monthly';
+  const otherTaxable = a.otherTaxable !== 'no';
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
@@ -178,12 +179,16 @@ export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now
     const cm = calMonth(s);
     const sal = salByMonth[cm];                                           // base salary for that calendar month
     const job = sal + (sal > 0 ? tipsM : 0);                              // wage + tips (tips only in paid months)
-    taxableMo[s] += job + seM + rentalM + invM + otherM + eq[cm] + retIncM;
-    nontaxMo[s] += (benSet.has(cm + 1) ? benM : 0) + toNum(a.supportMonthly);   // benefits in THEIR months
+    taxableMo[s] += job + seM + rentalM + invM + (otherTaxable ? otherM : 0) + eq[cm] + retIncM;
+    nontaxMo[s] += (benSet.has(cm + 1) ? benM : 0) + toNum(a.supportMonthly)
+      + (otherTaxable ? 0 : otherM);                                        // benefits in THEIR months; gifts non-taxable
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month
-  if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing / one-time → now
-  if (otherFreq === 'onetime') taxableMo[0] += toNum(a.otherAmount);
+  if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing → now
+  if (otherFreq === 'onetime' && toNum(a.otherAmount) > 0) {
+    const slot = slotOf(otherIncomeMonth(op));                              // one-time other → ITS month
+    (otherTaxable ? taxableMo : nontaxMo)[slot] += toNum(a.otherAmount);
+  }
 
   // scholarships/grants land on their disbursement months (+ optional year); yearly total split across them
   for (const sc of (Array.isArray(a.scholarships) ? a.scholarships : [])) {

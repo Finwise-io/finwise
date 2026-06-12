@@ -37,7 +37,7 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
     { label: 'Interest & dividends', amount: round2(invDiv), taxable: true },
     { label: 'Rental (net)', amount: round2(rentalNetAnnual(op)), taxable: true },
     { label: 'Retirement income (SS / pension / withdrawals)', amount: round2(retInc), taxable: true },
-    { label: 'Other income', amount: round2(otherAnnual), taxable: true },
+    { label: 'Other income', amount: round2(otherAnnual), taxable: (a.otherTaxable !== 'no') },
     { label: 'Benefits (SNAP/TANF/disability/UI/housing)', amount: round2(benefitAnnual(op)), taxable: false },
     { label: 'Child support / alimony', amount: toNum(a.supportMonthly) * 12, taxable: false },
     { label: 'Scholarships / grants', amount: round2((Array.isArray(a.scholarships) ? a.scholarships : []).reduce((t: number, s: any) => t + (s?.freq === 'monthly' ? toNum(s.amount) * 12 : toNum(s.amount)), 0)), taxable: false },

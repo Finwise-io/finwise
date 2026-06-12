@@ -2,7 +2,7 @@ import {
   annualNet, grossAnnualBaseline, estimateEffectiveTaxRate, effectiveTaxRate,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
-import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual, totalGrossAnnual } from './onboarding';
+import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual, totalGrossAnnual, taxableAnnual } from './onboarding';
 import { grossFromNet, taxOwed } from './tax';
 import { IncomeSource } from './types';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -222,5 +222,27 @@ describe('benefit months (unemployment after a job ends)', () => {
     expect(g[0].amount).toBe(500);
     expect(g[11].amount).toBe(500);
     expect(totalGrossAnnual(op)).toBe(6000);
+  });
+});
+
+describe('one-time other income: month placement + gift taxability', () => {
+  const base: OnboardingProfile = {
+    taxMode: 'manual', manualTaxRate: '20',
+    baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
+    otherAmount: '19000', otherFreq: 'onetime', otherMonth: 9,
+  };
+  test('lands in ITS month, not January', () => {
+    const g = incomeMonthlyGrid({ ...base, manualTaxRate: '0' }, 'gross');
+    expect(g[0].amount).toBe(5000);            // Jan: salary only
+    expect(g[8].amount).toBe(5000 + 19000);    // Sep: gift lands here
+  });
+  test('gift (otherTaxable=no) counts in gross but NOT in taxable income', () => {
+    const gift: OnboardingProfile = { ...base, otherTaxable: 'no' };
+    expect(totalGrossAnnual(gift)).toBe(5000 * 12 + 19000);
+    expect(taxableAnnual(gift)).toBe(5000 * 12);             // gift excluded from the tax base
+    expect(taxableAnnual(base)).toBe(5000 * 12 + 19000);     // default 'taxable' unchanged
+    // net mode: gift lands untaxed even at 20% manual rate
+    const g = incomeMonthlyGrid(gift, 'net');
+    expect(g[8].amount).toBeCloseTo(5000 * 0.8 + 19000, 2);
   });
 });

@@ -165,7 +165,10 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('scholarship')) out.push('income_scholarship');
   if (srcs.includes('loans')) out.push('income_loans');
   if (srcs.includes('other_income')) out.push('income_other');
-  if (srcs.some((s) => TAXABLE_SOURCES.includes(s))) out.push('income_tax');
+  // "other" counts as taxable unless the user marked it a gift (gifts aren't taxable to the recipient)
+  const taxablePicked = srcs.some((s) =>
+    TAXABLE_SOURCES.includes(s) && !(s === 'other_income' && answers?.otherTaxable === 'no'));
+  if (taxablePicked) out.push('income_tax');
   out.push('recap_income');
   return out;
 }

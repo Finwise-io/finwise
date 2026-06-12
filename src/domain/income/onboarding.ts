@@ -138,7 +138,9 @@ export function benefitAnnual(op: OnboardingProfile | null): number {
 /** Extra income sources beyond salary/rental/equity (self-employment, investment, benefits, support,
  *  scholarship, other), split into taxable vs non-taxable steady monthly amounts + a one-time Jan amount.
  *  Benefits, support, and scholarships are treated as non-taxable for planning. */
-export function extraIncome(op: OnboardingProfile | null): { taxableMonthly: number; nontaxMonthly: number; onetimeJan: number } {
+export function extraIncome(op: OnboardingProfile | null): {
+  taxableMonthly: number; nontaxMonthly: number; onetimeTaxable: number; onetimeNontax: number;
+} {
   const a = op ?? {};
   const seM = (a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount));
   const invM = toNum(a.invAnnual) / 12;
@@ -151,12 +153,19 @@ export function extraIncome(op: OnboardingProfile | null): { taxableMonthly: num
   const othFreq = a.otherFreq ?? 'monthly';
   const othM = othFreq === 'annual' ? toNum(a.otherAmount) / 12 : othFreq === 'monthly' ? toNum(a.otherAmount) : 0;
   const othOnce = othFreq === 'onetime' ? toNum(a.otherAmount) : 0;
+  const othTaxable = a.otherTaxable !== 'no';   // gifts aren't taxable income to the recipient
   // NOTE: tips are job income — handled with salary (gated to active job months), NOT here.
   return {
-    taxableMonthly: round2(seM + invM + othM),
-    nontaxMonthly: round2(benM + supM + schM),
-    onetimeJan: round2(othOnce),
+    taxableMonthly: round2(seM + invM + (othTaxable ? othM : 0)),
+    nontaxMonthly: round2(benM + supM + schM + (othTaxable ? 0 : othM)),
+    onetimeTaxable: round2(othTaxable ? othOnce : 0),
+    onetimeNontax: round2(othTaxable ? 0 : othOnce),
   };
+}
+
+/** Calendar month (1-12) a one-time "other income" lands in (default January). */
+export function otherIncomeMonth(op: OnboardingProfile | null): number {
+  return Math.min(12, Math.max(1, toNum(op?.otherMonth) || 1));
 }
 
 /** Tips are part of employment income — they only count in the months the job is active, and the
@@ -269,7 +278,7 @@ export function totalGrossAnnual(op: OnboardingProfile | null, now: Date = new D
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
+    + ex.taxableMonthly * 12 + ex.nontaxMonthly * 12 + ex.onetimeTaxable + ex.onetimeNontax + retirementIncomeMonthly(op) * 12;
 }
 
 /** Taxable annual income (excludes non-taxable benefits/support/scholarships) — the base for tax estimates. */
@@ -277,7 +286,7 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
   const a = op ?? {};
   const ex = extraIncome(op);
   return salaryAnnual(op, now) + tipsAnnual(op, now) + toNum(a.bonusAnnual) + toNum(a.signingOnetime) + rsuAnnual(op) + rentalNetAnnual(op)
-    + ex.taxableMonthly * 12 + ex.onetimeJan + retirementIncomeMonthly(op) * 12;
+    + ex.taxableMonthly * 12 + ex.onetimeTaxable + retirementIncomeMonthly(op) * 12;
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
@@ -325,12 +334,15 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   const benSet = new Set(benefitActiveMonths(op));
   const schByMonth = scholarshipByCalendarMonth(op);                       // lumpy — placed in its months
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
+  const otherIdx = otherIncomeMonth(op) - 1;                                      // one-time other → its month
   return MONTH_ABBR.map((label, i) => {
     // taxable steady inflows (salary honoring end-date, rental, equity, self-employment/investment/other)
     let taxable = salByMonth[i] + (salByMonth[i] > 0 ? tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
-    if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
-    const nontax = nontaxFlat + schByMonth[i] + (benSet.has(i + 1) ? benM : 0);   // support steady; benefits/scholarships in their months
+    if (i === 0) taxable += signing;                 // signing bonus → first month
+    if (i === otherIdx) taxable += ex.onetimeTaxable;   // one-time other → ITS month
+    const nontax = nontaxFlat + schByMonth[i] + (benSet.has(i + 1) ? benM : 0)
+      + (i === otherIdx ? ex.onetimeNontax : 0);    // support steady; benefits/scholarships/gifts in their months
     const gross = taxable + nontax;                 // benefits/support/scholarship are non-taxable
     let amount = mode === 'gross' ? gross : taxable * (1 - rate) + nontax;
     if (mode === 'available') amount -= c401kM;     // employee 401(k) is locked away
