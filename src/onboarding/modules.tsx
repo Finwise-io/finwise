@@ -1488,13 +1488,16 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   }
 
   const rate = incomeTaxRate(a);
-  const netYr = grossYr * (1 - rate);
-  const taxYr = grossYr - netYr;
-  const spendMo = spendBuckets(a).monthly_total;
+  const taxYr = taxableAnnual(a) * rate;          // tax ONLY the taxable base — gifts/benefits aren't taxed
+  const netYr = grossYr - taxYr;                  // (matches the income screen exactly)
+  // spending = the itemized categories OR the single estimate, whichever is larger — skipping the
+  // category screen must not zero out spending (the estimate still counts, like everywhere else)
+  const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
   const spendYr = spendMo * 12;
   const k401Mo = num(a.c_401k);
   const k401Yr = k401Mo * 12;                                                 // employee 401(k) — saved, but locked
-  const saveYr = netYr - spendYr - k401Yr;                                    // FREE to save (beyond the 401k) — matches the savings screen
+  const availableYr = netYr - k401Yr;                                         // SAME number the income screen headlines
+  const saveYr = availableYr - spendYr;                                       // FREE to save — matches the savings screen
   const totalSaveYr = Math.max(0, saveYr) + k401Yr;                           // all savings incl. 401(k)
   const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
   const taxPct = grossYr > 0 ? Math.round((taxYr / grossYr) * 100) : 0;       // effective tax rate
@@ -1503,6 +1506,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const C401 = Colors.primaryDark;
   const spendPct = grossYr > 0 ? Math.round((spendYr / grossYr) * 100) : 0;
   const grossGrid = incomeMonthlyGrid(a, 'gross');
+  const netGrid = incomeMonthlyGrid(a, 'net');    // per-month net → per-month tax is EXACT, not rate×gross
   const maxG = Math.max(...grossGrid.map((m) => m.amount), 1);
 
   return (<>
@@ -1521,11 +1525,17 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
           <Text style={s.ringPctSub}>to savings</Text>
         </Donut>
         <View style={{ flex: 1 }}>
-          <View style={s.legendRow}><Text style={s.legendLabel}>Gross / yr</Text><Text style={s.legendVal}>{money(grossYr)}</Text></View>
-          <View style={s.legendRow}><Text style={s.legendLabel}>Net / yr</Text><Text style={s.legendVal}>{money(netYr)}</Text></View>
-          <Legend color={Colors.amber} label="Tax" value={`${money(taxYr)} · ${taxPct}%`} />
-          {k401Yr > 0 && <Legend color={C401} label="401(k) · locked" value={money(k401Yr)} />}
-          <Legend color={Colors.blue} label="Spending" value={`${money(spendYr)} · ${spendPct}%`} />
+          {/* dotless rows get a transparent dot so labels + numbers align in clean columns */}
+          <Legend color="transparent" label="Gross / yr" value={money(grossYr)} />
+          <Legend color={Colors.amber} label="Tax" value={`−${money(taxYr)} · ${taxPct}%`} />
+          {k401Yr > 0 && <Legend color={C401} label="401(k) · locked" value={`−${money(k401Yr)}`} />}
+          <View style={s.divider} />
+          <View style={s.legendRow}>
+            <View style={[s.dot, { backgroundColor: 'transparent' }]} />
+            <Text style={[s.legendLabel, { fontWeight: '800', color: Colors.primaryDark }]}>Available to use / yr</Text>
+            <Text style={[s.legendVal, { color: Colors.primaryDark }]}>{money(availableYr)}</Text>
+          </View>
+          <Legend color={Colors.blue} label="Spending" value={`−${money(spendYr)} · ${spendPct}%`} />
           <Legend color={Colors.primary} label="Free to save" value={`${money(Math.max(0, saveYr))} · ${grossYr > 0 ? Math.max(0, Math.round((saveYr / grossYr) * 100)) : 0}%`} />
         </View>
       </View>
@@ -1546,8 +1556,8 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
           options={[{ value: 'amount', label: 'Amount' }, { value: 'percent', label: 'Percent' }]} />
       </View>
       <View style={s.colChart}>
-        {grossGrid.map((m) => {
-          const g = m.amount, tax = g * rate;
+        {grossGrid.map((m, mi) => {
+          const g = m.amount, tax = Math.max(0, g - netGrid[mi].amount);   // exact monthly tax (non-taxable months untouched)
           const k4 = Math.min(k401Mo, Math.max(0, g - tax));
           const sp = Math.min(spendMo, Math.max(0, g - tax - k4));
           const sv = Math.max(0, g - tax - k4 - spendMo);
