@@ -8,6 +8,40 @@ import { colFactor } from './col';
 
 export { colFactor, type ColMatch } from './col';
 
+// ── Capital needed at retirement (amortization-based, Bogleheads-ABW style) ──
+// Replaces the 4%-rule ×25 heuristic: horizon-aware, nets guaranteed income, and treats a
+// bequest as an EXPLICIT input (default 0 = spend down to zero — the 25× rule silently
+// preserved principal forever, which is a bequest assumption nobody asked for).
+// All amounts in TODAY'S dollars; `realReturn` = nominal portfolio return minus inflation,
+// so no separate inflation escalator is needed and the answer reads in today's money.
+export interface CapitalNeedInputs {
+  monthlySpend: number;        // retirement spending, today's $
+  guaranteedMonthly: number;   // Social Security / pension / annuities, today's $
+  retireAge: number;
+  horizonAge: number;          // plan-to age (money lasts until here)
+  realReturn: number;          // drawdown-phase REAL return (decimal, e.g. 0.03)
+  bequest: number;             // desired terminal balance, today's $ (0 = die near zero)
+}
+export interface CapitalNeed {
+  needed: number;              // capital required at retirement
+  netAnnual: number;           // spending net of guaranteed income, per year
+  years: number;               // funded years (retire → horizon)
+  annuityFactor: number;       // PV factor applied to netAnnual
+  pvBequest: number;           // today's-$ cost of the bequest
+}
+export function capitalNeeded(inp: CapitalNeedInputs): CapitalNeed {
+  const years = Math.max(1, inp.horizonAge - inp.retireAge);
+  const netAnnual = Math.max(0, (inp.monthlySpend - inp.guaranteedMonthly) * 12);
+  const r = inp.realReturn;
+  const annuityFactor = r > 0 ? (1 - Math.pow(1 + r, -years)) / r : years;
+  const pvBequest = inp.bequest > 0 ? inp.bequest / Math.pow(1 + Math.max(0, r), years) : 0;
+  return {
+    needed: round2(netAnnual * annuityFactor + pvBequest),
+    netAnnual: round2(netAnnual), years, annuityFactor: Math.round(annuityFactor * 100) / 100,
+    pvBequest: round2(pvBequest),
+  };
+}
+
 /** All-in monthly retirement spend = base + travel + medical (annual→monthly), adjusted by the
  *  expected trajectory (spend less / same / more later) and the retirement location's
  *  cost-of-living factor (retLocation). Returns 0 if nothing's set (caller falls back). */

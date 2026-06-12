@@ -8,6 +8,7 @@ import Mascot from './Mascot';
 import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
 import { loanPayment } from '../domain/debt';
 import { colFactor } from '../domain/retirement/col';
+import { capitalNeeded } from '../domain/retirement';
 import { createInvite } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
@@ -1125,19 +1126,50 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             : <Callout text={`Your income covers your spending — you're not drawing down your ${money(pool)} portfolio yet.`} />}
         </>);
       }
+      // ── AMORTIZATION-BASED need (replaces the 4%-rule ×25) — every number shown on-screen ──
+      // All in TODAY'S dollars: real returns = nominal − live inflation (BLS CPI), so the user's
+      // "spending in today's dollars" needs no separate escalator and the answer reads naturally.
       const age = currentAge(a);
-      const years = Math.max(1, num(a.targetRetirementAge) - age);
+      const rAge = num(a.targetRetirementAge) || 65;
+      const years = Math.max(1, rAge - age);
+      const horizon = num(a.horizonAge) || 90;                          // plan-to age (asked in drawdown flows; default 90)
+      const infl = (useStore.getState() as any).inflationRate ?? 2.4;   // live BLS CPI, % YoY
+      const realAcc = Math.max(0.01, 0.07 - infl / 100);                // accumulation: 7% nominal − inflation
+      const realDraw = Math.max(0.005, 0.055 - infl / 100);             // drawdown: 5.5% nominal (balanced) − inflation
+      const guaranteedMo = retirementMonthlyIncome(a);                  // SS/pension if captured (retiree flows)
+      const bequest = num(a.legacyTarget);                              // explicit; 0 = spend down to zero
+      const need = capitalNeeded({
+        monthlySpend: num(a.expectedRetirementSpending), guaranteedMonthly: guaranteedMo,
+        retireAge: rAge, horizonAge: horizon, realReturn: realDraw, bequest,
+      });
+      const otherSavings = num(a.investmentHoldings) + num(a.currentSavingsPortfolio);   // captured only in some flows
       const monthlyContrib = monthlyContributions(a);
-      const projected = fv(num(a.currentRetirementSavings), monthlyContrib, years);
-      const needed = num(a.expectedRetirementSpending) * 12 * 25; // 4% rule proxy
-      const gap = projected - needed;
-      return (<><Header emoji="🏖️" title="Your retirement outlook" />
+      const projected = fv(num(a.currentRetirementSavings) + otherSavings, monthlyContrib, years, realAcc);
+      const gap = projected - need.needed;
+      return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today's dollars — here's the math, line by line." />
         <Card>
-          <RecapStat label={`Needed to retire at ${num(a.targetRetirementAge) || 65}`} value={money(needed)} />
-          <RecapStat label={`Projected by then (~7%/yr)`} value={money(projected)} color={Colors.primary} />
+          <RecapStat label={`Needed at ${rAge} (to age ${horizon})`} value={money(need.needed)} />
+          <RecapStat label={`Projected by ${rAge}`} value={money(projected)} color={Colors.primary} />
           <View style={s.divider} />
           <RecapStat label={gap >= 0 ? 'Surplus' : 'Gap'} value={money(Math.abs(gap))} color={gap >= 0 ? Colors.primary : Colors.red} />
-          <Bar aPct={needed > 0 ? (projected / needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
+          <Bar aPct={need.needed > 0 ? (projected / need.needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
+        </Card>
+        <Card>
+          <Text style={s.sectionLabel}>HOW "NEEDED" IS CALCULATED</Text>
+          <WfRow label="Spending in retirement" value={`${money(num(a.expectedRetirementSpending))}/mo`} />
+          <WfRow label="Guaranteed income (Social Security, pension)" value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/mo` : 'not set yet'} />
+          <WfRow label="To fund from savings" value={`${money(need.netAnnual)}/yr`} topline />
+          <WfRow label={`Funded years (${rAge} → ${horizon})`} value={`× ${need.years} yrs`} />
+          <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(1)}%/yr real`} value={`→ × ${need.annuityFactor}`} />
+          {bequest > 0 && <WfRow label="Leave behind (your legacy goal)" value={`+${money(need.pvBequest)}`} />}
+          <WfRow label="Capital needed" value={money(need.needed)} strong color={Colors.primaryDark} topline />
+          <Text style={s.hint}>
+            Real returns = growth minus {infl.toFixed(1)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(1)}% real) while saving,
+            a conservative ~5.5% (≈{(realDraw * 100).toFixed(1)}% real) while retired.
+            {guaranteedMo <= 0 ? ' Social Security isn\'t counted yet — adding it in the Retirement tab will lower the target.' : ''}
+            {bequest <= 0 ? ' Assumes spending down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
+            {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net Worth to complete the picture.' : ''}
+          </Text>
         </Card></>);
     }
     case 'recap_invest': {

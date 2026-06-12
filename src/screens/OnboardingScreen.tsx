@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert,
 } from 'react-native';
@@ -68,11 +68,13 @@ function ModuleCrumbs({ steps, index }: { steps: string[]; index: number }) {
   const currentSec = secs[index];
   const curIdx = seq.indexOf(currentSec);
   const within = sectionProgress(steps, index);
+  const scRef = useRef<ScrollView>(null);
   return (
-    <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}
+    <ScrollView ref={scRef} horizontal showsHorizontalScrollIndicator={false} style={{ marginTop: 6 }}
       contentContainerStyle={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
       {seq.map((sec, i) => (
-        <View key={`${sec}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <View key={`${sec}-${i}`} style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}
+          onLayout={i === curIdx ? (e) => scRef.current?.scrollTo({ x: Math.max(0, e.nativeEvent.layout.x - 70), animated: true }) : undefined}>
           {i > 0 && <Text style={[crumb.chev, i === curIdx && crumb.chevOn]}>›</Text>}
           {i === curIdx ? (
             <View style={crumb.pill}>
