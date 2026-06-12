@@ -1795,8 +1795,8 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       : leanIdx.length === 0
         ? <Callout text={`Investing ${money(investMo * 12)} a year (≈ ${money(investMo)}/mo)`}
             sub={`Covered by your free cash in every month; ${money(Math.max(0, annualSave - investMo * 12))}/yr is left for goals and your cash buffer.`} />
-        : <Callout warn text={`That plan (≈ ${money(investMo)}/mo) outruns your free cash in ${leanIdx.length} month${leanIdx.length > 1 ? 's' : ''}`}
-            sub={`${monthRanges(leanIdx, sug.map((m) => m.label))} run${leanIdx.length === 1 ? 's' : ''} below it — those months draw from your cash buffer. Build the buffer in the strong months.`} />)}
+        : <Callout warn text={`${leanIdx.length} of 12 months can't fund ${money(investMo)}/mo from that month's cash`}
+            sub={`In ${monthRanges(leanIdx, sug.map((m) => m.label))} your free cash is below the plan (some months are negative). Investing in those months means pulling from savings — so the strong months must bank enough to cover them, or pick a smaller yearly amount that fits.`} />)}
   </>);
 }
 
