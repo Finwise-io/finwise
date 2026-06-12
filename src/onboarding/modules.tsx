@@ -1161,19 +1161,28 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     }
     case 'recap_goals': {
       const goals = (a.goals ?? []) as any[];
-      const { capMo, investMo } = goalCapacity(a);
-      return (<><Header emoji="🎯" title="Your goals" sub={capMo > 0 ? 'And how long each will take at your pace.' : undefined} />
+      const { capMo: capRaw, investMo } = goalCapacity(a);
+      const capMo = capRaw >= 25 ? capRaw : 0;   // a few leftover dollars is NOT a funding plan
+      // SEQUENTIAL funding — one pot, one goal at a time: goal 2's clock starts when goal 1 is done.
+      // (Computing each goal with the FULL capacity would spend the same dollars once per goal.)
+      let cumMonths = 0;
+      return (<><Header emoji="🎯" title="Your goals" sub={capMo > 0 ? 'Funded one at a time from your monthly free cash.' : undefined} />
         <Card>{goals.length === 0 ? <Text style={s.note}>No goals added.</Text> : goals.map((g, i) => {
-          const months = capMo > 0 ? Math.ceil(num(g.target) / capMo) : 0;
-          return <RecapStat key={i} label={g.label || 'Goal'} value={months ? `ready in ~${months} mo` : money(num(g.target))} />;
+          let label = money(num(g.target));
+          if (capMo > 0) {
+            cumMonths += Math.ceil(num(g.target) / capMo);
+            label = cumMonths <= 600 ? `${money(num(g.target))} · done in ~${cumMonths} mo` : `${money(num(g.target))} · 50+ yrs`;
+          }
+          return <RecapStat key={i} label={g.label || 'Goal'} value={label} />;
         })}</Card>
         {capMo > 0
           ? <Callout text={`You have about ${money(capMo)} a month for goals`}
-              sub={`That's what's left of your income after taxes, spending, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)} a year you're investing` : ''}. The timelines above assume all of it goes to these goals.`} />
+              sub={`That's what's left of your income after taxes, spending, your 401(k)${investMo > 0 ? `, and the ${money(investMo * 12)} a year you're investing` : ''}. Timelines fund one goal at a time, in this order.`} />
           : investMo > 0
             ? <Callout warn text="Nothing is left over for these goals right now"
                 sub={`Your investing plan (${money(investMo * 12)}/yr) uses all your free cash. To fund goals, dial the investing number down — it's the same pot of money.`} />
-            : null}
+            : <Callout warn text="No free cash for these goals yet"
+                sub="After taxes, spending and your 401(k), nothing is left this year. The goals stay on your list — fund them when your cash flow allows." />}
       </>);
     }
     default:
@@ -2212,7 +2221,8 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
     ctx.setAnswer('goals', [...goals, { label: label.trim(), target, year }]);
     setLabel(''); setTarget(''); setYear('');
   };
-  const { capMo: goalCap, investMo: investMo0 } = goalCapacity(ctx.answers);
+  const { capMo: goalCapRaw, investMo: investMo0 } = goalCapacity(ctx.answers);
+  const goalCap = goalCapRaw >= 25 ? goalCapRaw : 0;
   return (<><Header emoji="🎯" title="What are you saving for?" sub="Add a goal — target amount and when." />
     {investMo0 > 0 && (goalCap > 0
       ? <Callout text={`You have about ${money(goalCap)} a month for goals`}
