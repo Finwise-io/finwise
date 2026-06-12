@@ -137,13 +137,20 @@ export default function HomeScreen() {
 
 
   if (!snap) {
+    // Resume-aware: a saved draft means they're mid-setup — say so, and UN-PAUSE before routing
+    // (the auth guard bounces paused users out of /onboarding, which looked like a dead loop).
+    const draft = store.onboardingDraft;
+    const goSetup = () => { store.setOnboardingPaused?.(false); router.replace('/onboarding'); };
     return (
       <View style={[styles.root, { justifyContent: 'center', padding: Spacing.lg }]}>
         <Text style={styles.coin}>🪙</Text>
-        <Text style={[styles.h1, { textAlign: 'center' }]}>Let's build your plan</Text>
-        <Text style={[styles.sub, { textAlign: 'center', marginTop: 6 }]}>Finish a quick setup and your dashboard fills in.</Text>
-        <TouchableOpacity style={styles.cta} onPress={() => router.replace('/onboarding')}>
-          <Text style={styles.ctaText}>Start setup →</Text>
+        <Text style={[styles.h1, { textAlign: 'center' }]}>{draft ? 'Pick up where you left off' : "Let's build your plan"}</Text>
+        <Text style={[styles.sub, { textAlign: 'center', marginTop: 6 }]}>
+          {draft ? 'Your progress is saved — a few more steps and your dashboard fills in.'
+                 : 'Finish a quick setup and your dashboard fills in.'}
+        </Text>
+        <TouchableOpacity style={styles.cta} onPress={goSetup}>
+          <Text style={styles.ctaText}>{draft ? 'Continue setup →' : 'Start setup →'}</Text>
         </TouchableOpacity>
       </View>
     );

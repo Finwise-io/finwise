@@ -53,7 +53,9 @@ export default function OnboardingScreen() {
   const [stepIndex, setStepIndex] = useState<number>(draft?.stepIndex ?? 0);
   const [status, setStatus] = useState<Status | null>((draft?.status as Status) ?? null);
   const [tracks, setTracks] = useState<Track[]>((draft?.tracks as Track[]) ?? []);
-  const [name, setName] = useState<string>(draft?.name ?? store.user?.name ?? '');
+  // Prefill only from the draft (what THEY typed) — store.user.name is the Firebase displayName,
+  // which signup derives from the email prefix; leaking it here showed "blahblah" as your name.
+  const [name, setName] = useState<string>(draft?.name ?? '');
   const [answers, setAnswers] = useState<Record<string, any>>(draft?.answers ?? {});
   const setAnswer = (key: string, value: any) => setAnswers(prev => ({ ...prev, [key]: value }));
 
