@@ -227,6 +227,22 @@ describe('Budget integrity invariants', () => {
   });
 });
 
+// ───────────────────────── CURRENCY SEAM: formatting never changes the math ─────────────────────────
+describe('Currency seam', () => {
+  // BUG-LEDGER: B-23 (deferred) — domain calcs are currency-agnostic numbers; only formatting
+  // changes with the region. Tax packs are US-only at launch.
+  test('switching the display currency leaves every domain number unchanged', () => {
+    const { setMoneyFormat } = require('./_shared/money');
+    const usd = snap(employedPartner);
+    setMoneyFormat('EUR');
+    const eur = snap(employedPartner);
+    setMoneyFormat('USD', 'en-US');
+    expect(eur.networth.net_worth).toBe(usd.networth.net_worth);
+    expect(eur.budget.projected_to_save).toBe(usd.budget.projected_to_save);
+    expect(eur.income.total_net_annual).toBe(usd.income.total_net_annual);
+  });
+});
+
 // ───────────────────────── SANITY SWEEP: no broken numbers, ever ─────────────────────────
 describe('Snapshot finite sweep', () => {
   test.each(ALL_PERSONAS.map(({ name, op }) => [name, op] as const))(
