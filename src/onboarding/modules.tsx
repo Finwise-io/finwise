@@ -1126,51 +1126,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             : <Callout text={`Your income covers your spending — you're not drawing down your ${money(pool)} portfolio yet.`} />}
         </>);
       }
-      // ── AMORTIZATION-BASED need (replaces the 4%-rule ×25) — every number shown on-screen ──
-      // All in TODAY'S dollars: real returns = nominal − live inflation (BLS CPI), so the user's
-      // "spending in today's dollars" needs no separate escalator and the answer reads naturally.
-      const age = currentAge(a);
-      const rAge = num(a.targetRetirementAge) || 65;
-      const years = Math.max(1, rAge - age);
-      const horizon = num(a.horizonAge) || 90;                          // plan-to age (asked in drawdown flows; default 90)
-      const infl = (useStore.getState() as any).inflationRate ?? 2.4;   // live BLS CPI, % YoY
-      const realAcc = Math.max(0.01, 0.07 - infl / 100);                // accumulation: 7% nominal − inflation
-      const realDraw = Math.max(0.005, 0.055 - infl / 100);             // drawdown: 5.5% nominal (balanced) − inflation
-      const guaranteedMo = retirementMonthlyIncome(a);                  // SS/pension if captured (retiree flows)
-      const bequest = num(a.legacyTarget);                              // explicit; 0 = spend down to zero
-      const need = capitalNeeded({
-        monthlySpend: num(a.expectedRetirementSpending), guaranteedMonthly: guaranteedMo,
-        retireAge: rAge, horizonAge: horizon, realReturn: realDraw, bequest,
-      });
-      const otherSavings = num(a.investmentHoldings) + num(a.currentSavingsPortfolio);   // captured only in some flows
-      const monthlyContrib = monthlyContributions(a);
-      const projected = fv(num(a.currentRetirementSavings) + otherSavings, monthlyContrib, years, realAcc);
-      const gap = projected - need.needed;
-      return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today's dollars — here's the math, line by line." />
-        <Card>
-          <RecapStat label={`Needed at ${rAge} (to age ${horizon})`} value={money(need.needed)} />
-          <RecapStat label={`Projected by ${rAge}`} value={money(projected)} color={Colors.primary} />
-          <View style={s.divider} />
-          <RecapStat label={gap >= 0 ? 'Surplus' : 'Gap'} value={money(Math.abs(gap))} color={gap >= 0 ? Colors.primary : Colors.red} />
-          <Bar aPct={need.needed > 0 ? (projected / need.needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
-        </Card>
-        <Card>
-          <Text style={s.sectionLabel}>HOW "NEEDED" IS CALCULATED</Text>
-          <WfRow label="Spending in retirement" value={`${money(num(a.expectedRetirementSpending))}/mo`} />
-          <WfRow label="Guaranteed income (Social Security, pension)" value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/mo` : 'not set yet'} />
-          <WfRow label="To fund from savings" value={`${money(need.netAnnual)}/yr`} topline />
-          <WfRow label={`Funded years (${rAge} → ${horizon})`} value={`× ${need.years} yrs`} />
-          <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(1)}%/yr real`} value={`→ × ${need.annuityFactor}`} />
-          {bequest > 0 && <WfRow label="Leave behind (your legacy goal)" value={`+${money(need.pvBequest)}`} />}
-          <WfRow label="Capital needed" value={money(need.needed)} strong color={Colors.primaryDark} topline />
-          <Text style={s.hint}>
-            Real returns = growth minus {infl.toFixed(1)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(1)}% real) while saving,
-            a conservative ~5.5% (≈{(realDraw * 100).toFixed(1)}% real) while retired.
-            {guaranteedMo <= 0 ? ' Social Security isn\'t counted yet — adding it in the Retirement tab will lower the target.' : ''}
-            {bequest <= 0 ? ' Assumes spending down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
-            {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net Worth to complete the picture.' : ''}
-          </Text>
-        </Card></>);
+      return <RetireOutlook ctx={ctx} />;
     }
     case 'recap_invest': {
       const total = num(a.investmentHoldings) || num(a.currentSavingsPortfolio);   // deduped: retiree's pool comes from the savings & investments step
@@ -1728,17 +1684,89 @@ function Donut({ segments, size = 116, stroke = 16, children }: {
 }
 
 // Waterfall row — full-width, dot column + label + right-aligned tabular amount. Used by the
-// full-recap hero so every number lines up in one clean column.
-function WfRow({ dot, label, value, strong, color, topline }: {
-  dot?: string; label: string; value: string; strong?: boolean; color?: string; topline?: boolean;
+// full-recap hero so every number lines up in one clean column. `onPress` makes the row a
+// tappable editor entry (link-styled value + chevron).
+function WfRow({ dot, label, value, strong, color, topline, onPress }: {
+  dot?: string; label: string; value: string; strong?: boolean; color?: string; topline?: boolean; onPress?: () => void;
 }) {
-  return (
-    <View style={[s.wfRow, topline && s.wfTopline]}>
+  const body = (
+    <>
       <View style={[s.dot, { backgroundColor: dot ?? 'transparent' }]} />
       <Text style={[s.wfLabel, strong && { fontWeight: '800', color: color ?? Colors.textPrimary }]}>{label}</Text>
-      <Text style={[s.wfVal, strong && { fontSize: 15, fontWeight: '800' }, color ? { color } : null]}>{value}</Text>
-    </View>
+      <Text style={[s.wfVal, strong && { fontSize: 15, fontWeight: '800' }, color ? { color } : null,
+        onPress ? { color: Colors.primary, fontWeight: '800' } : null]}>{value}{onPress ? ' ›' : ''}</Text>
+    </>
   );
+  if (onPress) return <TouchableOpacity style={[s.wfRow, topline && s.wfTopline]} onPress={onPress}>{body}</TouchableOpacity>;
+  return <View style={[s.wfRow, topline && s.wfTopline]}>{body}</View>;
+}
+
+// Retirement outlook recap (accumulation) — amortization-based "needed" with the math on-screen.
+// All in TODAY'S dollars: real returns = nominal − live inflation (BLS CPI), so the user's
+// "spending in today's dollars" needs no separate escalator and the answer reads naturally.
+// The guaranteed-income row opens an inline editor (Social Security / pension) — the recap
+// recomputes live as it's set.
+function RetireOutlook({ ctx }: { ctx: StepCtx }) {
+  const a = ctx.answers;
+  const [giOpen, setGiOpen] = React.useState(false);
+  const age = currentAge(a);
+  const rAge = num(a.targetRetirementAge) || 65;
+  const years = Math.max(1, rAge - age);
+  const horizon = num(a.horizonAge) || 90;                          // plan-to age (asked in drawdown flows; default 90)
+  const infl = (useStore.getState() as any).inflationRate ?? 2.4;   // live BLS CPI, % YoY
+  const realAcc = Math.max(0.01, 0.07 - infl / 100);                // accumulation: 7% nominal − inflation
+  const realDraw = Math.max(0.005, 0.055 - infl / 100);             // drawdown: 5.5% nominal (balanced) − inflation
+  const guaranteedMo = retirementMonthlyIncome(a);
+  const bequest = num(a.legacyTarget);                              // explicit; 0 = spend down to zero
+  const need = capitalNeeded({
+    monthlySpend: num(a.expectedRetirementSpending), guaranteedMonthly: guaranteedMo,
+    retireAge: rAge, horizonAge: horizon, realReturn: realDraw, bequest,
+  });
+  const otherSavings = num(a.investmentHoldings) + num(a.currentSavingsPortfolio);   // captured only in some flows
+  const monthlyContrib = monthlyContributions(a);
+  const projected = fv(num(a.currentRetirementSavings) + otherSavings, monthlyContrib, years, realAcc);
+  const gap = projected - need.needed;
+  return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today's dollars — here's the math, line by line." />
+    <Card>
+      <RecapStat label={`Needed at ${rAge} (to age ${horizon})`} value={money(need.needed)} />
+      <RecapStat label={`Projected by ${rAge}`} value={money(projected)} color={Colors.primary} />
+      <View style={s.divider} />
+      <RecapStat label={gap >= 0 ? 'Surplus' : 'Gap'} value={money(Math.abs(gap))} color={gap >= 0 ? Colors.primary : Colors.red} />
+      <Bar aPct={need.needed > 0 ? (projected / need.needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
+    </Card>
+    <Card>
+      <Text style={s.sectionLabel}>HOW "NEEDED" IS CALCULATED</Text>
+      <WfRow label="Spending in retirement" value={`${money(num(a.expectedRetirementSpending))}/mo`} />
+      <WfRow label="Guaranteed income (Social Security, pension)" onPress={() => setGiOpen(true)}
+        value={guaranteedMo > 0 ? `−${money(guaranteedMo)}/mo` : 'Set it'} />
+      <WfRow label="To fund from savings" value={`${money(need.netAnnual)}/yr`} topline />
+      <WfRow label={`Funded years (${rAge} → ${horizon})`} value={`× ${need.years} yrs`} />
+      <WfRow label={`Savings keep earning ~${(realDraw * 100).toFixed(1)}%/yr real`} value={`→ × ${need.annuityFactor}`} />
+      {bequest > 0 && <WfRow label="Leave behind (your legacy goal)" value={`+${money(need.pvBequest)}`} />}
+      <WfRow label="Capital needed" value={money(need.needed)} strong color={Colors.primaryDark} topline />
+      <Text style={s.hint}>
+        Real returns = growth minus {infl.toFixed(1)}% inflation (live CPI): ~7% growth (≈{(realAcc * 100).toFixed(1)}% real) while saving,
+        a conservative ~5.5% (≈{(realDraw * 100).toFixed(1)}% real) while retired.
+        {bequest <= 0 ? ' Assumes spending down to zero — add a "leave money to family" goal to plan a bequest.' : ''}
+        {otherSavings <= 0 ? ' Counts only retirement savings + your investing plan; add other accounts in Net Worth to complete the picture.' : ''}
+      </Text>
+    </Card>
+
+    <Modal visible={giOpen} transparent animationType="fade" onRequestClose={() => setGiOpen(false)}>
+      <TouchableOpacity style={s.modalBg} activeOpacity={1} onPress={() => setGiOpen(false)}>
+        <View style={s.modalCard} onStartShouldSetResponder={() => true}>
+          <Text style={s.cap}>Guaranteed retirement income</Text>
+          <Text style={[s.hint, { marginBottom: 8 }]}>Monthly amounts, today's dollars. Every dollar here lowers what your savings must cover.</Text>
+          <MoneyRow ctx={ctx} k="ri_ss" label="Social Security (your estimate from ssa.gov)" />
+          <MoneyRow ctx={ctx} k="ri_pension" label="Pension" />
+          <MoneyRow ctx={ctx} k="ri_annuities" label="Annuity / other" />
+          {guaranteedMo > 0 && <Callout text={`−${money(guaranteedMo)}/mo off your savings target`}
+            sub={`Capital needed drops to ${money(need.needed)}.`} />}
+          <TouchableOpacity style={s.addBtn} onPress={() => setGiOpen(false)}><Text style={s.addBtnT}>Done</Text></TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  </>);
 }
 
 // Savings plan — ONE allocation question on top of the month-by-month free-cash picture:
