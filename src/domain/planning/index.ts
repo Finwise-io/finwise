@@ -3,7 +3,7 @@ import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { round2, toNum } from '../_shared/num';
 import { TAX_BRACKETS, STANDARD_DEDUCTION, taxableIncome, taxOwed } from '../income/tax';
-import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, retirementIncomeMonthly, effectiveRate } from '../income';
+import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, retirementIncomeMonthly, effectiveRate, benefitAnnual } from '../income';
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
 // A year-end summary + a tailored document checklist. NOT a tax return — an organizer. Pure: the
@@ -38,7 +38,7 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
     { label: 'Rental (net)', amount: round2(rentalNetAnnual(op)), taxable: true },
     { label: 'Retirement income (SS / pension / withdrawals)', amount: round2(retInc), taxable: true },
     { label: 'Other income', amount: round2(otherAnnual), taxable: true },
-    { label: 'Benefits (SNAP/TANF/disability/UI/housing)', amount: toNum(a.benefitMonthly) * 12, taxable: false },
+    { label: 'Benefits (SNAP/TANF/disability/UI/housing)', amount: round2(benefitAnnual(op)), taxable: false },
     { label: 'Child support / alimony', amount: toNum(a.supportMonthly) * 12, taxable: false },
     { label: 'Scholarships / grants', amount: round2((Array.isArray(a.scholarships) ? a.scholarships : []).reduce((t: number, s: any) => t + (s?.freq === 'monthly' ? toNum(s.amount) * 12 : toNum(s.amount)), 0)), taxable: false },
   ].filter((l) => l.amount > 0);

@@ -2,7 +2,7 @@ import {
   annualNet, grossAnnualBaseline, estimateEffectiveTaxRate, effectiveTaxRate,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
-import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual } from './onboarding';
+import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual, totalGrossAnnual } from './onboarding';
 import { grossFromNet, taxOwed } from './tax';
 import { IncomeSource } from './types';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -198,5 +198,29 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(grossSalaryMonthly({ baseSalary: '5000', salaryMode: 'takehome' }) * 12).toBeCloseTo(grossAnnual, -1);
     // entering it as gross stores it as-is
     expect(grossSalaryMonthly({ baseSalary: '5000', salaryMode: 'gross' })).toBe(5000);
+  });
+});
+
+describe('benefit months (unemployment after a job ends)', () => {
+  test('benefits land only in their chosen months; annual honors the count', () => {
+    const op: OnboardingProfile = {
+      taxMode: 'manual', manualTaxRate: '0',
+      salaryByMonth: ['3000', '3000', '3000', '3000', '3000', '3000', '0', '0', '0', '0', '0', '0'],
+      salaryMode: 'gross',
+      benefitMonthly: '1800', benefitMonths: [7, 8, 9, 10, 11, 12],
+    };
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[0].amount).toBe(3000);          // Jan: salary, no benefits yet
+    expect(g[5].amount).toBe(3000);          // Jun: last salary month
+    expect(g[6].amount).toBe(1800);          // Jul: unemployment starts, salary done
+    expect(g[11].amount).toBe(1800);         // Dec: still on benefits
+    expect(totalGrossAnnual(op)).toBe(3000 * 6 + 1800 * 6);
+  });
+  test('no months set = ongoing all year (back-compat)', () => {
+    const op: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', benefitMonthly: '500' };
+    const g = incomeMonthlyGrid(op, 'gross');
+    expect(g[0].amount).toBe(500);
+    expect(g[11].amount).toBe(500);
+    expect(totalGrossAnnual(op)).toBe(6000);
   });
 });

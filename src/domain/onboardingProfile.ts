@@ -28,7 +28,7 @@ export interface OnboardingProfile {
   rentals?: RentalEntry[]; rentalType?: 'long' | 'short'; rentalIncome?: Money; rentalExpenses?: Money;
   seAmount?: Money; seFreq?: 'annual' | 'monthly'; invAnnual?: Money;
   otherAmount?: Money; otherFreq?: 'monthly' | 'annual' | 'onetime'; otherLabel?: string;
-  benefitMonthly?: Money; benefitTypes?: string[]; supportMonthly?: Money;
+  benefitMonthly?: Money; benefitTypes?: string[]; benefitMonths?: number[]; supportMonthly?: Money;
   scholarships?: ScholarshipEntry[]; scholarshipAmount?: Money; scholarshipFreq?: 'annual' | 'monthly'; loans?: LoanEntry[];
   // retirement income (also accessed dynamically as ri_<key>)
   ri_ss?: Money; ri_pension?: Money; ri_withdrawals?: Money; ri_rmd?: Money; ri_annuities?: Money; ri_other?: Money;

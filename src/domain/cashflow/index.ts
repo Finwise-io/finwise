@@ -6,6 +6,7 @@ import { toNum, round2 } from '../_shared/num';
 import {
   grossSalaryMonthly, rsuAnnual, rentalNetAnnual, equityRowValue, salaryGrossByMonth,
   effectiveRate, totalGrossAnnual, taxableAnnual, retirementIncomeMonthly,
+  benefitAnnual, benefitActiveMonths,
 } from '../income';
 import { spendBuckets, spendByMonth } from '../budget';
 
@@ -76,7 +77,7 @@ export function upcomingBills(
     .filter((s: any) => s?.freq === 'monthly').reduce((t: number, s: any) => t + toNum(s.amount), 0);
   const steadyInMonthly =
     grossSalaryMonthly(op) * (1 - rate) + toNum(a.tipsMonthly) * (1 - rate)
-    + toNum(a.supportMonthly) + toNum(a.benefitMonthly) + monthlySch
+    + toNum(a.supportMonthly) + benefitAnnual(op) / 12 + monthlySch
     + retirementIncomeMonthly(op) * (1 - rate) + (rentalNetAnnual(op) / 12) * (1 - rate);
   const b = spendBuckets(op);
   const uncategorized = Math.max(0, toNum(a.monthlySpending) - b.monthly_total);
@@ -172,12 +173,13 @@ export function cashflowYear(op: OnboardingProfile | null, startBalance = 0, now
   const otherM = otherFreq === 'monthly' ? toNum(a.otherAmount) : otherFreq === 'annual' ? toNum(a.otherAmount) / 12 : 0;
   const eq = equityByMonth(a);
   const retIncM = retirementIncomeMonthly(op), tipsM = toNum(a.tipsMonthly);
+  const benM = toNum(a.benefitMonthly); const benSet = new Set(benefitActiveMonths(op));
   for (let s = 0; s < 12; s++) {
     const cm = calMonth(s);
     const sal = salByMonth[cm];                                           // base salary for that calendar month
     const job = sal + (sal > 0 ? tipsM : 0);                              // wage + tips (tips only in paid months)
     taxableMo[s] += job + seM + rentalM + invM + otherM + eq[cm] + retIncM;
-    nontaxMo[s] += toNum(a.benefitMonthly) + toNum(a.supportMonthly);
+    nontaxMo[s] += (benSet.has(cm + 1) ? benM : 0) + toNum(a.supportMonthly);   // benefits in THEIR months
   }
   if (toNum(a.bonusAnnual) > 0) taxableMo[slotOf(Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)))] += toNum(a.bonusAnnual);   // bonus → its month
   if (toNum(a.signingOnetime) > 0) taxableMo[0] += toNum(a.signingOnetime);            // signing / one-time → now

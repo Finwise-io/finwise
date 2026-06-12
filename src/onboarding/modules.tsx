@@ -5,7 +5,7 @@ import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
-import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths } from '../domain/income';
+import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
 import { loanPayment } from '../domain/debt';
 import { colFactor } from '../domain/retirement/col';
 import { createInvite } from '../services/firebase';
@@ -516,6 +516,22 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={s.heroLabel}>Total benefits per month</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.benefitMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('benefitMonthly', t)} />
+          {num(a.benefitMonthly) > 0 && (() => {
+            const someMonths = Array.isArray(a.benefitMonths) && a.benefitMonths.length > 0;
+            return (<>
+              <Text style={[s.label, { marginTop: 10 }]}>When do you receive them?</Text>
+              <View style={s.segRow}>
+                <TouchableOpacity style={[s.seg, !someMonths && s.segOn]} onPress={() => ctx.setAnswer('benefitMonths', undefined)}>
+                  <Text style={[s.segTxt, !someMonths && s.segTxtOn]}>All year</Text></TouchableOpacity>
+                <TouchableOpacity style={[s.seg, someMonths && s.segOn]} onPress={() => ctx.setAnswer('benefitMonths', someMonths ? a.benefitMonths : [new Date().getMonth() + 1])}>
+                  <Text style={[s.segTxt, someMonths && s.segTxtOn]}>Certain months</Text></TouchableOpacity>
+              </View>
+              {someMonths && (<>
+                <Text style={s.dueLabel}>Pick the months you'll receive benefits (e.g. unemployment after a job ends)</Text>
+                <MonthMultiSelect value={a.benefitMonths} onChange={(v) => ctx.setAnswer('benefitMonths', v.length ? v : undefined)} />
+              </>)}
+            </>);
+          })()}
           <Text style={s.hint}>{(() => {
             const notes: string[] = [];
             if (types.includes('snap')) notes.push('SNAP can usually only buy food');
@@ -1276,7 +1292,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
     { label: 'Rental income (net)', value: rentalNetAnnual(a) },
     { label: 'Self-employment', value: a.seFreq === 'annual' ? num(a.seAmount) : num(a.seAmount) * 12 },
     { label: 'Interest & dividends', value: num(a.invAnnual) },
-    { label: 'Benefits', value: num(a.benefitMonthly) * 12 },
+    { label: 'Benefits', value: benefitAnnual(a) },
     { label: 'Child support / alimony', value: num(a.supportMonthly) * 12 },
     { label: 'Scholarships & grants', value: scholarshipAnnual },
     { label: 'Other income', value: a.otherFreq === 'annual' ? num(a.otherAmount) : a.otherFreq === 'onetime' ? num(a.otherAmount) : num(a.otherAmount) * 12 },

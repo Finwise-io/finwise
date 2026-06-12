@@ -123,6 +123,18 @@ export function rentalNetAnnual(op: OnboardingProfile | null): number {
   return rentalList(op).reduce((t, r) => t + (r.income - r.expenses), 0) * 12;
 }
 
+/** Calendar months (1-12) benefits are received — e.g. unemployment that starts in July is
+ *  [7..12]. Absent/empty = ongoing, all 12 months. */
+export function benefitActiveMonths(op: OnboardingProfile | null): number[] {
+  const m = Array.isArray(op?.benefitMonths) ? op!.benefitMonths!.filter((x) => x >= 1 && x <= 12) : [];
+  return m.length ? [...m].sort((a, b) => a - b) : [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
+}
+
+/** Annual benefits = monthly amount × the months it's actually received. */
+export function benefitAnnual(op: OnboardingProfile | null): number {
+  return toNum(op?.benefitMonthly) * benefitActiveMonths(op).length;
+}
+
 /** Extra income sources beyond salary/rental/equity (self-employment, investment, benefits, support,
  *  scholarship, other), split into taxable vs non-taxable steady monthly amounts + a one-time Jan amount.
  *  Benefits, support, and scholarships are treated as non-taxable for planning. */
@@ -130,7 +142,7 @@ export function extraIncome(op: OnboardingProfile | null): { taxableMonthly: num
   const a = op ?? {};
   const seM = (a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount));
   const invM = toNum(a.invAnnual) / 12;
-  const benM = toNum(a.benefitMonthly);
+  const benM = benefitAnnual(a) / 12;             // annual average — honors active months
   const supM = toNum(a.supportMonthly);
   const schList = Array.isArray(a.scholarships) ? a.scholarships : null;
   const schM = schList
@@ -221,7 +233,7 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   add('Retirement income', 'OTHER', retirementIncomeMonthly(op), 'MONTHLY');
   add('Self-employment', 'SELF_EMPLOYMENT', a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount), a.seFreq === 'annual' ? 'ANNUAL' : 'MONTHLY');
   add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');
-  add('Benefits', 'BENEFIT', toNum(a.benefitMonthly), 'MONTHLY');
+  add('Benefits', 'BENEFIT', benefitAnnual(a) / 12, 'MONTHLY');
   add('Child support / alimony', 'SUPPORT', toNum(a.supportMonthly), 'MONTHLY');
   if (Array.isArray(a.scholarships)) {
     for (const x of a.scholarships) add(x?.label?.trim() || 'Scholarship / grant', 'SCHOLARSHIP', toNum(x?.amount), x?.freq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
@@ -308,7 +320,9 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
 
   const ex = extraIncome(op);
   const retIncMonthly = retirementIncomeMonthly(op);
-  const nontaxFlat = toNum(a.benefitMonthly) + toNum(a.supportMonthly);   // genuinely monthly, non-taxable
+  const nontaxFlat = toNum(a.supportMonthly);                              // genuinely monthly, non-taxable
+  const benM = toNum(a.benefitMonthly);                                    // benefits land in THEIR months
+  const benSet = new Set(benefitActiveMonths(op));
   const schByMonth = scholarshipByCalendarMonth(op);                       // lumpy — placed in its months
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   return MONTH_ABBR.map((label, i) => {
@@ -316,7 +330,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     let taxable = salByMonth[i] + (salByMonth[i] > 0 ? tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
     if (i === bonusIdx) taxable += bonus;           // annual bonus → its month (default December)
     if (i === 0) taxable += signing + ex.onetimeJan; // signing + one-time other → first month
-    const nontax = nontaxFlat + schByMonth[i];      // benefits/support steady; scholarships in their months
+    const nontax = nontaxFlat + schByMonth[i] + (benSet.has(i + 1) ? benM : 0);   // support steady; benefits/scholarships in their months
     const gross = taxable + nontax;                 // benefits/support/scholarship are non-taxable
     let amount = mode === 'gross' ? gross : taxable * (1 - rate) + nontax;
     if (mode === 'available') amount -= c401kM;     // employee 401(k) is locked away
