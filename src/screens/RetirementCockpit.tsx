@@ -18,7 +18,7 @@ import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, A
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracket } from '../domain/income/tax';
-import { totalGrossAnnual } from '../domain/income';
+import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -54,12 +54,19 @@ export default function RetirementCockpit() {
   const growthRate = returnBasis === 'actual' ? (actualBlended ?? benchBlended) : returnBasis === 'scenario' ? scenarioReturn : benchBlended;
   const basisLabel = returnBasis === 'actual' ? 'your 12-month return' : returnBasis === 'scenario' ? 'your scenario return' : 'the blended benchmark';
   const inflDefault = (store.inflationRate ?? 2.5) / 100;
-  const ssDefault = Math.round(num(op.ri_ss));
+  // B-31: guaranteed income defaults from EVERYTHING onboarding captured (Social Security + pension
+  // + annuities/withdrawals), cadence-normalized — not just ri_ss. If the user never touched the
+  // on-screen Social Security editor (ssEligible == null), use that onboarding figure rather than $0;
+  // an explicit "Not eligible" still zeroes it.
+  const guaranteedDefault = Math.round(retirementIncomeMonthly(op));
+  const ssDefault = guaranteedDefault;
+  const hasPension = num(op.ri_pension) > 0;
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
   const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
   const retireDefault = num(op.targetRetirementAge) || 65;
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
-  const ssIncome = A.ssEligible ? Math.round(A.ssMonthly ?? ssDefault) : 0;
+  const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
+  const ssIncome = ssEligibleEffective ? Math.round(A.ssMonthly ?? ssDefault) : 0;
   const claimAge = A.ssClaimAge ?? 67;
 
   // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
@@ -525,14 +532,18 @@ export default function RetirementCockpit() {
         </View>
       )}
 
-      {/* SOCIAL SECURITY */}
+      {/* GUARANTEED INCOME (Social Security + pension) */}
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
         <Text style={styles.ssIc}>🏛️</Text>
         <View style={{ flex: 1 }}>
-          <Text style={styles.ssName}>Social Security</Text>
-          <Text style={styles.ssSub}>{A.ssEligible == null ? 'Are you eligible? Tap to set up ›' : A.ssEligible ? `${money(ssIncome)}/mo starting at ${claimAge} · today's $` : 'Not eligible — tap to change'}</Text>
+          <Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text>
+          <Text style={styles.ssSub}>{
+            ssIncome > 0
+              ? `${money(ssIncome)}/mo${claimAge > age ? ` starting at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
+              : A.ssEligible === false ? 'Not eligible — tap to change' : 'Are you eligible? Tap to set up ›'
+          }</Text>
         </View>
-        <Text style={[styles.ssPill, A.ssEligible === false && { backgroundColor: Colors.bgTertiary, color: Colors.textSecondary }]}>{A.ssEligible == null ? 'Set up' : A.ssEligible ? 'Eligible ✓' : 'None'}</Text>
+        <Text style={[styles.ssPill, ssIncome === 0 && A.ssEligible === false && { backgroundColor: Colors.bgTertiary, color: Colors.textSecondary }]}>{ssIncome > 0 ? 'Eligible ✓' : A.ssEligible === false ? 'None' : 'Set up'}</Text>
       </TouchableOpacity>
 
       {/* SCENARIO BUTTON */}

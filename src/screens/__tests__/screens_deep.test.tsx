@@ -33,6 +33,22 @@ describe('RetirementCockpit — where you stand', () => {
     render(<RetirementCockpit />);
     expect(screen.getByText(/WHERE YOU STAND/i)).toBeOnTheScreen();
   });
+
+  // BUG-LEDGER: B-31 — guaranteed income (SS + pension) captured in onboarding must show on the
+  // cockpit without the user re-entering it; the row must not say "Are you eligible? Tap to set up".
+  test('SS + pension from onboarding surface as guaranteed income (no "set up" prompt)', () => {
+    complete(retiree75);   // ri_ss 2200 + ri_pension 1300, no on-screen ssEligible set
+    render(<RetirementCockpit />);
+    expect(screen.getByText('Social Security & pension')).toBeOnTheScreen();   // pension named
+    expect(screen.getByText(/\$3,500\/mo/)).toBeOnTheScreen();                 // 2200 + 1300
+    expect(screen.queryByText(/Are you eligible\? Tap to set up/)).toBeNull();
+  });
+
+  test('user who has not entered any retirement income still sees the set-up prompt', () => {
+    complete({ ...employedPartner, ri_ss: undefined, ri_pension: undefined });
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/Are you eligible\? Tap to set up/)).toBeOnTheScreen();
+  });
 });
 
 describe('GoalsScreen — debt payoff plan', () => {
