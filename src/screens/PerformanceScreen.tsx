@@ -437,7 +437,14 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
     else if (isTransfer) onSave({ ...base, counter_account_id: counterId, amount: num(amount) });
     else onSave({ ...base, ticker: ticker.trim().toUpperCase(), reinvested: reinvest, ...(reinvest ? { shares: num(shares), price: num(price) } : { amount: num(amount) }) });
   };
-  const acctName = (a: AssetAccount) => a.institution?.trim() || a.label;
+  // B-43: when two accounts share a name, disambiguate the chip with the asset kind (or a last-4 of
+  // its id) so the user can tell them apart instead of seeing identical chips.
+  const baseName = (a: AssetAccount) => a.institution?.trim() || a.label;
+  const acctName = (a: AssetAccount) => {
+    const base = baseName(a);
+    if (accounts.filter((x) => baseName(x) === base).length <= 1) return base;
+    return `${base} · ${assetKind(a.kind)?.label ?? a.asset_id.slice(-4)}`;
+  };
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
