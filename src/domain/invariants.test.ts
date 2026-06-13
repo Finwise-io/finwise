@@ -195,19 +195,19 @@ describe('Budget integrity invariants', () => {
     }
   });
 
-  // BUG-LEDGER: B-24 — when the user states a total spend AND itemizes only part of it, the
-  // month grid honors the full total but budget/projected_to_save (→ goal capacity) only sees the
-  // categorized part: the goal pool overstates free cash by the uncategorized remainder.
-  test('stated-total vs itemized spending diverges between the month grid and projected_to_save', () => {
+  // BUG-LEDGER: B-24 (fixed) — when the user states a total spend AND itemizes only part of it, the
+  // budget now counts the FULL stated total (itemized buckets + uncategorized remainder), matching
+  // the month grid, so the two free-cash measures agree.
+  test('stated-total vs itemized spending: budget matches the month grid (B-24 fixed)', () => {
     // retiree75 states $3,800/mo but itemizes $3,200 → $600/mo uncategorized
     const s = snap(retiree75);
-    expect(s.budget.monthly_spending).toBeCloseTo(3200, 2);              // budget sees categorized only
+    expect(s.budget.monthly_spending).toBeCloseTo(3800, 2);             // full stated total, not just $3,200
     const juneSpend = spendByMonth(retiree75)[0];
-    expect(juneSpend).toBeCloseTo(3000 + 600, 2);                        // grid sees fixed+flex+uncategorized
-    // the two free-cash measures disagree by exactly the uncategorized $600/mo:
+    expect(juneSpend).toBeCloseTo(3000 + 600, 2);                       // grid: fixed+flex+uncategorized
+    // both free-cash measures now agree (no uncategorized gap):
     const gridAnnualSavings = savingsByMonth(retiree75).reduce((t, m) => t + m.amount, 0);
     const smoothedAnnualSavings = s.budget.projected_to_save * 12;
-    expect(smoothedAnnualSavings - gridAnnualSavings).toBeCloseTo(600 * 12, 0);
+    expect(smoothedAnnualSavings).toBeCloseTo(gridAnnualSavings, 0);
   });
 
   test('budgetVsActual: totals reconcile, other months and debt payments are excluded', () => {

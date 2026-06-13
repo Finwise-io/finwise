@@ -151,7 +151,10 @@ export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   const b = spendBuckets(op);
   return {
     user_id: uid,
-    monthly_spending: b.monthly_total > 0 ? b.monthly_total : toNum(a.monthlySpending),
+    // B-24: when the user states a total AND itemizes only part of it, count the full stated total
+    // (the itemized buckets PLUS the uncategorized remainder) — this matches spendByMonth, so the
+    // budget surplus and goal capacity no longer overstate free cash by the uncategorized amount.
+    monthly_spending: Math.max(b.monthly_total, toNum(a.monthlySpending)),
     fixed: b.fixed, non_monthly: b.non_monthly, flexible: b.flexible,
   };
 }
