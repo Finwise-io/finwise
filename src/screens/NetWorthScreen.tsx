@@ -9,7 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket } from '../domain/assets';
-import { buildDebtState, DEBT_KINDS, debtKind, Debt, DebtType } from '../domain/debt';
+import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { spendBuckets } from '../domain/budget';
 
@@ -77,7 +77,7 @@ export default function NetWorthScreen() {
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
 
   const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
-  const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > 0.07 ? dState.highest_rate_debt : null;
+  const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
   const topCat = [...sectionTotals].filter((s) => s.total > 0).sort((a, b) => b.total - a.total)[0];
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
@@ -168,7 +168,7 @@ export default function NetWorthScreen() {
           ? <TouchableOpacity onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>Add a debt →</Text></TouchableOpacity>
           : (<>
             {liabilities.map((d, i) => {
-              const hot = d.interest_rate_apr > 0.07;
+              const hot = d.interest_rate_apr > TOXIC_APR;
               return (
                 <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} onPress={() => setDebtSheet({ open: true, edit: d })}>
                   <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>

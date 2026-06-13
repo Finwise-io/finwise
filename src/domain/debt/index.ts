@@ -121,7 +121,9 @@ export interface DebtState {
   toxic_debt_balance: number;       // balances above ~7% APR
 }
 
-const TOXIC_APR = 0.07;
+/** APR above which debt is "toxic" — paying it down beats almost any investment return. The single
+ *  source of truth for "high-interest / toxic" debt across the debt module, Net Worth, and Insights. */
+export const TOXIC_APR = 0.07;
 
 export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
   const total = debts.reduce((t, d) => t + d.remaining_balance, 0);

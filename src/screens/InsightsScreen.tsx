@@ -9,6 +9,7 @@ import { ageFromProfile } from '../utils/persona';
 import { investableValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
+import { TOXIC_APR } from '../domain/debt';
 import { spendBuckets } from '../domain/budget';
 import { buildInsights } from '../domain/insights';
 import { usePlanCompleteness } from './SharpenPlanScreen';
@@ -33,7 +34,7 @@ export function useInsights(limit?: number) {
     const gross = totalGrossAnnual(op);
     return buildInsights({
       cashMonths: monthlySpending > 0 ? cash / monthlySpending : null,
-      toxicDebt: toxic && toxic.interest_rate_apr > 0.10 ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
+      toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
       hasEarnedIncome: salaryAnnual(op) > 0,   // 401(k) needs W-2 wages
       retireChance: null,   // computed on the Retirement screen; left out here to avoid a heavy re-sim
