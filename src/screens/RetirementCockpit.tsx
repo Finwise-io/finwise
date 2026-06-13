@@ -14,6 +14,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
+import { colFactor } from '../domain/retirement/col';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
@@ -519,6 +520,12 @@ export default function RetirementCockpit() {
       <View style={styles.card}>
         <Text style={styles.liK}>In retirement (from {Math.round(spendEscFromAge)})</Text>
         <Text style={styles.note}>You plan to spend <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(planSpend)}/mo</Text> in today's dollars → about <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{big(spendHi)}/mo</Text> by {horizon} as prices rise {(planInfl * 100).toFixed(1)}%/yr <Text style={styles.srcTag}>{inflIsActual ? 'actual' : 'your plan'}</Text>.</Text>
+        {/* B-32: when a recognized retirement location adjusts the figure, say so — don't apply COL silently */}
+        {A.spendMonthly == null && (() => {
+          const col = colFactor(op.retLocation);
+          if (col.factor === 1 || !op.retLocation) return null;
+          return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}'s cost of living ({col.factor < 1 ? `${Math.round((1 - col.factor) * 100)}% lower` : `${Math.round((col.factor - 1) * 100)}% higher`} than the US).</Text>;
+        })()}
       </View>
 
       {/* TAX-SMART MOVES (accumulators) */}

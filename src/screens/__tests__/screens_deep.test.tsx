@@ -66,6 +66,20 @@ describe('RetirementCockpit — where you stand', () => {
     expect(screen.getByText(/assumes age \d+/)).toBeOnTheScreen();
     expect(screen.getByText('Grow my nest egg using')).toBeOnTheScreen();
   });
+
+  // BUG-LEDGER: B-32 — a cost-of-living adjustment from the retirement location must be labeled,
+  // not applied silently.
+  test('a recognized retirement location labels the cost-of-living adjustment', () => {
+    complete({ ...employedPartner, retLocation: 'Portugal', monthlySpending: '15000', expectedRetirementSpending: '15000' });
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/Adjusted for Portugal's cost of living/)).toBeOnTheScreen();
+  });
+
+  test('a US-based (factor 1) user sees no cost-of-living note', () => {
+    complete({ ...employedPartner, retLocation: 'Texas' });
+    render(<RetirementCockpit />);
+    expect(screen.queryByText(/cost of living/)).toBeNull();
+  });
 });
 
 describe('GoalsScreen — debt payoff plan', () => {
