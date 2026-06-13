@@ -23,6 +23,13 @@ User-lens QA walk (2026-06-12, docs/finwise-userlens-qa-2026-06-12.md, 34 test c
 Home/Budget/goal-capacity; B-31 cockpit ignores captured SS/pension) + 4 MED + 3 LOW. Suggested
 fix order in the report.
 
+Persona walk addendum (retiree / student / gig, 15 test cases: 10 pass / 5 fail) reproduced
+B-28 on ALL personas (highest-frequency bug), reproduced B-34 on the gig worker (flat income chart
+for swing pay), reproduced B-31 worse for an actually-retired user, **scoped B-33 to the
+lump-monthlySpending-no-categories path** (didn't reproduce where categories exist), and added
+**B-37** (retiree cockpit shows accumulation framing). Confirmed working: student tuition-crunch
+planner + gig lean-month calendar are accurate.
+
 | ID | Severity | Area | Symptom | Root cause | Exposing test | Status | Notes |
 |----|----------|------|---------|------------|---------------|--------|-------|
 | B-15 | HIGH | Onboarding→Net Worth | Re-running onboarding never updates Net Worth accounts; stale balances drive retirement math | `seedNetWorth` one-time guard (`src/store/useStore.ts:536`): `s.nwSeeded ? {} : {...}` | `journeys.test.ts` "re-seeding with updated answers", `store_networth.test.ts` | **fixed** 2026-06-12 | = user-test feedback #15. Fixed via origin-tagged merge: seeded rows carry `origin: 'onboarding'`; re-seed replaces only those, manual accounts never touched, legacy untagged rows deduped by label+bucket |
@@ -44,4 +51,5 @@ fix order in the report.
 | B-30 | LOW | DTI guideline | Mortgage holder graded with renter guideline (20% → "High" at 33% instead of homeowner 36%) | `debtsFromOnboarding` hardcodes `debt_type:'OTHER'`; `GoalsScreen` homeowner check needs MORTGAGE type | user-lens TC-09 | open | Infer type from label/kind picker |
 | B-32 | LOW | Retirement copy | "You plan to spend $8,288/mo" — user said $15,000; Portugal COL ×0.6 applied silently on the cockpit | retirementSpendMonthly COL factor unlabeled outside onboarding | user-lens TC-13 | open | Label: "$15,000 at home ≈ $8,288 in Portugal" |
 | B-36 | LOW | Tool prefills | Insurance check (savings/assets $0 → "$3.5M gap" for a 74yo with $1.75M), Roth converter (pre-tax $0 despite known $250k; misleading zero-state message) | Tools don't prefill from store/onboarding | user-lens TC-26/27 | open | Prefill from known data |
+| B-37 | MED | Retirement framing | Retiree cockpit shows accumulation framing ("Grow my nest egg · assumes age 65") for a retired 74yo, contradicting Home's "drawdown" focus | No `targetRetirementAge` → defaults 65; cockpit doesn't force drawdown when retired/age ≥ retire age | persona walk TC-R2 (docs/finwise-userlens-qa-2026-06-12.md addendum) | open | Force drawdown when employmentStatus retired or age ≥ retire age; don't default a retiree's retire age below their current age |
 | B-23 | LOW | Currency | Store has `currency`/`locale` but all domain calcs assume USD (tax packs, thresholds) | Cross-cutting | `_shared/money.test.ts` currency-seam test (Phase 5) | deferred | Known launch constraint; US-only at launch |
