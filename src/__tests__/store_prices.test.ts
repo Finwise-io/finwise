@@ -112,9 +112,9 @@ describe('refreshPrices', () => {
     expect(useStore.getState().assetAccounts.find((a) => a.label === 'Brokerage')!.balance).toBe(1000 + 2 * 410);
   });
 
-  // BUG-LEDGER: B-19 — a held ticker missing from the cache contributes $0 to the account balance:
-  // net worth silently understates instead of falling back to cost basis or flagging the row.
-  test('a position whose price is missing contributes $0 (documenting the silent understatement)', async () => {
+  // BUG-LEDGER: B-19 (fixed) — a held ticker missing from the cache falls back to its cost basis,
+  // not $0, so net worth no longer silently understates.
+  test('a position whose price is missing falls back to cost basis, not $0', async () => {
     useStore.getState().addAsset(brokerage({
       positions: [
         { position_id: 'p1', ticker: 'VOO', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 300, purchase_date: '2025-01-02' }] },
@@ -126,7 +126,7 @@ describe('refreshPrices', () => {
     await useStore.getState().refreshPrices();
 
     const acct = useStore.getState().assetAccounts.find((a) => a.label === 'Brokerage')!;
-    expect(acct.balance).toBe(1000 + 10 * 410 + 0);           // the $500-cost MYSTERY position counts as $0
+    expect(acct.balance).toBe(1000 + 10 * 410 + 5 * 100);    // VOO at live price + MYSTERY at its $500 cost basis
   });
 });
 

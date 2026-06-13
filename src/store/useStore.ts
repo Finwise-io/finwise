@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
-import { benchmarkTicker, marketValue, latestClose, type Position, type PriceSeries } from '../domain/performance';
+import { benchmarkTicker, marketValue, latestClose, costBasis, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, type Transaction } from '../domain/transactions';
 import { round2 } from '../domain/_shared/num';
 import { fetchPriceSeries } from '../services/marketData';
@@ -14,7 +14,9 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
   return accs.map((a) => {
     const ledgerManaged = (a.positions?.length ?? 0) > 0 || a.cash_balance != null;
     if (!ledgerManaged) return a;
-    const mv = (a.positions ?? []).reduce((t, p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return t + (px == null ? 0 : marketValue(p, px)); }, 0);
+    // B-19: a held position with no cached price falls back to its cost basis (what you paid),
+    // not $0 — counting it as $0 silently understated net worth.
+    const mv = (a.positions ?? []).reduce((t, p) => { const px = latestClose(cache[p.ticker.trim().toUpperCase()]); return t + (px == null ? costBasis(p) : marketValue(p, px)); }, 0);
     return { ...a, balance: round2((a.cash_balance || 0) + mv) };
   });
 }
