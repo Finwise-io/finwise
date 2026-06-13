@@ -266,8 +266,10 @@ export default function NetWorthScreen() {
           <View style={[styles.runway, { backgroundColor: runwayMonths >= 6 ? Colors.primaryLight : runwayMonths >= 3 ? '#FFF7E6' : '#FBE9E7' }]}>
             <Text style={styles.runwayIcon}>🛟</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.runwayTitle}>Your cash covers ~{runwayMonths.toFixed(1)} month{runwayMonths >= 1.95 || runwayMonths < 1 ? 's' : ''} of spending</Text>
-              <Text style={styles.runwaySub}>{money(cashOnHand)} cash ÷ {money(monthlySpend)}/mo · {runwayMonths >= 6 ? 'a strong cushion.' : runwayMonths >= 3 ? 'aim for 3–6 months.' : 'build toward 3–6 months.'}</Text>
+              {/* B-44: plain wording for the no-cash case (a "~0.0 months" reads as a glitch and alarms
+                  someone with plenty in investments — which this cash-only runway deliberately excludes). */}
+              <Text style={styles.runwayTitle}>{runwayMonths < 0.05 ? 'No cash set aside for emergencies' : `Your cash covers ~${runwayMonths.toFixed(1)} month${runwayMonths >= 1.95 || runwayMonths < 1 ? 's' : ''} of spending`}</Text>
+              <Text style={styles.runwaySub}>{money(cashOnHand)} cash ÷ {money(monthlySpend)}/mo · {runwayMonths >= 6 ? 'a strong cushion.' : runwayMonths >= 3 ? 'aim for 3–6 months.' : 'build toward 3–6 months (investments aren\'t counted here).'}</Text>
               <TouchableOpacity onPress={() => router.push('/stress-test')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
                 <Text style={styles.runwayLink}>Stress-test an emergency →</Text>
               </TouchableOpacity>

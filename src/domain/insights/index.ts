@@ -22,7 +22,8 @@ const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
 type Rule = (i: InsightInput) => Insight | null;
 const RULES: Rule[] = [
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
-  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: `Your cash covers about ${i.cashMonths.toFixed(1)} months of spending — aim for 3–6.`, route: '/(tabs)/goals' } : null,
+  // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
+  (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — aim for 3–6 months of spending (investments aren't counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of spending — aim for 3–6.`, route: '/(tabs)/goals' } : null,
   (i) => (i.retireChance != null && i.retireChance < 60) ? { id: 'retire-offtrack', priority: 1, icon: '🏖️', title: 'Your retirement plan needs attention', body: `Only a ${i.retireChance}% chance it lasts — adjust savings, age, or spending in the scenario.`, route: '/retirement' } : null,
   // B-48: a 401(k) needs earned income — don't nudge a retiree / no-wage user to contribute.
   (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `You can still contribute ${money0(i.k401Remaining)} this year — tax-advantaged.`, route: '/retirement' } : null,

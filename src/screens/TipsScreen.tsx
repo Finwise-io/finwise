@@ -103,6 +103,8 @@ export default function TipsScreen() {
       {/* Budget summary */}
       <Card style={styles.summaryCard}>
         <Text style={styles.summaryTitle}>This month at a glance</Text>
+        {/* B-46: explain the $0 — this section reflects what you've LOGGED, not your declared income/plan. */}
+        <Text style={styles.summarySub}>From what you've logged this month — not your full income or budget.</Text>
         <View style={styles.summaryRow}>
           <View style={styles.summaryItem}>
             <Text style={styles.summaryLabel}>Income</Text>
@@ -243,7 +245,8 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.base, gap: Spacing.sm },
   summaryCard: { padding: Spacing.md },
-  summaryTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium, color: Colors.textPrimary, marginBottom: Spacing.sm },
+  summaryTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium, color: Colors.textPrimary },
+  summarySub: { fontSize: 12, color: Colors.textTertiary, marginTop: 2, marginBottom: Spacing.sm },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
   summaryItem: { alignItems: 'center' },
   summaryLabel: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginBottom: 3 },

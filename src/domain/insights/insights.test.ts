@@ -40,4 +40,13 @@ describe('insight service', () => {
     expect(ins.title).toMatch(/account/i);
     expect(ins.body).not.toMatch(/single position/i);
   });
+
+  // BUG-LEDGER: B-44 — no-cash runway must read plainly, not "0.0 months".
+  test('zero-cash runway insight says "no cash set aside", not "0.0 months"', () => {
+    const ins = buildInsights({ ...clean, cashMonths: 0 }).find((i) => i.id === 'runway')!;
+    expect(ins.body).toMatch(/no cash set aside/i);
+    expect(ins.body).not.toMatch(/0\.0 months/);
+    // a real-but-low runway still quotes the number
+    expect(buildInsights({ ...clean, cashMonths: 1.5 }).find((i) => i.id === 'runway')!.body).toMatch(/1\.5 months/);
+  });
 });
