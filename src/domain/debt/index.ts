@@ -134,13 +134,26 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
   };
 }
 
+/** B-30: infer the debt type from its name so a "Mortgage" is treated as a mortgage (homeowner DTI
+ *  guideline), not lumped into OTHER (renter guideline). */
+export function inferDebtType(label: string | undefined): DebtType {
+  const s = (label ?? '').toLowerCase();
+  if (/mortgage|home\s*loan|heloc/.test(s)) return 'MORTGAGE';
+  if (/auto|car\s*loan|vehicle/.test(s)) return 'AUTO';
+  if (/student|tuition/.test(s)) return 'STUDENT_LOAN';
+  if (/credit\s*card|visa|mastercard|amex/.test(s)) return 'CREDIT_CARD';
+  if (/personal/.test(s)) return 'PERSONAL';
+  return 'OTHER';
+}
+
 export function debtsFromOnboarding(uid: UserId, op: Record<string, any> | null): DebtDoc {
   const a = op ?? {};
   const debts: Debt[] = [];
   const bal = toNum(a.debtBalance);
   if (bal > 0) {
+    const label = (a.debtName ?? 'Debt') || 'Debt';
     debts.push({
-      debt_id: newEntityId('debt'), label: (a.debtName ?? 'Debt') || 'Debt', debt_type: 'OTHER',
+      debt_id: newEntityId('debt'), label, debt_type: inferDebtType(label),
       remaining_balance: bal, interest_rate_apr: toNum(a.debtRate) / 100, minimum_monthly_payment: toNum(a.debtPayment),
       origin: 'onboarding',
     });

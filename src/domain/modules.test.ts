@@ -76,6 +76,14 @@ describe('debt', () => {
     expect(d.debts[0].remaining_balance).toBe(5000);
     expect(d.debts[0].interest_rate_apr).toBeCloseTo(0.065, 4);
   });
+  // BUG-LEDGER: B-30 — infer the debt type from its name so a mortgage gets the homeowner DTI guideline.
+  test('infers debt type from the name (mortgage → MORTGAGE)', () => {
+    expect(debtsFromOnboarding('u', { debtName: 'Mortgage', debtBalance: '760000', debtRate: '3.4', debtPayment: '7500' }).debts[0].debt_type).toBe('MORTGAGE');
+    expect(debtsFromOnboarding('u', { debtName: 'Car loan', debtBalance: '14000' }).debts[0].debt_type).toBe('AUTO');
+    expect(debtsFromOnboarding('u', { debtName: 'Student loans', debtBalance: '20000' }).debts[0].debt_type).toBe('STUDENT_LOAN');
+    expect(debtsFromOnboarding('u', { debtName: 'Visa', debtBalance: '3000' }).debts[0].debt_type).toBe('CREDIT_CARD');
+    expect(debtsFromOnboarding('u', { debtName: 'Loan', debtBalance: '5000' }).debts[0].debt_type).toBe('OTHER');
+  });
 });
 
 describe('net worth', () => {
