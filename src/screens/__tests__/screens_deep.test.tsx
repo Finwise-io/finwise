@@ -64,4 +64,26 @@ describe('GoalsScreen — debt payoff plan', () => {
     render(<GoalsScreen />);
     expect(screen.queryByText('DEBT PAYOFF PLAN')).toBeNull();
   });
+
+  // BUG-LEDGER: B-28 — "free cash to save" must be income AFTER spending, not gross income.
+  test('free-cash figure reflects savings (income − spend), not raw income', () => {
+    // $5,000/mo income, $3,000/mo rent → $2,000/mo free cash (not $5,000)
+    complete({
+      taxMode: 'manual', manualTaxRate: '0', status: 'employed',
+      baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'monthly',
+      spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '3000', unit: 'dollar' }],
+    });
+    render(<GoalsScreen />);
+    expect(screen.getByText(/\$2,000\/mo/)).toBeOnTheScreen();
+    expect(screen.queryByText(/\$5,000\/mo/)).toBeNull();   // not the gross income
+  });
+
+  test('a household running a deficit shows no "free cash to save" card', () => {
+    complete({
+      taxMode: 'manual', manualTaxRate: '0', status: 'employed',
+      baseSalary: '3000', salaryMode: 'gross', salaryFreq: 'monthly', monthlySpending: '4500',
+    });
+    render(<GoalsScreen />);
+    expect(screen.queryByText(/typical free cash to save/)).toBeNull();
+  });
 });

@@ -9,8 +9,8 @@ import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund } from '../domain/goals';
-import { incomeMonthlyGrid, totalGrossAnnual } from '../domain/income';
-import { spendBuckets } from '../domain/budget';
+import { totalGrossAnnual } from '../domain/income';
+import { spendBuckets, savingsByMonth } from '../domain/budget';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -27,7 +27,9 @@ export default function GoalsScreen() {
   const [extra, setExtra] = useState('');
 
   const op = store.onboardingProfile ?? {};
-  const capacity = useMemo(() => availableToSaveSummary(incomeMonthlyGrid(op, 'available')), [op]);
+  // B-28: free cash to save = income AFTER spending (savingsByMonth), not income alone. Using the
+  // income grid here showed users their gross monthly income as "free cash."
+  const capacity = useMemo(() => availableToSaveSummary(savingsByMonth(op)), [op]);
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
