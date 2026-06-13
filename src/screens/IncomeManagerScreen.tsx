@@ -139,8 +139,10 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
           <TouchableOpacity style={[styles.chip, mode === 'gross' && styles.chipOn]} onPress={() => setMode('gross')}><Text style={[styles.chipT, mode === 'gross' && styles.chipTOn]}>Gross (before tax)</Text></TouchableOpacity>
           <TouchableOpacity style={[styles.chip, mode === 'takehome' && styles.chipOn]} onPress={() => setMode('takehome')}><Text style={[styles.chipT, mode === 'takehome' && styles.chipTOn]}>Take-home</Text></TouchableOpacity>
         </View>
+        {/* B-40: a per-month salary table takes precedence over a flat amount, so editing base pay to
+            a flat figure must clear that table — otherwise the edit silently does nothing. */}
         <TouchableOpacity style={[styles.saveBtn, num(amt) <= 0 && { opacity: 0.4 }]} disabled={num(amt) <= 0}
-          onPress={() => onSave({ baseSalary: String(num(amt)), salaryFreq: freq, salaryMode: mode })}>
+          onPress={() => onSave({ baseSalary: String(num(amt)), salaryFreq: freq, salaryMode: mode, salaryByMonth: undefined, salaryMonthMode: undefined })}>
           <Text style={styles.saveBtnT}>Save · {money(annual)}/yr</Text>
         </TouchableOpacity>
       </View>
