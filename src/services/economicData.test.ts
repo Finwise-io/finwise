@@ -57,12 +57,26 @@ describe('fetchEconomicData', () => {
     expect((await fetchEconomicData()).inflationRate).toBe(3.2);
   });
 
-  // BUG-LEDGER: B-25 — the result carries no flag marking fallback vs live data, so downstream
-  // projections silently run on defaults during an outage and the UI can't label them as estimates.
-  test('fallback data is indistinguishable from live data (documenting)', async () => {
+  // BUG-LEDGER: B-25 (fixed) — fallback values now carry per-source flags so the UI can label them.
+  test('fallback values are flagged; live values are not', async () => {
     fetchMock.mockRejectedValue(new Error('offline'));
+    const down = await fetchEconomicData();
+    expect(down.inflationIsFallback).toBe(true);
+    expect(down.treasuryIsFallback).toBe(true);
+
+    fetchMock.mockImplementation((url: string) =>
+      Promise.resolve(okResponse(String(url).includes('bls.gov') ? blsBody : treasuryBody)));
+    const live = await fetchEconomicData();
+    expect(live.inflationIsFallback).toBe(false);
+    expect(live.treasuryIsFallback).toBe(false);
+  });
+
+  test('a partial outage flags only the failed source', async () => {
+    fetchMock.mockImplementation((url: string) =>
+      String(url).includes('bls.gov') ? Promise.reject(new Error('down')) : Promise.resolve(okResponse(treasuryBody)));
     const econ = await fetchEconomicData();
-    expect(Object.keys(econ).sort()).toEqual(['fetchedAt', 'inflationRate', 'treasuryYield']);  // no isFallback flag
+    expect(econ.inflationIsFallback).toBe(true);
+    expect(econ.treasuryIsFallback).toBe(false);
   });
 });
 

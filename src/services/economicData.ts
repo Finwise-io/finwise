@@ -12,7 +12,15 @@ export type EconomicData = {
   inflationRate: number;   // % YoY
   treasuryYield: number;   // 10-year yield %
   fetchedAt: string;
+  // B-25: flag when a value is a typical-rate fallback (live fetch failed) so the UI can label it
+  // as an estimate instead of presenting defaults as live data.
+  inflationIsFallback: boolean;
+  treasuryIsFallback: boolean;
 };
+
+// Typical-rate fallbacks used when the live source is unreachable.
+export const FALLBACK_INFLATION = 3.2;
+export const FALLBACK_TREASURY = 4.35;
 
 // BLS public API — no key required for basic use
 const BLS_CPI_SERIES = 'CUUR0000SA0';
@@ -32,9 +40,11 @@ export async function fetchEconomicData(): Promise<EconomicData> {
   ]);
 
   return {
-    inflationRate: inflation.status === 'fulfilled' ? inflation.value : 3.2,
-    treasuryYield: treasury.status === 'fulfilled' ? treasury.value : 4.35,
+    inflationRate: inflation.status === 'fulfilled' ? inflation.value : FALLBACK_INFLATION,
+    treasuryYield: treasury.status === 'fulfilled' ? treasury.value : FALLBACK_TREASURY,
     fetchedAt: new Date().toISOString(),
+    inflationIsFallback: inflation.status !== 'fulfilled',
+    treasuryIsFallback: treasury.status !== 'fulfilled',
   };
 }
 
