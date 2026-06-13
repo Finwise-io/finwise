@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
 import { investableValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
-import { totalGrossAnnual } from '../domain/income';
+import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { spendBuckets } from '../domain/budget';
 import { buildInsights } from '../domain/insights';
@@ -35,9 +35,10 @@ export function useInsights(limit?: number) {
       cashMonths: monthlySpending > 0 ? cash / monthlySpending : null,
       toxicDebt: toxic && toxic.interest_rate_apr > 0.10 ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
+      hasEarnedIncome: salaryAnnual(op) > 0,   // 401(k) needs W-2 wages
       retireChance: null,   // computed on the Retirement screen; left out here to avoid a heavy re-sim
       cashDragPct: investable > 0 ? (cash / investable) * 100 : 0,
-      topHoldingPct: investable > 0 ? (topAccount / investable) * 100 : 0,
+      topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
       planPct: plan.pct,
       beatBy: actual != null ? actual - blendedReturn(accounts) : null,
       savingsRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,

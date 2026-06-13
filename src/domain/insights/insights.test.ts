@@ -1,6 +1,6 @@
 import { buildInsights, type InsightInput } from './index';
 
-const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, retireChance: 90, cashDragPct: 10, topHoldingPct: 20, planPct: 100, beatBy: 0.01, savingsRate: 0.2 };
+const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, savingsRate: 0.2 };
 
 describe('insight service', () => {
   test('healthy state → no insights', () => {
@@ -26,5 +26,18 @@ describe('insight service', () => {
       expect(i.body.length).toBeGreaterThan(0);
       expect(i.route).toBeTruthy();
     });
+  });
+
+  // BUG-LEDGER: B-48 — don't nudge a no-earned-income user (retiree/gig) about 401(k) room.
+  test('401(k)-room nudge requires earned income', () => {
+    expect(buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: false }).map((i) => i.id)).not.toContain('k401-room');
+    expect(buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: true }).map((i) => i.id)).toContain('k401-room');
+  });
+
+  // BUG-LEDGER: B-45 — concentration is measured per ACCOUNT; the copy must not claim "single position".
+  test('concentration insight says "account", not "position"', () => {
+    const ins = buildInsights({ ...clean, topAccountPct: 86 }).find((i) => i.id === 'concentration')!;
+    expect(ins.title).toMatch(/account/i);
+    expect(ins.body).not.toMatch(/single position/i);
   });
 });
