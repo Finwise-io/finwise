@@ -13,7 +13,9 @@ const BRACKETS = [{ r: 0.10, l: '10%' }, { r: 0.12, l: '12%' }, { r: 0.22, l: '2
 export default function RothScreen() {
   const store = useStore() as any;
   const accounts = store.assetAccounts ?? [];
-  const preTaxGuess = Math.round(accounts.filter((x: any) => x.tax_bucket === 'RETIREMENT').reduce((t: number, x: any) => t + (x.balance || 0), 0));
+  // B-36: the pre-tax bucket is 'PRE_TAX' (there is no 'RETIREMENT' bucket), so this prefill always
+  // found $0 and the screen showed a misleading "no room" message despite a known 401(k) balance.
+  const preTaxGuess = Math.round(accounts.filter((x: any) => x.tax_bucket === 'PRE_TAX').reduce((t: number, x: any) => t + (x.balance || 0), 0));
 
   const [bal, setBal] = useState(preTaxGuess > 0 ? String(preTaxGuess) : '');
   const [income, setIncome] = useState('');

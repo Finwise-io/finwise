@@ -7,6 +7,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { lifeInsuranceNeed } from '../domain/planning';
 import { totalGrossAnnual } from '../domain/income';
+import { investableValue } from '../domain/assets';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -15,13 +16,16 @@ export default function InsuranceScreen() {
   const op = store.onboardingProfile ?? {};
   const incomeGuess = Math.round(totalGrossAnnual(op));
   const debtGuess = Math.round((store.liabilities ?? []).reduce((t: number, d: any) => t + (d.remaining_balance || 0), 0));
+  // B-36: prefill savings/assets from the user's investable accounts so a wealthy household isn't
+  // shown a multimillion-dollar "gap" just because the field defaulted to $0.
+  const savingsGuess = Math.round(investableValue(store.assetAccounts ?? []));
 
   const [income, setIncome] = useState(incomeGuess > 0 ? String(incomeGuess) : '');
   const [years, setYears] = useState('10');
   const [debts, setDebts] = useState(debtGuess > 0 ? String(debtGuess) : '');
   const [goals, setGoals] = useState('');
   const [final, setFinal] = useState('15000');
-  const [savings, setSavings] = useState('');
+  const [savings, setSavings] = useState(savingsGuess > 0 ? String(savingsGuess) : '');
   const [existing, setExisting] = useState('');
 
   const need = useMemo(() => lifeInsuranceNeed({
