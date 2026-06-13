@@ -13,7 +13,8 @@ export interface InsightInput {
   topAccountPct: number;                            // largest single investment ACCOUNT as % of investable
   planPct: number;                                  // "sharpen your plan" completeness
   beatBy: number | null;                            // portfolio vs benchmark (decimal pts)
-  savingsRate: number | null;                       // saved ÷ income
+  investRate: number | null;                        // retirement/investment contributions ÷ GROSS income
+                                                    // (distinct from budget's "savings rate" = take-home not spent)
 }
 
 const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
@@ -31,7 +32,9 @@ const RULES: Rule[] = [
   (i) => i.cashDragPct > 30 ? { id: 'cash-drag', priority: 2, icon: '💵', title: 'A lot is sitting in cash', body: `${Math.round(i.cashDragPct)}% of your investable money is in cash earning little — consider investing some.`, route: '/performance' } : null,
   // B-45: this measures the largest ACCOUNT, not a single ticker — word it honestly.
   (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${Math.round(i.topAccountPct)}% of your invested money is in a single account — add the holdings inside it and spread across accounts to lower risk.`, route: '/performance' } : null,
-  (i) => (i.savingsRate != null && i.savingsRate < 0.1) ? { id: 'savings-rate', priority: 2, icon: '📈', title: 'Nudge up your savings rate', body: `You're saving about ${pctTxt(i.savingsRate)} of income — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,
+  // B-52: this is contributions/gross — name it "investing" so it doesn't collide with the budget's
+  // "savings rate" (take-home not spent), which is a different number.
+  (i) => (i.investRate != null && i.investRate < 0.1) ? { id: 'invest-rate', priority: 2, icon: '📈', title: 'Nudge up your investing', body: `You're investing about ${pctTxt(i.investRate)} of your gross income toward retirement — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,
   (i) => i.planPct < 100 ? { id: 'plan-incomplete', priority: 3, icon: '✨', title: 'Sharpen your plan', body: `Your plan is ${i.planPct}% complete — finishing it makes every number sharper.`, route: '/sharpen' } : null,
 ];
 

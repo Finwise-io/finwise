@@ -42,7 +42,7 @@ export function useInsights(limit?: number) {
       topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
       planPct: plan.pct,
       beatBy: actual != null ? actual - blendedReturn(accounts) : null,
-      savingsRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,
+      investRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,   // B-52: % of GROSS invested (≠ budget savings rate)
     }, limit);
   }, [store.onboardingProfile, store.assetAccounts, store.liabilities, plan.pct, limit]);
 }

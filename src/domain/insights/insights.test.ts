@@ -1,6 +1,6 @@
 import { buildInsights, type InsightInput } from './index';
 
-const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, savingsRate: 0.2 };
+const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2 };
 
 describe('insight service', () => {
   test('healthy state → no insights', () => {
@@ -32,6 +32,14 @@ describe('insight service', () => {
   test('401(k)-room nudge requires earned income', () => {
     expect(buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: false }).map((i) => i.id)).not.toContain('k401-room');
     expect(buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: true }).map((i) => i.id)).toContain('k401-room');
+  });
+
+  // BUG-LEDGER: B-52 — the investing nudge must be named distinctly from the budget's "savings rate".
+  test('low contributions fire an "investing" insight, not a "savings rate" one', () => {
+    const ins = buildInsights({ ...clean, investRate: 0.05 }).find((i) => i.id === 'invest-rate')!;
+    expect(ins.title).toMatch(/investing/i);
+    expect(ins.body).toMatch(/gross income/i);
+    expect(ins.title).not.toMatch(/savings rate/i);
   });
 
   // BUG-LEDGER: B-45 — concentration is measured per ACCOUNT; the copy must not claim "single position".
