@@ -21,6 +21,24 @@ describe('tax organizer', () => {
     const o = taxOrganizer(op, { actualPassive: 3500, year: 2026 });
     expect(o.income.find((l) => l.label === 'Interest & dividends')!.amount).toBe(3500);
   });
+
+  // BUG-LEDGER: B-35 — a working person's FUTURE Social Security/pension must not be taxed today.
+  test('future Social Security/pension is NOT in a working person\'s taxable income', () => {
+    const working: OnboardingProfile = { ...op, ri_ss: '2000', ri_pension: '1500' };  // employed, not retired
+    const o = taxOrganizer(working, { year: 2026 });
+    expect(o.income.find((l) => l.label.startsWith('Retirement income'))?.amount ?? 0).toBe(0);  // absent or $0
+    const withoutRi = taxOrganizer(op, { year: 2026 });
+    expect(o.taxableTotal).toBe(withoutRi.taxableTotal);   // adding future SS changed nothing
+  });
+
+  test('a retiree who receives it DOES report retirement income', () => {
+    const retiree: OnboardingProfile = {
+      taxMode: 'manual', manualTaxRate: '12', status: 'retired',
+      incomeSources: ['retirement_income'], ri_ss: '2000', ri_pension: '1500',
+    };
+    const o = taxOrganizer(retiree, { year: 2026 });
+    expect(o.income.find((l) => l.label.startsWith('Retirement income'))!.amount).toBe((2000 + 1500) * 12);
+  });
 });
 
 describe('Roth conversion (fill a bracket)', () => {

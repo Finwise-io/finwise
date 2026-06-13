@@ -3,7 +3,7 @@ import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { round2, toNum } from '../_shared/num';
 import { TAX_BRACKETS, STANDARD_DEDUCTION, taxableIncome, taxOwed } from '../income/tax';
-import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, retirementIncomeMonthly, effectiveRate, benefitAnnual } from '../income';
+import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual } from '../income';
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
 // A year-end summary + a tailored document checklist. NOT a tax return — an organizer. Pure: the
@@ -25,7 +25,9 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
   const seAnnual = a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount) * 12;
   const otherAnnual = a.otherFreq === 'annual' ? toNum(a.otherAmount) : a.otherFreq === 'onetime' ? toNum(a.otherAmount) : toNum(a.otherAmount) * 12;
   const invDiv = opts.actualPassive && opts.actualPassive > 0 ? opts.actualPassive : toNum(a.invAnnual);
-  const retInc = retirementIncomeMonthly(op) * 12;
+  // B-35: only tax retirement income the user actually RECEIVES this year (gated) — a working
+  // 40-year-old's future Social Security must not land in today's taxable income.
+  const retInc = currentRetirementIncomeMonthly(op) * 12;
 
   const income: TaxLine[] = [
     { label: 'Wages (W-2)', amount: round2(salaryAnnual(op)), taxable: true },
