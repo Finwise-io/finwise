@@ -237,7 +237,10 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
     });
   };
 
-  add('Base salary', 'W2_JOB', grossSalaryMonthly(op), 'MONTHLY', { employer_match_amount: employerMatchMonthly(op) });
+  // B-34: book the TRUE annual salary (sum of the by-month table), expressed as a monthly average so
+  // the employer-match annualization stays correct. Using the max month here inflated income for
+  // anyone with $0 gap months (e.g. 6-on/6-off), and disagreed with totalGrossAnnual elsewhere.
+  add('Base salary', 'W2_JOB', salaryAnnual(op) / 12, 'MONTHLY', { employer_match_amount: employerMatchMonthly(op) });
   add('Bonus', 'W2_JOB', toNum(a.bonusAnnual), 'ANNUAL');
   add('Equity comp', 'W2_JOB', rsuAnnual(op), 'ANNUAL');  // RSUs + options, summed across grants
   add('Signing bonus', 'W2_JOB', toNum(a.signingOnetime), 'ONETIME');
@@ -249,7 +252,7 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   });
 
   // Additional sources (self-employment, investment, benefits, support, scholarship, other)
-  add('Tips', 'W2_JOB', toNum(a.tipsMonthly), 'MONTHLY');
+  add('Tips', 'W2_JOB', tipsAnnual(op) / 12, 'MONTHLY');   // B-34: tips ride with worked months, not a flat ×12
   add('Retirement income', 'OTHER', currentRetirementIncomeMonthly(op), 'MONTHLY');
   add('Self-employment', 'SELF_EMPLOYMENT', a.seFreq === 'annual' ? toNum(a.seAmount) : toNum(a.seAmount), a.seFreq === 'annual' ? 'ANNUAL' : 'MONTHLY');
   add('Interest & dividends', 'INVESTMENT', toNum(a.invAnnual), 'ANNUAL');

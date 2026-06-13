@@ -155,6 +155,32 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(salaryAnnual(op)).toBe(3000 * 7);   // 7 paid months
   });
 
+  // BUG-LEDGER: B-34 — IncomeState booked salary as max-month × 12, ignoring $0 gap months,
+  // so total_gross_annual was inflated for anyone with uneven pay (and disagreed with
+  // totalGrossAnnual / the bill calendar / tax organizer). Booking must equal the real table sum.
+  test('B-34: gapped salary total equals the table sum, not max-month × 12', () => {
+    const op: OnboardingProfile = { salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5]), salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };  // 6 paid months @ 3000
+    const st = buildIncomeState('u1', incomeFromOnboarding('u1', op).sources, { use_manual_tax_override: true, manual_effective_tax_rate: 0 });
+    expect(st.total_gross_annual).toBe(3000 * 6);            // $18,000, NOT 3000×12
+    expect(st.total_gross_annual).toBe(totalGrossAnnual(op)); // IncomeState agrees with the canonical total
+  });
+
+  test('B-34: tips on a gapped job count only in worked months', () => {
+    const op: OnboardingProfile = {
+      salaryByMonth: monthsArr([0, 1, 2, 3, 4, 5], '2000'), salaryMode: 'gross', tipsMonthly: '300',
+      taxMode: 'manual', manualTaxRate: '0',
+    };
+    const st = buildIncomeState('u1', incomeFromOnboarding('u1', op).sources, { use_manual_tax_override: true, manual_effective_tax_rate: 0 });
+    expect(st.total_gross_annual).toBe((2000 + 300) * 6);    // salary + tips, 6 worked months
+    expect(st.total_gross_annual).toBe(totalGrossAnnual(op));
+  });
+
+  test('B-34: flat salary unaffected (regression guard)', () => {
+    const op: OnboardingProfile = { baseSalary: '5000', salaryMode: 'gross', taxMode: 'manual', manualTaxRate: '0' };
+    const st = buildIncomeState('u1', incomeFromOnboarding('u1', op).sources, { use_manual_tax_override: true, manual_effective_tax_rate: 0 });
+    expect(st.total_gross_annual).toBe(60000);
+  });
+
   test('multiple scholarships sum (non-taxable) into monthly income', () => {
     const op: OnboardingProfile = { scholarships: [{ label: 'Pell', amount: '6000', freq: 'annual' }, { label: 'Stipend', amount: '200', freq: 'monthly' }] };
     expect(extraIncome(op).nontaxMonthly).toBeCloseTo(6000 / 12 + 200, 2);   // 500 + 200 = 700
