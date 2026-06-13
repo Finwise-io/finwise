@@ -30,6 +30,17 @@ lump-monthlySpending-no-categories path** (didn't reproduce where categories exi
 **B-37** (retiree cockpit shows accumulation framing). Confirmed working: student tuition-crunch
 planner + gig lean-month calendar are accurate.
 
+**Prior-testing reconciliation (2026-06-12):** folded in findings from earlier QA docs so this
+ledger covers prior testing too, not just this session. The onboarding **screen review**
+(`finwise-onboarding-screen-review.md`, 6 P1/6 P2/8 P3) and **flow review**
+(`finwise-onboarding-flow-review.md`) were **fixed** in commits d3268ce / f2ec7a5 / 88b5117
+(decimal-pad inputs, dead `employerContribution` screen wired, `retLocation`→COL, recap screens,
+household-first ordering, etc.) — verified, no open rows needed. The **data review**
+(`finwise-data-review.md`) was mostly resolved (travelBudget/medicalBudget/spendingChangeLater now
+feed `retirementSpendMonthly`; actual dividend/coupon income now in IncomeDetail; cashflow consumes
+budget.spendByMonth), **but six findings remain open → added as B-38..B-43** (verified still open
+against the code on 2026-06-12).
+
 | ID | Severity | Area | Symptom | Root cause | Exposing test | Status | Notes |
 |----|----------|------|---------|------------|---------------|--------|-------|
 | B-15 | HIGH | Onboarding→Net Worth | Re-running onboarding never updates Net Worth accounts; stale balances drive retirement math | `seedNetWorth` one-time guard (`src/store/useStore.ts:536`): `s.nwSeeded ? {} : {...}` | `journeys.test.ts` "re-seeding with updated answers", `store_networth.test.ts` | **fixed** 2026-06-12 | = user-test feedback #15. Fixed via origin-tagged merge: seeded rows carry `origin: 'onboarding'`; re-seed replaces only those, manual accounts never touched, legacy untagged rows deduped by label+bucket |
@@ -53,3 +64,9 @@ planner + gig lean-month calendar are accurate.
 | B-36 | LOW | Tool prefills | Insurance check (savings/assets $0 → "$3.5M gap" for a 74yo with $1.75M), Roth converter (pre-tax $0 despite known $250k; misleading zero-state message) | Tools don't prefill from store/onboarding | user-lens TC-26/27 | open | Prefill from known data |
 | B-37 | MED | Retirement framing | Retiree cockpit shows accumulation framing ("Grow my nest egg · assumes age 65") for a retired 74yo, contradicting Home's "drawdown" focus | No `targetRetirementAge` → defaults 65; cockpit doesn't force drawdown when retired/age ≥ retire age | persona walk TC-R2 (docs/finwise-userlens-qa-2026-06-12.md addendum) | open | Force drawdown when employmentStatus retired or age ≥ retire age; don't default a retiree's retire age below their current age |
 | B-23 | LOW | Currency | Store has `currency`/`locale` but all domain calcs assume USD (tax packs, thresholds) | Cross-cutting | `_shared/money.test.ts` currency-seam test (Phase 5) | deferred | Known launch constraint; US-only at launch |
+| B-38 | MED | Retirement realism | RMDs (forced withdrawals age 73+) are computed in `decumulation` but `simulate()` never forces them — post-73 mandatory withdrawals & their tax drag aren't modeled in the Monte Carlo | `src/domain/retirement/index.ts` `simulate()` has no RMD term (decumulation `rmdAtAge` unused there) | prior data-review §2 (docs/finwise-data-review.md); verified still open 2026-06-12 | open | From prior testing. Force RMDs from preTax balance post-73 in the sim |
+| B-39 | MED | Retirement realism | Retirement projection ignores `liabilities` — it implicitly assumes debt-free at retirement; a user with a mortgage sees an over-optimistic "needed" | `buildRetirementState` start_balance = assets only (`src/domain/snapshot.ts:70`); no debt term in retirement inputs | prior data-review §2; verified still open 2026-06-12 | open | From prior testing. Net remaining debt service into retirement need, or net debt off start balance |
+| B-40 | MED | Edit-back coupling | Income/cashflow read raw `onboardingProfile`, so editing income after onboarding doesn't reflect unless the edit writes back into `op` — Net Worth/Budget edits write their own store arrays that income/cashflow don't read | Architectural: domain reads `op` for income; post-onboarding income edits weak spot | prior data-review "Cons" | open | From prior testing. Route income edits back into onboardingProfile (IncomeManager partially does) |
+| B-41 | LOW | Goals feedback | `goals.waterfall()` recommends a funding order but nothing records what actually got funded — suggestion-only, no feedback loop | `src/domain/goals/index.ts` waterfall is stateless | prior data-review §2 | open | From prior testing. Product call: persist funded allocations or leave advisory |
+| B-42 | LOW | Legacy field | Legacy `debts` array still present in store (`useStore.ts:208,395`) alongside canonical `liabilities`; @deprecated + migration landing, not yet removed | Dual representation kept for migration | prior data-review §5; verified still present 2026-06-12 | open | From prior testing. Remove once migration window passes |
+| B-43 | LOW | Transaction UI | TransactionSheet account chips render identically when two accounts share a name (no kind/last-4 disambiguator) | `PerformanceScreen` TransactionSheet chip label = account name only | prior Tier-4 flow walkthrough observation (finwise-onboarding-flow-review.md) | open | From prior testing. Add kind/last-4 to the chip |

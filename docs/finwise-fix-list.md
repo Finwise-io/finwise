@@ -4,9 +4,10 @@ Consolidated, prioritized fix backlog from the comprehensive-testing pass + user
 (Jane) + retiree/student/gig persona walk (2026-06-12). Source of record: `finwise-bug-ledger.md`.
 Detail and screenshots: `finwise-userlens-qa-2026-06-12.md`.
 
-**Status:** 2 HIGH already fixed (B-15, B-16). **15 open** below. Already-decided non-issues
-(B-17, B-20 by-design; B-22 not-a-bug; B-21 pending product call; B-23 deferred, US-only at launch)
-are listed at the bottom and need no code.
+**Status:** 2 HIGH already fixed (B-15, B-16). **21 open** below (15 from this session's testing +
+6 reconciled from prior-testing docs). Already-decided non-issues (B-17, B-20 by-design; B-22
+not-a-bug; B-21 pending product call; B-23 deferred, US-only at launch) are listed at the bottom and
+need no code.
 
 Recommended order is top-to-bottom: it front-loads the bugs that corrupt the most screens and are
 cheapest to fix. The first four are the launch-blockers.
@@ -145,6 +146,41 @@ cheapest to fix. The first four are the launch-blockers.
   drop the cents to match the app-wide whole-dollar style.
 - Student's parental support labeled "Child support / alimony" (Income manager).
 - "Room left in your 401(k)" nudge shown to users with no earned income / no 401(k) (retiree, gig).
+
+---
+
+## P2 (cont.) — Reconciled from prior testing (data-review, still open)
+
+These predate this session; they were documented in `finwise-data-review.md` and verified still open
+against the code on 2026-06-12. Most of that review was already fixed in earlier commits — these are
+the remainder.
+
+### 16. B-38 (MED) — Retirement Monte Carlo doesn't force RMDs
+- Post-73 required minimum withdrawals (and their tax drag) aren't modeled in `simulate()`, though
+  `decumulation.rmdAtAge` exists. Overstates how long money lasts for pre-tax-heavy savers.
+- **Fix:** force RMDs from the pre-tax balance after 73 in the sim.
+
+### 17. B-39 (MED) — Retirement projection ignores debt
+- The projection starts from assets only and implicitly assumes debt-free at retirement; a mortgage
+  holder sees an over-optimistic "needed" number. (`src/domain/snapshot.ts:70`)
+- **Fix:** net remaining debt service into the retirement need, or net debt off the start balance.
+
+### 18. B-40 (MED) — Post-onboarding income edits don't always flow back
+- Income/cashflow read raw `onboardingProfile`; editing income after onboarding doesn't reflect
+  unless the edit writes back into `op`. Net Worth/Budget edits use their own store arrays. The
+  Income manager partially handles this; the seam is the weak spot.
+- **Fix:** route income edits back into `onboardingProfile` consistently.
+
+### 19. B-41 (LOW) — Goals waterfall is suggestion-only
+- `goals.waterfall()` recommends a funding order but nothing records what was actually funded.
+- **Fix (product call):** persist funded allocations, or leave advisory and label it so.
+
+### 20. B-42 (LOW) — Legacy `debts` store field not yet removed
+- Still present (`useStore.ts:208,395`) alongside canonical `liabilities`; `@deprecated` + migration
+  landing. Remove once the migration window passes.
+
+### 21. B-43 (LOW) — Duplicate-looking account chips in TransactionSheet
+- Two accounts with the same name render identical chips. Add a kind/last-4 disambiguator.
 
 ---
 
