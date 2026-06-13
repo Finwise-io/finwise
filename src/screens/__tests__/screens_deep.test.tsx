@@ -80,6 +80,20 @@ describe('RetirementCockpit — where you stand', () => {
     render(<RetirementCockpit />);
     expect(screen.queryByText(/cost of living/)).toBeNull();
   });
+
+  // BUG-LEDGER: B-39 — the projection doesn't subtract debt, so a user with a loan is told to
+  // include its payment in spending rather than left to assume it's handled.
+  test('a user with debt sees the "debt is covered within your spending" note', () => {
+    complete(employedPartner);   // has a $14k car loan
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/include its payment in the figure above/)).toBeOnTheScreen();
+  });
+
+  test('a debt-free user sees no debt note', () => {
+    complete({ ...employedPartner, debtBalance: '0' });
+    render(<RetirementCockpit />);
+    expect(screen.queryByText(/include its payment in the figure above/)).toBeNull();
+  });
 });
 
 describe('GoalsScreen — debt payoff plan', () => {

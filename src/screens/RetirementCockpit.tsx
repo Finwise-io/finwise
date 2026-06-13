@@ -384,7 +384,7 @@ export default function RetirementCockpit() {
           {/* RMDs + healthcare */}
           <View style={styles.card}>
             <Text style={styles.liK}>Heads-up</Text>
-            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> start at {RMD_START_AGE}. On today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year — taxed as income whether you need it or not.</Text>}
+            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> start at {RMD_START_AGE}. On today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax on these withdrawals.</Text>}
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.</Text>
             {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before RMDs/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future RMDs and lifetime tax.</Text>}
           </View>
@@ -526,6 +526,11 @@ export default function RetirementCockpit() {
           if (col.factor === 1 || !op.retLocation) return null;
           return <Text style={[styles.note, { marginTop: 4 }]}>Adjusted for {col.name}'s cost of living ({col.factor < 1 ? `${Math.round((1 - col.factor) * 100)}% lower` : `${Math.round((col.factor - 1) * 100)}% higher`} than the US).</Text>;
         })()}
+        {/* B-39: the projection doesn't subtract debt separately — make that explicit so a user with a
+            mortgage includes its payment in the spend above rather than assuming it's handled. */}
+        {(store.liabilities ?? []).reduce((t: number, d: any) => t + (d.remaining_balance || 0), 0) > 0 && (
+          <Text style={[styles.note, { marginTop: 4 }]}>💳 This assumes any debt is covered within your spending — if a loan (e.g. a mortgage) will still be running, include its payment in the figure above.</Text>
+        )}
       </View>
 
       {/* TAX-SMART MOVES (accumulators) */}
