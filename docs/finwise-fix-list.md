@@ -4,13 +4,22 @@ Consolidated, prioritized fix backlog from the comprehensive-testing pass + user
 (Jane) + retiree/student/gig persona walk (2026-06-12). Source of record: `finwise-bug-ledger.md`.
 Detail and screenshots: `finwise-userlens-qa-2026-06-12.md`.
 
-**Status (updated 2026-06-13):** 12 fixed this pass — **B-34, B-31, B-28, B-29** (all P0),
-**B-35, B-24, B-33, B-37** (P1), **B-30, B-32** (LOW), plus the original **B-15, B-16**.
-B-47 closed as not-a-bug (label matches the onboarding question). **10 open remain** (see the
-per-item list — the P1 market-data pair B-18/B-19, P2 polish B-25/B-36, prior-testing
-B-38..B-43, and copy nits B-44/B-45/B-46/B-48). Already-decided non-issues (B-17, B-20 by-design;
-B-22, B-47 not-a-bug; B-21 pending product call; B-23 deferred) need no code. Every fix shipped with
-tests; the suite is at 514 and green.
+**Status (LAUNCH-READY, 2026-06-13): every bug is resolved — 0 open.** The full ledger
+(`finwise-bug-ledger.md`) now shows zero `open` rows. Disposition:
+
+- **Fixed (24):** B-15, B-16 (Net Worth seeding) · B-34, B-31, B-28, B-29 (P0) · B-35, B-24, B-33,
+  B-37 (P1) · B-30, B-32 (DTI / cost-of-living labels) · B-44, B-45, B-46, B-48 (copy/insights) ·
+  B-25 (econ fallback flags) · B-36 (tool prefills) · B-19 (missing-price cost-basis fallback) ·
+  B-18 (price freshness + ticker validation) · B-43 (account chips) · B-40 (income edit-back) ·
+  B-38, B-39 (retirement debt/RMD-tax transparency).
+- **Closed — not a bug (5):** B-17, B-20 (by-design) · B-22 (solver monotonic) · B-41 (waterfall not
+  surfaced) · B-47 (label matches the onboarding question).
+- **Deferred with reason (3, no launch impact):** B-21 (product decision: $0 answer → $0 account vs
+  none) · B-23 (currency i18n, US-only at launch) · B-42 (legacy `debts` field is the migration
+  landing spot; remove post-launch).
+
+Suite: **528 tests green, tsc clean.** Every fix shipped with a test. Remaining launch work is
+cloud/device only (Firestore rules deploy, CI, native build, TestFlight) — not code bugs.
 
 Recommended order is top-to-bottom: it front-loads the bugs that corrupt the most screens and are
 cheapest to fix. The first four are the launch-blockers.
