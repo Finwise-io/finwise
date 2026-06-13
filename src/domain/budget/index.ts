@@ -96,7 +96,10 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
 export function monthlyEssentials(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
-  if (!cats) return spendBuckets(op).monthly_total;
+  // B-33: with no itemized categories we can't separate wants from needs, so treat the stated total
+  // spend as must-pay (conservative for an emergency-fund target). Returning $0 here let the stress
+  // test claim "strong cushion" with $0 cash while also saying the user would go into the red.
+  if (!cats) return Math.max(spendBuckets(op).monthly_total, toNum(a.monthlySpending));
   const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
   let ess = 0;
   for (const c of cats) {

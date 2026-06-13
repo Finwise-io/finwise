@@ -29,6 +29,17 @@ describe('emergency stress test', () => {
     expect(r.coversIt).toBe(false);
     expect(r.cashAfter).toBe(-2000);
   });
+
+  // BUG-LEDGER: B-33 — a user who gave a lump monthlySpending with no itemized categories used to
+  // get $0 essentials → "strong cushion" with $0 cash, contradicting "you'd go into the red."
+  test('lump monthlySpending with no categories falls back to that total (no $0-essentials)', () => {
+    const lump: OnboardingProfile = { taxMode: 'manual', manualTaxRate: '0', monthlySpending: '5000' };
+    expect(monthlyEssentials(lump)).toBe(5000);
+    const r = emergencyTest(lump, 0, 3000);
+    expect(r.coversIt).toBe(false);              // $0 cash can't absorb a $3k hit
+    expect(r.recommendedFund).toBe(15000);       // 3 × $5k
+    expect(r.gapToFund).toBe(15000);             // and the full fund is the gap — NOT a "strong cushion"
+  });
 });
 
 describe('spending placed in actual months (not averaged)', () => {
