@@ -48,6 +48,25 @@ export const yahooProvider: PriceProvider = {
   },
 };
 
+/** Is a ticker plausibly valid before we spend a network call? (1–6 letters, optional .suffix or
+ *  -USD crypto pair). Lets the UI flag a typo instead of silently returning no data. */
+export function isPlausibleTicker(ticker: string): boolean {
+  return /^[A-Za-z]{1,6}([.\-][A-Za-z]{1,4})?$/.test((ticker ?? '').trim());
+}
+
+export interface PriceFreshness { label: string; stale: boolean; }
+/** Human freshness of the price cache + whether it's stale enough to warn (markets move daily, so
+ *  anything older than ~4 days — a long weekend/holiday — is worth a "may be out of date" note). */
+export function priceFreshness(fetchedAt: string | null | undefined, now: number): PriceFreshness {
+  if (!fetchedAt) return { label: 'not updated yet', stale: true };
+  const ms = now - Date.parse(fetchedAt);
+  if (!Number.isFinite(ms) || ms < 0) return { label: 'not updated yet', stale: true };
+  const days = Math.floor(ms / 86_400_000);
+  const hours = Math.floor(ms / 3_600_000);
+  const label = days >= 1 ? `${days} day${days > 1 ? 's' : ''} ago` : hours >= 1 ? `${hours}h ago` : 'just now';
+  return { label, stale: days >= 4 };
+}
+
 /** Fetch many tickers in parallel; returns only the ones that resolved. */
 export async function fetchPriceSeries(
   tickers: string[],

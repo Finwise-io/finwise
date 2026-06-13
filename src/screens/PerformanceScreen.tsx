@@ -13,6 +13,7 @@ import {
   attribution, allocation, portfolioTrend, capGains, capGainsTax, PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
+import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -70,6 +71,11 @@ export default function PerformanceScreen() {
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>
       </View>
+      {/* B-18: surface price freshness so stale cached values aren't presented as live. */}
+      {positions.length > 0 && (() => {
+        const f = priceFreshness(store.pricesFetchedAt, Date.now());
+        return <Text style={[styles.freshness, f.stale && { color: Colors.amber }]}>{f.stale ? '⚠ Prices may be out of date' : 'Prices'} · updated {f.label}{f.stale ? ' — tap Refresh' : ''}</Text>;
+      })()}
 
       {positions.length === 0 ? (
         <View style={styles.empty}>
@@ -299,6 +305,11 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
                 </TouchableOpacity>
               ))}
             </View>
+          )}
+          {/* B-18: gently flag a ticker that can't be a symbol so the user fixes a typo instead of
+              silently getting no live price. */}
+          {ticker.trim().length > 0 && !isPlausibleTicker(ticker) && (
+            <Text style={styles.tickerWarn}>That doesn't look like a ticker symbol — check for a typo (e.g. AAPL, VTI).</Text>
           )}
           <Text style={styles.fieldL}>Name (optional)</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Apple Inc." placeholderTextColor={Colors.textTertiary} />
@@ -554,6 +565,8 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
   refresh: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+  freshness: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4 },
+  tickerWarn: { fontSize: 11.5, color: Colors.amber, marginTop: 4 },
 
   empty: { alignItems: 'center', paddingVertical: 40 },
   emptyT: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },

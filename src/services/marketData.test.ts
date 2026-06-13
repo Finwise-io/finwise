@@ -1,6 +1,6 @@
 // Market-data provider tests — every network path mocked via global.fetch.
 // The Yahoo chart endpoint shape: { chart: { result: [{ timestamp, indicators: { adjclose, quote } }] } }
-import { yahooProvider, fetchPriceSeries, type PriceProvider } from './marketData';
+import { yahooProvider, fetchPriceSeries, priceFreshness, isPlausibleTicker, type PriceProvider } from './marketData';
 
 const DAY = 86400;
 const T0 = Date.UTC(2026, 0, 5) / 1000;   // 2026-01-05
@@ -134,5 +134,30 @@ describe('fetchPriceSeries — batch behavior', () => {
     });
     const out = await fetchPriceSeries(['SPY', 'BAD', 'BOOM'], provider);
     expect(Object.keys(out)).toEqual(['SPY']);
+  });
+});
+
+// BUG-LEDGER: B-18 — surface staleness + flag implausible tickers instead of silent nulls.
+describe('priceFreshness', () => {
+  const T = Date.UTC(2026, 5, 13, 12, 0, 0);
+  test('null cache → stale, "not updated yet"', () => {
+    expect(priceFreshness(null, T)).toEqual({ label: 'not updated yet', stale: true });
+  });
+  test('recent fetch → fresh with an hours/just-now label', () => {
+    expect(priceFreshness(new Date(T - 2 * 3_600_000).toISOString(), T)).toEqual({ label: '2h ago', stale: false });
+    expect(priceFreshness(new Date(T - 30_000).toISOString(), T)).toEqual({ label: 'just now', stale: false });
+  });
+  test('2 days old → not stale yet (weekend); 5 days → stale', () => {
+    expect(priceFreshness(new Date(T - 2 * 86_400_000).toISOString(), T).stale).toBe(false);
+    expect(priceFreshness(new Date(T - 5 * 86_400_000).toISOString(), T)).toEqual({ label: '5 days ago', stale: true });
+  });
+});
+
+describe('isPlausibleTicker', () => {
+  test('accepts real symbols incl. crypto pairs and class suffixes', () => {
+    ['AAPL', 'vti', 'SPY', 'BTC-USD', 'BRK.B'].forEach((t) => expect(isPlausibleTicker(t)).toBe(true));
+  });
+  test('rejects typos / free text', () => {
+    ['', '   ', 'my apple shares', '12345', 'AAPL!!'].forEach((t) => expect(isPlausibleTicker(t)).toBe(false));
   });
 });
