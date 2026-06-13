@@ -11,7 +11,7 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
-import { spendBuckets } from '../domain/budget';
+import { plannedMonthlySpend } from '../domain/budget';
 
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
@@ -67,7 +67,7 @@ export default function NetWorthScreen() {
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
   // emergency-fund runway: cash ÷ monthly spending
   const cashOnHand = assets.filter((a) => a.tax_bucket === 'CASH').reduce((t, a) => t + (a.balance || 0), 0);
-  const monthlySpend = spendBuckets(op).monthly_total || (parseFloat(String(op?.monthlySpending ?? '').replace(/[^0-9.]/g, '')) || 0);
+  const monthlySpend = plannedMonthlySpend(op);   // B-50: same definition as budget.monthly_spending + the runway insight
   const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
   const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);
 

@@ -10,7 +10,7 @@ import { investableValue, blendedReturn, portfolioActualReturn, monthlyContribut
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
-import { spendBuckets } from '../domain/budget';
+import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights } from '../domain/insights';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 
@@ -24,7 +24,7 @@ export function useInsights(limit?: number) {
     const accounts = store.assetAccounts ?? [];
     const liabilities = store.liabilities ?? [];
     const age = ageFromProfile(op) ?? 45;
-    const monthlySpending = spendBuckets(op).monthly_total || num(op.monthlySpending);
+    const monthlySpending = plannedMonthlySpend(op);   // B-50: one definition, same as budget.monthly_spending
     const cash = accounts.filter((a: any) => a.tax_bucket === 'CASH').reduce((t: number, a: any) => t + (a.balance || 0), 0);
     const investable = investableValue(accounts);
     const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');

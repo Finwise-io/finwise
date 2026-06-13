@@ -1,4 +1,4 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend } from './index';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
 
@@ -120,5 +120,22 @@ describe('spending categories → buckets', () => {
     const b = spendBuckets({ b_fixed: '1500', b_nonmonthly: '200', b_flexible: '800' });
     expect(b.monthly_total).toBe(2500);
     expect(budgetFromOnboarding('u1', { b_fixed: '1500', b_nonmonthly: '200', b_flexible: '800' }).monthly_spending).toBe(2500);
+  });
+});
+
+// BUG-LEDGER: B-50 — one "monthly spend" definition for budget, runway, and essentials.
+describe('plannedMonthlySpend (B-50)', () => {
+  const partial: any = { taxMode: 'manual', manualTaxRate: '0', monthlySpending: '5000',
+    spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '2500', unit: 'dollar' }] };
+  test('partial-itemizer: max(bucket $2,500, stated $5,000) = $5,000', () => {
+    expect(plannedMonthlySpend(partial)).toBe(5000);
+    expect(plannedMonthlySpend(partial)).toBe(budgetFromOnboarding('u', partial).monthly_spending); // runway == budget
+  });
+  test('fully itemized over the stated total → the buckets win', () => {
+    const op: any = { monthlySpending: '1000', spendCats: [{ id: 'r', tier: 'critical', bucket: 'fixed', amount: '3000', unit: 'dollar' }] };
+    expect(plannedMonthlySpend(op)).toBe(3000);
+  });
+  test('stated only (no categories) → the stated total', () => {
+    expect(plannedMonthlySpend({ monthlySpending: '4200' } as any)).toBe(4200);
   });
 });

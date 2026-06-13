@@ -38,6 +38,14 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
   };
 }
 
+/** The single canonical "planned monthly spend": the itemized buckets OR the stated total, whichever
+ *  is larger (the stated total can include an uncategorized remainder the buckets don't capture).
+ *  Every surface that needs "monthly spending" — budget surplus, emergency-fund runway, essentials —
+ *  routes through this so they can't drift apart. */
+export function plannedMonthlySpend(op: OnboardingProfile | null): number {
+  return Math.max(spendBuckets(op).monthly_total, toNum(op?.monthlySpending));
+}
+
 /** Roll the per-category spending up into the three monthly-normalized buckets.
  *  Categories carry a bucket (fixed/nonmonthly/flexible) and an amount in $ or % of take-home;
  *  non-monthly (yearly) amounts are divided by 12. Falls back to the legacy b_* fields. */
@@ -99,7 +107,7 @@ export function monthlyEssentials(op: OnboardingProfile | null): number {
   // B-33: with no itemized categories we can't separate wants from needs, so treat the stated total
   // spend as must-pay (conservative for an emergency-fund target). Returning $0 here let the stress
   // test claim "strong cushion" with $0 cash while also saying the user would go into the red.
-  if (!cats) return Math.max(spendBuckets(op).monthly_total, toNum(a.monthlySpending));
+  if (!cats) return plannedMonthlySpend(op);
   const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
   let ess = 0;
   for (const c of cats) {
@@ -154,10 +162,9 @@ export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   const b = spendBuckets(op);
   return {
     user_id: uid,
-    // B-24: when the user states a total AND itemizes only part of it, count the full stated total
-    // (the itemized buckets PLUS the uncategorized remainder) — this matches spendByMonth, so the
-    // budget surplus and goal capacity no longer overstate free cash by the uncategorized amount.
-    monthly_spending: Math.max(b.monthly_total, toNum(a.monthlySpending)),
+    // B-24/B-50: count the full stated total (itemized buckets PLUS any uncategorized remainder) via
+    // the shared plannedMonthlySpend helper — one definition for budget, runway, and essentials.
+    monthly_spending: plannedMonthlySpend(op),
     fixed: b.fixed, non_monthly: b.non_monthly, flexible: b.flexible,
   };
 }
