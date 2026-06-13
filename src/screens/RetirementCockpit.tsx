@@ -63,7 +63,9 @@ export default function RetirementCockpit() {
   const hasPension = num(op.ri_pension) > 0;
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
   const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
-  const retireDefault = num(op.targetRetirementAge) || 65;
+  // B-37: never default a retiree's "retire age" below their current age (an already-retired 74yo
+  // must not be told the plan "assumes age 65"). Use their current age as the floor when retired.
+  const retireDefault = num(op.targetRetirementAge) || (store.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
   const ssIncome = ssEligibleEffective ? Math.round(A.ssMonthly ?? ssDefault) : 0;
@@ -468,11 +470,11 @@ export default function RetirementCockpit() {
       )}
 
       {/* ── YOUR PLAN (assumptions) ── */}
-      <Text style={styles.divider}>YOUR PLAN · assumes age {Math.round(planRetireAge)}</Text>
+      <Text style={styles.divider}>YOUR PLAN · {isRetired ? 'in retirement' : `assumes age ${Math.round(planRetireAge)}`}</Text>
 
-      {/* GROWTH-RATE BASIS — which return drives the projection */}
+      {/* GROWTH-RATE BASIS — which return drives the projection (growth in accumulation, returns during drawdown) */}
       <View style={styles.card}>
-        <Text style={styles.liK}>Grow my nest egg using</Text>
+        <Text style={styles.liK}>{isRetired ? 'Assumed return on what\'s left' : 'Grow my nest egg using'}</Text>
         <View style={styles.basisRow}>
           {([
             { k: 'benchmark', label: 'Benchmark', rate: benchBlended, warn: false },

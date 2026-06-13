@@ -49,6 +49,23 @@ describe('RetirementCockpit — where you stand', () => {
     render(<RetirementCockpit />);
     expect(screen.getByText(/Are you eligible\? Tap to set up/)).toBeOnTheScreen();
   });
+
+  // BUG-LEDGER: B-37 — a retired user with no target retirement age must not see "assumes age 65".
+  test('retired user sees "in retirement", not an accumulation "assumes age 65"', () => {
+    useStore.setState({ employmentStatus: 'retired' });
+    complete(retiree75);   // born 1951, no targetRetirementAge
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/YOUR PLAN · in retirement/)).toBeOnTheScreen();
+    expect(screen.queryByText(/assumes age 65/)).toBeNull();
+    expect(screen.queryByText('Grow my nest egg using')).toBeNull();   // accumulation label hidden
+  });
+
+  test('still-accumulating user keeps the age-based plan framing', () => {
+    complete(employedPartner);   // target 65, employed
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/assumes age \d+/)).toBeOnTheScreen();
+    expect(screen.getByText('Grow my nest egg using')).toBeOnTheScreen();
+  });
 });
 
 describe('GoalsScreen — debt payoff plan', () => {
