@@ -1,6 +1,6 @@
 // Integration: exercises the exact data path HomeScreen relies on, end-to-end, so a realistic
 // onboarded profile + logged expenses can't throw or produce nonsense headlessly.
-import { buildSnapshot } from './snapshot';
+import { snapshotFromOnboarding, resolveNetWorthRows } from './snapshot';
 import { budgetVsActual, spendBuckets, savingsByMonth, budgetFromOnboarding } from './budget';
 import { incomeMonthlyGrid } from './income';
 
@@ -65,11 +65,33 @@ describe('home data path (onboarding → dashboard)', () => {
   });
 
   test('buildSnapshot produces all read-models without throwing', () => {
-    const snap = buildSnapshot('u1', op, { inflationRate: 2.4, treasuryYield: 4.3 } as any);
+    const snap = snapshotFromOnboarding('u1', op, { inflationRate: 2.4, treasuryYield: 4.3 } as any);
     expect(snap.income).toBeTruthy();
     expect(snap.budget).toBeTruthy();
     expect(snap.networth).toBeTruthy();
     expect(snap.retirement).toBeTruthy();
     expect(snap.budget.monthly_spending).toBeGreaterThan(0);
+  });
+});
+
+// B-49: the one rule Home + TopBar + the Net Worth screen share for which rows are authoritative.
+describe('resolveNetWorthRows: live vs onboarding basis', () => {
+  const liveAcct = [{ asset_id: 'a', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE' as const, balance: 60000, target_return: 0.07 }];
+  const onb = { currentRetirementSavings: '80000' };
+
+  test('live rows present → use them (ignore onboarding)', () => {
+    const { accounts } = resolveNetWorthRows('u', onb, false, liveAcct, []);
+    expect(accounts).toBe(liveAcct);
+  });
+
+  test('never seeded + nothing live → onboarding-derived estimate', () => {
+    const { accounts } = resolveNetWorthRows('u', onb, false, [], []);
+    expect(accounts.map((a) => a.balance)).toEqual([80000]);   // the $80k onboarding account
+  });
+
+  test('seeded but now empty (user deleted everything) → stays empty, NOT resurrected', () => {
+    const { accounts, liabilities } = resolveNetWorthRows('u', onb, true, [], []);
+    expect(accounts).toEqual([]);
+    expect(liabilities).toEqual([]);
   });
 });

@@ -3,7 +3,7 @@
  */
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import NetWorthScreen from '../NetWorthScreen';
+import NetWorthScreen, { assetSheetReady } from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
 
@@ -61,7 +61,21 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     fireEvent.press(screen.getByText("I'll add my own"));
 
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts).toHaveLength(1);
-    expect(accounts[0].balance).toBe(200000);
+    // B-21: '200000' retirement + explicit '0' holdings → a $0 Investments placeholder too.
+    expect(accounts).toHaveLength(2);
+    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(200000);
+    expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
+  });
+});
+
+// B-21: the add/edit sheet allows a $0 balance, but only when the amount field is actually filled in —
+// a blank field must NOT create an account (prevents accidental empty adds); a typed "0" may.
+describe('AssetSheet $0 add guard (B-21)', () => {
+  test('needs a kind and a typed amount; allows "0", blocks blank/whitespace', () => {
+    expect(assetSheetReady('brokerage', '')).toBe(false);     // blank → no add
+    expect(assetSheetReady('brokerage', '   ')).toBe(false);  // whitespace → no add
+    expect(assetSheetReady('', '5000')).toBe(false);          // no kind → no add
+    expect(assetSheetReady('brokerage', '0')).toBe(true);     // explicit $0 → allowed
+    expect(assetSheetReady('brokerage', '5000')).toBe(true);
   });
 });

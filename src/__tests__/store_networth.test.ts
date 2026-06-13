@@ -58,11 +58,14 @@ describe('seedNetWorth: origin-tagged merge', () => {
     expect(accounts).toHaveLength(3);
   });
 
-  test('re-seed with smaller answers removes stale seeded rows (zeroed answer → row gone)', () => {
+  // B-21: an explicit $0 answer is a deliberate placeholder, so the Investments row stays at $0
+  // (it is not dropped). It only disappears when the field is absent from the answers entirely.
+  test('re-seed with an explicit $0 answer keeps the seeded row at $0 (B-21)', () => {
     useStore.getState().seedNetWorth(answers('50000', '10000'));
     useStore.getState().seedNetWorth(answers('60000', '0'));
-    const labels = useStore.getState().assetAccounts.map((a) => a.label);
-    expect(labels).toEqual(['Retirement savings']);          // the Investments row didn't linger
+    const accounts = useStore.getState().assetAccounts;
+    expect(accounts.map((a) => a.label)).toEqual(['Retirement savings', 'Investments']);
+    expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
   });
 
   test('a manual edit to a SEEDED row is overwritten on re-seed (onboarding answers win)', () => {
@@ -161,7 +164,9 @@ describe('restartOnboarding: only seeded rows are cleared', () => {
     useStore.getState().restartOnboarding();
     useStore.getState().seedNetWorth(answers('120000', '0'));
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts).toHaveLength(1);
-    expect(accounts[0].balance).toBe(120000);
+    // B-21: '120000' retirement + explicit '0' holdings → two seeded rows (Investments at $0).
+    expect(accounts).toHaveLength(2);
+    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(120000);
+    expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
   });
 });

@@ -18,6 +18,9 @@ const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈'
 const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? bucketSection(a.tax_bucket);
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+// B-21: an asset can be saved at $0 (placeholder), but the amount field must be filled in — a typed
+// "0" is allowed, a blank field is not (prevents accidental empty adds). A kind must also be picked.
+export const assetSheetReady = (kind: string, bal: string) => !!kind && bal.trim() !== '' && num(bal) >= 0;
 const shortMoney = (n: number) => {
   if (Math.abs(n) >= 1000) return moneyCompact(n, 'MM');   // $2.43MM / $182K (currency-aware)
   return money(n);
@@ -342,7 +345,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
 
   const k = assetKind(kind);
   const amt = num(bal);
-  const ready = !!kind && amt > 0;
+  const ready = assetSheetReady(kind, bal);
   const save = () => {
     if (!ready || !k) return;
     const label = inst.trim() || k.label;

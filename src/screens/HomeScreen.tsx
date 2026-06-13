@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
-import { buildSnapshot } from '../domain/snapshot';
+import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual } from '../domain/budget';
 import { incomeMonthlyGrid } from '../domain/income';
 import { BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
@@ -56,8 +56,14 @@ export default function HomeScreen() {
   const monthShort = MONTHS_LONG[selDate.getMonth()].slice(0, 3);
 
   const snap = useMemo(
-    () => (op ? buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }) : null),
-    [op, uid, store.inflationRate, store.treasuryYield],
+    // B-49: net worth + nest egg come from the live store rows (so account edits/deletions show),
+    // resolved by the one shared rule so Home, TopBar, and the Net Worth screen always agree.
+    () => {
+      if (!op && !store.nwSeeded) return null;
+      const { accounts, liabilities } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
+      return buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }, accounts, liabilities);
+    },
+    [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities],
   );
   const liabilities = (store.liabilities ?? []) as any[];
   const debtMonthly = totalDebtMonthly(liabilities);

@@ -15,7 +15,7 @@ describe('retirement spend wiring (travel + medical + trajectory)', () => {
     expect(retirementSpendMonthly({})).toBe(0);   // nothing set → caller falls back
   });
 });
-import { buildSnapshot } from './snapshot';
+import { snapshotFromOnboarding } from './snapshot';
 
 describe('assets', () => {
   test('totals, allocation %, weighted avg return', () => {
@@ -149,7 +149,7 @@ describe('snapshot', () => {
       monthlySpending: '4500', expectedRetirementSpending: '5000',
       goals: [{ label: 'House', target: '80000', year: '2032' }],
     };
-    const s = buildSnapshot('u', op, { inflationRate: 2.4, treasuryYield: 4.3 });
+    const s = snapshotFromOnboarding('u', op, { inflationRate: 2.4, treasuryYield: 4.3 });
     expect(s.networth.net_worth).toBe(370000 - 12000);          // assets 250k+120k − debt 12k
     expect(s.budget.projected_to_save).toBe(s.income.net_monthly_income - 4500);
     expect(s.debt.highest_rate_debt?.label).toBe('Card');

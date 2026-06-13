@@ -134,3 +134,23 @@ describe('portfolio use-cases', () => {
     expect(results.length).toBeGreaterThan(0);
   });
 });
+
+// B-49: lock the retirement nest-egg basis the snapshot's start_balance uses. Property never funds
+// retirement (0%), cash is part emergency-fund (50%), retirement/investment accounts count fully —
+// so the nest egg genuinely diverges from net worth once a user holds a home or cash.
+describe('nest-egg basis: retirementEarmarkedValue (B-49)', () => {
+  const mk = (tax_bucket: AssetAccount['tax_bucket'], balance: number, extra: Partial<AssetAccount> = {}): AssetAccount =>
+    ({ asset_id: 'a', label: 'x', tax_bucket, balance, target_return: 0.07, ...extra });
+
+  test('PRE_TAX/TAXABLE 100%, CASH 50%, PROPERTY 0% — nest egg < net worth', () => {
+    const accts = [mk('PRE_TAX', 120000), mk('TAXABLE', 45000), mk('CASH', 40000), mk('PROPERTY', 500000)];
+    const netWorth = accts.reduce((t, a) => t + a.balance, 0);
+    expect(netWorth).toBe(705000);
+    expect(retirementEarmarkedValue(accts)).toBe(120000 + 45000 + 20000 + 0); // 185,000
+    expect(retirementEarmarkedValue(accts)).toBeLessThan(netWorth);
+  });
+
+  test('an explicit retirement_pct overrides the per-bucket default', () => {
+    expect(retirementEarmarkedValue([mk('TAXABLE', 100000, { retirement_pct: 30 })])).toBe(30000);
+  });
+});

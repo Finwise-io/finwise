@@ -19,7 +19,10 @@ jest.mock('@react-native-async-storage/async-storage', () => ({
 }));
 
 import { useStore } from '../store/useStore';
-import { buildSnapshot } from '../domain/snapshot';
+import { buildSnapshot, snapshotFromOnboarding } from '../domain/snapshot';
+import { buildAssetsState } from '../domain/assets';
+import { buildDebtState } from '../domain/debt';
+import { buildNetWorth } from '../domain/networth';
 import { cashflowYear } from '../domain/cashflow';
 import { ALL_PERSONAS, ECON, retiree75, employedPartner, studentAid } from '../testing/personas';
 import type { OnboardingProfile } from '../domain/onboardingProfile';
@@ -46,7 +49,7 @@ describe('Journey: retiree 75 with a $250k portfolio', () => {
     expect(st.assetAccounts[0].balance).toBe(250000);
     expect(st.liabilities).toHaveLength(0);
 
-    const snap = buildSnapshot('local', st.onboardingProfile, ECON);
+    const snap = snapshotFromOnboarding('local', st.onboardingProfile, ECON);
     expect(snap.networth.net_worth).toBeCloseTo(250000, 2);        // NW chip
     expect(snap.assets.total_asset_value).toBeCloseTo(250000, 2);  // cockpit nest-egg basis
     expect(snap.income.total_gross_annual).toBeCloseTo((2200 + 1300) * 12, 0); // SS + pension are her income NOW
@@ -69,7 +72,7 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
     expect(st.liabilities[0].remaining_balance).toBe(14000);
 
     // Home / Budget / Goals consumers
-    const snap = buildSnapshot('local', st.onboardingProfile, ECON);
+    const snap = snapshotFromOnboarding('local', st.onboardingProfile, ECON);
     expect(snap.networth.net_worth).toBeCloseTo(120000 + 45000 - 14000, 2);
     expect(snap.budget.monthly_spending).toBeCloseTo(2300 + 900 + 600 + 3600 / 12, 2);
     expect(snap.goals.goals.map((g) => g.label)).toEqual(['House down payment', 'New car']);
@@ -81,7 +84,7 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
     'persona %s: snapshot consumes the stored answers without dropping the journey',
     (_name, op) => {
       const st = completeOnboarding(op);
-      const snap = buildSnapshot('local', st.onboardingProfile, ECON);
+      const snap = snapshotFromOnboarding('local', st.onboardingProfile, ECON);
       // the store's seeded wealth and the snapshot's derived wealth must be the same story
       const storeAssets = st.assetAccounts.reduce((t, a) => t + a.balance, 0);
       const storeDebt = st.liabilities.reduce((t, d) => t + d.remaining_balance, 0);
@@ -94,6 +97,61 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
     completeOnboarding(studentAid);
     const cf = cashflowYear(studentAid, 500, new Date(2026, 5, 1));
     expect(cf.shortMonths.length).toBeGreaterThan(0);              // September tuition tips her short
+  });
+});
+
+// ───────────────────────── Snapshot uses LIVE accounts (B-49) ─────────────────────────
+describe('Journey: editing a Net Worth account flows into the snapshot', () => {
+  test('snapshot net worth + nest egg reflect an account edit (not stale onboarding)', () => {
+    const st = completeOnboarding(employedPartner);   // seeds Retirement savings $120k + Investments $45k; car loan $14k
+    const acctId = useStore.getState().assetAccounts.find((x) => x.label === 'Retirement savings')!.asset_id;
+
+    // op-only snapshot still uses onboarding answers (unchanged fallback)
+    const opOnly = snapshotFromOnboarding('local', st.onboardingProfile, ECON);
+    expect(opOnly.networth.net_worth).toBeCloseTo(120000 + 45000 - 14000, 2);
+
+    // user edits the account: $120k → $200k. The snapshot built with live accounts must reflect it.
+    useStore.getState().updateAsset(acctId, { balance: 200000 });
+    const live = useStore.getState();
+    const snap = buildSnapshot('local', live.onboardingProfile, ECON, live.assetAccounts, live.liabilities);
+    expect(snap.networth.net_worth).toBeCloseTo(200000 + 45000 - 14000, 2);     // reflects the edit
+    expect(snap.assets.total_asset_value).toBeCloseTo(200000 + 45000, 2);
+    // and it equals the Net Worth screen's own calc (buildNetWorth from the same live accounts)
+    expect(snap.networth.net_worth).toBeCloseTo(
+      buildNetWorth('local', buildAssetsState('local', live.assetAccounts).total_asset_value, buildDebtState('local', live.liabilities).total_debt_balance).net_worth, 2,
+    );
+  });
+
+  test('a hand-added account raises snapshot net worth', () => {
+    completeOnboarding(employedPartner);
+    useStore.getState().addAsset({ label: 'Inheritance', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 75000, target_return: 0.07 });
+    const live = useStore.getState();
+    const snap = buildSnapshot('local', live.onboardingProfile, ECON, live.assetAccounts, live.liabilities);
+    expect(snap.networth.gross_assets).toBeCloseTo(120000 + 45000 + 75000, 2);
+  });
+
+  test('a paid-off debt (live liabilities empty) is NOT resurrected from onboarding', () => {
+    completeOnboarding(employedPartner);   // has a $14k car loan from onboarding
+    const debtId = useStore.getState().liabilities[0].debt_id;
+    useStore.getState().deleteLiability(debtId);
+    const live = useStore.getState();
+    const snap = buildSnapshot('local', live.onboardingProfile, ECON, live.assetAccounts, live.liabilities);
+    expect(snap.networth.gross_debt).toBe(0);                                   // debt stays gone
+    expect(snap.networth.net_worth).toBeCloseTo(120000 + 45000, 2);
+  });
+
+  // The live rows are authoritative: a user who deletes EVERYTHING sees $0, not the onboarding
+  // numbers resurrected. (buildSnapshot's required arrays — passing [] means "none", not "fall back".)
+  test('deleting ALL accounts and debts yields $0 net worth, not resurrected onboarding', () => {
+    completeOnboarding(employedPartner);   // seeds assets + a car loan
+    useStore.getState().assetAccounts.slice().forEach((a) => useStore.getState().deleteAsset(a.asset_id));
+    useStore.getState().liabilities.slice().forEach((d) => useStore.getState().deleteLiability(d.debt_id));
+    const live = useStore.getState();
+    expect(live.assetAccounts).toHaveLength(0);
+    expect(live.liabilities).toHaveLength(0);
+    const snap = buildSnapshot('local', live.onboardingProfile, ECON, live.assetAccounts, live.liabilities);
+    expect(snap.networth.net_worth).toBe(0);
+    expect(snap.networth.gross_assets).toBe(0);
   });
 });
 
@@ -135,11 +193,20 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
     expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(100000);
   });
 
-  // BUG-LEDGER: B-21 (by-design?) — a $0 answer creates no account rather than a $0 account.
-  test('explicit $0 answers seed no accounts at all', () => {
+  // BUG-LEDGER: B-21 (fixed) — an explicit $0 answer seeds a $0 placeholder account the user can
+  // fund/edit later (assets only). Debt still drops $0 (a $0 placeholder liability is clutter).
+  test('explicit $0 asset answers seed $0 placeholder accounts', () => {
     const st = completeOnboarding({ ...employedPartner, currentRetirementSavings: '0', investmentHoldings: '0', debtBalance: '0' });
-    expect(st.assetAccounts).toHaveLength(0);
+    expect(st.assetAccounts).toHaveLength(2);
+    expect(st.assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(0);
+    expect(st.assetAccounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
     expect(st.liabilities).toHaveLength(0);
+  });
+
+  // B-21 guard: a whitespace-only answer is "not answered", not an explicit $0 → seeds no account.
+  test('a whitespace-only asset answer seeds no account', () => {
+    const st = completeOnboarding({ ...employedPartner, currentRetirementSavings: '   ', investmentHoldings: '45000' });
+    expect(st.assetAccounts.map((a) => a.label)).toEqual(['Investments']);
   });
 
   test('seeding is idempotent for identical answers (no duplicate accounts)', () => {

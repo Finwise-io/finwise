@@ -41,11 +41,11 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, currency, locale, fontScale, displayMode } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode } = useStore() as any;
   setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
-  // Keep the app-wide money formatter in sync with the (persisted / cloud-loaded) region.
-  // Done in render so children format with the right currency on the same pass it changes.
-  setMoneyFormat(currency, locale);
+  // B-23: the app is USD-only until per-country tax/retirement engines exist. Force USD here so a
+  // stale non-USD `currency` synced from an old cloud profile can never desync the formatter.
+  setMoneyFormat('USD', 'en-US');
   const router    = useRouter();
   const segments  = useSegments();
   const [isReady, setIsReady] = useState(false);
@@ -140,7 +140,7 @@ export default function RootLayout() {
         <ErrorBoundary>
         <StatusBar style="dark" />
         <Stack
-          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}-${currency ?? 'USD'}`}   /* remount the tree when text size / display mode / currency changes so it applies everywhere live */
+          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size / display mode changes so it applies everywhere live */
           screenOptions={{
             headerStyle: { backgroundColor: Colors.bgSecondary },
             headerShadowVisible: false,

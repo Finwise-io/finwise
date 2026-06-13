@@ -2,7 +2,7 @@
  * Edge personas & data extremes (launch test plan, P1 area 8): the app must produce sane,
  * finite numbers at $0, at nine figures, on leap days, and for every skipped answer.
  */
-import { buildSnapshot } from '../domain/snapshot';
+import { snapshotFromOnboarding } from '../domain/snapshot';
 import { simulate, solveRetireAge, projectNestEgg } from '../domain/retirement';
 import { cashflowYear } from '../domain/cashflow';
 import { spendByMonth, savingsByMonth, emergencyTest } from '../domain/budget';
@@ -10,7 +10,7 @@ import { ECON, employedPartner, retiree75, NO_TAX } from '../testing/personas';
 import { expectAllFinite } from '../testing/assertFinite';
 import type { OnboardingProfile } from '../domain/onboardingProfile';
 
-const snap = (op: OnboardingProfile) => buildSnapshot('local', op, ECON);
+const snap = (op: OnboardingProfile) => snapshotFromOnboarding('local', op, ECON);
 
 describe('Data extremes stay finite and sane', () => {
   test('$0 everything: a totally skipped profile', () => {

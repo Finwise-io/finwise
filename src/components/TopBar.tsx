@@ -8,10 +8,10 @@ import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { buildSnapshot } from '../domain/snapshot';
 import { buildAssetsState } from '../domain/assets';
 import { buildDebtState } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
+import { resolveNetWorthRows } from '../domain/snapshot';
 
 type Mod = { e: string; t: string; route?: string; soon?: boolean };
 // Every tile must open a REAL screen — no "coming soon" placeholders in the hub.
@@ -47,12 +47,16 @@ export default function TopBar() {
   const uid = store.user?.uid ?? 'local';
   const assets = store.assetAccounts ?? [];
   const liabs = store.liabilities ?? [];
-  const nw = useMemo(() => {
-    if (assets.length || liabs.length) {
-      return buildNetWorth(uid, buildAssetsState(uid, assets).total_asset_value, buildDebtState(uid, liabs).total_debt_balance).net_worth;
-    }
-    return op ? buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }).networth.net_worth : 0;
-  }, [assets, liabs, op]);
+  // B-49: net worth from the SAME rows Home + the Net Worth screen use (resolveNetWorthRows), via the
+  // same buildNetWorth math — so the chip always agrees with them. Computed directly (not via
+  // buildSnapshot) so the always-mounted header doesn't run the retirement Monte-Carlo for one number.
+  const nw = useMemo(
+    () => {
+      const { accounts, liabilities } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, assets, liabs);
+      return buildNetWorth(uid, buildAssetsState(uid, accounts).total_asset_value, buildDebtState(uid, liabilities).total_debt_balance).net_worth;
+    },
+    [assets, liabs, op, uid, store.nwSeeded],
+  );
 
   const go = (m: Mod) => {
     setMenu(false);

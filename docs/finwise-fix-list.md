@@ -14,11 +14,12 @@ Detail and screenshots: `finwise-userlens-qa-2026-06-12.md`.
   B-38, B-39 (retirement debt/RMD-tax transparency).
 - **Closed — not a bug (5):** B-17, B-20 (by-design) · B-22 (solver monotonic) · B-41 (waterfall not
   surfaced) · B-47 (label matches the onboarding question).
-- **Deferred with reason (3, no launch impact):** B-21 (product decision: $0 answer → $0 account vs
-  none) · B-23 (currency i18n, US-only at launch) · B-42 (legacy `debts` field is the migration
+- **Deferred with reason (1, no launch impact):** B-42 (legacy `debts` field is the migration
   landing spot; remove post-launch).
+- **Resolved 2026-06-13 (were deferred):** B-21 (explicit $0 asset answer now seeds a $0 placeholder
+  account — see §22) · B-23 (currency picker removed, app locked to USD — see §23).
 
-Suite: **528 tests green, tsc clean.** Every fix shipped with a test. Remaining launch work is
+Suite: **545 tests green, tsc clean.** Every fix shipped with a test. Remaining launch work is
 cloud/device only (Firestore rules deploy, CI, native build, TestFlight) — not code bugs.
 
 Recommended order is top-to-bottom: it front-loads the bugs that corrupt the most screens and are
@@ -194,14 +195,41 @@ the remainder.
 ### 21. B-43 (LOW) — Duplicate-looking account chips in TransactionSheet
 - Two accounts with the same name render identical chips. Add a kind/last-4 disambiguator.
 
+### 22. B-21 (LOW) — Explicit $0 asset answer now seeds a $0 placeholder — FIXED 2026-06-13
+- `assetsFromOnboarding` `add` keys on field PRESENCE, not value: an answered field (incl. `'0'`)
+  seeds a $0 account; an absent field (e.g. `currentSavingsPortfolio` in the accumulation flow)
+  is still skipped — no junk rows. `AssetSheet` save relaxed `amt > 0` → `amt >= 0`.
+- Assets only by design — liabilities/goals/income still drop $0 ($0 placeholders there are clutter).
+- Tests: `journeys.test.ts` "explicit $0 asset answers seed $0 placeholder accounts"; `store_networth.test.ts`
+  + `NetWorthScreen.test.tsx` B-21 rows updated (a `'0'` holdings answer now materializes a $0 Investments row).
+
+### 23. B-23 (LOW) — Currency picker removed, app locked to USD — FIXED 2026-06-13
+- The picker let users choose EUR/GBP/INR/etc., but all tax & retirement math is hardcoded US, so a
+  non-USD choice only swapped the symbol while applying US tax math. Removed the Settings Currency
+  card; `app/_layout.tsx` forces `setMoneyFormat('USD','en-US')` so a stale synced currency can't
+  desync the formatter. Currency plumbing left dormant for a future per-country tax epic.
+
+### 24. Review-hardening pass (B-21/B-23/B-49 diff) — FIXED 2026-06-13
+- High-effort adversarial review of the working-tree diff → 6 findings, all fixed launch-grade:
+  - **Net-worth basis unified (B-49):** added `resolveNetWorthRows(uid, op, nwSeeded, live…)` — the one
+    rule Home, TopBar, and the Net Worth screen share. Live rows authoritative once `nwSeeded` or any
+    exist; only a never-set-up user falls back to the onboarding estimate. Fixes the delete-everything
+    bug (deleted all accounts+debts now shows **$0**, not resurrected onboarding numbers).
+  - **buildSnapshot rows now REQUIRED** (+ `snapshotFromOnboarding` helper) so no future caller can
+    silently render stale onboarding numbers; all op-only test callers moved to the helper.
+  - **TopBar** computes net worth via the cheap `buildNetWorth` (was running the full retirement
+    Monte-Carlo in an always-mounted header just to read one number).
+  - **AssetSheet $0 guard** extracted to pure `assetSheetReady(kind, bal)` — blank field blocked, typed
+    `"0"` allowed; unit-tested.
+  - **Presence check** trims whitespace; **earmark basis** (property 0% / cash 50%) locked by a test.
+- New tests: resolver branches, delete-all → $0, nest-egg earmark basis, whitespace guard, `assetSheetReady`.
+
 ---
 
 ## Already triaged — no code needed
 - **B-15, B-16 (HIGH):** fixed 2026-06-12 (origin-tagged Net Worth seeding).
 - **B-17, B-20 (LOW):** by-design (SS gate harmless; negative goal capacity is guarded).
 - **B-22:** closed — `solveRetireAge` probed monotonic, not a bug.
-- **B-21 (LOW):** product decision — should a $0 onboarding answer create a $0 account or none? Pick one.
-- **B-23 (LOW):** deferred — currency/i18n is US-only at launch.
 
 ---
 

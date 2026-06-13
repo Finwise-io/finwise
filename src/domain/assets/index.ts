@@ -181,12 +181,18 @@ export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsS
 export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null): AssetsDoc {
   const a = op ?? {};
   const accounts: AssetAccount[] = [];
-  const add = (label: string, bucket: TaxBucket, bal: number, kind: string) => {
-    if (bal > 0) accounts.push({ asset_id: newEntityId('ast'), label, kind, tax_bucket: bucket, balance: bal, target_return: DEFAULT_RETURN, origin: 'onboarding' });
+  // B-21: seed an account when the question was ANSWERED — including an explicit $0, so the user
+  // has a placeholder to fund/edit later. Key on field presence, not the value: an absent field
+  // (e.g. currentSavingsPortfolio in the accumulation flow) must NOT spawn a junk $0 account.
+  const add = (label: string, bucket: TaxBucket, raw: any, kind: string) => {
+    if (raw == null || String(raw).trim() === '') return; // question not asked / left blank → no account
+    const bal = toNum(raw);
+    if (bal < 0) return; // guard negatives
+    accounts.push({ asset_id: newEntityId('ast'), label, kind, tax_bucket: bucket, balance: bal, target_return: DEFAULT_RETURN, origin: 'onboarding' });
   };
-  add('Retirement savings', 'PRE_TAX', toNum(a.currentRetirementSavings), '401k');
-  add('Investments', 'TAXABLE', toNum(a.investmentHoldings), 'stocks_etf');
-  add('Savings / portfolio', 'TAXABLE', toNum(a.currentSavingsPortfolio), 'stocks_etf'); // retired flow (if present)
+  add('Retirement savings', 'PRE_TAX', a.currentRetirementSavings, '401k');
+  add('Investments', 'TAXABLE', a.investmentHoldings, 'stocks_etf');
+  add('Savings / portfolio', 'TAXABLE', a.currentSavingsPortfolio, 'stocks_etf'); // retired flow (if present)
   return { user_id: uid, accounts };
 }
 

@@ -1,7 +1,7 @@
 // One-source-of-truth invariants — the cross-module identities every screen relies on.
 // Each test encodes a promise the app makes (launch test plan, P0 area 2); a failure here means
 // two screens can show the user two different "truths" for the same dollar.
-import { buildSnapshot, effectiveAnnualContribution } from './snapshot';
+import { snapshotFromOnboarding, effectiveAnnualContribution } from './snapshot';
 import { buildGoalsState, waterfall } from './goals';
 import { spendBuckets, spendByMonth, savingsByMonth, budgetVsActual } from './budget';
 import { currentRetirementIncomeMonthly, retirementIncomeMonthly } from './income';
@@ -11,7 +11,7 @@ import { ALL_PERSONAS, ECON, employedPartner, retiree75, simpleFlat, NO_TAX } fr
 import { expectAllFinite } from '../testing/assertFinite';
 import type { OnboardingProfile } from './onboardingProfile';
 
-const snap = (op: OnboardingProfile) => buildSnapshot('local', op, ECON);
+const snap = (op: OnboardingProfile) => snapshotFromOnboarding('local', op, ECON);
 
 // ───────────────────────── ONE POOL: invest + goals share the same free cash ─────────────────────────
 describe('ONE-POOL free-cash invariant', () => {
