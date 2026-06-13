@@ -4,10 +4,13 @@ Consolidated, prioritized fix backlog from the comprehensive-testing pass + user
 (Jane) + retiree/student/gig persona walk (2026-06-12). Source of record: `finwise-bug-ledger.md`.
 Detail and screenshots: `finwise-userlens-qa-2026-06-12.md`.
 
-**Status:** 2 HIGH already fixed (B-15, B-16). **21 open** below (15 from this session's testing +
-6 reconciled from prior-testing docs). Already-decided non-issues (B-17, B-20 by-design; B-22
-not-a-bug; B-21 pending product call; B-23 deferred, US-only at launch) are listed at the bottom and
-need no code.
+**Status (updated 2026-06-13):** 12 fixed this pass — **B-34, B-31, B-28, B-29** (all P0),
+**B-35, B-24, B-33, B-37** (P1), **B-30, B-32** (LOW), plus the original **B-15, B-16**.
+B-47 closed as not-a-bug (label matches the onboarding question). **10 open remain** (see the
+per-item list — the P1 market-data pair B-18/B-19, P2 polish B-25/B-36, prior-testing
+B-38..B-43, and copy nits B-44/B-45/B-46/B-48). Already-decided non-issues (B-17, B-20 by-design;
+B-22, B-47 not-a-bug; B-21 pending product call; B-23 deferred) need no code. Every fix shipped with
+tests; the suite is at 514 and green.
 
 Recommended order is top-to-bottom: it front-loads the bugs that corrupt the most screens and are
 cheapest to fix. The first four are the launch-blockers.
