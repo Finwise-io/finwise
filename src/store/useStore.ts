@@ -20,6 +20,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { newEntityId } from '../domain/_shared/ids';
+import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
 
 export type IncomeEntry = {
@@ -72,6 +73,7 @@ export type Goal = {
   savingsType?: 'fixed' | 'percent' | 'leftover';
   savingsAmount?: number;
   savingsPercent?: number;
+  origin?: 'onboarding';  // seeded from onboarding goals; cleared on restart, kept-distinct from user goals
 };
 
 export type Badge = {
@@ -215,6 +217,7 @@ type AppState = {
   assetAccounts: AssetAccount[];
   liabilities: Debt[];
   nwSeeded: boolean;
+  goalsSeeded: boolean;
   nwSetupChoice: 'guided' | 'self' | null;
   allocatedByMonth: Record<string, number>;     // 'YYYY-MM' → total savings allocated to assets
   allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
@@ -294,6 +297,7 @@ type AppState = {
   updateLiability: (id: string, updates: Partial<Debt>) => void;
   deleteLiability: (id: string) => void;
   seedNetWorth: (op: Record<string, any> | null) => void;
+  seedGoals: (op: Record<string, any> | null) => void;
   setNwSetupChoice: (v: 'guided' | 'self' | null) => void;
   allocateSavings: (ym: string, items: { assetId: string; amount: number }[]) => void;
   skipAllocPrompt: (ym: string) => void;
@@ -396,6 +400,7 @@ export const useStore = create<AppState>()(
       assetAccounts: [],
       liabilities: [],
       nwSeeded: false,
+      goalsSeeded: false,
       nwSetupChoice: null,
       allocatedByMonth: {},
       allocPromptSkipped: {},
@@ -546,6 +551,21 @@ export const useStore = create<AppState>()(
         const keptDebts = s.liabilities.filter((d) => d.origin !== 'onboarding'
           && !freshDebts.some((f) => f.label === d.label));
         return { assetAccounts: [...freshAssets, ...keptAssets], liabilities: [...freshDebts, ...keptDebts], nwSeeded: true };
+      }),
+      // B-29: bring the goals captured in onboarding into the Plan tab. Seeds once (goalsSeeded
+      // guard) so deleting a seeded goal sticks; a fresh onboarding run re-seeds (restartOnboarding
+      // clears the flag + the onboarding-origin goals).
+      seedGoals: (op) => set((s) => {
+        if (s.goalsSeeded) return {};
+        const palette = ['#178F6B', '#2563EB', '#D97706', '#7C3AED', '#DB2777'];
+        const fresh: Goal[] = goalsFromOnboarding('local', op).goals.map((g, i) => ({
+          id: newEntityId('goal'), label: g.label, icon: '🎯', target: g.target_amount, saved: 0,
+          color: palette[i % palette.length],
+          targetDate: g.target_year ? `${g.target_year}-01` : undefined,
+          origin: 'onboarding' as const,
+        }));
+        if (!fresh.length) return { goalsSeeded: true };
+        return { goals: [...fresh, ...s.goals], goalsSeeded: true };
       }),
       setNwSetupChoice: (v) => set({ nwSetupChoice: v }),
       allocateSavings: (ym, items) => set((s) => {
@@ -743,7 +763,7 @@ export const useStore = create<AppState>()(
       resetAll: () => set({
         incomes: [], expenses: [], savings: [], investments: [],
         recurringIncomes: [], recurringExpenses: [], debts: [],
-        assetAccounts: [], liabilities: [], nwSeeded: false, nwSetupChoice: null,
+        assetAccounts: [], liabilities: [], nwSeeded: false, goalsSeeded: false, nwSetupChoice: null,
         allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {},
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
@@ -764,6 +784,8 @@ export const useStore = create<AppState>()(
         onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,
         selectedGoals: [], retirementPlan: null, retirementScenarios: [],
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+        // clear onboarding-seeded goals (keep hand-added ones) + reset the seed flag so a re-run re-seeds
+        goals: s.goals.filter((g) => g.origin !== 'onboarding'), goalsSeeded: false,
         ...(s.nwSeeded ? {
           assetAccounts: s.assetAccounts.filter((a) => a.origin !== 'onboarding'),
           liabilities: s.liabilities.filter((d) => d.origin !== 'onboarding'),

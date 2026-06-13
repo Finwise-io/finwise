@@ -97,6 +97,45 @@ describe('seedNetWorth: origin-tagged merge', () => {
   });
 });
 
+describe('seedGoals: onboarding goals reach the Plan tab (B-29)', () => {
+  const withGoals = { goals: [{ label: 'Emergency fund', target: '36000', year: '2027' }, { label: 'House', target: '45000', year: '2029' }] };
+
+  test('first seed brings onboarding goals in, origin-tagged', () => {
+    useStore.getState().seedGoals(withGoals);
+    const goals = useStore.getState().goals;
+    expect(goals.map((g) => g.label).sort()).toEqual(['Emergency fund', 'House']);
+    expect(goals.every((g) => g.origin === 'onboarding')).toBe(true);
+    expect(goals.find((g) => g.label === 'Emergency fund')!.target).toBe(36000);
+    expect(useStore.getState().goalsSeeded).toBe(true);
+  });
+
+  test('seeds once — re-calling does not duplicate or resurrect deleted goals', () => {
+    useStore.getState().seedGoals(withGoals);
+    const firstId = useStore.getState().goals[0].id;
+    useStore.getState().deleteGoal(firstId);
+    useStore.getState().seedGoals(withGoals);            // second visit
+    expect(useStore.getState().goals.map((g) => g.label)).toEqual(['House']);   // deletion sticks
+  });
+
+  test('a hand-added goal is preserved; restart clears only seeded goals + re-seeds', () => {
+    useStore.getState().seedGoals(withGoals);
+    useStore.getState().addGoal({ label: 'New car', icon: '🚗', target: 20000, saved: 0, color: '#000' });
+
+    useStore.getState().restartOnboarding();
+    expect(useStore.getState().goals.map((g) => g.label)).toEqual(['New car']);  // manual kept, seeded gone
+    expect(useStore.getState().goalsSeeded).toBe(false);
+
+    useStore.getState().seedGoals({ goals: [{ label: 'Trip', target: '5000' }] });
+    expect(useStore.getState().goals.map((g) => g.label).sort()).toEqual(['New car', 'Trip']);
+  });
+
+  test('no onboarding goals → no goals, but flag set so it does not re-run', () => {
+    useStore.getState().seedGoals({});
+    expect(useStore.getState().goals).toHaveLength(0);
+    expect(useStore.getState().goalsSeeded).toBe(true);
+  });
+});
+
 describe('restartOnboarding: only seeded rows are cleared', () => {
   test('clears seeded rows, keeps manual ones, resets the seeded gate', () => {
     useStore.getState().seedNetWorth(answers('50000', '10000', '5000'));

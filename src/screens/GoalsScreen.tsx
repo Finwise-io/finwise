@@ -1,6 +1,6 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
-import React, { useMemo, useState } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
@@ -27,6 +27,8 @@ export default function GoalsScreen() {
   const [extra, setExtra] = useState('');
 
   const op = store.onboardingProfile ?? {};
+  // B-29: pull goals captured during onboarding into the Plan tab on first visit (seeds once).
+  useEffect(() => { store.seedGoals?.(op); }, []);   // eslint-disable-line react-hooks/exhaustive-deps
   // B-28: free cash to save = income AFTER spending (savingsByMonth), not income alone. Using the
   // income grid here showed users their gross monthly income as "free cash."
   const capacity = useMemo(() => availableToSaveSummary(savingsByMonth(op)), [op]);

@@ -247,6 +247,7 @@ export default function OnboardingScreen() {
     store.setOnboardingDraft?.(null);   // clear resume draft on completion
     store.setOnboardingPaused?.(false);
     store.setOnboardingComplete?.(true);
+    store.seedGoals?.(consolidated);    // B-29: goals reach the Plan tab + Sharpen checklist immediately
     router.replace(dest as any);
   }
 

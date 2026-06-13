@@ -86,4 +86,14 @@ describe('GoalsScreen — debt payoff plan', () => {
     render(<GoalsScreen />);
     expect(screen.queryByText(/typical free cash to save/)).toBeNull();
   });
+
+  // BUG-LEDGER: B-29 — goals captured in onboarding must appear on the Plan tab (the screen
+  // seeds them on mount), not "No goals yet".
+  test('onboarding goals appear on the Plan tab on first visit', () => {
+    complete(employedPartner);   // goals: House down payment, New car
+    render(<GoalsScreen />);
+    expect(screen.getByText('House down payment')).toBeOnTheScreen();
+    expect(screen.getByText('New car')).toBeOnTheScreen();
+    expect(screen.queryByText(/No goals yet/)).toBeNull();
+  });
 });
