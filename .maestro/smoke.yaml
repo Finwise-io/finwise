@@ -1,0 +1,36 @@
+# Smoke + B-23 (currency removed) + B-49 (net-worth consistency).
+# Uses the finwise:// deep-link scheme to jump straight to each screen — robust against tab layout.
+# Run: maestro test .maestro/smoke.yaml   (needs a booted simulator with the app installed)
+# NOTE: a dev build loads JS from Metro, so the first launch is slow — extendedWaitUntil covers it.
+# Selectors are matched against the iOS accessibility tree, where touchables group their text
+# (e.g. the chip reads "NW, , $990,000, "), so we assert on clean standalone labels / substrings.
+appId: co.finwise.app
+---
+- launchApp:
+    clearState: false        # use the existing onboarded profile; this is a render/consistency smoke
+- openLink: finwise://home   # deep-link Home so the flow is deterministic regardless of prior screen
+
+# Home renders (no red-screen) and shows the Net Worth chip
+- extendedWaitUntil:
+    visible:
+      text: "Good (morning|afternoon|evening)"   # greeting is time-of-day dependent
+    timeout: 45000                                # cold start loads the JS bundle from Metro (~10-15s)
+- assertVisible: "Insights for you"
+- assertVisible:
+    text: ".*990,000.*"      # the net-worth chip ("NW, , $990,000, ")
+
+# B-23: the currency picker is gone from Settings, and the app did not crash
+- openLink: finwise://settings
+- extendedWaitUntil:
+    visible: "Display mode"
+    timeout: 15000
+- assertVisible: "Text size"
+- assertNotVisible: "Currency"
+
+# B-49: the Net Worth screen renders and agrees with the chip (same net worth on both surfaces)
+- openLink: finwise://analytics
+- extendedWaitUntil:
+    visible: ".*990K.*"
+    timeout: 15000
+- assertVisible:
+    text: ".*Investments.*"

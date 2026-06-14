@@ -1,0 +1,27 @@
+# B-21 (tap-driven): from the Net Worth screen a user can reach the Add-asset editor that allows a
+# $0 placeholder. We assert the sheet opens and presents the add control whose label is "Add asset"
+# (the label shown when the amount is blank/$0 — i.e. a $0 add is offered, not forced to be > 0).
+#
+# LIMITATION: the bottom-sheet renders as one grouped accessibility element on iOS, so Maestro can't
+# tap the amount field / Save button individually to COMPLETE a $0 add. That guard (blank blocked,
+# typed "0" allowed) is covered deterministically by the assetSheetReady unit test in
+# src/screens/__tests__/NetWorthScreen.test.tsx. This flow covers reachability of the editor path.
+#
+# Run: maestro test .maestro/b21-add-sheet.yaml   (assumes the standard seeded profile, empty CASH)
+appId: co.finwise.app
+---
+- launchApp:
+    clearState: false
+- openLink: finwise://analytics
+- extendedWaitUntil:
+    visible: "Add a cash account →"
+    timeout: 45000
+- tapOn: "Add a cash account →"
+
+# the Add-asset editor opens and offers a $0-capable add ("Add asset" = amount blank/$0)
+- extendedWaitUntil:
+    visible:
+      text: ".*Add asset.*"
+    timeout: 20000
+- assertVisible:
+    text: ".*Institution / name.*"
