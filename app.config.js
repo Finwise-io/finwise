@@ -24,7 +24,7 @@ module.exports = {
     },
   },
   android: {
-    package: 'io.finwise.app',
+    package: 'co.finwise.app',   // match the iOS bundle (co.finwise.app is locked to App Store Connect)
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#1a1f3a',
