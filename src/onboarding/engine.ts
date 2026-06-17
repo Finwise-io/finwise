@@ -12,7 +12,7 @@ export type Track =
 // Field/step ids. Meta steps + per-field question steps + recaps + summary.
 export type StepId =
   // meta
-  | 'status' | 'goals' | 'account' | 'name'
+  | 'status' | 'goals' | 'account' | 'verifyEmail' | 'name'
   // S1 — income captured as focused, one-type-per-screen sub-steps
   | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
   | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_loans' | 'income_other'
@@ -137,7 +137,7 @@ export const OPTIONAL_STEPS = new Set<StepId>([
   'income_scholarship', 'income_loans', 'income_other',
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
-  'invitePartner', 'networthIntro',
+  'invitePartner', 'networthIntro', 'verifyEmail',   // soft — app works unverified; Settings has a nudge
 ]);
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
@@ -240,7 +240,7 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];
 
 export function buildSteps(status: Status | null, tracks: Track[], answers?: Record<string, any>): StepId[] {
-  const steps: StepId[] = ['status', 'goals', 'account', 'name'];
+  const steps: StepId[] = ['status', 'goals', 'account', 'verifyEmail', 'name'];
   const seen = new Set<StepId>(steps);
 
   const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };

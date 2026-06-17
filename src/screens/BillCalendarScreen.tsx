@@ -142,7 +142,7 @@ export default function BillCalendarScreen() {
         </View>
       )}
 
-      <Text style={styles.foot}>Money in is shown after estimated tax. Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
+      <Text style={styles.foot}>This is a forward plan: spending uses your budgeted/typical amount, and money in is after estimated tax. (Your Home screen shows what you've actually spent this month.) Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
       <View style={{ height: 40 }} />
     </ScrollView>
   );

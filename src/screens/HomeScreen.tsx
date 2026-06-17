@@ -14,6 +14,7 @@ import { BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../con
 import { assetKind, buildAssetsState } from '../domain/assets';
 import { totalDebtMonthly, requiredPayment, buildDebtState } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
+import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { pickReceipt, ocrReceipt, ocrAvailable } from '../services/receiptScan';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { useInsights } from './InsightsScreen';
@@ -39,7 +40,7 @@ export default function HomeScreen() {
   const FOCUS = {
     building: { title: 'Your focus — goals & growth', actions: [{ icon: '🎯', label: 'Goals & debt', route: '/goals' }, { icon: '📈', label: 'Grow investments', route: '/performance' }] },
     preretiree: { title: 'Your focus — get retirement-ready', actions: [{ icon: '🏖️', label: 'Retirement outlook', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
-    retired: { title: 'Your focus — make it last', actions: [{ icon: '🏖️', label: 'Your drawdown', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
+    retired: { title: 'Your focus — make it last', actions: [{ icon: '🏖️', label: 'Retirement Plan', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
   }[persona];
   const expenses = (store.expenses ?? []) as any[];
   const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
@@ -164,6 +165,15 @@ export default function HomeScreen() {
 
   const planned = bva.planned_total;
   const spent = bva.spent_total;
+  const estSpend = Number(op?.monthlySpending) || 0;          // onboarding "typical month" estimate
+  const budgetBaseline = planned > 0 ? planned : estSpend;    // surface the estimate as the budget until itemized
+  // RMD: once you reach RMD age, the IRS requires a yearly withdrawal from pre-tax accounts.
+  const homeAge = ageFromProfile(op) ?? 0;
+  const rmdAccounts = useMemo(
+    () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []).accounts,
+    [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
+  const preTaxBal = taxBucketSplit(rmdAccounts).preTax;
+  const rmdAnnual = (homeAge >= RMD_START_AGE && preTaxBal > 0) ? rmdAtAge(preTaxBal, homeAge) : 0;
   const debtPaid = expenses.filter((e: any) => e.category === 'Debt payment' && String(e.date).startsWith(ym)).reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
   const debtLeft = Math.max(0, debtMonthly - debtPaid);
   const debtPct = debtMonthly > 0 ? Math.min(1, debtPaid / debtMonthly) : 0;
@@ -231,20 +241,6 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* persona-adaptive focus */}
-        <View style={styles.focusCard}>
-          <Text style={styles.focusTitle}>{FOCUS.title}</Text>
-          <View style={styles.focusRow}>
-            {FOCUS.actions.map((a) => (
-              <TouchableOpacity key={a.route} style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push(a.route as any)}>
-                <Text style={styles.focusIcon}>{a.icon}</Text>
-                <Text style={styles.focusLabel} numberOfLines={1}>{a.label}</Text>
-                <Text style={styles.focusArrow}>›</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
-        </View>
-
         {/* sharpen-your-plan nudge (only when incomplete) */}
         {sharpen.pct < 100 && (
           <TouchableOpacity style={styles.sharpenCard} activeOpacity={0.85} onPress={() => router.push('/sharpen')}>
@@ -257,64 +253,39 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* insights for you (top 2) */}
-        {topInsights.length > 0 && (
-          <View style={styles.insightsBlock}>
-            <View style={styles.insightsHead}>
-              <Text style={styles.insightsTitle}>Insights for you</Text>
-              <TouchableOpacity onPress={() => router.push('/insights')}><Text style={styles.insightsAll}>See all ›</Text></TouchableOpacity>
-            </View>
-            {topInsights.map((i) => (
-              <TouchableOpacity key={i.id} style={styles.insightRow} activeOpacity={0.85} onPress={() => i.route && router.push(i.route as any)}>
-                <Text style={styles.insightIcon}>{i.icon}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.insightTitle}>{i.title}</Text>
-                  <Text style={styles.insightBody} numberOfLines={2}>{i.body}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
-
-        {/* net worth over time */}
-        {nwSeries.length >= 2 && (() => {
-          const vals = nwSeries.map((p) => p.nw);
-          const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
-          const change = vals[vals.length - 1] - vals[0];
-          return (
-            <View style={styles.nwotCard}>
-              <View style={styles.nwotHead}>
-                <Text style={styles.nwotTitle}>Net worth over time</Text>
-                <Text style={[styles.nwotChange, { color: change >= 0 ? Colors.primary : Colors.red }]}>{change >= 0 ? '+' : ''}{money(change)} · {nwSeries.length} mo</Text>
-              </View>
-              <View style={styles.nwotBars}>
-                {nwSeries.map((p) => (
-                  <View key={p.month} style={styles.nwotBarCol}>
-                    <View style={[styles.nwotBar, { height: `${20 + ((p.nw - lo) / span) * 80}%`, backgroundColor: Colors.primary }]} />
-                    <Text style={styles.nwotBarLbl}>{p.month.slice(5)}</Text>
-                  </View>
-                ))}
-              </View>
-            </View>
-          );
-        })()}
-
-        {/* bill calendar / cash flow */}
-        <TouchableOpacity style={styles.billCalCard} activeOpacity={0.85} onPress={() => router.push('/bill-calendar')}>
-          <Text style={styles.billCalIcon}>📅</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.billCalTitle}>Bill calendar</Text>
-            <Text style={styles.billCalSub}>See when money lands, when bills hit, and any tight months</Text>
-          </View>
-          <Text style={styles.focusArrow}>›</Text>
-        </TouchableOpacity>
-
         {/* month switcher */}
         <View style={styles.monthRow}>
           <TouchableOpacity onPress={() => setMonthOffset((m) => m - 1)} hitSlop={hit}><Text style={styles.monthArrow}>‹</Text></TouchableOpacity>
           <Text style={styles.monthLabel}>{monthLabel}</Text>
           <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={hit}>
             <Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text>
+          </TouchableOpacity>
+        </View>
+
+        {/* TOP money stats — Income · Spent · Left over (the hero glance) */}
+        <View style={styles.row2}>
+          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setIncomeSheet(true)}>
+            <View style={styles.tileHeadRow}>
+              <Text style={styles.miniLabel}>Income ({monthShort})</Text>
+              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
+            </View>
+            <Text style={styles.miniValue}>{money(thisMonthNet)}</Text>
+            <Text style={styles.fx}>{extraIncome > 0 ? `incl. +${money(extraIncome)} extra` : 'this month'}</Text>
+          </TouchableOpacity>
+          <View style={styles.miniTile}>
+            <View style={styles.tileHeadRow}>
+              <Text style={styles.miniLabel}>Spent ({monthShort})</Text>
+            </View>
+            <Text style={styles.miniValue}>{money(spent)}</Text>
+            <Text style={styles.fx}>{budgetBaseline > 0 ? `of ${money(budgetBaseline)} budget` : 'this month'}</Text>
+          </View>
+          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
+            <View style={styles.tileHeadRow}>
+              <Text style={styles.miniLabel}>Left over ({monthShort})</Text>
+              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
+            </View>
+            <Text style={[styles.miniValue, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text>
+            <Text style={styles.fx}>{allocatedThis > 0 ? `${money(allocatedThis)} invested` : 'after spending & debt'}</Text>
           </TouchableOpacity>
         </View>
 
@@ -348,6 +319,18 @@ export default function HomeScreen() {
           )}
         </View>
 
+        {/* typical-month estimate — surfaces the onboarding number + nudges to itemize (until a budget exists) */}
+        {estSpend > 0 && planned <= 0 && (
+          <View style={styles.card}>
+            <Text style={styles.section2}>Typical month</Text>
+            <Text style={[styles.miniValue, { marginTop: 2 }]}>{money(estSpend)}</Text>
+            <Text style={styles.fx}>you estimated this at setup</Text>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/budget')} style={{ marginTop: 10 }}>
+              <Text style={styles.secAdd}>Break it into categories →</Text>
+            </TouchableOpacity>
+          </View>
+        )}
+
         {insight && (
           <View style={[styles.insightCard, insight.warn && styles.insightWarn]}>
             <Text style={styles.insightIcon}>{insight.warn ? '⚠️' : '✨'}</Text>
@@ -358,25 +341,16 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* income (this month) + saved so far */}
-        <View style={styles.row2}>
-          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setIncomeSheet(true)}>
-            <View style={styles.tileHeadRow}>
-              <Text style={styles.miniLabel}>Take-home ({monthShort})</Text>
-              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
+        {/* RMD — required yearly withdrawal once you reach RMD age (pre-tax accounts) */}
+        {rmdAnnual > 0 && (
+          <View style={styles.insightCard}>
+            <Text style={styles.insightIcon}>📌</Text>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.insightTxt}>Required withdrawal (RMD) · {String(new Date().getFullYear())}</Text>
+              <Text style={styles.insightSub}>The IRS requires about {money(rmdAnnual)} out of your pre-tax accounts this year (by Dec 31) — skipping it triggers a penalty.</Text>
             </View>
-            <Text style={styles.miniValue}>{money(thisMonthNet)}</Text>
-            <Text style={styles.fx}>{extraIncome > 0 ? `incl. +${money(extraIncome)} extra` : 'this month'}</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
-            <View style={styles.tileHeadRow}>
-              <Text style={styles.miniLabel}>Left over ({monthShort})</Text>
-              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
-            </View>
-            <Text style={[styles.miniValue, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text>
-            <Text style={styles.fx}>{allocatedThis > 0 ? `${money(allocatedThis)} invested` : 'take-home − spending & debt'}</Text>
-          </TouchableOpacity>
-        </View>
+          </View>
+        )}
 
         {/* where this month's savings went */}
         {(investedAccts.length > 0 || allocatable > 0) && (
@@ -493,6 +467,73 @@ export default function HomeScreen() {
               </View>
             ))}
         </View>
+
+        {/* secondary: trends, planning tools & guidance — below the money glance */}
+        {/* net worth over time */}
+        {nwSeries.length >= 2 && (() => {
+          const vals = nwSeries.map((p) => p.nw);
+          const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+          const change = vals[vals.length - 1] - vals[0];
+          return (
+            <View style={styles.nwotCard}>
+              <View style={styles.nwotHead}>
+                <Text style={styles.nwotTitle}>Net worth over time</Text>
+                <Text style={[styles.nwotChange, { color: change >= 0 ? Colors.primary : Colors.red }]}>{change >= 0 ? '+' : ''}{money(change)} · {nwSeries.length} mo</Text>
+              </View>
+              <View style={styles.nwotBars}>
+                {nwSeries.map((p) => (
+                  <View key={p.month} style={styles.nwotBarCol}>
+                    <View style={[styles.nwotBar, { height: `${20 + ((p.nw - lo) / span) * 80}%`, backgroundColor: Colors.primary }]} />
+                    <Text style={styles.nwotBarLbl}>{p.month.slice(5)}</Text>
+                  </View>
+                ))}
+              </View>
+            </View>
+          );
+        })()}
+
+        {/* bill calendar / cash flow */}
+        <TouchableOpacity style={styles.billCalCard} activeOpacity={0.85} onPress={() => router.push('/bill-calendar')}>
+          <Text style={styles.billCalIcon}>📅</Text>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.billCalTitle}>Bill calendar</Text>
+            <Text style={styles.billCalSub}>See when money lands, when bills hit, and any tight months</Text>
+          </View>
+          <Text style={styles.focusArrow}>›</Text>
+        </TouchableOpacity>
+
+        {/* persona-adaptive focus (moved below the money) */}
+        <View style={styles.focusCard}>
+          <Text style={styles.focusTitle}>{FOCUS.title}</Text>
+          <View style={styles.focusRow}>
+            {FOCUS.actions.map((a) => (
+              <TouchableOpacity key={a.route} style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push(a.route as any)}>
+                <Text style={styles.focusIcon}>{a.icon}</Text>
+                <Text style={styles.focusLabel} numberOfLines={1}>{a.label}</Text>
+                <Text style={styles.focusArrow}>›</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+
+        {/* insights for you (top 2) — moved below the money */}
+        {topInsights.length > 0 && (
+          <View style={styles.insightsBlock}>
+            <View style={styles.insightsHead}>
+              <Text style={styles.insightsTitle}>Insights for you</Text>
+              <TouchableOpacity onPress={() => router.push('/insights')}><Text style={styles.insightsAll}>See all ›</Text></TouchableOpacity>
+            </View>
+            {topInsights.map((i) => (
+              <TouchableOpacity key={i.id} style={styles.insightRow} activeOpacity={0.85} onPress={() => i.route && router.push(i.route as any)}>
+                <Text style={styles.insightIcon}>{i.icon}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.insightTitle}>{i.title}</Text>
+                  <Text style={styles.insightBody} numberOfLines={2}>{i.body}</Text>
+                </View>
+              </TouchableOpacity>
+            ))}
+          </View>
+        )}
 
         <TouchableOpacity onPress={() => router.push('/(tabs)/retirement')}>
           <Text style={styles.moreLink}>Net worth {money(snap.networth.net_worth)} · see all plans →</Text>

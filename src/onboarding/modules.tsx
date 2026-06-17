@@ -9,7 +9,7 @@ import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnter
 import { loanPayment } from '../domain/debt';
 import { colFactor } from '../domain/retirement/col';
 import { capitalNeeded } from '../domain/retirement';
-import { createInvite } from '../services/firebase';
+import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
@@ -963,13 +963,16 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
             // dividends/rental get their own screens when those sources are picked — don't double-count
             const srcs: string[] = Array.isArray(a.incomeSources) ? a.incomeSources : [];
             const div = srcs.includes('investment_income'), rent = srcs.includes('rental');
-            const label = div && rent ? 'Other income' : div ? 'Rental / other' : rent ? 'Dividends / other' : 'Dividends / rental / other';
+            // always "Other Income"; the sub-text lists what counts (incl. interest) and keeps the
+            // don't-double-count guidance when dividends/rental are captured on their own screens.
+            const hint = div && rent
+              ? 'Interest and any other income. Dividends and rental are asked on their own screens — don\'t repeat them here.'
+              : div ? 'Interest, rental and any other income. Dividends are asked on their own screen — don\'t repeat them here.'
+              : rent ? 'Dividends, interest and any other income. Rental is asked on its own screen — don\'t repeat it here.'
+              : 'Dividends, Interest, Rental or other income.';
             return (<>
-              <MoneyCadenceRow ctx={ctx} k="ri_other" label={label} />
-              {(div || rent) && <Text style={[s.hint, { marginTop: -8 }]}>
-                {div && rent ? 'Dividends and rental income are asked on their own screens — don\'t repeat them here.'
-                  : div ? 'Dividends are asked on their own screen — don\'t repeat them here.'
-                  : 'Rental income is asked on its own screen — don\'t repeat it here.'}</Text>}
+              <MoneyCadenceRow ctx={ctx} k="ri_other" label="Other Income" />
+              <Text style={[s.hint, { marginTop: -8 }]}>{hint}</Text>
             </>);
           })()}
         </Card>
@@ -1044,8 +1047,8 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'networthIntro':
       return (<><Header emoji="🧮" title="Your net worth lives in the Net Worth tab" sub="Everything you own minus what you owe — kept up to date automatically." />
         <Card>
-          <Text style={s.note}>Next, open the <Text style={{ fontWeight: '800' }}>Net Worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
-          <Text style={[s.hint, { marginTop: 10 }]}>You can finish setup now and add accounts anytime.</Text>
+          <Text style={s.note}>Once you've finished setup, head to the <Text style={{ fontWeight: '800' }}>Net Worth</Text> tab (top-right chip or the ▦ menu) to add your accounts and debts — cash, investments, retirement, home, car, loans, credit cards. As you add them, your net worth total updates everywhere.</Text>
+          <Text style={[s.hint, { marginTop: 10 }]}>No rush — there's nothing to do here right now. You can add accounts anytime after setup.</Text>
         </Card></>);
 
     case 'goals_detail':
@@ -1067,6 +1070,9 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'invitePartner':
       return <InvitePartner ctx={ctx} />;
+
+    case 'verifyEmail':
+      return <VerifyEmail ctx={ctx} />;
 
     case 'dependentsCount':
       return (<><Header emoji="👨‍👩‍👧" title="How many kids or dependents?" />
@@ -1476,13 +1482,14 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
 
   // retired / no-accumulation-income → simple income-vs-spending recap
   if (retired || grossYr <= 0) {
-    const incMo = retirementMonthlyIncome(a) || monthlyIncome(a);
-    const spendMo = num(a.monthlySpending);
+    // take-home (after tax) — SAME expression the spending-plan step uses, so the two screens agree
+    const incMo = monthlyIncome(a) || retirementMonthlyIncome(a);
+    const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
     const left = incMo - spendMo;
     return (<>
-      <Header emoji="📊" title="Your cash flow" sub="Income vs spending each month." />
+      <Header emoji="📊" title="Your cash flow" sub="Take-home income vs spending each month." />
       <Card>
-        <RecapStat label="Income" value={`${money(incMo)}/mo`} />
+        <RecapStat label="Take-Home (After Tax)" value={`${money(incMo)}/mo`} />
         <RecapStat plain label="Spending" value={`-${money(spendMo)}/mo`} color={Colors.amber} />
         <RecapBox label="Left over / mo" value={money(left)} tone={left >= 0 ? 'green' : 'neutral'} />
       </Card>
@@ -2206,6 +2213,51 @@ function InvitePartner({ ctx }: { ctx: StepCtx }) {
         <Text style={s.addBtnT}>{busy ? 'Creating…' : code ? 'Share the code' : '✉️ Create & share invite code'}</Text>
       </TouchableOpacity>
       {!!err && <Text style={[s.hint, { color: Colors.red, textAlign: 'center' }]}>{err}</Text>}
+    </Card>
+  </>);
+}
+
+// Email verification step — the link is sent at sign-up; this surfaces it, lets the user re-check
+// after clicking, and resend. Soft (skippable): the app works unverified and Settings nudges later.
+function VerifyEmail({ ctx }: { ctx: StepCtx }) {
+  const email = (useStore.getState() as any).user?.email as string | undefined;
+  const [verified, setVerified] = React.useState(false);
+  const [busy, setBusy] = React.useState(false);
+  const [note, setNote] = React.useState('');
+  React.useEffect(() => {
+    refreshEmailVerified().then((v) => v && setVerified(true)).catch(() => { /* offline — they can check later */ });
+  }, []);
+  const check = async () => {
+    setNote(''); setBusy(true);
+    try {
+      const v = await refreshEmailVerified();
+      setVerified(v);
+      if (!v) setNote('Not verified yet — open the link in your email (check spam), then tap this again.');
+    } catch { setNote("Couldn't check just now — try again in a moment."); }
+    finally { setBusy(false); }
+  };
+  const resend = async () => {
+    setNote(''); setBusy(true);
+    try { await resendVerification(); setNote(`Sent! Check ${email ?? 'your inbox'} (and spam).`); }
+    catch { setNote("Couldn't resend — check your connection."); }
+    finally { setBusy(false); }
+  };
+  return (<>
+    <Header emoji="📧" title="Verify your email" sub="Confirm your email so you can recover your account and sign in on any device." />
+    <Card>
+      {verified ? (
+        <Text style={[s.note, { color: Colors.primary, fontWeight: '700', textAlign: 'center' }]}>✓ Your email is verified — you're all set.</Text>
+      ) : (<>
+        <Text style={s.note}>We sent a verification link to <Text style={{ fontWeight: '800' }}>{email ?? 'your email'}</Text>. Open it, then come back and tap the button below.</Text>
+        <TouchableOpacity style={[s.addBtn, busy && { opacity: 0.5 }]} disabled={busy} onPress={check}>
+          <Text style={s.addBtnT}>{busy ? 'Checking…' : "I've clicked the link — check"}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity disabled={busy} onPress={resend}>
+          <Text style={[s.hint, { textAlign: 'center', marginTop: 10, textDecorationLine: 'underline' }]}>Resend the link</Text>
+        </TouchableOpacity>
+        {!!note && <Text style={[s.hint, { textAlign: 'center', marginTop: 8 }]}>{note}</Text>}
+        <Text style={[s.hint, { textAlign: 'center', marginTop: 12 }]}>No rush — you can keep setting up and verify later from Settings.</Text>
+      </>)}
     </Card>
   </>);
 }

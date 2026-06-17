@@ -16,6 +16,7 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
+import { resolveNetWorthRows } from '../domain/snapshot';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracket } from '../domain/income/tax';
@@ -35,7 +36,11 @@ export default function RetirementCockpit() {
   const op = store.onboardingProfile ?? {};
   const A = store.retirementAssumptions ?? {};
   const setA = store.setRetirementAssumptions as (p: any) => void;
-  const assets: AssetAccount[] = store.assetAccounts ?? [];
+  // Use the SAME seeded source the Home net-worth box uses: when the user hasn't added live accounts
+  // yet, fall back to the onboarding-captured portfolio (else the nest egg shows $0 despite NW > 0).
+  const assets: AssetAccount[] = resolveNetWorthRows(
+    store.user?.uid ?? 'me', op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? [],
+  ).accounts;
 
   const [screen, setScreen] = useState<'current' | 'scenario'>('current');
   const [earmarkOpen, setEarmarkOpen] = useState(false);
@@ -47,6 +52,10 @@ export default function RetirementCockpit() {
   // ---- data-derived ----
   const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : 45;
   const nestEgg = retirementEarmarkedValue(assets);
+  // Money you want to LEAVE behind isn't spendable in retirement — reserve it so "will it last"
+  // reflects what you can actually draw down. (nestEgg = what you have; spendableEgg = what you can spend.)
+  const bequest = num(op.legacyTarget);
+  const spendableEgg = Math.max(0, nestEgg - bequest);
   const benchBlended = blendedReturn(assets);                          // historic blended benchmark — NOT editable
   const actualBlended = portfolioActualReturn(assets);                 // weighted actual TTM from per-holding entries (may be null)
   const returnBasis: 'benchmark' | 'actual' | 'scenario' = A.returnBasis ?? 'benchmark';
@@ -88,7 +97,7 @@ export default function RetirementCockpit() {
     current_age: age,
     retire_age: isRetired ? age : Math.max(age + 1, planRetireAge),
     horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
-    start_balance: nestEgg,
+    start_balance: isRetired ? spendableEgg : nestEgg,   // retired: draw down only what's not reserved for legacy
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: planSalaryGrowth,
     retire_monthly_spend_today: planSpend,
@@ -153,8 +162,8 @@ export default function RetirementCockpit() {
 
   // ---- DECUMULATION (retired "will it last?") ----
   const dSplit = taxBucketSplit(assets);
-  const dPlan = withdrawalPlan(planSpend, ssIncome, nestEgg);
-  const dDeplete = depletionAge({ age, horizon, nestEgg, netWithdrawalNow: dPlan.netWithdrawal, returnRate: planGrowth, inflation: planInfl });
+  const dPlan = withdrawalPlan(planSpend, ssIncome, spendableEgg);
+  const dDeplete = depletionAge({ age, horizon, nestEgg: spendableEgg, netWithdrawalNow: dPlan.netWithdrawal, returnRate: planGrowth, inflation: planInfl });
   const dOrder = withdrawalOrder(dSplit);
   const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, RMD_START_AGE));   // first-year RMD on pre-tax balances
   const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
@@ -307,9 +316,10 @@ export default function RetirementCockpit() {
       {/* HERO — two dark-green cards: the never-save floor + the on-plan target */}
       {isRetired ? (
         <View style={styles.gbox}>
-          <Text style={styles.heroK}>YOUR MONEY SO FAR</Text>
+          <Text style={styles.heroK}>CAN YOUR SAVINGS COVER RETIREMENT?</Text>
           <Text style={styles.heroBig}>{planChance == null ? '…' : `${planChance}%`}</Text>
-          <Text style={styles.heroSub}>chance your {big(nestEgg)} lasts to age {horizon}</Text>
+          <Text style={styles.heroSub}>chance your {big(spendableEgg)} lasts to age {horizon}</Text>
+          {bequest > 0 && <Text style={styles.heroSub}>{big(nestEgg)} saved − {big(bequest)} set aside as legacy = {big(spendableEgg)} to spend</Text>}
           <Text style={styles.heroRoi}>assuming {(planGrowth * 100).toFixed(1)}%/yr · {basisLabel}</Text>
         </View>
       ) : (
@@ -336,7 +346,7 @@ export default function RetirementCockpit() {
       {/* ── DECUMULATION (retired: will it last?) ── */}
       {isRetired && nestEgg > 0 && (
         <>
-          <Text style={styles.divider}>YOUR DRAWDOWN</Text>
+          <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
 
           {/* net withdrawal + rate */}
           <View style={styles.card}>

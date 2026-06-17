@@ -65,7 +65,7 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
 
   test('account always right after the goals(services) step', () => {
     const steps = buildSteps('employed', ['spend', 'retire_acc', 'invest']);
-    expect(steps.slice(0, 4)).toEqual(['status', 'goals', 'account', 'name']);
+    expect(steps.slice(0, 5)).toEqual(['status', 'goals', 'account', 'verifyEmail', 'name']);
     expect(steps[steps.length - 1]).toBe('summary');
   });
 
