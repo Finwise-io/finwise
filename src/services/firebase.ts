@@ -137,6 +137,19 @@ export async function setUserHousehold(uid: string, householdId: string): Promis
   await setDoc(doc(db, 'users', uid), { householdId }, { merge: true });
 }
 
+/**
+ * Claim membership in {householdId} by writing the member doc the security rules gate access on.
+ * Must carry the invite `code`: the rules verify an invite with that code exists and points at
+ * {householdId}, so a household can't be joined without a real code. Call this BEFORE reading the
+ * shared doc (loadUserData), since that read now requires this member doc to exist.
+ */
+export async function joinHouseholdMembership(uid: string, householdId: string, code: string): Promise<void> {
+  await setDoc(doc(db, 'households', householdId, 'members', uid), {
+    code: code.trim().toUpperCase(),
+    joinedAt: serverTimestamp(),
+  });
+}
+
 /** The member's own top-level doc fields (householdId + appState) in one read. */
 export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null }> {
   const snap = await getDoc(doc(db, 'users', uid));

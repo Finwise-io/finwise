@@ -12,7 +12,7 @@ import {
 import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
-import { registerUser, loginUser, lookupInvite, setUserHousehold, loadUserData } from '../services/firebase';
+import { registerUser, loginUser, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
 import { saveProfile, profileFromOnboarding } from '../domain/profile';
 import { saveIncome, incomeFromOnboarding } from '../domain/income';
 
@@ -187,6 +187,9 @@ export default function OnboardingScreen() {
       Alert.alert('Invite code not found', 'Double-check the code with your partner — or continue without it and join later.');
       return false;
     }
+    // Claim membership FIRST (carries the code; the rules gate the shared-doc read on this member
+    // doc existing), then record the pointer on our own doc, then pull the shared plan.
+    await joinHouseholdMembership(uid, inv.householdId, inviteCode);
     await setUserHousehold(uid, inv.householdId);
     store.setHouseholdId?.(inv.householdId);
     const data = await loadUserData(inv.householdId);

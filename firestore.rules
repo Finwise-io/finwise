@@ -1,44 +1,61 @@
 rules_version = '2';
 
 // FinWise Firestore security rules.
-// Principle: a signed-in user can read/write their own document — or their HOUSEHOLD's shared
-// document (partner feature: users/{me}.householdId points at the inviter's users/{uid} doc,
-// which both partners read and write). Everything else is denied.
+// Principle: a signed-in user can read/write their OWN document, or a HOUSEHOLD's shared document
+// they have provably joined. Membership is NOT self-claimable: to join household {owner} you must
+// create a member doc at households/{owner}/members/{you} that carries a valid invite CODE pointing
+// at {owner} (the rule verifies the invite exists and names {owner}). Access to the shared doc is
+// then gated on that member doc existing — which an attacker cannot forge without a real code.
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    // True when the signed-in user's own doc names {uid} as their shared household.
-    function isHouseholdMember(uid) {
-      return get(/databases/$(database)/documents/users/$(request.auth.uid))
-        .data.get('householdId', '') == uid;
+    function signedIn() { return request.auth != null; }
+
+    // True when the caller has a member doc under households/{owner} — i.e. they joined via a code.
+    function isMember(owner) {
+      return signedIn()
+        && exists(/databases/$(database)/documents/households/$(owner)/members/$(request.auth.uid));
     }
 
     // Each user's data lives at users/{uid} (appState payload + any subcollections).
-    // Readable/writable by the owner, or by a partner whose householdId points here.
+    // Readable/writable by the owner, or by a partner who joined the owner's household via a code.
     match /users/{uid} {
-      allow read, write: if request.auth != null
-        && (request.auth.uid == uid || isHouseholdMember(uid));
+      allow read, write: if signedIn() && (request.auth.uid == uid || isMember(uid));
 
       match /{document=**} {
-        allow read, write: if request.auth != null
-          && (request.auth.uid == uid || isHouseholdMember(uid));
+        allow read, write: if signedIn() && (request.auth.uid == uid || isMember(uid));
       }
     }
 
-    // Partner invites: created by a signed-in user FOR their own household only;
-    // any signed-in user may redeem (get) a code they were given. No listing or edits.
+    // Household membership grant. The grant lives on the OWNER's side and is bound to a real invite:
+    // you may create ONLY your own member doc, and only by presenting a `code` for an invite that
+    // exists and points at {owner}. No self-claim, no forging another user's membership, no edits.
+    match /households/{owner}/members/{member} {
+      allow read: if signedIn() && (request.auth.uid == owner || request.auth.uid == member);
+      allow create: if signedIn()
+        && request.auth.uid == member
+        && request.resource.data.code is string
+        && exists(/databases/$(database)/documents/invites/$(request.resource.data.code))
+        && get(/databases/$(database)/documents/invites/$(request.resource.data.code)).data.householdId == owner;
+      allow update: if false;
+      // either side may end the partnership by removing the member doc.
+      allow delete: if signedIn() && (request.auth.uid == owner || request.auth.uid == member);
+    }
+
+    // Partner invites: created by a signed-in user FOR their own household (or one they belong to);
+    // any signed-in user may redeem (get) a code they were given. No listing, edits, or deletes.
     match /invites/{code} {
-      allow create: if request.auth != null
+      allow create: if signedIn()
         && request.resource.data.householdId is string
         && (request.resource.data.householdId == request.auth.uid
-            || isHouseholdMember(request.resource.data.householdId));
-      allow get: if request.auth != null;
+            || isMember(request.resource.data.householdId));
+      allow get: if signedIn();
       allow list, update, delete: if false;
     }
 
     // Feedback: any signed-in user may submit (create); nobody may read/update/delete from the client.
     match /feedback/{doc} {
-      allow create: if request.auth != null;
+      allow create: if signedIn();
       allow read, update, delete: if false;
     }
 

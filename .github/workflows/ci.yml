@@ -32,3 +32,25 @@ jobs:
 
       - name: Jest (all projects)
         run: npm test -- --ci --runInBand
+
+  rules:
+    name: firestore rules (emulator)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - uses: actions/setup-java@v4   # Firestore emulator needs a JDK
+        with:
+          distribution: temurin
+          java-version: 17
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Firestore security-rules tests
+        run: npm run test:rules
