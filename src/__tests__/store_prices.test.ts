@@ -130,6 +130,41 @@ describe('refreshPrices', () => {
   });
 });
 
+// BUG-LEDGER: B-60 — adding ONE holding to track its performance inside a manual-balance account
+// (e.g. a $2.2M Fidelity total) must NOT collapse the account to the sum of that one holding.
+// Positions are a SUBSET for performance tracking; only an explicitly position-derived account
+// (derive_balance) or one with a cash sleeve is rebuilt from its holdings.
+describe('manual-balance account with a partially-tracked holding (B-60)', () => {
+  test('addPosition to a manual-balance account preserves the entered total', () => {
+    useStore.getState().addAsset({ label: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 2_200_000, target_return: 0.07 });
+    const id = useStore.getState().assetAccounts.find((a) => a.label === 'Fidelity')!.asset_id;
+    useStore.getState().addPosition(id, { ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 179, purchase_date: '2025-01-02' }] } as any);
+    const acct = useStore.getState().assetAccounts.find((a) => a.label === 'Fidelity')!;
+    expect(acct.balance).toBe(2_200_000);          // total preserved, NOT collapsed to the $179k holding
+    expect(acct.positions!.length).toBe(1);        // holding still tracked for performance
+  });
+
+  test('refreshPrices leaves a manual-balance account (with a tracked holding) at its entered total', async () => {
+    useStore.getState().addAsset({
+      label: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 2_200_000, target_return: 0.07,
+      positions: [{ position_id: 'p1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 179, purchase_date: '2025-01-02' }] }],
+    });
+    fetchMock.mockResolvedValue({ NVDA: series('NVDA', [180]) });
+    await useStore.getState().refreshPrices();
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Fidelity')!.balance).toBe(2_200_000);
+  });
+
+  test('an explicitly position-derived account (derive_balance) IS rebuilt from Σ positions', async () => {
+    useStore.getState().addAsset({
+      label: 'Tracked', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, target_return: 0.07, derive_balance: true,
+      positions: [{ position_id: 'p1', ticker: 'VOO', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 10, cost_per_share: 300, purchase_date: '2025-01-02' }] }],
+    });
+    fetchMock.mockResolvedValue({ VOO: series('VOO', [410]) });
+    await useStore.getState().refreshPrices();
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Tracked')!.balance).toBe(10 * 410);
+  });
+});
+
 describe('maybeRefreshPrices — the 10-minute throttle', () => {
   test('skips when prices were fetched within 10 minutes', async () => {
     useStore.getState().addAsset(brokerage());

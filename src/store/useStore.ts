@@ -12,7 +12,11 @@ import { fetchPriceSeries } from '../services/marketData';
 // Pure manual accounts (no positions, no cash sleeve) keep their entered balance.
 function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeries>): AssetAccount[] {
   return accs.map((a) => {
-    const ledgerManaged = (a.positions?.length ?? 0) > 0 || a.cash_balance != null;
+    // Only accounts whose value is BUILT from their holdings (a fully position-tracked brokerage, or one
+    // with an explicit cash sleeve) get their balance derived. A manual-balance account (e.g. a $2.2M
+    // Fidelity total) where the user added one holding just to track its performance keeps its entered
+    // balance — those positions are a SUBSET, so summing them would wipe the rest of the account.
+    const ledgerManaged = a.derive_balance === true || a.cash_balance != null;
     if (!ledgerManaged) return a;
     // B-19: a held position with no cached price falls back to its cost basis (what you paid),
     // not $0 — counting it as $0 silently understated net worth.

@@ -23,8 +23,14 @@ export interface AssetAccount {
                                   // (rest is for other goals); defaults per kind via earmarkDefault()
   actual_ttm?: number;            // user-reported ACTUAL trailing-12-month return (decimal), for
                                   // performance-vs-benchmark; null/undefined = not reported
-  positions?: import('../performance').Position[];  // ticker holdings (lots); when present, this account's
-                                  // value is DERIVED from live prices (balance is a refreshed cache)
+  positions?: import('../performance').Position[];  // ticker holdings (lots) tracked for performance.
+                                  // For a manual-balance account these are a SUBSET tracked for
+                                  // performance only — they do NOT change `balance`. The account's
+                                  // value is derived from positions ONLY when derive_balance is true.
+  derive_balance?: boolean;       // true → balance = cash_balance + Σ(position market value), refreshed
+                                  // from live prices (a fully position-tracked brokerage built from its
+                                  // holdings). Absent/false → `balance` is the user-entered total and
+                                  // positions are partial performance trackers (never overwrite balance).
   cash_balance?: number;          // uninvested cash sleeve in an investment account (a brokerage isn't 100%
                                   // invested). Account value = cash_balance + Σ(position market value).
   // Individual bond fields (Phase B) — present → this account is a bond; balance = current value.
