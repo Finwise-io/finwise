@@ -87,6 +87,7 @@ export default function BudgetScreen() {
   const [debtBalance, setDebtBalance] = useState('');
   const [debtRate, setDebtRate] = useState('');
   const [debtMinPayment, setDebtMinPayment] = useState('');
+  const [debtDueDay, setDebtDueDay] = useState('');
   // payoff plan + log-payment
   const [payoffMethod, setPayoffMethod] = useState<PayoffMethod>('avalanche');
   const [extraPay, setExtraPay] = useState('');
@@ -106,18 +107,19 @@ export default function BudgetScreen() {
 
   function openAddDebt() {
     setEditDebtId(null);
-    setDebtName(''); setDebtBalance(''); setDebtRate(''); setDebtMinPayment('');
+    setDebtName(''); setDebtBalance(''); setDebtRate(''); setDebtMinPayment(''); setDebtDueDay('');
     setDebtType('credit_card');
     setDebtFormVisible(true);
   }
 
-  function openEditDebt(d: DebtEntry) {
+  function openEditDebt(d: DebtEntry, dueDay?: number) {
     setEditDebtId(d.id);
     setDebtName(d.name);
     setDebtType(d.type);
     setDebtBalance(String(d.balance));
     setDebtRate(String(d.interestRate));
     setDebtMinPayment(String(d.minimumPayment));
+    setDebtDueDay(dueDay ? String(dueDay) : '');
     setDebtFormVisible(true);
   }
 
@@ -135,10 +137,12 @@ export default function BudgetScreen() {
       minimumPayment: parseFloat(debtMinPayment) || 0,
       date: new Date().toISOString(),
     };
+    const due = parseInt(debtDueDay, 10);
+    const payload = { ...toDebt(entry), due_day: (due >= 1 && due <= 31) ? due : undefined };
     if (editDebtId) {
-      updateLiability(editDebtId, toDebt(entry));
+      updateLiability(editDebtId, payload);
     } else {
-      addLiability(toDebt(entry));
+      addLiability(payload);
     }
     setDebtFormVisible(false);
   }
@@ -338,8 +342,8 @@ export default function BudgetScreen() {
   return (
     <View style={styles.root}>
       <SegmentedControl
-        options={['Activity', 'Budget', 'Debts', 'Import']}
-        selected={tab}
+        options={['Activity', 'Budget', 'Debts']}
+        selected={tab === 'Import' ? 'Activity' : tab}
         onSelect={(v) => setTab(v as Tab)}
       />
 
@@ -710,7 +714,7 @@ export default function BudgetScreen() {
               const pm = payoffMonthFor(d.debt_id);
               return (
                 <Card key={d.debt_id} style={styles.catCard}>
-                  <TouchableOpacity onPress={() => openEditDebt(toEntry(d))} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
+                  <TouchableOpacity onPress={() => openEditDebt(toEntry(d), d.due_day)} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
                     <View style={styles.catRow}>
                       <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 18 }}>{dk?.icon || '📄'}</Text></View>
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
@@ -721,6 +725,14 @@ export default function BudgetScreen() {
                         <Text style={styles.catLimit}>
                           {((d.interest_rate_apr || 0) * 100).toFixed(2)}% APR · {money(Math.round(requiredPayment(d)))}/mo min · ~{money(Math.round(monthlyInterest))}/mo interest{pm ? ` · clear in ${pm} mo` : ''}
                         </Text>
+                        {(() => {
+                          const dd = d.due_day; if (!dd) return null;
+                          const now = new Date(); const t = now.getDate();
+                          const dim = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+                          let n = dd - t; if (n < 0) n += dim;                 // days to the next occurrence
+                          if (n > 10) return null;                            // only surface when it's soon
+                          return <Text style={[styles.dueNote, { color: n <= 2 ? Colors.red : Colors.amber }]}>🔔 {n === 0 ? 'payment due today' : `payment due in ${n} day${n === 1 ? '' : 's'}`}</Text>;
+                        })()}
                       </View>
                     </View>
                   </TouchableOpacity>
@@ -801,6 +813,13 @@ export default function BudgetScreen() {
                   keyboardType="decimal-pad" placeholder="25" placeholderTextColor={Colors.textTertiary} />
               </View>
             </View>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Due day (1–31, optional)</Text>
+              <View style={styles.limitInputWrap}>
+                <TextInput style={styles.limitInput} value={debtDueDay} onChangeText={setDebtDueDay}
+                  keyboardType="number-pad" placeholder="15" placeholderTextColor={Colors.textTertiary} />
+              </View>
+            </View>
           </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
@@ -808,6 +827,7 @@ export default function BudgetScreen() {
       {/* ── Import tab ───────────────────────────────────────────── */}
       {tab === 'Import' && (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+          <TouchableOpacity onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
           <Card style={{ alignItems: 'center', padding: Spacing.xl }}>
             <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📂</Text>
             <Text style={styles.importTitle}>Import from Excel or CSV</Text>
@@ -1107,6 +1127,7 @@ const styles = StyleSheet.create({
   txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
   swipeDel: { backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center', width: 84, borderTopRightRadius: Radii.lg, borderBottomRightRadius: Radii.lg, marginLeft: -Radii.lg, paddingLeft: Radii.lg },
   swipeDelTxt: { color: '#fff', fontWeight: Typography.weights.bold, fontSize: Typography.sizes.sm },
+  dueNote: { fontSize: Typography.sizes.xs, fontWeight: Typography.weights.bold, marginTop: 2 },
 
   // Strip
   strip: {
