@@ -5,10 +5,15 @@ import {
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
+import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories } from '../constants/categories';
+import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
+import { budgetVsActual } from '../domain/budget';
+import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
+import { totalDebtMonthly } from '../domain/debt';
+import { money } from '../domain/_shared/num';
 import { format } from 'date-fns';
 
 type Tab = 'Transactions' | 'Budget' | 'Debts' | 'Import';
@@ -23,10 +28,10 @@ const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = 
 ];
 
 export default function BudgetScreen() {
+  const router = useRouter();
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
-    budgetCategories, setBudgetCategories,
-    expenseTargetPercent,
+    onboardingProfile: op, setOnboardingProfile,
     liabilities, addLiability, updateLiability, deleteLiability,
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
     customCategories, addCustomCategory, deleteCustomCategory,
@@ -186,28 +191,81 @@ export default function BudgetScreen() {
     }
   }
 
+  // ── Budget = the monthly PLAN: Income − Expenses − Debt = Left over (single source of truth) ──
+  const num = (v: any) => parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')) || 0;
+  // take-home for THIS month — incomeMonthlyGrid is a 12-element array indexed by month (NOT a sum;
+  // summing would give the annual figure). Mirrors HomeScreen's baseNet so the two screens agree.
+  const planIncome = Math.round((op ? incomeMonthlyGrid(op, 'net') : [])[new Date().getMonth()]?.amount ?? 0);
+  const bva = budgetVsActual(expenses, op, new Date());
+  const planExpenses = Math.round(bva.planned_total);          // = plannedMonthlySpend (bucketed spendCats)
+  const planDebt = Math.round(totalDebtMonthly(liabilities ?? []));
+  const planLeftOver = planIncome - planExpenses - planDebt;
+  const spentTotal = Math.round(bva.spent_total);
+  const spentPct = planExpenses > 0 ? Math.min(1, spentTotal / planExpenses) : 0;
+  const spentOver = spentTotal > planExpenses && planExpenses > 0;
+  const budgetPctOfIncome = planIncome > 0 ? Math.round((planExpenses / planIncome) * 100) : 0;
+
+  // per-category $ limit from a spendCat (mirrors spendBuckets() % / non-monthly conversion)
+  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  const catDollar = (c: any) => {
+    const amt = num(c.amount);
+    if (c.unit === 'pct') return (amt / 100) * netMonthly;
+    return c.bucket === 'nonmonthly' ? amt / 12 : amt;
+  };
+
+  // editable budget categories = canonical BUDGET_CATEGORIES + user custom (each carries a bucket)
+  const limitCats: { id: string; label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string }[] = [
+    ...BUDGET_CATEGORIES.map((c) => ({ id: c.id, label: c.label, bucket: c.bucket, icon: c.icon })),
+    ...((customCategories ?? []) as any[]).map((c) => ({ id: c.label, label: c.label, bucket: categoryBucketFor(c.label, customCategories ?? []) as any, icon: c.icon })),
+  ];
+
+  // merge configured limits (spendCats) + logged spend (categorySpend) into per-bucket rows
+  const spendCats: any[] = Array.isArray(op?.spendCats) ? op.spendCats : [];
+  const spentByLabel: Record<string, number> = {};
+  categorySpend.forEach(({ category, total }) => { spentByLabel[category] = (spentByLabel[category] ?? 0) + total; });
+  const BUCKET_LABEL: Record<string, string> = { fixed: 'Fixed', nonmonthly: 'Non-monthly', flexible: 'Flexible' };
+  const rowsByBucket: Record<string, { label: string; icon: string; limit: number; spent: number }[]> = { fixed: [], nonmonthly: [], flexible: [] };
+  const seenCats = new Set<string>();
+  spendCats.forEach((c) => {
+    if (!c?.label) return;
+    const bucket = c.bucket || categoryBucketFor(c.label, customCategories ?? []);
+    if (!rowsByBucket[bucket]) return;
+    rowsByBucket[bucket].push({ label: c.label, icon: budgetCategoryIcon(c.label, customCategories ?? []), limit: catDollar(c), spent: spentByLabel[c.label] ?? 0 });
+    seenCats.add(c.label);
+  });
+  categorySpend.forEach(({ category, total }) => {
+    if (seenCats.has(category)) return;
+    const bucket = categoryBucketFor(category, customCategories ?? []);
+    if (!rowsByBucket[bucket]) return;
+    rowsByBucket[bucket].push({ label: category, icon: budgetCategoryIcon(category, customCategories ?? []), limit: 0, spent: total });
+  });
+  const bucketActual: Record<string, any> = {};
+  bva.buckets.forEach((b: any) => { bucketActual[b.key] = b; });
+
   function openLimitsModal() {
     const initial: Record<string, string> = {};
-    allCategories.forEach(({ label }) => {
-      const existing = budgetCategories.find((c: any) => c.category === label);
-      initial[label] = existing ? String(existing.limit) : '';
+    limitCats.forEach(({ label }) => {
+      const existing = spendCats.find((c) => c.label === label);
+      initial[label] = existing && num(existing.amount) > 0 ? String(Math.round(catDollar(existing))) : '';
     });
     setDraftLimits(initial);
     setLimitsVisible(true);
   }
 
   function saveLimits() {
-    const updated = allCategories
-      .filter(({ label }) => draftLimits[label] && parseFloat(draftLimits[label]) > 0)
-      .map(({ label }) => ({ category: label, limit: parseFloat(draftLimits[label]), type: 'fixed' as const }));
-    setBudgetCategories(updated);
+    // preserve spendCats that aren't user-editable here; rebuild the editable ones from the draft
+    const editable = new Set(limitCats.map((c) => c.label));
+    const next = spendCats.filter((c) => !editable.has(c.label));
+    limitCats.forEach((c) => {
+      const dollar = num(draftLimits[c.label]);
+      if (dollar > 0) {
+        const prev = spendCats.find((x) => x.label === c.label);
+        next.push({ id: prev?.id ?? c.id, label: c.label, bucket: c.bucket, amount: dollar, unit: 'dollar' });
+      }
+    });
+    setOnboardingProfile({ ...(op ?? {}), spendCats: next });
     setLimitsVisible(false);
   }
-
-  // Overall target bar
-  const targetAmount = monthIncome > 0 ? monthIncome * (expenseTargetPercent / 100) : 0;
-  const overallPct = targetAmount > 0 ? (monthSpend / targetAmount) * 100 : 0;
-  const overallOver = monthSpend > targetAmount && targetAmount > 0;
 
   return (
     <View style={styles.root}>
@@ -300,92 +358,92 @@ export default function BudgetScreen() {
       {tab === 'Budget' && (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
-          {/* Overall target card */}
+          {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Left over */}
           <Card>
-            <View style={styles.budgetHeaderRow}>
-              <View>
-                <Text style={styles.budgetCardTitle}>Monthly spend target</Text>
-                <Text style={styles.budgetCardSub}>
-                  {expenseTargetPercent}% of income · ${targetAmount.toFixed(0)} limit
-                </Text>
-              </View>
-              <Badge
-                label={overallOver ? 'Over target' : 'On track'}
-                color={overallOver ? 'red' : 'green'}
-              />
+            <Text style={styles.budgetCardTitle}>Your monthly plan</Text>
+            <View style={styles.planRow}><Text style={styles.planLabel}>Income (take-home)</Text><Text style={styles.planVal}>{money(planIncome)}</Text></View>
+            <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{money(planExpenses)}</Text></View>
+            {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt (min payments)</Text><Text style={styles.planVal}>{money(planDebt)}</Text></View>}
+            <View style={[styles.planRow, styles.planTotalRow]}>
+              <Text style={styles.planTotalLabel}>=  Left over to save</Text>
+              <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{money(planLeftOver)}</Text>
             </View>
+            {planIncome > 0 && <Text style={styles.planNote}>Your expense plan is {budgetPctOfIncome}% of take-home pay.</Text>}
             <View style={{ marginTop: Spacing.md }}>
-              <ProgressBar pct={Math.min(overallPct, 100)} color={overallOver ? Colors.red : Colors.primary} height={8} />
+              <ProgressBar pct={Math.round(spentPct * 100)} color={spentOver ? Colors.red : Colors.primary} height={8} />
               <View style={styles.budgetFooterRow}>
-                <Text style={styles.budgetFooterText}>${monthSpend.toFixed(0)} spent</Text>
-                <Text style={[styles.budgetFooterText, { color: overallOver ? Colors.red : Colors.primary }]}>
-                  {overallOver
-                    ? `$${(monthSpend - targetAmount).toFixed(0)} over`
-                    : `$${(targetAmount - monthSpend).toFixed(0)} remaining`}
+                <Text style={styles.budgetFooterText}>{money(spentTotal)} spent so far</Text>
+                <Text style={[styles.budgetFooterText, { color: spentOver ? Colors.red : Colors.primary }]}>
+                  {spentOver ? `${money(spentTotal - planExpenses)} over` : `${money(planExpenses - spentTotal)} left`} · of {money(planExpenses)} plan
                 </Text>
               </View>
             </View>
           </Card>
 
-          {/* Category breakdown */}
+          {/* EXPENSES BY BUCKET — bucketed spendCats (the single budget source) */}
           <View style={styles.sectionRow}>
-            <Text style={styles.sectionTitle}>By category</Text>
-            <TouchableOpacity onPress={openLimitsModal}>
-              <Text style={styles.sectionLink}>Set limits →</Text>
-            </TouchableOpacity>
+            <Text style={styles.sectionTitle}>Expenses by bucket</Text>
+            <TouchableOpacity onPress={openLimitsModal}><Text style={styles.sectionLink}>Set limits →</Text></TouchableOpacity>
           </View>
-
-          {categorySpend.length === 0 ? (
+          {planExpenses === 0 && spentTotal === 0 ? (
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>📊</Text>
-                <Text style={styles.emptyTitle}>No expenses yet</Text>
-                <Text style={styles.emptySub}>Log expenses to see category breakdown</Text>
+                <Text style={styles.emptyTitle}>No budget yet</Text>
+                <Text style={styles.emptySub}>Tap “Set limits” to plan what you'll spend, by category.</Text>
               </View>
             </Card>
           ) : (
-            categorySpend.map(({ category, total }) => {
-              const catDef = budgetCategories.find((c: any) => c.category === category);
-              const limit = catDef?.limit ?? 0;
-              const pct = limit > 0 ? (total / limit) * 100 : 0;
-              const isOver = limit > 0 && total > limit;
-              const barColor = !limit ? Colors.primary : isOver ? Colors.red : Colors.primary;
-
+            (['fixed', 'nonmonthly', 'flexible'] as const).map((bk) => {
+              const rows = rowsByBucket[bk];
+              const ba = bucketActual[bk] ?? { planned: 0, spent: 0 };
+              if (rows.length === 0 && ba.planned === 0 && ba.spent === 0) return null;
+              const bpct = ba.planned > 0 ? Math.min(1, ba.spent / ba.planned) : 0;
+              const bover = ba.spent > ba.planned && ba.planned > 0;
               return (
-                <Card key={category} style={styles.catCard}>
-                  <View style={styles.catRow}>
-                    <View style={[styles.catIcon, { backgroundColor: getCategoryBg(category) }]}>
-                      <Text style={{ fontSize: 18 }}>{getCategoryIcon(category)}</Text>
-                    </View>
-                    <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                      <View style={styles.catTitleRow}>
-                        <Text style={styles.catLabel}>{category}</Text>
-                        <View style={{ alignItems: 'flex-end' }}>
-                          <Text style={[styles.catAmt, { color: isOver ? Colors.red : Colors.textPrimary }]}>
-                            ${total.toFixed(0)}
-                            {limit > 0 && <Text style={styles.catLimit}> / ${limit.toFixed(0)}</Text>}
-                          </Text>
-                          {isOver && <Text style={styles.catOverText}>Over by ${(total - limit).toFixed(0)}</Text>}
-                        </View>
-                      </View>
-                      {limit > 0 ? (
-                        <ProgressBar pct={Math.min(pct, 100)} color={barColor} height={5} />
-                      ) : (
-                        <View style={styles.noLimitBar}>
-                          <Text style={styles.noLimitText}>No limit set</Text>
-                        </View>
-                      )}
-                    </View>
+                <Card key={bk} style={styles.catCard}>
+                  <View style={styles.bucketHeadRow}>
+                    <Text style={styles.bucketName}>{BUCKET_LABEL[bk]}</Text>
+                    <Text style={[styles.bucketTotal, bover && { color: Colors.red }]}>{money(Math.round(ba.spent))} / {money(Math.round(ba.planned))}</Text>
                   </View>
+                  <ProgressBar pct={Math.round(bpct * 100)} color={bover ? Colors.red : Colors.primary} height={6} />
+                  {rows.slice().sort((a, b) => b.spent - a.spent).map((r) => {
+                    const rover = r.limit > 0 && r.spent > r.limit;
+                    return (
+                      <View key={r.label} style={styles.bcatRow}>
+                        <Text style={styles.bcatIcon}>{r.icon}</Text>
+                        <Text style={styles.bcatLabel} numberOfLines={1}>{r.label}</Text>
+                        <Text style={[styles.bcatAmt, rover && { color: Colors.red }]}>
+                          {money(Math.round(r.spent))}{r.limit > 0 ? <Text style={styles.bcatLimit}> / {money(Math.round(r.limit))}</Text> : <Text style={styles.bcatLimit}> · no limit</Text>}
+                        </Text>
+                      </View>
+                    );
+                  })}
                 </Card>
               );
             })
           )}
+          <TouchableOpacity style={styles.setLimitsBtn} onPress={openLimitsModal} activeOpacity={0.8}>
+            <Text style={styles.setLimitsBtnText}>✏️  Set monthly limits</Text>
+          </TouchableOpacity>
 
-          {categorySpend.length > 0 && (
-            <TouchableOpacity style={styles.setLimitsBtn} onPress={openLimitsModal} activeOpacity={0.8}>
-              <Text style={styles.setLimitsBtnText}>✏️  Set monthly limits</Text>
-            </TouchableOpacity>
+          {/* DEBT THIS MONTH — managed in the Debts tab */}
+          {(liabilities ?? []).length > 0 && (
+            <>
+              <View style={styles.sectionRow}>
+                <Text style={styles.sectionTitle}>Debt this month</Text>
+                <TouchableOpacity onPress={() => setTab('Debts')}><Text style={styles.sectionLink}>Manage →</Text></TouchableOpacity>
+              </View>
+              <Card style={styles.catCard}>
+                {debtsView.map((d, i) => (
+                  <View key={d.id} style={[styles.bcatRow, i > 0 && { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8, marginTop: 2 }]}>
+                    <Text style={styles.bcatIcon}>{DEBT_TYPES.find((t) => t.value === d.type)?.icon || '📄'}</Text>
+                    <Text style={styles.bcatLabel} numberOfLines={1}>{d.name}</Text>
+                    <Text style={styles.bcatAmt}>{money(Math.round(d.minimumPayment))}<Text style={styles.bcatLimit}> /mo min</Text></Text>
+                  </View>
+                ))}
+              </Card>
+            </>
           )}
 
           {/* Custom categories */}
@@ -673,27 +731,32 @@ export default function BudgetScreen() {
           <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
-                Set a monthly dollar limit per category. Leave blank for no limit. You'll see a progress bar and over-budget warning when you exceed it.
+                Set a monthly dollar limit per category. Leave blank for no limit. Categories are grouped by bucket — these limits are your expense plan everywhere in the app.
               </Text>
             </TipCard>
-            {allCategories.map(({ label, icon, bg }) => (
-              <View key={label} style={styles.limitRow}>
-                <View style={[styles.catIcon, { backgroundColor: bg }]}>
-                  <Text style={{ fontSize: 18 }}>{icon}</Text>
-                </View>
-                <Text style={styles.limitLabel}>{label}</Text>
-                <View style={styles.limitInputWrap}>
-                  <Text style={styles.limitDollar}>$</Text>
-                  <TextInput
-                    style={styles.limitInput}
-                    value={draftLimits[label] ?? ''}
-                    onChangeText={(v) => setDraftLimits((d) => ({ ...d, [label]: v }))}
-                    keyboardType="decimal-pad"
-                    placeholder="No limit"
-                    placeholderTextColor={Colors.textTertiary}
-                    returnKeyType="done"
-                  />
-                </View>
+            {(['fixed', 'nonmonthly', 'flexible'] as const).map((bk) => (
+              <View key={bk}>
+                <Text style={styles.limitBucketHdr}>{BUCKET_LABEL[bk]}</Text>
+                {limitCats.filter((c) => c.bucket === bk).map(({ label, icon }) => (
+                  <View key={label} style={styles.limitRow}>
+                    <View style={[styles.catIcon, { backgroundColor: Colors.bgSecondary }]}>
+                      <Text style={{ fontSize: 18 }}>{icon}</Text>
+                    </View>
+                    <Text style={styles.limitLabel}>{label}</Text>
+                    <View style={styles.limitInputWrap}>
+                      <Text style={styles.limitDollar}>$</Text>
+                      <TextInput
+                        style={styles.limitInput}
+                        value={draftLimits[label] ?? ''}
+                        onChangeText={(v) => setDraftLimits((d) => ({ ...d, [label]: v }))}
+                        keyboardType="decimal-pad"
+                        placeholder="No limit"
+                        placeholderTextColor={Colors.textTertiary}
+                        returnKeyType="done"
+                      />
+                    </View>
+                  </View>
+                ))}
               </View>
             ))}
           </ScrollView>
@@ -744,6 +807,24 @@ const styles = StyleSheet.create({
   budgetHeaderRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start' },
   budgetCardTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.textPrimary, marginBottom: 2 },
   budgetCardSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary },
+  // monthly-plan card
+  planRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
+  planLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
+  planVal: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
+  planTotalRow: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 9 },
+  planTotalLabel: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
+  planTotalVal: { fontSize: Typography.sizes.lg, fontWeight: Typography.weights.bold },
+  planNote: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginTop: 6 },
+  // bucket section
+  bucketHeadRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 6 },
+  bucketName: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textPrimary, letterSpacing: 0.3 },
+  bucketTotal: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textSecondary },
+  bcatRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 7 },
+  bcatIcon: { fontSize: 16, width: 22, textAlign: 'center' },
+  bcatLabel: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textPrimary, fontWeight: Typography.weights.medium },
+  bcatAmt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
+  bcatLimit: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, fontWeight: Typography.weights.regular },
+  limitBucketHdr: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textSecondary, marginTop: Spacing.sm, marginBottom: 4, letterSpacing: 0.3 },
   budgetFooterRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
   budgetFooterText: { fontSize: Typography.sizes.xs, color: Colors.textSecondary },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
