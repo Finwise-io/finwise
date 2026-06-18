@@ -14,6 +14,7 @@ import { budgetVsActual } from '../domain/budget';
 import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
 import { totalDebtMonthly, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
 import { money } from '../domain/_shared/num';
+import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
 
 type Tab = 'Activity' | 'Budget' | 'Debts' | 'Import';
@@ -398,7 +399,7 @@ export default function BudgetScreen() {
             contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 96 }}
             ListHeaderComponent={filtered.length > 0 ? (
               <Text style={{ fontSize: 11, color: '#9E9E99', textAlign: 'center', paddingBottom: 8 }}>
-                Tap to edit • Hold to delete
+                Tap to edit • Swipe left to delete
               </Text>
             ) : null}
             ListEmptyComponent={
@@ -426,24 +427,32 @@ export default function BudgetScreen() {
               const isRecurringGen = (item as any).type === 'recurring' || String((item as any).notes || '').startsWith('Auto:');
               const sub = `${isIncome ? 'Income' : (item as any).category}${isRecurringGen ? ' · ↻ monthly' : ''}`;
               return (
-                <TouchableOpacity
-                  onPress={() => setTxnSheet({ open: true, editing: item })}
-                  onLongPress={() => deleteEntry(item.kind, item)}
-                  style={styles.txRow}
-                  activeOpacity={0.85}
+                <Swipeable
+                  overshootRight={false}
+                  renderRightActions={() => (
+                    <TouchableOpacity style={styles.swipeDel} onPress={() => deleteEntry(item.kind, item)}>
+                      <Text style={styles.swipeDelTxt}>Delete</Text>
+                    </TouchableOpacity>
+                  )}
                 >
-                  <View style={[styles.txIcon, { backgroundColor: isIncome ? Colors.primaryLight : Colors.bgTertiary }]}>
-                    <Text style={{ fontSize: 18 }}>{isIncome ? '💵' : getCategoryIcon((item as any).category)}</Text>
-                  </View>
-                  <View style={styles.txMid}>
-                    <Text style={styles.txLabel} numberOfLines={1}>{label}</Text>
-                    <Text style={styles.txSub}>{format(new Date(item.date), 'MMM d, h:mm a')} · {sub}</Text>
-                    {(item as any).notes ? <Text style={styles.txNote} numberOfLines={1}>{(item as any).notes}</Text> : null}
-                  </View>
-                  <Text style={[styles.txAmt, { color: isIncome ? Colors.primary : Colors.red }]}>
-                    {isIncome ? '+' : '-'}${(item as any).amount.toFixed(2)}
-                  </Text>
-                </TouchableOpacity>
+                  <TouchableOpacity
+                    onPress={() => setTxnSheet({ open: true, editing: item })}
+                    style={styles.txRow}
+                    activeOpacity={0.85}
+                  >
+                    <View style={[styles.txIcon, { backgroundColor: isIncome ? Colors.primaryLight : Colors.bgTertiary }]}>
+                      <Text style={{ fontSize: 18 }}>{isIncome ? '💵' : getCategoryIcon((item as any).category)}</Text>
+                    </View>
+                    <View style={styles.txMid}>
+                      <Text style={styles.txLabel} numberOfLines={1}>{label}</Text>
+                      <Text style={styles.txSub}>{format(new Date(item.date), 'MMM d, h:mm a')} · {sub}</Text>
+                      {(item as any).notes ? <Text style={styles.txNote} numberOfLines={1}>{(item as any).notes}</Text> : null}
+                    </View>
+                    <Text style={[styles.txAmt, { color: isIncome ? Colors.primary : Colors.red }]}>
+                      {isIncome ? '+' : '-'}${(item as any).amount.toFixed(2)}
+                    </Text>
+                  </TouchableOpacity>
+                </Swipeable>
               );
             }}
           />
@@ -1096,6 +1105,8 @@ const styles = StyleSheet.create({
   txCatChipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   txCatChipT: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
+  swipeDel: { backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center', width: 84, borderTopRightRadius: Radii.lg, borderBottomRightRadius: Radii.lg, marginLeft: -Radii.lg, paddingLeft: Radii.lg },
+  swipeDelTxt: { color: '#fff', fontWeight: Typography.weights.bold, fontSize: Typography.sizes.sm },
 
   // Strip
   strip: {
