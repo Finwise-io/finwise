@@ -33,13 +33,15 @@ export default function TabLayout() {
         header: () => <TopBar />,
       }}
     >
-      <Tabs.Screen name="home"       options={{ title: 'Home',   tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
-      <Tabs.Screen name="budget"     options={{ title: 'Budget', tabBarIcon: ({ focused }) => <TabIcon name="pie-chart" focused={focused} /> }} />
-      <Tabs.Screen name="invest"     options={{ title: 'Invest', tabBarIcon: ({ focused }) => <TabIcon name="trending-up" focused={focused} /> }} />
-      <Tabs.Screen name="retirement" options={{ title: 'Retire', tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
-      <Tabs.Screen name="goals"      options={{ title: 'Plan',   tabBarIcon: ({ focused }) => <TabIcon name="flag" focused={focused} /> }} />
+      {/* Option A bottom bar: 4 flat destinations (label = the screen you land on). Everything else —
+          Invest, Plan/Goals, and the long tail — lives in the grouped ☰ Menu (top-left, on every page). */}
+      <Tabs.Screen name="home"       options={{ title: 'Home',      tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
+      <Tabs.Screen name="budget"     options={{ title: 'Money',     tabBarIcon: ({ focused }) => <TabIcon name="wallet" focused={focused} /> }} />
+      <Tabs.Screen name="analytics"  options={{ title: 'Net Worth', tabBarIcon: ({ focused }) => <TabIcon name="diamond" focused={focused} /> }} />
+      <Tabs.Screen name="retirement" options={{ title: 'Retire',    tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
       {/* routable from the Menu grid, hidden from the bar */}
-      <Tabs.Screen name="analytics"  options={{ href: null }} />
+      <Tabs.Screen name="invest"     options={{ href: null }} />
+      <Tabs.Screen name="goals"      options={{ href: null }} />
       <Tabs.Screen name="tips"       options={{ href: null }} />
       <Tabs.Screen name="rewards"    options={{ href: null }} />
       <Tabs.Screen name="settings"   options={{ href: null }} />

@@ -31,18 +31,21 @@ describe('TopBar', () => {
     expect(router.push).toHaveBeenCalledWith('/(tabs)/analytics');
   });
 
-  test('the Tax organizer chip (below NW) navigates to the tax organizer', () => {
-    render(<TopBar />);
-    // index 0 is the header chip (the Modal grid tile renders later in the tree)
-    fireEvent.press(screen.getAllByText('Tax organizer')[0]);
-    expect(router.push).toHaveBeenCalledWith('/tax-organizer');
-  });
-
-  test('the Menu opens the module grid and tiles navigate', () => {
+  test('the Menu opens the grouped module grid and tiles navigate', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
     expect(screen.getByText('All modules')).toBeOnTheScreen();
+    expect(screen.getByText('Everyday money')).toBeOnTheScreen();   // group header
+    expect(screen.getByText('Plan ahead')).toBeOnTheScreen();
     fireEvent.press(screen.getByText('Retirement'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/retirement');
+  });
+
+  test('the Tax organizer lives in the Protect & optimize group', () => {
+    render(<TopBar />);
+    fireEvent.press(screen.getByText('Menu'));
+    expect(screen.getByText('Protect & optimize')).toBeOnTheScreen();
+    fireEvent.press(screen.getByText('Tax organizer'));
+    expect(router.push).toHaveBeenCalledWith('/tax-organizer');
   });
 });
