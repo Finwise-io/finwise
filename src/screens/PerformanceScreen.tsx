@@ -350,6 +350,15 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
                   </TouchableOpacity>
                 )}
               </View>
+              {(() => {
+                const sel = accounts.find((a) => a.asset_id === accountId);
+                // A manual-balance account keeps its entered total; this holding is tracked for
+                // performance only (B-60). A position-derived account is built FROM its holdings.
+                if (!sel || sel.derive_balance === true) return null;
+                return (
+                  <Text style={styles.note}>📊 Tracked for performance — this won't change {sel.institution?.trim() || sel.label}'s {moneyCompact(sel.balance, 'M')} total. Edit the account total in Net Worth.</Text>
+                );
+              })()}
             </>
           )}
 
