@@ -16,7 +16,7 @@ import { totalDebtMonthly, payoffPlan, requiredPayment, debtKind, type PayoffMet
 import { money } from '../domain/_shared/num';
 import { format } from 'date-fns';
 
-type Tab = 'Transactions' | 'Budget' | 'Debts' | 'Import';
+type Tab = 'Activity' | 'Budget' | 'Debts' | 'Import';
 
 const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = [
   { value: 'credit_card',   label: 'Credit card',   icon: '💳' },
@@ -31,6 +31,7 @@ export default function BudgetScreen() {
   const router = useRouter();
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
+    addIncome, updateIncome, updateExpense,
     onboardingProfile: op, setOnboardingProfile, addExpense,
     liabilities, addLiability, updateLiability, deleteLiability,
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
@@ -52,7 +53,7 @@ export default function BudgetScreen() {
   const allCategories = useAllCategories(customCategories || []);
   const { monthIncome, monthSpend } = useMonthlyStats();
   const categorySpend = useCategorySpend();
-  const [tab, setTab] = useState<Tab>('Transactions');
+  const [tab, setTab] = useState<Tab>('Activity');
   const [filter, setFilter] = useState<'All' | 'Income' | 'Expenses'>('All');
   const [importing, setImporting] = useState(false);
   const [limitsVisible, setLimitsVisible] = useState(false);
@@ -88,6 +89,11 @@ export default function BudgetScreen() {
   const [extraPay, setExtraPay] = useState('');
   const [payDebt, setPayDebt] = useState<any | null>(null);
   const [payAmt, setPayAmt] = useState('');
+  // Activity: month browse, search, add/edit sheet, delete-with-undo
+  const [monthOffset, setMonthOffset] = useState(0);
+  const [search, setSearch] = useState('');
+  const [txnSheet, setTxnSheet] = useState<{ open: boolean; editing?: any }>({ open: false });
+  const [deleted, setDeleted] = useState<{ kind: 'income' | 'expense'; entry: any } | null>(null);
 
   const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
 
@@ -137,25 +143,43 @@ export default function BudgetScreen() {
     ]);
   }
 
-  function handleDeleteEntry(kind: 'income' | 'expense', id: string) {
-    Alert.alert(
-      'Delete entry',
-      'Remove this entry? This cannot be undone.',
-      [
-        { text: 'Cancel', style: 'cancel' },
-        { text: 'Delete', style: 'destructive', onPress: () => kind === 'income' ? deleteIncome(id) : deleteExpense(id) },
-      ]
-    );
+  // forgiving delete (§2.5): remove immediately, surface an Undo banner that re-adds it
+  function deleteEntry(kind: 'income' | 'expense', entry: any) {
+    setDeleted({ kind, entry });
+    if (kind === 'income') deleteIncome(entry.id); else deleteExpense(entry.id);
   }
+  function undoDelete() {
+    if (!deleted) return;
+    const { kind, entry } = deleted;
+    if (kind === 'income') addIncome({ type: entry.type ?? 'other', amount: entry.amount, source: entry.source ?? 'Income', date: entry.date, notes: entry.notes, hours: entry.hours, rate: entry.rate });
+    else addExpense({ amount: entry.amount, category: entry.category, store: entry.store ?? '', date: entry.date, notes: entry.notes, receiptUri: entry.receiptUri });
+    setDeleted(null);
+  }
+  React.useEffect(() => {
+    if (!deleted) return;
+    const t = setTimeout(() => setDeleted(null), 5000);
+    return () => clearTimeout(t);
+  }, [deleted]);
 
   const allEntries = [
     ...incomes.map((i: any) => ({ ...i, kind: 'income' as const })),
     ...expenses.map((e: any) => ({ ...e, kind: 'expense' as const })),
   ].sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
+  // Activity: browse by month + free-text search; the strip reflects the SELECTED month
+  const selDate = new Date(); selDate.setMonth(selDate.getMonth() + monthOffset);
+  const selYm = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}`;
+  const selMonthLabel = selDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+  const isCurrentMonth = monthOffset === 0;
+  const inSelMonth = (e: any) => String(e.date ?? '').startsWith(selYm);
+  const q = search.trim().toLowerCase();
+  const monthIncomeSel = allEntries.filter((e) => e.kind === 'income' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
+  const monthSpendSel = allEntries.filter((e) => e.kind === 'expense' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const filtered = allEntries.filter((e) => {
-    if (filter === 'Income') return e.kind === 'income';
-    if (filter === 'Expenses') return e.kind === 'expense';
+    if (!inSelMonth(e)) return false;
+    if (filter === 'Income' && e.kind !== 'income') return false;
+    if (filter === 'Expenses' && e.kind !== 'expense') return false;
+    if (q && !`${e.source ?? ''} ${e.store ?? ''} ${e.category ?? ''} ${e.notes ?? ''}`.toLowerCase().includes(q)) return false;
     return true;
   });
 
@@ -187,7 +211,7 @@ export default function BudgetScreen() {
       Alert.alert(
         'Import complete! 📊',
         `${rows.length} rows imported successfully. Check your transactions.`,
-        [{ text: 'View transactions', onPress: () => setTab('Transactions') }]
+        [{ text: 'View transactions', onPress: () => setTab('Activity') }]
       );
     } catch (err) {
       Alert.alert('Import failed', 'Could not read the file. Make sure it\'s a valid CSV with columns: amount, category, store, date.');
@@ -298,31 +322,45 @@ export default function BudgetScreen() {
   return (
     <View style={styles.root}>
       <SegmentedControl
-        options={['Transactions', 'Budget', 'Debts', 'Import']}
+        options={['Activity', 'Budget', 'Debts', 'Import']}
         selected={tab}
         onSelect={(v) => setTab(v as Tab)}
       />
 
-      {/* ── Transactions tab ─────────────────────────────────────── */}
-      {tab === 'Transactions' && (
+      {/* ── Activity tab — the ledger: browse, search, add/edit, delete-with-undo ─── */}
+      {tab === 'Activity' && (
         <>
+          <View style={styles.monthBar}>
+            <TouchableOpacity onPress={() => setMonthOffset((m) => m - 1)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={styles.monthArrow}>‹</Text></TouchableOpacity>
+            <Text style={styles.monthLabel}>{selMonthLabel}</Text>
+            <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text></TouchableOpacity>
+            <View style={{ flex: 1 }} />
+            <TouchableOpacity onPress={() => setTab('Import')}><Text style={styles.sectionLink}>⤓ Import</Text></TouchableOpacity>
+          </View>
+
           <View style={styles.strip}>
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>Income</Text>
-              <Text style={[styles.stripValue, { color: Colors.primary }]}>${monthIncome.toFixed(0)}</Text>
+              <Text style={[styles.stripValue, { color: Colors.primary }]}>{money(Math.round(monthIncomeSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>Spent</Text>
-              <Text style={[styles.stripValue, { color: Colors.red }]}>${monthSpend.toFixed(0)}</Text>
+              <Text style={[styles.stripValue, { color: Colors.red }]}>{money(Math.round(monthSpendSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
               <Text style={styles.stripLabel}>Net</Text>
-              <Text style={[styles.stripValue, { color: monthIncome - monthSpend >= 0 ? Colors.primary : Colors.red }]}>
-                ${Math.abs(monthIncome - monthSpend).toFixed(0)}
+              <Text style={[styles.stripValue, { color: monthIncomeSel - monthSpendSel >= 0 ? Colors.primary : Colors.red }]}>
+                {money(Math.round(monthIncomeSel - monthSpendSel))}
               </Text>
             </View>
+          </View>
+
+          <View style={styles.searchWrap}>
+            <Text style={{ fontSize: 15 }}>🔍</Text>
+            <TextInput style={styles.searchInput} value={search} onChangeText={setSearch} placeholder="Search payee, category, note" placeholderTextColor={Colors.textTertiary} returnKeyType="search" />
+            {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Text style={{ color: Colors.textTertiary, fontSize: 16, paddingHorizontal: 4 }}>✕</Text></TouchableOpacity>}
           </View>
 
           <View style={styles.filterRow}>
@@ -341,17 +379,17 @@ export default function BudgetScreen() {
             data={filtered}
             keyExtractor={(item) => item.id}
             style={styles.list}
-            contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 40 }}
+            contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 96 }}
             ListHeaderComponent={filtered.length > 0 ? (
               <Text style={{ fontSize: 11, color: '#9E9E99', textAlign: 'center', paddingBottom: 8 }}>
-                Hold any entry to delete it
+                Tap to edit • Hold to delete
               </Text>
             ) : null}
             ListEmptyComponent={
               <View style={styles.empty}>
                 <Text style={{ fontSize: 40, marginBottom: Spacing.sm }}>📭</Text>
-                <Text style={styles.emptyTitle}>No entries yet</Text>
-                <Text style={styles.emptySub}>Add income and expenses to see them here</Text>
+                <Text style={styles.emptyTitle}>{search ? 'No matches' : 'Nothing this month'}</Text>
+                <Text style={styles.emptySub}>{search ? 'Try a different search.' : 'Tap ＋ Add to log income or an expense.'}</Text>
               </View>
             }
             renderItem={({ item }) => {
@@ -360,7 +398,8 @@ export default function BudgetScreen() {
               const sub = isIncome ? 'Income' : (item as any).category;
               return (
                 <TouchableOpacity
-                  onLongPress={() => handleDeleteEntry(item.kind, item.id)}
+                  onPress={() => setTxnSheet({ open: true, editing: item })}
+                  onLongPress={() => deleteEntry(item.kind, item)}
                   style={styles.txRow}
                   activeOpacity={0.85}
                 >
@@ -379,6 +418,17 @@ export default function BudgetScreen() {
               );
             }}
           />
+          {/* delete-with-undo banner (§2.5) */}
+          {deleted && (
+            <View style={styles.undoBar}>
+              <Text style={styles.undoTxt} numberOfLines={1}>Deleted {deleted.kind === 'income' ? (deleted.entry.source || 'income') : (deleted.entry.store || deleted.entry.category || 'expense')}</Text>
+              <TouchableOpacity onPress={undoDelete}><Text style={styles.undoAction}>Undo</Text></TouchableOpacity>
+            </View>
+          )}
+          {/* FAB */}
+          <TouchableOpacity style={styles.fab} activeOpacity={0.9} onPress={() => setTxnSheet({ open: true })}>
+            <Text style={styles.fabTxt}>＋  Add</Text>
+          </TouchableOpacity>
         </>
       )}
 
@@ -829,12 +879,144 @@ export default function BudgetScreen() {
           </ScrollView>
         </KeyboardAvoidingView>
       </Modal>
+
+      <TxnSheet state={txnSheet} onClose={() => setTxnSheet({ open: false })} />
     </View>
+  );
+}
+
+// ── Add / edit a transaction (income or expense) ──────────────────────────────
+function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any }; onClose: () => void }) {
+  const store = useStore() as any;
+  const editing = state.editing;
+  // canonical bucketed categories (+ custom) so a logged expense maps cleanly to a budget bucket
+  const cats: { label: string; icon: string }[] = [
+    ...BUDGET_CATEGORIES.map((c) => ({ label: c.label, icon: c.icon })),
+    ...((store.customCategories || []) as any[]).map((c) => ({ label: c.label, icon: c.icon })),
+  ];
+  const [kind, setKind] = useState<'expense' | 'income'>('expense');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('Groceries');
+  const [src, setSrc] = useState('Paycheck');
+  const [payee, setPayee] = useState('');
+  const [notes, setNotes] = useState('');
+  const [day, setDay] = useState<'today' | 'yesterday'>('today');
+
+  React.useEffect(() => {
+    if (!state.open) return;
+    if (editing) {
+      const isInc = editing.kind === 'income';
+      setKind(isInc ? 'income' : 'expense');
+      setAmount(String(editing.amount ?? ''));
+      setCategory(editing.category || 'Groceries');
+      setSrc(editing.source || 'Paycheck');
+      setPayee(editing.store || '');
+      setNotes(editing.notes || '');
+    } else {
+      setKind('expense'); setAmount(''); setCategory('Groceries'); setSrc('Paycheck'); setPayee(''); setNotes(''); setDay('today');
+    }
+  }, [state.open]);
+
+  const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
+  const save = () => {
+    if (amt <= 0) return;
+    // editing keeps its original date; a new entry uses today / yesterday
+    const date = editing ? editing.date : (() => { const d = new Date(); if (day === 'yesterday') d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); })();
+    if (kind === 'income') {
+      const payload = { type: editing?.type ?? 'other', amount: amt, source: src.trim() || 'Income', date, notes: notes.trim() };
+      if (editing) store.updateIncome(editing.id, payload); else store.addIncome(payload);
+    } else {
+      const payload = { amount: amt, category, store: payee.trim(), date, notes: notes.trim() };
+      if (editing) store.updateExpense(editing.id, payload); else store.addExpense(payload);
+    }
+    onClose();
+  };
+
+  return (
+    <Modal visible={state.open} animationType="slide" presentationStyle="pageSheet">
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+        <View style={styles.modalHeader}>
+          <TouchableOpacity onPress={onClose}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
+          <Text style={styles.modalTitle}>{editing ? 'Edit' : 'Add'} {kind === 'income' ? 'income' : 'expense'}</Text>
+          <TouchableOpacity onPress={save} disabled={amt <= 0}><Text style={[styles.modalSave, amt <= 0 && { opacity: 0.4 }]}>Save</Text></TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+          {!editing && (
+            <View style={{ marginBottom: 4 }}>
+              <SegmentedControl options={['Expense', 'Income']} selected={kind === 'income' ? 'Income' : 'Expense'} onSelect={(v) => setKind(v === 'Income' ? 'income' : 'expense')} />
+            </View>
+          )}
+          <View style={styles.limitRow}>
+            <Text style={styles.limitLabel}>Amount</Text>
+            <View style={styles.limitInputWrap}>
+              <Text style={styles.limitDollar}>$</Text>
+              <TextInput style={styles.limitInput} value={amount} onChangeText={setAmount} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+            </View>
+          </View>
+          {kind === 'expense' ? (
+            <>
+              <Text style={styles.limitLabel}>Category</Text>
+              <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+                {cats.map((c) => (
+                  <TouchableOpacity key={c.label} style={[styles.txCatChip, category === c.label && styles.txCatChipOn]} onPress={() => setCategory(c.label)}>
+                    <Text style={{ fontSize: 14 }}>{c.icon}</Text>
+                    <Text style={[styles.txCatChipT, category === c.label && styles.txCatChipTOn]}>{c.label}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <View style={styles.limitRow}>
+                <Text style={styles.limitLabel}>Payee</Text>
+                <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
+                  <TextInput style={[styles.limitInput, { flex: 1 }]} value={payee} onChangeText={setPayee} placeholder="e.g. Trader Joe's" placeholderTextColor={Colors.textTertiary} />
+                </View>
+              </View>
+            </>
+          ) : (
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Source</Text>
+              <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
+                <TextInput style={[styles.limitInput, { flex: 1 }]} value={src} onChangeText={setSrc} placeholder="e.g. Paycheck, Bonus, Gift" placeholderTextColor={Colors.textTertiary} />
+              </View>
+            </View>
+          )}
+          {!editing && (
+            <View style={{ flexDirection: 'row', gap: 8 }}>
+              {(['today', 'yesterday'] as const).map((dd) => (
+                <TouchableOpacity key={dd} style={[styles.filterBtn, day === dd && styles.filterBtnOn]} onPress={() => setDay(dd)}>
+                  <Text style={[styles.filterText, day === dd && styles.filterTextOn, { textTransform: 'capitalize' }]}>{dd}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          )}
+          <View style={styles.limitRow}>
+            <Text style={styles.limitLabel}>Note</Text>
+            <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
+              <TextInput style={[styles.limitInput, { flex: 1 }]} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={Colors.textTertiary} />
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: Spacing.sm },
+  // Activity
+  monthBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: Spacing.base, marginBottom: Spacing.xs },
+  monthArrow: { fontSize: 22, color: Colors.primary, fontWeight: '700', width: 22, textAlign: 'center' },
+  monthLabel: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
+  searchWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: Spacing.base, marginBottom: Spacing.xs, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.sm, height: 40 },
+  searchInput: { flex: 1, fontSize: Typography.sizes.base, color: Colors.textPrimary, paddingVertical: 0 },
+  undoBar: { position: 'absolute', left: Spacing.base, right: Spacing.base, bottom: 74, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.textPrimary, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12 },
+  undoTxt: { flex: 1, color: '#fff', fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium },
+  undoAction: { color: Colors.primaryMid, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, paddingLeft: Spacing.md },
+  fab: { position: 'absolute', right: Spacing.base, bottom: 18, backgroundColor: Colors.primary, borderRadius: 24, paddingHorizontal: 20, paddingVertical: 13, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
+  fabTxt: { color: '#fff', fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold },
+  txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 7, borderWidth: 1, borderColor: Colors.border },
+  txCatChipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
+  txCatChipT: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
+  txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
 
   // Strip
   strip: {
