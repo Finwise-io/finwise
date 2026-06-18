@@ -228,7 +228,10 @@ export default function HomeScreen() {
 
   // ── Home glance values (redesign): verdict + 5 headline bullets + the 4 boxes ──
   const netWorth = snap.networth.net_worth;
-  const nwVals = nwSeries.map((p) => p.nw);
+  // Chart + delta share ONE 6-month window so the "+$X · N mo" and the bars always agree, and the
+  // per-bar value labels stay legible (>=10px) instead of shrinking to fit 12 columns.
+  const nwWindow = nwSeries.slice(-6);
+  const nwVals = nwWindow.map((p) => p.nw);
   const nwChange = nwVals.length >= 2 ? nwVals[nwVals.length - 1] - nwVals[0] : 0;
   // concentration: largest single non-property account as a share of investable assets
   const conc = (() => {
@@ -260,6 +263,9 @@ export default function HomeScreen() {
   const verdict = concerns === 0 ? "✅ You're on track this month"
     : concerns === 1 ? '⚠️ One thing needs a look'
     : '⚠️ A couple of things need a look';
+  // The glance card is the status-tinted hero (the one accent): green when clear, amber for
+  // heads-ups, red when you're spending more than you make.
+  const heroBg = leftOver < 0 ? Colors.redLight : concerns === 0 ? Colors.primaryLight : Colors.amberLight;
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -288,8 +294,8 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* TODAY AT A GLANCE — verdict + tappable headline bullets (digest of the boxes below) */}
-        <View style={styles.glance}>
+        {/* TODAY AT A GLANCE — status-tinted hero: verdict + tappable headline bullets */}
+        <View style={[styles.glance, { backgroundColor: heroBg }]}>
           <Text style={styles.glanceVerdict}>{verdict}</Text>
           {bullets.map((b, i) => (
             <TouchableOpacity key={i} style={styles.glanceRow} activeOpacity={0.7} onPress={() => jumpTo(b.k)}>
@@ -303,19 +309,30 @@ export default function HomeScreen() {
         {/* CASH FLOW — this month: in / spent / left + budget bar (detail lives in Money) */}
         <View style={styles.box} onLayout={onSecLayout('cash')}>
           <Text style={styles.boxLabel}>💵 CASH FLOW · {monthShort.toUpperCase()}</Text>
+          {/* Exact identity: Income − Spent [− Debt] = Left over (spent excludes debt payments;
+              leftOver = thisMonthNet − spent − debtPaid). The Debt term shows only when paid. */}
           <View style={styles.cfRow}>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}>
-              <Text style={styles.cfV}>{money(thisMonthNet)}</Text>
+              <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(thisMonthNet)}</Text>
               <View style={styles.cfLabelRow}><Text style={styles.cfL}>Income</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
             <Text style={styles.cfOp}>−</Text>
             <View style={styles.cfCell}>
-              <Text style={styles.cfV}>{money(spent)}</Text>
+              <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(spent)}</Text>
               <Text style={styles.cfL}>Spent</Text>
             </View>
+            {debtPaid > 0 && (
+              <>
+                <Text style={styles.cfOp}>−</Text>
+                <View style={styles.cfCell}>
+                  <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(debtPaid)}</Text>
+                  <Text style={styles.cfL}>Debt</Text>
+                </View>
+              </>
+            )}
             <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
-              <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text>
+              <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(leftOver)}</Text>
               <View style={styles.cfLabelRow}><Text style={styles.cfL}>Left over</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
           </View>
@@ -335,15 +352,15 @@ export default function HomeScreen() {
           <Text style={styles.boxLabel}>💎 NET WORTH</Text>
           <View style={styles.nwHeadRow}>
             <Text style={styles.nwBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{money(netWorth)}</Text>
-            {nwChange !== 0 && <Text style={[styles.nwDelta, { color: nwChange >= 0 ? Colors.primary : Colors.red }]}>{nwChange >= 0 ? '+' : ''}{money(nwChange)} · {nwSeries.length} mo</Text>}
+            {nwChange !== 0 && <Text style={[styles.nwDelta, { color: nwChange >= 0 ? Colors.primary : Colors.red }]}>{nwChange >= 0 ? '+' : ''}{money(nwChange)} · {nwWindow.length} mo</Text>}
           </View>
-          {nwSeries.length >= 2 && (() => {
+          {nwWindow.length >= 2 && (() => {
             const lo = Math.min(...nwVals), hi = Math.max(...nwVals), span = hi - lo || 1;
             return (
               <View style={styles.nwChart}>
-                {nwSeries.map((p) => (
+                {nwWindow.map((p) => (
                   <View key={p.month} style={styles.nwCol}>
-                    <Text style={styles.nwBarVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{moneyCompact(p.nw, 'M')}</Text>
+                    <Text style={styles.nwBarVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.9}>{moneyCompact(p.nw, 'M')}</Text>
                     <View style={[styles.nwBar, { height: Math.round(12 + ((p.nw - lo) / span) * 68) }]} />
                     <Text style={styles.nwBarLbl}>{p.month.slice(5)}</Text>
                   </View>
@@ -369,32 +386,29 @@ export default function HomeScreen() {
           </View>
         )}
 
-        {/* Tax organizer — surfaced on Home (was the global TopBar chip) */}
-        <TouchableOpacity style={styles.taxChip} activeOpacity={0.85} onPress={() => router.push('/tax-organizer')}>
-          <Text style={styles.taxChipTxt}>🧾  Tax organizer</Text>
-          <Text style={styles.focusArrow}>›</Text>
-        </TouchableOpacity>
-
-        {/* YOUR FOCUS — the one teal accent surface = "do next" (adaptive launchpad);
-            Insights folded in as a bar (its own block was redundant with the briefing) */}
+        {/* YOUR FOCUS — adaptive launchpad (white card; the tinted hero above is the accent now).
+            Tax organizer + Insights folded in as rows so nothing floats on its own. */}
         <View style={styles.focusCard} onLayout={onSecLayout('focus')}>
           <Text style={styles.focusTitle}>{FOCUS.title}</Text>
-          <View style={styles.focusRow}>
-            {FOCUS.actions.map((a) => (
-              <TouchableOpacity key={a.route} style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push(a.route as any)}>
-                <Text style={styles.focusIcon}>{a.icon}</Text>
-                <Text style={styles.focusLabel} numberOfLines={1}>{a.label}</Text>
-                <Text style={styles.focusArrow}>›</Text>
-              </TouchableOpacity>
-            ))}
-            {topInsights.length > 0 && (
-              <TouchableOpacity style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push('/insights')}>
-                <Text style={styles.focusIcon}>💡</Text>
-                <Text style={styles.focusLabel} numberOfLines={1}>Insights for you{topInsights[0]?.title ? ` · ${topInsights[0].title}` : ''}</Text>
-                <Text style={styles.focusArrow}>›</Text>
-              </TouchableOpacity>
-            )}
-          </View>
+          {FOCUS.actions.map((a, i) => (
+            <TouchableOpacity key={a.route} style={[styles.focusBtn, i > 0 && styles.focusDiv]} activeOpacity={0.7} onPress={() => router.push(a.route as any)}>
+              <Text style={styles.focusIcon}>{a.icon}</Text>
+              <Text style={styles.focusLabel} numberOfLines={1}>{a.label}</Text>
+              <Text style={styles.focusArrow}>›</Text>
+            </TouchableOpacity>
+          ))}
+          <TouchableOpacity style={[styles.focusBtn, styles.focusDiv]} activeOpacity={0.7} onPress={() => router.push('/tax-organizer')}>
+            <Text style={styles.focusIcon}>🧾</Text>
+            <Text style={styles.focusLabel} numberOfLines={1}>Tax organizer</Text>
+            <Text style={styles.focusArrow}>›</Text>
+          </TouchableOpacity>
+          {topInsights.length > 0 && (
+            <TouchableOpacity style={[styles.focusBtn, styles.focusDiv]} activeOpacity={0.7} onPress={() => router.push('/insights')}>
+              <Text style={styles.focusIcon}>💡</Text>
+              <Text style={styles.focusLabel} numberOfLines={1}>Insights for you{topInsights[0]?.title ? ` · ${topInsights[0].title}` : ''}</Text>
+              <Text style={styles.focusArrow}>›</Text>
+            </TouchableOpacity>
+          )}
         </View>
 
         <View style={{ height: 96 }} />
@@ -773,9 +787,9 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
 
   // ── Home redesign (glance) ──
-  glance: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
-  glanceVerdict: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
-  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  glance: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  glanceVerdict: { fontSize: 19, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingVertical: 6 },
   glanceDot: { fontSize: 13, width: 20, textAlign: 'center' },
   glanceDotGood: { color: Colors.primary, fontWeight: '800', fontSize: 14 },
   glanceTxt: { flex: 1, fontSize: 13.5, color: Colors.textSecondary, fontWeight: '600' },
@@ -799,9 +813,9 @@ const styles = StyleSheet.create({
   // net-worth trend chart — every bar carries its value label (above) + month (below)
   nwChart: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 14, gap: 3 },
   nwCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
-  nwBarVal: { fontSize: 8.5, fontWeight: '700', color: Colors.textSecondary, marginBottom: 3 },
-  nwBar: { width: '62%', maxWidth: 22, minHeight: 4, borderTopLeftRadius: 3, borderTopRightRadius: 3, backgroundColor: Colors.primary },
-  nwBarLbl: { fontSize: 8.5, color: Colors.textTertiary, marginTop: 4 },
+  nwBarVal: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary, marginBottom: 4 },
+  nwBar: { width: '58%', maxWidth: 30, minHeight: 4, borderTopLeftRadius: 3, borderTopRightRadius: 3, backgroundColor: Colors.primary },
+  nwBarLbl: { fontSize: 10, color: Colors.textTertiary, marginTop: 4 },
   attnRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9 },
   attnIcon: { fontSize: 16 },
   attnTxt: { flex: 1, fontSize: 13, color: Colors.textPrimary, fontWeight: '600' },
@@ -879,13 +893,13 @@ const styles = StyleSheet.create({
   addBtnTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg },
   ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
-  focusCard: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
-  focusTitle: { fontSize: 11, fontWeight: '800', color: '#BEE7D8', letterSpacing: 0.4, marginBottom: 8 },
-  focusRow: { marginTop: 0 },
-  focusBtn: { flexDirection: 'row', alignItems: 'center', gap: 9, backgroundColor: 'rgba(255,255,255,0.12)', borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 12, marginTop: 8 } as any,
-  focusIcon: { fontSize: 17 },
-  focusLabel: { flex: 1, fontSize: 14, fontWeight: '800', color: '#fff' },
-  focusArrow: { fontSize: 20, color: '#BEE7D8', fontWeight: '400' },
+  focusCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 4, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
+  focusTitle: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.sm, marginBottom: 2 },
+  focusBtn: { flexDirection: 'row', alignItems: 'center', gap: 12, minHeight: 46, paddingVertical: 11 } as any,
+  focusDiv: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
+  focusIcon: { fontSize: 18 },
+  focusLabel: { flex: 1, fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  focusArrow: { fontSize: 20, color: Colors.textTertiary, fontWeight: '400' },
   sharpenCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   sharpenTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   sharpenSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 2 },
