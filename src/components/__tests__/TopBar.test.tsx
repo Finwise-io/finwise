@@ -41,12 +41,12 @@ describe('TopBar', () => {
     expect(router.push).toHaveBeenCalledWith('/(tabs)/retirement');
   });
 
-  test('the Menu shows only the 3 primary groups (Protect & optimize / App are not sections)', () => {
+  test('the Menu shows the 4 intent groups; App & account is a footer, not a section', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
     expect(screen.getByText('Track your wealth')).toBeOnTheScreen();
-    expect(screen.queryByText('Protect & optimize')).toBeNull();
-    expect(screen.queryByText('App & account')).toBeNull();
+    expect(screen.getByText('Protect & optimize')).toBeOnTheScreen();
+    expect(screen.queryByText('App & account')).toBeNull();   // footer, no header
   });
 
   test('Settings stays reachable from the Menu footer (its only entry point)', () => {

@@ -6,7 +6,7 @@ import { personaOf, ageFromProfile } from '../utils/persona';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { currencySymbol } from '../domain/_shared/money';
+import { currencySymbol, moneyCompact } from '../domain/_shared/money';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual } from '../domain/budget';
 import { incomeMonthlyGrid } from '../domain/income';
@@ -305,20 +305,27 @@ export default function HomeScreen() {
           <Text style={styles.boxLabel}>💵 CASH FLOW · {monthShort.toUpperCase()}</Text>
           <View style={styles.cfRow}>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}>
-              <Text style={styles.cfV}>{money(thisMonthNet)}</Text><Text style={styles.cfL}>In ＋</Text>
+              <Text style={styles.cfV}>{money(thisMonthNet)}</Text>
+              <View style={styles.cfLabelRow}><Text style={styles.cfL}>Income</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
-            <View style={styles.cfCell}><Text style={styles.cfV}>{money(spent)}</Text><Text style={styles.cfL}>Spent</Text></View>
+            <Text style={styles.cfOp}>−</Text>
+            <View style={styles.cfCell}>
+              <Text style={styles.cfV}>{money(spent)}</Text>
+              <Text style={styles.cfL}>Spent</Text>
+            </View>
+            <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
-              <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text><Text style={styles.cfL}>Left over ＋</Text>
+              <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text>
+              <View style={styles.cfLabelRow}><Text style={styles.cfL}>Left over</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
           </View>
           {planned > 0 ? (
             <>
               <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pct * 100)}%`, backgroundColor: over ? Colors.red : Colors.primary }]} /></View>
-              <Text style={styles.cfFoot}>{over ? `${money(-bva.remaining)} over budget` : `${money(bva.remaining)} left to spend`} · of {money(planned)} budget{debtLeft > 0 ? ` · ${money(debtLeft)} debt still due` : ''}</Text>
+              <Text style={styles.cfFoot}>{over ? `${money(-bva.remaining)} over your ${money(planned)} monthly budget` : `${money(bva.remaining)} left to spend of your ${money(planned)} monthly budget`}</Text>
             </>
           ) : (
-            <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a budget in Money` : 'Set a budget in Money'}</Text>
+            <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a monthly budget in Money` : 'Set a monthly budget in Money'}</Text>
           )}
           <TouchableOpacity onPress={() => router.push('/(tabs)/budget')}><Text style={styles.seeAll}>See all in Money →</Text></TouchableOpacity>
         </View>
@@ -327,17 +334,18 @@ export default function HomeScreen() {
         <View style={styles.box} onLayout={onSecLayout('nw')}>
           <Text style={styles.boxLabel}>💎 NET WORTH</Text>
           <View style={styles.nwHeadRow}>
-            <Text style={styles.nwBig}>{money(netWorth)}</Text>
+            <Text style={styles.nwBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.8}>{money(netWorth)}</Text>
             {nwChange !== 0 && <Text style={[styles.nwDelta, { color: nwChange >= 0 ? Colors.primary : Colors.red }]}>{nwChange >= 0 ? '+' : ''}{money(nwChange)} · {nwSeries.length} mo</Text>}
           </View>
           {nwSeries.length >= 2 && (() => {
             const lo = Math.min(...nwVals), hi = Math.max(...nwVals), span = hi - lo || 1;
             return (
-              <View style={styles.nwotBars}>
+              <View style={styles.nwChart}>
                 {nwSeries.map((p) => (
-                  <View key={p.month} style={styles.nwotBarCol}>
-                    <View style={[styles.nwotBar, { height: `${20 + ((p.nw - lo) / span) * 80}%`, backgroundColor: Colors.primary }]} />
-                    <Text style={styles.nwotBarLbl}>{p.month.slice(5)}</Text>
+                  <View key={p.month} style={styles.nwCol}>
+                    <Text style={styles.nwBarVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{moneyCompact(p.nw, 'M')}</Text>
+                    <View style={[styles.nwBar, { height: Math.round(12 + ((p.nw - lo) / span) * 68) }]} />
+                    <Text style={styles.nwBarLbl}>{p.month.slice(5)}</Text>
                   </View>
                 ))}
               </View>
@@ -773,16 +781,26 @@ const styles = StyleSheet.create({
   glanceArrow: { fontSize: 18, color: Colors.textTertiary, fontWeight: '400' },
   box: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
   boxLabel: { fontSize: 10, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 8 },
-  cfRow: { flexDirection: 'row', justifyContent: 'space-between' },
-  cfCell: { flex: 1 },
-  cfV: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
-  cfL: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
+  cfRow: { flexDirection: 'row', alignItems: 'center' },
+  cfCell: { flex: 1, alignItems: 'center' },
+  cfV: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
+  cfL: { fontSize: 11, color: Colors.textTertiary },
+  cfLabelRow: { flexDirection: 'row', alignItems: 'center', gap: 5, marginTop: 2 },
+  cfAdd: { width: 16, height: 16, borderRadius: 8, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center' },
+  cfAddTxt: { color: '#fff', fontSize: 10, fontWeight: '800', lineHeight: 12 },
+  cfOp: { fontSize: 16, fontWeight: '700', color: Colors.textTertiary, paddingHorizontal: 2 },
   cfFoot: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
   seeAll: { fontSize: 12.5, color: Colors.primary, fontWeight: '700', marginTop: 10 },
-  nwHeadRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
-  nwBig: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  nwHeadRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 },
+  nwBig: { fontSize: 23, fontWeight: '800', color: Colors.textPrimary, flexShrink: 1 },
   nwDelta: { fontSize: 12.5, fontWeight: '700' },
-  nwInsight: { fontSize: 12, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
+  nwInsight: { fontSize: 12, color: Colors.textSecondary, marginTop: 10, lineHeight: 16 },
+  // net-worth trend chart — every bar carries its value label (above) + month (below)
+  nwChart: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 14, gap: 3 },
+  nwCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end' },
+  nwBarVal: { fontSize: 8.5, fontWeight: '700', color: Colors.textSecondary, marginBottom: 3 },
+  nwBar: { width: '62%', maxWidth: 22, minHeight: 4, borderTopLeftRadius: 3, borderTopRightRadius: 3, backgroundColor: Colors.primary },
+  nwBarLbl: { fontSize: 8.5, color: Colors.textTertiary, marginTop: 4 },
   attnRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9 },
   attnIcon: { fontSize: 16 },
   attnTxt: { flex: 1, fontSize: 13, color: Colors.textPrimary, fontWeight: '600' },

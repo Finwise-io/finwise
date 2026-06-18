@@ -14,10 +14,8 @@ import { buildNetWorth } from '../domain/networth';
 import { resolveNetWorthRows } from '../domain/snapshot';
 
 type Mod = { e: string; t: string; route?: string };
-// Menu shows the 3 primary intent groups (near→far horizon). The occasional "protect & optimize"
-// tools are reached in context instead of cluttering the hub — Tax organizer from Home, and
-// Roth / Insurance / Build credit / Estate from the Plan screen. App utilities (Rewards / Tips /
-// Settings) sit in a compact footer — that's their only entry point, so they must stay reachable.
+// Menu shows the 4 intent groups (near→far horizon). App utilities (Rewards / Tips / Settings)
+// sit in a compact footer — that's their only entry point, so they must stay reachable.
 const GROUPS: { section: string; items: Mod[] }[] = [
   { section: 'Everyday money', items: [
     { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
@@ -35,6 +33,13 @@ const GROUPS: { section: string; items: Mod[] }[] = [
     { e: '🎯', t: 'Plan', route: '/(tabs)/goals' },
     { e: '🎓', t: 'College planner', route: '/education' },
     { e: '🌪', t: 'Stress test', route: '/stress-test' },
+  ] },
+  { section: 'Protect & optimize', items: [
+    { e: '🧾', t: 'Tax organizer', route: '/tax-organizer' },
+    { e: '🔁', t: 'Roth conversion', route: '/roth' },
+    { e: '🛡️', t: 'Insurance check', route: '/insurance' },
+    { e: '💳', t: 'Build credit', route: '/credit' },
+    { e: '🎁', t: 'Estate & legacy', route: '/estate' },
   ] },
 ];
 const FOOTER: Mod[] = [
