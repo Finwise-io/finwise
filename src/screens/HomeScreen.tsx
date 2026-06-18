@@ -226,9 +226,44 @@ export default function HomeScreen() {
     ]);
   };
 
+  // ── Home glance values (redesign): verdict + 5 headline bullets + the 4 boxes ──
+  const netWorth = snap.networth.net_worth;
+  const nwVals = nwSeries.map((p) => p.nw);
+  const nwChange = nwVals.length >= 2 ? nwVals[nwVals.length - 1] - nwVals[0] : 0;
+  // concentration: largest single non-property account as a share of investable assets
+  const conc = (() => {
+    const accts = rmdAccounts.filter((a: any) => a.tax_bucket !== 'PROPERTY');
+    const tot = accts.reduce((t: number, a: any) => t + (a.balance || 0), 0);
+    if (tot <= 0 || accts.length < 2) return null;
+    const top = accts.reduce((m: any, a: any) => ((a.balance || 0) > (m.balance || 0) ? a : m), accts[0]);
+    const p = Math.round(((top.balance || 0) / tot) * 100);
+    return p >= 50 ? { pct: p, label: (top.institution?.trim() || top.label) as string } : null;
+  })();
+  const dueSoon = isCurrentMonth ? liabilities.filter((d: any) => d.due_day && now.getDate() >= d.due_day - 3 && !paidThisMonth(d, ym)) : [];
+  const attention: { icon: string; text: string; debt?: any }[] = [];
+  if (over) attention.push({ icon: '⚠️', text: `Spending is ${money(-bva.remaining)} over budget this month` });
+  dueSoon.forEach((d: any) => attention.push({ icon: '💳', text: `${d.label} due ${ordinal(d.due_day)} · ${money(requiredPayment(d))}`, debt: d }));
+  if (rmdAnnual > 0) attention.push({ icon: '📌', text: `Required withdrawal (RMD) ~${money(rmdAnnual)} by Dec 31` });
+  const onTrack = !over && (planned <= 0 || projected <= planned * 1.02);
+  const verdict = over ? '⚠️ Spending is running high this month'
+    : attention.length > 0 ? '⚠️ A couple of things need a look'
+    : onTrack ? "✅ You're on track this month" : '✅ Looking steady this month';
+  const scrollRef = React.useRef<ScrollView>(null);
+  const yPos = React.useRef<Record<string, number>>({});
+  const onSecLayout = (k: string) => (e: any) => { yPos.current[k] = e.nativeEvent.layout.y; };
+  const jumpTo = (k: string) => scrollRef.current?.scrollTo({ y: Math.max(0, (yPos.current[k] ?? 0) - 8), animated: true });
+  // briefing bullets — headlines; tapping one scrolls to its box below
+  const bullets: { txt: string; k: string }[] = [
+    { txt: `${money(leftOver)} left over after spending & debt`, k: 'cash' },
+    { txt: nwChange !== 0 ? `Net worth ${money(netWorth)} — ${nwChange >= 0 ? 'up' : 'down'} ${money(Math.abs(nwChange))}` : `Net worth ${money(netWorth)}`, k: 'nw' },
+    ...(conc ? [{ txt: `💡 ${conc.pct}% of investments sit in one account`, k: 'nw' }] : []),
+    ...(attention.length ? [{ txt: `${attention[0].icon} ${attention[0].text}`, k: 'attention' }] : []),
+    { txt: `🎯 Next: ${FOCUS.actions[0].label}`, k: 'focus' },
+  ];
+
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.headRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.sub}>Good {greeting()}</Text>
@@ -253,233 +288,51 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* month switcher */}
-        <View style={styles.monthRow}>
-          <TouchableOpacity onPress={() => setMonthOffset((m) => m - 1)} hitSlop={hit}><Text style={styles.monthArrow}>‹</Text></TouchableOpacity>
-          <Text style={styles.monthLabel}>{monthLabel}</Text>
-          <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={hit}>
-            <Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text>
-          </TouchableOpacity>
+        {/* TODAY AT A GLANCE — verdict + tappable headline bullets (digest of the boxes below) */}
+        <View style={styles.glance}>
+          <Text style={styles.glanceVerdict}>{verdict}</Text>
+          {bullets.map((b, i) => (
+            <TouchableOpacity key={i} style={styles.glanceRow} activeOpacity={0.7} onPress={() => jumpTo(b.k)}>
+              <Text style={styles.glanceDot}>•</Text>
+              <Text style={styles.glanceTxt} numberOfLines={1}>{b.txt}</Text>
+              <Text style={styles.glanceArrow}>›</Text>
+            </TouchableOpacity>
+          ))}
         </View>
 
-        {/* TOP money stats — Income · Spent · Left over (the hero glance) */}
-        <View style={styles.row2}>
-          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setIncomeSheet(true)}>
-            <View style={styles.tileHeadRow}>
-              <Text style={styles.miniLabel}>Income ({monthShort})</Text>
-              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
-            </View>
-            <Text style={styles.miniValue}>{money(thisMonthNet)}</Text>
-            <Text style={styles.fx}>{extraIncome > 0 ? `incl. +${money(extraIncome)} extra` : 'this month'}</Text>
-          </TouchableOpacity>
-          <View style={styles.miniTile}>
-            <View style={styles.tileHeadRow}>
-              <Text style={styles.miniLabel}>Spent ({monthShort})</Text>
-            </View>
-            <Text style={styles.miniValue}>{money(spent)}</Text>
-            <Text style={styles.fx}>{budgetBaseline > 0 ? `of ${money(budgetBaseline)} budget` : 'this month'}</Text>
-          </View>
-          <TouchableOpacity style={styles.miniTile} activeOpacity={0.85} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
-            <View style={styles.tileHeadRow}>
-              <Text style={styles.miniLabel}>Left over ({monthShort})</Text>
-              <View style={styles.plusBadge}><Text style={styles.plusTxt}>＋</Text></View>
-            </View>
-            <Text style={[styles.miniValue, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text>
-            <Text style={styles.fx}>{allocatedThis > 0 ? `${money(allocatedThis)} invested` : 'after spending & debt'}</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* HERO — Expense Budget + Debt to be Paid, each tracked */}
-        <View style={styles.hero}>
-          <View style={styles.heroTopRow}>
-            <Text style={styles.heroLabel}>EXPENSE BUDGET · {monthShort.toUpperCase()}</Text>
-            <Text style={styles.heroOf}>{money(spent)} of {money(planned)}</Text>
-          </View>
-          <View style={styles.track}>
-            <View style={[styles.fill, { width: `${Math.max(2, pct * 100)}%`, backgroundColor: over ? '#FF8A8A' : '#7FE3C2' }]} />
-          </View>
-          <Text style={[styles.heroFoot, { color: over ? '#FFC9C9' : '#DDF3EB', marginTop: 6 }]}>
-            {planned <= 0 ? 'No budget set' : over ? `${money(-bva.remaining)} over budget` : `${money(bva.remaining)} left to spend`}
-          </Text>
-
-          {debtMonthly > 0 && (
-            <>
-              <View style={styles.heroDivider} />
-              <View style={styles.heroTopRow}>
-                <Text style={styles.heroLabel}>DEBT TO BE PAID</Text>
-                <Text style={styles.heroOf}>{money(debtPaid)} of {money(debtMonthly)}</Text>
-              </View>
-              <View style={styles.track}>
-                <View style={[styles.fill, { width: `${Math.max(2, debtPct * 100)}%`, backgroundColor: '#7FE3C2' }]} />
-              </View>
-              <Text style={[styles.heroFoot, { color: '#DDF3EB', marginTop: 6 }]}>
-                {debtLeft > 0 ? `${money(debtLeft)} still due this month` : 'All debt payments made ✓'}
-              </Text>
-            </>
-          )}
-        </View>
-
-        {/* typical-month estimate — surfaces the onboarding number + nudges to itemize (until a budget exists) */}
-        {estSpend > 0 && planned <= 0 && (
-          <View style={styles.card}>
-            <Text style={styles.section2}>Typical month</Text>
-            <Text style={[styles.miniValue, { marginTop: 2 }]}>{money(estSpend)}</Text>
-            <Text style={styles.fx}>you estimated this at setup</Text>
-            <TouchableOpacity onPress={() => router.push('/(tabs)/budget')} style={{ marginTop: 10 }}>
-              <Text style={styles.secAdd}>Break it into categories →</Text>
+        {/* CASH FLOW — this month: in / spent / left + budget bar (detail lives in Money) */}
+        <View style={styles.box} onLayout={onSecLayout('cash')}>
+          <Text style={styles.boxLabel}>💵 CASH FLOW · {monthShort.toUpperCase()}</Text>
+          <View style={styles.cfRow}>
+            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}>
+              <Text style={styles.cfV}>{money(thisMonthNet)}</Text><Text style={styles.cfL}>In ＋</Text>
+            </TouchableOpacity>
+            <View style={styles.cfCell}><Text style={styles.cfV}>{money(spent)}</Text><Text style={styles.cfL}>Spent</Text></View>
+            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
+              <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]}>{money(leftOver)}</Text><Text style={styles.cfL}>Left over ＋</Text>
             </TouchableOpacity>
           </View>
-        )}
+          {planned > 0 ? (
+            <>
+              <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pct * 100)}%`, backgroundColor: over ? Colors.red : Colors.primary }]} /></View>
+              <Text style={styles.cfFoot}>{over ? `${money(-bva.remaining)} over budget` : `${money(bva.remaining)} left to spend`} · of {money(planned)} budget{debtLeft > 0 ? ` · ${money(debtLeft)} debt still due` : ''}</Text>
+            </>
+          ) : (
+            <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a budget in Money` : 'Set a budget in Money'}</Text>
+          )}
+          <TouchableOpacity onPress={() => router.push('/(tabs)/budget')}><Text style={styles.seeAll}>See all in Money →</Text></TouchableOpacity>
+        </View>
 
-        {insight && (
-          <View style={[styles.insightCard, insight.warn && styles.insightWarn]}>
-            <Text style={styles.insightIcon}>{insight.warn ? '⚠️' : '✨'}</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={[styles.insightTxt, insight.warn && { color: Colors.red }]}>{insight.txt}</Text>
-              <Text style={[styles.insightSub, insight.warn && { color: Colors.red }]}>{insight.sub}</Text>
-            </View>
+        {/* NET WORTH — glance + trend + concentration insight (caption below the chart, not overlaid) */}
+        <View style={styles.box} onLayout={onSecLayout('nw')}>
+          <Text style={styles.boxLabel}>💎 NET WORTH</Text>
+          <View style={styles.nwHeadRow}>
+            <Text style={styles.nwBig}>{money(netWorth)}</Text>
+            {nwChange !== 0 && <Text style={[styles.nwDelta, { color: nwChange >= 0 ? Colors.primary : Colors.red }]}>{nwChange >= 0 ? '+' : ''}{money(nwChange)} · {nwSeries.length} mo</Text>}
           </View>
-        )}
-
-        {/* RMD — required yearly withdrawal once you reach RMD age (pre-tax accounts) */}
-        {rmdAnnual > 0 && (
-          <View style={styles.insightCard}>
-            <Text style={styles.insightIcon}>📌</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.insightTxt}>Required withdrawal (RMD) · {String(new Date().getFullYear())}</Text>
-              <Text style={styles.insightSub}>The IRS requires about {money(rmdAnnual)} out of your pre-tax accounts this year (by Dec 31) — skipping it triggers a penalty.</Text>
-            </View>
-          </View>
-        )}
-
-        {/* where this month's savings went */}
-        {(investedAccts.length > 0 || allocatable > 0) && (
-          <>
-            <View style={styles.secHeadRow}>
-              <Text style={styles.section2}>Saved in {monthShort}</Text>
-              <TouchableOpacity onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
-                <Text style={styles.secAdd}>{allocatable > 0 ? `+ Assign ${money(allocatable)}` : '+ Add'}</Text>
-              </TouchableOpacity>
-            </View>
-            <View style={styles.card}>
-              {investedAccts.length === 0
-                ? <Text style={styles.empty}>{money(allocatable)} left to invest — tap “Assign” to put it to work.</Text>
-                : (<>
-                  {investedAccts.map((a: any, i: number) => (
-                    <View key={a.asset_id} style={[styles.txnRow, i > 0 && styles.divider]}>
-                      <Text style={styles.txnIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
-                      <View style={{ flex: 1 }}>
-                        <Text style={styles.txnTitle}>{a.label}</Text>
-                        <Text style={styles.txnSub}>{assetKind(a.kind)?.label ?? ''}{a.institution ? ` · ${a.institution}` : ''}</Text>
-                      </View>
-                      <Text style={[styles.txnAmt, { color: Colors.primary }]}>+{money(a.change_amount)}</Text>
-                    </View>
-                  ))}
-                  <View style={[styles.txnRow, styles.divider]}>
-                    <Text style={[styles.txnTitle, { flex: 1 }]}>Total invested</Text>
-                    <Text style={[styles.txnAmt, { color: Colors.primary }]}>{money(investedTotal)}</Text>
-                  </View>
-                </>)}
-            </View>
-          </>
-        )}
-
-        {/* prior-month recap (appears once last month has activity) */}
-        {prior && (
-          <>
-            <Text style={styles.section}>Last month ({prior.label})</Text>
-            <View style={[styles.card, styles.lastRow]}>
-              <View style={styles.lastStat}><Text style={styles.lastLabel}>Income</Text><Text style={styles.lastVal}>{money(prior.income)}</Text></View>
-              <View style={styles.lastStat}><Text style={styles.lastLabel}>Spent</Text><Text style={styles.lastVal}>{money(prior.spent)}</Text></View>
-              <View style={styles.lastStat}><Text style={styles.lastLabel}>Saved</Text><Text style={[styles.lastVal, { color: prior.saved >= 0 ? Colors.primary : Colors.red }]}>{money(prior.saved)}</Text></View>
-            </View>
-          </>
-        )}
-
-        {/* per-bucket progress */}
-        <Text style={styles.section}>By bucket</Text>
-        <View style={styles.card}>
-          {bva.buckets.map((b, i) => {
-            const meta = BUCKET_META[b.key];
-            const bp = b.planned > 0 ? Math.min(1, b.spent / b.planned) : 0;
-            const bover = b.spent > b.planned && b.planned > 0;
+          {nwSeries.length >= 2 && (() => {
+            const lo = Math.min(...nwVals), hi = Math.max(...nwVals), span = hi - lo || 1;
             return (
-              <View key={b.key} style={[i > 0 && styles.divider]}>
-                <View style={styles.bucketTop}>
-                  <View style={styles.dotRow}><View style={[styles.dot, { backgroundColor: meta.color }]} /><Text style={styles.bucketTitle}>{meta.title}</Text></View>
-                  <Text style={styles.bucketAmt}>{money(b.spent)} <Text style={styles.bucketPlanned}>/ {money(b.planned)}</Text></Text>
-                </View>
-                <View style={styles.trackSm}>
-                  <View style={[styles.fillSm, { width: `${Math.max(2, bp * 100)}%`, backgroundColor: bover ? Colors.red : meta.color }]} />
-                </View>
-              </View>
-            );
-          })}
-        </View>
-
-        {/* debt payments due this month */}
-        {liabilities.length > 0 && (
-          <>
-            <Text style={styles.section}>Debt payments</Text>
-            <View style={styles.card}>
-              {liabilities.map((d, i) => {
-                const req = requiredPayment(d);
-                const paid = paidThisMonth(d, ym);
-                const dueSoon = isCurrentMonth && d.due_day && now.getDate() >= d.due_day - 1 && !paid;
-                return (
-                  <View key={d.debt_id} style={[styles.debtRow, i > 0 && styles.divider]}>
-                    <Text style={styles.txnIcon}>💳</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.txnTitle}>{d.label}</Text>
-                      <Text style={[styles.debtDue, dueSoon && { color: Colors.red, fontWeight: '800' }]}>
-                        {d.due_day ? `Due ${ordinal(d.due_day)}` : 'No due date'}{paid ? ' · paid' : dueSoon ? ' · due now' : ''}
-                      </Text>
-                    </View>
-                    <View style={{ alignItems: 'flex-end', gap: 4 }}>
-                      <Text style={styles.debtAmt}>{money(req)}</Text>
-                      {paid
-                        ? <Text style={styles.paidTick}>✓ paid</Text>
-                        : <TouchableOpacity style={styles.payBtn} onPress={() => setPaySheet({ open: true, debt: d })}><Text style={styles.payTxt}>Pay</Text></TouchableOpacity>}
-                    </View>
-                  </View>
-                );
-              })}
-            </View>
-          </>
-        )}
-
-        {/* recent transactions */}
-        <Text style={styles.section}>Recent activity</Text>
-        <View style={styles.card}>
-          {feed.length === 0
-            ? <Text style={styles.empty}>Nothing yet — tap + to add an expense.</Text>
-            : feed.map((it, i) => (
-              <View key={it.id ?? i} style={[styles.txnRow, i > 0 && styles.divider]}>
-                <Text style={styles.txnIcon}>{it.icon}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.txnTitle}>{it.label}</Text>
-                  <Text style={styles.txnSub}>{it.sub}</Text>
-                </View>
-                <Text style={[styles.txnAmt, it.kind === 'inc' && { color: Colors.primary }]}>{it.kind === 'inc' ? '+' : '-'}{money(it.amount)}</Text>
-                <TouchableOpacity style={styles.removeBtn} onPress={() => removeItem(it)} hitSlop={hit}>
-                  <Text style={styles.removeTxt}>−</Text>
-                </TouchableOpacity>
-              </View>
-            ))}
-        </View>
-
-        {/* secondary: trends, planning tools & guidance — below the money glance */}
-        {/* net worth over time */}
-        {nwSeries.length >= 2 && (() => {
-          const vals = nwSeries.map((p) => p.nw);
-          const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
-          const change = vals[vals.length - 1] - vals[0];
-          return (
-            <View style={styles.nwotCard}>
-              <View style={styles.nwotHead}>
-                <Text style={styles.nwotTitle}>Net worth over time</Text>
-                <Text style={[styles.nwotChange, { color: change >= 0 ? Colors.primary : Colors.red }]}>{change >= 0 ? '+' : ''}{money(change)} · {nwSeries.length} mo</Text>
-              </View>
               <View style={styles.nwotBars}>
                 {nwSeries.map((p) => (
                   <View key={p.month} style={styles.nwotBarCol}>
@@ -488,12 +341,34 @@ export default function HomeScreen() {
                   </View>
                 ))}
               </View>
-            </View>
-          );
-        })()}
+            );
+          })()}
+          {conc && <Text style={styles.nwInsight}>💡 {conc.pct}% of your investments sit in {conc.label} — tap to diversify</Text>}
+          <TouchableOpacity onPress={() => router.push('/(tabs)/analytics')}><Text style={styles.seeAll}>See net worth →</Text></TouchableOpacity>
+        </View>
 
-        {/* persona-adaptive focus (moved below the money) — Bill calendar now lives in here */}
-        <View style={styles.focusCard}>
+        {/* NEEDS ATTENTION — renders only when something is genuinely due/at-risk */}
+        {attention.length > 0 && (
+          <View style={styles.box} onLayout={onSecLayout('attention')}>
+            <Text style={styles.boxLabel}>⚠️ NEEDS ATTENTION</Text>
+            {attention.map((a, i) => (
+              <View key={i} style={[styles.attnRow, i > 0 && styles.divider]}>
+                <Text style={styles.attnIcon}>{a.icon}</Text>
+                <Text style={styles.attnTxt}>{a.text}</Text>
+                {a.debt && <TouchableOpacity style={styles.payBtn} onPress={() => setPaySheet({ open: true, debt: a.debt })}><Text style={styles.payTxt}>Pay</Text></TouchableOpacity>}
+              </View>
+            ))}
+          </View>
+        )}
+
+        {/* Tax organizer — surfaced on Home (was the global TopBar chip) */}
+        <TouchableOpacity style={styles.taxChip} activeOpacity={0.85} onPress={() => router.push('/tax-organizer')}>
+          <Text style={styles.taxChipTxt}>🧾  Tax organizer</Text>
+          <Text style={styles.focusArrow}>›</Text>
+        </TouchableOpacity>
+
+        {/* YOUR FOCUS — the one teal accent surface = "do next" (adaptive launchpad) */}
+        <View style={styles.focusCard} onLayout={onSecLayout('focus')}>
           <Text style={styles.focusTitle}>{FOCUS.title}</Text>
           <View style={styles.focusRow}>
             {FOCUS.actions.map((a) => (
@@ -506,7 +381,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {/* insights for you (top 2) — moved below the money */}
+        {/* insights for you (top 2) */}
         {topInsights.length > 0 && (
           <View style={styles.insightsBlock}>
             <View style={styles.insightsHead}>
@@ -525,9 +400,6 @@ export default function HomeScreen() {
           </View>
         )}
 
-        <TouchableOpacity onPress={() => router.push('/(tabs)/retirement')}>
-          <Text style={styles.moreLink}>Net worth {money(snap.networth.net_worth)} · see all plans →</Text>
-        </TouchableOpacity>
         <View style={{ height: 96 }} />
       </ScrollView>
 
@@ -902,6 +774,31 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
+
+  // ── Home redesign (glance) ──
+  glance: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
+  glanceVerdict: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  glanceDot: { fontSize: 15, color: Colors.primary, fontWeight: '800' },
+  glanceTxt: { flex: 1, fontSize: 13.5, color: Colors.textSecondary, fontWeight: '600' },
+  glanceArrow: { fontSize: 18, color: Colors.textTertiary, fontWeight: '400' },
+  box: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
+  boxLabel: { fontSize: 10, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 8 },
+  cfRow: { flexDirection: 'row', justifyContent: 'space-between' },
+  cfCell: { flex: 1 },
+  cfV: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
+  cfL: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
+  cfFoot: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
+  seeAll: { fontSize: 12.5, color: Colors.primary, fontWeight: '700', marginTop: 10 },
+  nwHeadRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between' },
+  nwBig: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
+  nwDelta: { fontSize: 12.5, fontWeight: '700' },
+  nwInsight: { fontSize: 12, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
+  attnRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 9 },
+  attnIcon: { fontSize: 16 },
+  attnTxt: { flex: 1, fontSize: 13, color: Colors.textPrimary, fontWeight: '600' },
+  taxChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 13, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.primary },
+  taxChipTxt: { flex: 1, fontSize: 14, fontWeight: '800', color: Colors.primaryDark },
   coin: { fontSize: 44, textAlign: 'center', marginBottom: 10 },
   coinBadge: { width: 38, height: 38, borderRadius: 19, backgroundColor: '#F7CE5B', alignItems: 'center', justifyContent: 'center', borderWidth: 2, borderColor: '#D99A26' },
   h1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
