@@ -337,7 +337,7 @@ export default function HomeScreen() {
           {planned > 0 ? (
             <>
               <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pctAll * 100)}%`, backgroundColor: overAll ? Colors.red : Colors.primary }]} /></View>
-              <Text style={styles.cfFoot}>{overAll ? `${money(cfOut - planAll)} over your ${money(planAll)} monthly plan` : `${money(planAll - cfOut)} left of your ${money(planAll)} monthly plan`}{hasDebt ? ' (spending + debt)' : ''}</Text>
+              <Text style={styles.cfFoot}>{overAll ? `${money(cfOut - planAll)} over your ${money(planAll)} ${hasDebt ? 'monthly plan (spending + debt)' : 'monthly budget'}` : `${money(planAll - cfOut)} left of your ${money(planAll)} ${hasDebt ? 'monthly plan (spending + debt)' : 'monthly budget'}`}</Text>
             </>
           ) : (
             <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a monthly budget in Money` : 'Set a monthly budget in Money'}</Text>
