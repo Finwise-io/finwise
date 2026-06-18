@@ -93,7 +93,7 @@ export default function TopBar() {
           <View style={s.sheet} onStartShouldSetResponder={() => true}>
             <View style={s.grip} />
             <Text style={s.sTitle}>All modules</Text>
-            <ScrollView style={{ maxHeight: 540 }} showsVerticalScrollIndicator={false}>
+            <ScrollView style={{ maxHeight: 440 }} showsVerticalScrollIndicator>
               {GROUPS.map((g) => (
                 <View key={g.section}>
                   <Text style={s.groupHdr}>{g.section}</Text>
@@ -107,15 +107,16 @@ export default function TopBar() {
                   </View>
                 </View>
               ))}
-              <View style={s.footerRow}>
-                {FOOTER.map((m) => (
-                  <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)}>
-                    <Text style={s.footerE}>{m.e}</Text>
-                    <Text style={s.footerT}>{m.t}</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
             </ScrollView>
+            {/* footer pinned BELOW the scroll area so Rewards/Tips/Settings are always visible */}
+            <View style={s.footerRow}>
+              {FOOTER.map((m) => (
+                <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)}>
+                  <Text style={s.footerE}>{m.e}</Text>
+                  <Text style={s.footerT}>{m.t}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
           </View>
         </TouchableOpacity>
       </Modal>
