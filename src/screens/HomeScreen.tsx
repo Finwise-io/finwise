@@ -367,7 +367,8 @@ export default function HomeScreen() {
           <Text style={styles.focusArrow}>›</Text>
         </TouchableOpacity>
 
-        {/* YOUR FOCUS — the one teal accent surface = "do next" (adaptive launchpad) */}
+        {/* YOUR FOCUS — the one teal accent surface = "do next" (adaptive launchpad);
+            Insights folded in as a bar (its own block was redundant with the briefing) */}
         <View style={styles.focusCard} onLayout={onSecLayout('focus')}>
           <Text style={styles.focusTitle}>{FOCUS.title}</Text>
           <View style={styles.focusRow}>
@@ -378,27 +379,15 @@ export default function HomeScreen() {
                 <Text style={styles.focusArrow}>›</Text>
               </TouchableOpacity>
             ))}
+            {topInsights.length > 0 && (
+              <TouchableOpacity style={styles.focusBtn} activeOpacity={0.8} onPress={() => router.push('/insights')}>
+                <Text style={styles.focusIcon}>💡</Text>
+                <Text style={styles.focusLabel} numberOfLines={1}>Insights for you{topInsights[0]?.title ? ` · ${topInsights[0].title}` : ''}</Text>
+                <Text style={styles.focusArrow}>›</Text>
+              </TouchableOpacity>
+            )}
           </View>
         </View>
-
-        {/* insights for you (top 2) */}
-        {topInsights.length > 0 && (
-          <View style={styles.insightsBlock}>
-            <View style={styles.insightsHead}>
-              <Text style={styles.insightsTitle}>Insights for you</Text>
-              <TouchableOpacity onPress={() => router.push('/insights')}><Text style={styles.insightsAll}>See all ›</Text></TouchableOpacity>
-            </View>
-            {topInsights.map((i) => (
-              <TouchableOpacity key={i.id} style={styles.insightRow} activeOpacity={0.85} onPress={() => i.route && router.push(i.route as any)}>
-                <Text style={styles.insightIcon}>{i.icon}</Text>
-                <View style={{ flex: 1 }}>
-                  <Text style={styles.insightTitle}>{i.title}</Text>
-                  <Text style={styles.insightBody} numberOfLines={2}>{i.body}</Text>
-                </View>
-              </TouchableOpacity>
-            ))}
-          </View>
-        )}
 
         <View style={{ height: 96 }} />
       </ScrollView>
