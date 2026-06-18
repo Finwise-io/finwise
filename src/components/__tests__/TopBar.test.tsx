@@ -41,11 +41,18 @@ describe('TopBar', () => {
     expect(router.push).toHaveBeenCalledWith('/(tabs)/retirement');
   });
 
-  test('the Tax organizer lives in the Protect & optimize group', () => {
+  test('the Menu shows only the 3 primary groups (Protect & optimize / App are not sections)', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
-    expect(screen.getByText('Protect & optimize')).toBeOnTheScreen();
-    fireEvent.press(screen.getByText('Tax organizer'));
-    expect(router.push).toHaveBeenCalledWith('/tax-organizer');
+    expect(screen.getByText('Track your wealth')).toBeOnTheScreen();
+    expect(screen.queryByText('Protect & optimize')).toBeNull();
+    expect(screen.queryByText('App & account')).toBeNull();
+  });
+
+  test('Settings stays reachable from the Menu footer (its only entry point)', () => {
+    render(<TopBar />);
+    fireEvent.press(screen.getByText('Menu'));
+    fireEvent.press(screen.getByText('Settings'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/settings');
   });
 });

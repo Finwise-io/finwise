@@ -14,8 +14,10 @@ import { buildNetWorth } from '../domain/networth';
 import { resolveNetWorthRows } from '../domain/snapshot';
 
 type Mod = { e: string; t: string; route?: string };
-// Modules grouped by user intent, ordered near→far horizon (everyday money → wealth → future →
-// protect/optimize → app). Each tile opens a REAL screen — no "coming soon" placeholders.
+// Menu shows the 3 primary intent groups (near→far horizon). The occasional "protect & optimize"
+// tools are reached in context instead of cluttering the hub — Tax organizer from Home, and
+// Roth / Insurance / Build credit / Estate from the Plan screen. App utilities (Rewards / Tips /
+// Settings) sit in a compact footer — that's their only entry point, so they must stay reachable.
 const GROUPS: { section: string; items: Mod[] }[] = [
   { section: 'Everyday money', items: [
     { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
@@ -34,18 +36,11 @@ const GROUPS: { section: string; items: Mod[] }[] = [
     { e: '🎓', t: 'College planner', route: '/education' },
     { e: '🌪', t: 'Stress test', route: '/stress-test' },
   ] },
-  { section: 'Protect & optimize', items: [
-    { e: '🧾', t: 'Tax organizer', route: '/tax-organizer' },
-    { e: '🔁', t: 'Roth conversion', route: '/roth' },
-    { e: '🛡️', t: 'Insurance check', route: '/insurance' },
-    { e: '💳', t: 'Build credit', route: '/credit' },
-    { e: '🎁', t: 'Estate & legacy', route: '/estate' },
-  ] },
-  { section: 'App & account', items: [
-    { e: '🏅', t: 'Rewards', route: '/(tabs)/rewards' },
-    { e: '📚', t: 'Tips', route: '/(tabs)/tips' },
-    { e: '⚙️', t: 'Settings', route: '/(tabs)/settings' },
-  ] },
+];
+const FOOTER: Mod[] = [
+  { e: '🏅', t: 'Rewards', route: '/(tabs)/rewards' },
+  { e: '📚', t: 'Tips', route: '/(tabs)/tips' },
+  { e: '⚙️', t: 'Settings', route: '/(tabs)/settings' },
 ];
 const hit = { top: 10, bottom: 10, left: 10, right: 10 };
 
@@ -101,12 +96,20 @@ export default function TopBar() {
                     {g.items.map((m) => (
                       <TouchableOpacity key={m.t} style={s.gi} onPress={() => go(m)}>
                         <Text style={s.giE}>{m.e}</Text>
-                        <Text style={s.giT}>{m.t}</Text>
+                        <Text style={s.giT} numberOfLines={2}>{m.t}</Text>
                       </TouchableOpacity>
                     ))}
                   </View>
                 </View>
               ))}
+              <View style={s.footerRow}>
+                {FOOTER.map((m) => (
+                  <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)}>
+                    <Text style={s.footerE}>{m.e}</Text>
+                    <Text style={s.footerT}>{m.t}</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
             </ScrollView>
           </View>
         </TouchableOpacity>
@@ -127,8 +130,12 @@ const s = StyleSheet.create({
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
   sTitle: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: Spacing.xs },
   groupHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: Spacing.sm },
-  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 10 },
-  gi: { width: '31%', backgroundColor: Colors.cardBg, borderRadius: 14, paddingVertical: 14, alignItems: 'center' },
-  giE: { fontSize: 24 },
-  giT: { fontSize: 11, fontWeight: '700', color: Colors.textPrimary, marginTop: 5 },
+  grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 9 },
+  gi: { width: '22.7%', minHeight: 70, backgroundColor: Colors.cardBg, borderRadius: 14, paddingVertical: 11, paddingHorizontal: 4, alignItems: 'center', justifyContent: 'center' },
+  giE: { fontSize: 22 },
+  giT: { fontSize: 10, fontWeight: '700', color: Colors.textPrimary, marginTop: 4, textAlign: 'center', lineHeight: 13 },
+  footerRow: { flexDirection: 'row', justifyContent: 'space-around', marginTop: Spacing.lg, paddingTop: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border },
+  footerItem: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingVertical: 4 },
+  footerE: { fontSize: 15 },
+  footerT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
 });
