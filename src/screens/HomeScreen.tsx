@@ -244,22 +244,22 @@ export default function HomeScreen() {
   if (over) attention.push({ icon: '⚠️', text: `Spending is ${money(-bva.remaining)} over budget this month` });
   dueSoon.forEach((d: any) => attention.push({ icon: '💳', text: `${d.label} due ${ordinal(d.due_day)} · ${money(requiredPayment(d))}`, debt: d }));
   if (rmdAnnual > 0) attention.push({ icon: '📌', text: `Required withdrawal (RMD) ~${money(rmdAnnual)} by Dec 31` });
-  const onTrack = !over && (planned <= 0 || projected <= planned * 1.02);
-  const verdict = over ? '⚠️ Spending is running high this month'
-    : attention.length > 0 ? '⚠️ A couple of things need a look'
-    : onTrack ? "✅ You're on track this month" : '✅ Looking steady this month';
   const scrollRef = React.useRef<ScrollView>(null);
   const yPos = React.useRef<Record<string, number>>({});
   const onSecLayout = (k: string) => (e: any) => { yPos.current[k] = e.nativeEvent.layout.y; };
   const jumpTo = (k: string) => scrollRef.current?.scrollTo({ y: Math.max(0, (yPos.current[k] ?? 0) - 8), animated: true });
-  // briefing bullets — headlines; tapping one scrolls to its box below
-  const bullets: { txt: string; k: string }[] = [
-    { txt: `${money(leftOver)} left over after spending & debt`, k: 'cash' },
-    { txt: nwChange !== 0 ? `Net worth ${money(netWorth)} — ${nwChange >= 0 ? 'up' : 'down'} ${money(Math.abs(nwChange))}` : `Net worth ${money(netWorth)}`, k: 'nw' },
-    ...(conc ? [{ txt: `💡 ${conc.pct}% of investments sit in one account`, k: 'nw' }] : []),
-    ...(attention.length ? [{ txt: `${attention[0].icon} ${attention[0].text}`, k: 'attention' }] : []),
-    { txt: `🎯 Next: ${FOCUS.actions[0].label}`, k: 'focus' },
+  // briefing bullets — each tagged good/warn so the leading icon is consistent (✓ vs ⚠️), matching
+  // the verdict. "What to do next" is the Focus box itself, so it isn't repeated as a bullet here.
+  const bullets: { txt: string; k: string; warn: boolean }[] = [
+    { txt: `${money(leftOver)} left over after spending & debt`, k: 'cash', warn: leftOver < 0 },
+    { txt: nwChange !== 0 ? `Net worth ${money(netWorth)} — ${nwChange >= 0 ? 'up' : 'down'} ${money(Math.abs(nwChange))}` : `Net worth ${money(netWorth)}`, k: 'nw', warn: false },
+    ...(conc ? [{ txt: `${conc.pct}% of investments sit in one account`, k: 'nw', warn: true }] : []),
+    ...(attention.length ? [{ txt: attention[0].text, k: 'attention', warn: true }] : []),
   ];
+  const concerns = (leftOver < 0 ? 1 : 0) + (conc ? 1 : 0) + attention.length;
+  const verdict = concerns === 0 ? "✅ You're on track this month"
+    : concerns === 1 ? '⚠️ One thing needs a look'
+    : '⚠️ A couple of things need a look';
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -293,7 +293,7 @@ export default function HomeScreen() {
           <Text style={styles.glanceVerdict}>{verdict}</Text>
           {bullets.map((b, i) => (
             <TouchableOpacity key={i} style={styles.glanceRow} activeOpacity={0.7} onPress={() => jumpTo(b.k)}>
-              <Text style={styles.glanceDot}>•</Text>
+              <Text style={[styles.glanceDot, !b.warn && styles.glanceDotGood]}>{b.warn ? '⚠️' : '✓'}</Text>
               <Text style={styles.glanceTxt} numberOfLines={1}>{b.txt}</Text>
               <Text style={styles.glanceArrow}>›</Text>
             </TouchableOpacity>
@@ -776,7 +776,8 @@ const styles = StyleSheet.create({
   glance: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
   glanceVerdict: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
-  glanceDot: { fontSize: 15, color: Colors.primary, fontWeight: '800' },
+  glanceDot: { fontSize: 13, width: 20, textAlign: 'center' },
+  glanceDotGood: { color: Colors.primary, fontWeight: '800', fontSize: 14 },
   glanceTxt: { flex: 1, fontSize: 13.5, color: Colors.textSecondary, fontWeight: '600' },
   glanceArrow: { fontSize: 18, color: Colors.textTertiary, fontWeight: '400' },
   box: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border, shadowColor: '#000', shadowOpacity: 0.04, shadowRadius: 8, shadowOffset: { width: 0, height: 2 } },
