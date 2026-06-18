@@ -17,7 +17,7 @@ import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from
 import { colFactor } from '../domain/retirement/col';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, RMD_START_AGE } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracket } from '../domain/income/tax';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
@@ -423,27 +423,33 @@ export default function RetirementCockpit() {
             {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your spending — your portfolio can keep growing.</Text>}
           </View>
 
-          {/* where the money sits (tax buckets) */}
+          {/* where the money sits + suggested withdrawal order (combined into one box) */}
           <View style={styles.card}>
             <Text style={styles.liK}>Where your money sits</Text>
             {([['cash', 'Cash'], ['taxable', 'Taxable / brokerage'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
               <View key={k} style={styles.dwRow}><Text style={styles.dwL}>{lbl}</Text><Text style={styles.dwV}>{money(dSplit[k])}</Text></View>
             ) : null))}
-          </View>
 
-          {/* suggested withdrawal order */}
-          {dOrder.length > 0 && (
-            <View style={styles.card}>
-              <Text style={styles.liK}>Suggested withdrawal order</Text>
-              {dOrder.map((s, i) => (
-                <View key={s.bucket} style={styles.orderRow}>
-                  <Text style={styles.orderNum}>{i + 1}</Text>
-                  <View style={{ flex: 1 }}><Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}</Text></Text><Text style={styles.orderWhy}>{s.why}</Text></View>
-                </View>
-              ))}
-              <Text style={styles.tFootMuted}>General guidance, not tax advice — your situation (brackets, Roth conversions) may change the order.</Text>
-            </View>
-          )}
+            {dOrder.length > 0 && (
+              <>
+                <View style={styles.cardDivider} />
+                <Text style={styles.liK}>Suggested withdrawal order</Text>
+                {dOrder.map((s, i) => (
+                  <View key={s.bucket} style={styles.orderRow}>
+                    <Text style={styles.orderNum}>{i + 1}</Text>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}{s.bucket === 'rmd' ? ' this year' : ''}</Text></Text>
+                      {s.bucket === 'rmd' && (
+                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisor(Math.max(age, RMD_START_AGE)).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, RMD_START_AGE)}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
+                      )}
+                      <Text style={styles.orderWhy}>{s.why}</Text>
+                    </View>
+                  </View>
+                ))}
+                <Text style={styles.tFootMuted}>The amounts above are each bucket's full balance — what you draw from over the years — except the RMD, which is just this year's required minimum (taken out of the pre-tax balance). General guidance, not tax advice; your brackets or Roth conversions may change the order.</Text>
+              </>
+            )}
+          </View>
 
           {/* RMDs + healthcare */}
           <View style={styles.card}>
@@ -967,6 +973,8 @@ const styles = StyleSheet.create({
   orderName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   orderAmt: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
   orderWhy: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 2, lineHeight: 15 },
+  orderCalc: { fontSize: 11.5, color: Colors.primaryDark, fontWeight: '600', marginTop: 3, lineHeight: 15 },
+  cardDivider: { height: 1, backgroundColor: Colors.bgTertiary, marginVertical: 12 },
   heroExplain: { fontSize: 10.5, color: Colors.textSecondary, lineHeight: 14, marginTop: 8 },
   planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
@@ -1025,12 +1033,12 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
 
   // instruments table
-  tHead: { flexDirection: 'row', alignItems: 'center', marginTop: 8, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  tHead: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
   tHL: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   tColBal: { width: 60, textAlign: 'right' },
   tColRet: { width: 72, textAlign: 'right' },
   tColNum: { width: 64, alignItems: 'flex-end', justifyContent: 'center' },
-  tRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
+  tRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   instIc: { fontSize: 16 },
   instName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   instSrc: { fontSize: 10.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 14 },

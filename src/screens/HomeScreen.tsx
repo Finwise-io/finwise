@@ -38,9 +38,9 @@ export default function HomeScreen() {
   // persona-adaptive focus shortcuts
   const persona = personaOf({ age: ageFromProfile(op), employmentStatus: store.employmentStatus, targetRetireAge: parseInt(String(op?.targetRetirementAge ?? '65'), 10) || 65 });
   const FOCUS = {
-    building: { title: 'Your focus — goals & growth', actions: [{ icon: '🎯', label: 'Goals & debt', route: '/goals' }, { icon: '📈', label: 'Grow investments', route: '/performance' }] },
-    preretiree: { title: 'Your focus — get retirement-ready', actions: [{ icon: '🏖️', label: 'Retirement outlook', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
-    retired: { title: 'Your focus — make it last', actions: [{ icon: '🏖️', label: 'Retirement Plan', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }] },
+    building: { title: 'Your focus — goals & growth', actions: [{ icon: '🎯', label: 'Goals & debt', route: '/goals' }, { icon: '📈', label: 'Grow investments', route: '/performance' }, { icon: '📅', label: 'Bill calendar', route: '/bill-calendar' }] },
+    preretiree: { title: 'Your focus — get retirement-ready', actions: [{ icon: '🏖️', label: 'Retirement outlook', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }, { icon: '📅', label: 'Bill calendar', route: '/bill-calendar' }] },
+    retired: { title: 'Your focus — make it last', actions: [{ icon: '🏖️', label: 'Retirement Plan', route: '/retirement' }, { icon: '📈', label: 'Portfolio', route: '/performance' }, { icon: '📅', label: 'Bill calendar', route: '/bill-calendar' }] },
   }[persona];
   const expenses = (store.expenses ?? []) as any[];
   const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
@@ -492,17 +492,7 @@ export default function HomeScreen() {
           );
         })()}
 
-        {/* bill calendar / cash flow */}
-        <TouchableOpacity style={styles.billCalCard} activeOpacity={0.85} onPress={() => router.push('/bill-calendar')}>
-          <Text style={styles.billCalIcon}>📅</Text>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.billCalTitle}>Bill calendar</Text>
-            <Text style={styles.billCalSub}>See when money lands, when bills hit, and any tight months</Text>
-          </View>
-          <Text style={styles.focusArrow}>›</Text>
-        </TouchableOpacity>
-
-        {/* persona-adaptive focus (moved below the money) */}
+        {/* persona-adaptive focus (moved below the money) — Bill calendar now lives in here */}
         <View style={styles.focusCard}>
           <Text style={styles.focusTitle}>{FOCUS.title}</Text>
           <View style={styles.focusRow}>
@@ -1004,10 +994,6 @@ const styles = StyleSheet.create({
   nwotBarCol: { flex: 1, alignItems: 'center', justifyContent: 'flex-end', height: '100%' },
   nwotBar: { width: '70%', maxWidth: 26, borderTopLeftRadius: 3, borderTopRightRadius: 3, minHeight: 4 },
   nwotBarLbl: { fontSize: 8, color: Colors.textTertiary, marginTop: 3 },
-  billCalCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
-  billCalIcon: { fontSize: 22 },
-  billCalTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
-  billCalSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   insightsBlock: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   insightsHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 4 },
   insightsTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },

@@ -280,19 +280,24 @@ export default function NetWorthScreen() {
           </View>
         )}
 
-        {/* performance launch */}
-        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/performance')}>
-          <Text style={styles.perfBtnT}>📈  Portfolio performance vs benchmark</Text>
-          <Text style={styles.perfBtnArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/bonds')}>
-          <Text style={styles.perfBtnT}>📜  Bonds — coupons, maturity & yield</Text>
-          <Text style={styles.perfBtnArrow}>›</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.perfBtn} onPress={() => router.push('/other-investments')}>
-          <Text style={styles.perfBtnT}>🪙  Other investments — crypto, PE, commodities</Text>
-          <Text style={styles.perfBtnArrow}>›</Text>
-        </TouchableOpacity>
+        {/* explore your holdings — three launchers grouped into one box */}
+        <View style={styles.exploreCard}>
+          <Text style={styles.exploreHdr}>EXPLORE YOUR HOLDINGS</Text>
+          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/performance')}>
+            <Text style={styles.exploreRowT}>📈  Portfolio performance vs benchmark</Text>
+            <Text style={styles.perfBtnArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.exploreDiv} />
+          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/bonds')}>
+            <Text style={styles.exploreRowT}>📜  Bonds — coupons, maturity & yield</Text>
+            <Text style={styles.perfBtnArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.exploreDiv} />
+          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/other-investments')}>
+            <Text style={styles.exploreRowT}>🪙  Other investments — crypto, PE, commodities</Text>
+            <Text style={styles.perfBtnArrow}>›</Text>
+          </TouchableOpacity>
+        </View>
 
         {/* insight */}
         {totalAssets > 0 && (
@@ -452,9 +457,12 @@ const styles = StyleSheet.create({
   runwayTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   runwaySub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   runwayLink: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginTop: 6 },
-  perfBtn: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border },
-  perfBtnT: { flex: 1, fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   perfBtnArrow: { fontSize: 22, color: Colors.textTertiary, fontWeight: '400' },
+  exploreCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingBottom: 4 },
+  exploreHdr: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: Spacing.sm, marginBottom: 2 },
+  exploreRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13 },
+  exploreRowT: { flex: 1, fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  exploreDiv: { height: 1, backgroundColor: Colors.bgTertiary },
   insight: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   insightIcon: { fontSize: 15, lineHeight: 20 },
   insightTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },

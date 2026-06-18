@@ -70,12 +70,19 @@ export default function TopBar() {
         <Ionicons name="grid" size={16} color={Colors.textSecondary} />
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={s.nwChip} onPress={() => router.push('/(tabs)/analytics')}>
-        <Text style={s.nwLabel}>NW</Text>
-        <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
-        <Text style={s.nwTxt}>{money(nw)}</Text>
-        <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
-      </TouchableOpacity>
+      <View style={s.rightStack}>
+        <TouchableOpacity style={s.nwChip} onPress={() => router.push('/(tabs)/analytics')}>
+          <Text style={s.nwLabel}>NW</Text>
+          <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
+          <Text style={s.nwTxt}>{money(nw)}</Text>
+          <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
+        </TouchableOpacity>
+        <TouchableOpacity style={s.taxChip} onPress={() => router.push('/tax-organizer')}>
+          <Text style={s.taxChipE}>🧾</Text>
+          <Text style={s.taxChipTxt}>Tax organizer</Text>
+          <Ionicons name="chevron-forward" size={13} color={Colors.primaryDark} style={{ marginLeft: 2 }} />
+        </TouchableOpacity>
+      </View>
 
       <Modal visible={menu} transparent animationType="slide" onRequestClose={() => setMenu(false)}>
         <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setMenu(false)}>
@@ -100,12 +107,16 @@ export default function TopBar() {
 }
 
 const s = StyleSheet.create({
-  bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
+  bar: { flexDirection: 'row', alignItems: 'flex-start', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
   menuBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 13, borderRadius: 19, backgroundColor: Colors.cardBg, justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  nwChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryDark, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 8 },
+  rightStack: { alignItems: 'stretch', gap: 6 },
+  nwChip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 36, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, backgroundColor: Colors.primaryDark, borderColor: Colors.primaryDark },
   nwLabel: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5, marginRight: 5 },
   nwTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  taxChip: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', height: 36, paddingHorizontal: 14, borderRadius: 18, borderWidth: 1, backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
+  taxChipE: { fontSize: 13, marginRight: 5 },
+  taxChipTxt: { color: Colors.primaryDark, fontSize: 13, fontWeight: '800' },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },

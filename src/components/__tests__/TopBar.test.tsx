@@ -31,6 +31,13 @@ describe('TopBar', () => {
     expect(router.push).toHaveBeenCalledWith('/(tabs)/analytics');
   });
 
+  test('the Tax organizer chip (below NW) navigates to the tax organizer', () => {
+    render(<TopBar />);
+    // index 0 is the header chip (the Modal grid tile renders later in the tree)
+    fireEvent.press(screen.getAllByText('Tax organizer')[0]);
+    expect(router.push).toHaveBeenCalledWith('/tax-organizer');
+  });
+
   test('the Menu opens the module grid and tiles navigate', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
