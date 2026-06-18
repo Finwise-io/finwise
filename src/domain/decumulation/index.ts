@@ -57,15 +57,25 @@ export function depletionAge(o: { age: number; horizon: number; nestEgg: number;
 }
 
 // ---- tax-efficient withdrawal order ----
-export interface OrderStep { bucket: keyof BucketSplit; label: string; amount: number; why: string; }
-export function withdrawalOrder(split: BucketSplit): OrderStep[] {
-  const steps: { bucket: keyof BucketSplit; label: string; why: string }[] = [
+export interface OrderStep { bucket: keyof BucketSplit | 'rmd'; label: string; amount: number; why: string; }
+/** Tax-efficient withdrawal order. Pass `age` so RMD-age users see the mandatory RMD as step 1
+ *  (RMDs legally force pre-tax withdrawals first — a static cash→taxable→pre-tax→roth order is wrong
+ *  once you're 73+). Omitting age keeps the classic order for accumulation/pre-RMD users. */
+export function withdrawalOrder(split: BucketSplit, age = 0): OrderStep[] {
+  const base: { bucket: keyof BucketSplit; label: string; why: string }[] = [
     { bucket: 'cash', label: 'Cash', why: 'Spend first — it earns the least, so use it before it loses to inflation.' },
     { bucket: 'taxable', label: 'Taxable / brokerage', why: 'Next — lets your tax-advantaged accounts keep compounding (you only owe tax on gains).' },
     { bucket: 'preTax', label: 'Pre-tax (401k / Traditional IRA)', why: 'Then pre-tax — withdrawals are taxed as income, and RMDs force this from 73 anyway.' },
     { bucket: 'roth', label: 'Roth', why: 'Last — tax-free growth and no RMDs, so let it run as long as possible.' },
   ];
-  return steps.filter((s) => split[s.bucket] > 0).map((s) => ({ ...s, amount: split[s.bucket] }));
+  const steps: OrderStep[] = base.filter((s) => split[s.bucket] > 0).map((s) => ({ ...s, amount: split[s.bucket] }));
+  if (age >= RMD_START_AGE && split.preTax > 0) {
+    const pre = steps.find((s) => s.bucket === 'preTax');
+    if (pre) pre.why = 'The rest, beyond your required withdrawal — taxed as income.';
+    return [{ bucket: 'rmd', label: 'Required withdrawal (RMD) — first', amount: rmdAtAge(split.preTax, age),
+      why: `Mandatory at ${age}: you must take this from pre-tax first, taxed as income whether you need it or not.` }, ...steps];
+  }
+  return steps;
 }
 
 // ---- Required Minimum Distributions (SECURE 2.0: begin at 73) ----

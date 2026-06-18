@@ -44,6 +44,12 @@ describe('decumulation', () => {
     expect(order[0].amount).toBe(200000);
   });
 
+  test('withdrawal order: RMD-age users get the required withdrawal as step 1', () => {
+    const order = withdrawalOrder({ taxable: 200000, preTax: 300000, roth: 100000, cash: 50000, total: 650000 }, 80);
+    expect(order.map((o) => o.bucket)).toEqual(['rmd', 'cash', 'taxable', 'preTax', 'roth']);
+    expect(order[0].amount).toBeCloseTo(rmdAtAge(300000, 80), 0);
+  });
+
   test('RMD: none before 73, then balance ÷ divisor', () => {
     expect(rmdAtAge(500000, 70)).toBe(0);
     expect(RMD_START_AGE).toBe(73);

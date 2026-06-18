@@ -43,6 +43,7 @@ export default function RetirementCockpit() {
   ).accounts;
 
   const [screen, setScreen] = useState<'current' | 'scenario'>('current');
+  const [showDetails, setShowDetails] = useState(false);   // Simple: reveal the Advisor detail cards inline
   const [earmarkOpen, setEarmarkOpen] = useState(false);
   const [ssOpen, setSsOpen] = useState(false);
   const [saveOpen, setSaveOpen] = useState(false);
@@ -91,6 +92,7 @@ export default function RetirementCockpit() {
   const planSalaryGrowth = A.salaryGrowth ?? 0;       // raises applied to contributions each year (0 by default)
   const isRetired = store.employmentStatus === 'retired' || age >= planRetireAge;
   const simple = (store.displayMode ?? 'simple') === 'simple';   // hide technical detail in Simple mode
+  const advisor = !simple || showDetails;                         // show the mechanics when in Advisor or expanded
   const commit = (patch: any) => setA(patch);
 
   const planInputs = (over: any = {}) => ({
@@ -164,7 +166,7 @@ export default function RetirementCockpit() {
   const dSplit = taxBucketSplit(assets);
   const dPlan = withdrawalPlan(planSpend, ssIncome, spendableEgg);
   const dDeplete = depletionAge({ age, horizon, nestEgg: spendableEgg, netWithdrawalNow: dPlan.netWithdrawal, returnRate: planGrowth, inflation: planInfl });
-  const dOrder = withdrawalOrder(dSplit);
+  const dOrder = withdrawalOrder(dSplit, age);
   const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, RMD_START_AGE));   // first-year RMD on pre-tax balances
   const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
 
@@ -313,15 +315,74 @@ export default function RetirementCockpit() {
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
 
-      {/* HERO — two dark-green cards: the never-save floor + the on-plan target */}
+      {/* RETIRED: input-first — WHAT YOU HAVE (nest egg + legacy) then ONE verdict; NON-RETIRED: the two target cards */}
       {isRetired ? (
-        <View style={styles.gbox}>
-          <Text style={styles.heroK}>CAN YOUR SAVINGS COVER RETIREMENT?</Text>
-          <Text style={styles.heroBig}>{planChance == null ? '…' : `${planChance}%`}</Text>
-          <Text style={styles.heroSub}>chance your {big(spendableEgg)} lasts to age {horizon}</Text>
-          {bequest > 0 && <Text style={styles.heroSub}>{big(nestEgg)} saved − {big(bequest)} set aside as legacy = {big(spendableEgg)} to spend</Text>}
-          <Text style={styles.heroRoi}>assuming {(planGrowth * 100).toFixed(1)}%/yr · {basisLabel}</Text>
-        </View>
+        <>
+          {/* WHAT YOU HAVE — nest egg donut + legacy reserve (Net-Worth screen pattern) */}
+          <View style={[styles.donutCard, { marginTop: 10 }]}>
+            {nestEgg > 0 ? (
+              <>
+                <View style={styles.donutRow}>
+                  <Donut segments={bequest > 0
+                    ? [{ value: spendableEgg, color: Colors.primary }, { value: bequest, color: Colors.textTertiary }]
+                    : segs.map((s) => ({ value: s.amt, color: s.color }))}>
+                    <Text style={styles.donutAmt}>{big(nestEgg)}</Text>
+                    <Text style={styles.donutLab}>NEST EGG</Text>
+                  </Donut>
+                  <View style={{ flex: 1 }}>
+                    <View style={styles.lg}><Text style={styles.lgL}>Nest egg</Text><Text style={styles.lgV}>{big(nestEgg)}</Text></View>
+                    {bequest > 0 ? (
+                      <>
+                        <View style={styles.lg}><Text style={styles.lgL}>− Set aside as legacy</Text><Text style={[styles.lgV, { color: Colors.textSecondary }]}>−{big(bequest)}</Text></View>
+                        <View style={[styles.lg, styles.lgTotal]}><Text style={[styles.lgL, { fontWeight: '800' }]}>Left to spend</Text><Text style={[styles.lgV, { color: Colors.primary }]}>{big(spendableEgg)}</Text></View>
+                      </>
+                    ) : (
+                      segs.map((s) => (
+                        <View key={s.label} style={styles.lg}>
+                          <View style={[styles.dot, { backgroundColor: s.color }]} />
+                          <Text style={styles.lgL} numberOfLines={1}>{s.label}</Text>
+                          <Text style={styles.lgV}>{moneyCompact(s.amt, 'M')}</Text>
+                        </View>
+                      ))
+                    )}
+                  </View>
+                </View>
+                <TouchableOpacity onPress={() => setEarmarkOpen(true)}><Text style={styles.editLink}>⚙︎ Edit what counts toward retirement ›</Text></TouchableOpacity>
+              </>
+            ) : (
+              <View style={{ alignItems: 'center', paddingVertical: 12 }}>
+                <Text style={styles.donutAmt}>{money(0)}</Text>
+                <Text style={styles.sub}>Add your accounts in the Net Worth tab to build your nest egg.</Text>
+              </View>
+            )}
+          </View>
+
+          {/* WILL YOUR MONEY LAST? — one verdict in the app's green insight box (semantic green/amber/red) */}
+          {nestEgg > 0 && (() => {
+            const band = planChance == null || planChance >= 80 ? 'good' : planChance >= 60 ? 'watch' : 'risk';
+            const bg = band === 'risk' ? Colors.redLight : band === 'watch' ? Colors.amberLight : Colors.primaryLight;
+            const head = band === 'risk' ? '⚠️  Might fall short' : band === 'watch' ? '⚠️  Close — worth tightening' : '✅  Looking good';
+            const lasts = dDeplete == null ? `past age ${horizon}` : `to about age ${dDeplete}`;
+            const pace = dPlan.rateBand === 'safe' ? 'a safe pace' : dPlan.rateBand === 'moderate' ? 'a bit high — watch it' : 'a high pace';
+            return (
+              <>
+                <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
+                <View style={[styles.insightBox, { backgroundColor: bg }]}>
+                  <Text style={styles.verdictHead}>{head}</Text>
+                  <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your spending {lasts}{planChance != null ? ` in most futures — ${planChance}% of scenarios` : ''}.</Text>
+                  <Text style={styles.verdictSub}>Each year you spend {money(dPlan.spendAnnual)}{dPlan.guaranteedAnnual > 0 ? `: Social Security / pension covers ${money(dPlan.guaranteedAnnual)}, and you take ${money(dPlan.netWithdrawal)} from savings` : ' from savings'} ({pace}).</Text>
+                </View>
+              </>
+            );
+          })()}
+
+          {/* Simple: one action to reveal the mechanics */}
+          {simple && !showDetails && nestEgg > 0 && (
+            <TouchableOpacity style={styles.detailsBtn} onPress={() => setShowDetails(true)}>
+              <Text style={styles.detailsBtnTxt}>See the details — taxes, RMDs, withdrawal order  →</Text>
+            </TouchableOpacity>
+          )}
+        </>
       ) : (
         <>
           <View style={styles.heroRow}>
@@ -343,10 +404,10 @@ export default function RetirementCockpit() {
         </>
       )}
 
-      {/* ── DECUMULATION (retired: will it last?) ── */}
-      {isRetired && nestEgg > 0 && (
+      {/* ── THE DETAILS (Advisor / expanded): the mechanics behind the verdict ── */}
+      {advisor && isRetired && nestEgg > 0 && (
         <>
-          <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
+          <Text style={styles.divider}>THE DETAILS</Text>
 
           {/* net withdrawal + rate */}
           <View style={styles.card}>
@@ -360,13 +421,6 @@ export default function RetirementCockpit() {
               </View>
             )}
             {dPlan.netWithdrawal === 0 && <Text style={styles.note}>Your guaranteed income covers your spending — your portfolio can keep growing.</Text>}
-          </View>
-
-          {/* how long it lasts */}
-          <View style={styles.card}>
-            <Text style={styles.liK}>Will it last?</Text>
-            <Text style={styles.dwBig}>{dDeplete == null ? `Lasts beyond ${horizon}` : `Runs low around ${dDeplete}`}</Text>
-            <Text style={styles.note}>Deterministic estimate at {(planGrowth * 100).toFixed(1)}%/yr growth, spending rising {(planInfl * 100).toFixed(1)}%/yr.{planChance != null ? ` Across ~400 market simulations it lasts to ${horizon} in ${planChance}% of them.` : ''}</Text>
           </View>
 
           {/* where the money sits (tax buckets) */}
@@ -394,14 +448,19 @@ export default function RetirementCockpit() {
           {/* RMDs + healthcare */}
           <View style={styles.card}>
             <Text style={styles.liK}>Heads-up</Text>
-            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> start at {RMD_START_AGE}. On today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax on these withdrawals.</Text>}
-            <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.</Text>
+            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> {age >= RMD_START_AGE
+              ? <>apply to you now — you must withdraw about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> this year</>
+              : <>start at {RMD_START_AGE}; on today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
+            <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> {age >= 65
+              ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/yr), and watch IRMAA surcharges if your income is high."
+              : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.'}</Text>
             {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before RMDs/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future RMDs and lifetime tax.</Text>}
           </View>
         </>
       )}
 
-      {/* ── WHAT YOU HAVE (facts) ── */}
+      {/* ── WHAT YOU HAVE — non-retired nest-egg donut (retired sees this at the top) ── */}
+      {!isRetired && (<>
       <Text style={styles.divider}>WHAT YOU HAVE</Text>
 
       {/* DONUT — current earmarked nest egg */}
@@ -432,6 +491,7 @@ export default function RetirementCockpit() {
           </View>
         )}
       </View>
+      </>)}
 
       {/* INSTRUMENTS — your 12-mo actual vs benchmark (30-yr) per holding */}
       {instruments.length > 0 && (
@@ -943,6 +1003,15 @@ const styles = StyleSheet.create({
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
   gSub: { color: '#BEE7D8', fontSize: 12.5, fontWeight: '600' },
   insightBox: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 8 },
+  // legacy-reserve total row in the "what you have" legend
+  lgTotal: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, marginTop: 4, paddingTop: 6 },
+  // verdict (Will your money last?) — the green/amber/red insight box
+  verdictHead: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
+  verdictBody: { fontSize: 14, color: Colors.textPrimary, marginTop: 5, lineHeight: 20 },
+  verdictSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 6, lineHeight: 18 },
+  // Simple-mode "see the details" reveal
+  detailsBtn: { marginTop: 14, alignItems: 'center', paddingVertical: 13, borderRadius: Radii.md, backgroundColor: Colors.bgTertiary },
+  detailsBtnTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
   insightTxt: { color: Colors.primaryDark, fontSize: 12.5, lineHeight: 18 },
   insightB: { color: Colors.primaryDark, fontWeight: '800' },
 
