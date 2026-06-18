@@ -173,7 +173,11 @@ export default function BudgetScreen() {
   const isCurrentMonth = monthOffset === 0;
   const inSelMonth = (e: any) => String(e.date ?? '').startsWith(selYm);
   const q = search.trim().toLowerCase();
-  const monthIncomeSel = allEntries.filter((e) => e.kind === 'income' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
+  // Income = recurring take-home for the month (onboarding salary, same source Home/Budget use)
+  // + any logged one-off income. Without this, a salaried user with no logged income shows $0.
+  const baseNetSel = Math.round((op ? incomeMonthlyGrid(op, 'net') : [])[selDate.getMonth()]?.amount ?? 0);
+  const loggedIncomeSel = allEntries.filter((e) => e.kind === 'income' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
+  const monthIncomeSel = baseNetSel + loggedIncomeSel;
   const monthSpendSel = allEntries.filter((e) => e.kind === 'expense' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const filtered = allEntries.filter((e) => {
     if (!inSelMonth(e)) return false;
@@ -182,6 +186,11 @@ export default function BudgetScreen() {
     if (q && !`${e.source ?? ''} ${e.store ?? ''} ${e.category ?? ''} ${e.notes ?? ''}`.toLowerCase().includes(q)) return false;
     return true;
   });
+  // synthetic ledger row so the recurring take-home is visible and the Income strip reconciles
+  const recurringRow = baseNetSel > 0 && filter !== 'Expenses' && (!q || 'take-home pay income paycheck salary recurring'.includes(q))
+    ? { id: '__recurring_income__', kind: 'income' as const, recurring: true, source: 'Take-home pay', amount: baseNetSel, date: `${selYm}-15`, category: '', notes: '' }
+    : null;
+  const listData: any[] = recurringRow ? [recurringRow, ...filtered] : filtered;
 
   async function handleImport() {
     try {
@@ -376,7 +385,7 @@ export default function BudgetScreen() {
           </View>
 
           <FlatList
-            data={filtered}
+            data={listData}
             keyExtractor={(item) => item.id}
             style={styles.list}
             contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 96 }}
@@ -394,6 +403,18 @@ export default function BudgetScreen() {
             }
             renderItem={({ item }) => {
               const isIncome = item.kind === 'income';
+              if ((item as any).recurring) {
+                return (
+                  <TouchableOpacity onPress={() => router.push('/income-manager')} style={styles.txRow} activeOpacity={0.85}>
+                    <View style={[styles.txIcon, { backgroundColor: Colors.primaryLight }]}><Text style={{ fontSize: 18 }}>💵</Text></View>
+                    <View style={styles.txMid}>
+                      <Text style={styles.txLabel} numberOfLines={1}>{(item as any).source}</Text>
+                      <Text style={styles.txSub}>Recurring · {selMonthLabel} · tap to manage</Text>
+                    </View>
+                    <Text style={[styles.txAmt, { color: Colors.primary }]}>+${(item as any).amount.toFixed(2)}</Text>
+                  </TouchableOpacity>
+                );
+              }
               const label = isIncome ? (item as any).source : (item as any).store || (item as any).category;
               const sub = isIncome ? 'Income' : (item as any).category;
               return (
