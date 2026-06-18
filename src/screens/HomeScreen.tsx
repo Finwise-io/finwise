@@ -5,7 +5,7 @@ import { useRouter } from 'expo-router';
 import { personaOf, ageFromProfile } from '../utils/persona';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { money, round2 } from '../domain/_shared/num';
 import { currencySymbol, moneyCompact } from '../domain/_shared/money';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual } from '../domain/budget';
@@ -183,7 +183,14 @@ export default function HomeScreen() {
   const investedAccts = (store.assetAccounts ?? []).filter((a: any) => a.change_month === ym && (a.change_amount || 0) > 0);
   const investedTotal = investedAccts.reduce((t: number, a: any) => t + (a.change_amount || 0), 0);
   const pct = planned > 0 ? Math.min(1, spent / planned) : 0;
-  const over = bva.remaining < 0;
+  const over = bva.remaining < 0;                          // over the EXPENSE budget (drives the attention heads-up)
+  // Home cash-flow combines spending + debt PAID into total out; the bar is actual-vs-plan, where the
+  // plan = expense budget + required monthly debt (both sides include debt → consistent). Detail in Money.
+  const cfOut = round2(spent + debtPaid);                  // Income − cfOut = leftOver (exact identity)
+  const hasDebt = debtMonthly > 0 || debtPaid > 0;
+  const planAll = round2(planned + debtMonthly);
+  const pctAll = planAll > 0 ? Math.min(1, cfOut / planAll) : 0;
+  const overAll = cfOut > planAll && planAll > 0;
   const feed = [
     ...expenses.map((e: any) => ({ kind: 'exp' as const, id: e.id, label: e.store || e.category, sub: `${e.category} · ${shortDate(e.date)}`, amount: Number(e.amount) || 0, date: e.date, icon: budgetCategoryIcon(e.category, customCats) })),
     ...(store.incomes ?? []).map((i: any) => ({ kind: 'inc' as const, id: i.id, label: i.source || 'Income', sub: `Income · ${shortDate(i.date)}`, amount: Number(i.amount) || 0, date: i.date, icon: '💰' })),
@@ -309,8 +316,8 @@ export default function HomeScreen() {
         {/* CASH FLOW — this month: in / spent / left + budget bar (detail lives in Money) */}
         <View style={styles.box} onLayout={onSecLayout('cash')}>
           <Text style={styles.boxLabel}>💵 CASH FLOW · {monthShort.toUpperCase()}</Text>
-          {/* Exact identity: Income − Spent [− Debt] = Left over (spent excludes debt payments;
-              leftOver = thisMonthNet − spent − debtPaid). The Debt term shows only when paid. */}
+          {/* Exact identity: Income − (Spent + debt paid) = Left over. Bar fill is ACTUAL out
+              (spent + debtPaid); the plan (budget + required debt) is stated as text. Detail in Money. */}
           <View style={styles.cfRow}>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}>
               <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(thisMonthNet)}</Text>
@@ -318,18 +325,9 @@ export default function HomeScreen() {
             </TouchableOpacity>
             <Text style={styles.cfOp}>−</Text>
             <View style={styles.cfCell}>
-              <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(spent)}</Text>
-              <Text style={styles.cfL}>Spent</Text>
+              <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(cfOut)}</Text>
+              <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Spent + debt' : 'Spent'}</Text>
             </View>
-            {debtPaid > 0 && (
-              <>
-                <Text style={styles.cfOp}>−</Text>
-                <View style={styles.cfCell}>
-                  <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(debtPaid)}</Text>
-                  <Text style={styles.cfL}>Debt</Text>
-                </View>
-              </>
-            )}
             <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
               <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(leftOver)}</Text>
@@ -338,8 +336,8 @@ export default function HomeScreen() {
           </View>
           {planned > 0 ? (
             <>
-              <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pct * 100)}%`, backgroundColor: over ? Colors.red : Colors.primary }]} /></View>
-              <Text style={styles.cfFoot}>{over ? `${money(-bva.remaining)} over your ${money(planned)} monthly budget` : `${money(bva.remaining)} left to spend of your ${money(planned)} monthly budget`}</Text>
+              <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pctAll * 100)}%`, backgroundColor: overAll ? Colors.red : Colors.primary }]} /></View>
+              <Text style={styles.cfFoot}>{overAll ? `${money(cfOut - planAll)} over your ${money(planAll)} monthly plan` : `${money(planAll - cfOut)} left of your ${money(planAll)} monthly plan`}{hasDebt ? ' (spending + debt)' : ''}</Text>
             </>
           ) : (
             <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a monthly budget in Money` : 'Set a monthly budget in Money'}</Text>
@@ -788,8 +786,8 @@ const styles = StyleSheet.create({
 
   // ── Home redesign (glance) ──
   glance: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
-  glanceVerdict: { fontSize: 19, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
-  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingVertical: 6 },
+  glanceVerdict: { fontSize: 19, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  glanceRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 3 },
   glanceDot: { fontSize: 13, width: 20, textAlign: 'center' },
   glanceDotGood: { color: Colors.primary, fontWeight: '800', fontSize: 14 },
   glanceTxt: { flex: 1, fontSize: 13.5, color: Colors.textSecondary, fontWeight: '600' },
