@@ -1,7 +1,8 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -9,6 +10,10 @@ import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+// ISO date helpers (local components, no TZ shift) for the maturity date picker
+const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const parseISO = (s: string) => { const [y, m, dd] = (s || '').split('-').map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(); };
+const humanDate = (s: string) => (s ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '');
 const pct = (v: number | null) => (v == null ? '—' : `${(v * 100).toFixed(2)}%`);
 const ACCT_TYPES: { label: string; bucket: TaxBucket }[] = [
   { label: 'Taxable', bucket: 'TAXABLE' }, { label: 'Trad IRA / 401k', bucket: 'PRE_TAX' }, { label: 'Roth', bucket: 'ROTH' },
@@ -82,6 +87,7 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [face, setFace] = useState('');
   const [coupon, setCoupon] = useState('');
   const [maturity, setMaturity] = useState('');
+  const [showPicker, setShowPicker] = useState(false);
   const [value, setValue] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   React.useEffect(() => {
@@ -110,7 +116,27 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Maturity date</Text>
-          <TextInput style={styles.input} value={maturity} onChangeText={setMaturity} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} />
+          <TouchableOpacity style={styles.input} activeOpacity={0.7} onPress={() => setShowPicker((s) => !s)}>
+            <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
+          </TouchableOpacity>
+          {showPicker && (
+            <DateTimePicker
+              value={maturity ? parseISO(maturity) : new Date(new Date().getFullYear() + 10, 0, 1)}
+              mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'}
+              minimumDate={new Date(2000, 0, 1)}
+              onChange={(e: any, d?: Date) => {
+                if (Platform.OS !== 'ios') setShowPicker(false);
+                if (e?.type === 'dismissed') return;
+                if (d) setMaturity(fmtISO(d));
+              }}
+            />
+          )}
+          {showPicker && Platform.OS === 'ios' && (
+            <TouchableOpacity onPress={() => setShowPicker(false)} style={{ alignSelf: 'flex-end', paddingVertical: 6 }}>
+              <Text style={{ color: Colors.primary, fontWeight: '700', fontSize: 15 }}>Done</Text>
+            </TouchableOpacity>
+          )}
           <Text style={styles.fieldL}>Current value (blank = face value)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="what it's worth now" placeholderTextColor={Colors.textTertiary} />
           {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/yr in coupon income.</Text>}
