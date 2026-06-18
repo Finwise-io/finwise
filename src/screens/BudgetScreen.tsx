@@ -12,7 +12,7 @@ import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
 import { budgetVsActual } from '../domain/budget';
 import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
-import { totalDebtMonthly } from '../domain/debt';
+import { totalDebtMonthly, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
 import { money } from '../domain/_shared/num';
 import { format } from 'date-fns';
 
@@ -31,7 +31,7 @@ export default function BudgetScreen() {
   const router = useRouter();
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
-    onboardingProfile: op, setOnboardingProfile,
+    onboardingProfile: op, setOnboardingProfile, addExpense,
     liabilities, addLiability, updateLiability, deleteLiability,
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
     customCategories, addCustomCategory, deleteCustomCategory,
@@ -83,6 +83,11 @@ export default function BudgetScreen() {
   const [debtBalance, setDebtBalance] = useState('');
   const [debtRate, setDebtRate] = useState('');
   const [debtMinPayment, setDebtMinPayment] = useState('');
+  // payoff plan + log-payment
+  const [payoffMethod, setPayoffMethod] = useState<PayoffMethod>('avalanche');
+  const [extraPay, setExtraPay] = useState('');
+  const [payDebt, setPayDebt] = useState<any | null>(null);
+  const [payAmt, setPayAmt] = useState('');
 
   const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
 
@@ -265,6 +270,29 @@ export default function BudgetScreen() {
     });
     setOnboardingProfile({ ...(op ?? {}), spendCats: next });
     setLimitsVisible(false);
+  }
+
+  // ── Debts: payoff plan (avalanche/snowball) + log-payment (ledger, per DR-14) ──
+  const rawDebts: any[] = liabilities ?? [];
+  const activeDebts = rawDebts.filter((d) => (d.remaining_balance || 0) > 0);
+  const totalMinMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.minimum_monthly_payment || 0), 0));
+  const totalInterestMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12, 0));
+  const plan = payoffPlan(rawDebts, num(extraPay), payoffMethod);
+  const debtFreeLabel = plan.neverPaysOff ? 'never at this rate'
+    : plan.months <= 0 ? 'now'
+    : (() => { const dt = new Date(); dt.setMonth(dt.getMonth() + plan.months); return dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); })();
+  const orderedDebts = activeDebts.slice().sort((a, b) => payoffMethod === 'avalanche'
+    ? (b.interest_rate_apr - a.interest_rate_apr)
+    : (a.remaining_balance - b.remaining_balance));
+  const payoffMonthFor = (id: string) => plan.order.find((o) => o.debt_id === id)?.payoffMonth;
+
+  function openPay(d: any) { setPayDebt(d); setPayAmt(String(Math.round(requiredPayment(d)))); }
+  function logPayment() {
+    const d = payDebt; const amt = num(payAmt);
+    if (!d || amt <= 0) return;
+    addExpense({ amount: amt, category: 'Debt payment', store: d.label, date: new Date().toISOString().slice(0, 10), notes: '' });
+    updateLiability(d.debt_id, { remaining_balance: Math.max(0, (d.remaining_balance || 0) - amt) });
+    setPayDebt(null); setPayAmt('');
   }
 
   return (
@@ -533,79 +561,94 @@ export default function BudgetScreen() {
       {tab === 'Debts' && (
         <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
-          {/* Summary card */}
+          {/* SUMMARY */}
           <Card>
             <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
-              <View>
+              <View style={{ flex: 1 }}>
                 <Text style={styles.budgetCardTitle}>Total debt</Text>
                 <Text style={[styles.budgetCardSub, { marginTop: 2 }]}>
-                  {debtsView.length} account{debtsView.length !== 1 ? 's' : ''}
+                  {activeDebts.length} account{activeDebts.length !== 1 ? 's' : ''} · {money(totalMinMonthly)}/mo min · ~{money(totalInterestMonthly)}/mo interest
                 </Text>
               </View>
               <Text style={{ fontSize: 24, fontWeight: '700', color: totalDebt > 0 ? Colors.red : Colors.primary }}>
-                ${totalDebt.toLocaleString(undefined, { maximumFractionDigits: 0 })}
+                {money(Math.round(totalDebt))}
               </Text>
             </View>
-            {totalDebt > 0 && (
-              <TipCard color="amber">
-                <Text style={{ fontSize: Typography.sizes.sm, color: Colors.amber, lineHeight: 20 }}>
-                  💡 High-interest debt (credit cards) costs you money every month. Focus on paying those off first — avalanche method saves the most interest.
-                </Text>
-              </TipCard>
-            )}
           </Card>
 
-          {/* Debt list */}
-          {debtsView.length === 0 ? (
+          {/* PAYOFF PLAN */}
+          {activeDebts.length > 0 && (
+            <Card>
+              <Text style={styles.budgetCardTitle}>Payoff plan</Text>
+              <View style={{ marginTop: 6 }}>
+                <SegmentedControl
+                  options={['Avalanche', 'Snowball']}
+                  selected={payoffMethod === 'avalanche' ? 'Avalanche' : 'Snowball'}
+                  onSelect={(v) => setPayoffMethod(v === 'Avalanche' ? 'avalanche' : 'snowball')}
+                />
+              </View>
+              <Text style={styles.planNote}>{payoffMethod === 'avalanche' ? 'Highest APR first — saves the most interest.' : 'Smallest balance first — quick wins for momentum.'}</Text>
+              <View style={[styles.limitRow, { marginTop: Spacing.sm }]}>
+                <Text style={styles.limitLabel}>Extra / month</Text>
+                <View style={styles.limitInputWrap}>
+                  <Text style={styles.limitDollar}>$</Text>
+                  <TextInput style={styles.limitInput} value={extraPay} onChangeText={setExtraPay} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} returnKeyType="done" />
+                </View>
+              </View>
+              <View style={styles.payoffSummary}>
+                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, plan.neverPaysOff && { color: Colors.red }]}>{debtFreeLabel}</Text><Text style={styles.payoffStatL}>debt-free</Text></View>
+                <View style={styles.payoffStat}><Text style={styles.payoffStatV}>{money(totalMinMonthly + Math.round(num(extraPay)))}</Text><Text style={styles.payoffStatL}>/mo total</Text></View>
+                <View style={styles.payoffStat}><Text style={[styles.payoffStatV, { color: Colors.red }]}>{plan.neverPaysOff ? '—' : money(Math.round(plan.totalInterest))}</Text><Text style={styles.payoffStatL}>total interest</Text></View>
+              </View>
+              {plan.neverPaysOff && (
+                <Text style={[styles.planNote, { color: Colors.red, marginTop: 8 }]}>⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.</Text>
+              )}
+            </Card>
+          )}
+
+          {/* DEBT LIST — ordered by the chosen strategy */}
+          {activeDebts.length === 0 ? (
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>🦸</Text>
                 <Text style={styles.emptyTitle}>No debts tracked</Text>
-                <Text style={styles.emptySub}>Add any loans, credit cards, or other debts to see your true net worth</Text>
+                <Text style={styles.emptySub}>Add any loans or credit cards to plan your payoff.</Text>
               </View>
             </Card>
           ) : (
-            debtsView
-              .slice()
-              .sort((a: DebtEntry, b: DebtEntry) => b.balance - a.balance)
-              .map((d: DebtEntry) => {
-                const dt = DEBT_TYPES.find(t => t.value === d.type);
-                const monthlyInterest = d.balance * (d.interestRate / 100 / 12);
-                return (
-                  <TouchableOpacity key={d.id} onPress={() => openEditDebt(d)} onLongPress={() => handleDeleteDebt(d.id)} activeOpacity={0.8}>
-                    <Card style={styles.catCard}>
-                      <View style={styles.catRow}>
-                        <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}>
-                          <Text style={{ fontSize: 18 }}>{dt?.icon || '📄'}</Text>
+            orderedDebts.map((d, idx) => {
+              const dk = debtKind(d.debt_type);
+              const monthlyInterest = (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12;
+              const pm = payoffMonthFor(d.debt_id);
+              return (
+                <Card key={d.debt_id} style={styles.catCard}>
+                  <TouchableOpacity onPress={() => openEditDebt(toEntry(d))} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
+                    <View style={styles.catRow}>
+                      <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 18 }}>{dk?.icon || '📄'}</Text></View>
+                      <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                        <View style={styles.catTitleRow}>
+                          <Text style={styles.catLabel} numberOfLines={1}>{d.label}{idx === 0 && <Text style={styles.payFirst}>  • pay first</Text>}</Text>
+                          <Text style={[styles.catAmt, { color: Colors.red }]}>{money(Math.round(d.remaining_balance || 0))}</Text>
                         </View>
-                        <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-                          <View style={styles.catTitleRow}>
-                            <Text style={styles.catLabel}>{d.name}</Text>
-                            <Text style={[styles.catAmt, { color: Colors.red }]}>
-                              ${d.balance.toLocaleString(undefined, { maximumFractionDigits: 0 })}
-                            </Text>
-                          </View>
-                          <Text style={styles.catLimit}>
-                            {dt?.label}{d.interestRate > 0 ? ` · ${d.interestRate}% APR` : ''}{d.minimumPayment > 0 ? ` · $${d.minimumPayment}/mo min` : ''}
-                          </Text>
-                          {d.interestRate > 0 && (
-                            <Text style={[styles.catLimit, { color: Colors.red, marginTop: 2 }]}>
-                              ~${monthlyInterest.toFixed(0)}/mo in interest
-                            </Text>
-                          )}
-                        </View>
+                        <Text style={styles.catLimit}>
+                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% APR · {money(Math.round(requiredPayment(d)))}/mo min · ~{money(Math.round(monthlyInterest))}/mo interest{pm ? ` · clear in ${pm} mo` : ''}
+                        </Text>
                       </View>
-                    </Card>
+                    </View>
                   </TouchableOpacity>
-                );
-              })
+                  <TouchableOpacity style={styles.logPayBtn} onPress={() => openPay(d)} activeOpacity={0.85}>
+                    <Text style={styles.logPayTxt}>Log payment</Text>
+                  </TouchableOpacity>
+                </Card>
+              );
+            })
           )}
 
           <TouchableOpacity style={styles.setLimitsBtn} onPress={openAddDebt} activeOpacity={0.8}>
             <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
           </TouchableOpacity>
           <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }}>
-            Tap to edit • Hold to delete
+            Tap a debt to edit • Hold to delete
           </Text>
         </ScrollView>
       )}
@@ -717,6 +760,30 @@ export default function BudgetScreen() {
       )}
 
       {/* ── Limits modal ─────────────────────────────────────────── */}
+      {/* ── Log-payment modal ─────────────────────────────────────── */}
+      <Modal visible={!!payDebt} animationType="slide" presentationStyle="pageSheet">
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
+          <View style={styles.modalHeader}>
+            <TouchableOpacity onPress={() => setPayDebt(null)}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
+            <Text style={styles.modalTitle}>Log payment</Text>
+            <TouchableOpacity onPress={logPayment}><Text style={styles.modalSave}>Log</Text></TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+            <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {money(Math.round(payDebt?.remaining_balance || 0))} balance</Text>
+            <View style={styles.limitRow}>
+              <Text style={styles.limitLabel}>Amount</Text>
+              <View style={styles.limitInputWrap}>
+                <Text style={styles.limitDollar}>$</Text>
+                <TextInput style={styles.limitInput} value={payAmt} onChangeText={setPayAmt} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+              </View>
+            </View>
+            <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, lineHeight: 18 }}>
+              Records a “Debt payment” in Activity and lowers this balance.{'\n'}New balance: {money(Math.max(0, Math.round((payDebt?.remaining_balance || 0) - num(payAmt))))}.
+            </Text>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </Modal>
+
       <Modal visible={limitsVisible} animationType="slide" presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
@@ -825,6 +892,14 @@ const styles = StyleSheet.create({
   bcatAmt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
   bcatLimit: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, fontWeight: Typography.weights.regular },
   limitBucketHdr: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textSecondary, marginTop: Spacing.sm, marginBottom: 4, letterSpacing: 0.3 },
+  // debts payoff
+  payoffSummary: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.sm },
+  payoffStat: { flex: 1, alignItems: 'center' },
+  payoffStatV: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
+  payoffStatL: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginTop: 1 },
+  payFirst: { fontSize: Typography.sizes.xs, color: Colors.primary, fontWeight: Typography.weights.bold },
+  logPayBtn: { marginTop: Spacing.sm, alignSelf: 'flex-start', backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingHorizontal: 14, paddingVertical: 8 },
+  logPayTxt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.primaryDeep },
   budgetFooterRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
   budgetFooterText: { fontSize: Typography.sizes.xs, color: Colors.textSecondary },
   sectionRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
