@@ -230,7 +230,7 @@ export default function RetirementCockpit() {
 
         {/* HERO — deterministic projection (instant) */}
         <View style={[styles.heroCard, { marginTop: 8 }]}>
-          <Text style={styles.heroLabel}>{scRetired ? 'PROJECTED NEST EGG' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
+          <Text style={styles.heroLabel}>{scRetired ? 'YOUR NEST EGG TODAY' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
           <Text style={styles.heroNum}>{big(scProj.will_have)}</Text>
           <View style={styles.heroMetaRow}>
             <Text style={styles.heroMeta}>you'll need {big(scProj.will_need)}</Text>
@@ -240,6 +240,12 @@ export default function RetirementCockpit() {
           </View>
           {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
         </View>
+        {/* what each number means + how the return moves them (clears the "return only changes need" confusion) */}
+        <Text style={styles.note}>
+          {scRetired
+            ? `Your nest egg is ${big(scProj.will_have)} — that's what you have today, so it doesn't grow with the return. “You'll need ${big(scProj.will_need)}” is the lump sum that funds ${money(spendMo)}/mo to age ${horizon} at ${retPct.toFixed(1)}% return — a higher return makes your savings last longer, so you need less.`
+            : `“${big(scProj.will_have)}” is what your ${big(nestEgg)} grows to by age ${rAge} at ${retPct.toFixed(1)}%/yr — raise the return and it climbs. “You'll need ${big(scProj.will_need)}” funds ${money(spendMo)}/mo to age ${horizon}; the surplus/shortfall is the difference.`}
+        </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
         <View style={styles.card}>
