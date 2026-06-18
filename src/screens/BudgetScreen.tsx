@@ -32,6 +32,8 @@ export default function BudgetScreen() {
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
     addIncome, updateIncome, updateExpense,
+    applyRecurringIncomes, applyRecurringExpenses,
+    recurringIncomes, recurringExpenses, deleteRecurringIncome, deleteRecurringExpense,
     onboardingProfile: op, setOnboardingProfile, addExpense,
     liabilities, addLiability, updateLiability, deleteLiability,
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
@@ -94,6 +96,10 @@ export default function BudgetScreen() {
   const [search, setSearch] = useState('');
   const [txnSheet, setTxnSheet] = useState<{ open: boolean; editing?: any }>({ open: false });
   const [deleted, setDeleted] = useState<{ kind: 'income' | 'expense'; entry: any } | null>(null);
+  const [recurringMgr, setRecurringMgr] = useState(false);
+  // materialize any due recurring income/expenses once when Money opens (idempotent: the engine
+  // advances each rule's nextDate, so re-running generates nothing until the next period is due)
+  React.useEffect(() => { applyRecurringIncomes?.(); applyRecurringExpenses?.(); }, []);
 
   const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
 
@@ -344,6 +350,7 @@ export default function BudgetScreen() {
             <Text style={styles.monthLabel}>{selMonthLabel}</Text>
             <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text></TouchableOpacity>
             <View style={{ flex: 1 }} />
+            {(recurringIncomes.length + recurringExpenses.length) > 0 && <TouchableOpacity onPress={() => setRecurringMgr(true)}><Text style={styles.sectionLink}>↻ Recurring</Text></TouchableOpacity>}
             <TouchableOpacity onPress={() => setTab('Import')}><Text style={styles.sectionLink}>⤓ Import</Text></TouchableOpacity>
           </View>
 
@@ -416,7 +423,8 @@ export default function BudgetScreen() {
                 );
               }
               const label = isIncome ? (item as any).source : (item as any).store || (item as any).category;
-              const sub = isIncome ? 'Income' : (item as any).category;
+              const isRecurringGen = (item as any).type === 'recurring' || String((item as any).notes || '').startsWith('Auto:');
+              const sub = `${isIncome ? 'Income' : (item as any).category}${isRecurringGen ? ' · ↻ monthly' : ''}`;
               return (
                 <TouchableOpacity
                   onPress={() => setTxnSheet({ open: true, editing: item })}
@@ -902,9 +910,50 @@ export default function BudgetScreen() {
       </Modal>
 
       <TxnSheet state={txnSheet} onClose={() => setTxnSheet({ open: false })} />
+
+      {/* ── Recurring manager ─────────────────────────────────────── */}
+      <Modal visible={recurringMgr} animationType="slide" presentationStyle="pageSheet">
+        <View style={styles.modalHeader}>
+          <View style={{ width: 50 }} />
+          <Text style={styles.modalTitle}>Recurring</Text>
+          <TouchableOpacity onPress={() => setRecurringMgr(false)}><Text style={styles.modalSave}>Done</Text></TouchableOpacity>
+        </View>
+        <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+          <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>These auto-add each month. “Stop” keeps past entries but generates no more.</Text>
+          {(recurringExpenses.length + recurringIncomes.length) === 0 ? (
+            <Text style={styles.emptySub}>Nothing recurring yet. Flip “Repeats monthly” when you add a transaction.</Text>
+          ) : (
+            <>
+              {recurringExpenses.map((r: any) => (
+                <View key={r.id} style={styles.limitRow}>
+                  <Text style={styles.bcatIcon}>{budgetCategoryIcon(r.category, customCategories || [])}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.limitLabel}>{r.store || r.category}</Text>
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{money(Math.round(r.amount))} · {r.frequency} · {r.category}</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => deleteRecurringExpense(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
+                </View>
+              ))}
+              {recurringIncomes.map((r: any) => (
+                <View key={r.id} style={styles.limitRow}>
+                  <Text style={styles.bcatIcon}>💵</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.limitLabel}>{r.source}</Text>
+                    <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>{money(Math.round(r.amount))} · {r.frequency} · income</Text>
+                  </View>
+                  <TouchableOpacity onPress={() => deleteRecurringIncome(r.id)}><Text style={{ color: Colors.red, fontWeight: '700', fontSize: Typography.sizes.sm }}>Stop</Text></TouchableOpacity>
+                </View>
+              ))}
+            </>
+          )}
+        </ScrollView>
+      </Modal>
     </View>
   );
 }
+
+// next month's same day as an ISO string (the recurring engine reads new Date(nextDate))
+const nextMonthISO = (ymd: string) => { const [y, m, dd] = ymd.split('-').map(Number); return new Date(y, m, dd).toISOString(); };
 
 // ── Add / edit a transaction (income or expense) ──────────────────────────────
 function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any }; onClose: () => void }) {
@@ -922,6 +971,7 @@ function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any };
   const [payee, setPayee] = useState('');
   const [notes, setNotes] = useState('');
   const [day, setDay] = useState<'today' | 'yesterday'>('today');
+  const [repeats, setRepeats] = useState(false);
 
   React.useEffect(() => {
     if (!state.open) return;
@@ -934,7 +984,7 @@ function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any };
       setPayee(editing.store || '');
       setNotes(editing.notes || '');
     } else {
-      setKind('expense'); setAmount(''); setCategory('Groceries'); setSrc('Paycheck'); setPayee(''); setNotes(''); setDay('today');
+      setKind('expense'); setAmount(''); setCategory('Groceries'); setSrc('Paycheck'); setPayee(''); setNotes(''); setDay('today'); setRepeats(false);
     }
   }, [state.open]);
 
@@ -946,9 +996,11 @@ function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any };
     if (kind === 'income') {
       const payload = { type: editing?.type ?? 'other', amount: amt, source: src.trim() || 'Income', date, notes: notes.trim() };
       if (editing) store.updateIncome(editing.id, payload); else store.addIncome(payload);
+      if (!editing && repeats) store.addRecurringIncome({ source: src.trim() || 'Income', amount: amt, frequency: 'monthly', nextDate: nextMonthISO(date), active: true });
     } else {
       const payload = { amount: amt, category, store: payee.trim(), date, notes: notes.trim() };
       if (editing) store.updateExpense(editing.id, payload); else store.addExpense(payload);
+      if (!editing && repeats) store.addRecurringExpense({ category, store: payee.trim(), amount: amt, frequency: 'monthly', nextDate: nextMonthISO(date), active: true, notes: notes.trim() });
     }
     onClose();
   };
@@ -1007,6 +1059,12 @@ function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any };
                   <Text style={[styles.filterText, day === dd && styles.filterTextOn, { textTransform: 'capitalize' }]}>{dd}</Text>
                 </TouchableOpacity>
               ))}
+            </View>
+          )}
+          {!editing && (
+            <View style={[styles.limitRow, { justifyContent: 'space-between' }]}>
+              <View><Text style={styles.limitLabel}>Repeats monthly</Text><Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary }}>auto-adds it each month</Text></View>
+              <Switch value={repeats} onValueChange={setRepeats} trackColor={{ true: Colors.primary, false: Colors.border }} />
             </View>
           )}
           <View style={styles.limitRow}>
