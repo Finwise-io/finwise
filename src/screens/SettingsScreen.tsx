@@ -1,10 +1,11 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Switch } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified } from '../services/firebase';
+import { isLockAvailable, authenticate } from '../services/appLock';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
 
@@ -27,7 +28,27 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled } = useStore() as any;
+
+  // F-2: app lock — confirm the device can authenticate before enabling, so the user can't lock
+  // themselves out, and require a successful auth to turn it on.
+  const [lockAvailable, setLockAvailable] = useState(false);
+  useEffect(() => { isLockAvailable().then(setLockAvailable); }, []);
+  async function handleToggleAppLock(next: boolean) {
+    if (next) {
+      if (!(await isLockAvailable())) {
+        Alert.alert('Set up a passcode first', 'Add Face ID, Touch ID, or a device passcode in your phone settings, then enable app lock.');
+        return;
+      }
+      const ok = await authenticate('Confirm to enable app lock');
+      if (!ok) return;                 // failed/cancelled → leave it off
+      setAppLockEnabled(true);
+    } else {
+      const ok = await authenticate('Confirm to disable app lock');
+      if (!ok) return;                 // require auth to turn the lock OFF too
+      setAppLockEnabled(false);
+    }
+  }
 
   const [feedbackVisible, setFeedbackVisible] = useState(false);
   const [fbType,    setFbType]    = useState('feature');
@@ -195,6 +216,29 @@ export default function SettingsScreen() {
           ))}
         </View>
         <Text style={styles.modeNote}>Make text bigger across the whole app for easier reading.</Text>
+      </Card>
+
+      {/* App lock (F-2) */}
+      <Card>
+        <Text style={styles.sectionTitle}>Security</Text>
+        <View style={styles.lockRow}>
+          <View style={{ flex: 1, marginRight: Spacing.sm }}>
+            <Text style={styles.actionLabel}>App lock</Text>
+            <Text style={styles.actionSub}>
+              {lockAvailable
+                ? 'Require Face ID, Touch ID, or your passcode to open FinWise.'
+                : 'Add a passcode or biometrics in your phone settings to use this.'}
+            </Text>
+          </View>
+          <Switch
+            value={!!appLockEnabled}
+            onValueChange={handleToggleAppLock}
+            disabled={!lockAvailable && !appLockEnabled}
+            trackColor={{ true: Colors.primary }}
+            accessibilityLabel="App lock"
+            accessibilityHint="Requires Face ID, Touch ID, or your passcode to open the app"
+          />
+        </View>
       </Card>
 
       {/* Actions */}
@@ -406,6 +450,7 @@ const styles = StyleSheet.create({
   linkBtn: { marginTop: Spacing.sm },
   linkText: { fontSize: Typography.sizes.base, color: Colors.primary, fontWeight: '500' },
   actionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.md, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
+  lockRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm },
   actionLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   actionSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 1 },
   arrow: { fontSize: 20, color: Colors.textTertiary },

@@ -187,6 +187,7 @@ type AppState = {
   user: UserProfile | null;
   onboardingComplete: boolean;
   onboardingPaused: boolean;   // user tapped "Save & come back later" → allow them into the app
+  appLockEnabled: boolean;     // F-2: require Face ID / Touch ID / passcode to open the app (device-local)
   // Shared-household sync: when set, ALL cloud reads/writes target users/{householdId} instead of
   // users/{uid} — both partners see and edit the same data. Device-local identity, never synced.
   householdId: string | null;
@@ -265,6 +266,7 @@ type AppState = {
   setUser: (user: UserProfile | null) => void;
   setOnboardingComplete: (v: boolean) => void;
   setOnboardingPaused: (v: boolean) => void;
+  setAppLockEnabled: (v: boolean) => void;
   setHouseholdId: (v: string | null) => void;
   restartOnboarding: () => void;   // clean overwrite: clear setup answers + onboarding-seeded data
 
@@ -378,6 +380,7 @@ export const useStore = create<AppState>()(
       user: null,
       onboardingComplete: false,
       onboardingPaused: false,
+      appLockEnabled: false,
       householdId: null,
 
       // Onboarding settings
@@ -444,6 +447,7 @@ export const useStore = create<AppState>()(
 
       // ── Auth actions ─────────────────────────────────────────────
       setUser: (user) => set({ user }),
+      setAppLockEnabled: (v) => set({ appLockEnabled: v }),
       setOnboardingComplete: (v) => set({ onboardingComplete: v }),
       setOnboardingPaused: (v) => set({ onboardingPaused: v }),
       setHouseholdId: (v) => set({ householdId: v }),

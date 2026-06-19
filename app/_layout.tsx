@@ -10,6 +10,7 @@ import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
 import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
+import { AppLockGate } from '../src/components/AppLockGate';
 import { initCrashReporting, setUserScope } from '../src/services/crashReporter';
 
 patchTextScaling();      // install the global font-scale hook once
@@ -142,6 +143,7 @@ export default function RootLayout() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
         <ErrorBoundary>
+        <AppLockGate>
         <StatusBar style="dark" />
         <Stack
           key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size / display mode changes so it applies everywhere live */
@@ -165,6 +167,7 @@ export default function RootLayout() {
           <Stack.Screen name="jobsafety"  options={{ title: 'Job safety check 🛡', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
         </Stack>
+        </AppLockGate>
         </ErrorBoundary>
       </SafeAreaProvider>
     </GestureHandlerRootView>
