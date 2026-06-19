@@ -22,6 +22,54 @@ module.exports = {
       NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
       ITSAppUsesNonExemptEncryption: false,
     },
+    // Apple Privacy Manifest (generates ios/.../PrivacyInfo.xcprivacy at prebuild). Required since 2024.
+    // App-level declarations only — bundled SDKs (Firebase, Sentry, AsyncStorage) ship their own.
+    // Keep NSPrivacyCollectedDataTypes in sync with the App Privacy "nutrition label" in App Store Connect.
+    privacyManifests: {
+      NSPrivacyTracking: false,                 // no cross-app tracking / IDFA
+      NSPrivacyTrackingDomains: [],
+      NSPrivacyAccessedAPITypes: [
+        {
+          // AsyncStorage persists via UserDefaults; CA92.1 = access data stored only by this app.
+          NSPrivacyAccessedAPIType: 'NSPrivacyAccessedAPICategoryUserDefaults',
+          NSPrivacyAccessedAPITypeReasons: ['CA92.1'],
+        },
+      ],
+      NSPrivacyCollectedDataTypes: [
+        {
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeEmailAddress',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+        {
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeName',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+        {
+          // Budgets, net worth, accounts, retirement inputs — the user's own financial data.
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeOtherFinancialInfo',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+        {
+          // Sentry crash + performance data (only when SENTRY_DSN is configured).
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypeCrashData',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+        {
+          NSPrivacyCollectedDataType: 'NSPrivacyCollectedDataTypePerformanceData',
+          NSPrivacyCollectedDataTypeLinked: true,
+          NSPrivacyCollectedDataTypeTracking: false,
+          NSPrivacyCollectedDataTypePurposes: ['NSPrivacyCollectedDataTypePurposeAppFunctionality'],
+        },
+      ],
+    },
   },
   android: {
     package: 'co.finwise.app',   // match the iOS bundle (co.finwise.app is locked to App Store Connect)
