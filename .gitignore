@@ -1,6 +1,9 @@
 # Env / secrets
 .env
 .env.local
+
+# Microsoft Office lock/temp files (created while a doc is open)
+~$*
 .env.*.local
 
 # Expo
