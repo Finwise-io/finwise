@@ -35,10 +35,10 @@ export default function TabLayout() {
     >
       {/* Option A bottom bar: 4 flat destinations (label = the screen you land on). Everything else —
           Invest, Plan/Goals, and the long tail — lives in the grouped ☰ Menu (top-left, on every page). */}
-      <Tabs.Screen name="home"       options={{ title: 'Home',      tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
-      <Tabs.Screen name="budget"     options={{ title: 'Money',     tabBarIcon: ({ focused }) => <TabIcon name="wallet" focused={focused} /> }} />
-      <Tabs.Screen name="analytics"  options={{ title: 'Net Worth', tabBarIcon: ({ focused }) => <TabIcon name="diamond" focused={focused} /> }} />
-      <Tabs.Screen name="retirement" options={{ title: 'Retire',    tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
+      <Tabs.Screen name="home"       options={{ title: 'Home',      tabBarAccessibilityLabel: 'Home tab',      tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
+      <Tabs.Screen name="budget"     options={{ title: 'Money',     tabBarAccessibilityLabel: 'Money tab',     tabBarIcon: ({ focused }) => <TabIcon name="wallet" focused={focused} /> }} />
+      <Tabs.Screen name="analytics"  options={{ title: 'Net Worth', tabBarAccessibilityLabel: 'Net Worth tab', tabBarIcon: ({ focused }) => <TabIcon name="diamond" focused={focused} /> }} />
+      <Tabs.Screen name="retirement" options={{ title: 'Retire',    tabBarAccessibilityLabel: 'Retire tab',    tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
       {/* routable from the Menu grid, hidden from the bar */}
       <Tabs.Screen name="invest"     options={{ href: null }} />
       <Tabs.Screen name="goals"      options={{ href: null }} />

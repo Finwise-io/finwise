@@ -23,9 +23,11 @@ type BtnProps = {
   disabled?: boolean;
   style?: ViewStyle;
   size?: 'sm' | 'md' | 'lg';
+  accessibilityLabel?: string;   // override when `label` isn't descriptive on its own (e.g. "Next")
+  accessibilityHint?: string;    // F-4: what happens on activation, for screen readers
 };
 
-export function Button({ label, onPress, variant = 'primary', loading, disabled, style, size = 'lg' }: BtnProps) {
+export function Button({ label, onPress, variant = 'primary', loading, disabled, style, size = 'lg', accessibilityLabel, accessibilityHint }: BtnProps) {
   const variantStyle = {
     primary: styles.btnPrimary,
     secondary: styles.btnSecondary,
@@ -52,6 +54,10 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
       disabled={disabled || loading}
       style={[styles.btn, variantStyle, sizeStyle, disabled && { opacity: 0.5 }, style]}
       activeOpacity={0.8}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityHint={accessibilityHint}
+      accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
     >
       {loading ? (
         <ActivityIndicator color={variant === 'primary' ? '#fff' : Colors.primary} />
@@ -106,6 +112,9 @@ export function SegmentedControl({
           style={[styles.segBtn, selected === opt && styles.segBtnOn]}
           onPress={() => onSelect(opt)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel={opt}
+          accessibilityState={{ selected: selected === opt }}
         >
           <Text style={[styles.segText, selected === opt && styles.segTextOn]}>{opt}</Text>
         </TouchableOpacity>
@@ -120,7 +129,7 @@ export function SectionHeader({ title, action, onAction }: { title: string; acti
     <View style={styles.sectionHeader}>
       <Text style={styles.sectionTitle}>{title}</Text>
       {action && (
-        <TouchableOpacity onPress={onAction}>
+        <TouchableOpacity onPress={onAction} accessibilityRole="button" accessibilityLabel={action}>
           <Text style={styles.sectionAction}>{action}</Text>
         </TouchableOpacity>
       )}
@@ -186,6 +195,7 @@ const styles = StyleSheet.create({
   },
   btn: {
     borderRadius: Radii.lg,
+    minHeight: 44,            // F-4 (G-14): minimum 44pt touch target
     alignItems: 'center',
     justifyContent: 'center',
     width: '100%',

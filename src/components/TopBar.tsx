@@ -77,11 +77,24 @@ export default function TopBar() {
 
   return (
     <View style={[s.bar, { paddingTop: insets.top + 6 }]}>
-      <TouchableOpacity onPress={() => setMenu(true)} hitSlop={hit} style={s.menuBtn}>
+      <TouchableOpacity
+        onPress={() => setMenu(true)}
+        hitSlop={hit}
+        style={s.menuBtn}
+        accessibilityRole="button"
+        accessibilityLabel="Menu"
+        accessibilityHint="Opens all modules"
+      >
         <Ionicons name="grid" size={16} color={Colors.textSecondary} />
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
-      <TouchableOpacity style={s.nwChip} onPress={() => router.push('/(tabs)/analytics')}>
+      <TouchableOpacity
+        style={s.nwChip}
+        onPress={() => router.push('/(tabs)/analytics')}
+        accessibilityRole="button"
+        accessibilityLabel={`Net worth ${money(nw)}`}
+        accessibilityHint="Opens the Net Worth screen"
+      >
         <Text style={s.nwLabel}>NW</Text>
         <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
         <Text style={s.nwTxt}>{money(nw)}</Text>
@@ -89,7 +102,7 @@ export default function TopBar() {
       </TouchableOpacity>
 
       <Modal visible={menu} transparent animationType="slide" onRequestClose={() => setMenu(false)}>
-        <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setMenu(false)}>
+        <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setMenu(false)} accessibilityRole="button" accessibilityLabel="Close menu">
           <View style={s.sheet} onStartShouldSetResponder={() => true}>
             <View style={s.grip} />
             <Text style={s.sTitle}>All modules</Text>
@@ -99,7 +112,7 @@ export default function TopBar() {
                   <Text style={s.groupHdr}>{g.section}</Text>
                   <View style={s.grid}>
                     {g.items.map((m) => (
-                      <TouchableOpacity key={m.t} style={s.gi} onPress={() => go(m)}>
+                      <TouchableOpacity key={m.t} style={s.gi} onPress={() => go(m)} accessibilityRole="button" accessibilityLabel={m.t}>
                         <Text style={s.giE}>{m.e}</Text>
                         <Text style={s.giT} numberOfLines={2}>{m.t}</Text>
                       </TouchableOpacity>
@@ -111,7 +124,7 @@ export default function TopBar() {
             {/* footer pinned BELOW the scroll area so Rewards/Tips/Settings are always visible */}
             <View style={s.footerRow}>
               {FOOTER.map((m) => (
-                <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)}>
+                <TouchableOpacity key={m.t} style={s.footerItem} onPress={() => go(m)} accessibilityRole="button" accessibilityLabel={m.t}>
                   <Text style={s.footerE}>{m.e}</Text>
                   <Text style={s.footerT}>{m.t}</Text>
                 </TouchableOpacity>

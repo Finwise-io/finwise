@@ -291,7 +291,10 @@ export default function HomeScreen() {
 
         {/* sharpen-your-plan nudge (only when incomplete) */}
         {sharpen.pct < 100 && (
-          <TouchableOpacity style={styles.sharpenCard} activeOpacity={0.85} onPress={() => router.push('/sharpen')}>
+          <TouchableOpacity style={styles.sharpenCard} activeOpacity={0.85} onPress={() => router.push('/sharpen')}
+            accessibilityRole="button"
+            accessibilityLabel={`Sharpen your plan, ${sharpen.pct} percent complete`}
+            accessibilityHint="Opens the steps left to finish your plan">
             <View style={{ flex: 1 }}>
               <Text style={styles.sharpenTitle}>Sharpen your plan · {sharpen.pct}%</Text>
               <Text style={styles.sharpenSub}>{sharpen.total - sharpen.doneCount} step{sharpen.total - sharpen.doneCount > 1 ? 's' : ''} left to complete your plan</Text>
@@ -305,7 +308,10 @@ export default function HomeScreen() {
         <View style={[styles.glance, { backgroundColor: heroBg }]}>
           <Text style={styles.glanceVerdict}>{verdict}</Text>
           {bullets.map((b, i) => (
-            <TouchableOpacity key={i} style={styles.glanceRow} activeOpacity={0.7} onPress={() => jumpTo(b.k)}>
+            <TouchableOpacity key={i} style={styles.glanceRow} activeOpacity={0.7} onPress={() => jumpTo(b.k)}
+              accessibilityRole="button"
+              accessibilityLabel={`${b.warn ? 'Needs attention' : 'On track'}: ${b.txt}`}
+              accessibilityHint="Opens the related section">
               <Text style={[styles.glanceDot, !b.warn && styles.glanceDotGood]}>{b.warn ? '⚠️' : '✓'}</Text>
               <Text style={styles.glanceTxt} numberOfLines={1}>{b.txt}</Text>
               <Text style={styles.glanceArrow}>›</Text>
@@ -319,7 +325,10 @@ export default function HomeScreen() {
           {/* Exact identity: Income − (Spent + debt paid) = Left over. Bar fill is ACTUAL out
               (spent + debtPaid); the plan (budget + required debt) is stated as text. Detail in Money. */}
           <View style={styles.cfRow}>
-            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}>
+            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setIncomeSheet(true)}
+              accessibilityRole="button"
+              accessibilityLabel={`Income this month ${money(thisMonthNet)}`}
+              accessibilityHint="Add income">
               <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(thisMonthNet)}</Text>
               <View style={styles.cfLabelRow}><Text style={styles.cfL}>Income</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
@@ -329,7 +338,10 @@ export default function HomeScreen() {
               <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Spent + debt' : 'Spent'}</Text>
             </View>
             <Text style={styles.cfOp}>=</Text>
-            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}>
+            <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}
+              accessibilityRole="button"
+              accessibilityLabel={`Left over ${money(leftOver)}`}
+              accessibilityHint="Allocate what's left this month">
               <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(leftOver)}</Text>
               <View style={styles.cfLabelRow}><Text style={styles.cfL}>Left over</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
@@ -413,7 +425,8 @@ export default function HomeScreen() {
       </ScrollView>
 
       <View style={styles.fabBar}>
-        <TouchableOpacity style={styles.addBtn} activeOpacity={0.9} onPress={() => setSheet(true)}>
+        <TouchableOpacity style={styles.addBtn} activeOpacity={0.9} onPress={() => setSheet(true)}
+          accessibilityRole="button" accessibilityLabel="Add expense" accessibilityHint="Opens the quick add-expense form">
           <Text style={styles.addBtnTxt}>＋  Add expense</Text>
         </TouchableOpacity>
       </View>

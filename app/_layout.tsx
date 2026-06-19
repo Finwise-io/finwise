@@ -37,7 +37,13 @@ function pickSyncFields(state: Record<string, any>) {
 
 function BackButton({ onPress }: { onPress: () => void }) {
   return (
-    <TouchableOpacity onPress={onPress} style={{ paddingHorizontal: 16, paddingVertical: 8 }}>
+    <TouchableOpacity
+      onPress={onPress}
+      style={{ paddingHorizontal: 16, paddingVertical: 8, minHeight: 44, justifyContent: 'center' }}
+      accessibilityRole="button"
+      accessibilityLabel="Back"
+      accessibilityHint="Returns to the previous screen"
+    >
       <Text style={{ fontSize: 16, color: Colors.primary, fontWeight: '600' }}>← Back</Text>
     </TouchableOpacity>
   );
