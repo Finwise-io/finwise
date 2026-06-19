@@ -403,7 +403,7 @@ export default function BudgetScreen() {
             contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 96 }}
             ListHeaderComponent={filtered.length > 0 ? (
               <Text style={{ fontSize: 11, color: '#9E9E99', textAlign: 'center', paddingBottom: 8 }}>
-                Tap to edit • Swipe left to delete
+                Tap to edit or delete • or swipe left
               </Text>
             ) : null}
             ListEmptyComponent={
@@ -938,7 +938,8 @@ export default function BudgetScreen() {
         </KeyboardAvoidingView>
       </Modal>
 
-      <TxnSheet state={txnSheet} onClose={() => setTxnSheet({ open: false })} />
+      <TxnSheet state={txnSheet} onClose={() => setTxnSheet({ open: false })}
+        onDelete={(entry) => { setTxnSheet({ open: false }); deleteEntry(entry.kind, entry); }} />
 
       {/* ── Recurring manager ─────────────────────────────────────── */}
       <Modal visible={recurringMgr} animationType="slide" presentationStyle="pageSheet">
@@ -985,7 +986,7 @@ export default function BudgetScreen() {
 const nextMonthISO = (ymd: string) => { const [y, m, dd] = ymd.split('-').map(Number); return new Date(y, m, dd).toISOString(); };
 
 // ── Add / edit a transaction (income or expense) ──────────────────────────────
-function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any }; onClose: () => void }) {
+function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editing?: any }; onClose: () => void; onDelete: (entry: any) => void }) {
   const store = useStore() as any;
   const editing = state.editing;
   // canonical bucketed categories (+ custom) so a logged expense maps cleanly to a budget bucket
@@ -1102,6 +1103,11 @@ function TxnSheet({ state, onClose }: { state: { open: boolean; editing?: any };
               <TextInput style={[styles.limitInput, { flex: 1 }]} value={notes} onChangeText={setNotes} placeholder="optional" placeholderTextColor={Colors.textTertiary} />
             </View>
           </View>
+          {editing && (
+            <TouchableOpacity style={{ alignItems: 'center', paddingVertical: 14, marginTop: 4 }} onPress={() => onDelete(editing)}>
+              <Text style={{ color: Colors.red, fontWeight: Typography.weights.bold, fontSize: Typography.sizes.base }}>Delete this {editing.kind === 'income' ? 'income' : 'expense'}</Text>
+            </TouchableOpacity>
+          )}
         </ScrollView>
       </KeyboardAvoidingView>
     </Modal>
