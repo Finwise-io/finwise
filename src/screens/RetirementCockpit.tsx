@@ -213,6 +213,18 @@ export default function RetirementCockpit() {
     paths: 400, seed: 42, ...over,
   });
   const scProj = projectNestEgg(scInputs());
+  // two-up hero: today's nest egg → projected balance at the horizon (reacts to every slider).
+  // Retiree: roll the drawdown forward 10 yrs (grow at return, subtract inflation-rising net spend).
+  // Accumulator: the projected nest egg AT retirement (projectNestEgg already grows it with return).
+  const scHorizonYears = Math.min(10, Math.max(1, horizon - age));
+  const scProjected = scRetired ? (() => {
+    let bal = nestEgg; let net = Math.max(0, (spendMo - ssIncome) * 12); const r = retPct / 100, f = inflPct / 100;
+    for (let y = 0; y < scHorizonYears; y++) { bal = bal * (1 + r) - net; if (bal <= 0) { bal = 0; break; } net = net * (1 + f); }
+    return Math.round(bal);
+  })() : Math.round(scProj.will_have);
+  const scProjLabel = scRetired ? `In ${scHorizonYears} years` : `At retirement (${rAge})`;
+  const scDelta = scProjected - nestEgg;
+  const scDeplete = scRetired ? depletionAge({ age, horizon, nestEgg, netWithdrawalNow: Math.max(0, (spendMo - ssIncome) * 12), returnRate: retPct / 100, inflation: inflPct / 100 }) : null;
   const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
   const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
   const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
@@ -230,23 +242,32 @@ export default function RetirementCockpit() {
         <Text style={styles.section}>{scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'}</Text>
         <Text style={styles.note}>This is a what-if sandbox. It won't change your plan until you tap “Use as my plan”.</Text>
 
-        {/* HERO — deterministic projection (instant) */}
+        {/* HERO — two-up: today → projected at the horizon (reacts to the sliders) */}
         <View style={[styles.heroCard, { marginTop: 8 }]}>
-          <Text style={styles.heroLabel}>{scRetired ? 'YOUR NEST EGG TODAY' : `PROJECTED NEST EGG AT ${rAge}`}</Text>
-          <Text style={styles.heroNum}>{big(scProj.will_have)}</Text>
-          <View style={styles.heroMetaRow}>
-            <Text style={styles.heroMeta}>you'll need {big(scProj.will_need)}</Text>
-            {scProj.shortfall > 0
-              ? <Text style={[styles.heroMeta, { color: Colors.red, fontWeight: '800' }]}>short {big(scProj.shortfall)}</Text>
-              : <Text style={[styles.heroMeta, { color: Colors.primary, fontWeight: '800' }]}>surplus {big(scProj.will_have - scProj.will_need)}</Text>}
+          <View style={styles.heroTwoUp}>
+            <View style={styles.heroCol}>
+              <Text style={styles.heroColLabel}>Nest egg today</Text>
+              <Text style={styles.heroColNum}>{big(nestEgg)}</Text>
+            </View>
+            <Text style={styles.heroArrow}>→</Text>
+            <View style={styles.heroCol}>
+              <Text style={styles.heroColLabel}>{scProjLabel}</Text>
+              <Text style={[styles.heroColNum, { color: scDelta >= 0 ? Colors.primary : Colors.red }]}>{big(scProjected)}</Text>
+              <Text style={[styles.heroDelta, { color: scDelta >= 0 ? Colors.primary : Colors.red }]}>{scDelta >= 0 ? '▲ +' : '▼ −'}{big(Math.abs(scDelta))}{scRetired ? ` / ${scHorizonYears}y` : ''}</Text>
+            </View>
           </View>
           {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
         </View>
-        {/* what each number means + how the return moves them (clears the "return only changes need" confusion) */}
+        {scRetired && (
+          <Text style={[styles.note, { fontWeight: '700', color: scDeplete == null ? Colors.primaryDark : Colors.red }]}>
+            {scDeplete == null ? `✅ At ${retPct.toFixed(1)}% return, your money lasts past age ${horizon}.` : `⚠️ At ${retPct.toFixed(1)}% return spending ${money(spendMo)}/mo, your money runs low around age ${scDeplete}.`}
+          </Text>
+        )}
+        {/* the abstract lump-sum framing, demoted from the headline */}
         <Text style={styles.note}>
           {scRetired
-            ? `Your nest egg is ${big(scProj.will_have)} — that's what you have today, so it doesn't grow with the return. “You'll need ${big(scProj.will_need)}” is the lump sum that funds ${money(spendMo)}/mo to age ${horizon} at ${retPct.toFixed(1)}% return — a higher return makes your savings last longer, so you need less.`
-            : `“${big(scProj.will_have)}” is what your ${big(nestEgg)} grows to by age ${rAge} at ${retPct.toFixed(1)}%/yr — raise the return and it climbs. “You'll need ${big(scProj.will_need)}” funds ${money(spendMo)}/mo to age ${horizon}; the surplus/shortfall is the difference.`}
+            ? `“${scProjLabel}” rolls your ${big(nestEgg)} forward at ${retPct.toFixed(1)}%/yr minus ${money(spendMo)}/mo (rising with inflation) — raise the return or trim spending and it climbs. To fully fund your plan to age ${horizon} you'd need about ${big(scProj.will_need)} today${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`
+            : `Your ${big(nestEgg)} grows to ${big(scProjected)} by age ${rAge} at ${retPct.toFixed(1)}%/yr. To fund ${money(spendMo)}/mo to age ${horizon} you'd need about ${big(scProj.will_need)}${scProj.shortfall > 0 ? ` (≈${big(scProj.shortfall)} short).` : ' — covered.'}`}
         </Text>
 
         {/* SLIDERS — with benchmark + current-plan reference markers */}
@@ -1084,6 +1105,12 @@ const styles = StyleSheet.create({
   heroMetaRow: { flexDirection: 'row', gap: 14, marginTop: 4 },
   heroMeta: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
   heroSs: { fontSize: 11, color: Colors.textTertiary, marginTop: 6 },
+  heroTwoUp: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', alignSelf: 'stretch', marginTop: 2 },
+  heroCol: { flex: 1, alignItems: 'center' },
+  heroColLabel: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.3, textAlign: 'center' },
+  heroColNum: { fontSize: 25, fontWeight: '800', color: Colors.textPrimary, marginTop: 3 },
+  heroArrow: { fontSize: 20, color: Colors.textTertiary, fontWeight: '400', paddingHorizontal: 6 },
+  heroDelta: { fontSize: 12, fontWeight: '800', marginTop: 2 },
 
   sl: { marginVertical: 9 },
   slTop: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'baseline' },
