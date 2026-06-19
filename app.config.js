@@ -37,6 +37,7 @@ module.exports = {
     'expo-camera',
     'expo-system-ui',
     'expo-sharing',
+    '@sentry/react-native',   // F-6: native crash capture + source maps
     [
       'expo-notifications',
       {
