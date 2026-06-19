@@ -71,16 +71,10 @@ export default function TipsScreen() {
       earnBadge('expense_analyzer');
     } catch (err: any) {
       const msg = err?.message || '';
-      if (msg.includes('401') || msg.includes('API key') || msg.includes('invalid')) {
-        Alert.alert(
-          'API key needed',
-          'To use AI tips, add your Anthropic API key to the .env file:\n\nANTHROPIC_API_KEY=sk-ant-...',
-          [{ text: 'OK' }]
-        );
-      } else if (msg.includes('network') || msg.includes('fetch') || msg.includes('connect')) {
+      if (msg.includes('network') || msg.includes('fetch') || msg.includes('connect')) {
         Alert.alert('No internet', 'Please check your connection and try again.');
       } else {
-        // Show fallback local tips instead of error
+        // AI proxy not configured / unavailable (or any other error) → show on-device tips instead.
         setSummary('Here are some general tips based on your spending patterns.');
         setTips(generateLocalTips(expenses));
         setTotalSavingsMin(50);

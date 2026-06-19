@@ -54,7 +54,11 @@ module.exports = {
     FIREBASE_STORAGE_BUCKET:      process.env.FIREBASE_STORAGE_BUCKET      || '',
     FIREBASE_MESSAGING_SENDER_ID: process.env.FIREBASE_MESSAGING_SENDER_ID || '',
     FIREBASE_APP_ID:              process.env.FIREBASE_APP_ID              || '',
-    ANTHROPIC_API_KEY:            process.env.ANTHROPIC_API_KEY            || '',
-    GOOGLE_VISION_API_KEY:        process.env.GOOGLE_VISION_API_KEY        || '',
+    // F-1 (QA-2026-06-18): privileged provider keys (Anthropic / Google Vision) must NEVER be
+    // bundled into the client — anything in `extra` ships in the app binary and is extractable.
+    // The app now calls a server-side proxy that holds the key; only its (non-secret) URL is bundled.
+    AI_PROXY_URL:                 process.env.AI_PROXY_URL                 || '',
+    // F-6: Sentry DSN is a PUBLIC ingest key (not a secret) — safe to bundle.
+    SENTRY_DSN:                   process.env.SENTRY_DSN                   || '',
   },
 };

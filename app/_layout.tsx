@@ -10,8 +10,10 @@ import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
 import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
+import { initCrashReporting, setUserScope } from '../src/services/crashReporter';
 
-patchTextScaling();   // install the global font-scale hook once
+patchTextScaling();      // install the global font-scale hook once
+initCrashReporting();    // F-6: install global error handler + Sentry (when configured) once
 
 // Fields synced to Firestore (excludes auth user + ephemeral economic data)
 const SYNC_FIELDS = [
@@ -63,6 +65,7 @@ export default function RootLayout() {
           createdAt: firebaseUser.metadata?.creationTime || '',
         });
         currentUid.current = firebaseUser.uid;
+        setUserScope(firebaseUser.uid);   // F-6: tag crash reports with the uid (no other PII)
 
         // Hydrate local store from Firestore (best-effort — fail gracefully offline).
         // Household members read the SHARED doc (users/{householdId}); membership is
@@ -79,6 +82,7 @@ export default function RootLayout() {
       } else {
         setUser(null);
         currentUid.current = null;
+        setUserScope(null);   // F-6: clear the crash-report user scope on logout
       }
       setIsReady(true);
     });

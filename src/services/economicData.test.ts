@@ -80,30 +80,51 @@ describe('fetchEconomicData', () => {
   });
 });
 
-describe('analyzeExpenses', () => {
+// F-1: analyzeExpenses now calls a server-side proxy (AI_PROXY_URL) that holds the provider key —
+// no Anthropic key is ever read on the client. These tests assert the proxy contract.
+describe('analyzeExpenses (server-side proxy)', () => {
   const expenses = [{ category: 'Dining', store: 'Chipotle', amount: 42 }];
+  afterEach(() => { (Constants as any).expoConfig.extra.AI_PROXY_URL = ''; });
 
-  test('throws a clear error when no API key is configured', async () => {
-    await expect(analyzeExpenses(expenses, 5000, 3)).rejects.toThrow(/API key not configured/);
+  test('throws a clear error when no proxy URL is configured (and never calls out)', async () => {
+    await expect(analyzeExpenses(expenses, 5000, 3)).rejects.toThrow(/AI tips need a server/);
     expect(fetchMock).not.toHaveBeenCalled();
   });
 
-  test('parses a fenced-JSON model response', async () => {
-    (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY = 'test-key';
+  test('never reads a privileged provider key from the bundle', async () => {
+    (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY = 'leaked-key-should-be-ignored';
+    (Constants as any).expoConfig.extra.AI_PROXY_URL = 'https://proxy.test/ai';
+    const payload = { summary: 'ok', tips: [{ title: 'T', detail: 'D', savingsMin: 5, savingsMax: 10 }], totalSavingsMin: 5, totalSavingsMax: 10 };
+    fetchMock.mockResolvedValue(okResponse(payload));
+    await analyzeExpenses(expenses, 5000, 3);
+    // It hit the proxy URL, not the provider, and sent no api-key header / leaked key.
+    expect(fetchMock).toHaveBeenCalledWith('https://proxy.test/ai', expect.objectContaining({ method: 'POST' }));
+    const [, opts] = fetchMock.mock.calls[0];
+    expect(JSON.stringify(opts.headers)).not.toMatch(/x-api-key|leaked-key/i);
+    expect(opts.body).not.toMatch(/leaked-key/);
+    delete (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY;
+  });
+
+  test('returns the proxy-parsed analysis directly', async () => {
+    (Constants as any).expoConfig.extra.AI_PROXY_URL = 'https://proxy.test/ai';
     const payload = { summary: 'Looks fine.', tips: [{ title: 'T', detail: 'D', savingsMin: 5, savingsMax: 10 }], totalSavingsMin: 5, totalSavingsMax: 10 };
-    fetchMock.mockResolvedValue(okResponse({ content: [{ text: '```json\n' + JSON.stringify(payload) + '\n```' }] }));
+    fetchMock.mockResolvedValue(okResponse(payload));
     const out = await analyzeExpenses(expenses, 5000, 3);
     expect(out.summary).toBe('Looks fine.');
     expect(out.tips).toHaveLength(1);
-    (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY = '';
   });
 
-  test('unparseable model output degrades to the canned fallback advice (never throws)', async () => {
-    (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY = 'test-key';
-    fetchMock.mockResolvedValue(okResponse({ content: [{ text: 'sorry, I can not do JSON today' }] }));
+  test('a malformed proxy response degrades to canned fallback advice (never throws)', async () => {
+    (Constants as any).expoConfig.extra.AI_PROXY_URL = 'https://proxy.test/ai';
+    fetchMock.mockResolvedValue(okResponse({ nonsense: true }));
     const out = await analyzeExpenses(expenses, 5000, 3);
     expect(out.tips.length).toBeGreaterThan(0);
     expect(out.totalSavingsMin).toBeGreaterThanOrEqual(0);
-    (Constants as any).expoConfig.extra.ANTHROPIC_API_KEY = '';
+  });
+
+  test('a non-OK proxy response throws (caller shows local tips)', async () => {
+    (Constants as any).expoConfig.extra.AI_PROXY_URL = 'https://proxy.test/ai';
+    fetchMock.mockResolvedValue({ ok: false, status: 502, json: () => Promise.resolve({}) });
+    await expect(analyzeExpenses(expenses, 5000, 3)).rejects.toThrow(/AI proxy error/);
   });
 });

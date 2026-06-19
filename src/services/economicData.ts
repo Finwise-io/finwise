@@ -89,75 +89,45 @@ export async function analyzeExpenses(
   monthlyIncome: number,
   inflationRate: number
 ): Promise<ExpenseAnalysis> {
-  // Try multiple ways to get the API key - Expo Go sometimes doesn't load extra correctly
-  const apiKey =
-    Constants.expoConfig?.extra?.ANTHROPIC_API_KEY ||
-    process.env.ANTHROPIC_API_KEY ||
+  // F-1 (QA-2026-06-18): call OUR server-side proxy, which holds the Anthropic key and owns the
+  // prompt/model. The client never sees the key and never calls api.anthropic.com directly, so no
+  // privileged credential ships in the app bundle. Reference proxy: functions/ (Firebase Function).
+  const proxyUrl =
+    (Constants.expoConfig?.extra as any)?.AI_PROXY_URL ||
+    process.env.AI_PROXY_URL ||
     '';
 
-  if (!apiKey) {
-    throw new Error('API key not configured. Add ANTHROPIC_API_KEY to your .env file.');
+  if (!proxyUrl) {
+    throw new Error('AI tips need a server. Set AI_PROXY_URL to your deployed proxy (see functions/README.md).');
   }
 
-  const prompt = `You are a friendly personal finance advisor. Analyze these monthly expenses and give specific, actionable advice.
-
-Monthly income: $${monthlyIncome.toFixed(2)}
-Inflation rate: ${inflationRate}%
-
-Expenses this month:
-${expenses.map((e) => `- ${e.category}: $${e.amount.toFixed(2)} at ${e.store || 'various'}`).join('\n')}
-
-Respond ONLY with valid JSON in this exact format, no markdown, no explanation:
-{
-  "summary": "2-sentence plain English summary of spending health",
-  "tips": [
-    {
-      "title": "Short tip title (5 words max)",
-      "detail": "Specific actionable advice in 1-2 sentences. Be concrete, e.g. mention specific subscriptions.",
-      "savingsMin": 15,
-      "savingsMax": 30
-    }
-  ],
-  "totalSavingsMin": 50,
-  "totalSavingsMax": 120
-}
-Provide 3-5 tips. Focus on real patterns in the data. If you see multiple streaming services, call them out. Keep language simple enough for a 10-year-old.`;
-
-  const res = await fetch('https://api.anthropic.com/v1/messages', {
+  const res = await fetch(proxyUrl, {
     method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'x-api-key': apiKey || '',
-      'anthropic-version': '2023-06-01',
-    },
-    body: JSON.stringify({
-      model: 'claude-sonnet-4-20250514',
-      max_tokens: 1000,
-      messages: [{ role: 'user', content: prompt }],
-    }),
+    headers: { 'Content-Type': 'application/json' },
+    // Send only the data; the proxy builds the prompt and calls the model server-side.
+    body: JSON.stringify({ expenses, monthlyIncome, inflationRate }),
   });
 
-  if (!res.ok) throw new Error('Anthropic API error');
+  if (!res.ok) throw new Error(`AI proxy error (${res.status})`);
   const data = await res.json();
-  const text = data.content?.[0]?.text || '{}';
 
-  try {
-    return JSON.parse(text.replace(/```json|```/g, '').trim());
-  } catch {
-    return {
-      summary: 'We analyzed your expenses and found some ways to save.',
-      tips: [
-        {
-          title: 'Review subscriptions',
-          detail: 'Look for any streaming or app subscriptions you rarely use.',
-          savingsMin: 10,
-          savingsMax: 30,
-        },
-      ],
-      totalSavingsMin: 10,
-      totalSavingsMax: 30,
-    };
+  // The proxy returns the parsed ExpenseAnalysis. Validate the shape; degrade to canned advice if malformed.
+  if (data && typeof data.summary === 'string' && Array.isArray(data.tips)) {
+    return data as ExpenseAnalysis;
   }
+  return {
+    summary: 'We analyzed your expenses and found some ways to save.',
+    tips: [
+      {
+        title: 'Review subscriptions',
+        detail: 'Look for any streaming or app subscriptions you rarely use.',
+        savingsMin: 10,
+        savingsMax: 30,
+      },
+    ],
+    totalSavingsMin: 10,
+    totalSavingsMax: 30,
+  };
 }
 
 // ── Receipt OCR simulation ───────────────────────────────────────────
