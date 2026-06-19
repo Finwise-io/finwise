@@ -69,7 +69,9 @@ export default function RetirementCockpit() {
   // + annuities/withdrawals), cadence-normalized — not just ri_ss. If the user never touched the
   // on-screen Social Security editor (ssEligible == null), use that onboarding figure rather than $0;
   // an explicit "Not eligible" still zeroes it.
-  const guaranteedDefault = Math.round(retirementIncomeMonthly(op));
+  // Keep full precision (DR-5): round only at DISPLAY via money(). Rounding the monthly figure here
+  // and then ×12 dropped a few $/yr vs Money's totalGrossAnnual (e.g. $24,333.33→$24,333 → −$4/yr).
+  const guaranteedDefault = retirementIncomeMonthly(op);
   const ssDefault = guaranteedDefault;
   const hasPension = num(op.ri_pension) > 0;
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
@@ -79,7 +81,7 @@ export default function RetirementCockpit() {
   const retireDefault = num(op.targetRetirementAge) || (store.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
-  const ssIncome = ssEligibleEffective ? Math.round(A.ssMonthly ?? ssDefault) : 0;
+  const ssIncome = ssEligibleEffective ? (A.ssMonthly ?? ssDefault) : 0;
   const claimAge = A.ssClaimAge ?? 67;
 
   // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
@@ -811,9 +813,9 @@ function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
 // ───────────────────────── Social Security editor ─────────────────────────
 function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onClose: () => void; A: any; ssDefault: number; onApply: (patch: any) => void }) {
   const [eligible, setEligible] = useState<boolean>(A.ssEligible ?? (ssDefault > 0));
-  const [amt, setAmt] = useState(String(A.ssMonthly ?? ssDefault ?? ''));
+  const [amt, setAmt] = useState(String(A.ssMonthly ?? Math.round(ssDefault) ?? ''));
   const [claim, setClaim] = useState<number>(A.ssClaimAge ?? 67);
-  useEffect(() => { if (open) { setEligible(A.ssEligible ?? (ssDefault > 0)); setAmt(String(A.ssMonthly ?? ssDefault ?? '')); setClaim(A.ssClaimAge ?? 67); } }, [open]);
+  useEffect(() => { if (open) { setEligible(A.ssEligible ?? (ssDefault > 0)); setAmt(String(A.ssMonthly ?? Math.round(ssDefault) ?? '')); setClaim(A.ssClaimAge ?? 67); } }, [open]);
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
