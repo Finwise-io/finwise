@@ -4,7 +4,6 @@ import {
   TouchableOpacity, KeyboardAvoidingView, Platform, Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import { loginUser, registerUser, resetPassword } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
@@ -18,36 +17,9 @@ function isValidEmail(email: string): boolean {
   return re.test(email.trim().toLowerCase());
 }
 
-// ── Local account store (simulates duplicate checking) ─────────────
-const ACCOUNTS_KEY = 'finwise_accounts';
-
-async function getStoredAccounts(): Promise<Record<string, { name: string; password: string }>> {
-  try {
-    const raw = await AsyncStorage.getItem(ACCOUNTS_KEY);
-    return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
-}
-
-async function saveAccount(email: string, name: string, password: string) {
-  const accounts = await getStoredAccounts();
-  accounts[email.toLowerCase()] = { name, password };
-  await AsyncStorage.setItem(ACCOUNTS_KEY, JSON.stringify(accounts));
-}
-
-async function checkDuplicate(email: string): Promise<boolean> {
-  const accounts = await getStoredAccounts();
-  return !!accounts[email.toLowerCase()];
-}
-
-async function checkLogin(email: string, password: string): Promise<string | null> {
-  const accounts = await getStoredAccounts();
-  const account = accounts[email.toLowerCase()];
-  if (!account) return null; // not found
-  if (account.password !== password) return 'wrong_password';
-  return account.name;
-}
+// F-3 (QA-2026-06-18): the former local `accounts` map stored CLEARTEXT passwords in unencrypted
+// AsyncStorage, redundant with Firebase Auth. Removed. Duplicate-detection, credential checks, and
+// password resets are all handled by Firebase, which never exposes a password to the client.
 
 export default function AuthScreen() {
   const router = useRouter();
@@ -101,24 +73,7 @@ export default function AuthScreen() {
 
     try {
       if (mode === 'register') {
-        // Check for duplicate account
-        const isDuplicate = await checkDuplicate(trimEmail);
-        if (isDuplicate) {
-          setLoading(false);
-          Alert.alert(
-            'Account already exists',
-            `An account with ${trimEmail} already exists.\n\nWould you like to sign in instead?`,
-            [
-              { text: 'Sign in', onPress: () => setMode('login') },
-              { text: 'Try different email', style: 'cancel' },
-            ]
-          );
-          return;
-        }
-
-        // Save account locally
-        await saveAccount(trimEmail, name.trim(), password);
-
+        // Firebase rejects a duplicate email with auth/email-already-in-use (handled in catch).
         const user = await registerUser(trimEmail, password, name.trim());
         setUser({
           uid: user.uid,
@@ -134,55 +89,46 @@ export default function AuthScreen() {
         );
 
       } else if (mode === 'login') {
-        // Check stored accounts first
-        const result = await checkLogin(trimEmail, password);
-
-        if (result === null) {
-          setLoading(false);
-          Alert.alert(
-            'Account not found',
-            `No account found for ${trimEmail}.\n\nWould you like to create one?`,
-            [
-              { text: 'Create account', onPress: () => setMode('register') },
-              { text: 'Try again', style: 'cancel' },
-            ]
-          );
-          return;
-        }
-
-        if (result === 'wrong_password') {
-          setLoading(false);
-          Alert.alert('Wrong password', 'The password is incorrect. Please try again.', [
-            { text: 'Forgot password?', onPress: () => setMode('forgot') },
-            { text: 'Try again', style: 'cancel' },
-          ]);
-          return;
-        }
-
-        // Login successful
+        // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
         const user = await loginUser(trimEmail, password);
         setUser({
           uid: user.uid,
           email: trimEmail,
-          name: result, // stored name
-          createdAt: '',
+          name: user.displayName || trimEmail.split('@')[0],
+          createdAt: user.metadata?.creationTime || '',
         });
         router.replace('/(tabs)/home');
 
       } else if (mode === 'forgot') {
-        const accounts = await getStoredAccounts();
-        if (!accounts[trimEmail]) {
-          setLoading(false);
-          Alert.alert('Email not found', `No account found for ${trimEmail}.`);
-          return;
-        }
         await resetPassword(trimEmail);
-        Alert.alert('Password reset sent!', `Check your email at ${trimEmail} for reset instructions.`);
+        // Don't reveal whether the email is registered (prevents account enumeration).
+        Alert.alert('Password reset sent', `If an account exists for ${trimEmail}, you'll receive reset instructions by email.`);
         setMode('login');
       }
     } catch (err: any) {
-      const msg = err.message || 'Something went wrong. Please try again.';
-      Alert.alert('Error', msg);
+      const code = err?.code || '';
+      if (code === 'auth/email-already-in-use') {
+        Alert.alert(
+          'Account already exists',
+          `An account with ${trimEmail} already exists.`,
+          [
+            { text: 'Sign in', onPress: () => setMode('login') },
+            { text: 'Try a different email', style: 'cancel' },
+          ]
+        );
+      } else if (code === 'auth/invalid-credential' || code === 'auth/wrong-password' || code === 'auth/user-not-found') {
+        // One generic message for both wrong-password and unknown-email — avoids account enumeration.
+        Alert.alert('Sign-in failed', 'That email or password is incorrect.', [
+          { text: 'Forgot password?', onPress: () => setMode('forgot') },
+          { text: 'Try again', style: 'cancel' },
+        ]);
+      } else if (code === 'auth/too-many-requests') {
+        Alert.alert('Too many attempts', 'Please wait a moment and try again.');
+      } else if (code === 'auth/network-request-failed') {
+        Alert.alert('No internet', 'Please check your connection and try again.');
+      } else {
+        Alert.alert('Something went wrong', err?.message || 'Please try again.');
+      }
     } finally {
       setLoading(false);
     }
