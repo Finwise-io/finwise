@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified } from '../services/firebase';
+import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
@@ -84,6 +84,49 @@ export default function SettingsScreen() {
         },
       ]
     );
+  }
+
+  // ── Delete account (App Store Guideline 5.1.1(v)) ──────────────────
+  const [delVisible, setDelVisible] = useState(false);
+  const [delPassword, setDelPassword] = useState('');
+  const [delBusy, setDelBusy] = useState(false);
+
+  function confirmDeleteAccount() {
+    Alert.alert(
+      'Delete account?',
+      'This permanently deletes your account and all your FinWise data from our servers. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelVisible(true); } },
+      ]
+    );
+  }
+
+  async function submitDeleteAccount() {
+    if (!delPassword) { Alert.alert('Password required', 'Enter your password to confirm.'); return; }
+    setDelBusy(true);
+    try {
+      await deleteAccount(delPassword);
+      // Wipe local data so nothing lingers on the device, then return to auth.
+      resetAll();
+      setUser(null);
+      setDelVisible(false);
+      Alert.alert('Account deleted', 'Your account and data have been removed.');
+      router.replace('/auth');
+    } catch (err: any) {
+      const code = err?.code || '';
+      if (code === 'auth/wrong-password' || code === 'auth/invalid-credential') {
+        Alert.alert('Incorrect password', 'That password is incorrect. Please try again.');
+      } else if (code === 'auth/too-many-requests') {
+        Alert.alert('Too many attempts', 'Please wait a moment and try again.');
+      } else if (code === 'auth/network-request-failed') {
+        Alert.alert('No internet', 'Please check your connection and try again.');
+      } else {
+        Alert.alert('Could not delete account', err?.message || 'Please try again.');
+      }
+    } finally {
+      setDelBusy(false);
+    }
   }
 
   function handleReset() {
@@ -280,7 +323,52 @@ export default function SettingsScreen() {
           </View>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
+
+        <TouchableOpacity
+          style={[styles.actionRow, { borderBottomWidth: 0 }]}
+          onPress={confirmDeleteAccount}
+          accessibilityRole="button"
+          accessibilityLabel="Delete account"
+          accessibilityHint="Permanently deletes your account and all data"
+        >
+          <Text style={{ fontSize: 22 }}>🗑️</Text>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={[styles.actionLabel, { color: Colors.red }]}>Delete account</Text>
+            <Text style={styles.actionSub}>Permanently remove your account and all data</Text>
+          </View>
+          <Text style={styles.arrow}>›</Text>
+        </TouchableOpacity>
       </Card>
+
+      {/* Delete-account confirmation (password re-auth) */}
+      <Modal visible={delVisible} transparent animationType="fade" onRequestClose={() => setDelVisible(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={styles.delBackdrop}>
+          <View style={styles.delCard}>
+            <Text style={styles.delTitle}>Confirm account deletion</Text>
+            <Text style={styles.delBody}>
+              Enter your password to permanently delete your account and all FinWise data. This can't be undone.
+            </Text>
+            <TextInput
+              style={styles.delInput}
+              value={delPassword}
+              onChangeText={setDelPassword}
+              placeholder="Password"
+              placeholderTextColor={Colors.textTertiary}
+              secureTextEntry
+              autoCapitalize="none"
+              accessibilityLabel="Password"
+            />
+            <View style={styles.delRow}>
+              <TouchableOpacity style={[styles.delBtn, styles.delCancel]} onPress={() => setDelVisible(false)} disabled={delBusy} accessibilityRole="button" accessibilityLabel="Cancel">
+                <Text style={styles.delCancelTxt}>Cancel</Text>
+              </TouchableOpacity>
+              <TouchableOpacity style={[styles.delBtn, styles.delConfirm, delBusy && { opacity: 0.6 }]} onPress={submitDeleteAccount} disabled={delBusy} accessibilityRole="button" accessibilityLabel="Delete my account">
+                {delBusy ? <ActivityIndicator color="#fff" /> : <Text style={styles.delConfirmTxt}>Delete account</Text>}
+              </TouchableOpacity>
+            </View>
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
 
       {/* Feedback */}
       <TouchableOpacity onPress={() => setFeedbackVisible(true)} activeOpacity={0.8}>
@@ -451,6 +539,17 @@ const styles = StyleSheet.create({
   linkText: { fontSize: Typography.sizes.base, color: Colors.primary, fontWeight: '500' },
   actionRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.md, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   lockRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm },
+  delBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
+  delCard: { width: '100%', maxWidth: 380, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },
+  delTitle: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm },
+  delBody: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.base },
+  delInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary, marginBottom: Spacing.base },
+  delRow: { flexDirection: 'row', gap: Spacing.sm },
+  delBtn: { flex: 1, minHeight: 44, borderRadius: Radii.pill, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
+  delCancel: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.borderStrong },
+  delCancelTxt: { color: Colors.textPrimary, fontWeight: '700', fontSize: Typography.sizes.md },
+  delConfirm: { backgroundColor: Colors.red },
+  delConfirmTxt: { color: '#fff', fontWeight: '700', fontSize: Typography.sizes.md },
   actionLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   actionSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 1 },
   arrow: { fontSize: 20, color: Colors.textTertiary },

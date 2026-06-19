@@ -8,6 +8,9 @@ import {
   sendEmailVerification,
   onAuthStateChanged,
   updateProfile,
+  deleteUser,
+  reauthenticateWithCredential,
+  EmailAuthProvider,
 } from 'firebase/auth';
 import * as FirebaseAuth from 'firebase/auth';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -22,6 +25,7 @@ import {
   doc,
   setDoc,
   getDoc,
+  deleteDoc,
   addDoc,
   collection,
   serverTimestamp,
@@ -86,6 +90,32 @@ export async function resetPassword(email: string) {
 
 export function onAuthChange(callback: (user: any) => void) {
   return onAuthStateChanged(auth, callback);
+}
+
+// Permanently delete the signed-in user's account (App Store Guideline 5.1.1(v)).
+// Re-authenticates first (deletion is sensitive and Firebase requires a recent login), then removes
+// the Firestore data, then the Auth user — in that order so we never leave an orphaned auth account
+// with no data. `password` is required because the app uses email/password auth.
+export async function deleteAccount(password: string): Promise<void> {
+  const u = auth.currentUser;
+  if (!u || !u.email) throw new Error('You are not signed in.');
+
+  // 1) Re-authenticate (throws auth/wrong-password, auth/too-many-requests, etc.).
+  const cred = EmailAuthProvider.credential(u.email, password);
+  await reauthenticateWithCredential(u, cred);
+
+  // 2) Remove Firestore data while still authenticated. If part of a partner household, drop the
+  //    membership doc too (rules let either side delete it). Best-effort so a missing doc never blocks.
+  try {
+    const root = await loadUserRoot(u.uid);
+    if (root.householdId && root.householdId !== u.uid) {
+      await deleteDoc(doc(db, 'households', root.householdId, 'members', u.uid));
+    }
+  } catch { /* non-blocking */ }
+  await deleteDoc(doc(db, 'users', u.uid));
+
+  // 3) Delete the Auth account itself.
+  await deleteUser(u);
 }
 
 // Sync fields stored under users/{uid}/appState.
