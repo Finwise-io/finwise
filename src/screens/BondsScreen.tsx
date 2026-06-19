@@ -1,7 +1,7 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -71,9 +71,18 @@ export default function BondsScreen() {
       <View style={{ height: 40 }} />
       <BondEditor bond={addOpen ? null : edit} open={addOpen || edit != null} onClose={() => { setAddOpen(false); setEdit(null); }}
         onSave={(fields) => {
-          if (edit) store.updateAsset(edit.asset_id, fields);
-          else store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields });
-          setAddOpen(false); setEdit(null);
+          if (edit) { store.updateAsset(edit.asset_id, fields); setAddOpen(false); setEdit(null); return; }
+          const addIt = () => { store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields }); setAddOpen(false); setEdit(null); };
+          // double-count guard: a non-bond account at the same institution may already include this bond
+          const inst = String(fields.institution ?? '').trim().toLowerCase();
+          const dup = inst ? accounts.find((a) => !isBond(a) && String(a.institution ?? '').trim().toLowerCase() === inst && (a.balance || 0) > 0) : null;
+          if (dup) {
+            Alert.alert(
+              'Already have an account there?',
+              `${dup.institution} also has “${dup.label}” worth ${money(dup.balance || 0)}. This bond is added to your net worth as a separate holding — if it's already part of that ${money(dup.balance || 0)}, lower that account afterward so it isn't counted twice.`,
+              [{ text: 'Cancel', style: 'cancel' }, { text: 'Add separately', onPress: addIt }],
+            );
+          } else { addIt(); }
         }}
         onDelete={edit ? () => { store.deleteAsset(edit.asset_id); setEdit(null); } : undefined} />
     </ScrollView>
@@ -89,16 +98,17 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [maturity, setMaturity] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [value, setValue] = useState('');
+  const [institution, setInstitution] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   React.useEffect(() => {
     if (!open) return;
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
-    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE');
+    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? '');
   }, [open]);
   const valid = label.trim() && num(face) > 0 && num(coupon) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(maturity.trim());
   const save = () => onSave({
-    label: label.trim(), tax_bucket: bucket,
+    label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
     face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
   });
@@ -111,6 +121,9 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <Text style={styles.sheetT}>{bond ? 'Edit bond' : 'Add a bond'}</Text>
           <Text style={styles.fieldL}>Name / issuer</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. US Treasury 2030, Apple Corp 4.5%" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Institution / account (optional)</Text>
+          <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Chase, Fidelity, Schwab" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Put it here. The bond is added to net worth on its own — keep that account from double-counting it.</Text>
           <Text style={styles.fieldL}>Face (par) value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
@@ -180,6 +193,7 @@ const styles = StyleSheet.create({
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
+  fieldHint: { fontSize: 11, color: Colors.textTertiary, lineHeight: 15, marginTop: 4 },
   input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 16, color: Colors.textPrimary },
   note: { fontSize: 12, color: Colors.textSecondary, marginTop: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
