@@ -4,7 +4,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-nati
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { totalGrossAnnual } from '../domain/income';
+import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { planCompleteness } from '../domain/completeness';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -19,10 +19,12 @@ export function usePlanCompleteness() {
     accountCount: accounts.length,
     hasInvestments: accounts.some((a: any) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY'),
     goalCount: (store.goals ?? []).length,
-    ssAnswered: A.ssEligible != null,
+    // "retirement set" is done for an already-retired user, or anyone with guaranteed retirement
+    // income captured at onboarding (SS / pension / annuities) — not only when the SS editor was opened.
+    ssAnswered: A.ssEligible != null || store.employmentStatus === 'retired' || retirementIncomeMonthly(op) > 0,
     monthlySpending: num(op.monthlySpending) || num(store.monthlyBudgetTarget),
     hasDebtsOrSkipped: (store.liabilities ?? []).length > 0,
-  }), [op, accounts, A, store.goals, store.monthlyBudgetTarget, store.liabilities]);
+  }), [op, accounts, A, store.goals, store.monthlyBudgetTarget, store.liabilities, store.employmentStatus]);
 }
 
 export default function SharpenPlanScreen() {
