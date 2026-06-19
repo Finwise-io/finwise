@@ -3,9 +3,16 @@
  * finite numbers at $0, at nine figures, on leap days, and for every skipped answer.
  */
 import { snapshotFromOnboarding } from '../domain/snapshot';
-import { simulate, solveRetireAge, projectNestEgg } from '../domain/retirement';
+import { simulate, solveRetireAge, projectNestEgg, capitalNeeded } from '../domain/retirement';
 import { cashflowYear } from '../domain/cashflow';
 import { spendByMonth, savingsByMonth, emergencyTest } from '../domain/budget';
+import { taxOwed, grossFromNet, marginalBracket } from '../domain/income/tax';
+import { loanPayment } from '../domain/debt';
+import { rmdDivisor, rmdAtAge } from '../domain/decumulation';
+import { currentYield, bondInfo } from '../domain/bonds';
+import {
+  earmarkedAmount, blendedReturn, portfolioActualReturn, investableValue, type AssetAccount,
+} from '../domain/assets';
 import { ECON, employedPartner, retiree75, NO_TAX } from '../testing/personas';
 import { expectAllFinite } from '../testing/assertFinite';
 import type { OnboardingProfile } from '../domain/onboardingProfile';
@@ -173,6 +180,77 @@ describe('Emergency stress test at the extremes', () => {
   test('no spending data: never divides by zero', () => {
     const r = emergencyTest({}, 1000, 500);
     expectAllFinite(r, 'no-spend stress test');
+  });
+});
+
+// Pure-function boundary matrix (QA-T1-020..027) — the divide-by-zero, $0, negative, clamp,
+// and degenerate-rate paths that the happy-path golden scenarios don't exercise.
+describe('Pure-function edge matrix: divide-by-zero & degenerate inputs', () => {
+  const acct = (p: Partial<AssetAccount>): AssetAccount => ({
+    asset_id: 'a' as any, label: 'x', tax_bucket: 'TAXABLE', balance: 0, target_return: 0.07, ...p,
+  });
+
+  test('capitalNeeded: 0% real return falls back to undiscounted years (no NaN)', () => {
+    const c = capitalNeeded({ monthlySpend: 4000, guaranteedMonthly: 0, retireAge: 65, horizonAge: 95, realReturn: 0, bequest: 0 });
+    expect(c.annuityFactor).toBe(30);              // r=0 → factor = years, not 1/0
+    expect(c.needed).toBe(4000 * 12 * 30);
+  });
+  test('capitalNeeded: guaranteed income exceeds spend → need clamps to 0, never negative', () => {
+    const c = capitalNeeded({ monthlySpend: 2000, guaranteedMonthly: 5000, retireAge: 65, horizonAge: 90, realReturn: 0.03, bequest: 0 });
+    expect(c.netAnnual).toBe(0);
+    expect(c.needed).toBe(0);
+  });
+  test('capitalNeeded: bequest is discounted to a positive present value', () => {
+    const c = capitalNeeded({ monthlySpend: 3000, guaranteedMonthly: 3000, retireAge: 65, horizonAge: 90, realReturn: 0.04, bequest: 100_000 });
+    expect(c.netAnnual).toBe(0);                   // spend fully covered by guaranteed income…
+    expect(c.pvBequest).toBeGreaterThan(0);        // …so the entire need is the bequest's PV
+    expect(c.pvBequest).toBeLessThan(100_000);     // and it's discounted below face
+    expect(c.needed).toBe(c.pvBequest);
+  });
+
+  test('taxOwed: $0 income and a negative income both owe $0', () => {
+    expect(taxOwed(0)).toBe(0);
+    expect(taxOwed(-5000)).toBe(0);
+    expect(marginalBracket(0)).toBe(0.10);         // lowest bracket, never undefined
+  });
+  test('grossFromNet monotonically increases and never returns less than net', () => {
+    for (const net of [1_000, 50_000, 250_000, 1_000_000]) {
+      expect(grossFromNet(net)).toBeGreaterThanOrEqual(net);
+    }
+    expect(grossFromNet(20_000)).toBeLessThan(grossFromNet(200_000));
+  });
+
+  test('loanPayment: 0% APR splits principal evenly with no interest', () => {
+    const l = loanPayment(12_000, 0, 1);
+    expect(l.monthly).toBe(1000);                  // 12,000 / 12, no interest term
+    expect(l.totalInterest).toBe(0);
+  });
+  test('loanPayment: zero principal or zero term degrade to a no-op, not a crash', () => {
+    expect(loanPayment(0, 6, 5)).toEqual({ monthly: 0, totalInterest: 0, totalPaid: 0 });
+    expect(loanPayment(30_000, 6, 0)).toEqual({ monthly: 0, totalInterest: 0, totalPaid: 0 });
+  });
+
+  test('RMD: below the start age is 0; beyond the table holds the last divisor', () => {
+    expect(rmdDivisor(72)).toBe(0);                // pre-73 → no RMD
+    expect(rmdAtAge(1_000_000, 72)).toBe(0);
+    expect(rmdDivisor(73)).toBeGreaterThan(0);
+    expect(rmdDivisor(130)).toBeGreaterThan(0);    // off the end of the ULT → clamps, no undefined
+  });
+
+  test('currentYield: a $0-value bond yields null, not Infinity', () => {
+    expect(currentYield(bondInfo(acct({ face_value: 10_000, coupon_rate: 0.05, balance: 0, maturity_date: '2040-01-01' })))).toBeNull();
+  });
+
+  test('earmarkedAmount clamps an out-of-range retirement_pct into [0,100]', () => {
+    expect(earmarkedAmount(acct({ balance: 1000, retirement_pct: 250 }))).toBe(1000);   // >100 → 100%
+    expect(earmarkedAmount(acct({ balance: 1000, retirement_pct: -50 }))).toBe(0);       // <0 → 0%
+  });
+  test('blendedReturn / portfolioActualReturn / investableValue on empty & all-property sets', () => {
+    expect(blendedReturn([])).toBe(0.06);                                   // empty → fallback, never NaN
+    expect(portfolioActualReturn([])).toBeNull();
+    const home = acct({ kind: 'home', tax_bucket: 'PROPERTY', balance: 500_000 });
+    expect(blendedReturn([home])).toBe(0.06);                              // no earmarked $ → fallback
+    expect(investableValue([home])).toBe(0);                               // property is not investable
   });
 });
 
