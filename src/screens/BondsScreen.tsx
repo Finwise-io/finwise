@@ -72,15 +72,22 @@ export default function BondsScreen() {
       <BondEditor bond={addOpen ? null : edit} open={addOpen || edit != null} onClose={() => { setAddOpen(false); setEdit(null); }}
         onSave={(fields) => {
           if (edit) { store.updateAsset(edit.asset_id, fields); setAddOpen(false); setEdit(null); return; }
+          const bondValue = Number(fields.balance) || 0;
           const addIt = () => { store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields }); setAddOpen(false); setEdit(null); };
           // double-count guard: a non-bond account at the same institution may already include this bond
           const inst = String(fields.institution ?? '').trim().toLowerCase();
           const dup = inst ? accounts.find((a) => !isBond(a) && String(a.institution ?? '').trim().toLowerCase() === inst && (a.balance || 0) > 0) : null;
           if (dup) {
+            // "Part of it" = nest the bond inside the existing balance (lower that account so the total holds)
+            const addAsPartOf = () => { store.updateAsset(dup.asset_id, { balance: Math.max(0, (dup.balance || 0) - bondValue) }); addIt(); };
             Alert.alert(
-              'Already have an account there?',
-              `${dup.institution} also has “${dup.label}” worth ${money(dup.balance || 0)}. This bond is added to your net worth as a separate holding — if it's already part of that ${money(dup.balance || 0)}, lower that account afterward so it isn't counted twice.`,
-              [{ text: 'Cancel', style: 'cancel' }, { text: 'Add separately', onPress: addIt }],
+              'Part of an existing account?',
+              `${dup.institution}'s “${dup.label}” is worth ${money(dup.balance || 0)}. Is this ${money(bondValue)} bond part of that, or additional money?\n\n“Part of it” lowers ${dup.label} by ${money(bondValue)} so nothing is double-counted (total stays ${money(dup.balance || 0)}).`,
+              [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Additional money', onPress: addIt },
+                { text: 'Part of it', onPress: addAsPartOf },
+              ],
             );
           } else { addIt(); }
         }}
@@ -123,7 +130,7 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. US Treasury 2030, Apple Corp 4.5%" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Institution / account (optional)</Text>
           <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Chase, Fidelity, Schwab" placeholderTextColor={Colors.textTertiary} />
-          <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Put it here. The bond is added to net worth on its own — keep that account from double-counting it.</Text>
+          <Text style={styles.fieldHint}>Held inside a brokerage or bank account? Add it here — if that account already has a balance, we'll ask whether this bond is part of it so nothing is double-counted.</Text>
           <Text style={styles.fieldL}>Face (par) value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={face} onChangeText={setFace} placeholder="10000" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
