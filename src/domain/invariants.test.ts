@@ -171,6 +171,31 @@ describe('effectiveAnnualContribution never exceeds the stated plan', () => {
 });
 
 // ───────────────────────── BUDGET INTEGRITY: buckets partition, months reconcile ─────────────────────────
+// DR-11: full precision flows through the domain; rounding happens ONLY at the display edge.
+// Regression guard for the "$4 income drift" — Money showed $292,000 while Retire showed $291,996
+// because a caller did Math.round(retirementIncomeMonthly) BEFORE ×12. The domain function must
+// return the unrounded monthly so monthly×12 reconciles to the annual figure to the cent.
+describe('DR-11 precision: round at the edge, not mid-pipeline', () => {
+  test('retirementIncomeMonthly keeps full precision (×12 reconciles to annual, no drift)', () => {
+    // $1,000/yr Social Security → 1000/12 = 83.3333…/mo. A pre-rounded 83.33 would lose $0.04/yr.
+    const m = retirementIncomeMonthly({ ri_ss: '1000', ri_ss_freq: 'annual' } as any);
+    expect(m).toBeCloseTo(83.3333, 4);          // NOT 83.33 — full precision retained
+    expect(m * 12).toBeCloseTo(1000, 2);        // annual reconciles exactly
+    expect(m).not.toBe(round2(m));               // proves it is not pre-rounded to cents
+  });
+
+  test('mixed cadences sum without intermediate rounding drift', () => {
+    // $700/mo SS + $2,000/qtr pension + $5,000/yr annuity = 700 + 666.6667 + 416.6667 = 1783.3333/mo
+    const m = retirementIncomeMonthly({
+      ri_ss: '700', ri_ss_freq: 'monthly',
+      ri_pension: '2000', ri_pension_freq: 'quarterly',
+      ri_annuities: '5000', ri_annuities_freq: 'annual',
+    } as any);
+    expect(m).toBeCloseTo(700 + 2000 / 3 + 5000 / 12, 4);
+    expect(m * 12).toBeCloseTo(700 * 12 + 2000 * 4 + 5000, 2);   // annualizes back exactly
+  });
+});
+
 describe('Budget integrity invariants', () => {
   test('spendBuckets is a partition: fixed + non-monthly + flexible = monthly total', () => {
     for (const { op } of ALL_PERSONAS) {
