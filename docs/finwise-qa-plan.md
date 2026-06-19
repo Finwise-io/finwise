@@ -86,7 +86,7 @@ suite (`src/__tests__/golden.test.ts`).
 | QA-T1-001 | compound FV via `simulate`/`projectNestEgg` (`domain/retirement`) | $100k, 7%/yr, 10y, no contrib | **$196,715.14** | DR-11 |
 | QA-T1-002 | `rmdAtAge` (`domain/decumulation`) | $500k pre-tax, age 73 (ULT 26.5) | **$18,867.92** | DR-11 |
 | QA-T1-003 | `rmdAtAge` | $500k, age 75 (ULT 24.6) | **$20,325.20** | DR-11 |
-| QA-T1-004 | `loanPayment` (`domain/debt`) | $30k, 6% APR, 5y | monthly **$579.98**, interest **$4,799.02** | DR-11 |
+| QA-T1-004 | `loanPayment` (`domain/debt`) | $30k, 6% APR, 5y | monthly **$579.98**, interest **$4,799.04** | DR-11 |
 | QA-T1-005 | `currentYield` (`domain/bonds`) | face $10k, 4.5% coupon, value $9.5k | **0.0474** (4.74%) | DR-5 |
 | QA-T1-006 | `debtToIncome` (`domain/debt`) | debt $2k/mo, gross $8k/mo, renter | ratio **0.25**, status **caution** | DR-4 |
 | QA-T1-007 | `creditUtilization` | balance $3k, limit $10k | **0.30**, status **good** | — |
@@ -298,7 +298,7 @@ a user data-right) to the roadmap.
 ### A.3 Loan amortization — `M = P·r / (1−(1+r)^−n)`, r = APR/12, n = years·12
 | Principal | APR | Years | Monthly | Total interest |
 |---|---|---|---|---|
-| 30,000 | 0.06 | 5 | **579.98** | **4,799.02** |
+| 30,000 | 0.06 | 5 | **579.98** | **4,799.04** |
 | 250,000 | 0.045 | 30 | **1,266.71** | **206,016.78** |
 | 5,000 | 0.1999 | — (min-pay) | `payoffPlan` neverPaysOff at low min → flagged | — |
 
