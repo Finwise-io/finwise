@@ -64,6 +64,31 @@ In App Store Connect, the listing needs:
 
 ---
 
+## Phase 2.5 — App Review compliance (added 2026-06-19) 🔴
+
+Two requirements that get finance apps **auto-rejected** are now handled in code; three matching
+manual steps remain on your side.
+
+**Done in-repo 🟢🤖:**
+- 🟢 **In-app account deletion** — Settings → Account → **Delete account** (re-asks password, erases the
+  user's cloud data + login, signs out). Required by App Store Guideline 5.1.1(v).
+- 🟢 **Apple Privacy Manifest** — `app.config.js → ios.privacyManifests` (generated into the build).
+  Declares: no tracking; email, name, financial info, crash/performance data — all for app
+  functionality, none for tracking.
+
+**Your three to-dos 🔴🧑:**
+- 🔴 **Match the App Privacy "nutrition label" in App Store Connect to the manifest.** Apple compares
+  the two. In the App Privacy section, declare you collect **Email, Name, Financial Info,** and
+  **Crash/Diagnostics** — each marked "used to run the app" and **not** "used to track you." (This
+  supersedes Appendix B below.)
+- 🔴 **Create a demo login for Apple's reviewer.** Make a real account (email + password) with some
+  sample data, and paste those credentials into the "Notes for the reviewer" box when you submit —
+  otherwise they can't get past the login screen and will reject.
+- 🔴 **Test the Delete-account button on a real production build** (not the dev app) to confirm it
+  fully removes the account and data end-to-end before you submit.
+
+---
+
 ## Phase 3 — Optional (post-v1 unless you want them now) ⚪
 - ⚪ **Plaid bank linking** — biggest stickiness lever, but needs Plaid keys + a small backend (Cloud Function) to hold the secret. Out of scope for a v1 manual-entry launch.
 - ⚪ **Push notifications** — plugin is configured; needs APNs setup + reminder logic.
