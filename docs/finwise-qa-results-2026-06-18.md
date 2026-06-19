@@ -135,16 +135,39 @@ release. → **P1**.
 
 ## 7. Prioritized backlog
 
-| ID | Sev | Tier | Title | Fix | Owner |
+| ID | Sev | Tier | Title | Fix | Status |
 |---|---|---|---|---|---|
-| **F-4** | **P0** | 3 | Zero a11y labels (G-13) | Add `accessibilityLabel`/`Role` to interactive UI | UI |
-| **F-1** | **P1** | 2 | Privileged API keys in client bundle | Backend proxy for Anthropic/Vision | Eng |
-| **F-2** | **P1** | 2 | No biometric lock / session timeout / MFA | `expo-local-authentication` + inactivity re-auth | Eng |
-| **F-3** | **P1** | 2 | Plaintext passwords in AsyncStorage | Remove local mirror; rely on Firebase | Eng |
-| **F-6** | **P1** | 5 | No crash reporter | Wire Sentry | Eng |
-| **F-8** | P1/P2 | 3 | G-14/16/21/32 UI gaps | Touch targets, privacy-blur, dark mode, contrast | UI |
-| **F-7** | P2 | 2 | 58 dep advisories (mostly dev) | `npm audit --omit=dev` + Snyk/Dependabot | Eng |
-| **F-5** | P2 | 4 | `analyzeExpenses` lacks internal try/catch | Add local catch | Eng |
+| **F-4** | **P0** | 3 | Zero a11y labels (G-13) | Add `accessibilityLabel`/`Role` to interactive UI | ✅ **Resolved** (shared + high-traffic surfaces); per-screen rollout continues |
+| **F-1** | **P1** | 2 | Privileged API keys in client bundle | Backend proxy for Anthropic/Vision | ✅ **Resolved** (keys removed; proxy + Firebase Function shipped) |
+| **F-2** | **P1** | 2 | No biometric lock / session timeout / MFA | `expo-local-authentication` + inactivity re-auth | ✅ **Resolved** (app lock + 2-min re-lock; MFA still open) |
+| **F-3** | **P1** | 2 | Plaintext passwords in AsyncStorage | Remove local mirror; rely on Firebase | ✅ **Resolved** |
+| **F-6** | **P1** | 5 | No crash reporter | Wire Sentry | ✅ **Resolved** (Sentry-ready + global handler) |
+| **F-8** | P1/P2 | 3 | G-14/16/21/32 UI gaps | Touch targets, privacy-blur, dark mode, contrast | ⏳ Open (G-14 partially done on buttons/back) |
+| **F-7** | P2 | 2 | 58 dep advisories (mostly dev) | `npm audit --omit=dev` + Snyk/Dependabot | ⏳ Open |
+| **F-5** | P2 | 4 | `analyzeExpenses` lacks internal try/catch | Add local catch | ⏳ Open (now behind proxy; caller still guards) |
+
+## 7a. Remediation — 2026-06-18 (commits on `qa/test-plan`)
+
+Five findings fixed the same day, each tsc-clean + jest-green (**578 tests**):
+
+- **F-3** (`a3e5aaa`) — deleted the cleartext-password AsyncStorage mirror in `AuthScreen`; auth is
+  now Firebase-only, with wrong-password/unknown-email collapsed to one message (anti-enumeration).
+- **F-1 + F-6** (`fb87a0b`) — removed `ANTHROPIC_API_KEY`/`GOOGLE_VISION_API_KEY` from bundled
+  `extra`; `analyzeExpenses` now calls a configurable `AI_PROXY_URL`; reference proxy shipped at
+  `functions/aiTips` (holds the key server-side). `crashReporter.ts` wired into the ErrorBoundary +
+  a global `ErrorUtils` handler, Sentry-ready via optional `@sentry/react-native` + `SENTRY_DSN`.
+- **F-2** (`fd2e4b0`) — biometric/passcode app lock (`expo-local-authentication`, guarded) with a
+  2-minute background re-lock and a Settings toggle that requires auth to enable **and** disable.
+- **F-4** (`8b07959`) — accessibility labels/roles/hints on the shared `Button`/`SegmentedControl`/
+  `SectionHeader`, the bottom tab bar, the back button, the whole `TopBar`, and the Home landing
+  screen; 44pt min touch target on buttons + back.
+
+**Manual activation steps** (need device build / accounts, can't run in CI):
+`npx expo install expo-local-authentication @sentry/react-native`; deploy `functions/` (Blaze plan)
+and set `AI_PROXY_URL`; set `SENTRY_DSN`. See `functions/README.md`.
+
+**Still open:** MFA (F-2 remainder), remaining a11y gaps G-16/21/32 + per-screen label rollout (F-8),
+dep triage (F-7), `analyzeExpenses` internal catch (F-5).
 
 **Set-up-required (paid/manual, not run here):** Snyk + SonarQube (SAST), MobSF (mobile binary scan),
 Appium/BrowserStack (device matrix), VoiceOver/TalkBack manual passes. See plan §5.
