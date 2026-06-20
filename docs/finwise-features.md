@@ -1,7 +1,7 @@
 # FinWise — Features & Capabilities Tracker
 
 > One place to see every capability, what it does, who it's for, and whether it's built.
-> Tick the box as things ship. Last updated: 2026-06-05 (Portfolio Performance service shipped).
+> Tick the box as things ship. Last updated: 2026-06-20 (security/privacy hardening + launch prep; TestFlight build #21).
 > **See the "Parked / backlog" list at the bottom for everything we've consciously deferred.**
 >
 > 🎯 **ACTIVE BUILD ORDER (agreed 2026-06-05, from the persona design review):**
@@ -81,7 +81,7 @@
   - *Use:* December bonus and January signing bonus land in the right months.
 - [x] 🟢 **Income recap + lumpy monthly cash-flow** — Distributes salary steady, bonus to Dec, equity by vest month → available-by-month grid/chart.
   - *Use:* See that some months free up far more cash to save than others.
-- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
+- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
   - *Use:* User whose bonus pays in March sets it correctly.
 
 ## 4. Budget & Expenses
@@ -185,7 +185,7 @@
 
 - [~] 🟡 **Currency & locale formatting** — Money model + app-wide formatter wired on active screens; picker UI + on-device verify pending.
   - *Use:* A UK user sees £ and UK number formatting.
-- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
+- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
   - *Use:* Switch the whole app from USD to EUR.
 - [ ] ⚪ **Full string internationalization** — Translate UI copy, not just numbers.
   - *Use:* Use the app in Spanish.
@@ -232,6 +232,18 @@
 - [ ] ⚪ **Push notifications** — Reminders/nudges (plugin configured).
   - *Use:* "You're near your dining budget this month."
 
+### 🔐 Security, Privacy & Compliance — shipped 2026-06-18 → 06-20
+- [x] 🟢 **Zero-knowledge cloud encryption** — financial data is AES-256 encrypted on-device (key derived from the user's password, never sent) before syncing; Firestore stores only ciphertext.
+- [x] 🟢 **Recovery code** — wrapped-key model: a recovery code unlocks data after a forgotten-password reset, then re-locks under the new password. Shown at signup; regenerate in Settings.
+- [x] 🟢 **In-app account deletion** — Settings → Delete account (re-auth → wipes Firestore + Auth user); App Store Guideline 5.1.1(v).
+- [x] 🟢 **Biometric app lock** — Face ID / Touch ID / passcode with 2-min background auto-relock; Settings toggle.
+- [x] 🟢 **Apple Privacy Manifest** — `ios.privacyManifests` (no tracking; data types declared).
+- [x] 🟢 **Hardened auth** — removed the plaintext-password store; wrong-password/unknown-email collapse to one message (anti-enumeration).
+- [x] 🟢 **AI provider key moved server-side** — Anthropic/Vision keys no longer bundled; app calls a configurable proxy (`functions/aiTips` reference).
+- [x] 🟢 **Accessibility labels (start)** — screen-reader labels on shared Button/controls, tab bar, TopBar, Home, back button; 44pt touch targets on buttons.
+- [~] 🟡 **Crash reporting** — global JS error handler + ErrorBoundary shipped; Sentry deferred (needs Metro wiring + DSN).
+- [x] 🟢 **Formal QA suite** — 587 tests incl. golden-scenario + precision guards; CI (tsc + jest + Firestore-rules emulator) green.
+
 ---
 
 ## 🅿️ Parked / backlog — consciously deferred (running list)
@@ -240,13 +252,21 @@
 > Priority: 🚧 launch-blocker · 🔵 next-up · ⚪ later.
 
 ### Must-do before public launch
-- [ ] 🚧 **Market-data licensing** — swap the dev Yahoo endpoint for a licensed EOD vendor (Tiingo/EODHD/Alpha Vantage/Twelve Data); confirm commercial terms + attribution. *(one-file `PriceProvider` swap)*
-- [x] 🟢 **API keys in release builds** — RESOLVED: services read `Constants.expoConfig.extra` (populated by app.config.js from EAS secrets at build time), the correct prod pattern. Verify the EAS secrets are set before submit.
-- [ ] 🚧 **Deploy Firestore security rules** — `firebase deploy --only firestore:rules` (written, not deployed).
-- [ ] 🚧 **App Store submission package** — screenshots (6.7"/6.5"), description, keywords, category.
-- [x] 🟢 **Email verification + forgot password** — forgot-password (reset email) + verify-email on register with Settings resend/recheck banner. (Confirm email delivery with a real account before submit.)
-- [x] 🟢 **Encrypted local storage** — shipped (AES at rest, key in SecureStore, plaintext migration).
+- [ ] 🚧 **Market-data licensing** — swap the dev Yahoo endpoint for a licensed EOD vendor (Tiingo/EODHD/Alpha Vantage/Twelve Data); confirm commercial terms + attribution. *(one-file `PriceProvider` swap)* **← the main remaining launch blocker.**
+- [x] 🟢 **Privileged API keys off the client** — Anthropic/Vision keys removed from the bundle; app calls a server-side proxy (`AI_PROXY_URL`, `functions/aiTips`). Deploy the proxy (Blaze plan) or ship v1 with on-device tip fallback.
+- [x] 🟢 **Deploy Firestore security rules** — DEPLOYED 2026-06-17 (finwise-app-jj); privilege-escalation fix + emulator tests in CI.
+- [~] 🟡 **App Store submission package** — TestFlight build #21 (v1.0.1) uploaded 2026-06-20. STILL NEEDED: screenshots (6.7"/6.5"), description, keywords, category, age rating, App-Privacy answers matching the manifest, and a reviewer demo login.
+- [x] 🟢 **In-app account deletion** — shipped (Guideline 5.1.1(v)).
+- [x] 🟢 **Email verification + forgot password** — reset email + verify-on-register with Settings resend/recheck.
+- [x] 🟢 **Encrypted storage** — local (AES at rest) AND cloud (zero-knowledge, password-derived key + recovery code).
 - [ ] 🔵 **Receipt OCR native rebuild** — `npx expo run:ios` to activate ML Kit, then test scan.
+
+### Security & privacy follow-ups (from the 2026-06-20 hardening pass)
+- [ ] 🔵 **Household/partner sharing under zero-knowledge** — two passwords can't share one key today; fails safe (no crash). Restore via a shared key passed through the invite code (key-wrapping).
+- [ ] ⚪ **Multi-factor authentication (MFA)** — second login factor (app lock + inactivity timeout already shipped).
+- [ ] ⚪ **Sentry crash reporting** — wire `@sentry/react-native` properly (Metro config + Expo plugin + DSN), then flip on. Global handler already captures crashes locally.
+- [ ] ⚪ **Accessibility rollout** — per-screen screen-reader labels on the remaining ~26 screens; dark mode; privacy-blur on backgrounding; color-contrast audit.
+- [ ] ⚪ **Dependency audit** — triage 58 npm advisories (`npm audit --omit=dev`; almost all build-time tooling).
 
 ### Portfolio module — transaction ledger + 3 services (see docs/portfolio-module.md)
 - [x] 🟢 **Total-return prices** — performance now uses dividend/split-adjusted close.
@@ -273,10 +293,10 @@
 - [ ] 🔵 **Savings goals full UI** — finish the waterfall-backed goals screen.
 - [x] 🟢 **Per-month available-to-save** — "What you can save" card on Goals (avg + lumpy range from the cash-flow grid).
 - [x] 🟢 **Non-monthly → sinking-fund goals** — one-tap "sinking fund" suggestion from non-monthly costs (~1/12 a month).
-- [x] 🟢 **Goal target-date picker** � MM/YYYY back-calcs the monthly amount.
+- [x] 🟢 **Goal target-date picker** � MM/YYYY back-calcs the monthly amount.
 
 ### Foundations & i18n
-- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
+- [x] 🟢 **Currency picker UI** � Settings -> Currency reformats the whole app.
 - [ ] ⚪ **Full string internationalization** (translate copy, not just numbers).
 
 ### Insights & Intelligence
@@ -291,7 +311,7 @@
 
 ### Income & Budget
 - [ ] 🔵 **Single-total vs categories reconciliation** — one source of truth for spending.
-- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
+- [x] 🟢 **Configurable bonus month** � pick the bonus month on the income screen; honored in cash flow.
 
 ### Phase 2 (personas / stickiness)
 - [ ] ⚪ **Gen-Z motivational framing** + app-wide **Simple Mode**.
