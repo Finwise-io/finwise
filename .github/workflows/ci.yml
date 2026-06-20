@@ -44,10 +44,10 @@ jobs:
           node-version: 20
           cache: npm
 
-      - uses: actions/setup-java@v4   # Firestore emulator needs a JDK
+      - uses: actions/setup-java@v4   # Firestore emulator needs a JDK (current emulator requires Java 21+)
         with:
           distribution: temurin
-          java-version: 17
+          java-version: 21
 
       - name: Install dependencies
         run: npm ci
