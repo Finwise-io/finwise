@@ -18,9 +18,15 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
         <View style={s.card}>
           <Text style={s.emoji}>🔑</Text>
           <Text style={s.title}>Save your recovery code</Text>
+          <Text style={s.privacy}>🔒 End-to-end encrypted · zero-knowledge</Text>
           <Text style={s.body}>
-            Your data is encrypted with your password. If you ever forget it, this code is the only way
-            to get your data back. Save it somewhere safe — we can't show it again and we can't recover it for you.
+            FinWise uses the highest standard of privacy. Your financial data is encrypted on your
+            device with AES-256 <Text style={s.bold}>before</Text> it's ever sent, and can be unlocked
+            only with your password or this recovery code — <Text style={s.bold}>not even FinWise can read it.</Text>
+            {'\n\n'}
+            That's why this code matters: if you forget your password, it's the only way back to your
+            data. Save your password <Text style={s.bold}>and</Text> this recovery code somewhere safe.
+            If you lose both, no one — including us — can recover your data.
           </Text>
 
           <View style={s.codeBox}>
@@ -55,7 +61,9 @@ const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   card: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, alignItems: 'center' },
   emoji: { fontSize: 40, marginBottom: Spacing.sm },
-  title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm, textAlign: 'center' },
+  title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4, textAlign: 'center' },
+  privacy: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginBottom: Spacing.sm, textAlign: 'center', letterSpacing: 0.3 },
+  bold: { fontWeight: '800', color: Colors.textPrimary },
   body: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, textAlign: 'center', marginBottom: Spacing.base },
   codeBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, paddingVertical: Spacing.md, paddingHorizontal: Spacing.base, alignSelf: 'stretch', marginBottom: Spacing.sm },
   code: { fontSize: 20, fontWeight: '800', letterSpacing: 2, color: Colors.textPrimary, textAlign: 'center', fontFamily: 'monospace' },
