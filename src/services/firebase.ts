@@ -26,11 +26,13 @@ import {
   setDoc,
   getDoc,
   deleteDoc,
+  deleteField,
   addDoc,
   collection,
   serverTimestamp,
 } from 'firebase/firestore';
 import { firebaseApp } from './firebaseConfig';
+import { deriveAndCacheDataKey, clearDataKey, encryptForSync, decryptFromSync } from './dataCrypto';
 
 // React Native: getAuth() at module load throws "Component auth has not been
 // registered yet" under Hermes/lazy bundling. initializeAuth registers the auth
@@ -58,6 +60,8 @@ export async function registerUser(email: string, password: string, name: string
     name,
     createdAt: serverTimestamp(),
   });
+  // Derive the zero-knowledge data key from the password so synced data is encrypted from the start.
+  await deriveAndCacheDataKey(cred.user.uid, password);
   return cred.user;
 }
 
@@ -77,10 +81,13 @@ export function isEmailVerified(): boolean {
 
 export async function loginUser(email: string, password: string) {
   const cred = await signInWithEmailAndPassword(auth, email, password);
+  // Re-derive the data key so this device can decrypt the user's cloud data.
+  await deriveAndCacheDataKey(cred.user.uid, password);
   return cred.user;
 }
 
 export async function logoutUser() {
+  await clearDataKey();   // forget the decryption key so the next user can't read this one's data
   await signOut(auth);
 }
 
@@ -114,22 +121,28 @@ export async function deleteAccount(password: string): Promise<void> {
   } catch { /* non-blocking */ }
   await deleteDoc(doc(db, 'users', u.uid));
 
-  // 3) Delete the Auth account itself.
+  // 3) Delete the Auth account itself, then forget the local decryption key.
   await deleteUser(u);
+  await clearDataKey();
 }
 
-// Sync fields stored under users/{uid}/appState.
+// Sync fields stored ENCRYPTED under users/{uid}.appStateEnc (zero-knowledge — see dataCrypto.ts).
 // Firestore rejects `undefined` field values (e.g. optional institution / change_amount / due_day on
 // assets & debts) and would throw, silently failing the whole sync. Strip undefined first.
 export async function saveUserData(uid: string, data: object) {
   const clean = JSON.parse(JSON.stringify(data ?? {}));
-  await setDoc(doc(db, 'users', uid), { appState: clean }, { merge: true });
+  const enc = await encryptForSync(clean);
+  if (enc == null) return;   // no key yet → skip the cloud write (NEVER store plaintext); local copy is safe
+  // Write the ciphertext and remove any legacy plaintext field (migrates old accounts on first save).
+  await setDoc(doc(db, 'users', uid), { appStateEnc: enc, appState: deleteField() }, { merge: true });
 }
 
 export async function loadUserData(uid: string): Promise<Record<string, any> | null> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return null;
-  return snap.data()?.appState ?? null;
+  const d = snap.data();
+  if (d?.appStateEnc != null) return await decryptFromSync(d.appStateEnc);
+  return d?.appState ?? null;   // legacy plaintext (pre-encryption accounts)
 }
 
 // ── Household / partner invites ─────────────────────────────────────
@@ -180,12 +193,13 @@ export async function joinHouseholdMembership(uid: string, householdId: string, 
   });
 }
 
-/** The member's own top-level doc fields (householdId + appState) in one read. */
+/** The member's own top-level doc fields (householdId + decrypted appState) in one read. */
 export async function loadUserRoot(uid: string): Promise<{ householdId: string | null; appState: Record<string, any> | null }> {
   const snap = await getDoc(doc(db, 'users', uid));
   if (!snap.exists()) return { householdId: null, appState: null };
   const d = snap.data() as any;
-  return { householdId: d?.householdId ?? null, appState: d?.appState ?? null };
+  const appState = d?.appStateEnc != null ? await decryptFromSync(d.appStateEnc) : (d?.appState ?? null);
+  return { householdId: d?.householdId ?? null, appState };
 }
 
 export async function submitFeedback(payload: {

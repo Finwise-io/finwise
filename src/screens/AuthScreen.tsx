@@ -102,7 +102,10 @@ export default function AuthScreen() {
       } else if (mode === 'forgot') {
         await resetPassword(trimEmail);
         // Don't reveal whether the email is registered (prevents account enumeration).
-        Alert.alert('Password reset sent', `If an account exists for ${trimEmail}, you'll receive reset instructions by email.`);
+        Alert.alert(
+          'Password reset sent',
+          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nReminder: because your data is encrypted with your password, resetting it starts you with a fresh account.`,
+        );
         setMode('login');
       }
     } catch (err: any) {
@@ -142,7 +145,7 @@ export default function AuthScreen() {
   const subs: Record<Mode, string> = {
     login: 'Sign in to your FinWise account',
     register: 'Start your financial wellness journey',
-    forgot: 'We\'ll send you a password reset link',
+    forgot: 'We\'ll email you a reset link. Note: for your privacy your data is encrypted with your password, so resetting it means your saved cloud data can\'t be recovered — you\'ll start fresh.',
   };
   const btnLabels: Record<Mode, string> = {
     login: 'Sign in',
