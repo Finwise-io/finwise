@@ -120,7 +120,7 @@ export default function AuthScreen() {
         // Don't reveal whether the email is registered (prevents account enumeration).
         Alert.alert(
           'Password reset sent',
-          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nAfter resetting, sign in and enter your recovery code to restore your data.`,
+          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nYour data is end-to-end encrypted — after resetting, sign in and enter your recovery code to restore it.`,
         );
         setMode('login');
       }
@@ -181,7 +181,7 @@ export default function AuthScreen() {
   const subs: Record<Mode, string> = {
     login: 'Sign in to your FinWise account',
     register: 'Start your financial wellness journey',
-    forgot: 'We\'ll email you a reset link. Your data is encrypted with your password — after resetting, you\'ll enter your recovery code to restore it (or start fresh if you don\'t have the code).',
+    forgot: 'We\'ll email you a reset link. Your data is end-to-end encrypted — only your password or recovery code can unlock it, not even FinWise can read it. After resetting, sign in and enter your recovery code to restore your data.',
   };
   const btnLabels: Record<Mode, string> = {
     login: 'Sign in',
@@ -204,7 +204,8 @@ export default function AuthScreen() {
           <View style={styles.restoreCard}>
             <Text style={styles.restoreTitle}>Restore your data</Text>
             <Text style={styles.restoreBody}>
-              Your password was reset, so your data is locked. Enter your recovery code to unlock it.
+              Your data is end-to-end encrypted, so your new password can't open it yet. Enter your
+              recovery code to unlock it — it'll then re-lock under your new password automatically.
             </Text>
             <TextInput
               style={styles.restoreInput}
