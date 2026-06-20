@@ -115,11 +115,12 @@ export default function AnalyticsScreen() {
               </View>
             </View>
             <View style={styles.rateRow}>
-              <Text style={styles.rateLabel}>Savings rate</Text>
+              <Text style={styles.rateLabel}>Savings rate (of take-home)</Text>
               <Text style={[styles.rateVal, {
                 color: savingsRate >= 20 ? Colors.successGreen : savingsRate >= 10 ? '#FAC775' : '#F09595'
               }]}>{savingsRate}%</Text>
             </View>
+            <Text style={styles.rateNote}>Share of your take-home pay you keep. (Investing as a % of gross pay is shown in Insights.)</Text>
           </DarkCard>
 
           <Card>
@@ -156,7 +157,7 @@ export default function AnalyticsScreen() {
               { label: 'Total income', value: `$${totalIncome6m.toLocaleString()}`, color: Colors.primary },
               { label: 'Total expenses', value: `$${totalExpense6m.toLocaleString()}`, color: Colors.red },
               { label: 'Total saved', value: `$${totalSavings6m.toLocaleString()}`, color: Colors.primary },
-              { label: 'Avg savings rate', value: `${avg6mSavingsRate}%`, color: avg6mSavingsRate >= 20 ? Colors.primary : Colors.amber },
+              { label: 'Avg savings rate (take-home)', value: `${avg6mSavingsRate}%`, color: avg6mSavingsRate >= 20 ? Colors.primary : Colors.amber },
             ].map((row, i) => (
               <View key={i} style={styles.statRow}>
                 <Text style={styles.statLabel}>{row.label}</Text>
@@ -265,7 +266,7 @@ export default function AnalyticsScreen() {
           </Card>
 
           <Card>
-            <Text style={styles.secTitle}>Savings rate by month</Text>
+            <Text style={styles.secTitle}>Savings rate by month (of take-home)</Text>
             {months.map((m, i) => {
               const rate = m.income > 0 ? Math.round((m.savings / m.income) * 100) : 0;
               return (
@@ -322,6 +323,7 @@ const styles = StyleSheet.create({
   rateRow: { flexDirection: 'row', justifyContent: 'space-between', paddingTop: Spacing.sm, borderTopWidth: 0.5, borderTopColor: 'rgba(255,255,255,0.2)' },
   rateLabel: { fontSize: Typography.sizes.sm, color: 'rgba(255,255,255,0.75)' },
   rateVal: { fontSize: Typography.sizes.md, fontWeight: '700' },
+  rateNote: { fontSize: 11, color: 'rgba(255,255,255,0.55)', marginTop: 6, lineHeight: 15 },
   secTitle: { fontSize: Typography.sizes.md, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.md },
   legend: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.md },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
