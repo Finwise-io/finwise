@@ -32,7 +32,11 @@ import {
   serverTimestamp,
 } from 'firebase/firestore';
 import { firebaseApp } from './firebaseConfig';
-import { deriveAndCacheDataKey, clearDataKey, encryptForSync, decryptFromSync } from './dataCrypto';
+import {
+  cacheDataKey, clearDataKey, getDataKey, encryptForSync, decryptFromSync,
+  generateDataKey, generateRecoveryCode, makeEnvelope, unwrapWithPassword, unwrapWithRecovery,
+  rewrapPassword, rewrapRecovery, type KeyEnvelope,
+} from './dataCrypto';
 
 // React Native: getAuth() at module load throws "Component auth has not been
 // registered yet" under Hermes/lazy bundling. initializeAuth registers the auth
@@ -51,18 +55,23 @@ try {
 }
 export const db = getFirestore(firebaseApp);
 
+// Returns the new user AND a one-time recovery code the caller MUST show the user to save.
 export async function registerUser(email: string, password: string, name: string) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
   await updateProfile(cred.user, { displayName: name });
   try { await sendEmailVerification(cred.user); } catch { /* non-blocking — they can resend later */ }
+  // Generate the data key + recovery code, store the wrapped envelope (never the secrets themselves).
+  const dek = generateDataKey();
+  const recoveryCode = generateRecoveryCode();
+  const keyEnvelope = makeEnvelope(dek, cred.user.uid, password, recoveryCode);
   await setDoc(doc(db, 'users', cred.user.uid), {
     email,
     name,
     createdAt: serverTimestamp(),
+    keyEnvelope,
   });
-  // Derive the zero-knowledge data key from the password so synced data is encrypted from the start.
-  await deriveAndCacheDataKey(cred.user.uid, password);
-  return cred.user;
+  await cacheDataKey(dek);
+  return { user: cred.user, recoveryCode };
 }
 
 /** Resend the verification email to the signed-in user. */
@@ -79,11 +88,56 @@ export function isEmailVerified(): boolean {
   return !!auth.currentUser?.emailVerified;
 }
 
-export async function loginUser(email: string, password: string) {
+// Returns the user plus the unlock status:
+//  • needsRecovery=true → the password can't open the data (it was reset); prompt for the recovery code.
+//  • recoveryCode set    → a legacy account had no envelope; we created one — show the code to save.
+export async function loginUser(email: string, password: string): Promise<{ user: any; needsRecovery: boolean; recoveryCode?: string }> {
   const cred = await signInWithEmailAndPassword(auth, email, password);
-  // Re-derive the data key so this device can decrypt the user's cloud data.
-  await deriveAndCacheDataKey(cred.user.uid, password);
-  return cred.user;
+  const uid = cred.user.uid;
+  const snap = await getDoc(doc(db, 'users', uid));
+  const env: KeyEnvelope | undefined = snap.exists() ? (snap.data() as any)?.keyEnvelope : undefined;
+
+  if (env) {
+    const dek = unwrapWithPassword(env, uid, password);
+    if (dek) { await cacheDataKey(dek); return { user: cred.user, needsRecovery: false }; }
+    // Password is valid for Firebase but can't open the data → it was reset. Need the recovery code.
+    return { user: cred.user, needsRecovery: true };
+  }
+
+  // No envelope yet (account predates encryption) → set one up now and surface the recovery code.
+  const dek = generateDataKey();
+  const recoveryCode = generateRecoveryCode();
+  await setDoc(doc(db, 'users', uid), { keyEnvelope: makeEnvelope(dek, uid, password, recoveryCode) }, { merge: true });
+  await cacheDataKey(dek);
+  return { user: cred.user, needsRecovery: false, recoveryCode };
+}
+
+// After a password reset, restore data access with the recovery code, then re-lock the data under the
+// NEW password. Throws if the code is wrong. `newPassword` is the password they just signed in with.
+export async function restoreWithRecoveryCode(recoveryCode: string, newPassword: string): Promise<void> {
+  const u = auth.currentUser;
+  if (!u) throw new Error('You are not signed in.');
+  const snap = await getDoc(doc(db, 'users', u.uid));
+  const env: KeyEnvelope | undefined = snap.exists() ? (snap.data() as any)?.keyEnvelope : undefined;
+  if (!env) throw new Error('No recovery information was found for this account.');
+  const dek = unwrapWithRecovery(env, u.uid, recoveryCode);
+  if (!dek) throw new Error('That recovery code is incorrect.');
+  await setDoc(doc(db, 'users', u.uid), { keyEnvelope: rewrapPassword(env, dek, u.uid, newPassword) }, { merge: true });
+  await cacheDataKey(dek);
+}
+
+// Issue a NEW recovery code for the signed-in user (the old one stops working). Requires the data to
+// be unlocked (key cached). Returns the new code to show once.
+export async function regenerateRecoveryCode(): Promise<string> {
+  const u = auth.currentUser;
+  if (!u) throw new Error('You are not signed in.');
+  const dek = await getDataKey();
+  if (!dek) throw new Error('Unlock the app first, then try again.');
+  const snap = await getDoc(doc(db, 'users', u.uid));
+  const env: KeyEnvelope = (snap.exists() && (snap.data() as any)?.keyEnvelope) || { p: '', r: '' };
+  const recoveryCode = generateRecoveryCode();
+  await setDoc(doc(db, 'users', u.uid), { keyEnvelope: rewrapRecovery(env, dek, u.uid, recoveryCode) }, { merge: true });
+  return recoveryCode;
 }
 
 export async function logoutUser() {

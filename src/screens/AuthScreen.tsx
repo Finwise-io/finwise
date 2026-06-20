@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
-  TouchableOpacity, KeyboardAvoidingView, Platform, Alert,
+  TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { loginUser, registerUser, resetPassword } from '../services/firebase';
+import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
+import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 type Mode = 'login' | 'register' | 'forgot';
@@ -32,6 +33,14 @@ export default function AuthScreen() {
   const [confirm, setConfirm] = useState('');
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
+
+  // Recovery-code flows
+  const [newCode, setNewCode] = useState<string | null>(null);          // a code to show + save
+  const [afterCode, setAfterCode] = useState<() => void>(() => () => {}); // what to do once acknowledged
+  const [restoreVisible, setRestoreVisible] = useState(false);          // "enter recovery code" after a reset
+  const [restorePassword, setRestorePassword] = useState('');           // the new password they just used
+  const [restoreCode, setRestoreCode] = useState('');
+  const [restoreBusy, setRestoreBusy] = useState(false);
 
   // Real-time email validation feedback
   const emailTouched = email.length > 0;
@@ -74,37 +83,44 @@ export default function AuthScreen() {
     try {
       if (mode === 'register') {
         // Firebase rejects a duplicate email with auth/email-already-in-use (handled in catch).
-        const user = await registerUser(trimEmail, password, name.trim());
+        const { user, recoveryCode } = await registerUser(trimEmail, password, name.trim());
         setUser({
           uid: user.uid,
           email: trimEmail,
           name: name.trim(),
           createdAt: new Date().toISOString(),
         });
-
-        Alert.alert(
-          'Account created! 🎉',
-          `Welcome to FinWise, ${name.trim().split(' ')[0]}! Let's set up your financial plan.`,
-          [{ text: 'Get started!', onPress: () => router.replace('/onboarding') }]
-        );
+        // Show the recovery code; continue to onboarding only after they acknowledge saving it.
+        setNewCode(recoveryCode);
+        setAfterCode(() => () => router.replace('/onboarding'));
 
       } else if (mode === 'login') {
         // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
-        const user = await loginUser(trimEmail, password);
+        const res = await loginUser(trimEmail, password);
         setUser({
-          uid: user.uid,
+          uid: res.user.uid,
           email: trimEmail,
-          name: user.displayName || trimEmail.split('@')[0],
-          createdAt: user.metadata?.creationTime || '',
+          name: res.user.displayName || trimEmail.split('@')[0],
+          createdAt: res.user.metadata?.creationTime || '',
         });
-        router.replace('/(tabs)/home');
+        if (res.needsRecovery) {
+          // Password was reset and can't open the data — ask for the recovery code to restore it.
+          setRestorePassword(password);
+          setRestoreVisible(true);
+        } else if (res.recoveryCode) {
+          // Legacy account just got an envelope — show its new recovery code, then proceed.
+          setNewCode(res.recoveryCode);
+          setAfterCode(() => () => router.replace('/(tabs)/home'));
+        } else {
+          router.replace('/(tabs)/home');
+        }
 
       } else if (mode === 'forgot') {
         await resetPassword(trimEmail);
         // Don't reveal whether the email is registered (prevents account enumeration).
         Alert.alert(
           'Password reset sent',
-          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nReminder: because your data is encrypted with your password, resetting it starts you with a fresh account.`,
+          `If an account exists for ${trimEmail}, you'll receive reset instructions by email.\n\nAfter resetting, sign in and enter your recovery code to restore your data.`,
         );
         setMode('login');
       }
@@ -137,6 +153,26 @@ export default function AuthScreen() {
     }
   }
 
+  // Restore data after a password reset, using the recovery code.
+  async function submitRestore() {
+    if (!restoreCode.trim()) { Alert.alert('Recovery code needed', 'Enter your recovery code, or start fresh.'); return; }
+    setRestoreBusy(true);
+    try {
+      await restoreWithRecoveryCode(restoreCode.trim(), restorePassword);
+      setRestoreVisible(false);
+      router.replace('/(tabs)/home');
+    } catch (err: any) {
+      Alert.alert('Couldn\'t restore', err?.message || 'That recovery code didn\'t work.');
+    } finally {
+      setRestoreBusy(false);
+    }
+  }
+  function startFresh() {
+    // They don't have the recovery code → continue with a clean slate (old data stays locked).
+    setRestoreVisible(false);
+    router.replace('/(tabs)/home');
+  }
+
   const titles: Record<Mode, string> = {
     login: 'Welcome back 👋',
     register: 'Create your account',
@@ -145,7 +181,7 @@ export default function AuthScreen() {
   const subs: Record<Mode, string> = {
     login: 'Sign in to your FinWise account',
     register: 'Start your financial wellness journey',
-    forgot: 'We\'ll email you a reset link. Note: for your privacy your data is encrypted with your password, so resetting it means your saved cloud data can\'t be recovered — you\'ll start fresh.',
+    forgot: 'We\'ll email you a reset link. Your data is encrypted with your password — after resetting, you\'ll enter your recovery code to restore it (or start fresh if you don\'t have the code).',
   };
   const btnLabels: Record<Mode, string> = {
     login: 'Sign in',
@@ -155,6 +191,39 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      {/* One-time recovery code (after signup / legacy upgrade) */}
+      <RecoveryCodeModal
+        visible={!!newCode}
+        code={newCode ?? ''}
+        onDone={() => { const go = afterCode; setNewCode(null); go(); }}
+      />
+
+      {/* Restore data with the recovery code (after a password reset) */}
+      <Modal visible={restoreVisible} transparent animationType="fade" onRequestClose={() => {}}>
+        <View style={styles.restoreBackdrop}>
+          <View style={styles.restoreCard}>
+            <Text style={styles.restoreTitle}>Restore your data</Text>
+            <Text style={styles.restoreBody}>
+              Your password was reset, so your data is locked. Enter your recovery code to unlock it.
+            </Text>
+            <TextInput
+              style={styles.restoreInput}
+              value={restoreCode}
+              onChangeText={setRestoreCode}
+              placeholder="XXXX-XXXX-XXXX-XXXX-XXXX"
+              placeholderTextColor={Colors.textTertiary}
+              autoCapitalize="characters"
+              autoCorrect={false}
+              accessibilityLabel="Recovery code"
+            />
+            <Button label={restoreBusy ? 'Restoring…' : 'Restore my data'} onPress={submitRestore} disabled={restoreBusy} />
+            <TouchableOpacity onPress={startFresh} style={{ paddingVertical: 12, alignItems: 'center' }} accessibilityRole="button" accessibilityLabel="Start fresh instead">
+              <Text style={styles.restoreFresh}>I don't have it — start fresh</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      </Modal>
+
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
         {/* Logo */}
@@ -305,6 +374,12 @@ function Field({
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   scroll: { flexGrow: 1, justifyContent: 'center', padding: Spacing.xl },
+  restoreBackdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg, zIndex: 10 },
+  restoreCard: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },
+  restoreTitle: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm },
+  restoreBody: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.base },
+  restoreInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary, marginBottom: Spacing.base, fontFamily: 'monospace' },
+  restoreFresh: { color: Colors.textTertiary, fontWeight: '600', fontSize: Typography.sizes.sm },
   logoWrap: { alignItems: 'center', marginBottom: Spacing.xl },
   logoCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: Colors.primaryDark, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.sm },
   appName: { fontSize: Typography.sizes.xxl, fontWeight: '700', color: Colors.textPrimary },

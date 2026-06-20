@@ -13,6 +13,7 @@ import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } fr
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
 import { registerUser, loginUser, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
+import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { saveProfile, profileFromOnboarding } from '../domain/profile';
 import { saveIncome, incomeFromOnboarding } from '../domain/income';
 
@@ -127,6 +128,8 @@ export default function OnboardingScreen() {
   const [pw, setPw] = useState('');
   const [inviteCode, setInviteCode] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
+  const [obCode, setObCode] = useState<string | null>(null);          // recovery code to show after signup
+  const [obAfter, setObAfter] = useState<() => void>(() => () => {});  // continuation once acknowledged
 
   const steps = buildSteps(status, tracks, answers);
   const current = steps[Math.min(stepIndex, steps.length - 1)];
@@ -209,19 +212,35 @@ export default function OnboardingScreen() {
     }
     setAuthBusy(true);
     try {
-      const authedUser = authMode === 'signup'
-        ? await registerUser(email.trim(), pw, email.trim().split('@')[0])
-        : await loginUser(email.trim(), pw);
-      // Partner joining via invite code → shared household, skip the rest of setup.
-      if (inviteCode.trim() && authedUser?.uid) {
-        try {
-          if (await joinHousehold(authedUser.uid)) return;
-        } catch {
-          Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
-        }
+      let authedUser: any;
+      let recoveryCode: string | undefined;
+      if (authMode === 'signup') {
+        const res = await registerUser(email.trim(), pw, email.trim().split('@')[0]);
+        authedUser = res.user; recoveryCode = res.recoveryCode;
+      } else {
+        const res = await loginUser(email.trim(), pw);
+        authedUser = res.user; recoveryCode = res.recoveryCode;   // set only for a legacy-account upgrade
       }
-      // onAuthChange in _layout sets the user; we stay in onboarding and advance.
-      advance();
+
+      // Continuation after auth: partner-join (skips the rest) or advance.
+      const cont = async () => {
+        if (inviteCode.trim() && authedUser?.uid) {
+          try {
+            if (await joinHousehold(authedUser.uid)) return;
+          } catch {
+            Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
+          }
+        }
+        advance();   // onAuthChange in _layout sets the user; we stay in onboarding and advance.
+      };
+
+      if (recoveryCode) {
+        // Show the one-time recovery code; only continue once they've saved it.
+        setObCode(recoveryCode);
+        setObAfter(() => () => { cont(); });
+      } else {
+        await cont();
+      }
     } catch (e: any) {
       Alert.alert('Could not continue', e?.message ?? 'Authentication failed. Try again.');
     } finally {
@@ -367,6 +386,11 @@ export default function OnboardingScreen() {
 
   return (
     <View style={{ flex: 1 }}>
+      <RecoveryCodeModal
+        visible={!!obCode}
+        code={obCode ?? ''}
+        onDone={() => { const go = obAfter; setObCode(null); go(); }}
+      />
       {/* progress bar — pinned at the top, always visible */}
       <View style={styles.progressBarFixed}>
         <ProgressBar pct={progress} />

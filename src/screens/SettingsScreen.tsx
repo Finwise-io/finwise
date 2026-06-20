@@ -4,8 +4,9 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount } from '../services/firebase';
+import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
+import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
 
@@ -80,6 +81,28 @@ export default function SettingsScreen() {
             await logoutUser();
             setUser(null);
             router.replace('/auth');
+          },
+        },
+      ]
+    );
+  }
+
+  // ── Recovery code (re-issue) ───────────────────────────────────────
+  const [rcCode, setRcCode] = useState<string | null>(null);
+  const [rcBusy, setRcBusy] = useState(false);
+  function handleRegenRecovery() {
+    Alert.alert(
+      'New recovery code',
+      'This creates a new recovery code and turns off your old one. You\'ll need to save the new one. Continue?',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Generate',
+          onPress: async () => {
+            setRcBusy(true);
+            try { setRcCode(await regenerateRecoveryCode()); }
+            catch (e: any) { Alert.alert('Couldn\'t generate a code', e?.message || 'Please try again.'); }
+            finally { setRcBusy(false); }
           },
         },
       ]
@@ -282,7 +305,19 @@ export default function SettingsScreen() {
             accessibilityHint="Requires Face ID, Touch ID, or your passcode to open the app"
           />
         </View>
+
+        <TouchableOpacity style={[styles.actionRow, { borderBottomWidth: 0 }]} onPress={handleRegenRecovery} disabled={rcBusy}
+          accessibilityRole="button" accessibilityLabel="Recovery code" accessibilityHint="Generates a new recovery code to restore data if you forget your password">
+          <Text style={{ fontSize: 22 }}>🔑</Text>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={styles.actionLabel}>Recovery code</Text>
+            <Text style={styles.actionSub}>Restores your data if you forget your password. Generate a new one anytime.</Text>
+          </View>
+          <Text style={styles.arrow}>›</Text>
+        </TouchableOpacity>
       </Card>
+
+      <RecoveryCodeModal visible={!!rcCode} code={rcCode ?? ''} onDone={() => setRcCode(null)} />
 
       {/* Actions */}
       <Card>
