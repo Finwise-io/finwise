@@ -20,6 +20,7 @@ module.exports = {
     infoPlist: {
       NSCameraUsageDescription: 'Scan receipts to log expenses instantly.',
       NSPhotoLibraryUsageDescription: 'Upload receipt photos from your library.',
+      NSFaceIDUsageDescription: 'Use Face ID to unlock FinWise and keep your financial data private.',
       ITSAppUsesNonExemptEncryption: false,
     },
     // Apple Privacy Manifest (generates ios/.../PrivacyInfo.xcprivacy at prebuild). Required since 2024.
