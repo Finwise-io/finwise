@@ -5,7 +5,8 @@ let LA: any = null;
 function load(): any {
   if (LA) return LA;
   try {
-    LA = (require as any)(['expo', 'local-authentication'].join('-'));
+    // Static require (the bundler rejects non-literal require args); guarded for graceful degradation.
+    LA = (require as any)('expo-local-authentication');
   } catch {
     LA = null;
   }

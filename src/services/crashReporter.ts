@@ -13,14 +13,12 @@ let sentry: any = null;
 let enabled = false;
 
 function loadSentry(): any {
-  if (sentry) return sentry;
-  try {
-    // Computed specifier so Metro/tsc don't hard-resolve an optional native dep that may be absent.
-    sentry = (require as any)(['@sentry', 'react-native'].join('/'));
-  } catch {
-    sentry = null;
-  }
-  return sentry;
+  // Sentry is NOT bundled yet. @sentry/react-native needs a proper Expo/Metro integration
+  // (wrap metro.config.js with getSentryExpoConfig + the Expo plugin) and a SENTRY_DSN before it
+  // works. Until then we ship crash capture via the global ErrorUtils handler below + dev console.
+  // To enable Sentry later: `npx expo install @sentry/react-native`, add the metro wrap + plugin,
+  // set SENTRY_DSN, then restore:  try { return require('@sentry/react-native'); } catch { return null; }
+  return null;
 }
 
 /** Initialise crash reporting once, at app start. Safe to call when Sentry isn't installed. */

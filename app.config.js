@@ -86,7 +86,9 @@ module.exports = {
     'expo-camera',
     'expo-system-ui',
     'expo-sharing',
-    '@sentry/react-native',   // F-6: native crash capture + source maps
+    // NOTE: re-add '@sentry/react-native' here once a Sentry account (org/project/auth token + DSN)
+    // is configured — the plugin's build-time source-map upload needs it. crashReporter.ts stays
+    // dormant until SENTRY_DSN is set, so removing the plugin doesn't affect the app today.
     [
       'expo-notifications',
       {
