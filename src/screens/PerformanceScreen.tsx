@@ -1,6 +1,7 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, type LayoutChangeEvent } from 'react-native';
+import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -22,6 +23,7 @@ const ACCOUNT_TYPE_IDS = ['brokerage', '401k', 'trad_ira', 'roth_ira', 'hsa', 'c
 const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !ACCOUNT_TYPE_IDS.includes(k.id));
 
 export default function PerformanceScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const simple = (store.displayMode ?? 'simple') === 'simple';   // Simple hides technical detail; Advisor shows it
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
@@ -82,6 +84,7 @@ export default function PerformanceScreen() {
           <Text style={styles.emptyT}>Track how your investments perform against the market.</Text>
           <Text style={styles.emptyS}>Add a holding with its ticker and what you paid — we'll value it live and compare its return to the right benchmark.</Text>
           <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a holding</Text></TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file"><Text style={styles.addLink}>📄 Import from a file instead</Text></TouchableOpacity>
         </View>
       ) : (
         <>
@@ -147,6 +150,7 @@ export default function PerformanceScreen() {
             })}
             <View style={styles.actionRow}>
               <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add holding</Text></TouchableOpacity>
+              <TouchableOpacity onPress={() => router.push('/import-holdings')}><Text style={styles.addLink}>📄 Import file</Text></TouchableOpacity>
               <TouchableOpacity onPress={() => setTxnOpen(true)}><Text style={styles.addLink}>＋ Record transaction</Text></TouchableOpacity>
               <TouchableOpacity onPress={() => setHistoryOpen(true)}><Text style={styles.addLink}>Activity ›</Text></TouchableOpacity>
             </View>

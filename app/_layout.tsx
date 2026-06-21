@@ -124,7 +124,7 @@ export default function RootLayout() {
     const inTabs       = segments[0] === '(tabs)';
     const inOnboarding = segments[0] === 'onboarding';
     const inAuth       = segments[0] === 'auth';
-    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail','income-manager','performance','bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education','insurance','estate','roth','tax-organizer','retirement'].includes(segments[0] as string);
+    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail','income-manager','performance','bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education','insurance','estate','roth','tax-organizer','retirement','import-holdings'].includes(segments[0] as string);
     if (user) {
       if (onboardingComplete) {
         if (!inTabs && !inModals) router.replace('/(tabs)/home');
@@ -180,6 +180,7 @@ export default function RootLayout() {
           <Stack.Screen name="invest"     options={{ title: 'Log investment 📈',  presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="jobsafety"  options={{ title: 'Job safety check 🛡', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>
         </AppLockGate>
         </ErrorBoundary>
