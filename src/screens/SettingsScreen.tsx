@@ -112,6 +112,7 @@ export default function SettingsScreen() {
   // ── Delete account (App Store Guideline 5.1.1(v)) ──────────────────
   const [delVisible, setDelVisible] = useState(false);
   const [delPassword, setDelPassword] = useState('');
+  const [delShowPass, setDelShowPass] = useState(false);
   const [delBusy, setDelBusy] = useState(false);
 
   // Authoritative signed-in identity (NOT the possibly-stale store user) — what delete actually acts on.
@@ -123,7 +124,7 @@ export default function SettingsScreen() {
       `This permanently deletes ${acctEmail ?? 'your account'} and all its FinWise data from our servers. This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
-        { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelVisible(true); } },
+        { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelShowPass(false); setDelVisible(true); } },
       ]
     );
   }
@@ -387,19 +388,30 @@ export default function SettingsScreen() {
               Deleting <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{acctEmail ?? 'your account'}</Text>.
               Enter <Text style={{ fontWeight: '800' }}>this account's</Text> password to permanently delete it and all its FinWise data. This can't be undone.
             </Text>
-            <TextInput
-              style={styles.delInput}
-              value={delPassword}
-              onChangeText={setDelPassword}
-              placeholder={`Password for ${acctEmail ?? 'this account'}`}
-              placeholderTextColor={Colors.textTertiary}
-              secureTextEntry
-              autoCapitalize="none"
-              autoComplete="off"
-              textContentType="none"
-              importantForAutofill="no"
-              accessibilityLabel="Password"
-            />
+            <View style={styles.delInputRow}>
+              <TextInput
+                style={styles.delInputField}
+                value={delPassword}
+                onChangeText={setDelPassword}
+                placeholder={`Password for ${acctEmail ?? 'this account'}`}
+                placeholderTextColor={Colors.textTertiary}
+                secureTextEntry={!delShowPass}
+                autoCapitalize="none"
+                autoCorrect={false}
+                autoComplete="off"
+                textContentType="none"
+                importantForAutofill="no"
+                accessibilityLabel="Password"
+              />
+              <TouchableOpacity
+                onPress={() => setDelShowPass((v) => !v)}
+                style={styles.delShow}
+                accessibilityRole="button"
+                accessibilityLabel={delShowPass ? 'Hide password' : 'Show password'}
+              >
+                <Text style={styles.delShowTxt}>{delShowPass ? 'Hide' : 'Show'}</Text>
+              </TouchableOpacity>
+            </View>
             <View style={styles.delRow}>
               <TouchableOpacity style={[styles.delBtn, styles.delCancel]} onPress={() => setDelVisible(false)} disabled={delBusy} accessibilityRole="button" accessibilityLabel="Cancel">
                 <Text style={styles.delCancelTxt}>Cancel</Text>
@@ -585,7 +597,10 @@ const styles = StyleSheet.create({
   delCard: { width: '100%', maxWidth: 380, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },
   delTitle: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.sm },
   delBody: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.base },
-  delInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary, marginBottom: Spacing.base },
+  delInputRow: { flexDirection: 'row', alignItems: 'center', borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, marginBottom: Spacing.base },
+  delInputField: { flex: 1, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary },
+  delShow: { paddingVertical: 10, paddingLeft: 12, minHeight: 44, justifyContent: 'center' },
+  delShowTxt: { color: Colors.primary, fontWeight: '700', fontSize: Typography.sizes.sm },
   delRow: { flexDirection: 'row', gap: Spacing.sm },
   delBtn: { flex: 1, minHeight: 44, borderRadius: Radii.pill, alignItems: 'center', justifyContent: 'center', paddingVertical: 12 },
   delCancel: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.borderStrong },
