@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Alert,
+  KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -379,7 +380,8 @@ export default function OnboardingScreen() {
       : isLast ? 'Enter your dashboard →' : 'Continue →';
 
   return (
-    <View style={{ flex: 1 }}>
+    // Lift the pinned footer (Back / Continue) above the keyboard so it's never hidden while typing.
+    <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       {/* progress bar — pinned at the top, always visible */}
       <View style={styles.progressBarFixed}>
         <ProgressBar pct={progress} />
@@ -411,7 +413,7 @@ export default function OnboardingScreen() {
           disabled={current !== 'account' && !canContinue()}
           style={{ flex: 1 }} size="md" />
       </View>
-    </View>
+    </KeyboardAvoidingView>
   );
 }
 
