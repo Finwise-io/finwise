@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Switch } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -58,6 +58,9 @@ export default function SettingsScreen() {
   const [fbSending, setFbSending] = useState(false);
   const [verified, setVerified] = useState(isEmailVerified());
   useEffect(() => { if (user) refreshEmailVerified().then(setVerified).catch(() => {}); }, [user]);
+  // Deep-link from the menu's "Send feedback" → open the feedback form straight away.
+  const params = useLocalSearchParams();
+  useEffect(() => { if (params?.openFeedback) setFeedbackVisible(true); }, [params?.openFeedback]);
   const handleResendVerify = async () => {
     try { await resendVerification(); Alert.alert('Verification sent', `Check ${user?.email ?? 'your inbox'} for the link.`); }
     catch { Alert.alert('Could not send', 'Please try again in a moment.'); }
@@ -190,6 +193,8 @@ export default function SettingsScreen() {
         subject:    fbSubject.trim() || FEEDBACK_TYPES.find(t => t.value === fbType)?.label || fbType,
         message:    fbMessage.trim(),
         appVersion: Constants.expoConfig?.version ?? '1.0.0',
+        buildNumber: String(Constants.expoConfig?.ios?.buildNumber ?? ''),
+        platform:   `${Platform.OS} ${Platform.Version}`,
       });
       setFeedbackVisible(false);
       setFbSubject(''); setFbMessage(''); setFbType('feature');

@@ -263,16 +263,21 @@ export async function loadUserRoot(uid: string): Promise<{ householdId: string |
 }
 
 export async function submitFeedback(payload: {
-  uid:       string | null;
-  email:     string | null;
-  name:      string | null;
-  type:      string;
-  subject:   string;
-  message:   string;
-  appVersion:string;
+  uid:        string | null;
+  email:      string | null;
+  name:       string | null;
+  type:       string;
+  subject:    string;
+  message:    string;
+  appVersion: string;
+  buildNumber?: string;   // iOS build number (helps tie a beta report to an exact TestFlight build)
+  platform?:    string;   // e.g. "ios 18.1" — which device/OS the report came from
 }) {
+  // Stored at feedback/{autoId} — each field is its own column so it reads cleanly in the Firebase
+  // console (no nested blob). createdAt is a server timestamp; status defaults to "new" for triage.
   await addDoc(collection(db, 'feedback'), {
     ...payload,
+    status: 'new',
     createdAt: serverTimestamp(),
   });
 }

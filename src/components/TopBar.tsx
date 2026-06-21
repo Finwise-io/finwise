@@ -43,6 +43,7 @@ const GROUPS: { section: string; items: Mod[] }[] = [
   ] },
 ];
 const FOOTER: Mod[] = [
+  { e: '💬', t: 'Send feedback', route: '/(tabs)/settings?openFeedback=1' },
   { e: '🏅', t: 'Rewards', route: '/(tabs)/rewards' },
   { e: '📚', t: 'Tips', route: '/(tabs)/tips' },
   { e: '⚙️', t: 'Settings', route: '/(tabs)/settings' },
