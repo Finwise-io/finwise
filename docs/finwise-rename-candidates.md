@@ -4,6 +4,18 @@
 > **"Available" = the domain wasn't registered at check time — re-verify at a registrar before buying,
 > and run a proper trademark search (USPTO TESS) on the final pick. Domain free ≠ trademark free.**
 
+## ✅ FRONT-RUNNER (2026-06-21): **Hatcho**
+After a long search, **Hatcho** is the pick — the only candidate that is warm/fun + easy to say + available + **clean on an open-web trademark check**.
+- **Meaning:** coined from "hatch" → *hatch your nest egg*. Friendly, growth-y; verbs ("Hatcho it").
+- **Domains:** `hatcho.io` AND `hatcho.ai` both free.
+- **Trademark sanity (open web):** no app/company/fintech found using it. (Minor: "Hatchō" = a Japanese miso — no conflict.) **Still do a formal USPTO TESS search in classes 9/36/42 before committing.**
+
+**Rejected along the way (for the record):**
+- **Vinur** — trademarked. **Rafiki/Rafiky** — Rafiki Microfinance Bank (Kenya) + **rafiki.com payments fintech** + registered US RAFIKI mark (Rafiki Foundation); "Rafiky" sounds identical so it doesn't escape it.
+- **Dosti** — clean-ish but crowded ("Dost" Pakistani microfinance bank, "Doshi" fintech). **Sakha** — Fund Sakha + Sakha banking apps. **Tucko** — existing Tucko delivery app. **Cushn** — user disliked. **Quibo** — Quibo Fintech LLC. **Quido** — crypto-investing app. **AmicoX/AmigoX** — "+X" weak + Amigo Loans collision.
+
+---
+
 ## ⭐ Recommended — `.io` AND `.ai` both available
 | Name | Domains | Why it fits a calm, trusted money coach |
 |---|---|---|
