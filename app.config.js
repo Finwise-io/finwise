@@ -1,7 +1,7 @@
 module.exports = {
   name: 'FinWise',
   slug: 'finwise',
-  version: '1.0.2',
+  version: '1.0.3',
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
