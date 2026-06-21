@@ -136,6 +136,13 @@ export default function OnboardingScreen() {
   setOnboardingProgress(progress / 100);   // Centi warms up neutral → happy as you advance
   const isLast = current === 'summary';
   const alreadyAuthed = !!store.user;
+  // Skip the redundant "You're signed in" confirmation: if we reach the account step already
+  // authenticated (re-running onboarding, navigated back, etc.), move straight on. Guarded by
+  // !authBusy so it never races the create-account submit, which advances itself.
+  useEffect(() => {
+    if (current === 'account' && alreadyAuthed && !authBusy) advance();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [current, alreadyAuthed, authBusy]);
   const ctx: StepCtx = { status, tracks, answers, setAnswer };
   const META = new Set(['status', 'goals', 'account', 'name', 'summary']);
   const isOptionalStep = isOptional(current as any);
@@ -326,7 +333,8 @@ export default function OnboardingScreen() {
 
     if (current === 'account') {
       if (alreadyAuthed) {
-        return <Header emoji="✅" title="You're signed in" sub="Let's keep going." />;
+        // We auto-advance past this step (see the effect above); this only flashes during signup.
+        return <Header emoji="⏳" title="Setting up your account…" sub="One moment." />;
       }
       return (
         <>
