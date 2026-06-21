@@ -7,7 +7,6 @@ import { useRouter } from 'expo-router';
 import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
-import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 type Mode = 'login' | 'register' | 'forgot';
@@ -25,6 +24,7 @@ function isValidEmail(email: string): boolean {
 export default function AuthScreen() {
   const router = useRouter();
   const setUser = useStore((s) => s.setUser);
+  const setPendingRecoveryCode = useStore((s: any) => s.setPendingRecoveryCode);
 
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
@@ -34,9 +34,8 @@ export default function AuthScreen() {
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
-  // Recovery-code flows
-  const [newCode, setNewCode] = useState<string | null>(null);          // a code to show + save
-  const [afterCode, setAfterCode] = useState<() => void>(() => () => {}); // what to do once acknowledged
+  // Recovery-code flows. The "show new code" popup lives at the root (store.pendingRecoveryCode) so the
+  // post-signup navigation can't unmount it; only the restore-after-reset input is local to this screen.
   const [restoreVisible, setRestoreVisible] = useState(false);          // "enter recovery code" after a reset
   const [restorePassword, setRestorePassword] = useState('');           // the new password they just used
   const [restoreCode, setRestoreCode] = useState('');
@@ -90,9 +89,8 @@ export default function AuthScreen() {
           name: name.trim(),
           createdAt: new Date().toISOString(),
         });
-        // Show the recovery code; continue to onboarding only after they acknowledge saving it.
-        setNewCode(recoveryCode);
-        setAfterCode(() => () => router.replace('/onboarding'));
+        // Show the recovery code at the root (survives the auth-routing navigation that follows).
+        setPendingRecoveryCode(recoveryCode);
 
       } else if (mode === 'login') {
         // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
@@ -108,9 +106,9 @@ export default function AuthScreen() {
           setRestorePassword(password);
           setRestoreVisible(true);
         } else if (res.recoveryCode) {
-          // Legacy account just got an envelope — show its new recovery code, then proceed.
-          setNewCode(res.recoveryCode);
-          setAfterCode(() => () => router.replace('/(tabs)/home'));
+          // Legacy account just got an envelope — show its new recovery code (root), then proceed.
+          setPendingRecoveryCode(res.recoveryCode);
+          router.replace('/(tabs)/home');
         } else {
           router.replace('/(tabs)/home');
         }
@@ -191,13 +189,6 @@ export default function AuthScreen() {
 
   return (
     <KeyboardAvoidingView style={styles.root} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-      {/* One-time recovery code (after signup / legacy upgrade) */}
-      <RecoveryCodeModal
-        visible={!!newCode}
-        code={newCode ?? ''}
-        onDone={() => { const go = afterCode; setNewCode(null); go(); }}
-      />
-
       {/* Restore data with the recovery code (after a password reset) */}
       <Modal visible={restoreVisible} transparent animationType="fade" onRequestClose={() => {}}>
         <View style={styles.restoreBackdrop}>

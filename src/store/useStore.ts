@@ -256,6 +256,7 @@ type AppState = {
 
   // Display mode — Simple hides jargon/advanced detail; Advisor shows full depth
   displayMode: 'simple' | 'advisor';
+  pendingRecoveryCode: string | null;   // transient: a just-issued recovery code to show at the root (survives navigation)
   fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
 
   // Economic data
@@ -317,6 +318,7 @@ type AppState = {
   setBenchmarkReturn: (kind: string, ret: number) => void;
   setCurrency: (currency: string, locale?: string) => void;
   setDisplayMode: (m: 'simple' | 'advisor') => void;
+  setPendingRecoveryCode: (c: string | null) => void;
   setFontScale: (s: number) => void;
   addRecurringIncome: (entry: Omit<RecurringIncome, 'id'>) => void;
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
@@ -441,6 +443,7 @@ export const useStore = create<AppState>()(
       currency: 'USD',
       locale: 'en-US',
       displayMode: 'simple',
+      pendingRecoveryCode: null,
       fontScale: 1,
       inflationRate: 3.2,
       treasuryYield: 4.35,
@@ -610,6 +613,7 @@ export const useStore = create<AppState>()(
         set({ currency, locale: resolved });
       },
       setDisplayMode: (m) => set({ displayMode: m }),
+      setPendingRecoveryCode: (c) => set({ pendingRecoveryCode: c }),
       setFontScale: (s) => set({ fontScale: s }),
 
       addRecurringIncome: (entry) => {

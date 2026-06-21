@@ -10,6 +10,7 @@ import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
 import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
+import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
 import { AppLockGate } from '../src/components/AppLockGate';
 import { initCrashReporting, setUserScope } from '../src/services/crashReporter';
 
@@ -50,7 +51,7 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode, pendingRecoveryCode, setPendingRecoveryCode } = useStore() as any;
   setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
   // B-23: the app is USD-only until per-country tax/retirement engines exist. Force USD here so a
   // stale non-USD `currency` synced from an old cloud profile can never desync the formatter.
@@ -151,6 +152,13 @@ export default function RootLayout() {
         <ErrorBoundary>
         <AppLockGate>
         <StatusBar style="dark" />
+        {/* One-time "save your recovery code" — rendered at the root so it survives the post-signup
+            navigation that was unmounting it when shown from the auth/onboarding screen. */}
+        <RecoveryCodeModal
+          visible={!!pendingRecoveryCode}
+          code={pendingRecoveryCode ?? ''}
+          onDone={() => setPendingRecoveryCode?.(null)}
+        />
         <Stack
           key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size / display mode changes so it applies everywhere live */
           screenOptions={{
