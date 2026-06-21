@@ -63,9 +63,10 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     expect(buildSteps('employed', ['spend', 'goals'])).not.toContain('monthlySavingsCapacity');
   });
 
-  test('account follows goals → whatYouNeed (the "what to gather" prep step)', () => {
+  test('account/sign-in is the FIRST step, then the questions (1.1)', () => {
     const steps = buildSteps('employed', ['spend', 'retire_acc', 'invest']);
-    expect(steps.slice(0, 6)).toEqual(['status', 'goals', 'whatYouNeed', 'account', 'verifyEmail', 'name']);
+    expect(steps.slice(0, 5)).toEqual(['account', 'status', 'goals', 'whatYouNeed', 'name']);
+    expect(steps[0]).toBe('account');
     expect(steps[steps.length - 1]).toBe('summary');
   });
 

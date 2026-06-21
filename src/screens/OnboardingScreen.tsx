@@ -126,6 +126,7 @@ export default function OnboardingScreen() {
   const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
   const [email, setEmail] = useState('');
   const [pw, setPw] = useState('');
+  const [showPw, setShowPw] = useState(false);
   const [inviteCode, setInviteCode] = useState('');
   const [authBusy, setAuthBusy] = useState(false);
 
@@ -204,8 +205,16 @@ export default function OnboardingScreen() {
   }
 
   async function handleAccount() {
-    if (!email.trim() || pw.length < 6) {
-      Alert.alert('Check your details', 'Enter an email and a password (6+ characters).');
+    if (!email.trim()) {
+      Alert.alert('Email required', 'Please enter your email address.');
+      return;
+    }
+    if (!pw) {
+      Alert.alert('Password required', 'Please enter your password.');
+      return;
+    }
+    if (authMode === 'signup' && pw.length < 8) {   // one policy, matches AuthScreen (DR-4)
+      Alert.alert('Password too short', 'Your password must be at least 8 characters.');
       return;
     }
     setAuthBusy(true);
@@ -215,6 +224,8 @@ export default function OnboardingScreen() {
       if (authMode === 'signup') {
         const res = await registerUser(email.trim(), pw, email.trim().split('@')[0]);
         authedUser = res.user; recoveryCode = res.recoveryCode;
+        // 1.4: simple confirmation that the verification email is on its way (no dedicated step).
+        Alert.alert('Check your email 📧', `We sent a verification link to ${email.trim()}. You can verify now, or anytime later from Settings.`);
       } else {
         const res = await loginUser(email.trim(), pw);
         authedUser = res.user; recoveryCode = res.recoveryCode;   // set only for a legacy-account upgrade
@@ -337,8 +348,15 @@ export default function OnboardingScreen() {
               placeholder="you@email.com" autoCapitalize="none" keyboardType="email-address"
               placeholderTextColor={Colors.textTertiary} />
             <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Password</Text>
-            <TextInput style={styles.input} value={pw} onChangeText={setPw}
-              placeholder="6+ characters" secureTextEntry placeholderTextColor={Colors.textTertiary} />
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
+              <TextInput style={[styles.input, { flex: 1 }]} value={pw} onChangeText={setPw}
+                placeholder={authMode === 'signup' ? '8+ characters' : 'Your password'} secureTextEntry={!showPw}
+                autoCapitalize="none" autoCorrect={false} placeholderTextColor={Colors.textTertiary} />
+              <TouchableOpacity onPress={() => setShowPw((v) => !v)} style={{ paddingHorizontal: 6, paddingVertical: 10, minHeight: 44, justifyContent: 'center' }}
+                accessibilityRole="button" accessibilityLabel={showPw ? 'Hide password' : 'Show password'}>
+                <Text style={styles.link}>{showPw ? 'Hide' : 'Show'}</Text>
+              </TouchableOpacity>
+            </View>
             <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Partner invite code (optional)</Text>
             <TextInput style={styles.input} value={inviteCode} onChangeText={(t) => setInviteCode(t.toUpperCase())}
               placeholder="e.g. K7M2QX" autoCapitalize="characters" autoCorrect={false}

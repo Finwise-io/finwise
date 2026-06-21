@@ -137,7 +137,7 @@ export const OPTIONAL_STEPS = new Set<StepId>([
   'income_scholarship', 'income_loans', 'income_other',
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
-  'invitePartner', 'networthIntro', 'verifyEmail',   // soft — app works unverified; Settings has a nudge
+  'invitePartner', 'networthIntro',   // verifyEmail removed as a step (now a post-signup popup + Settings nudge)
 ]);
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
@@ -240,7 +240,9 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];
 
 export function buildSteps(status: Status | null, tracks: Track[], answers?: Record<string, any>): StepId[] {
-  const steps: StepId[] = ['status', 'goals', 'whatYouNeed', 'account', 'verifyEmail', 'name'];
+  // 1.1: account/sign-in is the FIRST screen (don't ask questions before they commit). Email
+  // verification moved to a popup after signup (1.4) + the Settings nudge, so it's no longer a step.
+  const steps: StepId[] = ['account', 'status', 'goals', 'whatYouNeed', 'name'];
   const seen = new Set<StepId>(steps);
 
   const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };

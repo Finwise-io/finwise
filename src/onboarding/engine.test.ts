@@ -32,12 +32,12 @@ describe('onboarding goals — grouped, stage-ordered sections', () => {
     (['student', 'employed', 'partial', 'retired'] as Status[]).forEach((s) => {
       const tracks = goalOptionsFor(s).map((o) => o.value);
       const steps = buildSteps(s, tracks);
-      expect(steps[0]).toBe('status');
+      expect(steps[0]).toBe('account');   // 1.1: account/sign-in is the first step
       expect(steps[steps.length - 1]).toBe('summary');
     });
   });
   test('net worth track adds only the hand-off step (capture happens in the Net Worth tab)', () => {
     const withNW = buildSteps('employed', ['networth']);
-    expect(withNW).toEqual(['status', 'goals', 'whatYouNeed', 'account', 'verifyEmail', 'name', 'networthIntro', 'summary']);
+    expect(withNW).toEqual(['account', 'status', 'goals', 'whatYouNeed', 'name', 'networthIntro', 'summary']);
   });
 });
