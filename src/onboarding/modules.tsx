@@ -1051,6 +1051,34 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           <Text style={[s.hint, { marginTop: 10 }]}>No rush — there's nothing to do here right now. You can add accounts anytime after setup.</Text>
         </Card></>);
 
+    case 'whatYouNeed': {
+      const ret = ctx.status === 'retired';
+      const items: { e: string; t: string; d: string }[] = [
+        ret
+          ? { e: '🏦', t: 'Retirement income', d: 'Your monthly Social Security, pension, and any annuity amounts.' }
+          : { e: '💵', t: 'Your income', d: 'Your pay (take-home or gross), plus any bonus, stock, or side income.' },
+        { e: '💰', t: 'Account balances', d: 'Checking, savings, investments, and retirement (401(k), IRA). Recent statements help.' },
+        { e: '💳', t: 'Debts', d: 'Balances and interest rates for any loans and credit cards.' },
+        { e: '🧾', t: 'Monthly spending', d: 'Roughly what you spend each month — rent/mortgage, bills, and everyday costs.' },
+      ];
+      if (!ret) items.push({ e: '🏖', t: 'Retirement plans', d: 'When you’d like to retire, and any Social Security or pension you expect.' });
+
+      return (<><Header emoji="📋" title="Here’s what you’ll need" sub="Gathering these now makes the next few minutes quick. Don’t have something handy? Skip it — nothing is required, and you can add it anytime." />
+        <Card>
+          {items.map((it, i) => (
+            <View key={i} style={[{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 11 }, i < items.length - 1 && { borderBottomWidth: 0.5, borderBottomColor: Colors.border }]}>
+              <Text style={{ fontSize: 22 }}>{it.e}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{it.t}</Text>
+                <Text style={{ fontSize: 12.5, color: Colors.textSecondary, lineHeight: 17, marginTop: 2 }}>{it.d}</Text>
+              </View>
+            </View>
+          ))}
+        </Card>
+        <Text style={[s.hint, { marginTop: 10, textAlign: 'center' }]}>🔒 Everything you enter is encrypted on your device — and you can change or add details anytime.</Text>
+      </>);
+    }
+
     case 'goals_detail':
       return <GoalsEditor ctx={ctx} />;
 

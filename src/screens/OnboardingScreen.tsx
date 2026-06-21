@@ -18,7 +18,7 @@ import { saveIncome, incomeFromOnboarding } from '../domain/income';
 
 // Human section per step — "Income · 3 of 7" reads far less daunting than "Step 9 of 27".
 const STEP_SECTION: Record<string, string> = {
-  status: 'Profile', goals: 'Profile', account: 'Profile', name: 'Profile',
+  status: 'Profile', goals: 'Profile', whatYouNeed: 'Profile', account: 'Profile', name: 'Profile',
   income_sources: 'Income', income_salary: 'Income', income_401k: 'Income', employerContribution: 'Income',
   income_bonus: 'Income', income_rsu: 'Income', income_rental: 'Income', income_self: 'Income',
   income_investment: 'Income', income_benefits: 'Income', income_support: 'Income',

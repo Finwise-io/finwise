@@ -16,7 +16,7 @@ import {
 } from './engine';
 
 const STATUSES: Status[] = ['employed', 'retired', 'partial', 'student'];
-const META: StepId[] = ['status', 'goals', 'account', 'verifyEmail', 'name'];
+const META: StepId[] = ['status', 'goals', 'whatYouNeed', 'account', 'verifyEmail', 'name'];
 const META_SET = new Set<string>([...META, 'summary']);
 const RECAPS = new Set<string>(['recap_income', 'recap_spend', 'recap_retire', 'recap_invest', 'recap_goals', 'recap_debt']);
 
