@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode } from '../services/firebase';
+import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
 import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { FONT_SCALES } from '../utils/fontScale';
@@ -114,10 +114,13 @@ export default function SettingsScreen() {
   const [delPassword, setDelPassword] = useState('');
   const [delBusy, setDelBusy] = useState(false);
 
+  // Authoritative signed-in identity (NOT the possibly-stale store user) — what delete actually acts on.
+  const acctEmail = currentUserEmail() ?? user?.email ?? null;
+
   function confirmDeleteAccount() {
     Alert.alert(
       'Delete account?',
-      'This permanently deletes your account and all your FinWise data from our servers. This cannot be undone.',
+      `This permanently deletes ${acctEmail ?? 'your account'} and all its FinWise data from our servers. This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelVisible(true); } },
@@ -381,16 +384,20 @@ export default function SettingsScreen() {
           <View style={styles.delCard}>
             <Text style={styles.delTitle}>Confirm account deletion</Text>
             <Text style={styles.delBody}>
-              Enter your password to permanently delete your account and all FinWise data. This can't be undone.
+              Deleting <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{acctEmail ?? 'your account'}</Text>.
+              Enter <Text style={{ fontWeight: '800' }}>this account's</Text> password to permanently delete it and all its FinWise data. This can't be undone.
             </Text>
             <TextInput
               style={styles.delInput}
               value={delPassword}
               onChangeText={setDelPassword}
-              placeholder="Password"
+              placeholder={`Password for ${acctEmail ?? 'this account'}`}
               placeholderTextColor={Colors.textTertiary}
               secureTextEntry
               autoCapitalize="none"
+              autoComplete="off"
+              textContentType="none"
+              importantForAutofill="no"
               accessibilityLabel="Password"
             />
             <View style={styles.delRow}>

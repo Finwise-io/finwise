@@ -88,6 +88,12 @@ export function isEmailVerified(): boolean {
   return !!auth.currentUser?.emailVerified;
 }
 
+/** The email of the account currently signed in to Firebase — the authoritative identity that
+ *  account-level actions (delete, reauth) operate on. Use this, not a possibly-stale store value. */
+export function currentUserEmail(): string | null {
+  return auth.currentUser?.email ?? null;
+}
+
 // Returns the user plus the unlock status:
 //  • needsRecovery=true → the password can't open the data (it was reset); prompt for the recovery code.
 //  • recoveryCode set    → a legacy account had no envelope; we created one — show the code to save.
