@@ -6,6 +6,21 @@
 
 ---
 
+## L‑3 (2026‑06‑21) — ML Kit makes the app un‑runnable on an Apple‑Silicon iOS Simulator
+
+**What happened:** Local simulator builds **compiled fine** but failed to **install** with *"Failed to find matching arch"* / "Needs to be updated for this version of iOS." The built `.app` binary was **x86_64**, while the Mac and its simulators are **arm64**.
+
+**Root cause (proven):** `@react-native-ml-kit/text-recognition` (receipt OCR) pulls in Google's **ML Kit** pods, which **do not ship an arm64 simulator slice**, so they set `EXCLUDED_ARCHS[sdk=iphonesimulator*] = arm64` (found in `ios/Pods/Target Support Files/MLKitCommon|MLKitVision/*.xcconfig`). That forces the *whole app* to build x86_64 for the simulator — and Apple‑Silicon simulators are arm64 (newer Xcode/iOS dropped Rosetta/x86_64), so nothing can run it. Real iPhones are fine (ML Kit ships arm64 **device** binaries), which is why EAS/TestFlight builds work.
+
+**Why QA didn't catch it:** N/A — local tooling. EAS builds in the cloud for devices and never touches the local simulator.
+
+**Lesson / rule going forward:**
+1. **On Apple‑Silicon Macs, don't rely on the local iOS Simulator to verify this app** — ML Kit makes it effectively impossible without removing the library.
+2. **TestFlight (a real device) is the verification path** for anything that must run the full native app. (See also L‑2.)
+3. A fast local loop would require a **simulator‑only build that stubs out ML Kit** — a deliberate separate task, not worth it for routine UI/flow checks.
+
+---
+
 ## L‑2 (2026‑06‑21) — Local simulator build failed: the native `ios/` project went stale after native‑dependency changes
 
 **What happened:** Tried to preview changes in the iOS Simulator. `npx expo run:ios` failed with *"Unable to find a destination matching the provided destination specifier"* — `xcodebuild` listed **no concrete simulators**, only the generic "Any iOS Simulator Device" placeholder. The app that *was* already installed on the simulator turned out to be a stale build from **weeks earlier** (checked the `.app` timestamp).
