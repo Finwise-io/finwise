@@ -63,3 +63,45 @@ describe('importHoldings', () => {
     expect(importHoldings('Symbol,Shares').holdings).toEqual([]);
   });
 });
+
+// #13: a REAL E*TRADE export — preamble before the header, mixed asset classes in one account,
+// non-ticker securities (CD, option), and a TOTAL summary row. Every column/row verified.
+describe('E*TRADE multi-asset export (#13)', () => {
+  const csv = [
+    'Account Summary',
+    'Account,Net Account Value,Total Gain $,Total Gain %,Day\'s Gain Unrealized $,Day\'s Gain Unrealized %,Available For Withdrawal,Cash Purchasing Power',
+    '"Individual Brokerage -2203",169664.71,-4146.87,-2.49,-34.86,-.02,7096.82,7096.82',
+    '',
+    'View Summary - All Positions',
+    'Filters applied: ',
+    'Symbol,Security type(s),Sort by,Sort order,',
+    ',All,Symbol,Asc,',
+    '',
+    'Symbol,Last Price $,Change $,Change %,Quantity,Price Paid $,Day\'s Gain $,Total Gain $,Total Gain %,Value $',
+    'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026,99.9934,--,--,110000.0000,100.00,3.7400,-7.2600,-.0066,109992.7400',
+    'LCTX,1.21,-0.04,-3.20,965.0000,1.74,-38.6000,-511.4500,-30.4598,1167.6500',
+    "QQQ Dec 31 '26 $600 Put,14.16,0.00,0.00,1.0000,50.35,.0000,-3628.1600,-72.0493,1407.5000",
+    'VMFXX,1.00,0.00,0.00,50000.0000,1.00,.0000,.0000,.0000,50000.0000',
+    'CASH,,,,,,,,,7096.82,',
+    'TOTAL,,,,166714.76,-34.86,-4146.87,-2.49,169664.71,',
+  ].join('\n');
+
+  const r = importHoldings(csv);
+  const byClass = (c: string) => r.holdings.filter((h) => h.assetClass === c);
+
+  test('skips the preamble + the TOTAL row, imports the 5 real holdings', () => {
+    expect(r.holdings.length).toBe(5);
+    expect(r.holdings.map((h) => h.symbol)).not.toContain('TOTAL');
+  });
+  test('CD + money-market + cash line → cash; option → alternatives; stock → equities', () => {
+    expect(byClass('cash').map((h) => h.symbol).sort()).toEqual(['CASH', 'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026', 'VMFXX']);
+    expect(byClass('alternatives').map((h) => h.symbol)).toEqual(["QQQ Dec 31 '26 $600 Put"]);
+    expect(byClass('stocks_etf').map((h) => h.symbol)).toEqual(['LCTX']);
+  });
+  test('captures market value; only the equity gets a tradeable ticker', () => {
+    const cd = r.holdings.find((h) => h.assetClass === 'cash' && h.symbol.includes('CD'))!;
+    expect(cd.value).toBeCloseTo(109992.74, 2);
+    expect(cd.ticker).toBe('');                               // a CD is not a tradeable ticker
+    expect(r.holdings.find((h) => h.symbol === 'LCTX')!.ticker).toBe('LCTX');
+  });
+});

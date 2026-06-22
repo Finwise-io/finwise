@@ -5,19 +5,24 @@
 // DR-5/DR-10: validates at the edge (ticker required, shares > 0, money parsed to Number USD).
 // DR-6: ids are assigned by the caller via newEntityId, never derived from the file.
 
+import { isCashEquivalentLabel, type AssetClass } from '../assets';
+
 export interface ImportedHolding {
-  ticker: string;          // UPPERCASE symbol, e.g. 'VTI'
-  shares: number;          // > 0
+  symbol: string;          // raw identifier from the file (may contain spaces, e.g. an option or CD)
+  ticker: string;          // clean tradeable ticker for price lookup, or '' for non-tradeable (CD/option/bond)
+  shares: number;          // ≥ 0 (0 for a plain CASH line)
   costPerShare: number;    // USD; 0 when the file doesn't give a cost
+  value: number;           // market value (USD) from the file; 0 if absent
   date?: string;           // 'YYYY-MM-DD' purchase date if the file had one
   label?: string;          // security description, if present
+  assetClass: AssetClass;  // classified from symbol/name (CD→cash, Put→alternatives, …)
 }
 
 export interface ImportResult {
   holdings: ImportedHolding[];
   total: number;           // data rows seen (excludes the header)
-  skipped: number;         // rows dropped (no ticker / non-positive shares)
-  mapped: { ticker?: string; shares?: string; cost?: string; date?: string; name?: string };  // which headers we used
+  skipped: number;         // rows dropped (summary rows / no value)
+  mapped: { ticker?: string; shares?: string; cost?: string; date?: string; name?: string; value?: string };
 }
 
 /** Minimal RFC-4180-ish CSV parser: handles quoted fields, embedded commas, "" escapes, CR/LF. */
@@ -71,7 +76,7 @@ function toIsoDate(v: string): string | undefined {
   return undefined;
 }
 
-/** A plausible ticker: 1–10 chars, letters/digits/.-, at least one letter, not a summary row. */
+/** A plausible tradeable ticker: 1–10 chars, letters/digits/.-, at least one letter, no spaces. */
 function cleanTicker(v: string): string | null {
   const t = (v ?? '').trim().toUpperCase();
   if (!t || /\s/.test(t) || t.length > 10) return null;
@@ -80,37 +85,76 @@ function cleanTicker(v: string): string | null {
   return t;
 }
 
+// Common money-market fund tickers (trade at $1 NAV) → classified as cash, not equities.
+const MMF_TICKERS = new Set(['VMFXX', 'VMRXX', 'SPAXX', 'SPRXX', 'SWVXX', 'SNVXX', 'FDRXX', 'FZFXX', 'TTTXX', 'SGOV']);
+
+/** Classify a holding by asset class from its symbol + name (the importer sets asset_class explicitly,
+ *  which overrides the kind/tax_bucket derivation). */
+export function classifyHolding(symbol: string, name = ''): AssetClass {
+  const s = `${symbol} ${name}`.trim();
+  if (MMF_TICKERS.has(symbol.trim().toUpperCase())) return 'cash';
+  if (isCashEquivalentLabel(s)) return 'cash';                          // CD / T-bill / money-market
+  if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options
+  if (/\b(bond|note|treasury|t-note|muni|debenture)\b/i.test(s)) return 'bonds';   // fixed income
+  return 'stocks_etf';                                                  // default: an equity ticker
+}
+
+/** Find the real positions header — the first row that has BOTH a symbol/ticker AND a quantity/shares
+ *  column (skips brokerage preambles like "Account Summary" and filter headers). */
+function findHeaderRow(rows: string[][]): number {
+  for (let i = 0; i < rows.length; i++) {
+    const h = rows[i].map((c) => c.trim());
+    const hasSym = h.some((c) => /^(symbol|ticker)$/i.test(c));
+    const hasQty = h.some((c) => /^(quantity|shares|qty|units)$/i.test(c));
+    if (hasSym && hasQty) return i;
+  }
+  return 0;
+}
+
 export function importHoldings(text: string): ImportResult {
   const rows = parseCsv(text);
   if (rows.length < 2) return { holdings: [], total: 0, skipped: 0, mapped: {} };
-  const headers = rows[0].map((h) => h.trim());
+  const hIdx = findHeaderRow(rows);
+  const headers = rows[hIdx].map((h) => h.trim());
 
-  const tickerCol = findCol(headers, [/^symbol$/i, /symbol|ticker/i]);
+  const symbolCol = findCol(headers, [/^symbol$/i, /^ticker$/i, /symbol|ticker/i]);
   const sharesCol = findCol(headers, [/^quantity$/i, /quantity|shares|qty|units/i]);
   const perShareCol = findCol(headers, [/cost.*(per|\/).*sh|cost\/sh|average cost|avg\.? cost|price paid|purchase price|unit cost/i]);
   const totalCostCol = findCol(headers, [/cost basis|total cost|cost amount|book cost/i]);
+  const valueCol = findCol(headers, [/^value\s*\$?$/i, /market value|current value|^value/i]);
   const dateCol = findCol(headers, [/purchase date|acquired|acquisition|trade date|date/i]);
   const nameCol = findCol(headers, [/description|security|name|fund/i]);
 
   const holdings: ImportedHolding[] = [];
   let skipped = 0;
-  const dataRows = rows.slice(1);
+  const dataRows = rows.slice(hIdx + 1);
   for (const r of dataRows) {
-    const ticker = tickerCol >= 0 ? cleanTicker(r[tickerCol]) : null;
+    const symbol = (symbolCol >= 0 ? r[symbolCol] : '').trim();
+    // Skip summary rows (TOTAL/SUBTOTAL/account lines) and rows with nothing usable.
+    if (!symbol || /^(total|subtotal|net account|account\b)/i.test(symbol)) { skipped++; continue; }
     const shares = sharesCol >= 0 ? num(r[sharesCol]) : NaN;
-    if (!ticker || !(shares > 0)) { skipped++; continue; }
+    const value = valueCol >= 0 ? num(r[valueCol]) : NaN;
+    const name = nameCol >= 0 ? (r[nameCol] ?? '').trim() : '';
+    const isCashLine = /^cash$/i.test(symbol);
+    // A CASH line imports only when it carries a real balance (a Value column); otherwise nothing to import.
+    if (isCashLine ? !(value > 0) : (!(shares > 0) && !(value > 0))) { skipped++; continue; }
 
     let costPerShare = perShareCol >= 0 ? num(r[perShareCol]) : NaN;
     if (!(costPerShare >= 0)) {
       const totalCost = totalCostCol >= 0 ? num(r[totalCostCol]) : NaN;
-      costPerShare = totalCost >= 0 ? totalCost / shares : 0;
+      costPerShare = totalCost >= 0 && shares > 0 ? totalCost / shares : 0;
     }
+    const assetClass: AssetClass = isCashLine ? 'cash' : classifyHolding(symbol, name);
+    const ticker = assetClass === 'stocks_etf' ? cleanTicker(symbol) : null;   // only equities track by ticker
     holdings.push({
-      ticker,
-      shares,
+      symbol,
+      ticker: ticker ?? '',
+      shares: shares > 0 ? shares : 0,
       costPerShare: Number.isFinite(costPerShare) && costPerShare >= 0 ? costPerShare : 0,
+      value: Number.isFinite(value) && value >= 0 ? value : 0,
       date: dateCol >= 0 ? toIsoDate(r[dateCol]) : undefined,
-      label: nameCol >= 0 ? (r[nameCol] ?? '').trim() || undefined : undefined,
+      label: name || undefined,
+      assetClass,
     });
   }
 
@@ -119,9 +163,10 @@ export function importHoldings(text: string): ImportResult {
     total: dataRows.length,
     skipped,
     mapped: {
-      ticker: tickerCol >= 0 ? headers[tickerCol] : undefined,
+      ticker: symbolCol >= 0 ? headers[symbolCol] : undefined,
       shares: sharesCol >= 0 ? headers[sharesCol] : undefined,
       cost: perShareCol >= 0 ? headers[perShareCol] : totalCostCol >= 0 ? headers[totalCostCol] : undefined,
+      value: valueCol >= 0 ? headers[valueCol] : undefined,
       date: dateCol >= 0 ? headers[dateCol] : undefined,
       name: nameCol >= 0 ? headers[nameCol] : undefined,
     },

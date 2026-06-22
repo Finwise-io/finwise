@@ -10,6 +10,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useStore } from '../store/useStore';
 import { importHoldings, type ImportResult } from '../domain/import/holdingsImport';
+import type { AssetClass, TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
 import { round2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
@@ -53,31 +54,46 @@ export default function ImportHoldingsScreen() {
     if (!result || result.holdings.length === 0) return;
     setBusy(true);
     try {
-      const positions = result.holdings.map((h) => ({
-        position_id: newEntityId('pos'),
-        ticker: h.ticker,
-        label: h.label,
-        kind: 'stocks_etf',
-        lots: [{
-          lot_id: newEntityId('lot'),
-          shares: h.shares,
-          cost_per_share: round2(h.costPerShare),
-          purchase_date: h.date || todayIso(),
-        }],
-      }));
-      // Seed the balance with cost basis so it shows immediately; refreshPrices() refines it to market value.
-      const costBasis = round2(result.holdings.reduce((t, h) => t + h.shares * h.costPerShare, 0));
-      store.addAsset({
-        label: accountName.trim() || 'Imported holdings',
-        kind: 'brokerage',
-        tax_bucket: 'TAXABLE',
-        balance: costBasis,
-        target_return: 0.08,
-        positions,
-        derive_balance: true,
-      });
-      store.refreshPrices?.();   // best-effort: pull live prices so market value populates
-      Alert.alert('Holdings imported 🎉', `Added ${positions.length} holding${positions.length === 1 ? '' : 's'} to "${accountName.trim() || 'Imported holdings'}".`, [
+      const acctName = accountName.trim() || 'Imported holdings';
+      // Equities (tradeable tickers) → one brokerage account with tracked positions.
+      const equities = result.holdings.filter((h) => h.assetClass === 'stocks_etf' && h.ticker);
+      // Everything else (CD/money-market/cash, bonds, options/alternatives) → manual-balance accounts,
+      // each tagged with its asset_class so the taxonomy classifies it correctly.
+      const others = result.holdings.filter((h) => !(h.assetClass === 'stocks_etf' && h.ticker));
+      let added = 0;
+
+      if (equities.length) {
+        const positions = equities.map((h) => ({
+          position_id: newEntityId('pos'), ticker: h.ticker, label: h.label, kind: 'stocks_etf',
+          lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: round2(h.costPerShare), purchase_date: h.date || todayIso() }],
+        }));
+        const mktValue = round2(equities.reduce((t, h) => t + (h.value || h.shares * h.costPerShare), 0));
+        store.addAsset({
+          label: acctName, kind: 'brokerage', tax_bucket: 'TAXABLE', asset_class: 'stocks_etf',
+          balance: mktValue, target_return: 0.08, positions, derive_balance: true,
+        });
+        added += equities.length;
+      }
+
+      const CLASS_DEFAULTS: Record<AssetClass, { kind: string; tax_bucket: TaxBucket; ret: number }> = {
+        cash: { kind: 'savings', tax_bucket: 'CASH', ret: 0.02 },
+        bonds: { kind: 'fixed_income', tax_bucket: 'TAXABLE', ret: 0.042 },
+        alternatives: { kind: 'other_asset', tax_bucket: 'TAXABLE', ret: 0.05 },
+        stocks_etf: { kind: 'stocks_etf', tax_bucket: 'TAXABLE', ret: 0.08 },
+        real_estate: { kind: 'home', tax_bucket: 'PROPERTY', ret: 0.04 },
+        personal_property: { kind: 'vehicle', tax_bucket: 'PROPERTY', ret: -0.05 },
+      };
+      for (const h of others) {
+        const def = CLASS_DEFAULTS[h.assetClass];
+        store.addAsset({
+          label: h.label || h.symbol, kind: def.kind, tax_bucket: def.tax_bucket,
+          asset_class: h.assetClass, balance: round2(h.value || 0), target_return: def.ret,
+        });
+        added += 1;
+      }
+
+      store.refreshPrices?.();   // best-effort: pull live prices so equity market values populate
+      Alert.alert('Holdings imported 🎉', `Added ${added} holding${added === 1 ? '' : 's'} — sorted into cash, investments and more.`, [
         { text: 'Done', onPress: () => router.back() },
       ]);
     } catch {
