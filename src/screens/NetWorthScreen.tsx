@@ -279,6 +279,8 @@ export default function NetWorthScreen() {
           Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
           <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
         </Text>
+        {/* caption (#4 transparency rule): what the slices mean, across all account types */}
+        <Text style={styles.nwCaption}>Grouped by asset class — cash, stocks/ETFs, bonds, alternatives & property — across every account (incl. 401(k)/IRA).</Text>
 
         {/* emergency-fund runway */}
         {runwayMonths != null && (
@@ -464,6 +466,7 @@ const styles = StyleSheet.create({
   donutVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   donutLbl: { fontSize: 10, color: Colors.textSecondary, marginTop: -2 },
   nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
+  nwCaption: { fontSize: 10.5, color: Colors.textTertiary, textAlign: 'center', marginBottom: 4, lineHeight: 14 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
