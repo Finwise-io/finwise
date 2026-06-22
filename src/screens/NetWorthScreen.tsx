@@ -8,12 +8,21 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket, assetAllocation, type AssetClass } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
 
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
+// #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
+const CLASS_META: { key: AssetClass; label: string; color: string }[] = [
+  { key: 'cash', label: 'Cash', color: '#178F6B' },
+  { key: 'stocks_etf', label: 'Stocks / ETFs', color: '#7A5AA7' },
+  { key: 'bonds', label: 'Bonds', color: '#185FA5' },
+  { key: 'alternatives', label: 'Alternatives', color: '#C77DBB' },
+  { key: 'real_estate', label: 'Real estate', color: '#EBB23A' },
+  { key: 'personal_property', label: 'Personal property', color: '#9E9E9E' },
+];
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
 const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? bucketSection(a.tax_bucket);
@@ -80,6 +89,8 @@ export default function NetWorthScreen() {
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
 
   const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
+  const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
+  const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0);
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
   const topCat = [...sectionTotals].filter((s) => s.total > 0).sort((a, b) => b.total - a.total)[0];
@@ -238,19 +249,19 @@ export default function NetWorthScreen() {
     // ── manager (self-serve / ongoing) ──
     body = (
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* hero: donut (net worth in center) + category $/% on the right */}
+        {/* hero: donut of assets BY ASSET CLASS (#19) + net worth (red if negative, #18) in center */}
         <View style={styles.nwHero}>
-          <Donut size={118} stroke={15} segments={sectionTotals.filter((s) => s.total > 0).map((s) => ({ value: s.total, color: SECTION_COLOR[s.sec] }))}>
-            <Text style={styles.donutVal}>{shortMoney(nw.net_worth)}</Text>
+          <Donut size={118} stroke={15} segments={classRows.map((r) => ({ value: r.total, color: r.color }))}>
+            <Text style={[styles.donutVal, nw.net_worth < 0 && { color: Colors.red }]}>{shortMoney(nw.net_worth)}</Text>
             <Text style={styles.donutLbl}>net worth</Text>
           </Donut>
           <View style={styles.nwLegend}>
-            {sectionTotals.filter((s) => s.total > 0).map((s) => (
-              <View key={s.sec} style={styles.lgRow}>
-                <View style={[styles.dot, { backgroundColor: SECTION_COLOR[s.sec] }]} />
-                <Text style={[styles.lgName, { color: SECTION_COLOR[s.sec] }]} numberOfLines={1}>{s.sec}</Text>
-                <Text style={styles.lgVal}>{shortMoney(s.total)}</Text>
-                <Text style={styles.lgPct}>{pctOf(s.total)}%</Text>
+            {classRows.map((r) => (
+              <View key={r.key} style={styles.lgRow}>
+                <View style={[styles.dot, { backgroundColor: r.color }]} />
+                <Text style={[styles.lgName, { color: r.color }]} numberOfLines={1}>{r.label}</Text>
+                <Text style={styles.lgVal}>{shortMoney(r.total)}</Text>
+                <Text style={styles.lgPct}>{pctOf(r.total)}%</Text>
               </View>
             ))}
             {dState.total_debt_balance > 0 && (
@@ -263,6 +274,11 @@ export default function NetWorthScreen() {
             )}
           </View>
         </View>
+        {/* #19: the explicit total — Assets − Debts = Net worth (so the math is never "missing") */}
+        <Text style={styles.nwIdentity}>
+          Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
+          <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
+        </Text>
 
         {/* emergency-fund runway */}
         {runwayMonths != null && (
@@ -447,6 +463,7 @@ const styles = StyleSheet.create({
   nwHero: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
   donutVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   donutLbl: { fontSize: 10, color: Colors.textSecondary, marginTop: -2 },
+  nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },

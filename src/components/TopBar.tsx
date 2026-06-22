@@ -90,14 +90,14 @@ export default function TopBar() {
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
       <TouchableOpacity
-        style={s.nwChip}
+        style={[s.nwChip, nw < 0 && { backgroundColor: Colors.red }]}
         onPress={() => router.push('/(tabs)/analytics')}
         accessibilityRole="button"
         accessibilityLabel={`Net worth ${money(nw)}`}
         accessibilityHint="Opens the Net Worth screen"
       >
         <Text style={s.nwLabel}>NW</Text>
-        <Ionicons name="trending-up" size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
+        <Ionicons name={nw < 0 ? 'trending-down' : 'trending-up'} size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
         <Text style={s.nwTxt}>{money(nw)}</Text>
         <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
       </TouchableOpacity>
