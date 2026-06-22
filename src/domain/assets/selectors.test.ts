@@ -1,0 +1,55 @@
+// Canonical asset-total selectors (Term #2/#3/#4) — agreement tests. Every total derives from one
+// selector, so screens can't disagree. Fixture mirrors the real E*TRADE export + home/car/401(k)/bond.
+import {
+  totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal,
+  investmentsTotal, investableAssets, assetAllocation, type AssetAccount,
+} from './index';
+
+const a = (over: Partial<AssetAccount>): AssetAccount => ({
+  asset_id: 'x' as any, label: 'acct', tax_bucket: 'TAXABLE', balance: 0, target_return: 0, ...over,
+});
+
+const portfolio: AssetAccount[] = [
+  a({ label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 7096 }),
+  a({ label: 'KEY BANK CD 3.85% 08/24/2026', maturity_date: '2026-08-24', balance: 109992 }), // cash (CD)
+  a({ label: 'VMFXX', asset_class: 'cash', balance: 50000 }),                                   // cash (money market)
+  a({ label: 'LCTX', kind: 'stocks_etf', balance: 1167 }),                                      // equities
+  a({ label: 'QQQ Put', asset_class: 'alternatives', balance: 1407 }),                          // alternatives (option)
+  a({ label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }),                   // equities (across wrappers)
+  a({ label: 'US Treasury Note 4% 2032', maturity_date: '2032-05-15', balance: 10000 }),        // bonds
+  a({ label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000 }),                  // real estate
+  a({ label: 'Car', kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 20000 }),                 // personal property
+];
+
+describe('canonical asset selectors — agreement', () => {
+  test('per-class totals (CD + money-market count as cash; 401k stocks count as equities)', () => {
+    expect(cashTotal(portfolio)).toBe(7096 + 109992 + 50000);     // 167,088
+    expect(equitiesTotal(portfolio)).toBe(1167 + 200000);         // LCTX + 401k stocks, across wrappers
+    expect(fixedIncomeTotal(portfolio)).toBe(10000);              // Treasury note (not the CD)
+    expect(alternativesTotal(portfolio)).toBe(1407);              // the option
+    expect(realEstateTotal(portfolio)).toBe(500000);
+  });
+
+  test('investments = equities + fixed income + alternatives', () => {
+    expect(investmentsTotal(portfolio)).toBe(
+      equitiesTotal(portfolio) + fixedIncomeTotal(portfolio) + alternativesTotal(portfolio),
+    );
+  });
+
+  test('investable = cash + investments (home + car excluded)', () => {
+    expect(investableAssets(portfolio)).toBe(cashTotal(portfolio) + investmentsTotal(portfolio));
+    expect(investableAssets(portfolio)).toBe(379662);             // excludes the $520k of property
+  });
+
+  test('total assets = investable + real estate + personal property', () => {
+    expect(totalAssets(portfolio)).toBe(investableAssets(portfolio) + 500000 + 20000);
+  });
+
+  test('allocation (donut) sums to total assets and matches the per-class selectors', () => {
+    const alloc = assetAllocation(portfolio);
+    expect(Object.values(alloc).reduce((t, v) => t + v, 0)).toBeCloseTo(totalAssets(portfolio), 2);
+    expect(alloc.cash).toBe(cashTotal(portfolio));
+    expect(alloc.stocks_etf).toBe(equitiesTotal(portfolio));
+    expect(alloc.personal_property).toBe(20000);
+  });
+});

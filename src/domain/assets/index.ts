@@ -156,6 +156,49 @@ export function isRealAsset(a: AssetAccount): boolean {
   return c === 'real_estate' || c === 'personal_property';
 }
 
+// ── Canonical asset totals (Term #2/#3/#4) ────────────────────────────────────
+// THE single source for each total — screens read these, never re-sum inline. All derive from
+// assetClassOf, so they stay consistent across every surface (Net Worth, Home, Insights, donut).
+function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): number {
+  return round2((accounts ?? []).filter(pred).reduce((t, a) => t + (a.balance || 0), 0));
+}
+export function totalAssets(accounts: AssetAccount[]): number {
+  return round2((accounts ?? []).reduce((t, a) => t + (a.balance || 0), 0));
+}
+/** Cash & cash equivalents (Term #3). */
+export function cashTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => assetClassOf(a) === 'cash');
+}
+export function equitiesTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => assetClassOf(a) === 'stocks_etf');
+}
+export function fixedIncomeTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => assetClassOf(a) === 'bonds');
+}
+export function alternativesTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => assetClassOf(a) === 'alternatives');
+}
+export function realEstateTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => assetClassOf(a) === 'real_estate');
+}
+/** Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives,
+ *  ACROSS all wrappers (so a 401(k)'s stocks count). Excludes cash + real assets. */
+export function investmentsTotal(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives'; });
+}
+/** Investable assets (Term #4) = all financial assets (cash + investments + retirement balances),
+ *  EXCLUDING real estate + personal property. */
+export function investableAssets(accounts: AssetAccount[]): number {
+  return sumWhere(accounts, (a) => !isRealAsset(a));
+}
+/** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
+export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
+  const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0 };
+  for (const a of accounts ?? []) out[assetClassOf(a)] += (a.balance || 0);
+  (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] = round2(out[k]); });
+  return out;
+}
+
 /** Investable assets for retirement — everything except property (home/vehicle aren't drawn down to live on). */
 export function investableValue(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY').reduce((t, a) => t + (a.balance || 0), 0));
