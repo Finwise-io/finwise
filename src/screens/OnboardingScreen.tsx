@@ -108,9 +108,9 @@ export default function OnboardingScreen() {
   const [stepIndex, setStepIndex] = useState<number>(draft?.stepIndex ?? 0);
   const [status, setStatus] = useState<Status | null>((draft?.status as Status) ?? null);
   const [tracks, setTracks] = useState<Track[]>((draft?.tracks as Track[]) ?? []);
-  // Prefill only from the draft (what THEY typed) — store.user.name is the Firebase displayName,
-  // which signup derives from the email prefix; leaking it here showed "blahblah" as your name.
-  const [name, setName] = useState<string>(draft?.name ?? '');
+  // Name is captured at signup (AuthScreen requires it → store.user.name); no separate onboarding
+  // step. Fall back to the draft, then the account name. (Used by Summary + the Profile module.)
+  const [name, setName] = useState<string>(draft?.name ?? store.user?.name ?? '');
   const [answers, setAnswers] = useState<Record<string, any>>(draft?.answers ?? {});
   const setAnswer = (key: string, value: any) => setAnswers(prev => ({ ...prev, [key]: value }));
 
@@ -130,7 +130,7 @@ export default function OnboardingScreen() {
   setOnboardingProgress(progress / 100);   // Centi warms up neutral → happy as you advance
   const isLast = current === 'summary';
   const ctx: StepCtx = { status, tracks, answers, setAnswer };
-  const META = new Set(['status', 'goals', 'name', 'summary']);
+  const META = new Set(['status', 'goals', 'summary']);
   const isOptionalStep = isOptional(current as any);
 
   function toggleTrack(t: Track) {
@@ -158,7 +158,6 @@ export default function OnboardingScreen() {
   function canContinue(): boolean {
     if (current === 'status') return !!status;
     if (current === 'goals') return tracks.length > 0;
-    if (current === 'name') return name.trim().length > 0;
     if (META.has(current)) return true;
     if (isOptionalStep) return true;        // optional steps: Continue always enabled (or Skip)
     return stepValid(current as any, ctx);  // required field steps: validate
@@ -253,17 +252,6 @@ export default function OnboardingScreen() {
       );
     }
 
-    if (current === 'name') {
-      return (
-        <>
-          <Header emoji="🙂" title="What should we call you?" sub="" />
-          <Card>
-            <TextInput style={styles.input} value={name} onChangeText={setName}
-              placeholder="First name" placeholderTextColor={Colors.textTertiary} autoFocus />
-          </Card>
-        </>
-      );
-    }
 
     if (current === 'summary') {
       return <Summary status={status} tracks={tracks} answers={answers} name={name} onOpen={(route) => finish(route)} />;

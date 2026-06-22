@@ -13,7 +13,7 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
   }
 
   return (
-    <Modal visible={visible} transparent animationType="fade" onRequestClose={() => {}}>
+    <Modal visible={visible} animationType="none" onRequestClose={() => {}}>
       <View style={s.backdrop}>
         <View style={s.card}>
           <Text style={s.emoji}>🔑</Text>
@@ -58,7 +58,7 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
 }
 
 const s = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
+  backdrop: { flex: 1, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   card: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, alignItems: 'center' },
   emoji: { fontSize: 40, marginBottom: Spacing.sm },
   title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4, textAlign: 'center' },

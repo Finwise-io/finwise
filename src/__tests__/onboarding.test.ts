@@ -65,7 +65,7 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
 
   test('onboarding is questions-only — no account step (L-4; signup is on AuthScreen)', () => {
     const steps = buildSteps('employed', ['spend', 'retire_acc', 'invest']);
-    expect(steps.slice(0, 4)).toEqual(['status', 'goals', 'whatYouNeed', 'name']);
+    expect(steps.slice(0, 3)).toEqual(['status', 'goals', 'whatYouNeed']);
     expect(steps).not.toContain('account');
     expect(steps).not.toContain('verifyEmail');
     expect(steps[steps.length - 1]).toBe('summary');

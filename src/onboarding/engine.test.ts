@@ -39,6 +39,6 @@ describe('onboarding goals — grouped, stage-ordered sections', () => {
   });
   test('net worth track adds only the hand-off step (capture happens in the Net Worth tab)', () => {
     const withNW = buildSteps('employed', ['networth']);
-    expect(withNW).toEqual(['status', 'goals', 'whatYouNeed', 'name', 'networthIntro', 'summary']);
+    expect(withNW).toEqual(['status', 'goals', 'whatYouNeed', 'networthIntro', 'summary']);
   });
 });

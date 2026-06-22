@@ -243,7 +243,8 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
   // L-4: account creation lives ONLY on AuthScreen now — a brand-new user signs up there first,
   // then arrives here. Onboarding is questions-only (no account/verifyEmail step), so an
   // already-authenticated user is never dropped on a "You're signed in" dead-end.
-  const steps: StepId[] = ['status', 'goals', 'whatYouNeed', 'name'];
+  // 'name' removed: AuthScreen already captures the user's name at signup (don't ask twice).
+  const steps: StepId[] = ['status', 'goals', 'whatYouNeed'];
   const seen = new Set<StepId>(steps);
 
   const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };
