@@ -21,9 +21,10 @@ export interface BudgetState {
   user_id: UserId;
   monthly_spending: number;
   net_monthly_income: number;
-  projected_to_save: number;       // income − spending (the renamed "surplus")
-  savings_rate_pct: number;        // projected_to_save / income
+  projected_to_save: number;       // income − spending (the monthly surplus)
 }
+// NOTE: the savings RATE is NOT here — it lives in domain/savings (savingsRateCash / savingsRateTotal),
+// Term #10. The old budget `savings_rate_pct` was a dead, divergent 4th definition; removed.
 
 /** projected_to_save = net monthly income − monthly spending. Income comes from the Income module. */
 export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: BudgetDoc): BudgetState {
@@ -34,7 +35,6 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
     monthly_spending: round2(spend),
     net_monthly_income: round2(netMonthlyIncome),
     projected_to_save: round2(save),
-    savings_rate_pct: netMonthlyIncome > 0 ? round2((save / netMonthlyIncome) * 100) : 0,
   };
 }
 

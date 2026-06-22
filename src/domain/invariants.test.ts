@@ -277,7 +277,6 @@ describe('Snapshot finite sweep', () => {
       expectAllFinite(s, String(_name));
       expect(s.retirement.chance_of_success).toBeGreaterThanOrEqual(0);
       expect(s.retirement.chance_of_success).toBeLessThanOrEqual(100);
-      expect(round2(s.budget.savings_rate_pct)).toBe(s.budget.savings_rate_pct);
     },
   );
 });

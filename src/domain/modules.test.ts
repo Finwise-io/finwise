@@ -96,7 +96,6 @@ describe('budget', () => {
   test('projected_to_save = income − spending', () => {
     const s = buildBudgetState('u', 8000, budgetFromOnboarding('u', { monthlySpending: '5000' }));
     expect(s.projected_to_save).toBe(3000);
-    expect(s.savings_rate_pct).toBeCloseTo(37.5, 1);
   });
 });
 
