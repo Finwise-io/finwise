@@ -5,7 +5,7 @@ import { toNum, round2 } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
 
-export type DebtType = 'MORTGAGE' | 'CREDIT_CARD' | 'STUDENT_LOAN' | 'AUTO' | 'PERSONAL' | 'OTHER';
+export type DebtType = 'MORTGAGE' | 'HELOC' | 'CREDIT_CARD' | 'STUDENT_LOAN' | 'AUTO' | 'PERSONAL' | 'MEDICAL' | 'OTHER';
 
 export interface Debt {
   debt_id: EntityId;
@@ -17,6 +17,10 @@ export interface Debt {
   minimum_monthly_payment: number;
   monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
   due_day?: number;                // day of month the payment is due (1–31)
+  // #17 / Term #9 — payment shape (drives DTI bucket + installment-vs-revolving handling):
+  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans)
+  payment_frequency?: 'monthly' | 'annual';     // default monthly
+  payment_type?: 'installment' | 'revolving';   // fixed loan payment vs revolving minimum (cards); defaults by debt_type
   origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
                                    // rows (absent = user-created, never touched by seeding/restart)
 }
@@ -25,9 +29,19 @@ export interface Debt {
 export function requiredPayment(d: Debt): number {
   return Math.max(d.minimum_monthly_payment, d.monthly_payment ?? 0) || d.minimum_monthly_payment;
 }
-/** Total monthly debt obligation across all debts. */
+/** Total monthly debt obligation across all debts (override-aware). */
 export function totalDebtMonthly(debts: Debt[]): number {
   return debts.reduce((t, d) => t + requiredPayment(d), 0);
+}
+
+// Term #9 — TWO clearly-named monthly-debt numbers (they're different concepts, not a bug to pick one):
+/** Σ MINIMUM required payments — the contractual obligation. Use for DEBT-TO-INCOME (DTI). */
+export function minimumDebtService(debts: Debt[]): number {
+  return round2((debts ?? []).reduce((t, d) => t + (d.minimum_monthly_payment || 0), 0));
+}
+/** Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account. Use for CASH FLOW. */
+export function actualDebtPayment(debts: Debt[]): number {
+  return round2(totalDebtMonthly(debts ?? []));
 }
 
 // ── Loan repayment (standard amortization) — e.g. what a student loan costs once you're repaying ──
@@ -103,10 +117,12 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
 // Capture types for debts (id maps to DebtType).
 export const DEBT_KINDS: { id: DebtType; label: string; icon: string }[] = [
   { id: 'MORTGAGE', label: 'Mortgage', icon: '🏠' },
+  { id: 'HELOC', label: 'HELOC', icon: '🏡' },
   { id: 'STUDENT_LOAN', label: 'Student loan', icon: '🎓' },
   { id: 'CREDIT_CARD', label: 'Credit card', icon: '💳' },
   { id: 'AUTO', label: 'Auto loan', icon: '🚗' },
   { id: 'PERSONAL', label: 'Personal loan', icon: '🧾' },
+  { id: 'MEDICAL', label: 'Medical', icon: '🏥' },
   { id: 'OTHER', label: 'Other', icon: '📦' },
 ];
 export function debtKind(id?: string) { return DEBT_KINDS.find((k) => k.id === id); }
@@ -115,7 +131,8 @@ export interface DebtDoc { user_id: UserId; debts: Debt[]; last_updated?: any; }
 export interface DebtState {
   user_id: UserId;
   total_debt_balance: number;
-  total_monthly_debt_service: number;
+  total_monthly_debt_service: number;   // Σ MINIMUM payments — the obligation (use for DTI)
+  total_actual_payment: number;         // Σ ACTUAL payments (override-aware) — use for cash flow
   debts: Debt[];
   highest_rate_debt: Debt | null;   // the "pay this first" (avalanche) target
   toxic_debt_balance: number;       // balances above ~7% APR
@@ -127,11 +144,12 @@ export const TOXIC_APR = 0.07;
 
 export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
   const total = debts.reduce((t, d) => t + d.remaining_balance, 0);
-  const service = debts.reduce((t, d) => t + d.minimum_monthly_payment, 0);
   const highest = debts.length ? debts.reduce((m, d) => (d.interest_rate_apr > m.interest_rate_apr ? d : m)) : null;
   const toxic = debts.filter((d) => d.interest_rate_apr > TOXIC_APR).reduce((t, d) => t + d.remaining_balance, 0);
   return {
-    user_id: uid, total_debt_balance: round2(total), total_monthly_debt_service: round2(service),
+    user_id: uid, total_debt_balance: round2(total),
+    total_monthly_debt_service: minimumDebtService(debts),   // DTI obligation (Σ minimum)
+    total_actual_payment: actualDebtPayment(debts),          // cash-flow outflow (override-aware)
     debts, highest_rate_debt: highest, toxic_debt_balance: round2(toxic),
   };
 }
@@ -140,10 +158,12 @@ export function buildDebtState(uid: UserId, debts: Debt[]): DebtState {
  *  guideline), not lumped into OTHER (renter guideline). */
 export function inferDebtType(label: string | undefined): DebtType {
   const s = (label ?? '').toLowerCase();
-  if (/mortgage|home\s*loan|heloc/.test(s)) return 'MORTGAGE';
+  if (/heloc|home\s*equity/.test(s)) return 'HELOC';
+  if (/mortgage|home\s*loan/.test(s)) return 'MORTGAGE';
   if (/auto|car\s*loan|vehicle/.test(s)) return 'AUTO';
   if (/student|tuition/.test(s)) return 'STUDENT_LOAN';
   if (/credit\s*card|visa|mastercard|amex/.test(s)) return 'CREDIT_CARD';
+  if (/medical|hospital|dental/.test(s)) return 'MEDICAL';
   if (/personal/.test(s)) return 'PERSONAL';
   return 'OTHER';
 }
