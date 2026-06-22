@@ -33,6 +33,18 @@ jobs:
       - name: Jest (all projects)
         run: npm test -- --ci --runInBand
 
+  quality-gate:
+    name: quality gate (UI change must ship with a test)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0            # full history so the gate can diff against main
+      - name: Fetch main
+        run: git fetch origin main:refs/remotes/origin/main || true
+      - name: A change to src/screens or src/components must come with a test
+        run: bash scripts/check-ui-tests.sh origin/main
+
   rules:
     name: firestore rules (emulator)
     runs-on: ubuntu-latest
