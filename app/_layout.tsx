@@ -62,6 +62,10 @@ export default function RootLayout() {
   const [isReady, setIsReady] = useState(false);
   const syncTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const currentUid = useRef<string | null>(null);
+  // Hydrate from the cloud ONCE per signed-in user. onAuthChange also fires on token refresh / app
+  // resume; re-hydrating then would clobber unsynced local changes (e.g. a fresh "re-run setup"
+  // reset, sending the user Home instead of onboarding). Track the uid we've already hydrated.
+  const hydratedUid = useRef<string | null>(null);
 
   // Auth listener + Firestore hydration on login
   useEffect(() => {
@@ -76,21 +80,26 @@ export default function RootLayout() {
         currentUid.current = firebaseUser.uid;
         setUserScope(firebaseUser.uid);   // F-6: tag crash reports with the uid (no other PII)
 
-        // Hydrate local store from Firestore (best-effort — fail gracefully offline).
+        // Hydrate local store from Firestore ONCE per user (best-effort — fail gracefully offline).
+        // Skip on token-refresh/resume re-fires so we don't overwrite unsynced local changes.
         // Household members read the SHARED doc (users/{householdId}); membership is
         // recorded top-level on their own doc so it survives a fresh install.
-        try {
-          const root = await loadUserRoot(firebaseUser.uid);
-          useStore.getState().setHouseholdId?.(root.householdId);
-          const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
-          if (cloudData) loadFromCloud(cloudData);
-          else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
-        } catch (_) {
-          // Offline — local AsyncStorage cache is already loaded by Zustand persist
+        if (hydratedUid.current !== firebaseUser.uid) {
+          hydratedUid.current = firebaseUser.uid;
+          try {
+            const root = await loadUserRoot(firebaseUser.uid);
+            useStore.getState().setHouseholdId?.(root.householdId);
+            const cloudData = root.householdId ? await loadUserData(root.householdId) : root.appState;
+            if (cloudData) loadFromCloud(cloudData);
+            else resetAll();   // brand-new account → clean slate so a prior account's local data can't leak
+          } catch (_) {
+            // Offline — local AsyncStorage cache is already loaded by Zustand persist
+          }
         }
       } else {
         setUser(null);
         currentUid.current = null;
+        hydratedUid.current = null;   // allow a re-hydrate if a different user signs in next
         setUserScope(null);   // F-6: clear the crash-report user scope on logout
       }
       setIsReady(true);

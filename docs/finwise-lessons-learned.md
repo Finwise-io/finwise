@@ -6,6 +6,29 @@
 
 ---
 
+## L‑5 (2026‑06‑22) — cloud hydration ran on every auth event and clobbered unsynced local changes
+
+**What happened:** Settings → "re‑run setup" → the wizard started, but after a Face ID unlock the app
+jumped to **Home instead of setup**.
+
+**Root cause (proven):** `handleRerunOnboarding` correctly calls `restartOnboarding()` (`onboardingComplete:false`)
+then routes to `/onboarding`. But `onAuthChange` in `app/_layout.tsx` ran `loadFromCloud(cloudData)` on
+**every** fire — and Firebase `onAuthStateChanged` fires again on **token refresh / app resume** (which the
+Face ID prompt triggers). At that moment the cloud still had `onboardingComplete:true` (the local reset
+hadn't synced), so the reload **overwrote the reset → route guard sent the user Home**. Broader bug:
+re‑hydrating on every event clobbers *any* unsynced local change, and could `resetAll()` a brand‑new
+account mid‑onboarding.
+
+**Why QA missed it:** resume/token‑refresh behaviour isn't exercised by unit tests; the routing logic is
+inside a Firebase effect (no coverage of the hydrate‑then‑refresh sequence).
+
+**Lesson / rule going forward:** **Hydrate from the cloud ONCE per signed‑in user**, not on every auth
+event — track the hydrated uid and skip re‑hydration on refresh/resume (re‑hydrate only when the uid
+actually changes). Local state is the source of truth within a session; the cloud pull is for first
+load / account switch. Never let a background reload silently overwrite unsynced local edits.
+
+---
+
 ## L‑4 (2026‑06‑21) — "You're signed in" dead‑end: two signup screens + a routing path that drops users on the onboarding account step
 
 **What happened:** After creating an account *and* after logging back in, the first screen is a pointless **"You're signed in / Let's keep going."** Also, the create‑account screen the user actually used (Name + confirm‑password + strength meter) is **not** the screen changed in fixes 1.1–1.4.
