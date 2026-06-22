@@ -1,11 +1,14 @@
 // Shows a one-time recovery code the user must save. We never store the code itself, so this is the
 // only time it can be seen — dismissing requires an explicit "I've saved it".
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Share } from 'react-native';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean; code: string; onDone: () => void }) {
   const [ack, setAck] = useState(false);
+  // The component stays mounted between signups (it just renders null when hidden), so reset the
+  // "I've saved it" checkbox each time it reappears — otherwise a second signup shows it pre-checked.
+  useEffect(() => { if (visible) setAck(false); }, [visible]);
 
   async function share() {
     try { await Share.share({ message: `My FinWise recovery code: ${code}\n\nKeep this safe — it restores your data if you forget your password.` }); }
