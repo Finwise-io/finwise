@@ -1,7 +1,7 @@
 // Shows a one-time recovery code the user must save. We never store the code itself, so this is the
 // only time it can be seen — dismissing requires an explicit "I've saved it".
 import React, { useState } from 'react';
-import { View, Text, Modal, TouchableOpacity, StyleSheet, Share } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share } from 'react-native';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean; code: string; onDone: () => void }) {
@@ -12,9 +12,13 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
     catch { /* user dismissed the share sheet */ }
   }
 
+  // Full-screen in-tree overlay (NOT a native <Modal>): a native modal presents a frame AFTER the
+  // Stack has navigated to the first onboarding question, so the question flashed first. As an
+  // absolutely-positioned View with a high zIndex it paints in the SAME frame → recovery code is first.
+  if (!visible) return null;
+
   return (
-    <Modal visible={visible} animationType="none" onRequestClose={() => {}}>
-      <View style={s.backdrop}>
+    <View style={s.backdrop} accessibilityViewIsModal accessibilityRole="alert" accessibilityLabel="Save your recovery code">
         <View style={s.card}>
           <Text style={s.emoji}>🔑</Text>
           <Text style={s.title}>Save your recovery code</Text>
@@ -50,13 +54,12 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
             <Text style={s.doneTxt}>Continue</Text>
           </TouchableOpacity>
         </View>
-      </View>
-    </Modal>
+    </View>
   );
 }
 
 const s = StyleSheet.create({
-  backdrop: { flex: 1, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
+  backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, elevation: 9999, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   card: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, alignItems: 'center' },
   emoji: { fontSize: 40, marginBottom: Spacing.sm },
   title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4, textAlign: 'center' },
