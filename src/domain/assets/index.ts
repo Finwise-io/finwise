@@ -9,6 +9,14 @@ import { employerMatchMonthly } from '../income/onboarding';
 
 export type TaxBucket = 'CASH' | 'PRE_TAX' | 'ROTH' | 'TAXABLE' | 'PROPERTY';
 
+// ── Two-axis classification (taxonomy spec, Term #1) ──────────────────────────
+// `assetClass` = WHAT it is; `taxTreatment` = HOW it's taxed. Orthogonal — a 401(k) (tax_deferred)
+// can hold stocks AND bonds. Both are DERIVED from the legacy `kind`/`tax_bucket` until set
+// explicitly (by the CSV importer or the account editor). See assetClassOf()/taxTreatmentOf().
+export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'real_estate' | 'personal_property';
+export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
+export type RealEstateUse = 'primary' | 'rental' | 'secondary' | 'land';
+
 export interface AssetAccount {
   asset_id: EntityId;
   label: string;                  // account name, e.g. "Chase Checking"
@@ -39,6 +47,11 @@ export interface AssetAccount {
   maturity_date?: string;         // 'YYYY-MM-DD'
   origin?: 'onboarding';          // seeded from onboarding answers; re-seeding replaces ONLY these
                                   // rows (absent = user-created, never touched by seeding/restart)
+  // Two-axis classification (taxonomy spec). Optional + EXPLICIT — when absent, derived from
+  // kind/tax_bucket via assetClassOf()/taxTreatmentOf(). The CSV importer + editor set these directly.
+  asset_class?: AssetClass;
+  tax_treatment?: TaxTreatment;
+  re_use?: RealEstateUse;         // real_estate only: primary | rental | secondary | land
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
@@ -85,6 +98,54 @@ export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: Tax
 ];
 export const ASSET_SECTIONS = ['Cash', 'Investments', 'Retirement', 'Property'] as const;
 export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id === id); }
+
+// ── Derivation layer for the two-axis model (Term #1) ─────────────────────────
+// Legacy `kind` → asset class. Wrappers (401k/IRA/Roth/HSA/529/brokerage) hold investments; with no
+// per-holding detail we DEFAULT them to equities — the explicit `asset_class` (set by import/editor,
+// or per-position later) overrides this best guess.
+const KIND_TO_CLASS: Record<string, AssetClass> = {
+  checking: 'cash', savings: 'cash',
+  stocks_etf: 'stocks_etf', brokerage: 'stocks_etf', college_529: 'stocks_etf',
+  '401k': 'stocks_etf', trad_ira: 'stocks_etf', roth_ira: 'stocks_etf', hsa: 'stocks_etf',
+  fixed_income: 'bonds',
+  private_equity: 'alternatives', hedge_funds: 'alternatives', commodities: 'alternatives',
+  crypto: 'alternatives', annuities: 'alternatives', other_asset: 'alternatives',
+  home: 'real_estate', vehicle: 'personal_property',
+};
+
+/** WHAT the account is (asset class). Explicit `asset_class` wins; a maturity date ⇒ a bond; else
+ *  derive from `kind`, falling back to the tax bucket. */
+export function assetClassOf(a: AssetAccount): AssetClass {
+  if (a.asset_class) return a.asset_class;
+  if (a.maturity_date) return 'bonds';                 // individual bond, regardless of kind
+  const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
+  if (byKind) return byKind;
+  if (a.tax_bucket === 'CASH') return 'cash';
+  if (a.tax_bucket === 'PROPERTY') return 'real_estate';
+  return 'stocks_etf';
+}
+
+/** HOW the account is taxed (wrapper). Explicit `tax_treatment` wins; else map the legacy tax_bucket
+ *  (CASH/TAXABLE/PROPERTY → taxable, PRE_TAX → tax_deferred, ROTH → tax_free). */
+export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
+  if (a.tax_treatment) return a.tax_treatment;
+  if (a.tax_bucket === 'PRE_TAX') return 'tax_deferred';
+  if (a.tax_bucket === 'ROTH') return 'tax_free';
+  return 'taxable';
+}
+
+/** Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
+ *  Defaults to 'primary' (the conservative nest-egg exclusion); explicit `re_use` overrides. */
+export function realEstateUseOf(a: AssetAccount): RealEstateUse {
+  return a.re_use ?? 'primary';
+}
+
+/** True when the asset is a real/physical asset (real estate or personal property) — excluded from
+ *  investable assets and the nest egg (Term #4/#7). */
+export function isRealAsset(a: AssetAccount): boolean {
+  const c = assetClassOf(a);
+  return c === 'real_estate' || c === 'personal_property';
+}
 
 /** Investable assets for retirement — everything except property (home/vehicle aren't drawn down to live on). */
 export function investableValue(accounts: AssetAccount[]): number {
