@@ -6,6 +6,23 @@
 
 ---
 
+## L‑4 (2026‑06‑21) — "You're signed in" dead‑end: two signup screens + a routing path that drops users on the onboarding account step
+
+**What happened:** After creating an account *and* after logging back in, the first screen is a pointless **"You're signed in / Let's keep going."** Also, the create‑account screen the user actually used (Name + confirm‑password + strength meter) is **not** the screen changed in fixes 1.1–1.4.
+
+**Root cause (proven in code):**
+- **Two account screens exist:** the standalone `AuthScreen.tsx` (polished — Name, email, password + show/hide, **confirm‑password**, strength meter) and the onboarding `account` step in `OnboardingScreen.tsx` (email + show/hide only). The L‑1 "forked form" problem, still live.
+- Real account creation happens on **AuthScreen**. AuthScreen's register handler **doesn't navigate** — it relies on the auth listener. On a brand‑new account the listener runs `resetAll()` → `onboardingComplete:false` → the router sends the user to `/onboarding`. Fix **1.1** made onboarding's **first** step `account`; since the user is already signed in, that step renders its `alreadyAuthed` branch → **"You're signed in."** Same after login whenever `onboardingComplete` is false (a freshly‑created account that never finished onboarding).
+- So the onboarding `account` step only ever shows "You're signed in" for these users — and 1.1 made it the very first thing they see. **Fix 1.1 (account‑as‑first‑onboarding‑step) was the wrong shape.**
+
+**Why QA didn't catch it:** No test covers cross‑screen **routing** + **auth‑state‑dependent** rendering. The step‑order test only checks the list; the new `onboarding_account` test renders the *unauthenticated* branch (the form), never the authed "You're signed in" branch.
+
+**Did it meet our guidelines?** No — §1.5/§8 (two forked signup forms) and §3.2/§3.4 (a no‑purpose "Let's keep going" step is not a real step).
+
+**Lesson / rule going forward:** Account creation is **ONE screen, ONE entry point** (AuthScreen). **Onboarding = questions only, after auth** — it must not contain an account step. Route unauthenticated users to the single auth screen first, then into questions. The correct shape isn't "account step first in onboarding," it's "auth screen first, then onboarding questions."
+
+---
+
 ## L‑3 (2026‑06‑21) — ML Kit makes the app un‑runnable on an Apple‑Silicon iOS Simulator
 
 **What happened:** Local simulator builds **compiled fine** but failed to **install** with *"Failed to find matching arch"* / "Needs to be updated for this version of iOS." The built `.app` binary was **x86_64**, while the Mac and its simulators are **arm64**.

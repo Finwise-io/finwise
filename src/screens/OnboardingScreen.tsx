@@ -13,7 +13,6 @@ import {
 import { renderStep, stepValid, StepCtx, setOnboardingProgress, onbProgress } from '../onboarding/modules';
 import Summary from '../onboarding/Summary';
 import Mascot from '../onboarding/Mascot';
-import { registerUser, loginUser, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
 import { saveProfile, profileFromOnboarding } from '../domain/profile';
 import { saveIncome, incomeFromOnboarding } from '../domain/income';
 
@@ -122,13 +121,7 @@ export default function OnboardingScreen() {
     if (tracks.length) store.setSelectedGoals?.(tracks);
   }, [stepIndex, status, tracks, name, answers]);
 
-  // Inline account step
-  const [authMode, setAuthMode] = useState<'signup' | 'login'>('signup');
-  const [email, setEmail] = useState('');
-  const [pw, setPw] = useState('');
-  const [showPw, setShowPw] = useState(false);
-  const [inviteCode, setInviteCode] = useState('');
-  const [authBusy, setAuthBusy] = useState(false);
+  // L-4: account creation moved entirely to AuthScreen — onboarding is questions-only.
 
   const steps = buildSteps(status, tracks, answers);
   const current = steps[Math.min(stepIndex, steps.length - 1)];
@@ -136,9 +129,8 @@ export default function OnboardingScreen() {
   const progress = totalSteps > 1 ? (stepIndex / (totalSteps - 1)) * 100 : 0;
   setOnboardingProgress(progress / 100);   // Centi warms up neutral → happy as you advance
   const isLast = current === 'summary';
-  const alreadyAuthed = !!store.user;
   const ctx: StepCtx = { status, tracks, answers, setAnswer };
-  const META = new Set(['status', 'goals', 'account', 'name', 'summary']);
+  const META = new Set(['status', 'goals', 'name', 'summary']);
   const isOptionalStep = isOptional(current as any);
 
   function toggleTrack(t: Track) {
@@ -181,79 +173,6 @@ export default function OnboardingScreen() {
     if (stepIndex > 0) setStepIndex(i => i - 1);
   }
 
-  // Redeem a partner-invite code: adopt the inviter's shared household doc, pull its data,
-  // and skip the rest of onboarding — the household plan already exists.
-  async function joinHousehold(uid: string): Promise<boolean> {
-    const inv = await lookupInvite(inviteCode);
-    if (!inv) {
-      Alert.alert('Invite code not found', 'Double-check the code with your partner — or continue without it and join later.');
-      return false;
-    }
-    // Claim membership FIRST (carries the code; the rules gate the shared-doc read on this member
-    // doc existing), then record the pointer on our own doc, then pull the shared plan.
-    await joinHouseholdMembership(uid, inv.householdId, inviteCode);
-    await setUserHousehold(uid, inv.householdId);
-    store.setHouseholdId?.(inv.householdId);
-    const data = await loadUserData(inv.householdId);
-    if (data) store.loadFromCloud?.(data);
-    store.setOnboardingDraft?.(null);
-    store.setOnboardingPaused?.(false);
-    store.setOnboardingComplete?.(true);
-    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your partner'} — you'll both see the same accounts, plans and goals.`);
-    router.replace('/(tabs)/home');
-    return true;
-  }
-
-  async function handleAccount() {
-    if (!email.trim()) {
-      Alert.alert('Email required', 'Please enter your email address.');
-      return;
-    }
-    if (!pw) {
-      Alert.alert('Password required', 'Please enter your password.');
-      return;
-    }
-    if (authMode === 'signup' && pw.length < 8) {   // one policy, matches AuthScreen (DR-4)
-      Alert.alert('Password too short', 'Your password must be at least 8 characters.');
-      return;
-    }
-    setAuthBusy(true);
-    try {
-      let authedUser: any;
-      let recoveryCode: string | undefined;
-      if (authMode === 'signup') {
-        const res = await registerUser(email.trim(), pw, email.trim().split('@')[0]);
-        authedUser = res.user; recoveryCode = res.recoveryCode;
-        // 1.4: simple confirmation that the verification email is on its way (no dedicated step).
-        Alert.alert('Check your email 📧', `We sent a verification link to ${email.trim()}. You can verify now, or anytime later from Settings.`);
-      } else {
-        const res = await loginUser(email.trim(), pw);
-        authedUser = res.user; recoveryCode = res.recoveryCode;   // set only for a legacy-account upgrade
-      }
-
-      // Continuation after auth: partner-join (skips the rest) or advance.
-      const cont = async () => {
-        if (inviteCode.trim() && authedUser?.uid) {
-          try {
-            if (await joinHousehold(authedUser.uid)) return;
-          } catch {
-            Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
-          }
-        }
-        advance();   // onAuthChange in _layout sets the user; we stay in onboarding and advance.
-      };
-
-      // Show the one-time recovery code at the ROOT (survives navigation), then continue. The popup
-      // overlays the next step until the user acknowledges saving the code.
-      if (recoveryCode) store.setPendingRecoveryCode?.(recoveryCode);
-      await cont();
-    } catch (e: any) {
-      Alert.alert('Could not continue', e?.message ?? 'Authentication failed. Try again.');
-    } finally {
-      setAuthBusy(false);
-    }
-  }
-
   // dest: where to land after finishing — Summary's module rows deep-link via this.
   function finish(dest: string = '/(tabs)/home') {
     store.setEmploymentStatus?.(status);
@@ -280,7 +199,6 @@ export default function OnboardingScreen() {
   }
 
   function onPrimary() {
-    if (current === 'account' && !alreadyAuthed) return handleAccount();
     advance();
   }
 
@@ -335,44 +253,6 @@ export default function OnboardingScreen() {
       );
     }
 
-    if (current === 'account') {
-      if (alreadyAuthed) {
-        return <Header emoji="✅" title="You're signed in" sub="Let's keep going." />;
-      }
-      return (
-        <>
-          <Header emoji="🔐" title="Create your free account" sub="So we can save your plan as you go. Your data stays private." />
-          <Card>
-            <Text style={styles.inputLabel}>Email</Text>
-            <TextInput style={styles.input} value={email} onChangeText={setEmail}
-              placeholder="you@email.com" autoCapitalize="none" keyboardType="email-address"
-              placeholderTextColor={Colors.textTertiary} />
-            <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Password</Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8 }}>
-              <TextInput style={[styles.input, { flex: 1 }]} value={pw} onChangeText={setPw}
-                placeholder={authMode === 'signup' ? '8+ characters' : 'Your password'} secureTextEntry={!showPw}
-                autoCapitalize="none" autoCorrect={false} placeholderTextColor={Colors.textTertiary} />
-              <TouchableOpacity onPress={() => setShowPw((v) => !v)} style={{ paddingHorizontal: 6, paddingVertical: 10, minHeight: 44, justifyContent: 'center' }}
-                accessibilityRole="button" accessibilityLabel={showPw ? 'Hide password' : 'Show password'}>
-                <Text style={styles.link}>{showPw ? 'Hide' : 'Show'}</Text>
-              </TouchableOpacity>
-            </View>
-            <Text style={[styles.inputLabel, { marginTop: Spacing.sm }]}>Partner invite code (optional)</Text>
-            <TextInput style={styles.input} value={inviteCode} onChangeText={(t) => setInviteCode(t.toUpperCase())}
-              placeholder="e.g. K7M2QX" autoCapitalize="characters" autoCorrect={false}
-              placeholderTextColor={Colors.textTertiary} maxLength={6} />
-            <Text style={{ fontSize: 11.5, color: Colors.textTertiary, marginTop: 4 }}>Got a code from your partner? Enter it to join their plan.</Text>
-          </Card>
-          <TouchableOpacity onPress={() => setAuthMode(m => m === 'signup' ? 'login' : 'signup')}
-            style={{ alignSelf: 'center', paddingVertical: Spacing.sm }}>
-            <Text style={styles.link}>
-              {authMode === 'signup' ? 'Already have an account? Log in' : 'New here? Create an account'}
-            </Text>
-          </TouchableOpacity>
-        </>
-      );
-    }
-
     if (current === 'name') {
       return (
         <>
@@ -393,9 +273,7 @@ export default function OnboardingScreen() {
     return <>{renderStep(current as any, ctx)}</>;
   }
 
-  const primaryLabel =
-    current === 'account' && !alreadyAuthed ? (authMode === 'signup' ? 'Create account' : 'Log in')
-      : isLast ? 'Enter your dashboard →' : 'Continue →';
+  const primaryLabel = isLast ? 'Enter your dashboard →' : 'Continue →';
 
   return (
     // Lift the pinned footer (Back / Continue) above the keyboard so it's never hidden while typing.
@@ -427,8 +305,8 @@ export default function OnboardingScreen() {
         {stepIndex > 0 && (
           <Button label="← Back" onPress={back} variant="secondary" style={{ width: 104 }} size="md" />
         )}
-        <Button label={primaryLabel} onPress={onPrimary} loading={authBusy}
-          disabled={current !== 'account' && !canContinue()}
+        <Button label={primaryLabel} onPress={onPrimary}
+          disabled={!canContinue()}
           style={{ flex: 1 }} size="md" />
       </View>
     </KeyboardAvoidingView>

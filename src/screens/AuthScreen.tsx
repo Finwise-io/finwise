@@ -4,7 +4,7 @@ import {
   TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Modal,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode } from '../services/firebase';
+import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { Button } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -31,6 +31,7 @@ export default function AuthScreen() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirm, setConfirm] = useState('');
+  const [inviteCode, setInviteCode] = useState('');     // optional partner-invite (household join) at signup
   const [loading, setLoading] = useState(false);
   const [showPass, setShowPass] = useState(false);
 
@@ -45,6 +46,32 @@ export default function AuthScreen() {
   const emailTouched = email.length > 0;
   const emailValid = isValidEmail(email);
   const showEmailError = emailTouched && !emailValid;
+
+  // Optional partner-invite join (ported from the former onboarding account step, L-4). Returns true
+  // when we joined a shared household (and navigated Home); false to fall through to solo onboarding.
+  async function joinHousehold(uid: string): Promise<boolean> {
+    const code = inviteCode.trim();
+    if (!code) return false;
+    const inv = await lookupInvite(code);
+    if (!inv) {
+      Alert.alert('Invite code not found', "Double-check the code with your partner — or continue without it and join later.");
+      return false;
+    }
+    // Claim membership FIRST (carries the code; rules gate the shared-doc read on this member doc
+    // existing), then record the pointer on our own doc, then pull the shared plan.
+    await joinHouseholdMembership(uid, inv.householdId, code);
+    await setUserHousehold(uid, inv.householdId);
+    const s: any = useStore.getState();
+    s.setHouseholdId?.(inv.householdId);
+    const data = await loadUserData(inv.householdId);
+    if (data) s.loadFromCloud?.(data);
+    s.setOnboardingDraft?.(null);
+    s.setOnboardingPaused?.(false);
+    s.setOnboardingComplete?.(true);
+    Alert.alert("You're in! 🎉", `You're sharing a plan with ${inv.inviterName ?? 'your partner'} — you'll both see the same accounts, plans and goals.`);
+    router.replace('/(tabs)/home');
+    return true;
+  }
 
   async function handleSubmit() {
     const trimEmail = email.trim().toLowerCase();
@@ -91,6 +118,15 @@ export default function AuthScreen() {
         });
         // Show the recovery code at the root (survives the auth-routing navigation that follows).
         setPendingRecoveryCode(recoveryCode);
+        // Optional: if they entered a partner invite code, join that shared household. On success it
+        // navigates Home; on failure we fall through and the auth listener routes to solo onboarding.
+        if (inviteCode.trim()) {
+          try {
+            await joinHousehold(user.uid);
+          } catch {
+            Alert.alert("Couldn't join the household", 'Check your connection — you can also join later. Continuing your own setup for now.');
+          }
+        }
 
       } else if (mode === 'login') {
         // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
@@ -299,6 +335,16 @@ export default function AuthScreen() {
                 {password.length === 0 ? '' : password.length < 8 ? 'Too short' : password.length < 10 ? 'OK' : 'Strong'}
               </Text>
             </View>
+          )}
+
+          {mode === 'register' && (
+            <Field
+              label="Partner invite code (optional)"
+              value={inviteCode}
+              onChange={(t) => setInviteCode(t.toUpperCase())}
+              placeholder="Have a code from your partner?"
+              autoCapitalize="characters"
+            />
           )}
 
           <Button label={btnLabels[mode]} onPress={handleSubmit} loading={loading} style={{ marginTop: Spacing.base }} />

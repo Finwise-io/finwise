@@ -12,6 +12,7 @@ import { Colors } from '../src/utils/theme';
 import { ErrorBoundary } from '../src/components/ErrorBoundary';
 import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
 import { AppLockGate } from '../src/components/AppLockGate';
+import { nextRoute } from '../src/navigation/routeGuard';
 import { initCrashReporting, setUserScope } from '../src/services/crashReporter';
 
 patchTextScaling();      // install the global font-scale hook once
@@ -117,31 +118,17 @@ export default function RootLayout() {
   }, []);
 
   // Auth-based routing guard.
-  // Onboarding now begins UNAUTHENTICATED (Q1/Q2); the account is created mid-flow,
-  // so unauth users are allowed in /onboarding (it's not in the protected-modal set).
+  // L-4: account creation lives ONLY on AuthScreen. Every unauthenticated user is sent there
+  // first (signup or login); onboarding is questions-only and always runs AFTER auth.
   useEffect(() => {
     if (!isReady) return;
-    const inTabs       = segments[0] === '(tabs)';
-    const inOnboarding = segments[0] === 'onboarding';
-    const inAuth       = segments[0] === 'auth';
-    const inModals     = ['income','expense','savings','invest','jobsafety','income-detail','income-manager','performance','bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education','insurance','estate','roth','tax-organizer','retirement','import-holdings'].includes(segments[0] as string);
-    if (user) {
-      if (onboardingComplete) {
-        if (!inTabs && !inModals) router.replace('/(tabs)/home');
-      } else if (onboardingPaused) {
-        // user chose "Save & come back later" → let them use the app; don't force onboarding
-        if (inOnboarding) router.replace('/(tabs)/home');
-      } else {
-        if (!inOnboarding) router.replace('/onboarding');
-      }
-    } else {
-      // Unauthenticated. New users do onboarding Q1/Q2; returning (logged-out) users log in.
-      if (onboardingComplete) {
-        if (!inAuth) router.replace('/auth');
-      } else if (inTabs || inModals) {
-        router.replace('/onboarding');
-      }
-    }
+    const dest = nextRoute({
+      user: !!user,
+      onboardingComplete: !!onboardingComplete,
+      onboardingPaused: !!onboardingPaused,
+      segment: (segments[0] as string) ?? '',
+    });
+    if (dest) router.replace(dest as any);
   }, [user, segments, isReady, onboardingComplete, onboardingPaused]);
 
   const backBtn = (onPress: () => void) => ({ headerLeft: () => <BackButton onPress={onPress} /> });

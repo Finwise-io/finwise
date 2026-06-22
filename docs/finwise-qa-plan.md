@@ -327,3 +327,33 @@ a user data-right) to the roadmap.
 > A.6 values are intentionally left to be captured from a verified run of `taxOwed` (the 2026 bracket
 > constants live in `src/domain/income/tax.ts`); the test pins them so any future bracket edit is a
 > deliberate, reviewed change.
+
+---
+
+## §7 — Navigation & Auth-Flow Contract  *(added 2026-06-21 after L-1/L-4)*
+
+**Why this section exists.** The two account-creation defects (L-1 forked signup form; L-4
+"You're signed in" dead-end) both slipped through because our tests are **logic-heavy + a render
+"doesn't-crash" smoke** — *nothing* asserted **cross-screen routing** or **auth-state-dependent
+rendering**. A user-journey can be broken while every unit test is green.
+
+**New exit-criteria for any change that touches auth, onboarding, or routing:**
+
+1. **Routing is a pure, tested function.** Navigation decisions live in `src/navigation/routeGuard.ts`
+   (`nextRoute(state)`), not inline in `app/_layout.tsx`. Every state combination
+   (`user × onboardingComplete × onboardingPaused × segment`) is asserted in
+   `routeGuard.test.ts`. Adding a route group or auth state → add a row to that matrix.
+2. **One account screen.** Account creation/login exists **only** in `AuthScreen.tsx`. No screen may
+   hand-roll a second signup/login form (DR-4, UI §1.5/§8). `auth_register.test.tsx` pins its UX
+   affordances (name, confirm-password, show/hide, strength, invite code).
+3. **Flow screens assert intent, not just "renders".** A new step/screen needs at least one test of
+   the user-visible affordance or the *absence* of a wrong one (e.g. `onboarding_flow.test.tsx`
+   asserts onboarding shows the first question and **no** account form / dead-end).
+4. **Dead-end check.** No reachable screen may render a terminal state with no forward action. The
+   "alreadyAuthed → You're signed in" branch is the cautionary example.
+5. **On-device verification.** Native/runtime behaviour (auth, crypto, routing after signup) is
+   verified on **TestFlight**, not the local simulator (ML Kit blocks it on Apple Silicon — L-3).
+
+**Definition of Done for an auth/onboarding/routing change:** `tsc` clean · full `jest` green ·
+routeGuard matrix updated · one flow/affordance test added or updated · TestFlight build smoke-tested
+on a real device for the specific journey changed.

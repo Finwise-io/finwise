@@ -240,9 +240,10 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];
 
 export function buildSteps(status: Status | null, tracks: Track[], answers?: Record<string, any>): StepId[] {
-  // 1.1: account/sign-in is the FIRST screen (don't ask questions before they commit). Email
-  // verification moved to a popup after signup (1.4) + the Settings nudge, so it's no longer a step.
-  const steps: StepId[] = ['account', 'status', 'goals', 'whatYouNeed', 'name'];
+  // L-4: account creation lives ONLY on AuthScreen now — a brand-new user signs up there first,
+  // then arrives here. Onboarding is questions-only (no account/verifyEmail step), so an
+  // already-authenticated user is never dropped on a "You're signed in" dead-end.
+  const steps: StepId[] = ['status', 'goals', 'whatYouNeed', 'name'];
   const seen = new Set<StepId>(steps);
 
   const emit = (f: StepId) => { if (!seen.has(f)) { seen.add(f); steps.push(f); } };
