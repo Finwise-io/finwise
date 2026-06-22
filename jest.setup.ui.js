@@ -60,7 +60,8 @@ jest.mock('./src/services/firebase', () => ({
   onAuthChange: jest.fn(() => () => {}),
   saveUserData: jest.fn(() => Promise.resolve()), loadUserData: jest.fn(() => Promise.resolve(null)),
   createInvite: jest.fn(), lookupInvite: jest.fn(() => Promise.resolve(null)),
-  setUserHousehold: jest.fn(), loadUserRoot: jest.fn(() => Promise.resolve({ householdId: null, appState: null })),
+  setUserHousehold: jest.fn(), joinHouseholdMembership: jest.fn(() => Promise.resolve()),
+  loadUserRoot: jest.fn(() => Promise.resolve({ householdId: null, appState: null })),
   submitFeedback: jest.fn(() => Promise.resolve()),
 }));
 jest.mock('./src/services/notifications', () => ({
