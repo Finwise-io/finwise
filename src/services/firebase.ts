@@ -56,13 +56,18 @@ try {
 export const db = getFirestore(firebaseApp);
 
 // Returns the new user AND a one-time recovery code the caller MUST show the user to save.
-export async function registerUser(email: string, password: string, name: string) {
+export async function registerUser(email: string, password: string, name: string, onCodeReady?: (code: string) => void) {
   const cred = await createUserWithEmailAndPassword(auth, email, password);
-  await updateProfile(cred.user, { displayName: name });
-  try { await sendEmailVerification(cred.user); } catch { /* non-blocking — they can resend later */ }
-  // Generate the data key + recovery code, store the wrapped envelope (never the secrets themselves).
+  // Generate the data key + recovery code and surface the code IMMEDIATELY — BEFORE the slow
+  // PBKDF2 envelope-wrapping (~100k iters) and the Firestore write. Creating the account fires the
+  // auth listener, which routes into onboarding; without this, the recovery code wasn't set until
+  // those slow steps finished (a few seconds later), so it appeared AFTER the first question.
   const dek = generateDataKey();
   const recoveryCode = generateRecoveryCode();
+  onCodeReady?.(recoveryCode);
+  await updateProfile(cred.user, { displayName: name });
+  try { await sendEmailVerification(cred.user); } catch { /* non-blocking — they can resend later */ }
+  // Store the wrapped envelope (never the secrets themselves).
   const keyEnvelope = makeEnvelope(dek, cred.user.uid, password, recoveryCode);
   await setDoc(doc(db, 'users', cred.user.uid), {
     email,

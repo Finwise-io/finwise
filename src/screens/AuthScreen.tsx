@@ -109,15 +109,15 @@ export default function AuthScreen() {
     try {
       if (mode === 'register') {
         // Firebase rejects a duplicate email with auth/email-already-in-use (handled in catch).
-        const { user, recoveryCode } = await registerUser(trimEmail, password, name.trim());
+        // Surface the recovery code the instant the account exists (via onCodeReady) — BEFORE the
+        // slow key-wrapping/Firestore write — so it shows before the auth listener routes to onboarding.
+        const { user } = await registerUser(trimEmail, password, name.trim(), setPendingRecoveryCode);
         setUser({
           uid: user.uid,
           email: trimEmail,
           name: name.trim(),
           createdAt: new Date().toISOString(),
         });
-        // Show the recovery code at the root (survives the auth-routing navigation that follows).
-        setPendingRecoveryCode(recoveryCode);
         // Optional: if they entered a partner invite code, join that shared household. On success it
         // navigates Home; on failure we fall through and the auth listener routes to solo onboarding.
         if (inviteCode.trim()) {
