@@ -121,22 +121,22 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
   });
 
   // ── QA-T1-011  Asset earmarking (nest-egg basis, DR-3 derive-don't-store) ────
-  // CASH defaults 50% earmarked; investment/retirement default 100%; PROPERTY 0%.
+  // Term #7: CASH 0% earmarked (liquidity, not the invested portfolio); investment/retirement 100%; PROPERTY 0%.
   test('QA-T1-011 earmarkedAmount / retirementEarmarkedValue / investableValue', () => {
     const cash = acct({ kind: 'savings', tax_bucket: 'CASH', balance: 10_000 });
     const brok = acct({ kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100_000 });
     const home = acct({ kind: 'home', tax_bucket: 'PROPERTY', balance: 400_000 });
-    expect(earmarkedAmount(cash)).toBe(5_000);              // 50% default
+    expect(earmarkedAmount(cash)).toBe(0);                  // 0% default (cash = emergency/near-term)
     expect(earmarkedAmount(brok)).toBe(100_000);            // 100% default
     expect(earmarkedAmount(home)).toBe(0);                  // property never funds retirement
-    expect(retirementEarmarkedValue([cash, brok, home])).toBe(105_000);
-    expect(investableValue([cash, brok, home])).toBe(110_000);   // excludes property only
+    expect(retirementEarmarkedValue([cash, brok, home])).toBe(100_000);   // brokerage only
+    expect(investableValue([cash, brok, home])).toBe(110_000);   // (unchanged) excludes property only
   });
 
   // ── QA-T1-012  Blended / benchmark / actual return ──────────────────────────
-  // brokerage $100k @0.08 earmark 100% (=100k) + savings $100k @0.024 earmark 50% (=50k):
-  // weighted = 100000×0.08 + 50000×0.024 = 8,000+1,200 = 9,200 ; total earmark 150,000
-  // blended = 9,200 / 150,000 = 0.061333 → 0.0613
+  // Term #7: brokerage $100k @0.08 earmark 100% (=100k) + savings $100k @0.024 earmark 0% (=0):
+  // weighted = 100000×0.08 + 0×0.024 = 8,000 ; total earmark 100,000 ; blended = 8,000/100,000 = 0.08
+  // (cash no longer drags the nest-egg return down, because it's no longer IN the nest egg).
   test('QA-T1-012 blendedReturn value-weights benchmarks across the earmarked nest egg', () => {
     const brok = acct({ kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100_000 });
     const sav = acct({ kind: 'savings', tax_bucket: 'CASH', balance: 100_000 });
@@ -144,7 +144,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
     expect(benchmarkReturn('savings')).toBe(0.024);
     expect(benchmarkReturn('unknown_kind')).toBe(0.06);          // safe fallback
     expect(benchmarkReturn('brokerage', { brokerage: 0.10 })).toBe(0.10);  // user override
-    expect(blendedReturn([brok, sav])).toBe(0.0613);
+    expect(blendedReturn([brok, sav])).toBe(0.08);
     expect(blendedReturn([])).toBe(0.06);                        // empty → fallback, never NaN
     expect(portfolioActualReturn([brok, sav])).toBeNull();       // none reported → null, not fake 0%
   });

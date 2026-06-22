@@ -206,11 +206,11 @@ export function investableValue(accounts: AssetAccount[]): number {
 
 /** Default % of an account that's earmarked for retirement (rest funds other goals). */
 export function earmarkDefault(a: AssetAccount): number {
-  if (a.tax_bucket === 'PROPERTY') return 0;            // home/vehicle never funds retirement spending
-  const kind = a.kind;
-  if (kind === 'college_529') return 0;                 // earmarked for college
-  if (a.tax_bucket === 'CASH') return 50;               // cash is part emergency-fund / near-term
-  return 100;                                           // retirement & investment accounts default fully in
+  // Term #7: the nest egg is the INVESTED retirement portfolio the 4% rule draws on. Default-exclude (0%):
+  if (isRealAsset(a)) return 0;                         // real estate + personal property (a home funds nothing; a rental adds INCOME, not a draw-down balance)
+  if (a.kind === 'college_529') return 0;               // earmarked for college
+  if (assetClassOf(a) === 'cash') return 0;             // cash = emergency fund / near-term liquidity, NOT the invested portfolio (was 50%)
+  return 100;                                           // retirement + investments default fully in (override per account)
 }
 /** The retirement-earmarked $ for one account (uses the saved % or the smart default). */
 export function earmarkedAmount(a: AssetAccount): number {

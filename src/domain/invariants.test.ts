@@ -90,19 +90,19 @@ describe('Wealth single-source invariants', () => {
     expect(pct).toBeCloseTo(100, 1);
   });
 
-  test('retirement earmark defaults: property 0%, 529 0%, cash 50%, retirement/investment 100%', () => {
+  test('retirement earmark defaults: property 0%, 529 0%, cash 0%, retirement/investment 100% (Term #7)', () => {
     const acct = (kind: string, bucket: AssetAccount['tax_bucket'], balance = 1000): AssetAccount =>
       ({ asset_id: kind, label: kind, kind, tax_bucket: bucket, balance, target_return: 0.07 });
     expect(earmarkDefault(acct('home', 'PROPERTY'))).toBe(0);
     expect(earmarkDefault(acct('college_529', 'TAXABLE'))).toBe(0);
-    expect(earmarkDefault(acct('savings', 'CASH'))).toBe(50);
+    expect(earmarkDefault(acct('savings', 'CASH'))).toBe(0);   // cash = liquidity, not the nest egg (was 50%)
     expect(earmarkDefault(acct('401k', 'PRE_TAX'))).toBe(100);
     expect(earmarkDefault(acct('roth_ira', 'ROTH'))).toBe(100);
-    expect(earmarkedAmount({ ...acct('savings', 'CASH'), balance: 10000 })).toBe(5000);
+    expect(earmarkedAmount({ ...acct('savings', 'CASH'), balance: 10000 })).toBe(0);
     expect(earmarkedAmount({ ...acct('401k', 'PRE_TAX'), retirement_pct: 250 } as AssetAccount)).toBe(1000); // clamped to 100%
     expect(retirementEarmarkedValue([
       acct('home', 'PROPERTY', 500000), acct('savings', 'CASH', 10000), acct('401k', 'PRE_TAX', 90000),
-    ])).toBe(5000 + 90000);
+    ])).toBe(0 + 90000);   // Term #7: only the 401(k) — home + cash excluded
   });
 });
 
