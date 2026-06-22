@@ -1,0 +1,4005 @@
+{
+  "duplicates": [
+    {
+      "firstFile": {
+        "end": 29,
+        "endLoc": {
+          "column": 5,
+          "line": 29,
+          "position": 1853
+        },
+        "name": "__tests__/golden.test.ts",
+        "start": 24,
+        "startLoc": {
+          "column": 77,
+          "line": 24,
+          "position": 1577
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 41,
+        "endLoc": {
+          "column": 59,
+          "line": 41,
+          "position": 2516
+        },
+        "name": "__tests__/golden.test.ts",
+        "start": 37,
+        "startLoc": {
+          "column": 84,
+          "line": 37,
+          "position": 2240
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 21,
+        "endLoc": {
+          "column": 45,
+          "line": 21,
+          "position": 1178
+        },
+        "name": "__tests__/journeys.test.ts",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 283
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 15,
+      "secondFile": {
+        "end": 20,
+        "endLoc": {
+          "column": 45,
+          "line": 20,
+          "position": 1062
+        },
+        "name": "__tests__/store.test.ts",
+        "start": 6,
+        "startLoc": {
+          "column": 0,
+          "line": 6,
+          "position": 167
+        }
+      },
+      "tokens": 282
+    },
+    {
+      "firstFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 6,
+          "line": 22,
+          "position": 1185
+        },
+        "name": "__tests__/journeys.test.ts",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 283
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 16,
+      "secondFile": {
+        "end": 22,
+        "endLoc": {
+          "column": 6,
+          "line": 22,
+          "position": 1151
+        },
+        "name": "__tests__/store_networth.test.ts",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 249
+        }
+      },
+      "tokens": 283
+    },
+    {
+      "firstFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 4,
+          "line": 19,
+          "position": 1131
+        },
+        "name": "__tests__/journeys.test.ts",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 283
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 13,
+      "secondFile": {
+        "end": 19,
+        "endLoc": {
+          "column": 4,
+          "line": 19,
+          "position": 1080
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 7,
+        "startLoc": {
+          "column": 0,
+          "line": 7,
+          "position": 232
+        }
+      },
+      "tokens": 275
+    },
+    {
+      "firstFile": {
+        "end": 174,
+        "endLoc": {
+          "column": 3,
+          "line": 174,
+          "position": 10395
+        },
+        "name": "__tests__/journeys.test.ts",
+        "start": 169,
+        "startLoc": {
+          "column": 47,
+          "line": 169,
+          "position": 10160
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 55,
+        "endLoc": {
+          "column": 9,
+          "line": 55,
+          "position": 2695
+        },
+        "name": "__tests__/store_networth.test.ts",
+        "start": 50,
+        "startLoc": {
+          "column": 63,
+          "line": 50,
+          "position": 2454
+        }
+      },
+      "tokens": 65
+    },
+    {
+      "firstFile": {
+        "end": 297,
+        "endLoc": {
+          "column": 70,
+          "line": 297,
+          "position": 13484
+        },
+        "name": "__tests__/store.test.ts",
+        "start": 291,
+        "startLoc": {
+          "column": 57,
+          "line": 291,
+          "position": 13153
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 70,
+          "line": 311,
+          "position": 14146
+        },
+        "name": "__tests__/store.test.ts",
+        "start": 305,
+        "startLoc": {
+          "column": 62,
+          "line": 305,
+          "position": 13815
+        }
+      },
+      "tokens": 96
+    },
+    {
+      "firstFile": {
+        "end": 76,
+        "endLoc": {
+          "column": 45,
+          "line": 76,
+          "position": 3329
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 71,
+        "startLoc": {
+          "column": 59,
+          "line": 71,
+          "position": 3135
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 129,
+        "endLoc": {
+          "column": 45,
+          "line": 129,
+          "position": 6025
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 124,
+        "startLoc": {
+          "column": 54,
+          "line": 124,
+          "position": 5803
+        }
+      },
+      "tokens": 56
+    },
+    {
+      "firstFile": {
+        "end": 86,
+        "endLoc": {
+          "column": 68,
+          "line": 86,
+          "position": 3789
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 81,
+        "startLoc": {
+          "column": 43,
+          "line": 81,
+          "position": 3604
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 112,
+        "endLoc": {
+          "column": 68,
+          "line": 112,
+          "position": 5053
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 107,
+        "startLoc": {
+          "column": 5,
+          "line": 107,
+          "position": 4868
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 86,
+        "endLoc": {
+          "column": 68,
+          "line": 86,
+          "position": 3789
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 81,
+        "startLoc": {
+          "column": 44,
+          "line": 81,
+          "position": 3605
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 164,
+        "endLoc": {
+          "column": 68,
+          "line": 164,
+          "position": 8630
+        },
+        "name": "__tests__/store_prices.test.ts",
+        "start": 161,
+        "startLoc": {
+          "column": 5,
+          "line": 161,
+          "position": 8448
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 105,
+        "endLoc": {
+          "column": 30,
+          "line": 105,
+          "position": 2990
+        },
+        "name": "components/InputModal.tsx",
+        "start": 96,
+        "startLoc": {
+          "column": 2,
+          "line": 96,
+          "position": 2728
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 459,
+        "endLoc": {
+          "column": 228,
+          "line": 459,
+          "position": 22713
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 458,
+        "startLoc": {
+          "column": 111,
+          "line": 458,
+          "position": 22482
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 111,
+        "endLoc": {
+          "column": 11,
+          "line": 111,
+          "position": 3202
+        },
+        "name": "components/InputModal.tsx",
+        "start": 96,
+        "startLoc": {
+          "column": 2,
+          "line": 96,
+          "position": 2728
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 16,
+      "secondFile": {
+        "end": 479,
+        "endLoc": {
+          "column": 224,
+          "line": 479,
+          "position": 23796
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 477,
+        "startLoc": {
+          "column": 111,
+          "line": 477,
+          "position": 23339
+        }
+      },
+      "tokens": 100
+    },
+    {
+      "firstFile": {
+        "end": 106,
+        "endLoc": {
+          "column": 16,
+          "line": 106,
+          "position": 3007
+        },
+        "name": "components/InputModal.tsx",
+        "start": 96,
+        "startLoc": {
+          "column": 2,
+          "line": 96,
+          "position": 2728
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 276,
+        "endLoc": {
+          "column": 229,
+          "line": 276,
+          "position": 14000
+        },
+        "name": "screens/JobSafetyScreen.tsx",
+        "start": 275,
+        "startLoc": {
+          "column": 116,
+          "line": 275,
+          "position": 13768
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 106,
+        "endLoc": {
+          "column": 16,
+          "line": 106,
+          "position": 3007
+        },
+        "name": "components/InputModal.tsx",
+        "start": 96,
+        "startLoc": {
+          "column": 2,
+          "line": 96,
+          "position": 2728
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 375,
+        "endLoc": {
+          "column": 229,
+          "line": 375,
+          "position": 20171
+        },
+        "name": "screens/RetirementScreen.tsx",
+        "start": 374,
+        "startLoc": {
+          "column": 105,
+          "line": 374,
+          "position": 19939
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 105,
+        "endLoc": {
+          "column": 29,
+          "line": 105,
+          "position": 2989
+        },
+        "name": "components/InputModal.tsx",
+        "start": 97,
+        "startLoc": {
+          "column": 9,
+          "line": 97,
+          "position": 2740
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 618,
+        "endLoc": {
+          "column": 258,
+          "line": 618,
+          "position": 35292
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 618,
+        "startLoc": {
+          "column": 41,
+          "line": 618,
+          "position": 35075
+        }
+      },
+      "tokens": 46
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 6,
+          "line": 8,
+          "position": 409
+        },
+        "name": "domain/assets/index.ts",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 146
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 6,
+          "line": 8,
+          "position": 329
+        },
+        "name": "domain/debt/index.ts",
+        "start": 2,
+        "startLoc": {
+          "column": 0,
+          "line": 2,
+          "position": 65
+        }
+      },
+      "tokens": 42
+    },
+    {
+      "firstFile": {
+        "end": 26,
+        "endLoc": {
+          "column": 4,
+          "line": 26,
+          "position": 1765
+        },
+        "name": "domain/scenarios.test.ts",
+        "start": 18,
+        "startLoc": {
+          "column": 13,
+          "line": 18,
+          "position": 1166
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 66,
+        "endLoc": {
+          "column": 2,
+          "line": 66,
+          "position": 3682
+        },
+        "name": "testing/personas.ts",
+        "start": 57,
+        "startLoc": {
+          "column": 51,
+          "line": 57,
+          "position": 3097
+        }
+      },
+      "tokens": 150
+    },
+    {
+      "firstFile": {
+        "end": 28,
+        "endLoc": {
+          "column": 6,
+          "line": 28,
+          "position": 1773
+        },
+        "name": "domain/scenarios.test.ts",
+        "start": 23,
+        "startLoc": {
+          "column": 89,
+          "line": 23,
+          "position": 1614
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 69,
+        "endLoc": {
+          "column": 6,
+          "line": 69,
+          "position": 3777
+        },
+        "name": "testing/personas.ts",
+        "start": 63,
+        "startLoc": {
+          "column": 87,
+          "line": 63,
+          "position": 3537
+        }
+      },
+      "tokens": 43
+    },
+    {
+      "firstFile": {
+        "end": 194,
+        "endLoc": {
+          "column": 8,
+          "line": 194,
+          "position": 9821
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 188,
+        "startLoc": {
+          "column": 85,
+          "line": 188,
+          "position": 9643
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 205,
+        "endLoc": {
+          "column": 8,
+          "line": 205,
+          "position": 10324
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 198,
+        "startLoc": {
+          "column": 31,
+          "line": 198,
+          "position": 10059
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 276,
+        "endLoc": {
+          "column": 28,
+          "line": 276,
+          "position": 13465
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 271,
+        "startLoc": {
+          "column": 111,
+          "line": 271,
+          "position": 13215
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 298,
+        "endLoc": {
+          "column": 28,
+          "line": 298,
+          "position": 14450
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 293,
+        "startLoc": {
+          "column": 101,
+          "line": 293,
+          "position": 14200
+        }
+      },
+      "tokens": 89
+    },
+    {
+      "firstFile": {
+        "end": 569,
+        "endLoc": {
+          "column": 38,
+          "line": 569,
+          "position": 30753
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 564,
+        "startLoc": {
+          "column": 138,
+          "line": 564,
+          "position": 30512
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 609,
+        "endLoc": {
+          "column": 38,
+          "line": 609,
+          "position": 33654
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 604,
+        "startLoc": {
+          "column": 127,
+          "line": 604,
+          "position": 33413
+        }
+      },
+      "tokens": 63
+    },
+    {
+      "firstFile": {
+        "end": 574,
+        "endLoc": {
+          "column": 121,
+          "line": 574,
+          "position": 31187
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 569,
+        "startLoc": {
+          "column": 50,
+          "line": 569,
+          "position": 30765
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 614,
+        "endLoc": {
+          "column": 121,
+          "line": 614,
+          "position": 34081
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 609,
+        "startLoc": {
+          "column": 43,
+          "line": 609,
+          "position": 33659
+        }
+      },
+      "tokens": 130
+    },
+    {
+      "firstFile": {
+        "end": 590,
+        "endLoc": {
+          "column": 14,
+          "line": 590,
+          "position": 32598
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 585,
+        "startLoc": {
+          "column": 53,
+          "line": 585,
+          "position": 32189
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 623,
+        "endLoc": {
+          "column": 16,
+          "line": 623,
+          "position": 34899
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 618,
+        "startLoc": {
+          "column": 13,
+          "line": 618,
+          "position": 34488
+        }
+      },
+      "tokens": 125
+    },
+    {
+      "firstFile": {
+        "end": 687,
+        "endLoc": {
+          "column": 10,
+          "line": 687,
+          "position": 39180
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 682,
+        "startLoc": {
+          "column": 135,
+          "line": 682,
+          "position": 39013
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 845,
+        "endLoc": {
+          "column": 10,
+          "line": 845,
+          "position": 48575
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 840,
+        "startLoc": {
+          "column": 135,
+          "line": 840,
+          "position": 48408
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 1716,
+        "endLoc": {
+          "column": 25,
+          "line": 1716,
+          "position": 101729
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 1709,
+        "startLoc": {
+          "column": 61,
+          "line": 1709,
+          "position": 101313
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 39,
+        "endLoc": {
+          "column": 25,
+          "line": 39,
+          "position": 2855
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 32,
+        "startLoc": {
+          "column": 59,
+          "line": 32,
+          "position": 2439
+        }
+      },
+      "tokens": 132
+    },
+    {
+      "firstFile": {
+        "end": 1730,
+        "endLoc": {
+          "column": 1,
+          "line": 1730,
+          "position": 102231
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 1720,
+        "startLoc": {
+          "column": 101,
+          "line": 1720,
+          "position": 102044
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 1,
+          "line": 49,
+          "position": 3281
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 41,
+        "startLoc": {
+          "column": 178,
+          "line": 41,
+          "position": 3118
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 1735,
+        "endLoc": {
+          "column": 8,
+          "line": 1735,
+          "position": 102484
+        },
+        "name": "onboarding/modules.tsx",
+        "start": 1721,
+        "startLoc": {
+          "column": 13,
+          "line": 1721,
+          "position": 102060
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 15,
+      "secondFile": {
+        "end": 797,
+        "endLoc": {
+          "column": 8,
+          "line": 797,
+          "position": 58832
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 786,
+        "startLoc": {
+          "column": 189,
+          "line": 786,
+          "position": 58494
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 30,
+        "endLoc": {
+          "column": 9,
+          "line": 30,
+          "position": 1137
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 24,
+        "startLoc": {
+          "column": 28,
+          "line": 24,
+          "position": 901
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 48,
+        "endLoc": {
+          "column": 9,
+          "line": 48,
+          "position": 2525
+        },
+        "name": "screens/TipsScreen.tsx",
+        "start": 41,
+        "startLoc": {
+          "column": 45,
+          "line": 41,
+          "position": 2288
+        }
+      },
+      "tokens": 49
+    },
+    {
+      "firstFile": {
+        "end": 45,
+        "endLoc": {
+          "column": 56,
+          "line": 45,
+          "position": 1699
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 40,
+        "startLoc": {
+          "column": 6,
+          "line": 40,
+          "position": 1482
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 52,
+        "endLoc": {
+          "column": 56,
+          "line": 52,
+          "position": 1948
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 47,
+        "startLoc": {
+          "column": 6,
+          "line": 47,
+          "position": 1731
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 155,
+        "endLoc": {
+          "column": 42,
+          "line": 155,
+          "position": 6949
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 147,
+        "startLoc": {
+          "column": 24,
+          "line": 147,
+          "position": 6744
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 188,
+        "endLoc": {
+          "column": 42,
+          "line": 188,
+          "position": 8629
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 180,
+        "startLoc": {
+          "column": 113,
+          "line": 180,
+          "position": 8424
+        }
+      },
+      "tokens": 54
+    },
+    {
+      "firstFile": {
+        "end": 188,
+        "endLoc": {
+          "column": 42,
+          "line": 188,
+          "position": 8629
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 180,
+        "startLoc": {
+          "column": 108,
+          "line": 180,
+          "position": 8419
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 226,
+        "endLoc": {
+          "column": 42,
+          "line": 226,
+          "position": 10394
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 218,
+        "startLoc": {
+          "column": 105,
+          "line": 218,
+          "position": 10184
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 188,
+        "endLoc": {
+          "column": 42,
+          "line": 188,
+          "position": 8629
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 180,
+        "startLoc": {
+          "column": 108,
+          "line": 180,
+          "position": 8419
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 269,
+        "endLoc": {
+          "column": 42,
+          "line": 269,
+          "position": 12398
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 261,
+        "startLoc": {
+          "column": 106,
+          "line": 261,
+          "position": 12188
+        }
+      },
+      "tokens": 58
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 54,
+          "line": 311,
+          "position": 14554
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 302,
+        "startLoc": {
+          "column": 7,
+          "line": 302,
+          "position": 14340
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 261,
+        "endLoc": {
+          "column": 54,
+          "line": 261,
+          "position": 12381
+        },
+        "name": "screens/JobSafetyScreen.tsx",
+        "start": 252,
+        "startLoc": {
+          "column": 76,
+          "line": 252,
+          "position": 12167
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 54,
+          "line": 311,
+          "position": 14554
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 302,
+        "startLoc": {
+          "column": 6,
+          "line": 302,
+          "position": 14339
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 235,
+        "endLoc": {
+          "column": 54,
+          "line": 235,
+          "position": 9482
+        },
+        "name": "screens/RewardsScreen.tsx",
+        "start": 226,
+        "startLoc": {
+          "column": 7,
+          "line": 226,
+          "position": 9267
+        }
+      },
+      "tokens": 62
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 54,
+          "line": 311,
+          "position": 14554
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 302,
+        "startLoc": {
+          "column": 8,
+          "line": 302,
+          "position": 14341
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 576,
+        "endLoc": {
+          "column": 54,
+          "line": 576,
+          "position": 26355
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 567,
+        "startLoc": {
+          "column": 13,
+          "line": 567,
+          "position": 26142
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 30,
+          "line": 311,
+          "position": 14530
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 304,
+        "startLoc": {
+          "column": 32,
+          "line": 304,
+          "position": 14375
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 162,
+        "endLoc": {
+          "column": 30,
+          "line": 162,
+          "position": 8307
+        },
+        "name": "screens/ImportHoldingsScreen.tsx",
+        "start": 155,
+        "startLoc": {
+          "column": 32,
+          "line": 155,
+          "position": 8152
+        }
+      },
+      "tokens": 41
+    },
+    {
+      "firstFile": {
+        "end": 312,
+        "endLoc": {
+          "column": 6,
+          "line": 312,
+          "position": 14561
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 304,
+        "startLoc": {
+          "column": 35,
+          "line": 304,
+          "position": 14378
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 262,
+        "endLoc": {
+          "column": 10,
+          "line": 262,
+          "position": 12392
+        },
+        "name": "screens/JobSafetyScreen.tsx",
+        "start": 254,
+        "startLoc": {
+          "column": 35,
+          "line": 254,
+          "position": 12205
+        }
+      },
+      "tokens": 48
+    },
+    {
+      "firstFile": {
+        "end": 311,
+        "endLoc": {
+          "column": 54,
+          "line": 311,
+          "position": 14554
+        },
+        "name": "screens/AnalyticsScreen.tsx",
+        "start": 305,
+        "startLoc": {
+          "column": 16,
+          "line": 305,
+          "position": 14397
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 347,
+        "endLoc": {
+          "column": 54,
+          "line": 347,
+          "position": 17329
+        },
+        "name": "screens/RetirementScreen.tsx",
+        "start": 341,
+        "startLoc": {
+          "column": 10,
+          "line": 341,
+          "position": 17172
+        }
+      },
+      "tokens": 42
+    },
+    {
+      "firstFile": {
+        "end": 183,
+        "endLoc": {
+          "column": 20,
+          "line": 183,
+          "position": 8790
+        },
+        "name": "screens/AuthScreen.tsx",
+        "start": 177,
+        "startLoc": {
+          "column": 9,
+          "line": 177,
+          "position": 8475
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 155,
+        "endLoc": {
+          "column": 20,
+          "line": 155,
+          "position": 7163
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 149,
+        "startLoc": {
+          "column": 89,
+          "line": 149,
+          "position": 6848
+        }
+      },
+      "tokens": 45
+    },
+    {
+      "firstFile": {
+        "end": 153,
+        "endLoc": {
+          "column": 83,
+          "line": 153,
+          "position": 8563
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 83,
+          "line": 96,
+          "position": 5560
+        },
+        "name": "screens/CreditScreen.tsx",
+        "start": 88,
+        "startLoc": {
+          "column": 111,
+          "line": 88,
+          "position": 5334
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 156,
+        "endLoc": {
+          "column": 85,
+          "line": 156,
+          "position": 8811
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 94,
+        "endLoc": {
+          "column": 103,
+          "line": 94,
+          "position": 4897
+        },
+        "name": "screens/EducationScreen.tsx",
+        "start": 84,
+        "startLoc": {
+          "column": 148,
+          "line": 84,
+          "position": 4464
+        }
+      },
+      "tokens": 118
+    },
+    {
+      "firstFile": {
+        "end": 154,
+        "endLoc": {
+          "column": 127,
+          "line": 154,
+          "position": 8691
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 59,
+        "endLoc": {
+          "column": 102,
+          "line": 59,
+          "position": 3477
+        },
+        "name": "screens/EstateScreen.tsx",
+        "start": 50,
+        "startLoc": {
+          "column": 151,
+          "line": 50,
+          "position": 3148
+        }
+      },
+      "tokens": 92
+    },
+    {
+      "firstFile": {
+        "end": 156,
+        "endLoc": {
+          "column": 113,
+          "line": 156,
+          "position": 8839
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 342,
+          "line": 145,
+          "position": 8344
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 79,
+        "endLoc": {
+          "column": 30,
+          "line": 79,
+          "position": 4629
+        },
+        "name": "screens/InsightsScreen.tsx",
+        "start": 68,
+        "startLoc": {
+          "column": 9,
+          "line": 68,
+          "position": 4172
+        }
+      },
+      "tokens": 121
+    },
+    {
+      "firstFile": {
+        "end": 159,
+        "endLoc": {
+          "column": 85,
+          "line": 159,
+          "position": 9117
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 15,
+      "secondFile": {
+        "end": 86,
+        "endLoc": {
+          "column": 152,
+          "line": 86,
+          "position": 5921
+        },
+        "name": "screens/InsuranceScreen.tsx",
+        "start": 73,
+        "startLoc": {
+          "column": 157,
+          "line": 73,
+          "position": 5159
+        }
+      },
+      "tokens": 194
+    },
+    {
+      "firstFile": {
+        "end": 156,
+        "endLoc": {
+          "column": 85,
+          "line": 156,
+          "position": 8811
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 12,
+      "secondFile": {
+        "end": 73,
+        "endLoc": {
+          "column": 103,
+          "line": 73,
+          "position": 4958
+        },
+        "name": "screens/RothScreen.tsx",
+        "start": 63,
+        "startLoc": {
+          "column": 208,
+          "line": 63,
+          "position": 4525
+        }
+      },
+      "tokens": 118
+    },
+    {
+      "firstFile": {
+        "end": 157,
+        "endLoc": {
+          "column": 20,
+          "line": 157,
+          "position": 8885
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 145,
+        "startLoc": {
+          "column": 335,
+          "line": 145,
+          "position": 8337
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 13,
+      "secondFile": {
+        "end": 100,
+        "endLoc": {
+          "column": 88,
+          "line": 100,
+          "position": 5683
+        },
+        "name": "screens/StressTestScreen.tsx",
+        "start": 89,
+        "startLoc": {
+          "column": 165,
+          "line": 89,
+          "position": 5161
+        }
+      },
+      "tokens": 137
+    },
+    {
+      "firstFile": {
+        "end": 153,
+        "endLoc": {
+          "column": 80,
+          "line": 153,
+          "position": 8560
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 147,
+        "startLoc": {
+          "column": 16,
+          "line": 147,
+          "position": 8399
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 178,
+        "endLoc": {
+          "column": 80,
+          "line": 178,
+          "position": 12549
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 172,
+        "startLoc": {
+          "column": 11,
+          "line": 172,
+          "position": 12388
+        }
+      },
+      "tokens": 42
+    },
+    {
+      "firstFile": {
+        "end": 154,
+        "endLoc": {
+          "column": 97,
+          "line": 154,
+          "position": 8661
+        },
+        "name": "screens/BillCalendarScreen.tsx",
+        "start": 148,
+        "startLoc": {
+          "column": 3,
+          "line": 148,
+          "position": 8404
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 121,
+        "endLoc": {
+          "column": 81,
+          "line": 121,
+          "position": 6804
+        },
+        "name": "screens/TaxOrganizerScreen.tsx",
+        "start": 115,
+        "startLoc": {
+          "column": 17,
+          "line": 115,
+          "position": 6563
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 32,
+        "endLoc": {
+          "column": 30,
+          "line": 32,
+          "position": 2265
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 26,
+        "startLoc": {
+          "column": 74,
+          "line": 26,
+          "position": 1959
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 37,
+        "endLoc": {
+          "column": 30,
+          "line": 37,
+          "position": 2201
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 31,
+        "startLoc": {
+          "column": 97,
+          "line": 31,
+          "position": 1895
+        }
+      },
+      "tokens": 73
+    },
+    {
+      "firstFile": {
+        "end": 43,
+        "endLoc": {
+          "column": 55,
+          "line": 43,
+          "position": 2927
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 37,
+        "startLoc": {
+          "column": 126,
+          "line": 37,
+          "position": 2691
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 48,
+        "endLoc": {
+          "column": 55,
+          "line": 48,
+          "position": 2869
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 42,
+        "startLoc": {
+          "column": 133,
+          "line": 42,
+          "position": 2633
+        }
+      },
+      "tokens": 68
+    },
+    {
+      "firstFile": {
+        "end": 99,
+        "endLoc": {
+          "column": 8,
+          "line": 99,
+          "position": 6931
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 93,
+        "startLoc": {
+          "column": 8,
+          "line": 93,
+          "position": 6794
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 78,
+        "endLoc": {
+          "column": 8,
+          "line": 78,
+          "position": 4792
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 72,
+        "startLoc": {
+          "column": 8,
+          "line": 72,
+          "position": 4655
+        }
+      },
+      "tokens": 40
+    },
+    {
+      "firstFile": {
+        "end": 128,
+        "endLoc": {
+          "column": 39,
+          "line": 128,
+          "position": 8714
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 121,
+        "startLoc": {
+          "column": 4,
+          "line": 121,
+          "position": 8335
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 267,
+        "endLoc": {
+          "column": 39,
+          "line": 267,
+          "position": 16522
+        },
+        "name": "screens/GoalsScreen.tsx",
+        "start": 260,
+        "startLoc": {
+          "column": 99,
+          "line": 260,
+          "position": 16143
+        }
+      },
+      "tokens": 93
+    },
+    {
+      "firstFile": {
+        "end": 127,
+        "endLoc": {
+          "column": 9,
+          "line": 127,
+          "position": 8598
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 121,
+        "startLoc": {
+          "column": 3,
+          "line": 121,
+          "position": 8334
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 130,
+        "endLoc": {
+          "column": 9,
+          "line": 130,
+          "position": 7638
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 124,
+        "startLoc": {
+          "column": 54,
+          "line": 124,
+          "position": 7374
+        }
+      },
+      "tokens": 68
+    },
+    {
+      "firstFile": {
+        "end": 127,
+        "endLoc": {
+          "column": 74,
+          "line": 127,
+          "position": 8663
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 121,
+        "startLoc": {
+          "column": 3,
+          "line": 121,
+          "position": 8334
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 161,
+        "endLoc": {
+          "column": 36,
+          "line": 161,
+          "position": 9982
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 155,
+        "startLoc": {
+          "column": 79,
+          "line": 155,
+          "position": 9691
+        }
+      },
+      "tokens": 77
+    },
+    {
+      "firstFile": {
+        "end": 127,
+        "endLoc": {
+          "column": 75,
+          "line": 127,
+          "position": 8664
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 121,
+        "startLoc": {
+          "column": 4,
+          "line": 121,
+          "position": 8335
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 294,
+        "endLoc": {
+          "column": 75,
+          "line": 294,
+          "position": 19004
+        },
+        "name": "screens/PerformanceScreen.tsx",
+        "start": 287,
+        "startLoc": {
+          "column": 3,
+          "line": 287,
+          "position": 18674
+        }
+      },
+      "tokens": 77
+    },
+    {
+      "firstFile": {
+        "end": 127,
+        "endLoc": {
+          "column": 74,
+          "line": 127,
+          "position": 8663
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 122,
+        "startLoc": {
+          "column": 2,
+          "line": 122,
+          "position": 8339
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 805,
+        "endLoc": {
+          "column": 36,
+          "line": 805,
+          "position": 59333
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 800,
+        "startLoc": {
+          "column": 2,
+          "line": 800,
+          "position": 59047
+        }
+      },
+      "tokens": 75
+    },
+    {
+      "firstFile": {
+        "end": 178,
+        "endLoc": {
+          "column": 94,
+          "line": 178,
+          "position": 12563
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 168,
+        "startLoc": {
+          "column": 103,
+          "line": 168,
+          "position": 12271
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 297,
+        "endLoc": {
+          "column": 83,
+          "line": 297,
+          "position": 19136
+        },
+        "name": "screens/GoalsScreen.tsx",
+        "start": 287,
+        "startLoc": {
+          "column": 103,
+          "line": 287,
+          "position": 18855
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 187,
+        "endLoc": {
+          "column": 66,
+          "line": 187,
+          "position": 13393
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 168,
+        "startLoc": {
+          "column": 103,
+          "line": 168,
+          "position": 12271
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 20,
+      "secondFile": {
+        "end": 133,
+        "endLoc": {
+          "column": 66,
+          "line": 133,
+          "position": 8748
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 114,
+        "startLoc": {
+          "column": 98,
+          "line": 114,
+          "position": 7626
+        }
+      },
+      "tokens": 281
+    },
+    {
+      "firstFile": {
+        "end": 192,
+        "endLoc": {
+          "column": 10,
+          "line": 192,
+          "position": 13712
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 187,
+        "startLoc": {
+          "column": 67,
+          "line": 187,
+          "position": 13394
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 138,
+        "endLoc": {
+          "column": 5,
+          "line": 138,
+          "position": 9083
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 133,
+        "startLoc": {
+          "column": 88,
+          "line": 133,
+          "position": 8770
+        }
+      },
+      "tokens": 74
+    },
+    {
+      "firstFile": {
+        "end": 202,
+        "endLoc": {
+          "column": 107,
+          "line": 202,
+          "position": 14779
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 197,
+        "startLoc": {
+          "column": 67,
+          "line": 197,
+          "position": 14195
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 146,
+        "endLoc": {
+          "column": 107,
+          "line": 146,
+          "position": 9986
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 141,
+        "startLoc": {
+          "column": 67,
+          "line": 141,
+          "position": 9402
+        }
+      },
+      "tokens": 138
+    },
+    {
+      "firstFile": {
+        "end": 214,
+        "endLoc": {
+          "column": 3,
+          "line": 214,
+          "position": 15766
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 205,
+        "startLoc": {
+          "column": 66,
+          "line": 205,
+          "position": 15072
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 157,
+        "endLoc": {
+          "column": 3,
+          "line": 157,
+          "position": 10901
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 148,
+        "startLoc": {
+          "column": 134,
+          "line": 148,
+          "position": 10207
+        }
+      },
+      "tokens": 163
+    },
+    {
+      "firstFile": {
+        "end": 212,
+        "endLoc": {
+          "column": 63,
+          "line": 212,
+          "position": 15656
+        },
+        "name": "screens/BondsScreen.tsx",
+        "start": 206,
+        "startLoc": {
+          "column": 58,
+          "line": 206,
+          "position": 15133
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 219,
+        "endLoc": {
+          "column": 63,
+          "line": 219,
+          "position": 14417
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 213,
+        "startLoc": {
+          "column": 58,
+          "line": 213,
+          "position": 13894
+        }
+      },
+      "tokens": 118
+    },
+    {
+      "firstFile": {
+        "end": 483,
+        "endLoc": {
+          "column": 13,
+          "line": 483,
+          "position": 26932
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 478,
+        "startLoc": {
+          "column": 24,
+          "line": 478,
+          "position": 26688
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 658,
+        "endLoc": {
+          "column": 13,
+          "line": 658,
+          "position": 37750
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 653,
+        "startLoc": {
+          "column": 23,
+          "line": 653,
+          "position": 37561
+        }
+      },
+      "tokens": 44
+    },
+    {
+      "firstFile": {
+        "end": 616,
+        "endLoc": {
+          "column": 44,
+          "line": 616,
+          "position": 34999
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 611,
+        "startLoc": {
+          "column": 57,
+          "line": 611,
+          "position": 34736
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 769,
+        "endLoc": {
+          "column": 44,
+          "line": 769,
+          "position": 45127
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 764,
+        "startLoc": {
+          "column": 47,
+          "line": 764,
+          "position": 44864
+        }
+      },
+      "tokens": 64
+    },
+    {
+      "firstFile": {
+        "end": 616,
+        "endLoc": {
+          "column": 13,
+          "line": 616,
+          "position": 34968
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 611,
+        "startLoc": {
+          "column": 57,
+          "line": 611,
+          "position": 34736
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 907,
+        "endLoc": {
+          "column": 13,
+          "line": 907,
+          "position": 53469
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 902,
+        "startLoc": {
+          "column": 49,
+          "line": 902,
+          "position": 53237
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 793,
+        "endLoc": {
+          "column": 46,
+          "line": 793,
+          "position": 46297
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 788,
+        "startLoc": {
+          "column": 18,
+          "line": 788,
+          "position": 46104
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 801,
+        "endLoc": {
+          "column": 46,
+          "line": 801,
+          "position": 46769
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 797,
+        "startLoc": {
+          "column": 64,
+          "line": 797,
+          "position": 46592
+        }
+      },
+      "tokens": 41
+    },
+    {
+      "firstFile": {
+        "end": 793,
+        "endLoc": {
+          "column": 46,
+          "line": 793,
+          "position": 46297
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 788,
+        "startLoc": {
+          "column": 18,
+          "line": 788,
+          "position": 46104
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 817,
+        "endLoc": {
+          "column": 46,
+          "line": 817,
+          "position": 47722
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 813,
+        "startLoc": {
+          "column": 62,
+          "line": 813,
+          "position": 47545
+        }
+      },
+      "tokens": 41
+    },
+    {
+      "firstFile": {
+        "end": 1023,
+        "endLoc": {
+          "column": 8,
+          "line": 1023,
+          "position": 59938
+        },
+        "name": "screens/BudgetScreen.tsx",
+        "start": 1017,
+        "startLoc": {
+          "column": 148,
+          "line": 1017,
+          "position": 59806
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 456,
+        "endLoc": {
+          "column": 8,
+          "line": 456,
+          "position": 30954
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 452,
+        "startLoc": {
+          "column": 96,
+          "line": 452,
+          "position": 30828
+        }
+      },
+      "tokens": 41
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 8,
+          "line": 8,
+          "position": 471
+        },
+        "name": "screens/CreditScreen.tsx",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 185
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 8,
+          "line": 8,
+          "position": 489
+        },
+        "name": "screens/InsuranceScreen.tsx",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 203
+        }
+      },
+      "tokens": 53
+    },
+    {
+      "firstFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 30,
+          "line": 49,
+          "position": 2517
+        },
+        "name": "screens/EducationScreen.tsx",
+        "start": 42,
+        "startLoc": {
+          "column": 16,
+          "line": 42,
+          "position": 2240
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 49,
+        "endLoc": {
+          "column": 30,
+          "line": 49,
+          "position": 2796
+        },
+        "name": "screens/InsuranceScreen.tsx",
+        "start": 42,
+        "startLoc": {
+          "column": 24,
+          "line": 42,
+          "position": 2519
+        }
+      },
+      "tokens": 76
+    },
+    {
+      "firstFile": {
+        "end": 98,
+        "endLoc": {
+          "column": 7,
+          "line": 98,
+          "position": 5234
+        },
+        "name": "screens/EducationScreen.tsx",
+        "start": 93,
+        "startLoc": {
+          "column": 83,
+          "line": 93,
+          "position": 4774
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 87,
+        "endLoc": {
+          "column": 5,
+          "line": 87,
+          "position": 5927
+        },
+        "name": "screens/InsuranceScreen.tsx",
+        "start": 82,
+        "startLoc": {
+          "column": 83,
+          "line": 82,
+          "position": 5469
+        }
+      },
+      "tokens": 108
+    },
+    {
+      "firstFile": {
+        "end": 181,
+        "endLoc": {
+          "column": 20,
+          "line": 181,
+          "position": 7171
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 174,
+        "startLoc": {
+          "column": 4,
+          "line": 174,
+          "position": 6970
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 160,
+        "endLoc": {
+          "column": 20,
+          "line": 160,
+          "position": 6743
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 153,
+        "startLoc": {
+          "column": 4,
+          "line": 153,
+          "position": 6542
+        }
+      },
+      "tokens": 48
+    },
+    {
+      "firstFile": {
+        "end": 212,
+        "endLoc": {
+          "column": 29,
+          "line": 212,
+          "position": 8861
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 204,
+        "startLoc": {
+          "column": 12,
+          "line": 204,
+          "position": 8559
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 195,
+        "endLoc": {
+          "column": 29,
+          "line": 195,
+          "position": 8522
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 187,
+        "startLoc": {
+          "column": 20,
+          "line": 187,
+          "position": 8220
+        }
+      },
+      "tokens": 56
+    },
+    {
+      "firstFile": {
+        "end": 223,
+        "endLoc": {
+          "column": 48,
+          "line": 223,
+          "position": 9629
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 218,
+        "startLoc": {
+          "column": 48,
+          "line": 218,
+          "position": 9350
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 206,
+        "endLoc": {
+          "column": 48,
+          "line": 206,
+          "position": 9110
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 201,
+        "startLoc": {
+          "column": 20,
+          "line": 201,
+          "position": 8831
+        }
+      },
+      "tokens": 70
+    },
+    {
+      "firstFile": {
+        "end": 232,
+        "endLoc": {
+          "column": 16,
+          "line": 232,
+          "position": 10008
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 223,
+        "startLoc": {
+          "column": 64,
+          "line": 223,
+          "position": 9645
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 215,
+        "endLoc": {
+          "column": 16,
+          "line": 215,
+          "position": 9478
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 206,
+        "startLoc": {
+          "column": 55,
+          "line": 206,
+          "position": 9117
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 236,
+        "endLoc": {
+          "column": 52,
+          "line": 236,
+          "position": 10242
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 228,
+        "startLoc": {
+          "column": 11,
+          "line": 228,
+          "position": 9824
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 309,
+        "endLoc": {
+          "column": 52,
+          "line": 309,
+          "position": 14213
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 301,
+        "startLoc": {
+          "column": 22,
+          "line": 301,
+          "position": 13795
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 243,
+        "endLoc": {
+          "column": 12,
+          "line": 243,
+          "position": 10523
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 236,
+        "startLoc": {
+          "column": 91,
+          "line": 236,
+          "position": 10281
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 316,
+        "endLoc": {
+          "column": 12,
+          "line": 316,
+          "position": 14503
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 309,
+        "startLoc": {
+          "column": 100,
+          "line": 309,
+          "position": 14261
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 265,
+        "endLoc": {
+          "column": 16,
+          "line": 265,
+          "position": 11455
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 255,
+        "startLoc": {
+          "column": 14,
+          "line": 255,
+          "position": 11060
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 391,
+        "endLoc": {
+          "column": 22,
+          "line": 391,
+          "position": 18522
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 381,
+        "startLoc": {
+          "column": 20,
+          "line": 381,
+          "position": 18067
+        }
+      },
+      "tokens": 48
+    },
+    {
+      "firstFile": {
+        "end": 281,
+        "endLoc": {
+          "column": 50,
+          "line": 281,
+          "position": 12140
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 276,
+        "startLoc": {
+          "column": 46,
+          "line": 276,
+          "position": 11877
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 382,
+        "endLoc": {
+          "column": 50,
+          "line": 382,
+          "position": 17642
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 378,
+        "startLoc": {
+          "column": 51,
+          "line": 378,
+          "position": 17398
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 342,
+        "endLoc": {
+          "column": 10,
+          "line": 342,
+          "position": 15280
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 335,
+        "startLoc": {
+          "column": 84,
+          "line": 335,
+          "position": 15045
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 452,
+        "endLoc": {
+          "column": 10,
+          "line": 452,
+          "position": 21249
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 445,
+        "startLoc": {
+          "column": 84,
+          "line": 445,
+          "position": 21014
+        }
+      },
+      "tokens": 48
+    },
+    {
+      "firstFile": {
+        "end": 371,
+        "endLoc": {
+          "column": 27,
+          "line": 371,
+          "position": 16880
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 362,
+        "startLoc": {
+          "column": 69,
+          "line": 362,
+          "position": 16658
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 253,
+        "endLoc": {
+          "column": 27,
+          "line": 253,
+          "position": 11526
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 244,
+        "startLoc": {
+          "column": 69,
+          "line": 244,
+          "position": 11304
+        }
+      },
+      "tokens": 41
+    },
+    {
+      "firstFile": {
+        "end": 447,
+        "endLoc": {
+          "column": 55,
+          "line": 447,
+          "position": 21265
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 434,
+        "startLoc": {
+          "column": 23,
+          "line": 434,
+          "position": 20247
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 14,
+      "secondFile": {
+        "end": 468,
+        "endLoc": {
+          "column": 55,
+          "line": 468,
+          "position": 22313
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 455,
+        "startLoc": {
+          "column": 3,
+          "line": 455,
+          "position": 21295
+        }
+      },
+      "tokens": 237
+    },
+    {
+      "firstFile": {
+        "end": 455,
+        "endLoc": {
+          "column": 9,
+          "line": 455,
+          "position": 22027
+        },
+        "name": "screens/ExpenseScreen.tsx",
+        "start": 450,
+        "startLoc": {
+          "column": 82,
+          "line": 450,
+          "position": 21586
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 476,
+        "endLoc": {
+          "column": 11,
+          "line": 476,
+          "position": 23119
+        },
+        "name": "screens/IncomeScreen.tsx",
+        "start": 471,
+        "startLoc": {
+          "column": 86,
+          "line": 471,
+          "position": 22676
+        }
+      },
+      "tokens": 98
+    },
+    {
+      "firstFile": {
+        "end": 267,
+        "endLoc": {
+          "column": 39,
+          "line": 267,
+          "position": 16522
+        },
+        "name": "screens/GoalsScreen.tsx",
+        "start": 260,
+        "startLoc": {
+          "column": 98,
+          "line": 260,
+          "position": 16142
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 96,
+        "endLoc": {
+          "column": 39,
+          "line": 96,
+          "position": 5842
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 89,
+        "startLoc": {
+          "column": 56,
+          "line": 89,
+          "position": 5462
+        }
+      },
+      "tokens": 94
+    },
+    {
+      "firstFile": {
+        "end": 466,
+        "endLoc": {
+          "column": 9,
+          "line": 466,
+          "position": 31486
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 459,
+        "startLoc": {
+          "column": 100,
+          "line": 459,
+          "position": 31269
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 514,
+        "endLoc": {
+          "column": 9,
+          "line": 514,
+          "position": 34266
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 509,
+        "startLoc": {
+          "column": 69,
+          "line": 509,
+          "position": 34055
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 517,
+        "endLoc": {
+          "column": 13,
+          "line": 517,
+          "position": 34467
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 512,
+        "startLoc": {
+          "column": 30,
+          "line": 512,
+          "position": 34114
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 603,
+        "endLoc": {
+          "column": 13,
+          "line": 603,
+          "position": 39255
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 598,
+        "startLoc": {
+          "column": 27,
+          "line": 598,
+          "position": 38902
+        }
+      },
+      "tokens": 81
+    },
+    {
+      "firstFile": {
+        "end": 603,
+        "endLoc": {
+          "column": 36,
+          "line": 603,
+          "position": 39278
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 595,
+        "startLoc": {
+          "column": 3,
+          "line": 595,
+          "position": 38861
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 735,
+        "endLoc": {
+          "column": 35,
+          "line": 735,
+          "position": 46635
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 727,
+        "startLoc": {
+          "column": 4,
+          "line": 727,
+          "position": 46219
+        }
+      },
+      "tokens": 99
+    },
+    {
+      "firstFile": {
+        "end": 939,
+        "endLoc": {
+          "column": 139,
+          "line": 939,
+          "position": 62689
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 934,
+        "startLoc": {
+          "column": 91,
+          "line": 934,
+          "position": 62422
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 532,
+        "endLoc": {
+          "column": 139,
+          "line": 532,
+          "position": 34719
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 527,
+        "startLoc": {
+          "column": 77,
+          "line": 527,
+          "position": 34452
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 958,
+        "endLoc": {
+          "column": 192,
+          "line": 958,
+          "position": 64715
+        },
+        "name": "screens/HomeScreen.tsx",
+        "start": 953,
+        "startLoc": {
+          "column": 109,
+          "line": 953,
+          "position": 64126
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 539,
+        "endLoc": {
+          "column": 192,
+          "line": 539,
+          "position": 35556
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 534,
+        "startLoc": {
+          "column": 117,
+          "line": 534,
+          "position": 34967
+        }
+      },
+      "tokens": 133
+    },
+    {
+      "firstFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 8,
+          "line": 9,
+          "position": 584
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 4,
+        "startLoc": {
+          "column": 0,
+          "line": 4,
+          "position": 273
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 9,
+        "endLoc": {
+          "column": 8,
+          "line": 9,
+          "position": 573
+        },
+        "name": "screens/OtherInvestmentsScreen.tsx",
+        "start": 4,
+        "startLoc": {
+          "column": 0,
+          "line": 4,
+          "position": 262
+        }
+      },
+      "tokens": 57
+    },
+    {
+      "firstFile": {
+        "end": 161,
+        "endLoc": {
+          "column": 36,
+          "line": 161,
+          "position": 9982
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 155,
+        "startLoc": {
+          "column": 70,
+          "line": 155,
+          "position": 9682
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 178,
+        "endLoc": {
+          "column": 36,
+          "line": 178,
+          "position": 10959
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 172,
+        "startLoc": {
+          "column": 70,
+          "line": 172,
+          "position": 10659
+        }
+      },
+      "tokens": 82
+    },
+    {
+      "firstFile": {
+        "end": 178,
+        "endLoc": {
+          "column": 36,
+          "line": 178,
+          "position": 10959
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 172,
+        "startLoc": {
+          "column": 65,
+          "line": 172,
+          "position": 10654
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 845,
+        "endLoc": {
+          "column": 36,
+          "line": 845,
+          "position": 62095
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 839,
+        "startLoc": {
+          "column": 165,
+          "line": 839,
+          "position": 61790
+        }
+      },
+      "tokens": 85
+    },
+    {
+      "firstFile": {
+        "end": 192,
+        "endLoc": {
+          "column": 106,
+          "line": 192,
+          "position": 11921
+        },
+        "name": "screens/IncomeManagerScreen.tsx",
+        "start": 186,
+        "startLoc": {
+          "column": 11,
+          "line": 186,
+          "position": 11734
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 971,
+        "endLoc": {
+          "column": 106,
+          "line": 971,
+          "position": 70497
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 965,
+        "startLoc": {
+          "column": 9,
+          "line": 965,
+          "position": 70310
+        }
+      },
+      "tokens": 46
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 8,
+          "line": 8,
+          "position": 466
+        },
+        "name": "screens/InsightsScreen.tsx",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 189
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 7,
+        "endLoc": {
+          "column": 8,
+          "line": 7,
+          "position": 375
+        },
+        "name": "screens/SharpenPlanScreen.tsx",
+        "start": 2,
+        "startLoc": {
+          "column": 0,
+          "line": 2,
+          "position": 98
+        }
+      },
+      "tokens": 51
+    },
+    {
+      "firstFile": {
+        "end": 77,
+        "endLoc": {
+          "column": 67,
+          "line": 77,
+          "position": 4459
+        },
+        "name": "screens/InsightsScreen.tsx",
+        "start": 68,
+        "startLoc": {
+          "column": 8,
+          "line": 68,
+          "position": 4171
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 65,
+        "endLoc": {
+          "column": 67,
+          "line": 65,
+          "position": 3404
+        },
+        "name": "screens/SharpenPlanScreen.tsx",
+        "start": 56,
+        "startLoc": {
+          "column": 111,
+          "line": 56,
+          "position": 3116
+        }
+      },
+      "tokens": 80
+    },
+    {
+      "firstFile": {
+        "end": 11,
+        "endLoc": {
+          "column": 8,
+          "line": 11,
+          "position": 679
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 5,
+        "startLoc": {
+          "column": 24,
+          "line": 5,
+          "position": 381
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 16,
+        "endLoc": {
+          "column": 8,
+          "line": 16,
+          "position": 1171
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 10,
+        "startLoc": {
+          "column": 59,
+          "line": 10,
+          "position": 873
+        }
+      },
+      "tokens": 47
+    },
+    {
+      "firstFile": {
+        "end": 40,
+        "endLoc": {
+          "column": 71,
+          "line": 40,
+          "position": 2937
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 30,
+        "startLoc": {
+          "column": 0,
+          "line": 30,
+          "position": 2150
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 786,
+        "endLoc": {
+          "column": 22,
+          "line": 786,
+          "position": 58327
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 775,
+        "startLoc": {
+          "column": 0,
+          "line": 775,
+          "position": 57528
+        }
+      },
+      "tokens": 255
+    },
+    {
+      "firstFile": {
+        "end": 372,
+        "endLoc": {
+          "column": 46,
+          "line": 372,
+          "position": 21585
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 366,
+        "startLoc": {
+          "column": 24,
+          "line": 366,
+          "position": 21284
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 417,
+        "endLoc": {
+          "column": 46,
+          "line": 417,
+          "position": 24573
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 411,
+        "startLoc": {
+          "column": 19,
+          "line": 411,
+          "position": 24272
+        }
+      },
+      "tokens": 101
+    },
+    {
+      "firstFile": {
+        "end": 381,
+        "endLoc": {
+          "column": 8,
+          "line": 381,
+          "position": 22488
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 374,
+        "startLoc": {
+          "column": 187,
+          "line": 374,
+          "position": 22125
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 433,
+        "endLoc": {
+          "column": 8,
+          "line": 433,
+          "position": 26359
+        },
+        "name": "screens/NetWorthScreen.tsx",
+        "start": 427,
+        "startLoc": {
+          "column": 159,
+          "line": 427,
+          "position": 26192
+        }
+      },
+      "tokens": 49
+    },
+    {
+      "firstFile": {
+        "end": 295,
+        "endLoc": {
+          "column": 38,
+          "line": 295,
+          "position": 19053
+        },
+        "name": "screens/PerformanceScreen.tsx",
+        "start": 286,
+        "startLoc": {
+          "column": 38,
+          "line": 286,
+          "position": 18669
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 468,
+        "endLoc": {
+          "column": 38,
+          "line": 468,
+          "position": 30769
+        },
+        "name": "screens/PerformanceScreen.tsx",
+        "start": 459,
+        "startLoc": {
+          "column": 75,
+          "line": 459,
+          "position": 30385
+        }
+      },
+      "tokens": 94
+    },
+    {
+      "firstFile": {
+        "end": 294,
+        "endLoc": {
+          "column": 74,
+          "line": 294,
+          "position": 19003
+        },
+        "name": "screens/PerformanceScreen.tsx",
+        "start": 286,
+        "startLoc": {
+          "column": 38,
+          "line": 286,
+          "position": 18669
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 9,
+      "secondFile": {
+        "end": 558,
+        "endLoc": {
+          "column": 36,
+          "line": 558,
+          "position": 37080
+        },
+        "name": "screens/PerformanceScreen.tsx",
+        "start": 552,
+        "startLoc": {
+          "column": 142,
+          "line": 552,
+          "position": 36787
+        }
+      },
+      "tokens": 78
+    },
+    {
+      "firstFile": {
+        "end": 881,
+        "endLoc": {
+          "column": 36,
+          "line": 881,
+          "position": 64858
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 876,
+        "startLoc": {
+          "column": 60,
+          "line": 876,
+          "position": 64603
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 929,
+        "endLoc": {
+          "column": 36,
+          "line": 929,
+          "position": 67632
+        },
+        "name": "screens/RetirementCockpit.tsx",
+        "start": 924,
+        "startLoc": {
+          "column": 125,
+          "line": 924,
+          "position": 67377
+        }
+      },
+      "tokens": 66
+    },
+    {
+      "firstFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 8,
+          "line": 8,
+          "position": 490
+        },
+        "name": "screens/RothScreen.tsx",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 186
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 8,
+        "endLoc": {
+          "column": 8,
+          "line": 8,
+          "position": 494
+        },
+        "name": "screens/StressTestScreen.tsx",
+        "start": 3,
+        "startLoc": {
+          "column": 0,
+          "line": 3,
+          "position": 190
+        }
+      },
+      "tokens": 55
+    },
+    {
+      "firstFile": {
+        "end": 344,
+        "endLoc": {
+          "column": 78,
+          "line": 344,
+          "position": 15256
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 339,
+        "startLoc": {
+          "column": 80,
+          "line": 339,
+          "position": 15075
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 353,
+        "endLoc": {
+          "column": 78,
+          "line": 353,
+          "position": 15699
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 348,
+        "startLoc": {
+          "column": 63,
+          "line": 348,
+          "position": 15518
+        }
+      },
+      "tokens": 50
+    },
+    {
+      "firstFile": {
+        "end": 344,
+        "endLoc": {
+          "column": 60,
+          "line": 344,
+          "position": 15238
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 339,
+        "startLoc": {
+          "column": 80,
+          "line": 339,
+          "position": 15075
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 362,
+        "endLoc": {
+          "column": 60,
+          "line": 362,
+          "position": 16134
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 357,
+        "startLoc": {
+          "column": 70,
+          "line": 357,
+          "position": 15971
+        }
+      },
+      "tokens": 43
+    },
+    {
+      "firstFile": {
+        "end": 576,
+        "endLoc": {
+          "column": 54,
+          "line": 576,
+          "position": 26355
+        },
+        "name": "screens/SettingsScreen.tsx",
+        "start": 567,
+        "startLoc": {
+          "column": 12,
+          "line": 567,
+          "position": 26141
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 10,
+      "secondFile": {
+        "end": 240,
+        "endLoc": {
+          "column": 54,
+          "line": 240,
+          "position": 10820
+        },
+        "name": "screens/TipsScreen.tsx",
+        "start": 231,
+        "startLoc": {
+          "column": 24,
+          "line": 231,
+          "position": 10606
+        }
+      },
+      "tokens": 61
+    },
+    {
+      "firstFile": {
+        "end": 25,
+        "endLoc": {
+          "column": 29,
+          "line": 25,
+          "position": 1187
+        },
+        "name": "screens/__tests__/auth_journeys.test.tsx",
+        "start": 20,
+        "startLoc": {
+          "column": 99,
+          "line": 20,
+          "position": 880
+        }
+      },
+      "format": "tsx",
+      "fragment": "",
+      "lines": 6,
+      "secondFile": {
+        "end": 44,
+        "endLoc": {
+          "column": 29,
+          "line": 44,
+          "position": 2306
+        },
+        "name": "screens/__tests__/auth_journeys.test.tsx",
+        "start": 39,
+        "startLoc": {
+          "column": 102,
+          "line": 39,
+          "position": 1999
+        }
+      },
+      "tokens": 60
+    },
+    {
+      "firstFile": {
+        "end": 34,
+        "endLoc": {
+          "column": 14,
+          "line": 34,
+          "position": 1979
+        },
+        "name": "services/dataCrypto.ts",
+        "start": 24,
+        "startLoc": {
+          "column": 0,
+          "line": 24,
+          "position": 1539
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 11,
+      "secondFile": {
+        "end": 29,
+        "endLoc": {
+          "column": 14,
+          "line": 29,
+          "position": 1457
+        },
+        "name": "store/secureStorage.ts",
+        "start": 18,
+        "startLoc": {
+          "column": 0,
+          "line": 18,
+          "position": 1016
+        }
+      },
+      "tokens": 101
+    },
+    {
+      "firstFile": {
+        "end": 432,
+        "endLoc": {
+          "column": 24,
+          "line": 432,
+          "position": 17877
+        },
+        "name": "store/useStore.ts",
+        "start": 409,
+        "startLoc": {
+          "column": 17,
+          "line": 409,
+          "position": 17086
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 24,
+      "secondFile": {
+        "end": 788,
+        "endLoc": {
+          "column": 26,
+          "line": 788,
+          "position": 36943
+        },
+        "name": "store/useStore.ts",
+        "start": 779,
+        "startLoc": {
+          "column": 47,
+          "line": 779,
+          "position": 36231
+        }
+      },
+      "tokens": 152
+    },
+    {
+      "firstFile": {
+        "end": 640,
+        "endLoc": {
+          "column": 13,
+          "line": 640,
+          "position": 30583
+        },
+        "name": "store/useStore.ts",
+        "start": 634,
+        "startLoc": {
+          "column": 55,
+          "line": 634,
+          "position": 30402
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 7,
+      "secondFile": {
+        "end": 683,
+        "endLoc": {
+          "column": 13,
+          "line": 683,
+          "position": 32238
+        },
+        "name": "store/useStore.ts",
+        "start": 677,
+        "startLoc": {
+          "column": 47,
+          "line": 677,
+          "position": 32057
+        }
+      },
+      "tokens": 52
+    },
+    {
+      "firstFile": {
+        "end": 654,
+        "endLoc": {
+          "column": 11,
+          "line": 654,
+          "position": 31127
+        },
+        "name": "store/useStore.ts",
+        "start": 647,
+        "startLoc": {
+          "column": 21,
+          "line": 647,
+          "position": 30826
+        }
+      },
+      "format": "typescript",
+      "fragment": "",
+      "lines": 8,
+      "secondFile": {
+        "end": 697,
+        "endLoc": {
+          "column": 11,
+          "line": 697,
+          "position": 32789
+        },
+        "name": "store/useStore.ts",
+        "start": 690,
+        "startLoc": {
+          "column": 32,
+          "line": 690,
+          "position": 32488
+        }
+      },
+      "tokens": 70
+    }
+  ],
+  "statistics": {
+    "detectionDate": "2026-06-22T02:33:25.604Z",
+    "formats": {
+      "tsx": {
+        "clones": 94,
+        "duplicatedLines": 688,
+        "duplicatedTokens": 7341,
+        "lines": 15447,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 4.453939276234867,
+        "percentageTokens": 3.623485278511316,
+        "sources": 55,
+        "tokens": 202595
+      },
+      "typescript": {
+        "clones": 16,
+        "duplicatedLines": 136,
+        "duplicatedTokens": 1821,
+        "lines": 10968,
+        "newClones": 0,
+        "newDuplicatedLines": 0,
+        "percentage": 1.2399708242159009,
+        "percentageTokens": 1.721513722005313,
+        "sources": 98,
+        "tokens": 105779
+      }
+    },
+    "total": {
+      "clones": 110,
+      "duplicatedLines": 824,
+      "duplicatedTokens": 9162,
+      "lines": 26415,
+      "newClones": 0,
+      "newDuplicatedLines": 0,
+      "percentage": 3.1194397122846866,
+      "percentageTokens": 2.971067599732792,
+      "sources": 153,
+      "tokens": 308374
+    }
+  }
+}

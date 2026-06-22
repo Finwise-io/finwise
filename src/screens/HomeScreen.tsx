@@ -8,7 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money, round2 } from '../domain/_shared/num';
 import { currencySymbol, moneyCompact } from '../domain/_shared/money';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
-import { budgetVsActual } from '../domain/budget';
+import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
 import { incomeMonthlyGrid } from '../domain/income';
 import { BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
 import { assetKind, buildAssetsState } from '../domain/assets';
@@ -165,8 +165,11 @@ export default function HomeScreen() {
 
   const planned = bva.planned_total;
   const spent = bva.spent_total;
-  const estSpend = Number(op?.monthlySpending) || 0;          // onboarding "typical month" estimate
-  const budgetBaseline = planned > 0 ? planned : estSpend;    // surface the estimate as the budget until itemized
+  // Planned monthly spend — ONE definition shared with Budget/runway (P0 dedup): the canonical
+  // plannedMonthlySpend = MAX(stated estimate, sum of category limits). We surface both components.
+  const estSpend = Number(op?.monthlySpending) || 0;          // (a→input) the stated "typical month" estimate
+  const catSpend = planned;                                   // sum of itemized category limits (= bva.planned_total)
+  const plannedSpend = plannedMonthlySpend(op);               // canonical planned spend (matches the Money tab)
   // RMD: once you reach RMD age, the IRS requires a yearly withdrawal from pre-tax accounts.
   const homeAge = ageFromProfile(op) ?? 0;
   const rmdAccounts = useMemo(
@@ -188,7 +191,7 @@ export default function HomeScreen() {
   // plan = expense budget + required monthly debt (both sides include debt → consistent). Detail in Money.
   const cfOut = round2(spent + debtPaid);                  // Income − cfOut = leftOver (exact identity)
   const hasDebt = debtMonthly > 0 || debtPaid > 0;
-  const planAll = round2(planned + debtMonthly);
+  const planAll = round2(plannedSpend + debtMonthly);   // plan = canonical planned spend (+ required debt)
   const pctAll = planAll > 0 ? Math.min(1, cfOut / planAll) : 0;
   const overAll = cfOut > planAll && planAll > 0;
   const feed = [
@@ -335,7 +338,7 @@ export default function HomeScreen() {
             <Text style={styles.cfOp}>−</Text>
             <View style={styles.cfCell}>
               <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(cfOut)}</Text>
-              <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Spent + debt' : 'Spent'}</Text>
+              <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Actual + debt' : 'Actual spend'}</Text>
             </View>
             <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}
@@ -346,13 +349,17 @@ export default function HomeScreen() {
               <View style={styles.cfLabelRow}><Text style={styles.cfL}>Left over</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
           </View>
-          {planned > 0 ? (
+          {plannedSpend > 0 ? (
             <>
               <View style={styles.trackSm}><View style={[styles.fillSm, { width: `${Math.max(2, pctAll * 100)}%`, backgroundColor: overAll ? Colors.red : Colors.primary }]} /></View>
               <Text style={styles.cfFoot}>{overAll ? `${money(cfOut - planAll)} over your ${money(planAll)} ${hasDebt ? 'monthly plan (spending + debt)' : 'monthly budget'}` : `${money(planAll - cfOut)} left of your ${money(planAll)} ${hasDebt ? 'monthly plan (spending + debt)' : 'monthly budget'}`}</Text>
+              <Text style={styles.cfSub}>
+                Planned spend {money(plannedSpend)}/mo
+                {estSpend > 0 && catSpend > 0 ? ` — your estimate ${money(estSpend)} · categories ${money(catSpend)}` : estSpend > 0 ? ' — your estimate' : ' — from your categories'}
+              </Text>
             </>
           ) : (
-            <Text style={styles.cfFoot}>{estSpend > 0 ? `≈ ${money(estSpend)} typical month · set a monthly budget in Money` : 'Set a monthly budget in Money'}</Text>
+            <Text style={styles.cfFoot}>Set a monthly budget in Money</Text>
           )}
           <TouchableOpacity onPress={() => router.push('/(tabs)/budget')}><Text style={styles.seeAll}>See all in Money →</Text></TouchableOpacity>
         </View>
@@ -816,6 +823,7 @@ const styles = StyleSheet.create({
   cfAddTxt: { color: '#fff', fontSize: 10, fontWeight: '800', lineHeight: 12 },
   cfOp: { fontSize: 16, fontWeight: '700', color: Colors.textTertiary, paddingHorizontal: 2 },
   cfFoot: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
+  cfSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 3, lineHeight: 16 },
   seeAll: { fontSize: 12.5, color: Colors.primary, fontWeight: '700', marginTop: 10 },
   nwHeadRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 },
   nwBig: { fontSize: 23, fontWeight: '800', color: Colors.textPrimary, flexShrink: 1 },

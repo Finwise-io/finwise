@@ -366,7 +366,7 @@ export default function BudgetScreen() {
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
-              <Text style={styles.stripLabel}>Spent</Text>
+              <Text style={styles.stripLabel}>Actual spend</Text>
               <Text style={[styles.stripValue, { color: Colors.red }]}>{money(Math.round(monthSpendSel))}</Text>
             </View>
             <View style={styles.stripDivider} />

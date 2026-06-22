@@ -105,7 +105,7 @@ export default function TipsScreen() {
             <AmountText amount={monthIncome} color={Colors.primary} size="lg" />
           </View>
           <View style={styles.summaryItem}>
-            <Text style={styles.summaryLabel}>Spent so far</Text>
+            <Text style={styles.summaryLabel}>Actual spend</Text>
             <AmountText amount={monthSpend} color={overBudget ? Colors.red : Colors.textPrimary} size="lg" />
           </View>
           <View style={styles.summaryItem}>

@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { planCompleteness } from '../domain/completeness';
+import { plannedMonthlySpend } from '../domain/budget';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -22,7 +23,8 @@ export function usePlanCompleteness() {
     // "retirement set" is done for an already-retired user, or anyone with guaranteed retirement
     // income captured at onboarding (SS / pension / annuities) — not only when the SS editor was opened.
     ssAnswered: A.ssEligible != null || store.employmentStatus === 'retired' || retirementIncomeMonthly(op) > 0,
-    monthlySpending: num(op.monthlySpending) || num(store.monthlyBudgetTarget),
+    // P0 dedup: use the canonical planned spend (MAX of stated estimate + categories), not the raw field.
+    monthlySpending: plannedMonthlySpend(op) || num(store.monthlyBudgetTarget),
     hasDebtsOrSkipped: (store.liabilities ?? []).length > 0,
   }), [op, accounts, A, store.goals, store.monthlyBudgetTarget, store.liabilities, store.employmentStatus]);
 }

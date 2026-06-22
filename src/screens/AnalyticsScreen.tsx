@@ -103,7 +103,7 @@ export default function AnalyticsScreen() {
               </View>
               <View style={styles.triDiv} />
               <View style={styles.triItem}>
-                <Text style={styles.triLabel}>Spent</Text>
+                <Text style={styles.triLabel}>Actual spend</Text>
                 <Text style={[styles.triVal, { color: '#FAC775' }]}>${monthSpend.toFixed(0)}</Text>
               </View>
               <View style={styles.triDiv} />
