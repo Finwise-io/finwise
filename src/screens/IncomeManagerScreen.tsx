@@ -8,7 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
-import { couponIncomeAnnual } from '../domain/bonds';
+import { interestIncomeAnnual } from '../domain/bonds';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -28,7 +28,7 @@ export default function IncomeManagerScreen() {
   const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
   const [addOpen, setAddOpen] = useState(false);
 
-  const investIncome = investmentIncomeAnnual(transactions) + couponIncomeAnnual(store.assetAccounts ?? []);
+  const investIncome = investmentIncomeAnnual(transactions) + interestIncomeAnnual(store.assetAccounts ?? []);
   // When real holdings/bonds report income, drop the onboarding interest/dividends ESTIMATE so we
   // don't double-count it with the actual "Investment income" row below.
   const opLive = useMemo(() => (investIncome > 0 ? { ...op, invAnnual: 0 } : op), [op, investIncome]);

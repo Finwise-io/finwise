@@ -8,7 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { taxOrganizer, type TaxOrganizer } from '../domain/planning';
 import { investmentIncomeAnnual } from '../domain/transactions';
-import { couponIncomeAnnual } from '../domain/bonds';
+import { interestIncomeAnnual } from '../domain/bonds';
 
 export default function TaxOrganizerScreen() {
   const store = useStore() as any;
@@ -19,7 +19,7 @@ export default function TaxOrganizerScreen() {
   const [busy, setBusy] = useState(false);
 
   const org: TaxOrganizer = useMemo(() => {
-    const actualPassive = Math.round(investmentIncomeAnnual(store.transactions ?? []) + couponIncomeAnnual(accounts));
+    const actualPassive = Math.round(investmentIncomeAnnual(store.transactions ?? []) + interestIncomeAnnual(accounts));
     return taxOrganizer(op, { accounts, liabilities, actualPassive, year });
   }, [op, accounts, liabilities, year]);
 

@@ -3,6 +3,7 @@
 // nest egg via the existing balance machinery. These pure helpers compute the bond-specific metrics.
 import { round2 } from '../_shared/num';
 import type { AssetAccount } from '../assets';
+import { assetClassOf } from '../assets';
 
 export interface BondInfo { face: number; couponRate: number; maturity: string; value: number; }
 
@@ -45,7 +46,29 @@ export function bondSummary(bonds: BondInfo[], now: Date = new Date()): BondSumm
   const future = list.map((b) => b.maturity).filter(Boolean).filter((m) => new Date(m).getTime() >= now.getTime()).sort();
   return { count: list.length, totalValue, totalFace, annualCoupon: coupon, avgYield, nextMaturity: future[0] ?? null };
 }
-/** Total annual coupon income across the user's bond accounts (feeds the Income module). */
+/** Total annual coupon income across the user's INDIVIDUAL bonds (kept for the Bonds screen summary). */
 export function couponIncomeAnnual(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).filter(isBond).reduce((t, a) => t + annualCoupon(bondInfo(a)), 0));
+}
+
+const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bond fund carries no rate
+
+/** Canonical annual INTEREST income across all interest-bearing holdings (Term #6). Fixes the
+ *  silent-$0 bug: a bond FUND (asset class 'bonds', no maturity/coupon) now earns value × yield, and
+ *  a CD / money-market (asset class 'cash' with a stated rate) keeps contributing its interest — both
+ *  of which the old isBond-only `couponIncomeAnnual` dropped. Individual bonds: face × coupon. */
+export function interestIncomeAnnual(accounts: AssetAccount[]): number {
+  return round2((accounts ?? []).reduce((t, a) => {
+    const cls = assetClassOf(a);
+    if (cls === 'bonds') {
+      const coupon = (a.coupon_rate || 0) * (a.face_value || 0);
+      if (coupon > 0) return t + coupon;                                   // individual bond
+      const yld = (a.target_return && a.target_return > 0) ? a.target_return : DEFAULT_BOND_YIELD;
+      return t + (a.balance || 0) * yld;                                   // bond fund (no coupon/face)
+    }
+    if (cls === 'cash' && (a.coupon_rate || 0) > 0) {
+      return t + (a.balance || 0) * (a.coupon_rate as number);            // CD / money-market with a stated rate
+    }
+    return t;
+  }, 0));
 }
