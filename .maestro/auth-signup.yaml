@@ -1,0 +1,47 @@
+# Critical journey: signup → recovery-FIRST → onboarding (no name step).
+# Encodes the contracts that took 4 manual TestFlight rounds to get right:
+#   1. the recovery code screen is shown BEFORE any onboarding question (timing — L-6)
+#   2. the "I've saved it" checkbox starts UNCHECKED (and resets on a 2nd signup — issue 2)
+#   3. onboarding asks the status question, with NO "What should we call you?" step (1a)
+# Run on a REAL DEVICE (the Simulator can't run this app — L-3). Creates a throwaway account.
+# Selectors use the on-screen text/placeholders; validate on the first device run and adjust if needed.
+appId: co.finwise.app
+---
+- launchApp:
+    clearState: true                 # logged out → lands on the AuthScreen
+- evalScript: ${output.email = 'qa' + Math.floor(Math.random() * 1e9) + '@example.com'}
+
+# --- The account screen is FIRST (not a question) ---
+- extendedWaitUntil:
+    visible: "Create account"
+    timeout: 45000                   # cold start loads the JS bundle from Metro
+- tapOn: "Create account"            # switch login → register
+
+# --- Fill the register form (placeholders are the selectors) ---
+- tapOn: "Alex Johnson"
+- inputText: "QA Tester"
+- tapOn: "you@email.com"
+- inputText: ${output.email}
+- tapOn: "At least 8 characters"
+- inputText: "hunter2pass"
+- tapOn: "Repeat your password"
+- inputText: "hunter2pass"
+- hideKeyboard
+- tapOn: "Create account"            # the submit button
+
+# --- CONTRACT 1: recovery screen is FIRST, with no onboarding question behind it ---
+- extendedWaitUntil:
+    visible: "Save your recovery code"
+    timeout: 30000
+- assertNotVisible: "Which best describes you?"
+
+# --- CONTRACT 2: checkbox starts unchecked; acknowledge to continue ---
+- assertVisible: "I've saved it somewhere safe"
+- tapOn: "I've saved it somewhere safe"
+- tapOn: "Continue"
+
+# --- CONTRACT 3: onboarding shows the status question, NOT a name step ---
+- extendedWaitUntil:
+    visible: "Which best describes you?"
+    timeout: 20000
+- assertNotVisible: "What should we call you?"

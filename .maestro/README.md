@@ -4,6 +4,9 @@ Tap-driven UI tests that exercise journeys the Jest unit/integration suite can't
 navigation, real screens). They complement — not replace — the Jest suite (`npm test`).
 
 ## Flows
+- **`auth-signup.yaml`** — the **critical** journey: signup → **recovery code shown FIRST** → onboarding
+  (no name step). Encodes the contracts that took **4 manual TestFlight rounds** to get right. Creates a
+  throwaway account; selectors validated on the first device run.
 - **`smoke.yaml`** — launches the app and deep-links through Home → Settings → Net Worth. Asserts the
   app renders without a red-screen, the **net-worth chip ($) agrees with the Net Worth screen** (B-49
   consistency), and the **Settings currency picker is gone** (B-23, USD-only).
@@ -12,11 +15,14 @@ navigation, real screens). They complement — not replace — the Jest suite (`
   reachable.
 
 ## Running locally
+> ⚠️ Run on a **real device**, NOT the Simulator — this app can't run on the iOS Simulator (ML Kit has
+> no arm64-simulator slice, L-3). Set up the device dev build once via `docs/finwise-dev-loop.md`.
+
 Prereqs:
 1. Maestro CLI installed — `curl -Ls "https://get.maestro.mobile.dev" | bash` (needs Java).
-2. A booted iOS simulator with the app installed (`npm run ios` once).
-3. Metro running (`npm start`) — the dev build loads JS from Metro, so the first launch is slow;
-   the flows use `extendedWaitUntil` to absorb that.
+2. The **dev build installed on your iPhone** (see `docs/finwise-dev-loop.md`).
+3. Metro running (`npx expo start --dev-client`) — the dev build loads JS from Metro, so the first
+   launch is slow; the flows use `extendedWaitUntil` to absorb that.
 
 ```bash
 npm run test:e2e            # runs every flow in .maestro/
