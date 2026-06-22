@@ -3,6 +3,7 @@ import { render, fireEvent, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import TopBar from '../TopBar';
 import { useStore } from '../../store/useStore';
+import { Colors } from '../../utils/theme';
 
 beforeEach(() => {
   useStore.getState().resetAll();
@@ -17,6 +18,16 @@ describe('TopBar', () => {
     });
     render(<TopBar />);
     expect(screen.getByText('$50,000')).toBeOnTheScreen();
+  });
+
+  test('negative net worth turns the chip RED (#18)', () => {
+    useStore.setState({
+      assetAccounts: [{ asset_id: 'a1', label: 'Cash', kind: 'savings', tax_bucket: 'CASH', balance: 10000, target_return: 0 }],
+      liabilities: [{ debt_id: 'd1', label: 'Loan', debt_type: 'OTHER', remaining_balance: 60000, interest_rate_apr: 0.06, minimum_monthly_payment: 500 }],
+    });
+    render(<TopBar />);
+    const chip = screen.getByLabelText(/^Net worth/);
+    expect(JSON.stringify(chip.props.style)).toContain(Colors.red);   // assets 10k − debt 60k = −50k → red pill
   });
 
   test('with no accounts, falls back to the onboarding snapshot net worth', () => {

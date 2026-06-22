@@ -79,3 +79,18 @@ describe('AssetSheet $0 add guard (B-21)', () => {
     expect(assetSheetReady('brokerage', '5000')).toBe(true);
   });
 });
+
+test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)', () => {
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 20000, target_return: 0 },
+      { asset_id: 'a2', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 80000, target_return: 0.07 },
+    ],
+    liabilities: [],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('Cash')).toBeOnTheScreen();          // asset-class legend label (not the "CASH" section header)
+  expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class slice (also a row)
+  expect(screen.getByText('net worth')).toBeOnTheScreen();     // donut center total
+});
