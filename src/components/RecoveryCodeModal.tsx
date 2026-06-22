@@ -20,13 +20,11 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
           <Text style={s.title}>Save your recovery code</Text>
           <Text style={s.privacy}>🔒 End-to-end encrypted · zero-knowledge</Text>
           <Text style={s.body}>
-            FinWise uses the highest standard of privacy. Your financial data is encrypted on your
-            device with AES-256 <Text style={s.bold}>before</Text> it's ever sent, and can be unlocked
-            only with your password or this recovery code — <Text style={s.bold}>not even FinWise can read it.</Text>
+            If you ever forget your password, this code is <Text style={s.bold}>the only way back into your data.</Text>
             {'\n\n'}
-            That's why this code matters: if you forget your password, it's the only way back to your
-            data. Save your password <Text style={s.bold}>and</Text> this recovery code somewhere safe.
-            If you lose both, no one — including us — can recover your data.
+            <Text style={s.bold}>Save it now</Text> — in a password manager, or written down somewhere safe.
+            {'\n\n'}
+            Your data is encrypted so even we can't read it — which means <Text style={s.bold}>if you lose both your password and this code, no one (including FinWise) can recover your data.</Text> We'll never ask you for it.
           </Text>
 
           <View style={s.codeBox}>
