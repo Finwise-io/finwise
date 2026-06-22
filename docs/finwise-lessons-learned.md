@@ -6,6 +6,29 @@
 
 ---
 
+## L‑6 (2026‑06‑22) — "appears a few seconds later" = a TIMING bug, not a render‑layering bug
+
+**What happened:** After signup, the onboarding question showed first and the recovery‑code screen
+appeared **a few seconds later**. Two fixes failed because they targeted *rendering*: (1) made the
+modal opaque + instant; (2) converted the native `<Modal>` to an in‑tree overlay. Neither helped,
+because the screen wasn't rendering late — its trigger was being *set* late.
+
+**Root cause (proven):** `registerUser` set `pendingRecoveryCode` only after it fully completed —
+including **PBKDF2 envelope‑wrapping (~100k iters) + a Firestore write (~a few seconds)**. But
+`createUserWithEmailAndPassword` fires the auth listener *immediately*, which routes into onboarding.
+So the app navigated seconds before the recovery code was ever set.
+
+**The tell I missed twice:** **a multi‑*second* delay is almost never a render/z‑index problem** —
+rendering races are sub‑frame (milliseconds). A seconds‑long gap means the *state that drives the UI*
+is being produced late (slow async work). Fix the data timing, not the layout.
+
+**Fix / rule going forward:** surface the value the instant it's available — generate the recovery
+code and fire an `onCodeReady` callback right after the account is created, **before** the slow
+crypto/network steps. General rule: **when something appears "a few seconds late," profile the async
+chain that sets its state; don't re‑layer the view.**
+
+---
+
 ## L‑5 (2026‑06‑22) — cloud hydration ran on every auth event and clobbered unsynced local changes
 
 **What happened:** Settings → "re‑run setup" → the wizard started, but after a Face ID unlock the app
