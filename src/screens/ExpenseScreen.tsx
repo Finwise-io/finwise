@@ -426,10 +426,12 @@ export default function ExpenseScreen() {
 }
 
 function getCategoryBudgetPct(cat: string): number {
+  // Keyed to the canonical BUDGET_CATEGORIES labels (#16).
   const p: Record<string, number> = {
-    Groceries: 0.17, Dining: 0.08, Gas: 0.06, Transit: 0.05,
-    Health: 0.05, Fun: 0.05, Clothes: 0.04, Utilities: 0.10,
-    Rent: 0.30, Subscriptions: 0.03, Shopping: 0.05, Other: 0.02,
+    'Rent / Mortgage': 0.30, 'Utilities': 0.10, 'Phone / Internet': 0.03, 'Insurance': 0.05,
+    'Subscriptions': 0.03, 'Repairs / maintenance': 0.03, 'Travel / holidays': 0.05, 'Gifts': 0.02,
+    'Groceries': 0.17, 'Gas / Transport': 0.06, 'Dining out': 0.08, 'Shopping': 0.05, 'Entertainment': 0.05,
+    'Other': 0.02,
   };
   return p[cat] || 0.05;
 }

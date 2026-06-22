@@ -8,8 +8,8 @@ import {
 describe('getCategoryIcon', () => {
   it('returns the correct icon for a known category', () => {
     expect(getCategoryIcon('Groceries')).toBe('🛒');
-    expect(getCategoryIcon('Dining')).toBe('🍔');
-    expect(getCategoryIcon('Rent')).toBe('🏠');
+    expect(getCategoryIcon('Dining out')).toBe('🍔');          // #16: canonical labels
+    expect(getCategoryIcon('Rent / Mortgage')).toBe('🏠');
   });
 
   it('returns the fallback icon for an unknown category', () => {
@@ -20,8 +20,8 @@ describe('getCategoryIcon', () => {
 
 describe('getCategoryBg', () => {
   it('returns the correct background for a known category', () => {
-    expect(getCategoryBg('Groceries')).toBe('#E1F5EE');
-    expect(getCategoryBg('Health')).toBe('#FCE4EC');
+    expect(getCategoryBg('Groceries')).toBe('#E8F5E9');        // flexible bucket bg
+    expect(getCategoryBg('Rent / Mortgage')).toBe('#E3F2FD');  // fixed bucket bg
   });
 
   it('returns the fallback background for an unknown category', () => {
@@ -52,7 +52,7 @@ describe('useAllCategories', () => {
     expect(result).toHaveLength(EXPENSE_CATEGORIES.length + 1);
     const groceriesEntries = result.filter(c => c.label === 'Groceries');
     expect(groceriesEntries).toHaveLength(1);
-    expect(groceriesEntries[0].bg).toBe('#E1F5EE'); // base version kept
+    expect(groceriesEntries[0].bg).toBe('#E8F5E9'); // base version kept
   });
 
   it('handles multiple custom categories', () => {

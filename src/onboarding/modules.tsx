@@ -1471,7 +1471,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
 type Tier = 'critical' | 'important' | 'flex';
 const SPEND_CATS: { id: string; label: string; tier: Tier; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string; stages?: Status[] }[] = [
   // Critical — must-pay
-  { id: 'rent', label: 'Rent / Housing', tier: 'critical', bucket: 'fixed', icon: '🏠' },
+  { id: 'rent', label: 'Rent / Mortgage', tier: 'critical', bucket: 'fixed', icon: '🏠' },   // #16: one label across onboarding/budget/add-expense
   { id: 'tuition', label: 'Tuition & fees', tier: 'critical', bucket: 'nonmonthly', icon: '🎓', stages: ['student'] },
   { id: 'mealplan', label: 'Meal plan', tier: 'critical', bucket: 'nonmonthly', icon: '🍽️', stages: ['student'] },
   { id: 'utilities', label: 'Utilities', tier: 'critical', bucket: 'fixed', icon: '⚡' },

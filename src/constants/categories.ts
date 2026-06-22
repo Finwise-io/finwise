@@ -33,19 +33,13 @@ export function budgetCategoryIcon(label: string, custom: CatLike[] = []): strin
     || '📦';
 }
 
+// #16: Add-Expense categories DERIVE from the canonical BUDGET_CATEGORIES so a logged expense uses the
+// SAME label as the planned category (no more "Rent / Mortgage" vs "Rent" duplicate budget lines).
+// Debt payment is excluded — debt is logged via the debt module, not as an expense.
+const CAT_BG: Record<BudgetBucket, string> = { fixed: '#E3F2FD', nonmonthly: '#FFF3E0', flexible: '#E8F5E9' };
 export const EXPENSE_CATEGORIES = [
-  { label: 'Groceries',     icon: '🛒', bg: '#E1F5EE' },
-  { label: 'Dining',        icon: '🍔', bg: '#FFF3E0' },
-  { label: 'Gas',           icon: '⛽', bg: '#FFF8E1' },
-  { label: 'Transit',       icon: '🚌', bg: '#E3F2FD' },
-  { label: 'Health',        icon: '💊', bg: '#FCE4EC' },
-  { label: 'Fun',           icon: '🎬', bg: '#F3E5F5' },
-  { label: 'Clothes',       icon: '👕', bg: '#E8F5E9' },
-  { label: 'Utilities',     icon: '💡', bg: '#FFFDE7' },
-  { label: 'Rent',          icon: '🏠', bg: '#E0F7FA' },
-  { label: 'Subscriptions', icon: '📱', bg: '#EDE7F6' },
-  { label: 'Shopping',      icon: '🛍', bg: '#FBE9E7' },
-  { label: 'Other',         icon: '📦', bg: '#F5F5F5' },
+  ...BUDGET_CATEGORIES.filter((c) => c.id !== 'debt').map((c) => ({ label: c.label, icon: c.icon, bg: CAT_BG[c.bucket] })),
+  { label: 'Other', icon: '📦', bg: '#F5F5F5' },
 ];
 
 // Emoji options for custom categories
