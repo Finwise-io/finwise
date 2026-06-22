@@ -32,6 +32,16 @@ describe('assetClassOf — WHAT it is', () => {
     expect(assetClassOf(acct({ kind: 'brokerage', asset_class: 'alternatives' }))).toBe('alternatives');
   });
 
+  test('CDs / T-bills / money-market are CASH even with a maturity (the CD-maturity trap)', () => {
+    // From the real E*TRADE export — a CD with a maturity AND a coupon, but it's cash, not a bond.
+    expect(assetClassOf(acct({ label: 'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026', maturity_date: '2026-08-24', coupon_rate: 0.0385 }))).toBe('cash');
+    expect(assetClassOf(acct({ label: '3-Month T-Bill', maturity_date: '2026-09-01' }))).toBe('cash');
+    expect(assetClassOf(acct({ label: 'Vanguard Federal Money Market', kind: 'fixed_income' }))).toBe('cash');
+    // A genuine bond (Treasury NOTE / corporate, no CD/bill/MM label) still classifies as bonds.
+    expect(assetClassOf(acct({ label: 'US Treasury Note 4% 2032', maturity_date: '2032-05-15' }))).toBe('bonds');
+    expect(assetClassOf(acct({ label: 'Apple Inc 3.25% Corp Bond', maturity_date: '2030-02-01' }))).toBe('bonds');
+  });
+
   test('falls back to the tax bucket when kind is missing', () => {
     expect(assetClassOf(acct({ tax_bucket: 'CASH' }))).toBe('cash');
     expect(assetClassOf(acct({ tax_bucket: 'PROPERTY' }))).toBe('real_estate');

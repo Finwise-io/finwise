@@ -113,11 +113,20 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
   home: 'real_estate', vehicle: 'personal_property',
 };
 
-/** WHAT the account is (asset class). Explicit `asset_class` wins; a maturity date ⇒ a bond; else
- *  derive from `kind`, falling back to the tax bucket. */
+// Cash-equivalents carry a maturity/rate too (CDs, T-bills, money-market) but are CASH, not bonds —
+// so we must catch them BEFORE the maturity ⇒ bonds rule. Matched by label (the importer also sets
+// asset_class explicitly from the security name/ticker, which always wins).
+const CASH_EQUIV_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?|money[\s-]?market|mmkt|mmf)\b/i;
+export function isCashEquivalentLabel(label?: string): boolean {
+  return CASH_EQUIV_RE.test((label ?? '').trim());
+}
+
+/** WHAT the account is (asset class). Explicit `asset_class` wins; CDs/T-bills/money-market ⇒ cash;
+ *  a maturity date ⇒ a bond; else derive from `kind`, falling back to the tax bucket. */
 export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.asset_class) return a.asset_class;
-  if (a.maturity_date) return 'bonds';                 // individual bond, regardless of kind
+  if (isCashEquivalentLabel(a.label)) return 'cash';   // CD / T-bill / money-market — NOT a bond
+  if (a.maturity_date) return 'bonds';                 // an individual bond (Treasury / muni / corporate)
   const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
   if (byKind) return byKind;
   if (a.tax_bucket === 'CASH') return 'cash';
