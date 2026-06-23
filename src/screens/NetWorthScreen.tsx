@@ -318,6 +318,12 @@ export default function NetWorthScreen() {
         {/* explore your holdings — three launchers grouped into one box */}
         <View style={styles.exploreCard}>
           <Text style={styles.exploreHdr}>EXPLORE YOUR HOLDINGS</Text>
+          {/* #13: import is a primary action for building your portfolio — surface it here, not buried in Performance */}
+          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/import-holdings')} accessibilityRole="button" accessibilityLabel="Import holdings from a brokerage file">
+            <Text style={styles.exploreRowT}>📄  Import holdings from a brokerage file</Text>
+            <Text style={styles.perfBtnArrow}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.exploreDiv} />
           <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/performance')}>
             <Text style={styles.exploreRowT}>📈  Portfolio performance vs benchmark</Text>
             <Text style={styles.perfBtnArrow}>›</Text>

@@ -3,6 +3,7 @@
  */
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
+import { router } from 'expo-router';
 import NetWorthScreen, { assetSheetReady } from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
@@ -125,4 +126,14 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
   expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest slice — the spec fix
   expect(screen.queryByText('Stocks / ETFs')).toBeNull();                  // NOT pretended to be stocks
   expect(screen.getByText(/holdings aren't set yet/)).toBeOnTheScreen();   // the nudge to classify
+});
+
+test('#13: import is reachable from Net Worth (not buried in Performance)', () => {
+  (router.push as jest.Mock).mockClear();
+  useStore.setState({ nwSeeded: true, assetAccounts: [
+    { asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 50000, target_return: 0.07 },
+  ], liabilities: [] } as any);
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByLabelText('Import holdings from a brokerage file'));
+  expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });

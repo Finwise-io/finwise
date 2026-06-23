@@ -1046,7 +1046,9 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const hasRet = ctx.tracks.includes('retire_acc');   // scope to non-retirement money if 401(k)/IRA is asked elsewhere
       return (<><Header emoji="📊" title={hasRet ? 'Your other investments' : 'Your investments'}
         sub={hasRet ? 'Taxable brokerage, cash & crypto — not the retirement savings above.' : 'Total value for now — add detail in the app later.'} />
-        <Card><HeroAmount ctx={ctx} k="investmentHoldings" label={hasRet ? 'Taxable + cash' : 'Total portfolio value'} /></Card></>);
+        <Card><HeroAmount ctx={ctx} k="investmentHoldings" label={hasRet ? 'Taxable + cash' : 'Total portfolio value'} /></Card>
+        {/* #13: point to the importer (lives on Net Worth) so the CSV path is discoverable from setup too */}
+        <Callout text="📄 Have a brokerage statement? After setup, open Net Worth → “Import holdings from a brokerage file” to add every position automatically." /></>);
     }
 
     case 'networthIntro':
