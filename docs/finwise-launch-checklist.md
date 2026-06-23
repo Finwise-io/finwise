@@ -89,6 +89,50 @@ manual steps remain on your side.
 
 ---
 
+## Phase 2.6 — Independent launch review findings (added 2026-06-23) 🔴
+
+From the Principal-PM launch review (`docs/finwise-launch-review.md`). **All must be addressed before
+we ship.** Grounded in current US fintech standards (sources in the review doc).
+
+### 🔴 Blockers
+
+- 🔴 🤖→🧑 **B-L1 — Reconcile the privacy claim with the AI-tips data path.** `analyzeExpenses()`
+  (`src/services/economicData.ts`) sends expense categories/stores/amounts + income to a proxy →
+  Anthropic. It's inert today (no `AI_PROXY_URL`), but if enabled it makes the "zero-knowledge, even we
+  can't read it" claim false for that feature **and** trips Apple's Nov-2025 third-party-AI disclosure +
+  consent rule.
+  **Done when:** EITHER AI-tips ships disabled for v1 (and code/copy reflect that), OR there's a separate
+  opt-in consent + disclosure + privacy-policy update; AND the absolute privacy claim is scoped to
+  "stored data" everywhere it appears (app + listing + privacy policy).
+- 🔴 🧑 **B-L2 — Wire production crash reporting.** `src/services/crashReporter.ts` exists but needs a
+  live Sentry (or equiv) DSN. **Done when:** a forced test crash in a production build appears in the
+  dashboard.
+- 🔴 🤖 **B-L3 — Disclaimer at every projection / "on-track" verdict.** Confirm it sits on the headline
+  retirement-readiness number and the savings-rate nudges (not just Settings); replace imperative
+  "you should" with "consider." **Done when:** every screen that gives a number-as-judgment carries the
+  informational/educational disclaimer, verified by a test or screenshot pass.
+- 🔴 🤖 **B-L4 — Graceful network degradation on data feeds.** `src/services/economicData.ts` (BLS /
+  Treasury / AI proxy) has no try/catch and feeds inflation into projections. **Done when:** every fetch
+  falls back to a sane default on failure (no thrown error, no corrupted projection), with a test.
+
+### 🟠 Important (before launch)
+
+- 🟠 🤖 **Verify the bug ledger is clean** — confirm no `open`/`by-design?` row in
+  `docs/finwise-bug-ledger.md` is a user-facing money error.
+- 🟠 🧑 **Run the Maestro flows on a real device** (`auth-signup`, `smoke`, `b21-add-sheet`, `nw-donut`,
+  `cashflow`) — selectors have never executed on-device (ML Kit blocks the simulator).
+- 🟠 🧑 **Prep the App Review note:** "informational/educational planning tool — no money movement, no
+  account linking, no securities recommendations" (de-risks the fintech-licensing guideline).
+
+### 🟡 Positioning (decide explicitly)
+
+- 🟡 🧑 **Scope launch as US-only** — the app is USD-only (currency picker removed) despite the "every
+  country" objective. Don't market global; GLBA/state-privacy posture assumes US.
+- 🟡 🧑 **Track onboarding completion as the #1 launch metric** — manual entry (no account linking) is the
+  privacy differentiator and the churn risk.
+
+---
+
 ## Phase 3 — Optional (post-v1 unless you want them now) ⚪
 - ⚪ **Plaid bank linking** — biggest stickiness lever, but needs Plaid keys + a small backend (Cloud Function) to hold the secret. Out of scope for a v1 manual-entry launch.
 - ⚪ **Push notifications** — plugin is configured; needs APNs setup + reminder logic.
@@ -109,7 +153,8 @@ manual steps remain on your side.
 2. **1.2** deploy Firestore rules (one command)
 3. **1.3** production build (verifies OCR + keychain)
 4. **Phase 2** listing (Claude drafts copy → you add screenshots + privacy/support URLs)
-5. **Phase 4** QA on the production build → submit
+5. **Phase 2.6** independent-review blockers (B-L1 AI/privacy · B-L2 crash reporting · B-L3 disclaimers · B-L4 network degradation)
+6. **Phase 4** QA on the production build → submit
 
 Everything else (Plaid, push) is post-launch.
 
