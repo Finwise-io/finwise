@@ -2192,9 +2192,11 @@ function RentalEditor({ ctx }: { ctx: StepCtx }) {
         </View>
         <Segmented ctx={{ ...ctx, answers: { rt: r.type ?? 'long' }, setAnswer: (_, v) => setProp(i, 'type', v) }}
           k="rt" defaultValue="long" options={[{ value: 'long', label: 'Long-term' }, { value: 'short', label: 'Short-term' }]} />
+        {/* #3: short-term (Airbnb/VRBO) income is seasonal — capture a monthly AVERAGE, and say so, rather
+            than implying a fixed rent. Same data model (monthly), just an honest label + guidance. */}
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
-            <Text style={s.label}>Rent / mo</Text>
+            <Text style={s.label}>{(r.type ?? 'long') === 'short' ? 'Avg rent / mo' : 'Rent / mo'}</Text>
             <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
               value={r.income ?? ''} onChangeText={(t) => setProp(i, 'income', t)} />
           </View>
@@ -2204,7 +2206,8 @@ function RentalEditor({ ctx }: { ctx: StepCtx }) {
               value={r.expenses ?? ''} onChangeText={(t) => setProp(i, 'expenses', t)} />
           </View>
         </View>
-        {num(r.income) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(num(r.income) - num(r.expenses))}/mo</Text></Text>}
+        {(r.type ?? 'long') === 'short' && <Text style={s.hint}>Short-term income varies by season — enter a typical month, or your annual total ÷ 12.</Text>}
+        {num(r.income) > 0 && <Text style={s.note2}>Net <Text style={{ fontWeight: '700' }}>{money(num(r.income) - num(r.expenses))}/mo{(r.type ?? 'long') === 'short' ? ' avg' : ''}</Text></Text>}
       </Card>
     ))}
     <TouchableOpacity style={s.addBtn} onPress={addProp}><Text style={s.addBtnT}>+ Add property</Text></TouchableOpacity>
