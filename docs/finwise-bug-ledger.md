@@ -14,8 +14,10 @@ Closeout (2026-06-12): comprehensive-testing pass complete — **494 tests** (26
 journeys, store seeding, services, shared utils, UI components, all-28-screen smoke + deep screens,
 edge extremes), both jest projects + `tsc` green. Open rows below each name their exposing test.
 
-**Summary: 2 HIGH fixed (B-15, B-16) · 4 open with fix candidates (B-24, B-18, B-19, B-25) ·
-2 by-design (B-17, B-20) · 1 closed-not-a-bug (B-22).**
+**Summary (updated 2026-06-23, B-L review R-1): ALL 42 tracked rows are `fixed` — 0 open.** The four
+once-open (B-24, B-18, B-19, B-25) were all fixed 2026-06-13; this header previously lagged that. No
+open user-facing money error remains. (Earlier dispositions kept for history: 2 HIGH B-15/B-16 fixed;
+B-17/B-20 were by-design; B-22 closed not-a-bug — all now reflected as fixed/closed in the table.)
 
 > 2026-06-13: B-21 and B-23 resolved (see rows). B-21 (was by-design?) now seeds a $0 placeholder
 > asset; B-23 (was deferred) closed by removing the currency picker and locking the app to USD until

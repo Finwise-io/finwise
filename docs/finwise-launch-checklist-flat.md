@@ -34,9 +34,9 @@ _Flat, trackable view of every launch item. Excel: `docs/finwise-launch-checklis
 | Phase 2.6 — Launch-review findings | B-L2 | Wire production crash reporting (live Sentry DSN) | 🧑 | Blocker | Open | Forced test crash appears in dashboard |
 | Phase 2.6 — Launch-review findings | B-L3 | Disclaimer at every projection / "on-track" verdict; no imperative "you should" | 🤖 | Blocker | Done | DONE bb68bad — shared <Disclaimer/> on all 5 judgment screens; RMD phrased as IRS requirement; guard test |
 | Phase 2.6 — Launch-review findings | B-L4 | Graceful network degradation on BLS/Treasury/AI feeds (try/catch + default) | 🤖 | Blocker | Done | DONE (verified) — all wired network paths already degrade gracefully (prices allSettled+null keep-cache; econ allSettled+fallback flags; econ feed unwired, inflation static default). Covered by existing tests; no code change. |
-| Phase 2.6 — Launch-review findings | R-1 | Verify bug ledger clean (no user-facing money error open) | 🤖 | Important | Open | docs/finwise-bug-ledger.md |
-| Phase 2.6 — Launch-review findings | R-2 | Run Maestro flows on a REAL device (selectors never run on-device) | 🧑 | Important | Open | auth-signup, smoke, b21-add-sheet, nw-donut, cashflow |
-| Phase 2.6 — Launch-review findings | R-3 | Prep App Review note: educational planner, no money movement/linking/securities recs | 🧑 | Important | Open | De-risks fintech-licensing guideline |
+| Phase 2.6 — Launch-review findings | R-1 | Verify bug ledger clean (no user-facing money error open) | 🤖 | Important | Done | VERIFIED — ledger 0 open; all 42 fixed; stale summary header corrected (no money error open) |
+| Phase 2.6 — Launch-review findings | R-2 | Run Maestro flows on a REAL device (selectors never run on-device) | 🧑 | Important | Ready | RUNBOOK ready in .maestro/README (npm run test:e2e, 5 flows); 🧑 runs on a real device |
+| Phase 2.6 — Launch-review findings | R-3 | Prep App Review note: educational planner, no money movement/linking/securities recs | 🧑 | Important | Done | DRAFTED — docs/finwise-app-review-notes.md (educational-tool note + demo-login placeholder); 🧑 fill creds + paste |
 | Phase 2.6 — Launch-review findings | R-4 | Scope launch as US-only (app is USD-only; "every country" objective deferred) | 🧑 | Positioning | Open | Don't market global |
 | Phase 2.6 — Launch-review findings | R-5 | Track onboarding completion as #1 launch metric (manual entry = churn risk) | 🧑 | Positioning | Open |  |
 | Phase 3 — Optional (post-v1) | P3.1 | Plaid bank linking | 🧑 | Optional | Open | Needs Plaid keys + backend |
