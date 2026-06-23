@@ -2,7 +2,7 @@ import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savin
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
 
-// #6: the recap's "Free to save / yr" must reconcile with the savings-plan's monthly average × 12.
+// #6: the recap's "Surplus / yr" must reconcile with the savings-plan's monthly average × 12.
 // Both now derive from the SAME grid (annualCashflow ≡ Σ savingsByMonth), so they agree even with
 // non-flat income (a December bonus). They used to disagree because the recap annualized income flatly.
 describe('annualCashflow reconciles the recap with the savings plan (#6)', () => {

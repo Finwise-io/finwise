@@ -1388,7 +1388,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
 
     {/* hero — what you actually have to use */}
     <View style={s.heroCard}>
-      <Text style={s.heroCardLabel}>Available to use / year</Text>
+      <Text style={s.heroCardLabel}>Take-home / year</Text>
       <Text style={s.heroCardValue}>{money(availableYr)}</Text>
       <Text style={s.heroCardSub}>≈ {money(avgMo)}/mo average</Text>
     </View>
@@ -1551,7 +1551,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   return (<>
     <Header emoji="📊" title="Your full recap" sub="Your full-year picture." />
 
-    {/* hero — donut on top, then a full-width waterfall: Gross − Tax − 401(k) = Available − Spending = Free to save */}
+    {/* hero — donut on top, then a full-width waterfall: Gross − Tax − 401(k) = Take-home − Spending = Surplus */}
     <View style={s.heroCard}>
       <Donut segments={[
         { value: taxYr, color: Colors.amber },
@@ -1566,9 +1566,9 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
         <WfRow label="Gross income / yr" value={money(grossYr)} />
         <WfRow dot={Colors.amber} label={`Tax · ~${taxPct}% of gross`} value={`−${money(taxYr)}`} />
         {k401Yr > 0 && <WfRow dot={C401} label="401(k) · locked for retirement" value={`−${money(k401Yr)}`} />}
-        <WfRow label="Available to use / yr" value={money(availableYr)} strong color={Colors.primaryDark} topline />
+        <WfRow label="Take-home / yr" value={money(availableYr)} strong color={Colors.primaryDark} topline />
         <WfRow dot={Colors.blue} label={`Spending · ${spendPct}% of gross`} value={`−${money(spendYr)}`} />
-        <WfRow dot={saveYr >= 0 ? Colors.primary : Colors.red} label="Free to save / yr" value={money(saveYr)} strong
+        <WfRow dot={saveYr >= 0 ? Colors.primary : Colors.red} label="Surplus / yr" value={money(saveYr)} strong
           color={saveYr >= 0 ? Colors.primary : Colors.red} topline />
       </View>
     </View>
@@ -1617,7 +1617,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
         <Legend color={Colors.amber} label="Tax" value={`${money(taxYr)} · ${taxPct}%`} />
         {k401Yr > 0 && <Legend color={C401} label="401(k)" value={money(k401Yr)} />}
         <Legend color={Colors.blue} label="Spending" value={`${money(spendYr)} · ${spendPct}%`} />
-        <Legend color={Colors.primary} label="Free to save" value={money(Math.max(0, saveYr))} />
+        <Legend color={Colors.primary} label="Surplus" value={money(Math.max(0, saveYr))} />
       </View>
     </Card>
   </>);
@@ -1654,14 +1654,14 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
 
     {/* hero — total annual savings */}
     <View style={s.heroCard}>
-      <Text style={s.heroCardLabel}>You can save / year</Text>
+      <Text style={s.heroCardLabel}>Surplus / year</Text>
       <Text style={[s.heroCardValue, annual < 0 && { color: Colors.red }]}>{money(annual)}</Text>
       <Text style={s.heroCardSub}>≈ {money(avg)}/mo average{net > 0 ? ` · ${pct}% of take-home` : ''}</Text>
     </View>
 
     {/* column chart of monthly savable amount */}
     <Card>
-      <Text style={s.cap}>Available to save by month</Text>
+      <Text style={s.cap}>Surplus by month</Text>
       <View style={s.colChart}>
         {months.map((m) => (
           <View key={m.label} style={s.colItem}>
@@ -1868,12 +1868,12 @@ function SavePlanScreen({ ctx }: { ctx: StepCtx }) {
       sub="Your free cash month by month, and how much of it you'll invest each year." />
     {hasCashflow && (<>
       <View style={s.heroCard}>
-        <Text style={s.heroCardLabel}>You can save / year</Text>
+        <Text style={s.heroCardLabel}>Surplus / year</Text>
         <Text style={[s.heroCardValue, annualSave < 0 && { color: Colors.red }]}>{money(annualSave)}</Text>
         <Text style={s.heroCardSub}>≈ {money(annualSave / 12)}/mo average — but it varies, see below</Text>
       </View>
       <Card>
-        <Text style={s.cap}>Free to save, by month</Text>
+        <Text style={s.cap}>Surplus by month</Text>
         <View style={{ marginTop: 4, marginBottom: 4 }}>
           <Segmented ctx={{ ...ctx, answers: { v: view }, setAnswer: (_, v) => setView(v as any) }} k="v"
             options={[{ value: 'chart', label: 'Chart' }, { value: 'table', label: 'Table' }]} />
@@ -2111,7 +2111,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
         <Legend color={TIER_COLOR.important} label="Important" value={money(impT)} />
         <Legend color={TIER_COLOR.flex} label="Nice-to-have" value={money(flexT)} />
         {uncategorized > 0 && <Legend color={Colors.textTertiary} label="Uncategorized (from your estimate)" value={money(uncategorized)} />}
-        <Legend color={SAVE_COLOR} label={save >= 0 ? 'Left to save' : 'Over budget'} value={money(Math.abs(save))} />
+        <Legend color={SAVE_COLOR} label={save >= 0 ? 'Surplus' : 'Over budget'} value={money(Math.abs(save))} />
       </View>
       {estimated > 0 && (
         <Text style={s.note2}>

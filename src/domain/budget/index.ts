@@ -159,7 +159,7 @@ export function savingsByMonth(op: OnboardingProfile | null): { label: string; a
 
 /** ONE annual cash-flow roll-up, derived entirely from the per-month income grid + spendByMonth — the
  *  SAME bases the savings-plan and budget already use. The recap must use this (not a separate flat
- *  grossAnnual − tax computation) so "Free to save / yr" reconciles exactly with the savings screen's
+ *  grossAnnual − tax computation) so "Surplus / yr" reconciles exactly with the savings screen's
  *  monthly average × 12 (#6: they disagreed because the recap annualized flatly while the savings plan
  *  summed the month-by-month grid). saveYr === Σ savingsByMonth by construction. */
 export function annualCashflow(op: OnboardingProfile | null): {
