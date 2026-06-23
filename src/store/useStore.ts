@@ -257,6 +257,7 @@ type AppState = {
   // Display mode — Simple hides jargon/advanced detail; Advisor shows full depth
   displayMode: 'simple' | 'advisor';
   pendingRecoveryCode: string | null;   // transient: a just-issued recovery code to show at the root (survives navigation)
+  securingAccount: boolean;             // transient: true while the slow PBKDF2 key-wrapping runs after signup (gates the recovery modal's checkbox so the 10s freeze reads as "Securing…", not a dead button)
   fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
 
   // Economic data
@@ -319,6 +320,7 @@ type AppState = {
   setCurrency: (currency: string, locale?: string) => void;
   setDisplayMode: (m: 'simple' | 'advisor') => void;
   setPendingRecoveryCode: (c: string | null) => void;
+  setSecuringAccount: (b: boolean) => void;
   setFontScale: (s: number) => void;
   addRecurringIncome: (entry: Omit<RecurringIncome, 'id'>) => void;
   updateRecurringIncome: (id: string, updates: Partial<RecurringIncome>) => void;
@@ -444,6 +446,7 @@ export const useStore = create<AppState>()(
       locale: 'en-US',
       displayMode: 'simple',
       pendingRecoveryCode: null,
+      securingAccount: false,
       fontScale: 1,
       inflationRate: 3.2,
       treasuryYield: 4.35,
@@ -614,6 +617,7 @@ export const useStore = create<AppState>()(
       },
       setDisplayMode: (m) => set({ displayMode: m }),
       setPendingRecoveryCode: (c) => set({ pendingRecoveryCode: c }),
+      setSecuringAccount: (b) => set({ securingAccount: b }),
       setFontScale: (s) => set({ fontScale: s }),
 
       addRecurringIncome: (entry) => {

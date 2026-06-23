@@ -52,7 +52,7 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode, pendingRecoveryCode, setPendingRecoveryCode } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode, pendingRecoveryCode, setPendingRecoveryCode, securingAccount } = useStore() as any;
   setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
   // B-23: the app is USD-only until per-country tax/retirement engines exist. Force USD here so a
   // stale non-USD `currency` synced from an old cloud profile can never desync the formatter.
@@ -153,6 +153,7 @@ export default function RootLayout() {
         <RecoveryCodeModal
           visible={!!pendingRecoveryCode}
           code={pendingRecoveryCode ?? ''}
+          securing={securingAccount}
           onDone={() => setPendingRecoveryCode?.(null)}
         />
         <Stack

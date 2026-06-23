@@ -25,6 +25,7 @@ export default function AuthScreen() {
   const router = useRouter();
   const setUser = useStore((s) => s.setUser);
   const setPendingRecoveryCode = useStore((s: any) => s.setPendingRecoveryCode);
+  const setSecuringAccount = useStore((s: any) => s.setSecuringAccount);
 
   const [mode, setMode] = useState<Mode>('login');
   const [name, setName] = useState('');
@@ -111,7 +112,11 @@ export default function AuthScreen() {
         // Firebase rejects a duplicate email with auth/email-already-in-use (handled in catch).
         // Surface the recovery code the instant the account exists (via onCodeReady) — BEFORE the
         // slow key-wrapping/Firestore write — so it shows before the auth listener routes to onboarding.
-        const { user } = await registerUser(trimEmail, password, name.trim(), setPendingRecoveryCode);
+        // Surface the code AND flag "securing" so the recovery modal shows an honest "Securing…" state
+        // (disabled checkbox + spinner) while the multi-second PBKDF2 key-wrapping runs — not a dead button.
+        const onCode = (code: string) => { setPendingRecoveryCode(code); setSecuringAccount(true); };
+        const { user } = await registerUser(trimEmail, password, name.trim(), onCode);
+        setSecuringAccount(false);   // envelope persisted → unlock the "I've saved it" checkbox
         setUser({
           uid: user.uid,
           email: trimEmail,
@@ -184,6 +189,7 @@ export default function AuthScreen() {
       }
     } finally {
       setLoading(false);
+      setSecuringAccount(false);   // never leave the recovery modal stuck in "Securing…" if signup errored
     }
   }
 

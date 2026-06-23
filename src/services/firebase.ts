@@ -65,8 +65,12 @@ export async function registerUser(email: string, password: string, name: string
   const dek = generateDataKey();
   const recoveryCode = generateRecoveryCode();
   onCodeReady?.(recoveryCode);
+  await cacheDataKey(dek);   // cache locally NOW so encryption works immediately, independent of the slow steps below
   await updateProfile(cred.user, { displayName: name });
   try { await sendEmailVerification(cred.user); } catch { /* non-blocking — they can resend later */ }
+  // Let the recovery-code modal actually PAINT (with its "Securing…" spinner) before the synchronous
+  // PBKDF2 wrapping freezes the JS thread for several seconds — otherwise the spinner never shows.
+  await new Promise((r) => setTimeout(r, 0));
   // Store the wrapped envelope (never the secrets themselves).
   const keyEnvelope = makeEnvelope(dek, cred.user.uid, password, recoveryCode);
   await setDoc(doc(db, 'users', cred.user.uid), {
@@ -75,8 +79,7 @@ export async function registerUser(email: string, password: string, name: string
     createdAt: serverTimestamp(),
     keyEnvelope,
   });
-  await cacheDataKey(dek);
-  return { user: cred.user, recoveryCode };
+  return { user: cred.user, recoveryCode };   // dek already cached above
 }
 
 /** Resend the verification email to the signed-in user. */

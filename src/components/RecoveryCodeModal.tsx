@@ -1,10 +1,10 @@
 // Shows a one-time recovery code the user must save. We never store the code itself, so this is the
 // only time it can be seen — dismissing requires an explicit "I've saved it".
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Share } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Share, ActivityIndicator } from 'react-native';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
-export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean; code: string; onDone: () => void }) {
+export function RecoveryCodeModal({ visible, code, onDone, securing = false }: { visible: boolean; code: string; onDone: () => void; securing?: boolean }) {
   const [ack, setAck] = useState(false);
   // The component stays mounted between signups (it just renders null when hidden), so reset the
   // "I've saved it" checkbox each time it reappears — otherwise a second signup shows it pre-checked.
@@ -42,14 +42,24 @@ export function RecoveryCodeModal({ visible, code, onDone }: { visible: boolean;
             <Text style={s.shareTxt}>Share / save…</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={s.ackRow} onPress={() => setAck((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: ack }} accessibilityLabel="I've saved my recovery code somewhere safe">
-            <View style={[s.box, ack && s.boxOn]}>{ack ? <Text style={s.check}>✓</Text> : null}</View>
-            <Text style={s.ackTxt}>I've saved it somewhere safe</Text>
-          </TouchableOpacity>
+          {securing ? (
+            // Key-wrapping (PBKDF2) runs on the JS thread for several seconds after signup. Rather than
+            // a dead checkbox, show an honest "Securing…" state (the native spinner keeps animating
+            // through the freeze). Read your code now; the checkbox unlocks the instant it's done.
+            <View style={s.securingRow} accessibilityRole="progressbar" accessibilityLabel="Securing your account">
+              <ActivityIndicator color={Colors.primary} />
+              <Text style={s.securingTxt}>Securing your account… you can read your code while you wait.</Text>
+            </View>
+          ) : (
+            <TouchableOpacity style={s.ackRow} onPress={() => setAck((v) => !v)} accessibilityRole="checkbox" accessibilityState={{ checked: ack }} accessibilityLabel="I've saved my recovery code somewhere safe">
+              <View style={[s.box, ack && s.boxOn]}>{ack ? <Text style={s.check}>✓</Text> : null}</View>
+              <Text style={s.ackTxt}>I've saved it somewhere safe</Text>
+            </TouchableOpacity>
+          )}
 
           <TouchableOpacity
-            style={[s.doneBtn, !ack && { opacity: 0.4 }]}
-            disabled={!ack}
+            style={[s.doneBtn, (!ack || securing) && { opacity: 0.4 }]}
+            disabled={!ack || securing}
             onPress={onDone}
             accessibilityRole="button"
             accessibilityLabel="Continue"
@@ -74,6 +84,8 @@ const s = StyleSheet.create({
   shareBtn: { paddingVertical: Spacing.sm, marginBottom: Spacing.sm },
   shareTxt: { color: Colors.primary, fontWeight: '700', fontSize: Typography.sizes.md },
   ackRow: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', gap: 10, marginBottom: Spacing.base, paddingVertical: 4 },
+  securingRow: { flexDirection: 'row', alignItems: 'center', alignSelf: 'stretch', gap: 10, marginBottom: Spacing.base, paddingVertical: 4 },
+  securingTxt: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textSecondary },
   box: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   boxOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   check: { color: '#fff', fontWeight: '800', fontSize: 14 },
