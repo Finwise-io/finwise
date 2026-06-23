@@ -96,7 +96,7 @@ export default function BondsScreen() {
   );
 }
 
-function BondEditor({ bond, open, onClose, onSave, onDelete }: {
+export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   bond: AssetAccount | null; open: boolean; onClose: () => void; onSave: (f: Partial<AssetAccount>) => void; onDelete?: () => void;
 }) {
   const [label, setLabel] = useState('');
@@ -114,6 +114,13 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? '');
   }, [open]);
   const valid = label.trim() && num(face) > 0 && num(coupon) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(maturity.trim());
+  // #11: the spinner only fires onChange when you SPIN it, so tapping "Done" on the default date saved
+  // nothing. Commit the default the instant the picker opens, so the shown date is the chosen date.
+  const defaultMaturityISO = fmtISO(new Date(new Date().getFullYear() + 10, 0, 1));
+  const openPicker = () => {
+    if (!showPicker && !maturity) setMaturity(defaultMaturityISO);
+    setShowPicker((s) => !s);
+  };
   const save = () => onSave({
     label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
     face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
@@ -136,7 +143,7 @@ function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Maturity date</Text>
-          <TouchableOpacity style={styles.input} activeOpacity={0.7} onPress={() => setShowPicker((s) => !s)}>
+          <TouchableOpacity style={styles.input} activeOpacity={0.7} onPress={openPicker}>
             <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
           </TouchableOpacity>
           {showPicker && (
