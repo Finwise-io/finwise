@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, AssetAccount, TaxBucket, assetAllocation, type AssetClass } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, type AssetClass } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -24,6 +24,15 @@ const CLASS_META: { key: AssetClass; label: string; color: string }[] = [
   { key: 'personal_property', label: 'Personal property', color: '#9E9E9E' },
   // #10: a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT pretended to be stocks.
   { key: 'mixed', label: 'Unclassified', color: '#B0846A' },
+];
+// #10/#14: the asset-class options offered when classifying a wrapper account (what it HOLDS). 'auto'
+// leaves it Unclassified (mixed); the rest set an explicit class so the donut is accurate.
+const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
+  { key: 'auto', label: 'Mixed / not sure' },
+  { key: 'stocks_etf', label: 'Stocks / ETFs' },
+  { key: 'bonds', label: 'Bonds' },
+  { key: 'cash', label: 'Cash' },
+  { key: 'alternatives', label: 'Alternatives' },
 ];
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
 const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
@@ -367,20 +376,27 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const editing = state.edit;
   const kindsForSection = state.section ? ASSET_KINDS.filter((k) => k.section === state.section) : ASSET_KINDS;
   const [kind, setKind] = useState(''); const [inst, setInst] = useState(''); const [bal, setBal] = useState('');
+  const [cls, setCls] = useState<AssetClass | 'auto'>('auto');   // #10/#14: what a wrapper holds
 
   useEffect(() => {
     if (!state.open) return;
     setKind(editing?.kind ?? kindsForSection[0]?.id ?? 'brokerage');
     setInst(editing?.institution ?? ''); setBal(editing ? String(editing.balance) : '');
+    setCls((editing?.asset_class as AssetClass) ?? 'auto');
   }, [state.open]);
 
   const k = assetKind(kind);
   const amt = num(bal);
   const ready = assetSheetReady(kind, bal);
+  // A wrapper (401k/IRA/brokerage) has no inherent asset class — offer to set what it HOLDS so the
+  // donut is accurate (#10) and the user classifies the existing account instead of adding a parallel,
+  // double-counting one (#14). Class-specific kinds (cash, a bond, a home) don't need this.
+  const isWrapper = !!k && assetClassOf({ kind: k.id, tax_bucket: k.bucket } as AssetAccount) === 'mixed';
   const save = () => {
     if (!ready || !k) return;
     const label = inst.trim() || k.label;
-    const patch = { label, institution: inst.trim(), kind: k.id, tax_bucket: k.bucket as TaxBucket, balance: amt, target_return: k.ret };
+    const patch: Partial<AssetAccount> = { label, institution: inst.trim(), kind: k.id, tax_bucket: k.bucket as TaxBucket, balance: amt, target_return: k.ret };
+    patch.asset_class = isWrapper && cls !== 'auto' ? cls : undefined;   // set holdings if chosen; else auto-derive
     if (editing) store.updateAsset?.(editing.asset_id, patch); else store.addAsset?.(patch);
     onClose();
   };
@@ -396,6 +412,18 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
         ))}
       </View>
       <TextInput style={sh.input} placeholder="Institution / name (e.g. Chase)" placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
+      {isWrapper && (
+        <>
+          <Text style={sh.clsLabel}>What's it invested in?</Text>
+          <View style={sh.chips}>
+            {WRAPPER_CLASS_CHOICES.map((c) => (
+              <TouchableOpacity key={c.key} style={[sh.chip, cls === c.key && sh.chipOn]} onPress={() => setCls(c.key)}>
+                <Text style={sh.chipTxt}>{c.label}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        </>
+      )}
       <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
       <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {amt > 0 ? money(amt) : 'asset'}</Text></TouchableOpacity>
       {editing && <TouchableOpacity onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
@@ -565,6 +593,7 @@ const sh = StyleSheet.create({
   chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  clsLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, alignSelf: 'flex-start', marginTop: 4, marginBottom: 8 },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },
   lbl: { fontSize: 12, color: Colors.textSecondary, marginTop: Spacing.sm, marginBottom: 2 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },

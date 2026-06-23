@@ -95,6 +95,24 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
   expect(screen.getByText('net worth')).toBeOnTheScreen();     // donut center total
 });
 
+test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel double-counting account)', () => {
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'k1', label: 'My 401(k)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000, target_return: 0.07 },
+    ],
+    liabilities: [],
+  } as any);
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByText('My 401(k)'));                       // open the edit sheet
+  expect(screen.getByText("What's it invested in?")).toBeOnTheScreen(); // the wrapper class selector (#14 affordance)
+  fireEvent.press(screen.getByText('Bonds'));                           // classify the existing account…
+  fireEvent.press(screen.getByText(/Save \$/));                         // …instead of adding a separate bond account
+  const acct = useStore.getState().assetAccounts.find((a: any) => a.asset_id === 'k1') as any;
+  expect(acct.asset_class).toBe('bonds');                               // now counts as bonds, balance unchanged (200k)
+  expect(acct.balance).toBe(200000);
+});
+
 test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Stocks/ETFs', () => {
   useStore.setState({
     nwSeeded: true,
