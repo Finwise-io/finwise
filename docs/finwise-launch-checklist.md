@@ -107,13 +107,16 @@ we ship.** Grounded in current US fintech standards (sources in the review doc).
 - 🔴 🧑 **B-L2 — Wire production crash reporting.** `src/services/crashReporter.ts` exists but needs a
   live Sentry (or equiv) DSN. **Done when:** a forced test crash in a production build appears in the
   dashboard.
-- 🔴 🤖 **B-L3 — Disclaimer at every projection / "on-track" verdict.** Confirm it sits on the headline
-  retirement-readiness number and the savings-rate nudges (not just Settings); replace imperative
-  "you should" with "consider." **Done when:** every screen that gives a number-as-judgment carries the
-  informational/educational disclaimer, verified by a test or screenshot pass.
-- 🔴 🤖 **B-L4 — Graceful network degradation on data feeds.** `src/services/economicData.ts` (BLS /
-  Treasury / AI proxy) has no try/catch and feeds inflation into projections. **Done when:** every fetch
-  falls back to a sane default on failure (no thrown error, no corrupted projection), with a test.
+- 🟢 🤖 **B-L3 — Disclaimer at every projection / "on-track" verdict. DONE (bb68bad).** New shared
+  `<Disclaimer/>` component added to the five judgment screens that lacked it (Retirement, Analytics,
+  Home, StressTest, JobSafety); Cockpit/Tax/Credit/Estate already had it. The one imperative ("you must
+  withdraw" — an RMD) reworded to the factual "the IRS requires a withdrawal." Coverage guard test bans
+  re-introducing advice imperatives or dropping the disclaimer from a judgment screen.
+- 🟢 🤖 **B-L4 — Graceful network degradation. DONE (verified, no code change).** On inspection every
+  wired network path already degrades gracefully: prices use `Promise.allSettled` + try/catch → null and
+  the store keeps its cache on failure; the econ feed uses `allSettled` + fallback constants + flags (and
+  isn't even wired — inflation is a static default). The feared crash can't occur; existing tests prove
+  it (`marketData.test`, `economicData.test`, `store_prices.test` offline cases).
 
 ### 🟠 Important (before launch)
 

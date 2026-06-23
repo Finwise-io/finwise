@@ -4,7 +4,7 @@ _Flat, trackable view of every launch item. Excel: `docs/finwise-launch-checklis
 
 **Owner:** 🧑 you (account/legal/manual) · 🤖 Claude (in-repo). **Priority:** Blocker · Important · Recommended · Optional · Positioning · Done.
 
-**Open blockers: 19.**
+**Open blockers: 17.**
 
 | Phase | ID | Item | Owner | Priority | Status | Done when / Notes |
 |---|---|---|---|---|---|---|
@@ -32,8 +32,8 @@ _Flat, trackable view of every launch item. Excel: `docs/finwise-launch-checklis
 | Phase 2.5 — App Review compliance | 2.5.5 | Test Delete-account on a real production build | 🧑 | Blocker | Open | End-to-end removal verified |
 | Phase 2.6 — Launch-review findings | B-L1 | Reconcile privacy claim with AI-tips data path (analyzeExpenses → proxy → Anthropic) | 🤖→🧑 | Blocker | Done | DONE 945f929 — on-device tips + OCR; claim updated; policy reconciled; re-host policy = 🧑 |
 | Phase 2.6 — Launch-review findings | B-L2 | Wire production crash reporting (live Sentry DSN) | 🧑 | Blocker | Open | Forced test crash appears in dashboard |
-| Phase 2.6 — Launch-review findings | B-L3 | Disclaimer at every projection / "on-track" verdict; no imperative "you should" | 🤖 | Blocker | Open | Verified by test/screenshot pass |
-| Phase 2.6 — Launch-review findings | B-L4 | Graceful network degradation on BLS/Treasury/AI feeds (try/catch + default) | 🤖 | Blocker | Open | No thrown error / corrupted projection on failure; test |
+| Phase 2.6 — Launch-review findings | B-L3 | Disclaimer at every projection / "on-track" verdict; no imperative "you should" | 🤖 | Blocker | Done | DONE bb68bad — shared <Disclaimer/> on all 5 judgment screens; RMD phrased as IRS requirement; guard test |
+| Phase 2.6 — Launch-review findings | B-L4 | Graceful network degradation on BLS/Treasury/AI feeds (try/catch + default) | 🤖 | Blocker | Done | DONE (verified) — all wired network paths already degrade gracefully (prices allSettled+null keep-cache; econ allSettled+fallback flags; econ feed unwired, inflation static default). Covered by existing tests; no code change. |
 | Phase 2.6 — Launch-review findings | R-1 | Verify bug ledger clean (no user-facing money error open) | 🤖 | Important | Open | docs/finwise-bug-ledger.md |
 | Phase 2.6 — Launch-review findings | R-2 | Run Maestro flows on a REAL device (selectors never run on-device) | 🧑 | Important | Open | auth-signup, smoke, b21-add-sheet, nw-donut, cashflow |
 | Phase 2.6 — Launch-review findings | R-3 | Prep App Review note: educational planner, no money movement/linking/securities recs | 🧑 | Important | Open | De-risks fintech-licensing guideline |
