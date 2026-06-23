@@ -96,14 +96,14 @@ we ship.** Grounded in current US fintech standards (sources in the review doc).
 
 ### 🔴 Blockers
 
-- 🔴 🤖→🧑 **B-L1 — Reconcile the privacy claim with the AI-tips data path.** `analyzeExpenses()`
-  (`src/services/economicData.ts`) sends expense categories/stores/amounts + income to a proxy →
-  Anthropic. It's inert today (no `AI_PROXY_URL`), but if enabled it makes the "zero-knowledge, even we
-  can't read it" claim false for that feature **and** trips Apple's Nov-2025 third-party-AI disclosure +
-  consent rule.
-  **Done when:** EITHER AI-tips ships disabled for v1 (and code/copy reflect that), OR there's a separate
-  opt-in consent + disclosure + privacy-policy update; AND the absolute privacy claim is scoped to
-  "stored data" everywhere it appears (app + listing + privacy policy).
+- 🟢 🤖 **B-L1 — Reconcile the privacy claim with the AI-tips data path. DONE (Option A, commit 945f929).**
+  Tips now compute **on-device only** (dropped the Anthropic `analyzeExpenses` call); Add-expense OCR
+  routed to **on-device ML Kit** (dropped the Google Vision cloud call). No financial data or receipt
+  images leave the device for AI. Claim updated + scoped: _"encrypted — even we can't read it — and
+  never sent to AI or LLM providers,"_ shown (in a larger font) in the recovery modal, Settings, and
+  Tips; privacy policy reconciled (`docs/privacy/index.html`). Static guard test blocks re-wiring the
+  cloud paths into a screen. _Cloud AI remains in-repo, dormant, for a future opt-in feature._
+  **🧑 Remaining:** re-host the updated `docs/privacy/index.html` at the live Privacy Policy URL.
 - 🔴 🧑 **B-L2 — Wire production crash reporting.** `src/services/crashReporter.ts` exists but needs a
   live Sentry (or equiv) DSN. **Done when:** a forced test crash in a production build appears in the
   dashboard.

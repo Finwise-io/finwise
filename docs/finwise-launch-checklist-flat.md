@@ -4,7 +4,7 @@ _Flat, trackable view of every launch item. Excel: `docs/finwise-launch-checklis
 
 **Owner:** 🧑 you (account/legal/manual) · 🤖 Claude (in-repo). **Priority:** Blocker · Important · Recommended · Optional · Positioning · Done.
 
-**Open blockers: 20.**
+**Open blockers: 19.**
 
 | Phase | ID | Item | Owner | Priority | Status | Done when / Notes |
 |---|---|---|---|---|---|---|
@@ -30,7 +30,7 @@ _Flat, trackable view of every launch item. Excel: `docs/finwise-launch-checklis
 | Phase 2.5 — App Review compliance | 2.5.3 | Match App Privacy nutrition label to the manifest | 🧑 | Blocker | Open | Email, Name, Financial, Crash — "run app", not "track" |
 | Phase 2.5 — App Review compliance | 2.5.4 | Create a demo login for Apple’s reviewer | 🧑 | Blocker | Open | Real account + sample data in reviewer notes |
 | Phase 2.5 — App Review compliance | 2.5.5 | Test Delete-account on a real production build | 🧑 | Blocker | Open | End-to-end removal verified |
-| Phase 2.6 — Launch-review findings | B-L1 | Reconcile privacy claim with AI-tips data path (analyzeExpenses → proxy → Anthropic) | 🤖→🧑 | Blocker | Open | Ship AI-tips off OR add consent+disclosure+policy; scope claim to "stored data" |
+| Phase 2.6 — Launch-review findings | B-L1 | Reconcile privacy claim with AI-tips data path (analyzeExpenses → proxy → Anthropic) | 🤖→🧑 | Blocker | Done | DONE 945f929 — on-device tips + OCR; claim updated; policy reconciled; re-host policy = 🧑 |
 | Phase 2.6 — Launch-review findings | B-L2 | Wire production crash reporting (live Sentry DSN) | 🧑 | Blocker | Open | Forced test crash appears in dashboard |
 | Phase 2.6 — Launch-review findings | B-L3 | Disclaimer at every projection / "on-track" verdict; no imperative "you should" | 🤖 | Blocker | Open | Verified by test/screenshot pass |
 | Phase 2.6 — Launch-review findings | B-L4 | Graceful network degradation on BLS/Treasury/AI feeds (try/catch + default) | 🤖 | Blocker | Open | No thrown error / corrupted projection on failure; test |

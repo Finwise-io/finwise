@@ -35,14 +35,14 @@
     <h2>1. Information We Collect</h2>
     <p><strong>Account information:</strong> When you register, we collect your name and email address.</p>
     <p><strong>Financial data you enter:</strong> Income entries, expenses, savings, investments, debts, goals, and budget settings you create within the app. This data is stored on your device and optionally synced to your private Firestore account.</p>
-    <p><strong>Receipt images:</strong> If you use the receipt scanning feature, images are sent to Google Cloud Vision API for text extraction. Images are not stored by FinWise after processing.</p>
+    <p><strong>Receipt images:</strong> If you use the receipt scanning feature, the image is read <strong>on your device</strong> (on-device text recognition). Receipt images are <strong>not</strong> uploaded to FinWise or any third party.</p>
     <p><strong>Feedback:</strong> If you submit in-app feedback, we collect the content of your message along with your name and email.</p>
     <p><strong>Usage data:</strong> We do not collect analytics, crash reports, or behavioral tracking beyond what Firebase Authentication records for security purposes.</p>
 
     <h2>2. How We Use Your Information</h2>
     <ul>
       <li>To provide and sync your financial data across your devices</li>
-      <li>To generate personalized AI-powered financial insights (via Anthropic's Claude API)</li>
+      <li>To generate personalized money tips, computed <strong>on your device</strong> — your spending data is <strong>not</strong> sent to any AI or LLM provider</li>
       <li>To display live economic data (inflation rate, Treasury yield) from the U.S. Bureau of Labor Statistics and U.S. Treasury APIs</li>
       <li>To respond to feedback and support requests</li>
       <li>To improve the app based on aggregated, anonymized feedback</li>
@@ -51,15 +51,13 @@
     <h2>3. Third-Party Services</h2>
     <p>FinWise uses the following third-party services:</p>
     <ul>
-      <li><strong>Firebase (Google):</strong> Authentication and cloud data sync. Your financial data is stored in your private Firestore document, accessible only to you. <a href="https://firebase.google.com/support/privacy">Firebase Privacy Policy</a></li>
-      <li><strong>Google Cloud Vision API:</strong> Receipt OCR. Receipt images are transmitted for text extraction only and are not retained. <a href="https://cloud.google.com/terms/cloud-privacy-notice">Google Privacy Notice</a></li>
-      <li><strong>Anthropic Claude API:</strong> AI-generated expense tips and financial insights. Spending summaries (no personally identifiable information) are sent to generate suggestions. <a href="https://www.anthropic.com/privacy">Anthropic Privacy Policy</a></li>
+      <li><strong>Firebase (Google):</strong> Authentication and cloud data sync. Your financial data is stored <strong>encrypted</strong> in your private Firestore document, readable only by you. <a href="https://firebase.google.com/support/privacy">Firebase Privacy Policy</a></li>
       <li><strong>U.S. Bureau of Labor Statistics API:</strong> Live inflation data. No personal data is transmitted.</li>
       <li><strong>U.S. Treasury API:</strong> Live Treasury yield data. No personal data is transmitted.</li>
     </ul>
 
     <h2>4. Data Storage and Security</h2>
-    <p>Your financial data is stored locally on your device using encrypted AsyncStorage and optionally synced to Google Firestore. Firestore security rules ensure that only you — authenticated as yourself — can read or write your data. We do not have access to your individual financial records.</p>
+    <p>Your financial data is <strong>end-to-end encrypted</strong> — on your device and when synced to Google Firestore — using a key derived from your password and recovery code. Because we never hold that key, <strong>even we cannot read your financial records</strong>, and <strong>we never send your data to any AI or large-language-model (LLM) provider</strong>. Money tips and receipt scanning run entirely on your device.</p>
     <p>We use industry-standard security practices, but no method of electronic storage is 100% secure. We encourage you to use a strong password for your account.</p>
 
     <h2>5. Data Retention and Deletion</h2>
