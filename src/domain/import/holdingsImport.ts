@@ -25,13 +25,58 @@ export interface ImportResult {
   mapped: { ticker?: string; shares?: string; cost?: string; date?: string; name?: string; value?: string };
 }
 
-/** Minimal RFC-4180-ish CSV parser: handles quoted fields, embedded commas, "" escapes, CR/LF. */
+// ── Robust file decoding (#12) ────────────────────────────────────────────────
+// Brokerage/Excel CSV exports come as UTF-8 (often with a BOM) OR UTF-16 (LE/BE). Reading a UTF-16
+// file as UTF-8 is the #1 cause of "couldn't read that file". The screen reads RAW BYTES (base64,
+// which never fails on encoding) and calls this to decode — detecting the encoding from BOM/NUL pattern.
+const B64 = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+function base64ToBytes(b64: string): number[] {
+  const c = b64.replace(/[^A-Za-z0-9+/]/g, '');
+  const out: number[] = [];
+  for (let i = 0; i < c.length; i += 4) {
+    const e1 = B64.indexOf(c[i]), e2 = B64.indexOf(c[i + 1]), e3 = B64.indexOf(c[i + 2]), e4 = B64.indexOf(c[i + 3]);
+    const n = (e1 << 18) | (e2 << 12) | ((e3 & 63) << 6) | (e4 & 63);
+    out.push((n >> 16) & 0xFF);
+    if (c[i + 2] !== undefined && e3 !== -1) out.push((n >> 8) & 0xFF);
+    if (c[i + 3] !== undefined && e4 !== -1) out.push(n & 0xFF);
+  }
+  return out;
+}
+function decodeUtf8(b: number[], start = 0): string {
+  let s = '';
+  for (let i = start; i < b.length;) {
+    const c = b[i++];
+    if (c < 0x80) s += String.fromCharCode(c);
+    else if (c < 0xE0) s += String.fromCharCode(((c & 0x1F) << 6) | (b[i++] & 0x3F));
+    else if (c < 0xF0) s += String.fromCharCode(((c & 0x0F) << 12) | ((b[i++] & 0x3F) << 6) | (b[i++] & 0x3F));
+    else { const cp = ((c & 0x07) << 18) | ((b[i++] & 0x3F) << 12) | ((b[i++] & 0x3F) << 6) | (b[i++] & 0x3F); const u = cp - 0x10000; s += String.fromCharCode(0xD800 + (u >> 10), 0xDC00 + (u & 0x3FF)); }
+  }
+  return s;
+}
+function decodeUtf16(b: number[], start: number, le: boolean): string {
+  let s = '';
+  for (let i = start; i + 1 < b.length; i += 2) s += String.fromCharCode(le ? (b[i] | (b[i + 1] << 8)) : ((b[i] << 8) | b[i + 1]));
+  return s;
+}
+export function decodeCsvBase64(b64: string): string {
+  const b = base64ToBytes(b64);
+  if (b.length >= 2 && b[0] === 0xFF && b[1] === 0xFE) return decodeUtf16(b, 2, true);   // UTF-16 LE BOM
+  if (b.length >= 2 && b[0] === 0xFE && b[1] === 0xFF) return decodeUtf16(b, 2, false);  // UTF-16 BE BOM
+  let start = 0;
+  if (b.length >= 3 && b[0] === 0xEF && b[1] === 0xBB && b[2] === 0xBF) start = 3;        // UTF-8 BOM
+  let nul = 0; const probe = Math.min(b.length, 400);
+  for (let i = 0; i < probe; i++) if (b[i] === 0) nul++;
+  if (nul > probe / 4) return decodeUtf16(b, 0, b[1] === 0);   // no BOM but NUL-heavy → UTF-16 (LE if 2nd byte is NUL)
+  return decodeUtf8(b, start);
+}
+
+/** Minimal RFC-4180-ish CSV parser: handles quoted fields, embedded commas, "" escapes, CR/LF, BOM. */
 export function parseCsv(text: string): string[][] {
   const rows: string[][] = [];
   let row: string[] = [];
   let field = '';
   let inQuotes = false;
-  const s = text.replace(/\r\n/g, '\n').replace(/\r/g, '\n');
+  const s = (text.charCodeAt(0) === 0xFEFF ? text.slice(1) : text).replace(/\r\n/g, "\n").replace(/\r/g, "\n");   // strip UTF-8 BOM + normalize newlines
   for (let i = 0; i < s.length; i++) {
     const c = s[i];
     if (inQuotes) {

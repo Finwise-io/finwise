@@ -29,6 +29,33 @@ test('import holdings: pick CSV → preview → adds positions to Net Worth', as
   expect(acct.positions.map((p: any) => p.ticker).sort()).toEqual(['AAPL', 'MSFT']);
 });
 
+test('#12: a UTF-16 export (read as UTF-8 → NUL-laden) is re-read as bytes and still imports', async () => {
+  const csv = 'Ticker,Shares,Cost Basis\nAAPL,10,1500\nMSFT,5,1500\n';
+  const utf16le = Buffer.from(String.fromCharCode(0xFEFF) + csv, 'utf16le');
+  (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://u16.csv' }] });
+  // UTF-8 read of a UTF-16 file comes back NUL-laden; the base64 read returns the true bytes.
+  (FileSystem.readAsStringAsync as jest.Mock).mockImplementation((_uri: string, opts: any) =>
+    Promise.resolve(opts?.encoding === 'base64' ? utf16le.toString('base64') : utf16le.toString('latin1')));
+
+  const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
+  fireEvent.press(getByText('Choose a file'));
+  await waitFor(() => expect(getByLabelText(/Add \d+ holdings?/)).toBeTruthy());
+  fireEvent.press(getByLabelText(/Add \d+ holdings?/));
+
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
+  expect((useStore.getState().assetAccounts[0] as any).positions.map((p: any) => p.ticker).sort()).toEqual(['AAPL', 'MSFT']);
+});
+
+test('#12: an unreadable file shows the friendly error WITH a technical detail (self-diagnosing)', async () => {
+  (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://bad.csv' }] });
+  (FileSystem.readAsStringAsync as jest.Mock).mockRejectedValue(new Error('ENOENT: no such file'));
+
+  const { getByText } = render(<ImportHoldingsScreen />);
+  fireEvent.press(getByText('Choose a file'));
+  await waitFor(() => expect(getByText(/We couldn't read that file/)).toBeTruthy());
+  expect(getByText(/ENOENT: no such file/)).toBeTruthy();   // detail surfaced for support
+});
+
 test('import a REAL E*TRADE export → accounts sorted by asset class through the screen (#13)', async () => {
   const csv = [
     'Account Summary',

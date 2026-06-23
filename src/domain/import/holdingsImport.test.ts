@@ -1,4 +1,4 @@
-import { parseCsv, importHoldings } from './holdingsImport';
+import { parseCsv, importHoldings, decodeCsvBase64 } from './holdingsImport';
 
 describe('parseCsv', () => {
   test('handles quoted fields with embedded commas and "" escapes', () => {
@@ -103,5 +103,38 @@ describe('E*TRADE multi-asset export (#13)', () => {
     expect(cd.value).toBeCloseTo(109992.74, 2);
     expect(cd.ticker).toBe('');                               // a CD is not a tradeable ticker
     expect(r.holdings.find((h) => h.symbol === 'LCTX')!.ticker).toBe('LCTX');
+  });
+});
+
+// #12: the real cause of "we couldn't read that file" was encoding. Brokerage/Excel CSVs ship as
+// UTF-8 (often BOM'd) or UTF-16 (LE/BE). We read raw bytes (base64) and decode here — verify each form
+// round-trips back to the SAME csv that the parser already handles. (Buffer is Node-only; fine in jest.)
+describe('decodeCsvBase64 — robust to UTF-8/UTF-16, with or without BOM (#12)', () => {
+  const csv = 'Symbol,Quantity,Value $\nLCTX,965,1167.65\nVMFXX,50000,50000.00\n';
+  const BOM = String.fromCharCode(0xFEFF);
+  const b64 = (buf: Buffer) => buf.toString('base64');
+
+  test('plain UTF-8', () => {
+    expect(decodeCsvBase64(b64(Buffer.from(csv, 'utf8')))).toBe(csv);
+  });
+  test('UTF-8 with BOM', () => {
+    const withBom = Buffer.concat([Buffer.from([0xEF, 0xBB, 0xBF]), Buffer.from(csv, 'utf8')]);
+    expect(decodeCsvBase64(b64(withBom))).toBe(csv);
+  });
+  test('UTF-16 LE with BOM (the classic "couldn\'t read" file)', () => {
+    expect(decodeCsvBase64(b64(Buffer.from(BOM + csv, 'utf16le')))).toBe(csv);
+  });
+  test('UTF-16 LE without BOM (NUL-heavy → detected)', () => {
+    expect(decodeCsvBase64(b64(Buffer.from(csv, 'utf16le')))).toBe(csv);
+  });
+  test('UTF-16 BE with BOM', () => {
+    const le = Buffer.from(BOM + csv, 'utf16le');
+    const be = Buffer.alloc(le.length);
+    for (let i = 0; i < le.length; i += 2) { be[i] = le[i + 1]; be[i + 1] = le[i]; }  // swap to big-endian
+    expect(decodeCsvBase64(b64(be))).toBe(csv);
+  });
+  test('a UTF-16 export still parses end-to-end after decode', () => {
+    const decoded = decodeCsvBase64(b64(Buffer.from(BOM + csv, 'utf16le')));
+    expect(importHoldings(decoded).holdings.length).toBe(2);
   });
 });

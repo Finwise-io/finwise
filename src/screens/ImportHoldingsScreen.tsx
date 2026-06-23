@@ -9,11 +9,29 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import * as FileSystem from 'expo-file-system';
 import { useStore } from '../store/useStore';
-import { importHoldings, type ImportResult } from '../domain/import/holdingsImport';
+import { importHoldings, decodeCsvBase64, type ImportResult } from '../domain/import/holdingsImport';
 import type { AssetClass, TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
 import { round2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
+
+// Read a picked CSV robustly (#12). UTF-8 is the common case; a UTF-16 / odd-encoding export either
+// throws or comes back NUL-laden when read as UTF-8 — in that case re-read the RAW BYTES (base64 never
+// fails on encoding) and decode with BOM/UTF-16 detection. This is why "we couldn't read that file" fired.
+async function readCsvText(uri: string): Promise<string> {
+  let text: string | null = null;
+  try {
+    text = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.UTF8 });
+  } catch {
+    text = null;
+  }
+  const NUL = String.fromCharCode(0);
+  if (text == null || text.length === 0 || text.indexOf(NUL) !== -1) {
+    const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+    text = decodeCsvBase64(b64);
+  }
+  return text;
+}
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
 const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
@@ -35,7 +53,7 @@ export default function ImportHoldingsScreen() {
       });
       if (res.canceled || !res.assets?.[0]) return;
       setBusy(true);
-      const text = await FileSystem.readAsStringAsync(res.assets[0].uri);
+      const text = await readCsvText(res.assets[0].uri);
       const parsed = importHoldings(text);
       if (parsed.holdings.length === 0) {
         setError('We couldn\'t find any holdings in that file. Make sure it\'s a CSV with a symbol/ticker column and a quantity/shares column.');
@@ -44,7 +62,10 @@ export default function ImportHoldingsScreen() {
         setResult(parsed);
       }
     } catch (e: any) {
-      setError('We couldn\'t read that file. Your data is safe — try exporting a CSV from your brokerage and pick it again.');
+      // Surface a short technical detail so a remaining failure is self-diagnosing (no more blind rounds).
+      const detail = String(e?.message || e || '').slice(0, 140);
+      setError('We couldn\'t read that file. Your data is safe — try exporting a CSV from your brokerage and pick it again.'
+        + (detail ? `\n\n(Details: ${detail})` : ''));
     } finally {
       setBusy(false);
     }
