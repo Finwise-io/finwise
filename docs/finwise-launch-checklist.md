@@ -53,9 +53,13 @@ eas build --platform ios --profile production
 
 ## Phase 2 — App Store submission package 🔴 🧑 (🤖 drafts copy)
 
+**📄 Full listing copy + screenshots plan: `docs/finwise-appstore-listing.md`** (supersedes Appendix A).
+
 In App Store Connect, the listing needs:
-- 🔴 **Screenshots** — 6.7" (iPhone 15/16 Pro Max) and 6.5". Capture from the simulator: Home, Net Worth, Bill calendar, Retirement, Performance. (Per-persona setups make these look real.)
-- 🔴 **Description, keywords, subtitle, promo text** — 🤖 draft below (Appendix A).
+- 🔴 **Screenshots** — 6.9" iPhone (primary) + optional 6.5". **Capture on a REAL device, NOT the
+  Simulator** (the app can't run on the Simulator — ML Kit). 8 frames with captions + per-persona setup
+  are specified in the listing doc.
+- 🔴 **Description, keywords, subtitle, promo text** — drafted in `docs/finwise-appstore-listing.md`.
 - 🔴 **Category** — Finance (primary).
 - 🔴 **Privacy Policy URL** + **Support URL** — 🧑 host a page (a simple one is fine).
 - 🔴 **App Privacy questionnaire** ("data collected") — 🤖 draft below (Appendix B); 🧑 enter it.
