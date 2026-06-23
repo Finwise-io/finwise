@@ -246,7 +246,13 @@ export default function NetWorthScreen() {
           <Text style={styles.wizTitle}>Add your {cur.toLowerCase()}</Text>
           <Text style={styles.wizSub}>{WIZ_HINT[cur]}</Text>
           {cur === 'Debts' ? renderDebtSection() : renderAssetSection(cur)}
+          {/* #9: never show the aggregate without its components — the running total carries the
+              Assets − Debts identity so it's clear WHY it differs from what's on this one step. */}
           <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{money(nw.net_worth)}</Text></View>
+          <Text style={styles.nwIdentity}>
+            Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
+            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
+          </Text>
         </ScrollView>
         <View style={styles.footer}>
           {step > 0 && <TouchableOpacity style={styles.btnSec} onPress={() => setStep((s) => s - 1)}><Text style={styles.btnSecTxt}>← Back</Text></TouchableOpacity>}

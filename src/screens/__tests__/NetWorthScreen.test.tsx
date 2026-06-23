@@ -128,6 +128,21 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
   expect(screen.getByText(/holdings aren't set yet/)).toBeOnTheScreen();   // the nudge to classify
 });
 
+test('#9: the guided-setup running total carries the Assets − Debts identity (not a bare aggregate)', () => {
+  useStore.setState({
+    nwSeeded: true, nwSetupChoice: 'guided',
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Cash', kind: 'savings', tax_bucket: 'CASH', balance: 5000, target_return: 0 },
+      { asset_id: 'a2', label: 'My 401(k)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000, target_return: 0.07 },
+    ],
+    liabilities: [{ debt_id: 'd1', label: 'Card', debt_type: 'OTHER', remaining_balance: 15000, interest_rate_apr: 0.2, minimum_monthly_payment: 100 }],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('Net worth so far')).toBeOnTheScreen();
+  // the total is shown WITH its components, so the number is never unexplained
+  expect(screen.getByText(/Assets .*− Debts /)).toBeOnTheScreen();
+});
+
 test('#13: import is reachable from Net Worth (not buried in Performance)', () => {
   (router.push as jest.Mock).mockClear();
   useStore.setState({ nwSeeded: true, assetAccounts: [
