@@ -25,13 +25,13 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
         <View style={s.card}>
           <Text style={s.emoji}>🔑</Text>
           <Text style={s.title}>Save your recovery code</Text>
-          <Text style={s.privacy}>🔒 End-to-end encrypted · zero-knowledge</Text>
+          <Text style={s.privacy}>🔒 End-to-end encrypted · never sent to AI</Text>
           <Text style={s.body}>
             If you ever forget your password, this code is <Text style={s.bold}>the only way back into your data.</Text>
             {'\n\n'}
             <Text style={s.bold}>Save it now</Text> — in a password manager, or written down somewhere safe.
             {'\n\n'}
-            Your data is encrypted so even we can't read it — which means <Text style={s.bold}>if you lose both your password and this code, no one (including FinWise) can recover your data.</Text> We'll never ask you for it.
+            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI or LLM providers</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including FinWise) can recover your data.</Text> We'll never ask you for it.
           </Text>
 
           <View style={s.codeBox}>
@@ -76,7 +76,7 @@ const s = StyleSheet.create({
   card: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, alignItems: 'center' },
   emoji: { fontSize: 40, marginBottom: Spacing.sm },
   title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4, textAlign: 'center' },
-  privacy: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginBottom: Spacing.sm, textAlign: 'center', letterSpacing: 0.3 },
+  privacy: { fontSize: 15, fontWeight: '800', color: Colors.primary, marginBottom: Spacing.sm, textAlign: 'center', letterSpacing: 0.3 },   // B-L1: privacy claim emphasized (larger than body)
   bold: { fontWeight: '800', color: Colors.textPrimary },
   body: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 20, textAlign: 'center', marginBottom: Spacing.base },
   codeBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, paddingVertical: Spacing.md, paddingHorizontal: Spacing.base, alignSelf: 'stretch', marginBottom: Spacing.sm },

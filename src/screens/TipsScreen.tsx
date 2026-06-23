@@ -4,7 +4,9 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
-import { analyzeExpenses } from '../services/economicData';
+// B-L1: tips are computed ON-DEVICE only. We deliberately do NOT call the cloud AI (analyzeExpenses)
+// here — no spending data is ever sent to an AI/LLM provider. Cloud AI can return post-launch as an
+// explicit, opt-in feature.
 import { Card, TipCard, Button, ProgressBar, Badge, AmountText } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
@@ -52,37 +54,20 @@ export default function TipsScreen() {
   const [totalSavingsMax, setTotalSavingsMax] = useState(0);
   const [tipStates, setTipStates] = useState<Record<number, 'accepted' | 'skipped' | null>>({});
 
-  async function runAnalysis() {
+  function runAnalysis() {
     if (expenses.length === 0) {
       Alert.alert('No expenses yet', 'Add some expenses first, then come back for personalized tips!');
       return;
     }
     setLoading(true);
-    try {
-      const result = await analyzeExpenses(
-        expenses.slice(0, 50).map((e) => ({ category: e.category, store: e.store, amount: e.amount })),
-        monthIncome || 4500,
-        inflationRate
-      );
-      setSummary(result.summary);
-      setTips(result.tips);
-      setTotalSavingsMin(result.totalSavingsMin);
-      setTotalSavingsMax(result.totalSavingsMax);
-      earnBadge('expense_analyzer');
-    } catch (err: any) {
-      const msg = err?.message || '';
-      if (msg.includes('network') || msg.includes('fetch') || msg.includes('connect')) {
-        Alert.alert('No internet', 'Please check your connection and try again.');
-      } else {
-        // AI proxy not configured / unavailable (or any other error) → show on-device tips instead.
-        setSummary('Here are some general tips based on your spending patterns.');
-        setTips(generateLocalTips(expenses));
-        setTotalSavingsMin(50);
-        setTotalSavingsMax(200);
-      }
-    } finally {
-      setLoading(false);
-    }
+    // B-L1: computed entirely on-device — nothing is sent to any AI/LLM provider.
+    const local = generateLocalTips(expenses);
+    setSummary('Personalized tips based on your spending — computed privately on your device.');
+    setTips(local);
+    setTotalSavingsMin(local.reduce((t, x) => t + (x.savingsMin || 0), 0));
+    setTotalSavingsMax(local.reduce((t, x) => t + (x.savingsMax || 0), 0));
+    earnBadge('expense_analyzer');
+    setLoading(false);
   }
 
   function handleTip(idx: number, action: 'accepted' | 'skipped') {
@@ -146,11 +131,13 @@ export default function TipsScreen() {
       {/* AI Analysis trigger */}
       {tips.length === 0 ? (
         <Card style={styles.aiCard}>
-          <Text style={{ fontSize: 36, textAlign: 'center', marginBottom: Spacing.sm }}>🤖</Text>
-          <Text style={styles.aiTitle}>Get AI-powered tips</Text>
+          <Text style={{ fontSize: 36, textAlign: 'center', marginBottom: Spacing.sm }}>💡</Text>
+          <Text style={styles.aiTitle}>Get personalized tips</Text>
           <Text style={styles.aiSub}>
-            Our AI analyzes your spending and finds specific ways to save — like spotting duplicate subscriptions or cheaper alternatives.
+            We analyze your spending and find ways to save.
           </Text>
+          {/* B-L1: privacy claim emphasized (larger than the description) — it matters most here */}
+          <Text style={styles.privacyClaim}>🔒 Computed on your device — never sent to an AI provider.</Text>
           <Button
             label={loading ? 'Analyzing...' : 'Analyze my expenses →'}
             onPress={runAnalysis}
@@ -251,6 +238,7 @@ const styles = StyleSheet.create({
   aiCard: { alignItems: 'center', padding: Spacing.xl },
   aiTitle: { fontSize: Typography.sizes.lg, fontWeight: Typography.weights.semibold, color: Colors.textPrimary, marginBottom: Spacing.xs },
   aiSub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
+  privacyClaim: { fontSize: Typography.sizes.md, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: Spacing.sm, lineHeight: 22 },   // B-L1: larger than the rest
   aiSummaryText: { fontSize: Typography.sizes.base, color: Colors.primaryDeep, lineHeight: 22 },
   savingsCard: { alignItems: 'center', padding: Spacing.xl },
   savingsRange: { fontSize: 40, fontWeight: Typography.weights.bold, color: Colors.primary, marginVertical: Spacing.xs },

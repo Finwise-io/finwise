@@ -8,7 +8,8 @@ import * as ImagePicker from 'expo-image-picker';
 import { useStore, RecurringExpense } from '../store/useStore';
 import { Button, Card, TipCard, ProgressBar, SegmentedControl } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
-import { parseReceiptWithOCR } from '../services/receiptOCR';
+// B-L1: on-device OCR (ML Kit) — the receipt image never leaves the device (was Google Cloud Vision).
+import { ocrReceipt } from '../services/receiptScan';
 import { format, addDays, addMonths } from 'date-fns';
 import { EXPENSE_CATEGORIES, getCategoryIcon as getCatIcon, useAllCategories } from '../constants/categories';
 
@@ -130,13 +131,12 @@ export default function ExpenseScreen() {
     const result = await ImagePicker.launchCameraAsync({ mediaTypes: ImagePicker.MediaTypeOptions.Images, quality: 0.85 });
     if (result.canceled) return;
     setScanning(true);
-    const parsed = await parseReceiptWithOCR(result.assets[0].uri);
+    const parsed = await ocrReceipt(result.assets[0].uri);   // on-device; nothing leaves the device
     setScanning(false);
     if (parsed?.amount) {
       setAmount(parsed.amount.toFixed(2));
-      if (parsed.store) setStore(parsed.store);
-      if (parsed.category) setCategory(parsed.category);
-      Alert.alert('Receipt scanned!', `Found $${parsed.amount.toFixed(2)}${parsed.store ? ` at ${parsed.store}` : ''}. Check details below.`);
+      if (parsed.merchant) setStore(parsed.merchant);
+      Alert.alert('Receipt scanned!', `Found $${parsed.amount.toFixed(2)}${parsed.merchant ? ` at ${parsed.merchant}` : ''}. Check details below.`);
     } else {
       Alert.alert('Could not read receipt', 'Please enter details manually.');
     }

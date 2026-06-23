@@ -6,6 +6,12 @@ import { RecoveryCodeModal } from '../RecoveryCodeModal';
 
 const CHECKBOX = "I've saved my recovery code somewhere safe";
 
+test('B-L1: states the privacy claim — encrypted + never sent to AI/LLM providers', () => {
+  const { getByText } = render(<RecoveryCodeModal visible code="ABCD-1234" onDone={() => {}} />);
+  expect(getByText(/End-to-end encrypted · never sent to AI/)).toBeTruthy();   // the emphasized badge
+  expect(getByText(/never sent to AI or LLM providers/)).toBeTruthy();         // the in-body bold claim
+});
+
 test('shows the code and starts UNchecked', () => {
   const { getByText, queryByText } = render(<RecoveryCodeModal visible code="ABCD-1234" onDone={() => {}} />);
   expect(getByText('ABCD-1234')).toBeTruthy();

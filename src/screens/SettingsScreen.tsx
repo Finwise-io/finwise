@@ -324,6 +324,12 @@ export default function SettingsScreen() {
           </View>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
+
+        {/* B-L1: the privacy promise, stated plainly where users look for it — emphasized (larger font),
+            because for a finance app this claim matters most. */}
+        <Text style={styles.privacyClaim}>
+          🔒 Your financial data is encrypted on your device and in the cloud — even we can't read it — and it's never sent to AI or LLM providers.
+        </Text>
       </Card>
 
       <RecoveryCodeModal visible={!!rcCode} code={rcCode ?? ''} onDone={() => setRcCode(null)} />
@@ -614,6 +620,7 @@ const styles = StyleSheet.create({
   delConfirmTxt: { color: '#fff', fontWeight: '700', fontSize: Typography.sizes.md },
   actionLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   actionSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 1 },
+  privacyClaim: { fontSize: Typography.sizes.base, fontWeight: '600', color: Colors.textPrimary, marginTop: Spacing.sm, lineHeight: 21 },   // B-L1: larger than the rest — the claim that matters most
   arrow: { fontSize: 20, color: Colors.textTertiary },
   logoutBtn: { backgroundColor: Colors.redLight, borderRadius: Radii.lg, padding: Spacing.base, alignItems: 'center', borderWidth: 0.5, borderColor: Colors.redMid },
   logoutText: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.red },
