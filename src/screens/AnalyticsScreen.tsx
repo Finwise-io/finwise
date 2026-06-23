@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
 import { Card, DarkCard, TipCard } from '../components/UI';
+import { Disclaimer } from '../components/Disclaimer';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 // Pure JS date helpers — no date-fns needed
@@ -301,6 +302,7 @@ export default function AnalyticsScreen() {
         </>
       )}
 
+      <Disclaimer />
       <View style={{ height: 40 }} />
     </ScrollView>
   );

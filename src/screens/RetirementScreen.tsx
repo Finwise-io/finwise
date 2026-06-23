@@ -4,6 +4,7 @@ import {
 } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Card, DarkCard, ProgressBar, TipCard, Button } from '../components/UI';
+import { Disclaimer } from '../components/Disclaimer';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { InputModal } from '../components/InputModal';
 
@@ -316,6 +317,7 @@ export default function RetirementScreen() {
         </Card>
       )}
 
+      <Disclaimer />
       <View style={{ height: 40 }} />
     </ScrollView>
   );

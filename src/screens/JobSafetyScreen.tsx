@@ -5,6 +5,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats } from '../store/useStore';
 import { Card, Button, ProgressBar, TipCard } from '../components/UI';
+import { Disclaimer } from '../components/Disclaimer';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 type RiskLevel = 'low' | 'medium' | 'high';
@@ -251,6 +252,7 @@ export default function JobSafetyScreen() {
 
       {selected && <Button label="Save my plan 🛡" onPress={handleSave} />}
 
+      <Disclaimer />
       <View style={{ height: 40 }} />
     </ScrollView>
   );

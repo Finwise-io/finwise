@@ -9,6 +9,7 @@ import { money, round2 } from '../domain/_shared/num';
 import { currencySymbol, moneyCompact } from '../domain/_shared/money';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
+import { Disclaimer } from '../components/Disclaimer';
 import { incomeMonthlyGrid } from '../domain/income';
 import { BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
 import { assetKind, buildAssetsState } from '../domain/assets';
@@ -432,6 +433,7 @@ export default function HomeScreen() {
           )}
         </View>
 
+        <Disclaimer />
         <View style={{ height: 96 }} />
       </ScrollView>
 

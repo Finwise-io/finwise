@@ -6,6 +6,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { emergencyTest, monthlyEssentials } from '../domain/budget';
+import { Disclaimer } from '../components/Disclaimer';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const PRESETS = [
@@ -87,6 +88,7 @@ export default function StressTestScreen() {
       </View>
 
       <Text style={styles.foot}>“Essentials” are your recurring must-pay bills (Critical + Important), not one-off or nice-to-have spending. A planning estimate.</Text>
+      <Disclaimer />
       <View style={{ height: 40 }} />
     </ScrollView>
   );
