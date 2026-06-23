@@ -6,7 +6,7 @@
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, type LayoutChangeEvent } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, KeyboardAvoidingView, Platform, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -794,17 +794,19 @@ function Donut({ segments, size = 124, stroke = 16, children }: { segments: { va
 }
 
 // ───────────────────────── Earmark sheet ─────────────────────────
-function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
+export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
   open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number) => void; onDone: () => void;
 }) {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
-      <View style={styles.sheet}>
+      {/* #20: lift the sheet above the keyboard so the % field + Done button aren't hidden behind it */}
+      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav} pointerEvents="box-none">
+      <View style={[styles.sheet, { position: 'relative' }]}>
         <View style={styles.grab} />
         <Text style={styles.sheetT}>What counts toward retirement?</Text>
         <Text style={styles.sheetS}>Some money is for other goals. Set how much of each account funds retirement — the rest stays free for things like a home or college.</Text>
-        <ScrollView style={{ maxHeight: 380 }}>
+        <ScrollView style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
           {assets.map((a) => {
             const isProp = a.tax_bucket === 'PROPERTY';
             const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
@@ -827,6 +829,7 @@ function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
         </ScrollView>
         <TouchableOpacity style={styles.applyBtn} onPress={onDone}><Text style={styles.applyT}>Counts toward retirement: {big(nestEgg)} · Done</Text></TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -1147,6 +1150,7 @@ const styles = StyleSheet.create({
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  kav: { position: 'absolute', left: 0, right: 0, bottom: 0, justifyContent: 'flex-end' } as any,   // #20: keyboard-aware bottom anchor
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   sheetS: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, marginBottom: 8, lineHeight: 17 },
