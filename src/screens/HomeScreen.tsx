@@ -361,7 +361,11 @@ export default function HomeScreen() {
           ) : (
             <Text style={styles.cfFoot}>Set a monthly budget in Money</Text>
           )}
-          <TouchableOpacity onPress={() => router.push('/(tabs)/budget')}><Text style={styles.seeAll}>See all in Money →</Text></TouchableOpacity>
+          {/* #15: full cash-flow detail — breakdown + month-by-month projection + planned-vs-actual */}
+          <View style={styles.cfLinks}>
+            <TouchableOpacity onPress={() => router.push('/cashflow')} accessibilityRole="button" accessibilityLabel="See cash flow detail"><Text style={styles.seeAll}>Cash-flow detail →</Text></TouchableOpacity>
+            <TouchableOpacity onPress={() => router.push('/(tabs)/budget')}><Text style={styles.seeAll}>See all in Money →</Text></TouchableOpacity>
+          </View>
         </View>
 
         {/* NET WORTH — glance + trend + concentration insight (caption below the chart, not overlaid) */}
@@ -825,6 +829,7 @@ const styles = StyleSheet.create({
   cfFoot: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
   cfSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 3, lineHeight: 16 },
   seeAll: { fontSize: 12.5, color: Colors.primary, fontWeight: '700', marginTop: 10 },
+  cfLinks: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   nwHeadRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', flexWrap: 'wrap', gap: 6 },
   nwBig: { fontSize: 23, fontWeight: '800', color: Colors.textPrimary, flexShrink: 1 },
   nwDelta: { fontSize: 12.5, fontWeight: '700' },
