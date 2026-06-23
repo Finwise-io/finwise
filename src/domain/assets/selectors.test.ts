@@ -15,25 +15,27 @@ const portfolio: AssetAccount[] = [
   a({ label: 'VMFXX', asset_class: 'cash', balance: 50000 }),                                   // cash (money market)
   a({ label: 'LCTX', kind: 'stocks_etf', balance: 1167 }),                                      // equities
   a({ label: 'QQQ Put', asset_class: 'alternatives', balance: 1407 }),                          // alternatives (option)
-  a({ label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }),                   // equities (across wrappers)
+  a({ label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }),                   // wrapper, contents unspecified → 'mixed' (#10)
   a({ label: 'US Treasury Note 4% 2032', maturity_date: '2032-05-15', balance: 10000 }),        // bonds
   a({ label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000 }),                  // real estate
   a({ label: 'Car', kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 20000 }),                 // personal property
 ];
 
 describe('canonical asset selectors — agreement', () => {
-  test('per-class totals (CD + money-market count as cash; 401k stocks count as equities)', () => {
+  test('per-class totals (CD + money-market = cash; an unclassified 401(k) is "mixed", NOT assumed equities #10)', () => {
     expect(cashTotal(portfolio)).toBe(7096 + 109992 + 50000);     // 167,088
-    expect(equitiesTotal(portfolio)).toBe(1167 + 200000);         // LCTX + 401k stocks, across wrappers
+    expect(equitiesTotal(portfolio)).toBe(1167);                  // ONLY the explicit stock (LCTX) — the 401(k) is not pretended to be stocks
+    expect(assetAllocation(portfolio).mixed).toBe(200000);        // the wrapper's unspecified contents land here
     expect(fixedIncomeTotal(portfolio)).toBe(10000);              // Treasury note (not the CD)
     expect(alternativesTotal(portfolio)).toBe(1407);              // the option
     expect(realEstateTotal(portfolio)).toBe(500000);
   });
 
-  test('investments = equities + fixed income + alternatives', () => {
+  test('investments = equities + fixed income + alternatives + mixed (a 401(k) still counts as an investment)', () => {
     expect(investmentsTotal(portfolio)).toBe(
-      equitiesTotal(portfolio) + fixedIncomeTotal(portfolio) + alternativesTotal(portfolio),
+      equitiesTotal(portfolio) + fixedIncomeTotal(portfolio) + alternativesTotal(portfolio) + assetAllocation(portfolio).mixed,
     );
+    expect(investmentsTotal(portfolio)).toBe(1167 + 10000 + 1407 + 200000);   // 212,574
   });
 
   test('investable = cash + investments (home + car excluded)', () => {

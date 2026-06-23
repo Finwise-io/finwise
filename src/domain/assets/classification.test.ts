@@ -11,13 +11,14 @@ describe('assetClassOf — WHAT it is', () => {
     expect(assetClassOf(acct({ kind: 'checking', tax_bucket: 'CASH' }))).toBe('cash');
     expect(assetClassOf(acct({ kind: 'savings', tax_bucket: 'CASH' }))).toBe('cash');
     expect(assetClassOf(acct({ kind: 'stocks_etf' }))).toBe('stocks_etf');
-    expect(assetClassOf(acct({ kind: 'brokerage' }))).toBe('stocks_etf');
     expect(assetClassOf(acct({ kind: 'fixed_income' }))).toBe('bonds');
     expect(assetClassOf(acct({ kind: 'crypto' }))).toBe('alternatives');
     expect(assetClassOf(acct({ kind: 'annuities' }))).toBe('alternatives');
-    expect(assetClassOf(acct({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe('stocks_etf');
-    expect(assetClassOf(acct({ kind: 'roth_ira', tax_bucket: 'ROTH' }))).toBe('stocks_etf');
-    expect(assetClassOf(acct({ kind: 'college_529' }))).toBe('stocks_etf');
+    // #10: WRAPPER kinds don't pretend to be stocks — unspecified contents are 'mixed' (Term #1).
+    expect(assetClassOf(acct({ kind: 'brokerage' }))).toBe('mixed');
+    expect(assetClassOf(acct({ kind: '401k', tax_bucket: 'PRE_TAX' }))).toBe('mixed');
+    expect(assetClassOf(acct({ kind: 'roth_ira', tax_bucket: 'ROTH' }))).toBe('mixed');
+    expect(assetClassOf(acct({ kind: 'college_529' }))).toBe('mixed');
     expect(assetClassOf(acct({ kind: 'home', tax_bucket: 'PROPERTY' }))).toBe('real_estate');
     expect(assetClassOf(acct({ kind: 'vehicle', tax_bucket: 'PROPERTY' }))).toBe('personal_property');
   });
@@ -45,7 +46,7 @@ describe('assetClassOf — WHAT it is', () => {
   test('falls back to the tax bucket when kind is missing', () => {
     expect(assetClassOf(acct({ tax_bucket: 'CASH' }))).toBe('cash');
     expect(assetClassOf(acct({ tax_bucket: 'PROPERTY' }))).toBe('real_estate');
-    expect(assetClassOf(acct({ tax_bucket: 'TAXABLE' }))).toBe('stocks_etf');
+    expect(assetClassOf(acct({ tax_bucket: 'TAXABLE' }))).toBe('mixed');   // #10: no kind/class/positions → unspecified, not assumed stocks
   });
 });
 

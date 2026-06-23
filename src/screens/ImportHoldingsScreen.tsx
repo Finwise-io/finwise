@@ -103,6 +103,7 @@ export default function ImportHoldingsScreen() {
         stocks_etf: { kind: 'stocks_etf', tax_bucket: 'TAXABLE', ret: 0.08 },
         real_estate: { kind: 'home', tax_bucket: 'PROPERTY', ret: 0.04 },
         personal_property: { kind: 'vehicle', tax_bucket: 'PROPERTY', ret: -0.05 },
+        mixed: { kind: 'brokerage', tax_bucket: 'TAXABLE', ret: 0.06 },   // importer never emits 'mixed' (it classifies), but the map must be total
       };
       for (const h of others) {
         const def = CLASS_DEFAULTS[h.assetClass];

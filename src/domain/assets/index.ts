@@ -13,7 +13,7 @@ export type TaxBucket = 'CASH' | 'PRE_TAX' | 'ROTH' | 'TAXABLE' | 'PROPERTY';
 // `assetClass` = WHAT it is; `taxTreatment` = HOW it's taxed. Orthogonal — a 401(k) (tax_deferred)
 // can hold stocks AND bonds. Both are DERIVED from the legacy `kind`/`tax_bucket` until set
 // explicitly (by the CSV importer or the account editor). See assetClassOf()/taxTreatmentOf().
-export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'real_estate' | 'personal_property';
+export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'real_estate' | 'personal_property' | 'mixed';
 export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
 export type RealEstateUse = 'primary' | 'rental' | 'secondary' | 'land';
 
@@ -103,10 +103,12 @@ export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id ===
 // Legacy `kind` → asset class. Wrappers (401k/IRA/Roth/HSA/529/brokerage) hold investments; with no
 // per-holding detail we DEFAULT them to equities — the explicit `asset_class` (set by import/editor,
 // or per-position later) overrides this best guess.
+// Only ASSET-CLASS-SPECIFIC kinds map to a class. WRAPPER kinds (401k, IRAs, HSA, brokerage, 529) are
+// deliberately absent — a wrapper holds stocks/bonds/cash, so without explicit holdings we must NOT
+// pretend it's stocks (Term #1, #10). assetClassOf() falls those through to 'mixed' / positions.
 const KIND_TO_CLASS: Record<string, AssetClass> = {
   checking: 'cash', savings: 'cash',
-  stocks_etf: 'stocks_etf', brokerage: 'stocks_etf', college_529: 'stocks_etf',
-  '401k': 'stocks_etf', trad_ira: 'stocks_etf', roth_ira: 'stocks_etf', hsa: 'stocks_etf',
+  stocks_etf: 'stocks_etf',
   fixed_income: 'bonds',
   private_equity: 'alternatives', hedge_funds: 'alternatives', commodities: 'alternatives',
   crypto: 'alternatives', annuities: 'alternatives', other_asset: 'alternatives',
@@ -129,9 +131,12 @@ export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.maturity_date) return 'bonds';                 // an individual bond (Treasury / muni / corporate)
   const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
   if (byKind) return byKind;
+  if (a.positions && a.positions.length) return 'stocks_etf';   // imported ticker holdings ⇒ market securities
   if (a.tax_bucket === 'CASH') return 'cash';
   if (a.tax_bucket === 'PROPERTY') return 'real_estate';
-  return 'stocks_etf';
+  // A wrapper whose contents we don't know (401k/IRA/brokerage, no positions, no explicit class):
+  // don't pretend it's stocks — mark it unspecified so the allocation is honest (#10, user can classify).
+  return 'mixed';
 }
 
 /** HOW the account is taxed (wrapper). Explicit `tax_treatment` wins; else map the legacy tax_bucket
@@ -184,7 +189,7 @@ export function realEstateTotal(accounts: AssetAccount[]): number {
 /** Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives,
  *  ACROSS all wrappers (so a 401(k)'s stocks count). Excludes cash + real assets. */
 export function investmentsTotal(accounts: AssetAccount[]): number {
-  return sumWhere(accounts, (a) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives'; });
+  return sumWhere(accounts, (a) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; });
 }
 /** Investable assets (Term #4) = all financial assets (cash + investments + retirement balances),
  *  EXCLUDING real estate + personal property. */
@@ -193,7 +198,7 @@ export function investableAssets(accounts: AssetAccount[]): number {
 }
 /** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
 export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
-  const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0 };
+  const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
   for (const a of accounts ?? []) out[assetClassOf(a)] += (a.balance || 0);
   (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] = round2(out[k]); });
   return out;

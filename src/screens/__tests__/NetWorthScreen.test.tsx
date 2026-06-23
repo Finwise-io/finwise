@@ -94,3 +94,17 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
   expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class slice (also a row)
   expect(screen.getByText('net worth')).toBeOnTheScreen();     // donut center total
 });
+
+test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Stocks/ETFs', () => {
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'a1', label: 'My 401(k)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000, target_return: 0.07 },
+    ],
+    liabilities: [],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest slice — the spec fix
+  expect(screen.queryByText('Stocks / ETFs')).toBeNull();                  // NOT pretended to be stocks
+  expect(screen.getByText(/holdings aren't set yet/)).toBeOnTheScreen();   // the nudge to classify
+});

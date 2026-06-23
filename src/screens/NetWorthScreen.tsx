@@ -22,6 +22,8 @@ const CLASS_META: { key: AssetClass; label: string; color: string }[] = [
   { key: 'alternatives', label: 'Alternatives', color: '#C77DBB' },
   { key: 'real_estate', label: 'Real estate', color: '#EBB23A' },
   { key: 'personal_property', label: 'Personal property', color: '#9E9E9E' },
+  // #10: a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT pretended to be stocks.
+  { key: 'mixed', label: 'Unclassified', color: '#B0846A' },
 ];
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
 const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
@@ -281,6 +283,12 @@ export default function NetWorthScreen() {
         </Text>
         {/* caption (#4 transparency rule): what the slices mean, across all account types */}
         <Text style={styles.nwCaption}>Grouped by asset class — cash, stocks/ETFs, bonds, alternatives & property — across every account (incl. 401(k)/IRA).</Text>
+        {/* #10: don't pretend a wrapper's contents are stocks — show "Unclassified" and nudge the user to set the mix */}
+        {alloc.mixed > 0 && (
+          <Text style={styles.nwNudge}>
+            {money(Math.round(alloc.mixed))} is in accounts whose holdings aren't set yet — tap an account to choose stocks / bonds / cash for a true allocation.
+          </Text>
+        )}
 
         {/* emergency-fund runway */}
         {runwayMonths != null && (
@@ -467,6 +475,7 @@ const styles = StyleSheet.create({
   donutLbl: { fontSize: 10, color: Colors.textSecondary, marginTop: -2 },
   nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
   nwCaption: { fontSize: 10.5, color: Colors.textTertiary, textAlign: 'center', marginBottom: 4, lineHeight: 14 },
+  nwNudge: { fontSize: 11, color: '#9A6B4F', textAlign: 'center', marginBottom: 6, lineHeight: 15, paddingHorizontal: 8 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
