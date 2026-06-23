@@ -1,0 +1,29 @@
+# #15: the Cash Flow detail screen — reached from the Home cash-flow box via "Cash-flow detail →" —
+# shows the typical-month breakdown, the month-by-month surplus projection, take-home vs spending,
+# and this month's planned-vs-actual. This flow also verifies the Home entry point (#15) actually
+# navigates there (a tap-driven check, since the link is a standalone touchable).
+#
+# Run: maestro test .maestro/cashflow.yaml   (needs a booted simulator with the app + a seeded profile)
+appId: co.finwise.app
+---
+- launchApp:
+    clearState: false
+- openLink: finwise://home
+
+# the Home cash-flow box exposes the detail link (#15 entry point)
+- extendedWaitUntil:
+    visible:
+      text: ".*Cash-flow detail.*"
+    timeout: 45000
+- tapOn:
+    text: ".*Cash-flow detail.*"
+
+# the detail screen renders all four sections
+- extendedWaitUntil:
+    visible: "A TYPICAL MONTH"
+    timeout: 15000
+- assertVisible: "= Surplus"                       # the breakdown bottom line (Term #10 naming)
+- assertVisible: "SURPLUS, MONTH BY MONTH"          # the month-by-month projection chart
+- assertVisible: "TAKE-HOME vs SPENDING"            # estimates by month
+- assertVisible:
+    text: ".*PLANNED vs ACTUAL.*"                   # this month's planned-vs-actual

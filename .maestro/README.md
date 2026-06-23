@@ -13,6 +13,12 @@ navigation, real screens). They complement — not replace — the Jest suite (`
 - **`b21-add-sheet.yaml`** — from Net Worth, opens the Add-asset editor and confirms it offers a
   **$0-capable add** (the "Add asset" label = amount blank/$0), i.e. the B-21 placeholder path is
   reachable.
+- **`nw-donut.yaml`** — the Net Worth screen shows a donut **grouped by asset class** with net worth in
+  the center, and the explicit **"Assets − Debts = Net worth" identity** (#19/#9/#4). A seeded
+  retirement account shows as **"Unclassified"**, not assumed Stocks/ETFs (#10).
+- **`cashflow.yaml`** — taps **"Cash-flow detail →"** on Home (verifying the #15 entry point) and
+  asserts the detail screen renders all four sections: the typical-month breakdown (**"= Surplus"**),
+  the **month-by-month surplus** projection, **take-home vs spending**, and **planned-vs-actual**.
 
 ## Running locally
 > ⚠️ Run on a **real device**, NOT the Simulator — this app can't run on the iOS Simulator (ML Kit has

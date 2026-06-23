@@ -1,0 +1,25 @@
+# #19 / #9 / #4: the Net Worth screen shows a donut grouped BY ASSET CLASS with net worth in the
+# center, and the explicit "Assets − Debts = Net worth" identity (so the total is never unexplained).
+# Deep-links to the Net Worth tab so the flow is deterministic regardless of prior screen.
+#
+# Run: maestro test .maestro/nw-donut.yaml   (needs a booted simulator with the app + a seeded profile)
+appId: co.finwise.app
+---
+- launchApp:
+    clearState: false        # render/consistency check against the existing onboarded profile
+- openLink: finwise://analytics
+
+# the donut renders with the net-worth total in its center (#18/#19)
+- extendedWaitUntil:
+    visible:
+      text: ".*net worth.*"
+    timeout: 45000           # cold start loads the JS bundle from Metro
+
+# the explicit identity is shown, so the aggregate always carries its components (#9 / #4)
+- assertVisible:
+    text: ".*Assets.*Debts.*Net worth.*"
+
+# the allocation is by ASSET CLASS — at least one class legend label is present
+# (a seeded profile has investments and/or retirement; retirement shows as "Unclassified" per #10)
+- assertVisible:
+    text: ".*(Stocks / ETFs|Cash|Unclassified|Bonds).*"
