@@ -1,6 +1,7 @@
-const { getDefaultConfig } = require('expo/metro-config');
+// Sentry wraps the Expo Metro config so production bundles ship source maps (readable crash traces).
+const { getSentryExpoConfig } = require('@sentry/react-native/metro');
 
-const config = getDefaultConfig(__dirname);
+const config = getSentryExpoConfig(__dirname);
 
 // Firebase JS SDK ships a React Native build via the package.json "react-native"
 // field (dist/rn/index.js), but Metro's package-exports resolution (ON by default

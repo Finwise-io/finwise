@@ -86,9 +86,9 @@ module.exports = {
     'expo-camera',
     'expo-system-ui',
     'expo-sharing',
-    // NOTE: re-add '@sentry/react-native' here once a Sentry account (org/project/auth token + DSN)
-    // is configured — the plugin's build-time source-map upload needs it. crashReporter.ts stays
-    // dormant until SENTRY_DSN is set, so removing the plugin doesn't affect the app today.
+    // Sentry: native integration + build-time source-map upload (reads SENTRY_AUTH_TOKEN from the EAS
+    // secret). crashReporter.ts initializes the SDK at runtime using SENTRY_DSN from `extra` below.
+    ['@sentry/react-native', { organization: 'finwise-35', project: 'react-native' }],
     [
       'expo-notifications',
       {
@@ -110,7 +110,7 @@ module.exports = {
     // bundled into the client — anything in `extra` ships in the app binary and is extractable.
     // The app now calls a server-side proxy that holds the key; only its (non-secret) URL is bundled.
     AI_PROXY_URL:                 process.env.AI_PROXY_URL                 || '',
-    // F-6: Sentry DSN is a PUBLIC ingest key (not a secret) — safe to bundle.
-    SENTRY_DSN:                   process.env.SENTRY_DSN                   || '',
+    // F-6: Sentry DSN is a PUBLIC ingest key (not a secret) — safe to bundle as the default.
+    SENTRY_DSN:                   process.env.SENTRY_DSN                   || 'https://b25f5219e1c54f8fb5a20e3792f5636b@o4511617236926464.ingest.us.sentry.io/4511617274740736',
   },
 };
