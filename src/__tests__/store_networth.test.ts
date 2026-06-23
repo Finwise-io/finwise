@@ -50,7 +50,7 @@ describe('seedNetWorth: origin-tagged merge', () => {
     useStore.getState().seedNetWorth(answers('100000', '20000'));
 
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(100000);
+    expect(accounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(100000);
     expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(20000);
     const manual = accounts.find((a) => a.label === 'Inherited brokerage')!;
     expect(manual.balance).toBe(75000);
@@ -64,7 +64,7 @@ describe('seedNetWorth: origin-tagged merge', () => {
     useStore.getState().seedNetWorth(answers('50000', '10000'));
     useStore.getState().seedNetWorth(answers('60000', '0'));
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts.map((a) => a.label)).toEqual(['Retirement savings', 'Investments']);
+    expect(accounts.map((a) => a.label)).toEqual(['Retirement (Traditional)', 'Investments']);
     expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
   });
 
@@ -74,7 +74,7 @@ describe('seedNetWorth: origin-tagged merge', () => {
     useStore.getState().updateAsset(seeded.asset_id, { balance: 55555 });
 
     useStore.getState().seedNetWorth(answers('70000', '0'));
-    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(70000);
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(70000);
   });
 
   test('legacy rows (no origin tag) are deduped by label+bucket, not duplicated or deleted', () => {
@@ -82,7 +82,7 @@ describe('seedNetWorth: origin-tagged merge', () => {
     useStore.setState({
       nwSeeded: true,
       assetAccounts: [
-        { asset_id: 'legacy-1', label: 'Retirement savings', kind: '401k', tax_bucket: 'PRE_TAX', balance: 50000, target_return: 0.07 },
+        { asset_id: 'legacy-1', label: 'Retirement (Traditional)', kind: '401k', tax_bucket: 'PRE_TAX', balance: 50000, target_return: 0.07 },
         { asset_id: 'legacy-2', label: 'My house fund', kind: 'savings', tax_bucket: 'CASH', balance: 9000, target_return: 0.02 },
       ],
       liabilities: [{ debt_id: 'legacy-d', label: 'Loan', debt_type: 'OTHER', remaining_balance: 3000, interest_rate_apr: 0.06, minimum_monthly_payment: 100 }],
@@ -91,8 +91,8 @@ describe('seedNetWorth: origin-tagged merge', () => {
     useStore.getState().seedNetWorth(answers('80000', '0', '2500'));
 
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts.filter((a) => a.label === 'Retirement savings')).toHaveLength(1);   // replaced, not duplicated
-    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(80000);
+    expect(accounts.filter((a) => a.label === 'Retirement (Traditional)')).toHaveLength(1);   // replaced, not duplicated
+    expect(accounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(80000);
     expect(accounts.find((a) => a.label === 'My house fund')!.balance).toBe(9000);      // untagged non-match kept
     const debts = useStore.getState().liabilities;
     expect(debts.filter((d) => d.label === 'Loan')).toHaveLength(1);
@@ -166,7 +166,7 @@ describe('restartOnboarding: only seeded rows are cleared', () => {
     const accounts = useStore.getState().assetAccounts;
     // B-21: '120000' retirement + explicit '0' holdings → two seeded rows (Investments at $0).
     expect(accounts).toHaveLength(2);
-    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(120000);
+    expect(accounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(120000);
     expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
   });
 });

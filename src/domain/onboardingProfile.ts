@@ -41,7 +41,7 @@ export interface OnboardingProfile {
   monthlySpending?: Money; spendCats?: SpendCat[]; savingsByMonth?: Money[]; savingsMode?: 'auto' | 'custom';
   b_fixed?: Money; b_nonmonthly?: Money; b_flexible?: Money;
   // retirement plan
-  birthYear?: Money; birthMonth?: Money; currentRetirementSavings?: Money;
+  birthYear?: Money; birthMonth?: Money; currentRetirementSavings?: Money; currentRetirementSavingsRoth?: Money;
   c_roth?: Money; c_invest?: Money; c_property?: Money; c_touched?: boolean;
   investRaw?: Money; investUnit?: 'dollar' | 'pct';   // what the user typed on the save-plan screen
   targetRetirementAge?: Money; expectedRetirementSpending?: Money; horizonAge?: Money; currentSavingsPortfolio?: Money;

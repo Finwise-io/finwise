@@ -405,7 +405,7 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
     const m = num(a.birthMonth), y = num(a.birthYear), nowY = new Date().getFullYear();
     return m >= 1 && m <= 12 && y >= nowY - 120 && y <= nowY;
   },
-  currentRetirementSavings: a => a.currentRetirementSavings != null && a.currentRetirementSavings !== '',
+  currentRetirementSavings: a => (a.currentRetirementSavings != null && a.currentRetirementSavings !== '') || (a.currentRetirementSavingsRoth != null && a.currentRetirementSavingsRoth !== ''),
   // zero extra contributions is a legitimate answer — never blocks
   contributionsByType: a => true,
   // must be ahead of the user's current age (when we know it) and humanly plausible
@@ -902,9 +902,14 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         </View></Card></>);
 
     case 'currentRetirementSavings':
+      // #8: capture Traditional (pre-tax) and Roth (after-tax) SEPARATELY — they're taxed differently in
+      // retirement, so the nest-egg/tax math needs them apart, not lumped into one number.
       return (<><Header emoji="🏦" title="Your 401(k) & retirement savings"
-        sub="All retirement accounts: 401(k), Roth & Traditional IRA, 403(b), 457, TSP, SEP. Brokerage and other investments are excluded — we ask about those separately." />
-        <Card><HeroAmount ctx={ctx} k="currentRetirementSavings" label="Total saved today" /></Card></>);
+        sub="Split by how it's taxed. Brokerage and other investments are excluded — we ask about those separately." />
+        <Card>
+          <MoneyRow ctx={ctx} k="currentRetirementSavings" label="Traditional / pre-tax — 401(k), Traditional IRA, 403(b), 457, TSP" />
+          <MoneyRow ctx={ctx} k="currentRetirementSavingsRoth" label="Roth / after-tax — Roth 401(k), Roth IRA" />
+        </Card></>);
 
     case 'contributionsByType':
       return <SavePlanScreen ctx={ctx} />;
@@ -1785,7 +1790,8 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
   });
   const otherSavings = num(a.investmentHoldings) + num(a.currentSavingsPortfolio);   // captured only in some flows
   const monthlyContrib = monthlyContributions(a);
-  const projected = fv(num(a.currentRetirementSavings) + otherSavings, monthlyContrib, years, realAcc);
+  const retireStart = num(a.currentRetirementSavings) + num(a.currentRetirementSavingsRoth);   // #8: Traditional + Roth
+  const projected = fv(retireStart + otherSavings, monthlyContrib, years, realAcc);
   const gap = projected - need.needed;
   return (<><Header emoji="🏖️" title="Your retirement outlook" sub="In today's dollars — here's the math, line by line." />
     <Card>
@@ -1795,7 +1801,7 @@ function RetireOutlook({ ctx }: { ctx: StepCtx }) {
       <RecapStat label={gap >= 0 ? 'Surplus' : 'Gap'} value={money(Math.abs(gap))} color={gap >= 0 ? Colors.primary : Colors.red} />
       <Bar aPct={need.needed > 0 ? (projected / need.needed) * 100 : 0} color={gap >= 0 ? Colors.primary : Colors.red} />
       <Text style={[s.hint, { marginTop: 8 }]}>
-        Projected {money(projected)} = your {money(num(a.currentRetirementSavings))} retirement savings
+        Projected {money(projected)} = your {money(retireStart)} retirement savings
         {otherSavings > 0 ? ` + ${money(otherSavings)} investments` : ''}
         {monthlyContrib > 0 ? ` + ${money(monthlyContrib)}/mo you add` : ''}, growing ≈{(realAcc * 100).toFixed(1)}%/yr
         after inflation for {years} year{years > 1 ? 's' : ''}.

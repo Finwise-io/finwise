@@ -23,7 +23,7 @@ describe('NetWorthScreen first-run intro', () => {
 
     const st = useStore.getState();
     expect(st.nwSetupChoice).toBe('self');
-    expect(st.assetAccounts.map((a) => a.label).sort()).toEqual(['Investments', 'Retirement savings']);
+    expect(st.assetAccounts.map((a) => a.label).sort()).toEqual(['Investments', 'Retirement (Traditional)']);
     expect(st.liabilities.map((d) => d.label)).toEqual(['Car loan']);
   });
 
@@ -63,7 +63,7 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     const accounts = useStore.getState().assetAccounts;
     // B-21: '200000' retirement + explicit '0' holdings → a $0 Investments placeholder too.
     expect(accounts).toHaveLength(2);
-    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(200000);
+    expect(accounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(200000);
     expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
   });
 });

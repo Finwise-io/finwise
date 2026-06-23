@@ -314,7 +314,8 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
     if (bal < 0) return; // guard negatives
     accounts.push({ asset_id: newEntityId('ast'), label, kind, tax_bucket: bucket, balance: bal, target_return: DEFAULT_RETURN, origin: 'onboarding' });
   };
-  add('Retirement savings', 'PRE_TAX', a.currentRetirementSavings, '401k');
+  add('Retirement (Traditional)', 'PRE_TAX', a.currentRetirementSavings, '401k');        // #8: pre-tax — taxed on withdrawal
+  add('Retirement (Roth)', 'ROTH', a.currentRetirementSavingsRoth, 'roth_ira');           // #8: after-tax — tax-free in retirement
   add('Investments', 'TAXABLE', a.investmentHoldings, 'stocks_etf');
   add('Savings / portfolio', 'TAXABLE', a.currentSavingsPortfolio, 'stocks_etf'); // retired flow (if present)
   return { user_id: uid, accounts };

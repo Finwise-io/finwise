@@ -64,8 +64,8 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
 
     // Net Worth consumers
     const labels = st.assetAccounts.map((a) => a.label).sort();
-    expect(labels).toEqual(['Investments', 'Retirement savings']);
-    expect(st.assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(120000);
+    expect(labels).toEqual(['Investments', 'Retirement (Traditional)']);
+    expect(st.assetAccounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(120000);
     expect(st.assetAccounts.find((a) => a.label === 'Investments')!.balance).toBe(45000);
     expect(st.liabilities).toHaveLength(1);
     expect(st.liabilities[0].label).toBe('Car loan');
@@ -103,8 +103,8 @@ describe('Journey: every onboarding answer reaches its consumer screen', () => {
 // ───────────────────────── Snapshot uses LIVE accounts (B-49) ─────────────────────────
 describe('Journey: editing a Net Worth account flows into the snapshot', () => {
   test('snapshot net worth + nest egg reflect an account edit (not stale onboarding)', () => {
-    const st = completeOnboarding(employedPartner);   // seeds Retirement savings $120k + Investments $45k; car loan $14k
-    const acctId = useStore.getState().assetAccounts.find((x) => x.label === 'Retirement savings')!.asset_id;
+    const st = completeOnboarding(employedPartner);   // seeds Retirement (Traditional) $120k + Investments $45k; car loan $14k
+    const acctId = useStore.getState().assetAccounts.find((x) => x.label === 'Retirement (Traditional)')!.asset_id;
 
     // op-only snapshot still uses onboarding answers (unchanged fallback)
     const opOnly = snapshotFromOnboarding('local', st.onboardingProfile, ECON);
@@ -163,13 +163,13 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
   // BUG-LEDGER: B-15 (fixed) — seedNetWorth's one-time guard used to ignore every later seed.
   test('re-seeding with updated answers refreshes the seeded accounts', () => {
     completeOnboarding(firstAnswers);
-    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(50000);
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(50000);
 
     useStore.getState().setOnboardingProfile(newAnswers);
     useStore.getState().seedNetWorth(newAnswers);
 
     const accounts = useStore.getState().assetAccounts;
-    expect(accounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(100000);
+    expect(accounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(100000);
     expect(accounts.find((a) => a.label === 'Investments')!.balance).toBe(20000);
   });
 
@@ -182,7 +182,7 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
 
     const labels = useStore.getState().assetAccounts.map((a) => a.label);
     expect(labels).toContain('Inherited brokerage');               // user-entered data is sacred
-    expect(labels).not.toContain('Retirement savings');            // seeded rows ARE cleared
+    expect(labels).not.toContain('Retirement (Traditional)');            // seeded rows ARE cleared
   });
 
   test('the one working path today: restart → answer again → seed picks up the new numbers', () => {
@@ -190,7 +190,7 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
     useStore.getState().restartOnboarding();                       // resets the nwSeeded gate
     useStore.getState().setOnboardingProfile(newAnswers);
     useStore.getState().seedNetWorth(newAnswers);
-    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(100000);
+    expect(useStore.getState().assetAccounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(100000);
   });
 
   // BUG-LEDGER: B-21 (fixed) — an explicit $0 answer seeds a $0 placeholder account the user can
@@ -198,7 +198,7 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
   test('explicit $0 asset answers seed $0 placeholder accounts', () => {
     const st = completeOnboarding({ ...employedPartner, currentRetirementSavings: '0', investmentHoldings: '0', debtBalance: '0' });
     expect(st.assetAccounts).toHaveLength(2);
-    expect(st.assetAccounts.find((a) => a.label === 'Retirement savings')!.balance).toBe(0);
+    expect(st.assetAccounts.find((a) => a.label === 'Retirement (Traditional)')!.balance).toBe(0);
     expect(st.assetAccounts.find((a) => a.label === 'Investments')!.balance).toBe(0);
     expect(st.liabilities).toHaveLength(0);
   });
@@ -213,6 +213,6 @@ describe('Journey: re-running onboarding updates Net Worth', () => {
     completeOnboarding(firstAnswers);
     useStore.getState().seedNetWorth(firstAnswers);
     useStore.getState().seedNetWorth(firstAnswers);
-    expect(useStore.getState().assetAccounts.filter((a) => a.label === 'Retirement savings')).toHaveLength(1);
+    expect(useStore.getState().assetAccounts.filter((a) => a.label === 'Retirement (Traditional)')).toHaveLength(1);
   });
 });

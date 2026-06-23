@@ -25,6 +25,20 @@ describe('assets', () => {
     expect(s.accounts[0].portfolio_percentage).toBe(75);
     expect(s.average_target_return).toBeCloseTo(0.07, 4);
   });
+  test('#8: Traditional and Roth retirement savings become SEPARATE accounts (pre-tax vs tax-free)', () => {
+    const d = assetsFromOnboarding('u', { currentRetirementSavings: '200000', currentRetirementSavingsRoth: '60000' });
+    const trad = d.accounts.find((a) => a.label === 'Retirement (Traditional)')!;
+    const roth = d.accounts.find((a) => a.label === 'Retirement (Roth)')!;
+    expect(trad.tax_bucket).toBe('PRE_TAX');     // taxed on withdrawal
+    expect(trad.balance).toBe(200000);
+    expect(roth.tax_bucket).toBe('ROTH');        // tax-free in retirement
+    expect(roth.balance).toBe(60000);
+  });
+  test('#8: Roth-only saver still gets a (single) Roth account; no empty Traditional row', () => {
+    const d = assetsFromOnboarding('u', { currentRetirementSavingsRoth: '60000' });
+    expect(d.accounts.map((a) => a.label)).toEqual(['Retirement (Roth)']);
+  });
+
   test('monthly contributions sum types + employer match', () => {
     expect(monthlyContributionsFromOnboarding({ c_401k: '1000', c_roth: '500', employerMatchMode: 'dollar', employerMatchValue: '250' })).toBe(1750);
   });
