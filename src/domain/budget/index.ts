@@ -157,6 +157,30 @@ export function savingsByMonth(op: OnboardingProfile | null): { label: string; a
   return avail.map((m, i) => ({ label: m.label, amount: round2(m.amount - spend[i]) }));
 }
 
+/** ONE annual cash-flow roll-up, derived entirely from the per-month income grid + spendByMonth — the
+ *  SAME bases the savings-plan and budget already use. The recap must use this (not a separate flat
+ *  grossAnnual − tax computation) so "Free to save / yr" reconciles exactly with the savings screen's
+ *  monthly average × 12 (#6: they disagreed because the recap annualized flatly while the savings plan
+ *  summed the month-by-month grid). saveYr === Σ savingsByMonth by construction. */
+export function annualCashflow(op: OnboardingProfile | null): {
+  grossYr: number; taxYr: number; netYr: number; k401Yr: number; availableYr: number; spendYr: number; saveYr: number;
+} {
+  const sum = (rows: { amount: number }[]) => rows.reduce((t, m) => t + m.amount, 0);
+  const grossYr = round2(sum(incomeMonthlyGrid(op, 'gross')));
+  const netYr = round2(sum(incomeMonthlyGrid(op, 'net')));
+  const availableYr = round2(sum(incomeMonthlyGrid(op, 'available')));
+  const spendYr = round2(spendByMonth(op).reduce((t, m) => t + m, 0));
+  return {
+    grossYr,
+    netYr,
+    availableYr,
+    spendYr,
+    taxYr: round2(grossYr - netYr),
+    k401Yr: round2(netYr - availableYr),          // available = net − employee 401(k)
+    saveYr: round2(availableYr - spendYr),        // === Σ savingsByMonth
+  };
+}
+
 export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null): BudgetDoc {
   const a = op ?? {};
   const b = spendBuckets(op);

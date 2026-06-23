@@ -1,6 +1,37 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow } from './index';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
+
+// #6: the recap's "Free to save / yr" must reconcile with the savings-plan's monthly average × 12.
+// Both now derive from the SAME grid (annualCashflow ≡ Σ savingsByMonth), so they agree even with
+// non-flat income (a December bonus). They used to disagree because the recap annualized income flatly.
+describe('annualCashflow reconciles the recap with the savings plan (#6)', () => {
+  const op: OnboardingProfile = {
+    taxMode: 'manual', manualTaxRate: '20',
+    baseSalary: '8000', salaryFreq: 'monthly',       // $96k/yr gross
+    bonusAnnual: '12000', bonusMonth: 12,            // lumpy → only the grid captures its timing
+    c_401k: '750',                                   // employee 401(k), locked away
+    monthlySpending: '4000',
+  };
+
+  test('saveYr === Σ savingsByMonth (free-to-save matches month by month)', () => {
+    const cf = annualCashflow(op);
+    const byMonthAnnual = savingsByMonth(op).reduce((t, m) => t + m.amount, 0);
+    expect(cf.saveYr).toBeCloseTo(byMonthAnnual, 2);
+  });
+  test('the monthly average (Σ savingsByMonth ÷ 12) × 12 equals the recap yearly — no drift', () => {
+    const cf = annualCashflow(op);
+    const monthlyAvg = savingsByMonth(op).reduce((t, m) => t + m.amount, 0) / 12;
+    expect(monthlyAvg * 12).toBeCloseTo(cf.saveYr, 2);
+  });
+  test('the waterfall is internally consistent: gross − tax = net, net − 401k = available, available − spend = save', () => {
+    const cf = annualCashflow(op);
+    expect(cf.grossYr - cf.taxYr).toBeCloseTo(cf.netYr, 2);
+    expect(cf.netYr - cf.k401Yr).toBeCloseTo(cf.availableYr, 2);
+    expect(cf.availableYr - cf.spendYr).toBeCloseTo(cf.saveYr, 2);
+    expect(cf.k401Yr).toBeCloseTo(750 * 12, 2);
+  });
+});
 
 describe('emergency stress test', () => {
   const op: OnboardingProfile = {

@@ -11,7 +11,7 @@ import { colFactor } from '../domain/retirement/col';
 import { capitalNeeded } from '../domain/retirement';
 import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
 import { useStore } from '../store/useStore';
-import { savingsByMonth, spendBuckets } from '../domain/budget';
+import { savingsByMonth, spendBuckets, annualCashflow } from '../domain/budget';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
 
@@ -1506,10 +1506,10 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const [chartMode, setChartMode] = React.useState<'amount' | 'percent'>('amount');
   const retired = ctx.status === 'retired';
-  const grossYr = grossAnnual(a);
+  const grossYrGate = grossAnnual(a);
 
   // retired / no-accumulation-income → simple income-vs-spending recap
-  if (retired || grossYr <= 0) {
+  if (retired || grossYrGate <= 0) {
     // take-home (after tax) — SAME expression the spending-plan step uses, so the two screens agree
     const incMo = monthlyIncome(a) || retirementMonthlyIncome(a);
     const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
@@ -1524,17 +1524,19 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
     </>);
   }
 
-  const rate = incomeTaxRate(a);
-  const taxYr = taxableAnnual(a) * rate;          // tax ONLY the taxable base — gifts/benefits aren't taxed
-  const netYr = grossYr - taxYr;                  // (matches the income screen exactly)
-  // spending = the itemized categories OR the single estimate, whichever is larger — skipping the
-  // category screen must not zero out spending (the estimate still counts, like everywhere else)
-  const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
-  const spendYr = spendMo * 12;
-  const k401Mo = num(a.c_401k);
-  const k401Yr = k401Mo * 12;                                                 // employee 401(k) — saved, but locked
-  const availableYr = netYr - k401Yr;                                         // SAME number the income screen headlines
-  const saveYr = availableYr - spendYr;                                       // FREE to save — matches the savings screen
+  // #6: derive EVERY annual figure from the one grid-based roll-up, so "Free to save / yr" reconciles
+  // exactly with the savings-plan screen's monthly average × 12 (they used to disagree — the recap
+  // annualized income flatly while the savings plan summed month-by-month).
+  const cf = annualCashflow(a);
+  const grossYr = cf.grossYr;                                                 // grid-summed gross → waterfall adds up exactly
+  const taxYr = cf.taxYr;
+  const netYr = cf.netYr;
+  const spendYr = cf.spendYr;
+  const spendMo = spendYr / 12;
+  const k401Yr = cf.k401Yr;
+  const k401Mo = k401Yr / 12;
+  const availableYr = cf.availableYr;
+  const saveYr = cf.saveYr;                                                   // FREE to save — === Σ savingsByMonth
   const totalSaveYr = saveYr + k401Yr;            // all savings incl. 401(k) — a deficit NETS against it (no floor)
   const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
   const taxPct = grossYr > 0 ? Math.round((taxYr / grossYr) * 100) : 0;       // effective tax rate
