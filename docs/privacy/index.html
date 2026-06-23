@@ -37,7 +37,7 @@
     <p><strong>Financial data you enter:</strong> Income entries, expenses, savings, investments, debts, goals, and budget settings you create within the app. This data is stored on your device and optionally synced to your private Firestore account.</p>
     <p><strong>Receipt images:</strong> If you use the receipt scanning feature, the image is read <strong>on your device</strong> (on-device text recognition). Receipt images are <strong>not</strong> uploaded to FinWise or any third party.</p>
     <p><strong>Feedback:</strong> If you submit in-app feedback, we collect the content of your message along with your name and email.</p>
-    <p><strong>Usage data:</strong> We do not collect analytics, crash reports, or behavioral tracking beyond what Firebase Authentication records for security purposes.</p>
+    <p><strong>Crash &amp; diagnostic data:</strong> To find and fix bugs, we collect crash reports and error diagnostics (device type, OS version, and the technical error/stack trace) via Sentry. These are tied only to your anonymous user ID — never your name, email, or any financial data — and are not used for advertising or tracking. We do not collect behavioral analytics.</p>
 
     <h2>2. How We Use Your Information</h2>
     <ul>
@@ -52,6 +52,7 @@
     <p>FinWise uses the following third-party services:</p>
     <ul>
       <li><strong>Firebase (Google):</strong> Authentication and cloud data sync. Your financial data is stored <strong>encrypted</strong> in your private Firestore document, readable only by you. <a href="https://firebase.google.com/support/privacy">Firebase Privacy Policy</a></li>
+      <li><strong>Sentry:</strong> Crash and error reporting. Receives technical diagnostics (device, OS, stack trace) tied only to your anonymous user ID — no name, email, or financial data. <a href="https://sentry.io/privacy/">Sentry Privacy Policy</a></li>
       <li><strong>U.S. Bureau of Labor Statistics API:</strong> Live inflation data. No personal data is transmitted.</li>
       <li><strong>U.S. Treasury API:</strong> Live Treasury yield data. No personal data is transmitted.</li>
     </ul>

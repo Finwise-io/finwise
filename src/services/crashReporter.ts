@@ -27,7 +27,10 @@ export function initCrashReporting(): void {
   const S = loadSentry();
   if (S && dsn) {
     try {
-      S.init({ dsn, enableNative: true, tracesSampleRate: 0.2 });
+      // sendDefaultPii:false — never let Sentry auto-attach IP/PII; we only tag the uid via setUserScope.
+      // Keeps crash reporting consistent with the privacy promise (no financial data, minimal PII).
+      S.init({ dsn, enableNative: true, tracesSampleRate: 0.2, sendDefaultPii: false });
+      sentry = S;          // FIX: without this, captureException (enabled && sentry) never actually reported
       enabled = true;
     } catch {
       enabled = false;
@@ -70,4 +73,16 @@ export function setUserScope(uid: string | null): void {
       /* ignore */
     }
   }
+}
+
+/** Whether reports are actually shipping to Sentry (DSN + SDK present). Used by the verification UI. */
+export function crashReportingEnabled(): boolean {
+  return enabled;
+}
+
+/** B-L2 verification: send a harmless test event so you can confirm wiring in the Sentry dashboard
+ *  (works on the production/TestFlight build). No-ops to the dev console when Sentry isn't configured. */
+export function sendTestReport(): boolean {
+  captureException(new Error('FinWise diagnostic test — Sentry wiring check'), { kind: 'test_report' });
+  return enabled;
 }

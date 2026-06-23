@@ -9,6 +9,7 @@ import { isLockAvailable, authenticate } from '../services/appLock';
 import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
+import { sendTestReport } from '../services/crashReporter';
 
 const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
 const TERMS_URL   = 'https://finwise-io.github.io/finwise/terms';
@@ -175,6 +176,16 @@ export default function SettingsScreen() {
           },
         },
       ]
+    );
+  }
+
+  function handleSendDiagnostic() {
+    const on = sendTestReport();   // B-L2: ships a test event when Sentry is configured
+    Alert.alert(
+      on ? 'Diagnostic sent' : 'Noted',
+      on
+        ? "Thanks — a diagnostic report was sent. It's anonymous and contains no financial data."
+        : 'Diagnostics will be sent once crash reporting is enabled in this build.',
     );
   }
 
@@ -472,6 +483,17 @@ export default function SettingsScreen() {
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Contact Support</Text>
             <Text style={styles.actionSub}>{SUPPORT_EMAIL}</Text>
+          </View>
+          <Text style={styles.arrow}>›</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity style={styles.actionRow} onPress={handleSendDiagnostic}
+          accessibilityRole="button" accessibilityLabel="Send a diagnostic report"
+          accessibilityHint="Sends an anonymous diagnostic event to help us fix problems">
+          <Text style={{ fontSize: 22 }}>🩺</Text>
+          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+            <Text style={styles.actionLabel}>Send a diagnostic report</Text>
+            <Text style={styles.actionSub}>Anonymous — helps us fix problems. No financial data.</Text>
           </View>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
