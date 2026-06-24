@@ -125,6 +125,25 @@ we ship.** Grounded in current US fintech standards (sources in the review doc).
   isn't even wired — inflation is a static default). The feared crash can't occur; existing tests prove
   it (`marketData.test`, `economicData.test`, `store_prices.test` offline cases).
 
+### 🔴 Accuracy blockers — P0 (a wrong number = irrecoverable lost trust)
+
+_Two "one concept, two numbers" bugs have already surfaced on device (#6 reconciliation, B‑67 take‑home).
+That means the class isn't closed. Numeric accuracy is non‑negotiable for launch._
+
+- 🔴 🤖 **A‑1 — %‑of‑income base for percentage spending categories (the deeper half of B‑67).** When a
+  user enters a spending category as a **%**, the spending‑plan screen and the domain budget
+  (`spendBuckets`/`spendByMonth`) resolve it against **different income bases** (net‑of‑tax vs take‑home),
+  so the dollar shown on screen ≠ the dollar the budget/runway/savings use. **Done when:** one income
+  base (take‑home, after tax + 401k) drives every %‑category conversion, with a test asserting the
+  screen‑displayed $ equals the domain‑computed $ for a % category (incl. a 401k profile); golden tests
+  reconciled.
+- 🔴 🤖 **A‑2 — Systematic cross‑screen money‑agreement audit + tests.** Enumerate EVERY displayed money
+  concept (take‑home, surplus, net worth, investable assets, nest egg, retirement readiness, the two
+  savings rates, budget, emergency runway, debt totals, etc.); for each, confirm **one canonical helper**
+  and pin it with a **cross‑screen agreement test** that asserts the *rendered* number is identical on
+  every screen that shows it. **Done when:** a traceability matrix (concept → helper → screens → test)
+  exists with a green test per row — so accuracy is *checkable*, not *trusted*. (Lesson L‑7.)
+
 ### 🟠 Important (before launch)
 
 - 🟠 🤖 **Verify the bug ledger is clean** — confirm no `open`/`by-design?` row in

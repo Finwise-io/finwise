@@ -4,7 +4,7 @@ _Flat, trackable view. Excel: `docs/finwise-launch-checklist.xlsx`. Narrative: `
 
 **Owner:** 🧑 you · 🤖 Claude. **Priority:** Blocker · Important · Recommended · Optional · Positioning · Done.
 
-**Open blockers: 17.**
+**Open blockers: 18.**
 
 | Phase | ID | Item | Owner | Priority | Status | Done when / Notes |
 |---|---|---|---|---|---|---|
@@ -31,7 +31,7 @@ _Flat, trackable view. Excel: `docs/finwise-launch-checklist.xlsx`. Narrative: `
 | Phase 2.5 — App Review compliance | 2.5.4 | Create a demo login for Apple’s reviewer | 🧑 | Blocker | Open | Real account + sample data in reviewer notes |
 | Phase 2.5 — App Review compliance | 2.5.5 | Test Delete-account on a real production build | 🧑 | Blocker | Open | End-to-end removal verified |
 | Phase 2.6 — Launch-review findings | B-L1 | Reconcile privacy claim with AI-tips data path (analyzeExpenses → proxy → Anthropic) | 🤖→🧑 | Blocker | Done | DONE 945f929 — on-device tips + OCR; claim updated; policy reconciled; re-host policy = 🧑 |
-| Phase 2.6 — Launch-review findings | B-L2 | Wire production crash reporting (live Sentry DSN) | 🧑 | Blocker | Wired | WIRED 3937f04 — DSN+Expo plugin(org finwise-35/proj react-native)+Metro source maps+loader. Live in next build. DONE when test event shows in dashboard (Settings -> Send a diagnostic report). |
+| Phase 2.6 — Launch-review findings | B-L2 | Wire production crash reporting (live Sentry DSN) | 🧑 | Blocker | Code ready | PRE-STAGED f43819e — DSN-ready, latent report bug fixed, test-report row + policy. 🧑: Sentry project + DSN + install + rebuild (docs/finwise-sentry-setup.md). Verify event in dashboard. |
 | Phase 2.6 — Launch-review findings | B-L3 | Disclaimer at every projection / "on-track" verdict; no imperative "you should" | 🤖 | Blocker | Done | DONE bb68bad — shared <Disclaimer/> on all 5 judgment screens; RMD phrased as IRS requirement; guard test |
 | Phase 2.6 — Launch-review findings | B-L4 | Graceful network degradation on BLS/Treasury/AI feeds (try/catch + default) | 🤖 | Blocker | Done | DONE (verified) — all wired network paths already degrade gracefully (prices allSettled+null keep-cache; econ allSettled+fallback flags; econ feed unwired, inflation static default). Covered by existing tests; no code change. |
 | Phase 2.6 — Launch-review findings | R-1 | Verify bug ledger clean (no user-facing money error open) | 🤖 | Important | Done | VERIFIED — ledger 0 open; all 42 fixed; stale summary header corrected (no money error open) |
@@ -39,6 +39,8 @@ _Flat, trackable view. Excel: `docs/finwise-launch-checklist.xlsx`. Narrative: `
 | Phase 2.6 — Launch-review findings | R-3 | Prep App Review note: educational planner, no money movement/linking/securities recs | 🧑 | Important | Done | DRAFTED — docs/finwise-app-review-notes.md (educational-tool note + demo-login placeholder); 🧑 fill creds + paste |
 | Phase 2.6 — Launch-review findings | R-4 | Scope launch as US-only (app is USD-only; "every country" objective deferred) | 🧑 | Positioning | Open | Don't market global |
 | Phase 2.6 — Launch-review findings | R-5 | Track onboarding completion as #1 launch metric (manual entry = churn risk) | 🧑 | Positioning | Open |  |
+| Phase 2.6 — Launch-review findings | A-1 | %-of-income base for % spending categories differs between the spending screen and the domain budget (net-of-tax vs take-home) — screen $ ≠ budget $ | 🤖 | Blocker | Open | One income base (take-home, after tax+401k) for every %-category conversion; test: screen-displayed $ == domain $ for a % category (incl 401k); golden reconciled |
+| Phase 2.6 — Launch-review findings | A-2 | Systematic cross-screen money-agreement audit: every displayed money concept single-sourced + pinned by a test asserting the rendered number is identical on every screen | 🤖 | Blocker | Open | Traceability matrix concept→helper→screens→test, green per row (accuracy checkable not trusted). L-7. Two already found: #6, B-67 |
 | Phase 3 — Optional (post-v1) | P3.1 | Plaid bank linking | 🧑 | Optional | Open | Needs Plaid keys + backend |
 | Phase 3 — Optional (post-v1) | P3.2 | Push notifications | 🧑 | Optional | Open | Needs APNs + reminder logic |
 | Phase 4 — Final pre-submit QA | 4.1 | Clean onboarding for each persona (numbers reconcile) | 🧑 | Blocker | Open | student / variable / professional / retiree |
