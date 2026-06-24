@@ -2,6 +2,7 @@
 // can you absorb it, how long would you last, and how big should your emergency fund be?
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -31,7 +32,7 @@ export default function StressTestScreen() {
   const tone = (months: number) => (months >= 6 ? Colors.primary : months >= 3 ? Colors.amber : Colors.red);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>What if…?</Text>
       <Text style={styles.sub}>Test a surprise expense against your cash — see if you can absorb it and how long you'd last.</Text>
 
@@ -90,7 +91,7 @@ export default function StressTestScreen() {
       <Text style={styles.foot}>“Essentials” are your recurring must-pay bills (Critical + Important), not one-off or nice-to-have spending. A planning estimate.</Text>
       <Disclaimer />
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput,
 } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore, useLevel } from '../store/useStore';
 import { Card, DarkCard, ProgressBar, Button, Badge, TipCard } from '../components/UI';
 import { InputModal } from '../components/InputModal';
@@ -55,7 +56,7 @@ export default function RewardsScreen() {
   const GOAL_ICONS = ['🎯', '✈️', '🏠', '🚗', '📚', '💍', '🐕', '🏖', '💻', '🎓'];
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
       <InputModal
         visible={modalVisible}
@@ -226,7 +227,7 @@ export default function RewardsScreen() {
       })}
 
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

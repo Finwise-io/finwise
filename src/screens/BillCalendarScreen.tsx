@@ -2,6 +2,7 @@
 // you'll come up short and which bills to prioritize. Built on the cashflow domain (CFPB-style).
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -54,7 +55,7 @@ export default function BillCalendarScreen() {
   const short = cf.shortMonths.length > 0;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Bill calendar</Text>
       <Text style={styles.sub}>When money lands, when bills are due, and whether you make it through each month.</Text>
 
@@ -144,7 +145,7 @@ export default function BillCalendarScreen() {
 
       <Text style={styles.foot}>This is a forward plan: spending uses your budgeted/typical amount, and money in is after estimated tax. (Your Home screen shows what you've actually spent this month.) Scholarships, grants, loans, and non-monthly bills land in the months you chose. A rough view to plan around — not exact to the day.</Text>
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

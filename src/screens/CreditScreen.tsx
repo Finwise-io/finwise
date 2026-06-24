@@ -2,6 +2,7 @@
 // your score. Aimed at students / young adults building credit for the first time.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -32,7 +33,7 @@ export default function CreditScreen() {
   const utilColor = util.status === 'good' ? Colors.primary : util.status === 'caution' ? Colors.amber : Colors.red;
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Build credit</Text>
       <Text style={styles.sub}>Good credit means cheaper loans, easier renting, and lower deposits. Here’s where you stand and how to improve.</Text>
 
@@ -87,7 +88,7 @@ export default function CreditScreen() {
 
       <Text style={styles.foot}>General guidance, not credit advice. Scores vary by model (FICO, VantageScore).</Text>
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

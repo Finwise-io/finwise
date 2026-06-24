@@ -2,6 +2,7 @@
 // income and debts. DIME-style: income replacement + debts + future goals + final expenses − assets.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -45,7 +46,7 @@ export default function InsuranceScreen() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Life insurance check</Text>
       <Text style={styles.sub}>If something happened to you, how much would keep your family secure? Prefilled from your income and debts.</Text>
 
@@ -72,7 +73,7 @@ export default function InsuranceScreen() {
 
       <Text style={styles.foot}>A rule-of-thumb estimate (DIME method), not a recommendation. Term life is usually the cheapest way to cover a gap like this.</Text>
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

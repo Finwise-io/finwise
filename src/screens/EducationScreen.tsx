@@ -2,6 +2,7 @@
 // monthly contribution to close the gap. Can save the gap as a goal.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -45,7 +46,7 @@ export default function EducationScreen() {
   );
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>College planner</Text>
       <Text style={styles.sub}>What it'll cost, whether you're on track, and how much to set aside each month.</Text>
 
@@ -83,7 +84,7 @@ export default function EducationScreen() {
 
       <Text style={styles.foot}>A 529 plan grows tax-free for qualified education costs in the US. Estimates only — actual costs and returns vary.</Text>
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

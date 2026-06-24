@@ -2,6 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput,
 } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Card, DarkCard, ProgressBar, TipCard, Button } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
@@ -89,7 +90,7 @@ export default function RetirementScreen() {
   }
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
       {/* Log contribution modal */}
       {modalVisible && (
@@ -319,7 +320,7 @@ export default function RetirementScreen() {
 
       <Disclaimer />
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 

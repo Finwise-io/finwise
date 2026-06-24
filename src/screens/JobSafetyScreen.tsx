@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput,
 } from 'react-native';
+import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats } from '../store/useStore';
 import { Card, Button, ProgressBar, TipCard } from '../components/UI';
@@ -79,7 +80,7 @@ export default function JobSafetyScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <KeyboardAwareScreen style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
       {/* Risk level */}
       <Card>
@@ -254,7 +255,7 @@ export default function JobSafetyScreen() {
 
       <Disclaimer />
       <View style={{ height: 40 }} />
-    </ScrollView>
+    </KeyboardAwareScreen>
   );
 }
 
