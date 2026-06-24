@@ -5,6 +5,7 @@ import {
 import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
 import { Card, DarkCard, TipCard } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
+import { savingsRateCash } from '../domain/savings';   // B-68: ONE canonical savings rate (savings ÷ take-home), not a bespoke per-screen calc
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 // Pure JS date helpers — no date-fns needed
@@ -22,7 +23,7 @@ function monthLabel(date: Date): string {
 }
 
 export default function AnalyticsScreen() {
-  const { incomes, expenses } = useStore();
+  const { incomes, expenses, onboardingProfile, liabilities } = useStore();
   const stats = useMonthlyStats();
   const monthIncome = stats.monthIncome || 0;
   const monthSpend = stats.monthSpend || 0;
@@ -55,7 +56,9 @@ export default function AnalyticsScreen() {
   });
 
   const maxVal = Math.max(...months.map(m => Math.max(m.income || 0, m.expense || 0, m.savings || 0)), 100);
-  const savingsRate = (monthIncome || 0) > 0 ? Math.round((((monthIncome || 0) - (monthSpend || 0)) / (monthIncome || 1)) * 100) : 0;
+  // B-68: the canonical cash savings rate (monthly savings ÷ take-home, after tax + 401k) — same number
+  // as onboarding's "% of take-home", not a bespoke (income−spend)/gross-income calc that mislabeled itself.
+  const savingsRate = Math.round(savingsRateCash(onboardingProfile, liabilities ?? []));
   const totalIncome6m = months.reduce((s, m) => s + m.income, 0);
   const totalExpense6m = months.reduce((s, m) => s + m.expense, 0);
   const totalSavings6m = months.reduce((s, m) => s + m.savings, 0);
