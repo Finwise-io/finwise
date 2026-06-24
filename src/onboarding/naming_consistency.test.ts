@@ -27,3 +27,9 @@ test('the onboarding "property" goal uses the canonical class terms, not "belong
   expect(line).toMatch(/personal property/i);
   expect(line).not.toMatch(/belongings/i);
 });
+
+test('stock-option entry clarifies the unit (options = shares, not 100-share trading contracts)', () => {
+  const src = fs.readFileSync(path.join(__dirname, 'modules.tsx'), 'utf8');
+  expect(src).toMatch(/Each option = 1 share/);
+  expect(src).toMatch(/NOT 100-share trading contracts/);
+});

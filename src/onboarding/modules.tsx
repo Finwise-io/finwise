@@ -1276,7 +1276,9 @@ function RsuEditor({ ctx }: { ctx: StepCtx }) {
       <Text style={s.label}>What kind of award is it?</Text>
       <Segmented ctx={ctx} k="equityType" defaultValue="rsu" options={[
         { value: 'rsu', label: 'Restricted Stock' }, { value: 'option', label: 'Stock Options' }]} />
-      <Text style={s.note2}>{isOpt ? 'Value = (market − strike) × count' : 'Value = shares × price per share'}</Text>
+      <Text style={s.note2}>{isOpt
+        ? 'Value = (market − strike) × number of options. Each option = 1 share — enter your grant count, NOT 100-share trading contracts.'
+        : 'Value = shares × price per share'}</Text>
       {isOpt && (
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
