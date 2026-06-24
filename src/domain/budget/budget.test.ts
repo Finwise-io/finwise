@@ -31,6 +31,12 @@ describe('annualCashflow reconciles the recap with the savings plan (#6)', () =>
     expect(cf.availableYr - cf.spendYr).toBeCloseTo(cf.saveYr, 2);
     expect(cf.k401Yr).toBeCloseTo(750 * 12, 2);
   });
+  test('T08/B-67: the spending-plan leftover surface (take-home − planned spend) equals the recap surplus', () => {
+    const cf = annualCashflow(op);
+    const takeHomeMo = cf.availableYr / 12;                         // = takeHomeMonthly (after tax AND 401k)
+    const leftoverYr = (takeHomeMo - plannedMonthlySpend(op)) * 12; // the spending-plan screen's leftover
+    expect(leftoverYr).toBeCloseTo(cf.saveYr, 2);                   // all three surplus surfaces reconcile (a 401k IS present)
+  });
 });
 
 describe('emergency stress test', () => {
