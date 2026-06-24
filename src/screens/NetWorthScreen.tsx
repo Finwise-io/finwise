@@ -12,6 +12,7 @@ import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf,
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
+import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
 // #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
@@ -411,7 +412,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const remove = () => { if (editing) store.deleteAsset?.(editing.asset_id); onClose(); };
 
   return (
-    <Sheet open={state.open} onClose={onClose} title={editing ? 'Edit asset' : `Add ${state.section ?? 'asset'}`}>
+    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit asset' : `Add ${state.section ?? 'asset'}`}>
       <View style={sh.chips}>
         {kindsForSection.map((ko) => (
           <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} onPress={() => setKind(ko.id)}>
@@ -435,7 +436,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
       <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {amt > 0 ? money(amt) : 'asset'}</Text></TouchableOpacity>
       {editing && <TouchableOpacity onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
-    </Sheet>
+    </KeyboardAwareSheet>
   );
 }
 
@@ -468,7 +469,7 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
   const remove = () => { if (editing) store.deleteLiability?.(editing.debt_id); onClose(); };
 
   return (
-    <Sheet open={state.open} onClose={onClose} title={editing ? 'Edit debt' : 'Add debt'}>
+    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit debt' : 'Add debt'}>
       <View style={sh.chips}>
         {DEBT_KINDS.map((ko) => (
           <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} onPress={() => setKind(ko.id)}>
@@ -488,21 +489,11 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
       </View>
       <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} debt</Text></TouchableOpacity>
       {editing && <TouchableOpacity onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
-    </Sheet>
+    </KeyboardAwareSheet>
   );
 }
 
-function Sheet({ open, onClose, title, children }: { open: boolean; onClose: () => void; title: string; children: React.ReactNode }) {
-  return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
-      <TouchableOpacity style={sh.backdrop} activeOpacity={1} onPress={onClose}>
-        <ScrollView style={{ maxHeight: '90%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
-          <View style={sh.card}><View style={sh.grip} /><Text style={sh.title}>{title}</Text>{children}</View>
-        </ScrollView>
-      </TouchableOpacity>
-    </Modal>
-  );
-}
+// (the local Sheet was replaced by the shared, keyboard-aware <KeyboardAwareSheet/> — Theme 3)
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
