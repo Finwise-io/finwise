@@ -842,6 +842,7 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
   useEffect(() => { if (open) { setEligible(A.ssEligible ?? (ssDefault > 0)); setAmt(String(A.ssMonthly ?? Math.round(ssDefault) ?? '')); setClaim(A.ssClaimAge ?? 67); } }, [open]);
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -869,6 +870,7 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
         )}
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply({ ssEligible: eligible, ssMonthly: eligible ? num(amt) : 0, ssClaimAge: claim })}><Text style={styles.applyT}>Done</Text></TouchableOpacity>
       </View>
+          </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -879,6 +881,7 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
   useEffect(() => { if (open) setName(defaultName); }, [open]);
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.dialog}>
         <Text style={styles.sheetT}>Save scenario</Text>
@@ -886,6 +889,7 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
         <TextInput style={styles.nameIn} value={name} onChangeText={setName} placeholder="e.g. Retire 60" placeholderTextColor={Colors.textTertiary} />
         <TouchableOpacity style={styles.applyBtn} onPress={() => onSave(name.trim() || defaultName)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
       </View>
+          </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -894,6 +898,7 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
 function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null; onClose: () => void; onPick: (kind: string, bucket: any) => void }) {
   return (
     <Modal visible={account != null} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -914,6 +919,7 @@ function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null
           ))}
         </ScrollView>
       </View>
+          </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -927,6 +933,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
   useEffect(() => { if (account) setVal(account.actual_ttm != null ? (account.actual_ttm * 100).toFixed(1) : ''); }, [account]);
   return (
     <Modal visible={open} transparent animationType="fade" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.dialog}>
         <Text style={styles.sheetT}>{account?.institution?.trim() || account?.label} — actual return</Text>
@@ -938,6 +945,7 @@ function TtmEditor({ account, onClose, benchmark, onApply, onClear }: {
         <TouchableOpacity style={styles.applyBtn} onPress={() => onApply(clamp(num(val) * (val.trim().startsWith('-') ? -1 : 1), -90, 200) / 100)}><Text style={styles.applyT}>Save</Text></TouchableOpacity>
         {account?.actual_ttm != null && <TouchableOpacity onPress={onClear}><Text style={styles.clearLink}>Clear</Text></TouchableOpacity>}
       </View>
+          </KeyboardAvoidingView>
     </Modal>
   );
 }

@@ -1,7 +1,7 @@
 // Bonds — individual bond management (Phase B). Bonds are AssetAccounts with bond fields, so they
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert, KeyboardAvoidingView } from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -128,6 +128,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   });
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -176,6 +177,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

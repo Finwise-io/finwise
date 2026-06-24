@@ -2,7 +2,7 @@
 // held at a manual value as AssetAccounts, so they flow to Net Worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -89,6 +89,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
   const valid = label.trim().length > 0 && num(value) > 0;
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -115,6 +116,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

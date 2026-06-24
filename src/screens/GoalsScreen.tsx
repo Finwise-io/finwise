@@ -1,7 +1,7 @@
 // Goals & Debt — save-by-date goals with progress, and an avalanche/snowball debt-payoff plan.
 // The pre-retirement (30yo) home for "what am I working toward and how do I kill my debt".
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -260,6 +260,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
     ? Math.max(1, (num(tYear) - now.getFullYear()) * 12 + (num(tMonth) - (now.getMonth() + 1))) : 0;
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -288,6 +289,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

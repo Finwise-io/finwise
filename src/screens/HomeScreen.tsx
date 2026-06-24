@@ -1,6 +1,6 @@
 // Home = live spending cockpit. Track income & expenses against budget, per month.
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { personaOf, ageFromProfile } from '../utils/persona';
 import { useStore } from '../store/useStore';
@@ -475,6 +475,7 @@ function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?: any }
 
   return (
     <Modal visible={state.open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={sh.card} onStartShouldSetResponder={() => true}>
           <View style={sh.handle} />
@@ -496,6 +497,7 @@ function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?: any }
           </TouchableOpacity>
         </View>
       </TouchableOpacity>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -523,6 +525,7 @@ function AllocateSavings({ state, onClose }: { state: { open: boolean; ym?: stri
 
   return (
     <Modal visible={state.open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
@@ -558,6 +561,7 @@ function AllocateSavings({ state, onClose }: { state: { open: boolean; ym?: stri
           </View>
         </ScrollView>
       </TouchableOpacity>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -609,6 +613,7 @@ function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, monthLabe
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
@@ -680,6 +685,7 @@ function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, monthLabe
           </View>
         </ScrollView>
       </TouchableOpacity>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -741,6 +747,7 @@ function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, baseDat
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
@@ -796,6 +803,7 @@ function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, baseDat
           </View>
         </ScrollView>
       </TouchableOpacity>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

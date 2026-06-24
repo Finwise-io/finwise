@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import {
-  View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput,
+  View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
@@ -95,6 +95,7 @@ export default function RetirementScreen() {
       {/* Log contribution modal */}
       {modalVisible && (
         <View style={styles.modalOverlay}>
+          <KeyboardAvoidingView style={{ width: '100%' }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <View style={styles.modalBox}>
             <Text style={styles.modalTitle}>Log a contribution</Text>
             <Text style={styles.modalSub}>Which account is this going into?</Text>
@@ -110,6 +111,7 @@ export default function RetirementScreen() {
             <Text style={styles.inputLabel}>Amount ($)</Text>
             <ContribInput onConfirm={handleAddContrib} onCancel={() => setModalVisible(false)} />
           </View>
+          </KeyboardAvoidingView>
         </View>
       )}
 

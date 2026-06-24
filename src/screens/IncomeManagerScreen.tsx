@@ -2,7 +2,7 @@
 // Pulls structured sources from onboarding (salary/bonus/equity/rental), one-off incomes from the
 // store, and investment income (dividends/interest) from the transaction ledger.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -124,6 +124,7 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
   const annual = num(amt) * (SALARY_PERIODS[freq] ?? 1);
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -146,6 +147,7 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
           <Text style={styles.saveBtnT}>Save · {money(annual)}/yr</Text>
         </TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -155,6 +157,7 @@ function AmountEditor({ open, title, value, onClose, onSave }: { open: boolean; 
   React.useEffect(() => { if (open) setV(value ? String(value) : ''); }, [open]);
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -162,6 +165,7 @@ function AmountEditor({ open, title, value, onClose, onSave }: { open: boolean; 
         <TextInput style={[styles.input, { marginTop: 12 }]} keyboardType="decimal-pad" value={v} onChangeText={setV} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
         <TouchableOpacity style={styles.saveBtn} onPress={() => onSave(num(v))}><Text style={styles.saveBtnT}>Save</Text></TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -172,6 +176,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
   React.useEffect(() => { if (open) { setSource(''); setAmount(''); } }, [open]);
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -183,6 +188,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
         <TouchableOpacity style={[styles.saveBtn, (num(amount) <= 0 || !source.trim()) && { opacity: 0.4 }]} disabled={num(amount) <= 0 || !source.trim()}
           onPress={() => onSave(source.trim(), num(amount))}><Text style={styles.saveBtnT}>Add</Text></TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }

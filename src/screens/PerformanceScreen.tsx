@@ -1,6 +1,6 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, type LayoutChangeEvent } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
 import { useStore } from '../store/useStore';
@@ -288,6 +288,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -373,6 +374,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           <View style={{ height: 20 }} />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -461,6 +463,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -541,6 +544,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
@@ -552,6 +556,7 @@ function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
   const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (a.institution?.trim() || a.label) : '—'; };
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
@@ -576,6 +581,7 @@ function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
         </ScrollView>
         <TouchableOpacity style={styles.applyBtn2} onPress={onClose}><Text style={styles.saveBtnT}>Done</Text></TouchableOpacity>
       </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
