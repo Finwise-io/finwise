@@ -354,7 +354,15 @@ export function incomeTaxRate(a: Record<string, any>): number {
 export function monthlyIncome(a: Record<string, any>): number {
   const total = totalGrossAnnual(a);
   if (total <= 0) return 0;
-  return (total - taxableAnnual(a) * incomeTaxRate(a)) / 12;   // tax only the taxable part
+  return (total - taxableAnnual(a) * incomeTaxRate(a)) / 12;   // net of tax only (NOT take-home — see below)
+}
+
+/** THE canonical take-home: what actually hits your bank = net of tax AND of your 401(k) (which comes
+ *  out of your paycheck). Every screen that says "Take-home" must read this — the income recap and the
+ *  spending plan used to disagree by exactly the 401(k). `monthlyIncome` (net-of-tax) is for %-of-income
+ *  math only, never displayed as "take-home". */
+export function takeHomeMonthly(a: Record<string, any>): number {
+  return monthlyIncome(a) - num(a.c_401k);
 }
 export function retirementMonthlyIncome(a: Record<string, any>): number {
   // each source carries its own cadence (ri_<k>_freq) → normalize to per-month
@@ -1379,7 +1387,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const availGrid = incomeMonthlyGrid(a, 'available');
   const labels = availGrid.map((g) => g.label);
   const amounts = availGrid.map((g) => g.amount);
-  const avgMo = availableYr / 12;
+  const avgMo = takeHomeMonthly(a);   // single source — identical to availableYr/12, shared with the spending-plan screen
   // most-common month = mode of the rounded amounts (ties → the higher value)
   const round100 = (x: number) => Math.round(x / 100) * 100;
   const freq: Record<number, number> = {};
@@ -1517,8 +1525,8 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
 
   // retired / no-accumulation-income → simple income-vs-spending recap
   if (retired || grossYrGate <= 0) {
-    // take-home (after tax) — SAME expression the spending-plan step uses, so the two screens agree
-    const incMo = monthlyIncome(a) || retirementMonthlyIncome(a);
+    // take-home via the canonical takeHomeMonthly (after tax AND 401k) — same helper every screen uses
+    const incMo = takeHomeMonthly(a) || retirementMonthlyIncome(a);   // labeled "Take-Home" → use the canonical helper
     const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
     const left = incMo - spendMo;
     return (<>
@@ -1642,7 +1650,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
   const months = suggested.map((m, i) => ({ label: m.label, amount: amountOf(i) }));
   const annual = months.reduce((t, m) => t + m.amount, 0);
   const avg = annual / 12;
-  const net = monthlyIncome(a);
+  const net = takeHomeMonthly(a);   // "% of take-home" must use true take-home (after 401k), same as every other screen
   const pct = net > 0 ? Math.round((avg / net) * 100) : 0;
   const maxA = Math.max(...months.map((m) => m.amount), 1);
 
@@ -2016,7 +2024,7 @@ function WhenField({ day, year, onDay, onYear }: { day?: string; year?: string; 
 function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const cats = (a.spendCats ?? []) as any[];
-  const net = monthlyIncome(a);   // net monthly income, for % conversion + the insight
+  const net = takeHomeMonthly(a);   // #BUG: true take-home (after tax AND 401k) — was monthlyIncome (before 401k), which disagreed with the income screen by the 401(k)
   const get = (id: string) => cats.find((c) => c.id === id) ?? {};
   const upsert = (id: string, patch: any, seed: any) => {
     const i = cats.findIndex((c) => c.id === id);

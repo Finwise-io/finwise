@@ -6,6 +6,25 @@
 
 ---
 
+## L‑7 (2026‑06‑23) — "Take‑home" showed two different numbers on two screens; my agreement tests were intra‑domain, not cross‑screen
+
+**What happened:** A user testing on device found the income recap showed **$22,990/mo** take‑home while
+the spending‑plan screen showed **$24,490** — a $1,500 gap = their 401(k). The spending plan used
+`monthlyIncome` (net of tax, **before** 401(k)); the income screen used after‑401(k). Same word
+"take‑home," two definitions — the exact "defined two ways" class I'd claimed to have audited. It also
+let the budget allocate against money that's actually locked in the 401(k).
+
+**Why QA / the dedup audit missed it:** my agreement tests verified the new canonical path reconciled
+with *itself* (`annualCashflow ≡ Σ savingsByMonth`) — never that the **rendered** take‑home number on
+screen A equals the one on screen B. The two screens call different helpers; nothing pinned them equal.
+A stale code comment even *claimed* they agreed. The audit keyed on one helper and didn't notice a
+second screen bypassed it. And I can't run the app, so cross‑screen number comparison fell to manual.
+
+**Lesson / rule going forward:** agreement tests must assert the **rendered number is identical across
+every screen that displays a concept**, not just that a domain helper reconciles with itself. One
+concept → one helper → one number, pinned by a cross‑screen test. (Added canonical `takeHomeMonthly` +
+`take_home_agreement.test.ts`.)
+
 ## L‑6 (2026‑06‑22) — "appears a few seconds later" = a TIMING bug, not a render‑layering bug
 
 **What happened:** After signup, the onboarding question showed first and the recovery‑code screen
