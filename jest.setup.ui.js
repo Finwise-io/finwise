@@ -97,6 +97,9 @@ jest.mock('expo-file-system', () => ({
   documentDirectory: '/tmp/',
   EncodingType: { UTF8: 'utf8', Base64: 'base64' },
 }));
+// T19: the app reads files via expo-file-system/legacy (the top-level API throws at runtime). Point the
+// legacy mock at the SAME mocked module so tests that mock readAsStringAsync still control the real path.
+jest.mock('expo-file-system/legacy', () => require('expo-file-system'));
 jest.mock('expo-haptics', () => ({
   __esModule: true,
   impactAsync: jest.fn(),

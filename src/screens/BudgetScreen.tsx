@@ -4,7 +4,7 @@ import {
   Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
 } from 'react-native';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import { readFileString } from '../services/fileRead';   // T19: supported read path
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar } from '../components/UI';
@@ -215,7 +215,7 @@ export default function BudgetScreen() {
       if (result.canceled) { setImporting(false); return; }
 
       const file = result.assets[0];
-      const content = await FileSystem.readAsStringAsync(file.uri);
+      const content = await readFileString(file.uri);
 
       const lines = content.split('\n').filter((l) => l.trim());
       const headers = lines[0].split(',').map((h) => h.trim().toLowerCase().replace(/"/g, ''));

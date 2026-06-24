@@ -7,7 +7,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
-import * as FileSystem from 'expo-file-system';
+import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
 import { importHoldings, decodeCsvBase64, type ImportResult } from '../domain/import/holdingsImport';
 import type { AssetClass, TaxBucket } from '../domain/assets';
@@ -21,13 +21,13 @@ import { Colors, Spacing, Radii, Typography } from '../utils/theme';
 async function readCsvText(uri: string): Promise<string> {
   let text: string | null = null;
   try {
-    text = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.UTF8 });
+    text = await readFileString(uri, 'utf8');
   } catch {
     text = null;
   }
   const NUL = String.fromCharCode(0);
   if (text == null || text.length === 0 || text.indexOf(NUL) !== -1) {
-    const b64 = await FileSystem.readAsStringAsync(uri, { encoding: FileSystem.EncodingType.Base64 });
+    const b64 = await readFileString(uri, 'base64');
     text = decodeCsvBase64(b64);
   }
   return text;
