@@ -11,7 +11,7 @@ import { loanPayment } from '../domain/debt';
 import { rmdDivisor, rmdAtAge } from '../domain/decumulation';
 import { currentYield, bondInfo } from '../domain/bonds';
 import {
-  earmarkedAmount, blendedReturn, portfolioActualReturn, investableValue, type AssetAccount,
+  earmarkedAmount, blendedReturn, portfolioActualReturn, investableAssets, type AssetAccount,
 } from '../domain/assets';
 import { ECON, employedPartner, retiree75, NO_TAX } from '../testing/personas';
 import { expectAllFinite } from '../testing/assertFinite';
@@ -245,12 +245,12 @@ describe('Pure-function edge matrix: divide-by-zero & degenerate inputs', () => 
     expect(earmarkedAmount(acct({ balance: 1000, retirement_pct: 250 }))).toBe(1000);   // >100 → 100%
     expect(earmarkedAmount(acct({ balance: 1000, retirement_pct: -50 }))).toBe(0);       // <0 → 0%
   });
-  test('blendedReturn / portfolioActualReturn / investableValue on empty & all-property sets', () => {
+  test('blendedReturn / portfolioActualReturn / investableAssets on empty & all-property sets', () => {
     expect(blendedReturn([])).toBe(0.06);                                   // empty → fallback, never NaN
     expect(portfolioActualReturn([])).toBeNull();
     const home = acct({ kind: 'home', tax_bucket: 'PROPERTY', balance: 500_000 });
     expect(blendedReturn([home])).toBe(0.06);                              // no earmarked $ → fallback
-    expect(investableValue([home])).toBe(0);                               // property is not investable
+    expect(investableAssets([home])).toBe(0);                               // property is not investable
   });
 });
 

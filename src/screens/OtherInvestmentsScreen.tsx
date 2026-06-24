@@ -6,7 +6,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal 
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { assetKind, benchmarkReturn, investableValue, type AssetAccount, type TaxBucket } from '../domain/assets';
+import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isAlternative, alternativesSummary, ALT_KINDS } from '../domain/alternatives';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -27,7 +27,7 @@ export default function OtherInvestmentsScreen() {
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const alts = useMemo(() => accounts.filter(isAlternative), [accounts]);
   const summary = useMemo(() => alternativesSummary(accounts), [accounts]);
-  const investable = investableValue(accounts);
+  const investable = investableAssets(accounts);
   const sharePct = investable > 0 ? Math.round((summary.totalValue / investable) * 1000) / 10 : 0;
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);

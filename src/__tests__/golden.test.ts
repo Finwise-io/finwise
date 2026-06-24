@@ -8,7 +8,7 @@ import { loanPayment } from '../domain/debt';
 import { currentYield, bondInfo } from '../domain/bonds';
 import { rmdAtAge, rmdDivisor } from '../domain/decumulation';
 import {
-  earmarkedAmount, retirementEarmarkedValue, investableValue,
+  earmarkedAmount, retirementEarmarkedValue, investableAssets,
   benchmarkReturn, blendedReturn, portfolioActualReturn, type AssetAccount,
 } from '../domain/assets';
 
@@ -122,7 +122,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
 
   // ── QA-T1-011  Asset earmarking (nest-egg basis, DR-3 derive-don't-store) ────
   // Term #7: CASH 0% earmarked (liquidity, not the invested portfolio); investment/retirement 100%; PROPERTY 0%.
-  test('QA-T1-011 earmarkedAmount / retirementEarmarkedValue / investableValue', () => {
+  test('QA-T1-011 earmarkedAmount / retirementEarmarkedValue / investableAssets', () => {
     const cash = acct({ kind: 'savings', tax_bucket: 'CASH', balance: 10_000 });
     const brok = acct({ kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100_000 });
     const home = acct({ kind: 'home', tax_bucket: 'PROPERTY', balance: 400_000 });
@@ -130,7 +130,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
     expect(earmarkedAmount(brok)).toBe(100_000);            // 100% default
     expect(earmarkedAmount(home)).toBe(0);                  // property never funds retirement
     expect(retirementEarmarkedValue([cash, brok, home])).toBe(100_000);   // brokerage only
-    expect(investableValue([cash, brok, home])).toBe(110_000);   // (unchanged) excludes property only
+    expect(investableAssets([cash, brok, home])).toBe(110_000);   // excludes real estate + personal property (here: the home)
   });
 
   // ── QA-T1-012  Blended / benchmark / actual return ──────────────────────────

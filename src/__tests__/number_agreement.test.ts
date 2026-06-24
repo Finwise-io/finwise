@@ -12,3 +12,11 @@ test('B-68: savings rate uses canonical savingsRateCash (not a bespoke (incomeâˆ
   expect(src).toMatch(/savingsRateCash\(/);
   expect(src).not.toMatch(/monthIncome \|\| 0\) - \(monthSpend/);   // the old inline calc must be gone
 });
+
+test('B-70: one investable selector â€” investableValue is gone; screens use investableAssets', () => {
+  const assets = fs.readFileSync(path.join(__dirname, '..', 'domain', 'assets', 'index.ts'), 'utf8');
+  expect(assets).not.toMatch(/export function investableValue/);
+  for (const f of ['InsightsScreen.tsx', 'InsuranceScreen.tsx', 'OtherInvestmentsScreen.tsx']) {
+    expect(screen(f)).not.toMatch(/investableValue/);
+  }
+});

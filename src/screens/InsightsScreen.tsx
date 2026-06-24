@@ -6,7 +6,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
-import { investableValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
+import { investableAssets, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding } from '../domain/assets';
 import { totalGrossAnnual, salaryAnnual } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
@@ -26,7 +26,7 @@ export function useInsights(limit?: number) {
     const age = ageFromProfile(op) ?? 45;
     const monthlySpending = plannedMonthlySpend(op);   // B-50: one definition, same as budget.monthly_spending
     const cash = accounts.filter((a: any) => a.tax_bucket === 'CASH').reduce((t: number, a: any) => t + (a.balance || 0), 0);
-    const investable = investableValue(accounts);
+    const investable = investableAssets(accounts);
     const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
     const topAccount = investAccts.length ? Math.max(...investAccts.map((a: any) => a.balance || 0)) : 0;
     const toxic = liabilities.reduce((m: any, d: any) => (d.interest_rate_apr > (m?.interest_rate_apr ?? 0) ? d : m), null);

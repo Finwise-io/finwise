@@ -218,10 +218,9 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
   return out;
 }
 
-/** Investable assets for retirement — everything except property (home/vehicle aren't drawn down to live on). */
-export function investableValue(accounts: AssetAccount[]): number {
-  return round2((accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY').reduce((t, a) => t + (a.balance || 0), 0));
-}
+// B-70: the duplicate `investableValue` (excluded only the PROPERTY tax-bucket) was removed — every
+// screen now uses the canonical `investableAssets` above (excludes real_estate + personal_property by
+// asset CLASS, the taxonomy definition).
 
 /** Default % of an account that's earmarked for retirement (rest funds other goals). */
 export function earmarkDefault(a: AssetAccount): number {
