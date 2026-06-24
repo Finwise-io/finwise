@@ -8,23 +8,19 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, type AssetClass } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
 
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
 // #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
-const CLASS_META: { key: AssetClass; label: string; color: string }[] = [
-  { key: 'cash', label: 'Cash', color: '#178F6B' },
-  { key: 'stocks_etf', label: 'Stocks / ETFs', color: '#7A5AA7' },
-  { key: 'bonds', label: 'Bonds', color: '#185FA5' },
-  { key: 'alternatives', label: 'Alternatives', color: '#C77DBB' },
-  { key: 'real_estate', label: 'Real estate', color: '#EBB23A' },
-  { key: 'personal_property', label: 'Personal property', color: '#9E9E9E' },
-  // #10: a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT pretended to be stocks.
-  { key: 'mixed', label: 'Unclassified', color: '#B0846A' },
-];
+// Labels come from the canonical ASSET_CLASS_LABEL (single source) — only color lives here.
+// #10: 'mixed' = a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT as stocks.
+const CLASS_META: { key: AssetClass; label: string; color: string }[] = ([
+  ['cash', '#178F6B'], ['stocks_etf', '#7A5AA7'], ['bonds', '#185FA5'], ['alternatives', '#C77DBB'],
+  ['real_estate', '#EBB23A'], ['personal_property', '#9E9E9E'], ['mixed', '#B0846A'],
+] as [AssetClass, string][]).map(([key, color]) => ({ key, label: ASSET_CLASS_LABEL[key], color }));
 // #10/#14: the asset-class options offered when classifying a wrapper account (what it HOLDS). 'auto'
 // leaves it Unclassified (mixed); the rest set an explicit class so the donut is accurate.
 const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [

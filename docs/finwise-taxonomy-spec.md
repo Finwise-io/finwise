@@ -16,6 +16,20 @@ Every account carries **two independent classifications** (never conflate them):
 `real_estate` also carries **`use`**: `primary | rental | secondary | land`.
 All "investable / nest‑egg / cash / investments" groupings are **derived** from these — not hand‑tagged.
 
+### Canonical labels (one concept → one WORD, everywhere)
+Naming consistency is part of the taxonomy, just like number consistency: the same class shows the same
+user‑facing word on every surface. The single source is **`ASSET_CLASS_LABEL`** (`src/domain/assets`):
+
+| class | label (standard finance term) |
+|---|---|
+| `cash` | Cash | `bonds` | Bonds | `stocks_etf` | Stocks / ETFs | `alternatives` | Alternatives |
+| `real_estate` | **Real estate** (real property) |
+| `personal_property` | **Personal property** (movable possessions — NOT the colloquial "belongings") |
+| `mixed` | Unclassified |
+
+The Net Worth donut and onboarding read these. The onboarding goal is **"Track my real estate & personal
+property"** (was "property & belongings"). Guarded by `naming_consistency.test.ts`.
+
 | Old (muddled) | New (canonical) |
 |---|---|
 | `kind` (mixed instrument+wrapper) | `assetClass` + `taxTreatment` (split) |

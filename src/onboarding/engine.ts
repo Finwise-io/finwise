@@ -50,7 +50,7 @@ const GOAL_DEF: Record<Track, GoalOption> = {
   debt:       { value: 'debt',       icon: '💳', title: 'Pay off my debt',          sub: 'A plan to clear what you owe' },
   goals:      { value: 'goals',      icon: '🎯', title: 'Save for travel, big purchases & goals', sub: 'Set targets and track progress' },
   invest:     { value: 'invest',     icon: '📈', title: 'Track my investments',     sub: 'Stocks, funds, bonds, crypto — vs the market' },
-  property:   { value: 'property',   icon: '🏠', title: 'Track my property & belongings', sub: 'Home, car, valuables' },
+  property:   { value: 'property',   icon: '🏠', title: 'Track my real estate & personal property', sub: 'Home, car, valuables' },
   networth:   { value: 'networth',   icon: '🧮', title: 'See my net worth',         sub: 'Everything you own minus what you owe' },
   retire_acc: { value: 'retire_acc', icon: '🏖️', title: 'Plan for retirement',      sub: 'Are you on track — and when can you retire?' },
   retire_dec: { value: 'retire_dec', icon: '🛟', title: 'Make my money last',        sub: 'Will your savings last through retirement?' },

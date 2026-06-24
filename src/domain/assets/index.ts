@@ -14,6 +14,20 @@ export type TaxBucket = 'CASH' | 'PRE_TAX' | 'ROTH' | 'TAXABLE' | 'PROPERTY';
 // can hold stocks AND bonds. Both are DERIVED from the legacy `kind`/`tax_bucket` until set
 // explicitly (by the CSV importer or the account editor). See assetClassOf()/taxTreatmentOf().
 export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'real_estate' | 'personal_property' | 'mixed';
+
+/** THE canonical user-facing label for each asset class — one name, used on every surface (the Net
+ *  Worth donut, onboarding, anywhere a class is named). Standard finance terms: real property = "Real
+ *  estate", movable possessions = "Personal property" (not the colloquial "belongings"). Naming
+ *  consistency is part of the taxonomy: same concept → same WORD, like same concept → same number. */
+export const ASSET_CLASS_LABEL: Record<AssetClass, string> = {
+  cash: 'Cash',
+  bonds: 'Bonds',
+  stocks_etf: 'Stocks / ETFs',
+  alternatives: 'Alternatives',
+  real_estate: 'Real estate',
+  personal_property: 'Personal property',
+  mixed: 'Unclassified',
+};
 export type TaxTreatment = 'taxable' | 'tax_deferred' | 'tax_free';
 export type RealEstateUse = 'primary' | 'rental' | 'secondary' | 'land';
 
