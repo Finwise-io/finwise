@@ -338,7 +338,7 @@ export default function NetWorthScreen() {
           </TouchableOpacity>
           <View style={styles.exploreDiv} />
           <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/other-investments')}>
-            <Text style={styles.exploreRowT}>🪙  Other investments — crypto, PE, commodities</Text>
+            <Text style={styles.exploreRowT}>🪙  Alternatives — crypto, PE, commodities</Text>
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
         </View>
@@ -348,7 +348,7 @@ export default function NetWorthScreen() {
           <View style={styles.insight}>
             <Text style={styles.insightIcon}>💎</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.insightTxt}>{topCat ? `${topCat.sec} is your largest holding — ${pctOf(topCat.total)}% of assets` : 'Your wealth at a glance'}</Text>
+              <Text style={styles.insightTxt}>{topCat ? `${topCat.sec} is your largest holding — ${pctOf(topCat.total)}% of total assets` : 'Your wealth at a glance'}</Text>
               <Text style={styles.insightSub}>{dState.total_debt_balance > 0 ? `Debt is ${Math.round(debtRatio * 100)}% of your assets.` : 'You carry no debt — it\'s all yours.'}</Text>
             </View>
           </View>

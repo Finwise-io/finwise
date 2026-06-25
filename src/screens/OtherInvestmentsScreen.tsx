@@ -34,7 +34,7 @@ export default function OtherInvestmentsScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Other investments</Text>
+      <Text style={styles.h1}>Alternatives</Text>
 
       {alts.length === 0 ? (
         <View style={styles.card}>

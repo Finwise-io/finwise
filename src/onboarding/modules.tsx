@@ -1382,7 +1382,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const grid = incomeMonthlyGrid(a, mode);
   const gridMax = Math.max(...grid.map((g) => g.amount), 1);
   const gridMin = Math.min(...grid.map((g) => g.amount), 0);
-  const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : (k401 > 0 ? 'Available (after tax & 401(k))' : 'Available (after tax)');
+  const modeLabel = mode === 'gross' ? 'Total' : mode === 'net' ? 'Net (after tax)' : 'Take-home';   // 'available' = canonical take-home (after tax & 401k)
 
   // insight: the typical (most-common) month, plus the lean stretch and the windfall months —
   // each described by its month range, e.g. "$19k most months · lower May–Jul (~$10k)".

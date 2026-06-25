@@ -112,7 +112,7 @@ export default function AnalyticsScreen() {
               </View>
               <View style={styles.triDiv} />
               <View style={styles.triItem}>
-                <Text style={styles.triLabel}>{remaining >= 0 ? 'Saved' : 'Over'}</Text>
+                <Text style={styles.triLabel}>{remaining >= 0 ? 'Surplus' : 'Over'}</Text>
                 <Text style={[styles.triVal, { color: remaining >= 0 ? Colors.successGreen : '#F09595' }]}>
                   ${Math.abs(remaining).toFixed(0)}
                 </Text>

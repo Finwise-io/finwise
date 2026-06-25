@@ -455,7 +455,7 @@ export default function RetirementCockpit() {
           {/* where the money sits + suggested withdrawal order (combined into one box) */}
           <View style={styles.card}>
             <Text style={styles.liK}>Where your money sits</Text>
-            {([['cash', 'Cash'], ['taxable', 'Taxable / brokerage'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
+            {([['cash', 'Cash'], ['taxable', 'Taxable'], ['preTax', 'Pre-tax (401k / IRA)'], ['roth', 'Roth']] as const).map(([k, lbl]) => (dSplit[k] > 0 ? (
               <View key={k} style={styles.dwRow}><Text style={styles.dwL}>{lbl}</Text><Text style={styles.dwV}>{money(dSplit[k])}</Text></View>
             ) : null))}
 
