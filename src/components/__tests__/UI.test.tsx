@@ -1,7 +1,8 @@
 import React from 'react';
 import { Text } from 'react-native';
 import { render, fireEvent, screen } from '@testing-library/react-native';
-import { Card, Button, Badge, ProgressBar, SegmentedControl, SectionHeader, TipCard, AmountText } from '../UI';
+import { Card, Button, Badge, ProgressBar, SegmentedControl, SectionHeader, TipCard, AmountText, InfoDot } from '../UI';
+import { useStore } from '../../store/useStore';
 
 describe('UI primitives', () => {
   test('Card renders its children', () => {
@@ -54,8 +55,25 @@ describe('UI primitives', () => {
     expect(screen.getByText('watch your dining spend')).toBeOnTheScreen();
   });
 
-  test('AmountText formats as money with cents', () => {
+  test('AmountText formats via the canonical formatter (whole dollars, grouped)', () => {
+    useStore.setState({ hideBalances: false });
     render(<AmountText amount={2500} />);
-    expect(screen.getByText('$2,500.00')).toBeOnTheScreen();
+    expect(screen.getByText('$2,500')).toBeOnTheScreen();      // formatMoney = whole-dollar, not $2,500.00
+  });
+
+  test('AmountText masks to •••• when Hide-balances is on, restores when off', () => {
+    useStore.setState({ hideBalances: true });
+    const { rerender } = render(<AmountText amount={2500} />);
+    expect(screen.getByText('••••')).toBeOnTheScreen();
+    expect(screen.queryByText('$2,500')).toBeNull();
+    useStore.setState({ hideBalances: false });
+    rerender(<AmountText amount={2500} />);
+    expect(screen.getByText('$2,500')).toBeOnTheScreen();
+  });
+
+  test('InfoDot opens its glossary definition on press', () => {
+    render(<InfoDot term="nestEgg" />);
+    fireEvent.press(screen.getByLabelText(/What is Retirement nest egg/));
+    expect(screen.getByText(/invested money your retirement draws on/i)).toBeOnTheScreen();
   });
 });

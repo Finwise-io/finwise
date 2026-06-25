@@ -1,9 +1,12 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
-  View, Text, TouchableOpacity, StyleSheet, ActivityIndicator,
+  View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Modal,
   ViewStyle, TextStyle, Animated,
 } from 'react-native';
 import { Colors, Typography, Spacing, Radii, Shadows } from '../utils/theme';
+import { formatMoney } from '../domain/_shared/money';
+import { GLOSSARY, type GlossaryTerm } from '../domain/glossary';
+import { useStore } from '../store/useStore';
 
 // ── Card ─────────────────────────────────────────────────────────────
 export function Card({ children, style }: { children: React.ReactNode; style?: ViewStyle }) {
@@ -148,13 +151,42 @@ export function TipCard({ children, color = 'green' }: { children: React.ReactNo
 
 // ── Amount Display ────────────────────────────────────────────────────
 export function AmountText({ amount, color, size = 'xl' }: { amount: number; color?: string; size?: 'md' | 'lg' | 'xl' | 'hero' }) {
+  const hide = useStore((s) => s.hideBalances);
   const sizeMap = { md: 20, lg: 24, xl: 30, hero: 38 };
   const safeAmt = (typeof amount === 'number' && !isNaN(amount)) ? amount : 0;
-  const fmt = new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(safeAmt);
+  // canonical formatter (currency/locale-aware) + respects the global Hide-balances toggle
+  const fmt = hide ? '••••' : formatMoney(safeAmt);
   return (
     <Text style={{ fontSize: sizeMap[size], fontWeight: '600', color: color || Colors.textPrimary }}>
       {fmt}
     </Text>
+  );
+}
+
+// ── InfoDot (§3.3 in-context education) ───────────────────────────────
+// A small tappable ⓘ next to a term; opens its plain-English GLOSSARY definition. One component, one
+// glossary — so a term is never explained on one screen and left bare on another.
+export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string }) {
+  const [open, setOpen] = useState(false);
+  const def = GLOSSARY[term];
+  return (
+    <>
+      <TouchableOpacity onPress={() => setOpen(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}>
+        <Text style={{ fontSize: 13, color: color || Colors.textTertiary, fontWeight: '700' }}>ⓘ</Text>
+      </TouchableOpacity>
+      <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
+        <TouchableOpacity style={styles.infoBackdrop} activeOpacity={1} onPress={() => setOpen(false)}>
+          <View style={styles.infoCard} onStartShouldSetResponder={() => true}>
+            <Text style={styles.infoTitle}>{def.title}</Text>
+            <Text style={styles.infoBody}>{def.body}</Text>
+            <TouchableOpacity style={styles.infoClose} onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close definition">
+              <Text style={styles.infoCloseTxt}>Got it</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
+    </>
   );
 }
 
@@ -180,6 +212,12 @@ export function EmptyState({ icon, title, subtitle }: { icon: string; title: str
 
 // ── Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
+  infoBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: Spacing.lg },
+  infoCard: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.lg, padding: Spacing.lg },
+  infoTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
+  infoBody: { fontSize: 14, lineHeight: 20, color: Colors.textSecondary },
+  infoClose: { alignSelf: 'flex-end', marginTop: Spacing.md, paddingVertical: 6, paddingHorizontal: 14, borderRadius: Radii.md, backgroundColor: Colors.primaryLight },
+  infoCloseTxt: { color: Colors.primaryDark, fontWeight: '700' },
   card: {
     backgroundColor: Colors.cardBg,
     borderRadius: Radii.lg,
