@@ -28,7 +28,6 @@ import NetWorthScreen from '../NetWorthScreen';
 import OtherInvestmentsScreen from '../OtherInvestmentsScreen';
 import PerformanceScreen from '../PerformanceScreen';
 import RetirementCockpit from '../RetirementCockpit';
-import RetirementScreen from '../RetirementScreen';
 import RewardsScreen from '../RewardsScreen';
 import RothScreen from '../RothScreen';
 import SettingsScreen from '../SettingsScreen';
@@ -60,7 +59,6 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['OtherInvestmentsScreen', OtherInvestmentsScreen],
   ['PerformanceScreen', PerformanceScreen],
   ['RetirementCockpit', RetirementCockpit],
-  ['RetirementScreen', RetirementScreen],
   ['RewardsScreen', RewardsScreen],
   ['RothScreen', RothScreen],
   ['SettingsScreen', SettingsScreen],
@@ -95,7 +93,7 @@ describe.each(SCREENS)('%s', (_name, Screen) => {
 });
 
 describe('retired persona', () => {
-  test.each([['HomeScreen', HomeScreen], ['RetirementCockpit', RetirementCockpit], ['RetirementScreen', RetirementScreen]] as [string, React.ComponentType<any>][])(
+  test.each([['HomeScreen', HomeScreen], ['RetirementCockpit', RetirementCockpit]] as [string, React.ComponentType<any>][])(
     '%s renders for the decumulation flow without throwing',
     (_name, Screen) => {
       useStore.getState().resetAll();

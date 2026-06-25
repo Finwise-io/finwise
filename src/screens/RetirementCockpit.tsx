@@ -21,6 +21,7 @@ import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracket } from '../domain/income/tax';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
+import { Disclaimer } from '../components/Disclaimer';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -678,6 +679,7 @@ export default function RetirementCockpit() {
         onClear={() => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: null }); setTtmEdit(null); }} />
       <KindPicker account={kindPick} onClose={() => setKindPick(null)}
         onPick={(kind, bucket) => { if (kindPick) store.updateAsset(kindPick.asset_id, { kind, tax_bucket: bucket }); setKindPick(null); }} />
+      <Disclaimer />
     </ScrollView>
   );
 }
