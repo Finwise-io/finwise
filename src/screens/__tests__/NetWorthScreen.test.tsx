@@ -47,6 +47,17 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     expect(screen.getAllByText(/\$14,000/).length).toBeGreaterThan(0);   // car loan
   });
 
+  test('the donut exposes a VoiceOver summary, and Hide-balances masks the center figure', () => {
+    useStore.getState().setOnboardingProfile(employedPartner as any);
+    useStore.getState().seedNetWorth(employedPartner as any);
+    useStore.setState({ hideBalances: false });
+    const { rerender } = render(<NetWorthScreen />);
+    expect(screen.getByLabelText(/Net worth .* By asset class/)).toBeOnTheScreen();
+    useStore.setState({ hideBalances: true });
+    rerender(<NetWorthScreen />);
+    expect(screen.getByLabelText('Net worth hidden')).toBeOnTheScreen();   // donut + center both masked
+  });
+
   // UI-level B-15 regression: after a restart + new answers, the intro returns and re-seeding
   // picks up the NEW numbers (this whole journey was impossible before the fix).
   test('restart → new answers → intro reappears → seeding uses the new balances', () => {

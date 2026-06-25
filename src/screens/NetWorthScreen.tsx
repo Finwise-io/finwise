@@ -44,12 +44,13 @@ const shortMoney = (n: number) => {
 };
 
 // Donut ring (react-native-svg) with content in the center hole.
-function Donut({ segments, size = 124, stroke = 16, children }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode }) {
+function Donut({ segments, size = 124, stroke = 16, children, label }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode; label?: string }) {
   const r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const total = segments.reduce((t, s) => t + Math.max(0, s.value), 0) || 1;
   let acc = 0;
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
+      accessible accessibilityRole="image" accessibilityLabel={label}>{/* VoiceOver: summarize the chart */}
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
         <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
           <Circle cx={size / 2} cy={size / 2} r={r} stroke={Colors.bgTertiary} strokeWidth={stroke} fill="none" />
@@ -275,8 +276,9 @@ export default function NetWorthScreen() {
       <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* hero: donut of assets BY ASSET CLASS (#19) + net worth (red if negative, #18) in center */}
         <View style={styles.nwHero}>
-          <Donut size={118} stroke={15} segments={classRows.map((r) => ({ value: r.total, color: r.color }))}>
-            <Text style={[styles.donutVal, nw.net_worth < 0 && { color: Colors.red }]}>{shortMoney(nw.net_worth)}</Text>
+          <Donut size={118} stroke={15} segments={classRows.map((r) => ({ value: r.total, color: r.color }))}
+            label={store.hideBalances ? 'Net worth hidden' : `Net worth ${shortMoney(nw.net_worth)}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+            <Text style={[styles.donutVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]}>{store.hideBalances ? '••••' : shortMoney(nw.net_worth)}</Text>
             <Text style={styles.donutLbl}>net worth</Text>
           </Donut>
           <View style={styles.nwLegend}>

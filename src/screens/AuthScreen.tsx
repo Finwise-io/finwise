@@ -185,7 +185,8 @@ export default function AuthScreen() {
       } else if (code === 'auth/network-request-failed') {
         Alert.alert('No internet', 'Please check your connection and try again.');
       } else {
-        Alert.alert('Something went wrong', err?.message || 'Please try again.');
+        // Never surface a raw Firebase/network exception string to the user.
+        Alert.alert('Something went wrong', "We couldn't complete that just now. Please try again.");
       }
     } finally {
       setLoading(false);

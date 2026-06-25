@@ -89,18 +89,30 @@ export default function TopBar() {
         <Ionicons name="grid" size={16} color={Colors.textSecondary} />
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
-      <TouchableOpacity
-        style={[s.nwChip, nw < 0 && { backgroundColor: Colors.red }]}
-        onPress={() => router.push('/(tabs)/analytics')}
-        accessibilityRole="button"
-        accessibilityLabel={`Net worth ${money(nw)}`}
-        accessibilityHint="Opens the Net Worth screen"
-      >
-        <Text style={s.nwLabel}>NW</Text>
-        <Ionicons name={nw < 0 ? 'trending-down' : 'trending-up'} size={13} color="#BEE7D8" style={{ marginRight: 5 }} />
-        <Text style={s.nwTxt}>{money(nw)}</Text>
-        <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
-      </TouchableOpacity>
+      <View style={s.right}>
+        <TouchableOpacity
+          onPress={() => store.toggleHideBalances?.()}
+          hitSlop={hit}
+          style={s.eyeBtn}
+          accessibilityRole="button"
+          accessibilityLabel={store.hideBalances ? 'Show balances' : 'Hide balances'}
+          accessibilityHint="Masks every money amount in the app"
+        >
+          <Ionicons name={store.hideBalances ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textSecondary} />
+        </TouchableOpacity>
+        <TouchableOpacity
+          style={[s.nwChip, nw < 0 && !store.hideBalances && { backgroundColor: Colors.red }]}
+          onPress={() => router.push('/(tabs)/analytics')}
+          accessibilityRole="button"
+          accessibilityLabel={store.hideBalances ? 'Net worth hidden' : `Net worth ${money(nw)}`}
+          accessibilityHint="Opens the Net Worth screen"
+        >
+          <Text style={s.nwLabel}>NW</Text>
+          {!store.hideBalances && <Ionicons name={nw < 0 ? 'trending-down' : 'trending-up'} size={13} color="#BEE7D8" style={{ marginRight: 5 }} />}
+          <Text style={s.nwTxt}>{store.hideBalances ? '••••' : money(nw)}</Text>
+          <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
+        </TouchableOpacity>
+      </View>
 
       <Modal visible={menu} transparent animationType="slide" onRequestClose={() => setMenu(false)}>
         <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setMenu(false)} accessibilityRole="button" accessibilityLabel="Close menu">
@@ -141,6 +153,8 @@ export default function TopBar() {
 const s = StyleSheet.create({
   bar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingBottom: 10, backgroundColor: Colors.bgSecondary },
   menuBtn: { flexDirection: 'row', alignItems: 'center', gap: 6, height: 38, paddingHorizontal: 13, borderRadius: 19, backgroundColor: Colors.cardBg, justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
+  right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
+  eyeBtn: { height: 38, width: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   nwChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryDark, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 8 },
   nwLabel: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5, marginRight: 5 },

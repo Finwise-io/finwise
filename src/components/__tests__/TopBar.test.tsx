@@ -66,4 +66,17 @@ describe('TopBar', () => {
     fireEvent.press(screen.getByText('Settings'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/settings');
   });
+
+  test('the eye toggle hides/shows balances (masks the NW chip to ••••)', () => {
+    useStore.setState({
+      assetAccounts: [{ asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 60000, target_return: 0.07 }],
+      liabilities: [],
+    });
+    render(<TopBar />);
+    expect(screen.getByText('$60,000')).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('Hide balances'));     // the eye button
+    expect(screen.queryByText('$60,000')).toBeNull();
+    expect(screen.getByText('••••')).toBeOnTheScreen();
+    expect(useStore.getState().hideBalances).toBe(true);
+  });
 });

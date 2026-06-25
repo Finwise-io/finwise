@@ -30,7 +30,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances } = useStore() as any;
 
   // F-2: app lock — confirm the device can authenticate before enabling, so the user can't lock
   // themselves out, and require a successful auth to turn it on.
@@ -323,6 +323,20 @@ export default function SettingsScreen() {
             trackColor={{ true: Colors.primary }}
             accessibilityLabel="App lock"
             accessibilityHint="Requires Face ID, Touch ID, or your passcode to open the app"
+          />
+        </View>
+
+        <View style={styles.lockRow}>
+          <View style={{ flex: 1, marginRight: Spacing.sm }}>
+            <Text style={styles.actionLabel}>Hide balances</Text>
+            <Text style={styles.actionSub}>Mask every money amount as •••• so you can open the app in public. Also on the eye icon up top.</Text>
+          </View>
+          <Switch
+            value={!!hideBalances}
+            onValueChange={() => toggleHideBalances?.()}
+            trackColor={{ true: Colors.primary }}
+            accessibilityLabel="Hide balances"
+            accessibilityHint="Masks every money amount in the app"
           />
         </View>
 

@@ -504,7 +504,8 @@ export default function RetirementCockpit() {
         {nestEgg > 0 ? (
           <>
             <View style={styles.donutRow}>
-              <Donut segments={segs.map((s) => ({ value: s.amt, color: s.color }))}>
+              <Donut segments={segs.map((s) => ({ value: s.amt, color: s.color }))}
+                label={`Retirement nest egg ${big(nestEgg)}, by account type: ${segs.map((s) => `${s.label} ${money(s.amt)}`).join(', ') || 'none yet'}`}>
                 <Text style={styles.donutAmt}>{big(nestEgg)}</Text>
                 <Text style={styles.donutLab}>NEST EGG</Text>
               </Donut>
@@ -774,12 +775,13 @@ function SliderRow(p: { label: string; valueLabel: string; fmt?: (v: number) => 
 }
 
 // ───────────────────────── Donut ─────────────────────────
-function Donut({ segments, size = 124, stroke = 16, children }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode }) {
+function Donut({ segments, size = 124, stroke = 16, children, label }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode; label?: string }) {
   const r = (size - stroke) / 2, c = 2 * Math.PI * r;
   const total = segments.reduce((t, s) => t + Math.max(0, s.value), 0) || 1;
   let acc = 0;
   return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}>
+    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
+      accessible accessibilityRole="image" accessibilityLabel={label}>
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
         <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
           <Circle cx={size / 2} cy={size / 2} r={r} stroke={Colors.bgTertiary} strokeWidth={stroke} fill="none" />
