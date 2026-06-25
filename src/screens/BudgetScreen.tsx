@@ -10,7 +10,8 @@ import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
-import { budgetVsActual } from '../domain/budget';
+import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
+import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
 import { totalDebtMonthly, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
 import { money } from '../domain/_shared/num';
@@ -242,13 +243,14 @@ export default function BudgetScreen() {
 
   // ── Budget = the monthly PLAN: Income − Expenses − Debt = Left over (single source of truth) ──
   const num = (v: any) => parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')) || 0;
-  // take-home for THIS month — incomeMonthlyGrid is a 12-element array indexed by month (NOT a sum;
-  // summing would give the annual figure). Mirrors HomeScreen's baseNet so the two screens agree.
-  const planIncome = Math.round((op ? incomeMonthlyGrid(op, 'net') : [])[new Date().getMonth()]?.amount ?? 0);
+  // This is the PLANNED monthly surplus (typical month) — take-home (after tax AND 401k) − planned spend
+  // − debt — the SAME canonical monthlySavings the savings rate and Cash-Flow screen use, so the plan
+  // total agrees everywhere (2026-06-23 surplus decision). Home shows the "Actual" (this-month) version.
+  const planIncome = Math.round(takeHomeMonthly(op));            // take-home = after tax + 401(k)
   const bva = budgetVsActual(expenses, op, new Date());
-  const planExpenses = Math.round(bva.planned_total);          // = plannedMonthlySpend (bucketed spendCats)
+  const planExpenses = Math.round(plannedMonthlySpend(op));      // canonical planned spend
   const planDebt = Math.round(totalDebtMonthly(liabilities ?? []));
-  const planLeftOver = planIncome - planExpenses - planDebt;
+  const planLeftOver = planIncome - planExpenses - planDebt;     // ≈ monthlySavings(op, liabilities)
   const spentTotal = Math.round(bva.spent_total);
   const spentPct = planExpenses > 0 ? Math.min(1, spentTotal / planExpenses) : 0;
   const spentOver = spentTotal > planExpenses && planExpenses > 0;
@@ -485,7 +487,7 @@ export default function BudgetScreen() {
             <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{money(planExpenses)}</Text></View>
             {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt (min payments)</Text><Text style={styles.planVal}>{money(planDebt)}</Text></View>}
             <View style={[styles.planRow, styles.planTotalRow]}>
-              <Text style={styles.planTotalLabel}>=  Left over to save</Text>
+              <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
               <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{money(planLeftOver)}</Text>
             </View>
             {planIncome > 0 && <Text style={styles.planNote}>Your expense plan is {budgetPctOfIncome}% of take-home pay.</Text>}

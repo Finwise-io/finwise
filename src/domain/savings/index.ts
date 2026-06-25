@@ -6,7 +6,7 @@
 import { round2, toNum } from '../_shared/num';
 import type { OnboardingProfile } from '../onboardingProfile';
 import { incomeMonthlyGrid, totalGrossAnnual, employerMatchMonthly } from '../income';
-import { plannedMonthlySpend } from '../budget';
+import { plannedMonthlySpend, savingsByMonth } from '../budget';
 import { actualDebtPayment, type Debt } from '../debt';
 
 /** True take-home per month: after tax AND after the 401(k) deduction (the cash that hits your account). */
@@ -19,6 +19,15 @@ export function takeHomeMonthly(op: OnboardingProfile | null): number {
  *  product decision) and 401(k) (already out of take-home). Can be negative if overspending. */
 export function monthlySavings(op: OnboardingProfile | null, debts: Debt[] = []): number {
   return round2(takeHomeMonthly(op) - plannedMonthlySpend(op) - actualDebtPayment(debts));
+}
+
+/** Planned SURPLUS, month by month, AFTER debt (the canonical word, per the 2026-06-23 decision).
+ *  = the income-vs-spend grid (savingsByMonth) minus the constant monthly debt service. Its 12-month
+ *  average reconciles with monthlySavings(), so the Cash-Flow detail screen and the Home/Budget surplus
+ *  can never disagree. "Planned" because it's projected from the plan; Home shows the "Actual" version. */
+export function surplusByMonth(op: OnboardingProfile | null, debts: Debt[] = []): { label: string; amount: number }[] {
+  const debt = actualDebtPayment(debts);
+  return savingsByMonth(op).map((m) => ({ label: m.label, amount: round2(m.amount - debt) }));
 }
 
 /** Cash savings rate (%) = monthly savings ÷ take-home. The everyday "are you living below your means". */

@@ -1534,9 +1534,9 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
     return (<>
       <Header emoji="📊" title="Your cash flow" sub="Take-home income vs spending each month." />
       <Card>
-        <RecapStat label="Take-Home (After Tax)" value={`${money(incMo)}/mo`} />
+        <RecapStat label="Take-home" value={`${money(incMo)}/mo`} />
         <RecapStat plain label="Spending" value={`-${money(spendMo)}/mo`} color={Colors.amber} />
-        <RecapBox label="Left over / mo" value={money(left)} tone={left >= 0 ? 'green' : 'neutral'} />
+        <RecapBox label="Surplus / mo" value={money(left)} tone={left >= 0 ? 'green' : 'neutral'} />
       </Card>
     </>);
   }

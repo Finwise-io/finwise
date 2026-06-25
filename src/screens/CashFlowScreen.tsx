@@ -8,23 +8,29 @@ import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { annualCashflow, savingsByMonth, spendByMonth, budgetVsActual } from '../domain/budget';
+import { annualCashflow, spendByMonth, budgetVsActual } from '../domain/budget';
+import { surplusByMonth, monthlySavings } from '../domain/savings';   // canonical AFTER-debt surplus
+import { actualDebtPayment } from '../domain/debt';
 import { incomeMonthlyGrid } from '../domain/income';
 
 export default function CashFlowScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? null;
   const expenses = store.expenses ?? [];
+  const liabilities = store.liabilities ?? [];
 
   const cf = useMemo(() => annualCashflow(op), [op]);
-  const surplus = useMemo(() => savingsByMonth(op), [op]);                 // [{label, amount}] × 12
+  // Surplus is AFTER debt (2026-06-23 decision) — same canonical definition as Home & Budget.
+  const surplus = useMemo(() => surplusByMonth(op, liabilities), [op, liabilities]);   // [{label, amount}] × 12
+  const plannedSurplusMo = useMemo(() => Math.round(monthlySavings(op, liabilities)), [op, liabilities]);
+  const surplusYr = useMemo(() => Math.round(surplus.reduce((t, m) => t + m.amount, 0)), [surplus]);
   const takeHome = useMemo(() => incomeMonthlyGrid(op, 'available'), [op]); // take-home by month
   const spend = useMemo(() => spendByMonth(op), [op]);                      // planned spend by month
   const bva = useMemo(() => budgetVsActual(expenses, op, new Date()), [expenses, op]);
 
   const moMax = Math.max(1, ...takeHome.map((m) => m.amount), ...spend);
   const surMax = Math.max(1, ...surplus.map((m) => Math.abs(m.amount)));
-  const debtMo = Math.round((cf.availableYr - cf.spendYr - cf.saveYr) / 12); // any residual (should be ~0)
+  const debtMo = Math.round(actualDebtPayment(liabilities));   // monthly debt service (what leaves your account)
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -34,18 +40,19 @@ export default function CashFlowScreen() {
       {/* ── This month: the breakdown ── */}
       <View style={styles.card}>
         <Text style={styles.cardHdr}>A TYPICAL MONTH</Text>
-        <Row label="Take-home" value={money(Math.round(cf.netYr / 12))} />
+        <Row label="Net pay (after tax)" value={money(Math.round(cf.netYr / 12))} />
         <Row label="− 401(k)" value={money(Math.round(cf.k401Yr / 12))} dim />
         <Row label="− Spending" value={money(Math.round(cf.spendYr / 12))} dim />
+        {debtMo > 0 && <Row label="− Debt payments" value={money(debtMo)} dim />}
         <View style={styles.divider} />
-        <Row label="= Surplus" value={money(Math.round(cf.saveYr / 12))} strong color={cf.saveYr >= 0 ? Colors.primary : Colors.red} />
-        <Text style={styles.note}>Surplus is your take-home minus 401(k) and spending — the money free to save or invest.</Text>
+        <Row label="= Planned surplus" value={money(plannedSurplusMo)} strong color={plannedSurplusMo >= 0 ? Colors.primary : Colors.red} />
+        <Text style={styles.note}>Planned surplus is your take-home minus 401(k), spending{debtMo > 0 ? ', and debt payments' : ''} — the money free to save or invest.</Text>
       </View>
 
       {/* ── Surplus by month (projected) ── */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>SURPLUS, MONTH BY MONTH</Text>
-        <Text style={styles.cardSub}>Projected for the year · {money(Math.round(cf.saveYr))} total</Text>
+        <Text style={styles.cardHdr}>PLANNED SURPLUS, MONTH BY MONTH</Text>
+        <Text style={styles.cardSub}>Projected for the year · {money(surplusYr)} total</Text>
         <View style={styles.chart}>
           {surplus.map((m) => (
             <View key={m.label} style={styles.col}>

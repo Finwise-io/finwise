@@ -344,10 +344,10 @@ export default function HomeScreen() {
             <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}
               accessibilityRole="button"
-              accessibilityLabel={`Left over ${money(leftOver)}`}
-              accessibilityHint="Allocate what's left this month">
+              accessibilityLabel={`Surplus this month ${money(leftOver)}`}
+              accessibilityHint="Allocate this month's surplus">
               <Text style={[styles.cfV, { color: leftOver >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(leftOver)}</Text>
-              <View style={styles.cfLabelRow}><Text style={styles.cfL}>Left over</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
+              <View style={styles.cfLabelRow}><Text style={styles.cfL}>Surplus</Text><View style={styles.cfAdd}><Text style={styles.cfAddTxt}>＋</Text></View></View>
             </TouchableOpacity>
           </View>
           {plannedSpend > 0 ? (

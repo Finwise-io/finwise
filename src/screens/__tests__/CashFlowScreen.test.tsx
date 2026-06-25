@@ -20,8 +20,8 @@ test('renders the breakdown, the monthly projection, and planned-vs-actual', () 
 
   const { getByText } = render(<CashFlowScreen />);
   expect(getByText('A TYPICAL MONTH')).toBeTruthy();
-  expect(getByText('= Surplus')).toBeTruthy();                 // the breakdown bottom line
-  expect(getByText('SURPLUS, MONTH BY MONTH')).toBeTruthy();   // the projection chart
-  expect(getByText('TAKE-HOME vs SPENDING')).toBeTruthy();     // estimates by month
-  expect(getByText(/THIS MONTH/)).toBeTruthy();                // planned vs actual
+  expect(getByText('= Planned surplus')).toBeTruthy();                 // the breakdown bottom line (after-debt, 2026-06-23)
+  expect(getByText('PLANNED SURPLUS, MONTH BY MONTH')).toBeTruthy();   // the projection chart
+  expect(getByText('TAKE-HOME vs SPENDING')).toBeTruthy();            // estimates by month
+  expect(getByText(/THIS MONTH/)).toBeTruthy();                       // planned vs actual
 });
