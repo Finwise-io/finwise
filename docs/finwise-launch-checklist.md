@@ -1,5 +1,9 @@
 # FinWise — Launch Checklist
 
+> **Canonical launch doc** (see `docs/README.md` for the full index). **Last verified: 2026-06-25.**
+> All code workstreams (accuracy, compliance themes 1–5, goals→surplus, device fixes) are done on
+> branch `taxonomy-v1.0.7`; B-L2 (Sentry) is fully wired. Remaining = manual launch tasks + cut the build.
+
 Step-by-step to get from "feature-complete" to "live on the App Store."
 **Owner:** 🧑 = you (account/legal/manual) · 🤖 = Claude can do it in-repo.
 **Status:** 🟢 done · 🔴 blocker (can't ship without it) · 🟡 recommended · ⚪ optional.
@@ -108,12 +112,12 @@ we ship.** Grounded in current US fintech standards (sources in the review doc).
   Tips; privacy policy reconciled (`docs/privacy/index.html`). Static guard test blocks re-wiring the
   cloud paths into a screen. _Cloud AI remains in-repo, dormant, for a future opt-in feature._
   **🧑 Remaining:** re-host the updated `docs/privacy/index.html` at the live Privacy Policy URL.
-- 🟠 🧑 **B-L2 — Wire production crash reporting. CODE PRE-STAGED (f43819e).** crashReporter is DSN-ready
-  (+ fixed a latent bug where it never actually reported), sends no PII beyond the uid, and Settings →
-  "Send a diagnostic report" triggers a test event; privacy policy discloses Sentry. **Remaining 🧑:**
-  per `docs/finwise-sentry-setup.md` — create the Sentry project, `npx expo install @sentry/react-native`,
-  send me the DSN + org/project (I finish the 1-line activation + plugin), set the auth-token secret,
-  rebuild. **Done when:** the test event appears in the Sentry dashboard from a production build.
+- ✅ 🧑 **B-L2 — Production crash reporting (Sentry). FULLY WIRED (2026-06-23).** SDK installed,
+  crashReporter activated, DSN set in `app.config.js → extra`, Expo plugin configured (org `finwise-35`,
+  project `react-native`), Metro source-maps wrapped, `SENTRY_AUTH_TOKEN` set as an EAS env var,
+  Settings → "Send a diagnostic report" test button, privacy policy discloses Sentry. **Only remaining:**
+  VERIFY on the next production build — fire the test event and confirm it lands in the Sentry dashboard.
+  Nothing else to set up. (See `docs/finwise-sentry-setup.md`.)
 - 🟢 🤖 **B-L3 — Disclaimer at every projection / "on-track" verdict. DONE (bb68bad).** New shared
   `<Disclaimer/>` component added to the five judgment screens that lacked it (Retirement, Analytics,
   Home, StressTest, JobSafety); Cockpit/Tax/Credit/Estate already had it. The one imperative ("you must
