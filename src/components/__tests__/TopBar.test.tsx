@@ -60,6 +60,13 @@ describe('TopBar', () => {
     expect(screen.queryByText('App & account')).toBeNull();   // footer, no header
   });
 
+  test('T10: "Grow & track" is reachable from the Menu (matches the onboarding name)', () => {
+    render(<TopBar />);
+    fireEvent.press(screen.getByText('Menu'));
+    fireEvent.press(screen.getByText('Grow & track'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/invest');
+  });
+
   test('Settings stays reachable from the Menu footer (its only entry point)', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));

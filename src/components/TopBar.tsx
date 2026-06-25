@@ -25,7 +25,9 @@ const GROUPS: { section: string; items: Mod[] }[] = [
   ] },
   { section: 'Track your wealth', items: [
     { e: '💎', t: 'Net Worth', route: '/(tabs)/analytics' },
-    { e: '📈', t: 'Invest', route: '/(tabs)/invest' },
+    // T10: this is the "Grow & track" feature (PerformanceScreen) — label it the way onboarding names it
+    // so a user who set up "Grow & track" can find it here regardless of which onboarding tracks they picked.
+    { e: '📈', t: 'Grow & track', route: '/(tabs)/invest' },
     { e: '💡', t: 'Insights', route: '/insights' },
   ] },
   { section: 'Plan ahead', items: [

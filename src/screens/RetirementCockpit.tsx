@@ -648,7 +648,9 @@ export default function RetirementCockpit() {
             ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ' (incl. the $8,000 age-50+ catch-up)' : ''} — up to {money(k401.limit)}.</Text>
             : <Text style={styles.note}>💼 401(k) maxed for the year ✓{k401.catchUp ? ' (incl. catch-up)' : ''}.</Text>}
           <Text style={[styles.note, { marginTop: 6 }]}>🏦 You can also contribute up to <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(annualIraLimit(age))}</Text> to an IRA{age >= 50 ? ' (incl. catch-up)' : ''}.</Text>
-          {!simple && <Text style={[styles.note, { marginTop: 6 }]}>⚖️ <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{rvt.lean === 'roth' ? 'Lean Roth' : rvt.lean === 'traditional' ? 'Lean Traditional' : 'Roth or Traditional'}</Text> — {rvt.why} <Text style={styles.srcTag}>marginal ~{Math.round(marginalNow * 100)}% now</Text></Text>}
+          {/* T09: the Roth/Traditional verdict shows in BOTH modes (was hidden in Simple); only the
+              rationale + marginal-rate tag are Advisor-only, so Simple stays uncluttered. */}
+          <Text style={[styles.note, { marginTop: 6 }]}>⚖️ <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{rvt.lean === 'roth' ? 'Lean Roth' : rvt.lean === 'traditional' ? 'Lean Traditional' : 'Roth or Traditional'}</Text>{!simple && <Text style={styles.note}> — {rvt.why} <Text style={styles.srcTag}>marginal ~{Math.round(marginalNow * 100)}% now</Text></Text>}</Text>
           <Text style={styles.tFootMuted}>General guidance, not tax advice.</Text>
         </View>
       )}
