@@ -10,7 +10,7 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 | `finwise-appstore-listing.md` | App Store listing copy (name, subtitle, keywords, description) + screenshot plan |
 | `finwise-app-review-notes.md` | "Notes for the Reviewer" text + demo-login placeholder |
 | `finwise-sentry-setup.md` | Crash reporting (Sentry) setup + verification — **status in the launch checklist** |
-| `finwise-device-test-build33.md` | **Device test checklist** for build #33 (v1.0.8) — tick off on the TestFlight build |
+| `finwise-device-test-build33.md` / `.xlsx` | **Device test checklist** for build #33 (v1.0.8). `.xlsx` = fillable tracker (Pass/Fail/Notes); `.md` = readable source. Same content. |
 | `finwise-dev-loop.md` | Fast local device debug loop (don't use TestFlight to debug) |
 
 ## 📐 Canonical specs (living — keep current)
