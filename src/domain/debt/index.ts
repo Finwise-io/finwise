@@ -43,6 +43,11 @@ export function minimumDebtService(debts: Debt[]): number {
 export function actualDebtPayment(debts: Debt[]): number {
   return round2(totalDebtMonthly(debts ?? []));
 }
+/** Σ outstanding debt BALANCE — what you still owe (not a monthly payment). The one canonical
+ *  "total debt" so net worth, the debt screen, and insurance can't show different totals. */
+export function totalDebtBalance(debts: Debt[]): number {
+  return round2((debts ?? []).reduce((t, d) => t + (d.remaining_balance || 0), 0));
+}
 
 // ── Loan repayment (standard amortization) — e.g. what a student loan costs once you're repaying ──
 export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: number; }

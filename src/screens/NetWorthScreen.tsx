@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -96,7 +96,7 @@ export default function NetWorthScreen() {
   const aState = useMemo(() => buildAssetsState(uid, assets), [assets]);
   const dState = useMemo(() => buildDebtState(uid, liabilities), [liabilities]);
   // emergency-fund runway: cash ÷ monthly spending
-  const cashOnHand = assets.filter((a) => a.tax_bucket === 'CASH').reduce((t, a) => t + (a.balance || 0), 0);
+  const cashOnHand = cashTotal(assets);   // canonical cash (asset class), single source
   const monthlySpend = plannedMonthlySpend(op);   // B-50: same definition as budget.monthly_spending + the runway insight
   const runwayMonths = monthlySpend > 0 ? cashOnHand / monthlySpend : null;
   const nw = buildNetWorth(uid, aState.total_asset_value, dState.total_debt_balance);

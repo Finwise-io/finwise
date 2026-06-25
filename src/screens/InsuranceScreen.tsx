@@ -9,6 +9,7 @@ import { money } from '../domain/_shared/num';
 import { lifeInsuranceNeed } from '../domain/planning';
 import { totalGrossAnnual } from '../domain/income';
 import { investableAssets } from '../domain/assets';
+import { totalDebtBalance } from '../domain/debt';   // canonical total debt, single source
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -16,7 +17,7 @@ export default function InsuranceScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const incomeGuess = Math.round(totalGrossAnnual(op));
-  const debtGuess = Math.round((store.liabilities ?? []).reduce((t: number, d: any) => t + (d.remaining_balance || 0), 0));
+  const debtGuess = Math.round(totalDebtBalance(store.liabilities ?? []));
   // B-36: prefill savings/assets from the user's investable accounts so a wealthy household isn't
   // shown a multimillion-dollar "gap" just because the field defaulted to $0.
   const savingsGuess = Math.round(investableAssets(store.assetAccounts ?? []));

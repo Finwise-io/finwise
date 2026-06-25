@@ -7,6 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { emergencyTest, monthlyEssentials } from '../domain/budget';
+import { cashTotal } from '../domain/assets';   // canonical cash, single source
 import { Disclaimer } from '../components/Disclaimer';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -21,7 +22,7 @@ export default function StressTestScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const accounts = store.assetAccounts ?? [];
-  const cashGuess = accounts.filter((x: any) => x.tax_bucket === 'CASH').reduce((t: number, x: any) => t + (x.balance || 0), 0);
+  const cashGuess = cashTotal(accounts);
 
   const [cashStr, setCashStr] = useState(cashGuess > 0 ? String(Math.round(cashGuess)) : '');
   const [shockStr, setShockStr] = useState('3000');

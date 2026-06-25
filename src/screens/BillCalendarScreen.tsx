@@ -8,6 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { cashflowYear, upcomingBills } from '../domain/cashflow';
+import { cashTotal } from '../domain/assets';   // canonical cash, single source
 
 const fmtDate = (iso: string) => { const [y, m, d] = iso.split('-').map(Number); return `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][m - 1]} ${d}`; };
 
@@ -39,7 +40,7 @@ export default function BillCalendarScreen() {
   }
 
   const accounts = store.assetAccounts ?? [];
-  const cashOnHand = accounts.filter((x: any) => x.tax_bucket === 'CASH').reduce((t: number, x: any) => t + (x.balance || 0), 0);
+  const cashOnHand = cashTotal(accounts);
   const [startStr, setStartStr] = useState(cashOnHand > 0 ? String(Math.round(cashOnHand)) : '');
   const start = num(startStr);
   const cf = useMemo(() => cashflowYear(op, start), [op, start]);

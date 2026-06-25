@@ -13,7 +13,7 @@ import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTI
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
-import { totalDebtMonthly, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
+import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
 import { money } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
@@ -321,7 +321,7 @@ export default function BudgetScreen() {
   // ── Debts: payoff plan (avalanche/snowball) + log-payment (ledger, per DR-14) ──
   const rawDebts: any[] = liabilities ?? [];
   const activeDebts = rawDebts.filter((d) => (d.remaining_balance || 0) > 0);
-  const totalMinMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.minimum_monthly_payment || 0), 0));
+  const totalMinMonthly = Math.round(minimumDebtService(activeDebts));   // canonical DTI obligation, single source
   const totalInterestMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12, 0));
   const plan = payoffPlan(rawDebts, num(extraPay), payoffMethod);
   const debtFreeLabel = plan.neverPaysOff ? 'never at this rate'
