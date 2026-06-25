@@ -22,6 +22,7 @@ import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow }
 import { marginalBracket } from '../domain/income/tax';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
+import { InfoDot } from '../components/UI';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -643,7 +644,10 @@ export default function RetirementCockpit() {
       {/* TAX-SMART MOVES (accumulators) */}
       {!isRetired && (
         <View style={styles.card}>
-          <Text style={styles.liK}>Tax-smart moves</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={styles.liK}>Tax-smart moves</Text>
+            <InfoDot term="rmd" />
+          </View>
           {k401.remaining > 0
             ? <Text style={styles.note}>💼 You can still add <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{money(k401.remaining)}</Text> to your 401(k) this year{k401.catchUp ? ' (incl. the $8,000 age-50+ catch-up)' : ''} — up to {money(k401.limit)}.</Text>
             : <Text style={styles.note}>💼 401(k) maxed for the year ✓{k401.catchUp ? ' (incl. catch-up)' : ''}.</Text>}

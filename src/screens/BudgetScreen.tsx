@@ -7,7 +7,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path
 import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store/useStore';
-import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar } from '../components/UI';
+import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar, InfoDot } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
@@ -487,7 +487,10 @@ export default function BudgetScreen() {
             <View style={styles.planRow}><Text style={styles.planLabel}>−  Expenses (plan)</Text><Text style={styles.planVal}>{money(planExpenses)}</Text></View>
             {planDebt > 0 && <View style={styles.planRow}><Text style={styles.planLabel}>−  Debt (min payments)</Text><Text style={styles.planVal}>{money(planDebt)}</Text></View>}
             <View style={[styles.planRow, styles.planTotalRow]}>
-              <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.planTotalLabel}>=  Planned surplus</Text>
+                <InfoDot term="surplus" />
+              </View>
               <Text style={[styles.planTotalVal, { color: planLeftOver >= 0 ? Colors.primary : Colors.red }]}>{money(planLeftOver)}</Text>
             </View>
             {planIncome > 0 && <Text style={styles.planNote}>Your expense plan is {budgetPctOfIncome}% of take-home pay.</Text>}
