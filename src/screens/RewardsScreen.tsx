@@ -7,6 +7,15 @@ import { useStore, useLevel } from '../store/useStore';
 import { Card, DarkCard, ProgressBar, Button, Badge, TipCard } from '../components/UI';
 import { InputModal } from '../components/InputModal';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
+import { requiredMonthly, goalStatus } from '../domain/goals';
+import { money } from '../domain/_shared/num';
+
+// 'YYYY-MM' → 'Apr 2027'
+const fmtYM = (ym?: string) => {
+  if (!ym) return '';
+  const [y, m] = String(ym).split('-').map(Number);
+  return `${['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'][(m || 1) - 1]} ${y}`;
+};
 
 export default function RewardsScreen() {
   const { badges, goals, streak, addGoal, updateGoal } = useStore();
@@ -200,6 +209,11 @@ export default function RewardsScreen() {
       {goals.map((goal) => {
         const pct = Math.min((goal.saved / goal.target) * 100, 100);
         const done = pct >= 100;
+        // B-71: on-track/behind from the actual funding vs the target date. The "rate" is the goal's
+        // planned monthly (savingsAmount) if set; we always show the $/mo the date requires.
+        const req = goal.targetDate ? requiredMonthly(goal as any) : null;
+        const planned = goal.savingsAmount || 0;
+        const st = goalStatus(goal as any, planned);
         return (
           <Card key={goal.id} style={done ? { borderColor: Colors.primaryMid, borderWidth: 1 } : {}}>
             <View style={styles.goalRow}>
@@ -215,6 +229,12 @@ export default function RewardsScreen() {
                 </View>
                 <ProgressBar pct={pct} color={goal.color} height={7} />
                 <Text style={styles.goalPct}>{Math.round(pct)}% complete</Text>
+                {!done && req != null && (
+                  <Text style={styles.goalPct}>
+                    {planned > 0 ? (st === 'on_track' ? '🟢 On track · ' : '🟡 Behind · ') : ''}
+                    need {money(req)}/mo{goal.targetDate ? ` by ${fmtYM(goal.targetDate)}` : ''}
+                  </Text>
+                )}
               </View>
             </View>
             {!done && (

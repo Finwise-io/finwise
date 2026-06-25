@@ -311,6 +311,7 @@ type AppState = {
   seedGoals: (op: Record<string, any> | null) => void;
   setNwSetupChoice: (v: 'guided' | 'self' | null) => void;
   allocateSavings: (ym: string, items: { assetId: string; amount: number }[]) => void;
+  fundGoals: (ym: string, items: { goalId: string; amount: number }[]) => void;   // B-71: surplus → goals
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
@@ -598,6 +599,18 @@ export const useStore = create<AppState>()(
           return { ...a, balance: a.balance + it.amount, change_amount: prior + it.amount, change_month: cym };
         });
         return { assetAccounts: accounts, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
+      }),
+      // B-71: fund goals FROM this month's surplus — bumps each goal's `saved` (real money tracked, not a
+      // self-reported tally) and counts toward allocatedByMonth so the surplus "left to assign" is accurate.
+      fundGoals: (ym, items) => set((s) => {
+        let total = 0;
+        const goals = s.goals.map((g) => {
+          const it = items.find((i) => i.goalId === g.id && i.amount > 0);
+          if (!it) return g;
+          total += it.amount;
+          return { ...g, saved: Math.round(((g.saved || 0) + it.amount) * 100) / 100 };
+        });
+        return { goals, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
       }),
       skipAllocPrompt: (ym) => set((s) => ({ allocPromptSkipped: { ...s.allocPromptSkipped, [ym]: true } })),
       // Freeze a month's metrics. The CURRENT month is overwritten on each change (so it ends the month

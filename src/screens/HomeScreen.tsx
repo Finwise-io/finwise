@@ -506,19 +506,27 @@ function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?: any }
 function AllocateSavings({ state, onClose }: { state: { open: boolean; ym?: string; label?: string; available?: number; isPrompt?: boolean }; onClose: () => void }) {
   const store = useStore() as any;
   const accounts = (store.assetAccounts ?? []) as any[];
+  // B-71: fund GOALS from the same surplus, alongside accounts — active goals only (not yet fully funded)
+  const goals = ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0));
   const [amounts, setAmounts] = useState<Record<string, string>>({});
+  const [goalAmts, setGoalAmts] = useState<Record<string, string>>({});
   const [units, setUnits] = useState<Record<string, 'dollar' | 'pct'>>({});
-  useEffect(() => { if (state.open) { setAmounts({}); setUnits({}); } }, [state.open]);
+  useEffect(() => { if (state.open) { setAmounts({}); setGoalAmts({}); setUnits({}); } }, [state.open]);
 
   const available = state.available ?? 0;
   const parse = (v: string) => parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')) || 0;
   const dollarOf = (id: string) => (units[id] === 'pct' ? (parse(amounts[id]) / 100) * available : parse(amounts[id]));
-  const total = accounts.reduce((t, a) => t + dollarOf(a.asset_id), 0);
+  const goalDollarOf = (id: string) => parse(goalAmts[id]);
+  const goalTotal = goals.reduce((t, g) => t + goalDollarOf(g.id), 0);
+  const total = accounts.reduce((t, a) => t + dollarOf(a.asset_id), 0) + goalTotal;
   const over = total > available + 0.5;
+  const hasTargets = accounts.length > 0 || goals.length > 0;
 
   const save = () => {
     const items = accounts.map((a) => ({ assetId: a.asset_id, amount: Math.round(dollarOf(a.asset_id) * 100) / 100 })).filter((i) => i.amount > 0);
+    const goalItems = goals.map((g) => ({ goalId: g.id, amount: Math.round(goalDollarOf(g.id) * 100) / 100 })).filter((i) => i.amount > 0);
     if (items.length && state.ym) store.allocateSavings?.(state.ym, items);
+    if (goalItems.length && state.ym) store.fundGoals?.(state.ym, goalItems);
     onClose();
   };
   const skip = () => { if (state.ym) store.skipAllocPrompt?.(state.ym); onClose(); };
@@ -530,29 +538,45 @@ function AllocateSavings({ state, onClose }: { state: { open: boolean; ym?: stri
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
             <View style={sh.handle} />
-            <Text style={sh.title}>Where did {state.label} savings go?</Text>
+            <Text style={sh.title}>Put your {state.label} surplus to work</Text>
             <Text style={[sh.allocHead, over && { color: Colors.red }]}>{money(Math.max(0, available - total))} of {money(available)} left to assign</Text>
-            {accounts.length === 0
-              ? <Text style={sh.dateNote}>Add accounts in Net Worth first, then come back to assign your savings.</Text>
-              : accounts.map((a) => {
-                const unit = units[a.asset_id] ?? 'dollar';
-                const d = dollarOf(a.asset_id);
-                return (
-                  <View key={a.asset_id} style={sh.allocRow}>
-                    <Text style={sh.allocIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
-                    <View style={{ flex: 1 }}>
-                      <Text style={sh.allocName}>{a.label}</Text>
-                      <Text style={sh.allocSub}>{assetKind(a.kind)?.label ?? a.tax_bucket}{unit === 'pct' && parse(amounts[a.asset_id]) > 0 ? ` · = ${money(d)}` : (a.institution ? ` · ${a.institution}` : '')}</Text>
-                    </View>
-                    <TextInput style={sh.allocInput} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0%' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-                      value={amounts[a.asset_id] || ''} onChangeText={(t) => setAmounts((m) => ({ ...m, [a.asset_id]: t }))} />
-                    <TouchableOpacity style={sh.unitToggle} onPress={() => setUnits((u) => ({ ...u, [a.asset_id]: unit === 'pct' ? 'dollar' : 'pct' }))}>
-                      <Text style={sh.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
-                    </TouchableOpacity>
+
+            {goals.length > 0 && <Text style={sh.allocSectionHdr}>GOALS</Text>}
+            {goals.map((g) => (
+              <View key={g.id} style={sh.allocRow}>
+                <Text style={sh.allocIcon}>{g.icon ?? '🎯'}</Text>
+                <View style={{ flex: 1 }}>
+                  <Text style={sh.allocName}>{g.label}</Text>
+                  <Text style={sh.allocSub}>{money(g.saved || 0)} of {money(g.target || 0)}</Text>
+                </View>
+                <TextInput style={sh.allocInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                  value={goalAmts[g.id] || ''} onChangeText={(t) => setGoalAmts((m) => ({ ...m, [g.id]: t }))}
+                  accessibilityLabel={`Amount toward ${g.label}`} />
+              </View>
+            ))}
+
+            {accounts.length > 0 && goals.length > 0 && <Text style={sh.allocSectionHdr}>ACCOUNTS / INVESTING</Text>}
+            {accounts.map((a) => {
+              const unit = units[a.asset_id] ?? 'dollar';
+              const d = dollarOf(a.asset_id);
+              return (
+                <View key={a.asset_id} style={sh.allocRow}>
+                  <Text style={sh.allocIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
+                  <View style={{ flex: 1 }}>
+                    <Text style={sh.allocName}>{a.label}</Text>
+                    <Text style={sh.allocSub}>{assetKind(a.kind)?.label ?? a.tax_bucket}{unit === 'pct' && parse(amounts[a.asset_id]) > 0 ? ` · = ${money(d)}` : (a.institution ? ` · ${a.institution}` : '')}</Text>
                   </View>
-                );
-              })}
-            {accounts.length > 0 && (
+                  <TextInput style={sh.allocInput} keyboardType="decimal-pad" placeholder={unit === 'pct' ? '0%' : `${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
+                    value={amounts[a.asset_id] || ''} onChangeText={(t) => setAmounts((m) => ({ ...m, [a.asset_id]: t }))} />
+                  <TouchableOpacity style={sh.unitToggle} onPress={() => setUnits((u) => ({ ...u, [a.asset_id]: unit === 'pct' ? 'dollar' : 'pct' }))}>
+                    <Text style={sh.unitToggleTxt}>{unit === 'pct' ? '%' : currencySymbol()}</Text>
+                  </TouchableOpacity>
+                </View>
+              );
+            })}
+
+            {!hasTargets && <Text style={sh.dateNote}>Add a goal or an account first, then come back to put your surplus to work.</Text>}
+            {hasTargets && (
               <TouchableOpacity style={[sh.save, (total <= 0 || over) && { opacity: 0.4 }]} disabled={total <= 0 || over} onPress={save}>
                 <Text style={sh.saveTxt}>{over ? 'Over available' : `Assign ${money(total)}`}</Text>
               </TouchableOpacity>
@@ -991,6 +1015,7 @@ const sh = StyleSheet.create({
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   remove: { color: Colors.textSecondary, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md },
   allocHead: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm },
+  allocSectionHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.sm, marginBottom: 2 },
   allocRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
   allocIcon: { fontSize: 20, width: 24, textAlign: 'center' },
   allocName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },

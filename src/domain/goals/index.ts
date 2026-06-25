@@ -82,3 +82,46 @@ export function sinkingFund(monthlyNonMonthly: number): SinkingFund {
   const monthly = Math.max(0, Math.round(monthlyNonMonthly));
   return { annual: monthly * 12, monthly };
 }
+
+// ── B-71: goals funded FROM surplus, tracked from real money ──────────────────────────────────────
+// One goal model (the runtime store Goal: { target, saved, targetDate }). Progress + on-track status are
+// DERIVED from saved vs target and the actual funding rate vs the target date — never stored (DR-3).
+export interface GoalLike { target: number; saved: number; targetDate?: string }
+
+/** Whole months from `now` to the target month ('YYYY-MM'); >=1, or null if no/!invalid date. */
+export function monthsUntil(targetDate: string | undefined, now: Date): number | null {
+  if (!targetDate) return null;
+  const [y, m] = String(targetDate).split('-').map(Number);
+  if (!y || !m) return null;
+  return Math.max(1, (y - now.getFullYear()) * 12 + (m - 1 - now.getMonth()));
+}
+
+/** $/month still needed to hit the target by its date (0 if already funded; null if no date). */
+export function requiredMonthly(g: GoalLike, now: Date = new Date()): number | null {
+  const remaining = Math.max(0, (g.target || 0) - (g.saved || 0));
+  if (remaining === 0) return 0;
+  const months = monthsUntil(g.targetDate, now);
+  return months ? round2(remaining / months) : null;
+}
+
+/** Months to reach the goal at a given monthly contribution (0 if funded; null if contribution <= 0). */
+export function monthsToGoal(g: GoalLike, monthlyContribution: number): number | null {
+  const remaining = Math.max(0, (g.target || 0) - (g.saved || 0));
+  if (remaining === 0) return 0;
+  return monthlyContribution > 0 ? Math.ceil(remaining / monthlyContribution) : null;
+}
+
+/** Funded %, clamped 0–100. */
+export function goalProgressPct(g: GoalLike): number {
+  if ((g.target || 0) <= 0) return 0;
+  return Math.min(100, Math.max(0, Math.round(((g.saved || 0) / g.target) * 100)));
+}
+
+/** On-track vs behind: are you funding at least the rate the target date requires? */
+export type GoalStatus = 'done' | 'on_track' | 'behind' | 'no_date';
+export function goalStatus(g: GoalLike, monthlyContribution: number, now: Date = new Date()): GoalStatus {
+  if ((g.saved || 0) >= (g.target || 0) && (g.target || 0) > 0) return 'done';
+  const req = requiredMonthly(g, now);
+  if (req == null) return 'no_date';
+  return (monthlyContribution || 0) + 1e-6 >= req ? 'on_track' : 'behind';
+}
