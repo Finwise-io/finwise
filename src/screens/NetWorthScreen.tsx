@@ -65,11 +65,21 @@ function Donut({ segments, size = 124, stroke = 16, children }: { segments: { va
   );
 }
 
+// You CAPTURE money by account (how it's held); the donut REGROUPS by asset class (what it is). These
+// display labels make the capture axis read as account/tax-bucket framing so it never sounds like it's
+// contradicting the donut's class words (Option B, 2026-06-24). Keys stay stable for grouping.
+const SECTION_LABEL: Record<string, string> = {
+  Cash: 'Cash',
+  Investments: 'Taxable accounts',
+  Retirement: 'Retirement accounts',
+  Property: 'Real estate & personal property',
+};
+const secLabel = (s: string) => SECTION_LABEL[s] ?? s;
 const WIZ_HINT: Record<string, string> = {
   Cash: 'Checking, savings, emergency fund.',
-  Investments: 'Brokerage, crypto, other taxable accounts.',
+  Investments: 'Brokerage & other taxable accounts — stocks/ETFs, bonds, crypto.',
   Retirement: '401(k), IRAs, HSA.',
-  Property: 'Home, vehicles, valuables.',
+  Property: 'Home & other real estate, vehicles, valuables.',
   Debts: 'Mortgage, loans, credit cards — with their rates.',
 };
 
@@ -133,7 +143,7 @@ export default function NetWorthScreen() {
     const total = rows.reduce((t, a) => t + a.balance, 0);
     const head = (
       <View style={styles.secHead}>
-        <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {sec.toUpperCase()}{total > 0 ? ` · ${money(total)}` : ''}</Text>
+        <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {secLabel(sec).toUpperCase()}{total > 0 ? ` · ${money(total)}` : ''}</Text>
         <TouchableOpacity onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -240,7 +250,7 @@ export default function NetWorthScreen() {
       <View style={{ flex: 1 }}>
         <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
           <Text style={styles.wizStep}>Step {step + 1} of {steps.length}</Text>
-          <Text style={styles.wizTitle}>Add your {cur.toLowerCase()}</Text>
+          <Text style={styles.wizTitle}>Add your {secLabel(cur).toLowerCase()}</Text>
           <Text style={styles.wizSub}>{WIZ_HINT[cur]}</Text>
           {cur === 'Debts' ? renderDebtSection() : renderAssetSection(cur)}
           {/* #9: never show the aggregate without its components — the running total carries the
@@ -294,7 +304,7 @@ export default function NetWorthScreen() {
           <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
         </Text>
         {/* caption (#4 transparency rule): what the slices mean, across all account types */}
-        <Text style={styles.nwCaption}>Grouped by asset class — cash, stocks/ETFs, bonds, alternatives & property — across every account (incl. 401(k)/IRA).</Text>
+        <Text style={styles.nwCaption}>You add money by account above; here it's regrouped by asset class — what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
         {/* #10: don't pretend a wrapper's contents are stocks — show "Unclassified" and nudge the user to set the mix */}
         {alloc.mixed > 0 && (
           <Text style={styles.nwNudge}>
@@ -348,7 +358,7 @@ export default function NetWorthScreen() {
           <View style={styles.insight}>
             <Text style={styles.insightIcon}>💎</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.insightTxt}>{topCat ? `${topCat.sec} is your largest holding — ${pctOf(topCat.total)}% of total assets` : 'Your wealth at a glance'}</Text>
+              <Text style={styles.insightTxt}>{topCat ? `${secLabel(topCat.sec)} is your largest holding — ${pctOf(topCat.total)}% of total assets` : 'Your wealth at a glance'}</Text>
               <Text style={styles.insightSub}>{dState.total_debt_balance > 0 ? `Debt is ${Math.round(debtRatio * 100)}% of your assets.` : 'You carry no debt — it\'s all yours.'}</Text>
             </View>
           </View>
@@ -412,7 +422,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const remove = () => { if (editing) store.deleteAsset?.(editing.asset_id); onClose(); };
 
   return (
-    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit asset' : `Add ${state.section ?? 'asset'}`}>
+    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit asset' : `Add ${state.section ? secLabel(state.section).toLowerCase() : 'asset'}`}>
       <View style={sh.chips}>
         {kindsForSection.map((ko) => (
           <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} onPress={() => setKind(ko.id)}>

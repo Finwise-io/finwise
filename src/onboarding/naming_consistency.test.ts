@@ -49,3 +49,13 @@ test('Theme 1: deprecated synonyms are retired from user-facing labels (one conc
   expect(modules).not.toMatch(/Take-Home \(After Tax\)/);
   expect(modules).not.toMatch(/Available \(after tax & 401/);
 });
+
+test('Theme 1: Net Worth capture reads as account framing (Option B) with canonical hints', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+  expect(src).toMatch(/Investments: 'Taxable accounts'/);
+  expect(src).toMatch(/Retirement: 'Retirement accounts'/);
+  expect(src).toMatch(/Property: 'Real estate & personal property'/);
+  // section hints rewritten in canonical terms — property names real estate, not bare "belongings/valuables"
+  expect(src).toMatch(/Home & other real estate/);
+  expect(src).not.toMatch(/Home, vehicles, valuables/);
+});
