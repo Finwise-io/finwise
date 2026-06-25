@@ -1,6 +1,9 @@
 import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow } from './index';
+import { takeHomeMonthly } from '../savings';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
+import * as fs from 'fs';
+import * as path from 'path';
 
 // #6: the recap's "Surplus / yr" must reconcile with the savings-plan's monthly average × 12.
 // Both now derive from the SAME grid (annualCashflow ≡ Σ savingsByMonth), so they agree even with
@@ -128,6 +131,29 @@ describe('spending categories → buckets', () => {
       spendCats: [{ id: 'rent', bucket: 'fixed', amount: '30', unit: 'pct' }],
     };
     expect(spendBuckets(op).fixed).toBeCloseTo(3000, 0);
+  });
+
+  // ── A-1: the %-of-income base is canonical take-home (after tax AND 401k), == the spending screen ──
+  test('A-1: a % category resolves against take-home AFTER 401(k), matching the spending screen', () => {
+    // gross 10k/mo, 0% tax, but $1,000/mo into 401(k) → take-home = 9,000 (NOT net-of-tax 10,000)
+    const op: any = {
+      baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
+      c_401k: '1000', spendCats: [{ id: 'rent', bucket: 'fixed', amount: '30', unit: 'pct' }],
+    };
+    expect(spendBuckets(op).fixed).toBeCloseTo(2700, 0);                  // 30% of 9,000 — NOT 3,000
+    expect(spendBuckets(op).fixed).toBeCloseTo(0.30 * takeHomeMonthly(op), 1);   // == the screen's base
+  });
+
+  test('A-1: raising 401(k) lowers a % category dollar (proves base is take-home, not net-of-tax)', () => {
+    const base: any = { baseSalary: '10000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '0',
+      spendCats: [{ id: 'r', bucket: 'fixed', amount: '30', unit: 'pct' }] };
+    expect(spendBuckets({ ...base, c_401k: '2000' }).fixed).toBeLessThan(spendBuckets(base).fixed);
+  });
+
+  test('A-1: the old net-of-tax %-base formula is gone from budget', () => {
+    const src = fs.readFileSync(path.join(__dirname, 'index.ts'), 'utf8');
+    expect(src).not.toMatch(/totalGrossAnnual\(op\) \* \(1 - effectiveRate\(op\)\)/);
+    expect(src).toMatch(/function pctBaseMonthly/);
   });
 
   test('budgetVsActual rolls month-to-date expenses into buckets vs plan', () => {

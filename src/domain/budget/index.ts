@@ -5,7 +5,7 @@ import type { UserId } from '../_shared/ids';
 import { toNum, round2 } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
 import { emit } from '../_shared/eventBus';
-import { totalGrossAnnual, effectiveRate, incomeMonthlyGrid } from '../income';
+import { incomeMonthlyGrid } from '../income';
 import { categoryBucketFor } from '../../constants/categories';
 
 export interface BudgetDoc {
@@ -46,6 +46,15 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
   return Math.max(spendBuckets(op).monthly_total, toNum(op?.monthlySpending));
 }
 
+// A-1: the %-of-income base = true take-home (after tax AND 401k) — the SAME base the spending-plan
+// screen uses (modules.tsx SpendingEditor → takeHomeMonthly). incomeMonthlyGrid('available') is already
+// imported; computing it here avoids a budget→savings import cycle. (Was net-of-tax, which wrongly
+// counted 401(k) money as spendable, so a % category's $ on screen ≠ the $ the budget/runway/savings used.)
+function pctBaseMonthly(op: OnboardingProfile | null): number {
+  const grid = incomeMonthlyGrid(op, 'available');
+  return grid.reduce((t, m) => t + m.amount, 0) / 12;
+}
+
 /** Roll the per-category spending up into the three monthly-normalized buckets.
  *  Categories carry a bucket (fixed/nonmonthly/flexible) and an amount in $ or % of take-home;
  *  non-monthly (yearly) amounts are divided by 12. Falls back to the legacy b_* fields. */
@@ -56,7 +65,7 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
     const fixed = toNum(a.b_fixed), non = toNum(a.b_nonmonthly), flex = toNum(a.b_flexible);
     return { fixed, non_monthly: non, flexible: flex, monthly_total: round2(fixed + non + flex) };
   }
-  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  const netMonthly = pctBaseMonthly(op);
   let fixed = 0, flex = 0, nonMo = 0;
   for (const c of cats) {
     const amt = toNum(c?.amount); if (amt <= 0) continue;
@@ -75,7 +84,7 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
   const a = op ?? {};
   const out = new Array(12).fill(0);
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
-  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  const netMonthly = pctBaseMonthly(op);
   if (cats) {
     for (const c of cats) {
       const amt = toNum(c?.amount); if (amt <= 0) continue;
@@ -108,7 +117,7 @@ export function monthlyEssentials(op: OnboardingProfile | null): number {
   // spend as must-pay (conservative for an emergency-fund target). Returning $0 here let the stress
   // test claim "strong cushion" with $0 cash while also saying the user would go into the red.
   if (!cats) return plannedMonthlySpend(op);
-  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
+  const netMonthly = pctBaseMonthly(op);
   let ess = 0;
   for (const c of cats) {
     if (c?.bucket === 'nonmonthly') continue;                 // lumpy, planned separately
