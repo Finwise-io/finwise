@@ -50,6 +50,17 @@ test('Theme 1: deprecated synonyms are retired from user-facing labels (one conc
   expect(modules).not.toMatch(/Available \(after tax & 401/);
 });
 
+test('Bonds + Alternatives expose a "Record a sale" action (they are sellable — secondary-market bonds, options before expiry)', () => {
+  const bonds = fs.readFileSync(path.join(__dirname, '..', 'screens', 'BondsScreen.tsx'), 'utf8');
+  const alts = fs.readFileSync(path.join(__dirname, '..', 'screens', 'OtherInvestmentsScreen.tsx'), 'utf8');
+  // a full sale closes the position (onDelete); a partial sale lowers the value (onSave) — both wired via applySale.
+  for (const src of [bonds, alts]) {
+    expect(src).toMatch(/Record a sale/);
+    expect(src).toMatch(/applySale/);
+    expect(src).toMatch(/onDelete\?\.\(\)/);   // full sale closes
+  }
+});
+
 test('NW: investment rows group by asset CLASS label + a true By-institution view (not kind labels)', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
   expect(src).toMatch(/By institution/);

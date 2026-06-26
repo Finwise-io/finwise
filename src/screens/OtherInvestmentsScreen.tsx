@@ -2,7 +2,7 @@
 // held at a manual value as AssetAccounts, so they flow to Net Worth + nest egg. Third management
 // surface alongside Performance (stocks/ETFs) and Bonds.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -83,11 +83,30 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
   const [inst, setInst] = useState('');
   const [value, setValue] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
+  const [sellAmt, setSellAmt] = useState('');
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE');
+    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt('');
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
+  // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
+  // Record a full sale (closes it) or a partial sale (lowers the value). Mark-to-market = edit "Current value".
+  const applySale = () => {
+    const sold = num(sellAmt); const cur = num(value); if (sold <= 0 || cur <= 0) return;
+    const full = sold >= cur - 0.005;
+    Alert.alert(
+      full ? 'Close this investment?' : 'Record a sale?',
+      full ? `Marks all ${money(cur)} as sold and removes it from your holdings.`
+           : `Lowers ${label.trim() || 'this investment'} from ${money(cur)} to ${money(cur - sold)}.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: full ? 'Close position' : 'Record sale', onPress: () => {
+          if (full) onDelete?.();
+          else onSave({ kind, label: label.trim(), institution: inst.trim(), balance: Math.round((cur - sold) * 100) / 100, tax_bucket: bucket });
+        } },
+      ],
+    );
+  };
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -111,6 +130,20 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
           <View style={styles.chips}>{BUCKETS.map((b) => (
             <TouchableOpacity key={b.bucket} style={[styles.chip, bucket === b.bucket && styles.chipOn]} onPress={() => setBucket(b.bucket)}><Text style={[styles.chipT, bucket === b.bucket && styles.chipTOn]}>{b.label}</Text></TouchableOpacity>
           ))}</View>
+          {item && (
+            <View style={styles.sellBox}>
+              <Text style={styles.sellTitle}>🔻 Record a sale</Text>
+              <Text style={styles.hint}>Sold this (or part of it) — e.g. an option before expiration, or some crypto? Enter the proceeds to lower or close the position. To re-mark its price, edit “Current value” above.</Text>
+              <View style={styles.sellRow}>
+                <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
+                  placeholder={`amount sold (up to ${money(num(value))})`} placeholderTextColor={Colors.textTertiary} />
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Record sale" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
+                  <Text style={styles.sellBtnT}>Record</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sold all of it" onPress={() => setSellAmt(String(num(value)))}><Text style={styles.sellAll}>Sold all of it →</Text></TouchableOpacity>
+            </View>
+          )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
             onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
@@ -156,6 +189,12 @@ const styles = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
+  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border },
+  sellTitle: { fontSize: 13.5, fontWeight: '800', color: Colors.textPrimary },
+  sellRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 },
+  sellBtn: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
+  sellBtnT: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  sellAll: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, marginTop: 10 },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
   deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },

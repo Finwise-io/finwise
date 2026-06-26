@@ -107,12 +107,38 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [value, setValue] = useState('');
   const [institution, setInstitution] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
+  const [sellAmt, setSellAmt] = useState('');
   React.useEffect(() => {
     if (!open) return;
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
-    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? '');
+    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt('');
   }, [open]);
+  // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
+  // sale closes the position; a partial sale lowers its value and scales the face/par proportionally.
+  const r2 = (n: number) => Math.round(n * 100) / 100;
+  const applySale = () => {
+    const sold = num(sellAmt); if (sold <= 0) return;
+    const cur = num(value) > 0 ? num(value) : num(face);
+    if (cur <= 0) return;
+    const full = sold >= cur - 0.005;
+    Alert.alert(
+      full ? 'Close this bond?' : 'Record a sale?',
+      full
+        ? `Marks the whole position (${money(cur)}) as sold and removes it from your holdings.`
+        : `Lowers ${label.trim() || 'this bond'} from ${money(cur)} to ${money(cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face.`,
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: full ? 'Close position' : 'Record sale', onPress: () => {
+          if (full) { onDelete?.(); return; }
+          const newVal = r2(cur - sold);
+          onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
+            coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
+            face_value: r2(num(face) * (newVal / cur)), balance: newVal });
+        } },
+      ],
+    );
+  };
   const valid = label.trim() && num(face) > 0 && num(coupon) >= 0 && /^\d{4}-\d{2}-\d{2}$/.test(maturity.trim());
   // #11: the spinner only fires onChange when you SPIN it, so tapping "Done" on the default date saved
   // nothing. Commit the default the instant the picker opens, so the shown date is the chosen date.
@@ -172,6 +198,20 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (
             <TouchableOpacity key={t.bucket} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>
           ))}</View>
+          {bond && (
+            <View style={styles.sellBox}>
+              <Text style={styles.sellTitle}>🔻 Record a sale</Text>
+              <Text style={styles.fieldHint}>Sold this bond (or part of it) on the secondary market before maturity? Enter the proceeds to lower or close the position. To just re-mark its price, edit “Current value” above.</Text>
+              <View style={styles.sellRow}>
+                <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" value={sellAmt} onChangeText={setSellAmt}
+                  placeholder={`amount sold (up to ${money(num(value) > 0 ? num(value) : num(face))})`} placeholderTextColor={Colors.textTertiary} />
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel="Record sale" style={[styles.sellBtn, !(num(sellAmt) > 0) && { opacity: 0.4 }]} disabled={!(num(sellAmt) > 0)} onPress={applySale}>
+                  <Text style={styles.sellBtnT}>Record</Text>
+                </TouchableOpacity>
+              </View>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sold the whole position" onPress={() => setSellAmt(String(num(value) > 0 ? num(value) : num(face)))}><Text style={styles.sellAll}>Sold the whole position →</Text></TouchableOpacity>
+            </View>
+          )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}><Text style={styles.saveBtnT}>{bond ? 'Save' : 'Add bond'}</Text></TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete bond</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
@@ -217,6 +257,12 @@ const styles = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
+  sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border },
+  sellTitle: { fontSize: 13.5, fontWeight: '800', color: Colors.textPrimary },
+  sellRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 },
+  sellBtn: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
+  sellBtnT: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  sellAll: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, marginTop: 10 },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
   deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },
