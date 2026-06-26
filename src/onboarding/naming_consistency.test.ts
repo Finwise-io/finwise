@@ -50,6 +50,13 @@ test('Theme 1: deprecated synonyms are retired from user-facing labels (one conc
   expect(modules).not.toMatch(/Available \(after tax & 401/);
 });
 
+test('NW: investment rows group by asset CLASS label + a true By-institution view (not kind labels)', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+  expect(src).toMatch(/By institution/);
+  expect(src).not.toMatch(/'By account'/);                       // renamed from the misleading label
+  expect(src).toMatch(/ASSET_CLASS_LABEL\[assetClassOf\(a\)\]/);  // class label, not assetKind().label
+});
+
 test('Theme 1: Net Worth capture reads as account framing (Option B) with canonical hints', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
   expect(src).toMatch(/Investments: 'Taxable accounts'/);

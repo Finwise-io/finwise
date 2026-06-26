@@ -149,9 +149,12 @@ export default function NetWorthScreen() {
       </View>
     );
 
-    // Investments: track by type or by account
+    // Investments: group by asset CLASS (what it is) or by INSTITUTION (where it's held). The row always
+    // names the account/holding; the secondary line shows the OTHER axis. (Fixes: Alternatives showing as
+    // "Other" — that was the KIND label; and "by account" showing classes instead of institutions.)
     if (sec === 'Investments' && rows.length > 0) {
-      const keyOf = (a: AssetAccount) => invGroup === 'type' ? (assetKind(a.kind)?.label ?? 'Other') : (a.institution?.trim() || 'Unspecified');
+      const classLabel = (a: AssetAccount) => ASSET_CLASS_LABEL[assetClassOf(a)] ?? 'Unclassified';
+      const keyOf = (a: AssetAccount) => invGroup === 'type' ? classLabel(a) : (a.institution?.trim() || 'No institution set');
       const groups: Record<string, AssetAccount[]> = {};
       rows.forEach((a) => { (groups[keyOf(a)] ||= []).push(a); });
       return (
@@ -160,7 +163,7 @@ export default function NetWorthScreen() {
           <View style={styles.invToggle}>
             {(['type', 'account'] as const).map((g) => (
               <TouchableOpacity key={g} style={[styles.invTab, invGroup === g && styles.invTabOn]} onPress={() => setInvGroup(g)}>
-                <Text style={[styles.invTabTxt, invGroup === g && styles.invTabTxtOn]}>{g === 'type' ? 'By type' : 'By account'}</Text>
+                <Text style={[styles.invTabTxt, invGroup === g && styles.invTabTxtOn]}>{g === 'type' ? 'By class' : 'By institution'}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -169,8 +172,8 @@ export default function NetWorthScreen() {
               <View style={styles.groupHead}><Text style={styles.groupName}>{g}</Text><Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text></View>
               <View style={styles.card}>
                 {items.map((a, i) => assetRow(a, i,
-                  invGroup === 'type' ? (a.institution?.trim() || a.label) : (assetKind(a.kind)?.label ?? 'Investment'),
-                  invGroup === 'type' ? '' : (a.institution?.trim() || '')))}
+                  a.label,
+                  invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a)))}
               </View>
             </View>
           ))}
