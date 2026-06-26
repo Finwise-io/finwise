@@ -34,6 +34,12 @@ describe('insight service', () => {
     expect(buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: true }).map((i) => i.id)).toContain('k401-room');
   });
 
+  // device-test fix: the 401(k)-room insight opens the dedicated contribution-room detail, not the Retire cockpit.
+  test('401(k)-room insight routes to /contribution-room', () => {
+    const card = buildInsights({ ...clean, k401Remaining: 9000, hasEarnedIncome: true }).find((i) => i.id === 'k401-room');
+    expect(card?.route).toBe('/contribution-room');
+  });
+
   // BUG-LEDGER: B-52 — the investing nudge must be named distinctly from the budget's "savings rate".
   test('low contributions fire an "investing" insight, not a "savings rate" one', () => {
     const ins = buildInsights({ ...clean, investRate: 0.05 }).find((i) => i.id === 'invest-rate')!;

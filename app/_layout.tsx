@@ -183,6 +183,7 @@ export default function RootLayout() {
           {/* T22: register cashflow with a distinct title + back button so the detail screen isn't a
               blank-header view that looks like Home's cash-flow box (read as "looped back"). */}
           <Stack.Screen name="cashflow"   options={{ title: 'Cash-flow detail 📊', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>
         </AppLockGate>
