@@ -138,7 +138,7 @@ export default function PerformanceScreen() {
                   <View style={{ flex: 1 }}>
                     <Text style={styles.hTicker}>{r.position.ticker}{r.position.label ? <Text style={styles.hName}>  {r.position.label}</Text> : null}</Text>
                     <Text style={styles.hSub} numberOfLines={1}>
-                      {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position)} sh`}
+                      {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position).toLocaleString(undefined, { maximumFractionDigits: 4 })} sh`}
                       {r.totalROI != null ? ` · ${pct(r.totalROI)} since buy` : ''}
                       {!simple ? ` · vs ${r.benchTicker}` : ''}
                     </Text>
@@ -273,6 +273,15 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   }, [open]);
 
   const setLot = (i: number, patch: Partial<Lot>) => setLots((ls) => ls.map((l, j) => j === i ? { ...l, ...patch } : l));
+  // Raw text buffer for the numeric lot fields so an in-progress decimal ("10.") isn't stripped by the
+  // parse-on-keystroke (the reported "cost/share only allows integers" bug). Keyed by `${i}-${field}`.
+  const [lotRaw, setLotRaw] = useState<Record<string, string>>({});
+  const setLotNum = (i: number, field: 'shares' | 'cost_per_share', t: string) => {
+    setLotRaw((m) => ({ ...m, [`${i}-${field}`]: t }));
+    setLot(i, { [field]: num(t) } as Partial<Lot>);
+  };
+  const lotVal = (i: number, field: 'shares' | 'cost_per_share', n: number) =>
+    lotRaw[`${i}-${field}`] ?? (n ? String(n) : '');
   // new-investor friendly: only ticker + shares are required; cost/share + date are optional
   // (without cost we just can't show return-since-purchase — value & vs-benchmark still work).
   const valid = ticker.trim().length > 0 && lots.some((l) => l.shares > 0);
@@ -332,8 +341,8 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           <Text style={styles.beginnerHint}>New to this? Just enter shares — cost &amp; date are optional (add them later for return-since-purchase).</Text>
           {lots.map((l, i) => (
             <View key={i} style={styles.lotRow}>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.shares ? String(l.shares) : ''} onChangeText={(t) => setLot(i, { shares: num(t) })} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={l.cost_per_share ? String(l.cost_per_share) : ''} onChangeText={(t) => setLot(i, { cost_per_share: num(t) })} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
               {lots.length > 1 && <TouchableOpacity onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
