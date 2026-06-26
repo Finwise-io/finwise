@@ -8,7 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
-import { availableToSaveSummary, sinkingFund } from '../domain/goals';
+import { availableToSaveSummary, sinkingFund, goalStatus, requiredMonthly } from '../domain/goals';
 import { totalGrossAnnual } from '../domain/income';
 import { spendBuckets, savingsByMonth } from '../domain/budget';
 
@@ -83,16 +83,29 @@ export default function GoalsScreen() {
         const pct = g.target > 0 ? Math.min(100, (g.saved / g.target) * 100) : 0;
         const remaining = Math.max(0, g.target - g.saved);
         const mo = num(g.duration);
-        const perMonth = mo > 0 ? remaining / mo : 0;
+        const perMonth = requiredMonthly(g as any) ?? (mo > 0 ? remaining / mo : 0);
+        // On track vs behind: can you fund the required monthly out of your typical free cash (capacity)?
+        const st = goalStatus(g as any, capacity.avg);
+        const done = pct >= 100 || st === 'done';
+        const behind = st === 'behind';
+        const barColor = done ? Colors.successGreen : behind ? Colors.amber : (g.color || Colors.primary);
         return (
           <TouchableOpacity key={g.id} style={styles.card} onPress={() => setEdit(g)}>
             <View style={styles.goalHead}>
               <Text style={styles.goalIcon}>{g.icon || '🎯'}</Text>
               <Text style={styles.goalName}>{g.label}</Text>
+              {!done && perMonth > 0 && (
+                <Text style={[styles.goalStatus, { color: behind ? Colors.amber : Colors.successGreen }]}>
+                  {behind ? '🟡 Behind' : '🟢 On track'}
+                </Text>
+              )}
               <Text style={styles.goalPct}>{Math.round(pct)}%</Text>
             </View>
-            <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: g.color || Colors.primary }]} /></View>
-            <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · ~${money(perMonth)}/mo for ${mo} mo` : ''}</Text>
+            <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: barColor }]} /></View>
+            <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · need ~${money(perMonth)}/mo${mo > 0 ? ` for ${mo} mo` : ''}` : ''}</Text>
+            {behind && perMonth > 0 && (
+              <Text style={styles.goalBehind}>Needs {money(perMonth)}/mo but you free up ~{money(capacity.avg)}/mo — add more or extend the date.</Text>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -327,6 +340,8 @@ const styles = StyleSheet.create({
   bar: { height: 8, borderRadius: 4, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   goalSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 6 },
+  goalStatus: { fontSize: 11, fontWeight: '800', marginRight: 8 },
+  goalBehind: { fontSize: 11, color: Colors.amber, marginTop: 3 },
   addLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 2 },
 
   segRow: { flexDirection: 'row', gap: 8 },

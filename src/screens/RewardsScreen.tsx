@@ -211,7 +211,7 @@ export default function RewardsScreen() {
         const done = pct >= 100;
         // B-71: on-track/behind from the actual funding vs the target date. The "rate" is the goal's
         // planned monthly (savingsAmount) if set; we always show the $/mo the date requires.
-        const req = goal.targetDate ? requiredMonthly(goal as any) : null;
+        const req = requiredMonthly(goal as any);   // works off targetDate OR duration now
         const planned = goal.savingsAmount || 0;
         const st = goalStatus(goal as any, planned);
         return (
@@ -227,7 +227,7 @@ export default function RewardsScreen() {
                   <Text style={styles.goalAmt}>${goal.saved.toLocaleString()}</Text>
                   <Text style={styles.goalOf}> of ${goal.target.toLocaleString()}</Text>
                 </View>
-                <ProgressBar pct={pct} color={goal.color} height={7} />
+                <ProgressBar pct={pct} color={!done && st === 'behind' && planned > 0 ? Colors.amber : goal.color} height={7} />
                 <Text style={styles.goalPct}>{Math.round(pct)}% complete</Text>
                 {!done && req != null && (
                   <Text style={styles.goalPct}>

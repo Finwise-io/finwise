@@ -86,7 +86,7 @@ export function sinkingFund(monthlyNonMonthly: number): SinkingFund {
 // ── B-71: goals funded FROM surplus, tracked from real money ──────────────────────────────────────
 // One goal model (the runtime store Goal: { target, saved, targetDate }). Progress + on-track status are
 // DERIVED from saved vs target and the actual funding rate vs the target date — never stored (DR-3).
-export interface GoalLike { target: number; saved: number; targetDate?: string }
+export interface GoalLike { target: number; saved: number; targetDate?: string; duration?: string | number }
 
 /** Whole months from `now` to the target month ('YYYY-MM'); >=1, or null if no/!invalid date. */
 export function monthsUntil(targetDate: string | undefined, now: Date): number | null {
@@ -96,11 +96,19 @@ export function monthsUntil(targetDate: string | undefined, now: Date): number |
   return Math.max(1, (y - now.getFullYear()) * 12 + (m - 1 - now.getMonth()));
 }
 
-/** $/month still needed to hit the target by its date (0 if already funded; null if no date). */
+/** Months remaining: from the target date if set, else the goal's `duration` (months). null if neither. */
+export function goalMonthsRemaining(g: GoalLike, now: Date = new Date()): number | null {
+  const fromDate = monthsUntil(g.targetDate, now);
+  if (fromDate != null) return fromDate;
+  const d = Number(g.duration);
+  return Number.isFinite(d) && d > 0 ? d : null;
+}
+
+/** $/month still needed to hit the target on time (0 if already funded; null if no date/duration). */
 export function requiredMonthly(g: GoalLike, now: Date = new Date()): number | null {
   const remaining = Math.max(0, (g.target || 0) - (g.saved || 0));
   if (remaining === 0) return 0;
-  const months = monthsUntil(g.targetDate, now);
+  const months = goalMonthsRemaining(g, now);
   return months ? round2(remaining / months) : null;
 }
 

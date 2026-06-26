@@ -1,5 +1,5 @@
 // B-71: goals funded from surplus — the derived progress + on-track math.
-import { monthsUntil, requiredMonthly, monthsToGoal, goalProgressPct, goalStatus } from './index';
+import { monthsUntil, goalMonthsRemaining, requiredMonthly, monthsToGoal, goalProgressPct, goalStatus } from './index';
 
 const NOW = new Date('2026-06-15T12:00:00');   // fixed clock so the month math is deterministic
 
@@ -26,6 +26,18 @@ describe('goal funding projections', () => {
     expect(goalProgressPct({ target: 6000, saved: 2400 })).toBe(40);
     expect(goalProgressPct({ target: 6000, saved: 9000 })).toBe(100);
     expect(goalProgressPct({ target: 0, saved: 100 })).toBe(0);
+  });
+
+  test('requiredMonthly + goalMonthsRemaining fall back to duration when no targetDate (the device bug)', () => {
+    expect(goalMonthsRemaining({ target: 1, saved: 0, duration: 12 } as any, NOW)).toBe(12);
+    expect(requiredMonthly({ target: 30000, saved: 0, duration: '30' } as any, NOW)).toBe(1000);
+    expect(requiredMonthly({ target: 30000, saved: 0 } as any, NOW)).toBeNull();   // neither → null
+  });
+
+  test('goalStatus: a duration goal is BEHIND when the required exceeds savings capacity', () => {
+    const home = { target: 740000, saved: 10000, duration: '30' };   // needs ~24,333/mo
+    expect(goalStatus(home as any, 2000, NOW)).toBe('behind');        // can only free up 2,000/mo
+    expect(goalStatus(home as any, 30000, NOW)).toBe('on_track');     // could save 30,000/mo
   });
 
   test('goalStatus: funding >= required → on_track, else behind; done when funded; no_date without a date', () => {
