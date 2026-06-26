@@ -343,7 +343,7 @@ export default function NetWorthScreen() {
           </TouchableOpacity>
           <View style={styles.exploreDiv} />
           <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/performance')}>
-            <Text style={styles.exploreRowT}>📈  Portfolio performance vs benchmark</Text>
+            <Text style={styles.exploreRowT}>📈  Stocks / ETFs — performance vs benchmark</Text>
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.exploreDiv} />

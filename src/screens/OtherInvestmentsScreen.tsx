@@ -80,11 +80,12 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
 }) {
   const [kind, setKind] = useState<string>('crypto');
   const [label, setLabel] = useState('');
+  const [inst, setInst] = useState('');
   const [value, setValue] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE');
+    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE');
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
   return (
@@ -102,6 +103,8 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
           <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(1)}%/yr historical benchmark.</Text>
           <Text style={styles.fieldL}>Name</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. Bitcoin, Fund III, Gold" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Where it's held (institution)</Text>
+          <TextInput style={styles.input} value={inst} onChangeText={setInst} placeholder="e.g. Coinbase, Chase — optional" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Current value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="0" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Account</Text>
@@ -109,7 +112,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
             <TouchableOpacity key={b.bucket} style={[styles.chip, bucket === b.bucket && styles.chipOn]} onPress={() => setBucket(b.bucket)}><Text style={[styles.chipT, bucket === b.bucket && styles.chipTOn]}>{b.label}</Text></TouchableOpacity>
           ))}</View>
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ kind, label: label.trim(), balance: num(value), tax_bucket: bucket })}>
+            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
