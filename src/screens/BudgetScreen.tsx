@@ -62,6 +62,7 @@ export default function BudgetScreen() {
   const [importing, setImporting] = useState(false);
   const [limitsVisible, setLimitsVisible] = useState(false);
   const [draftLimits, setDraftLimits] = useState<Record<string, string>>({});
+  const [draftUnits, setDraftUnits] = useState<Record<string, 'dollar' | 'pct'>>({});   // per-category $ or %
 
   // Custom category form
   const [catFormVisible, setCatFormVisible] = useState(false);
@@ -294,12 +295,21 @@ export default function BudgetScreen() {
   bva.buckets.forEach((b: any) => { bucketActual[b.key] = b; });
 
   function openLimitsModal() {
-    const initial: Record<string, string> = {};
+    const vals: Record<string, string> = {};
+    const units: Record<string, 'dollar' | 'pct'> = {};
     limitCats.forEach(({ label }) => {
       const existing = spendCats.find((c) => c.label === label);
-      initial[label] = existing && num(existing.amount) > 0 ? String(Math.round(catDollar(existing))) : '';
+      if (existing && num(existing.amount) > 0) {
+        // show the RAW value in its own unit (so a % category stays a %, not its $-conversion)
+        vals[label] = String(existing.amount);
+        units[label] = existing.unit === 'pct' ? 'pct' : 'dollar';
+      } else {
+        vals[label] = '';
+        units[label] = 'dollar';
+      }
     });
-    setDraftLimits(initial);
+    setDraftLimits(vals);
+    setDraftUnits(units);
     setLimitsVisible(true);
   }
 
@@ -308,10 +318,11 @@ export default function BudgetScreen() {
     const editable = new Set(limitCats.map((c) => c.label));
     const next = spendCats.filter((c) => !editable.has(c.label));
     limitCats.forEach((c) => {
-      const dollar = num(draftLimits[c.label]);
-      if (dollar > 0) {
+      const amt = num(draftLimits[c.label]);
+      if (amt > 0) {
+        const unit = draftUnits[c.label] ?? 'dollar';   // honor the $/% the user picked
         const prev = spendCats.find((x) => x.label === c.label);
-        next.push({ id: prev?.id ?? c.id, label: c.label, bucket: c.bucket, amount: dollar, unit: 'dollar' });
+        next.push({ id: prev?.id ?? c.id, label: c.label, bucket: c.bucket, amount: amt, unit });
       }
     });
     setOnboardingProfile({ ...(op ?? {}), spendCats: next });
@@ -548,9 +559,8 @@ export default function BudgetScreen() {
               );
             })
           )}
-          <TouchableOpacity style={styles.setLimitsBtn} onPress={openLimitsModal} activeOpacity={0.8}>
-            <Text style={styles.setLimitsBtnText}>✏️  Set monthly limits</Text>
-          </TouchableOpacity>
+          {/* (removed the duplicate bottom "Set monthly limits" button — the "Set limits →" header link
+              above is the single entry point, consistent with the other section headers.) */}
 
           {/* DEBT THIS MONTH — managed in the Debts tab */}
           {(liabilities ?? []).length > 0 && (
@@ -911,7 +921,7 @@ export default function BudgetScreen() {
           <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
-                Set a monthly dollar limit per category. Leave blank for no limit. Categories are grouped by bucket — these limits are your expense plan everywhere in the app.
+                Set a monthly limit per category — tap the $ to switch it to a % of your take-home pay. Leave blank for no limit. These limits are your expense plan everywhere in the app.
               </Text>
             </TipCard>
             {(['fixed', 'nonmonthly', 'flexible'] as const).map((bk) => (
@@ -924,13 +934,21 @@ export default function BudgetScreen() {
                     </View>
                     <Text style={styles.limitLabel}>{label}</Text>
                     <View style={styles.limitInputWrap}>
-                      <Text style={styles.limitDollar}>$</Text>
+                      <TouchableOpacity
+                        onPress={() => setDraftUnits((u) => ({ ...u, [label]: (u[label] ?? 'dollar') === 'pct' ? 'dollar' : 'pct' }))}
+                        hitSlop={{ top: 10, bottom: 10, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel={`${label} unit, currently ${(draftUnits[label] ?? 'dollar') === 'pct' ? 'percent' : 'dollars'}; tap to switch`}>
+                        <Text style={[styles.limitDollar, { color: Colors.primary, fontWeight: '800' }]}>
+                          {(draftUnits[label] ?? 'dollar') === 'pct' ? '%' : '$'}
+                        </Text>
+                      </TouchableOpacity>
                       <TextInput
                         style={styles.limitInput}
                         value={draftLimits[label] ?? ''}
                         onChangeText={(v) => setDraftLimits((d) => ({ ...d, [label]: v }))}
                         keyboardType="decimal-pad"
-                        placeholder="No limit"
+                        placeholder={(draftUnits[label] ?? 'dollar') === 'pct' ? '% of take-home' : 'No limit'}
                         placeholderTextColor={Colors.textTertiary}
                         returnKeyType="done"
                       />
