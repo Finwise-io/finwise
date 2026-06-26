@@ -13,7 +13,7 @@
   "screens/IncomeDetailScreen.tsx": 1,
   "screens/IncomeManagerScreen.tsx": 12,
   "screens/IncomeScreen.tsx": 9,
-  "screens/InsightsScreen.tsx": 1,
+  "screens/InsightsScreen.tsx": 0,
   "screens/JobSafetyScreen.tsx": 5,
   "screens/NetWorthScreen.tsx": 23,
   "screens/OnboardingScreen.tsx": 4,

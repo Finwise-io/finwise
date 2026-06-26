@@ -20,11 +20,14 @@ describe('insight service', () => {
     expect(ins[ins.length - 1].id).toBe('plan-incomplete'); // P3 last
     expect(buildInsights({ ...clean, toxicDebt: { label: 'V', apr: 0.2 }, planPct: 50, k401Remaining: 9000 }, 1)).toHaveLength(1);
   });
-  test('each insight has title + body + route', () => {
-    buildInsights({ ...clean, cashMonths: 0.5 }).forEach((i) => {
+  test('each insight has title + body + route + a theme (for grouping)', () => {
+    // force-fire as many rules as possible so we cover every id's theme mapping.
+    const all = buildInsights({ cashMonths: 0.5, toxicDebt: { label: 'Card', apr: 0.24 }, k401Remaining: 9000, hasEarnedIncome: true, retireChance: 40, cashDragPct: 50, topAccountPct: 60, planPct: 50, beatBy: -0.05, investRate: 0.05 });
+    all.forEach((i) => {
       expect(i.title.length).toBeGreaterThan(0);
       expect(i.body.length).toBeGreaterThan(0);
       expect(i.route).toBeTruthy();
+      expect(['protect', 'grow', 'optimize']).toContain(i.theme);
     });
   });
 

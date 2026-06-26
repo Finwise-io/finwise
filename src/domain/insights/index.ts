@@ -1,7 +1,12 @@
 // Centralized insight service — one rules engine that turns the user's financial state into a ranked
 // list of insights, instead of hardcoding them per screen. Each rule is a pure function returning an
 // Insight (or null). Screens compute the primitive inputs and render the top results.
-export interface Insight { id: string; priority: 1 | 2 | 3; icon: string; title: string; body: string; route?: string; }
+export type InsightTheme = 'protect' | 'grow' | 'optimize';   // the three themes the list is grouped under
+export interface Insight {
+  id: string; priority: 1 | 2 | 3; theme: InsightTheme; icon: string; title: string; body: string;
+  route?: string;
+  details?: { label: string; value: string }[];   // provenance (which accounts / the math) — attached by the screen
+}
 
 export interface InsightInput {
   cashMonths: number | null;                       // emergency-fund runway (months of spending)
@@ -20,7 +25,13 @@ export interface InsightInput {
 const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
 const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
-type Rule = (i: InsightInput) => Insight | null;
+type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the theme; buildInsights attaches it
+type Rule = (i: InsightInput) => RawInsight | null;
+const THEME_BY_ID: Record<string, InsightTheme> = {
+  'toxic-debt': 'protect', 'runway': 'protect', 'retire-offtrack': 'protect', 'concentration': 'protect',
+  'behind-bench': 'grow', 'cash-drag': 'grow', 'invest-rate': 'grow',
+  'k401-room': 'optimize', 'plan-incomplete': 'optimize',
+};
 const RULES: Rule[] = [
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
   // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
@@ -40,6 +51,8 @@ const RULES: Rule[] = [
 
 /** Ranked insights (highest priority first). `limit` caps the result (default all). */
 export function buildInsights(input: InsightInput, limit?: number): Insight[] {
-  const out = RULES.map((r) => r(input)).filter((x): x is Insight => x != null).sort((a, b) => a.priority - b.priority);
+  const out = RULES.map((r) => r(input)).filter((x): x is RawInsight => x != null)
+    .sort((a, b) => a.priority - b.priority)
+    .map((i) => ({ ...i, theme: THEME_BY_ID[i.id] ?? 'optimize' as InsightTheme }));
   return limit != null ? out.slice(0, limit) : out;
 }

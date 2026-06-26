@@ -124,8 +124,11 @@ export default function RetirementCockpit() {
 
   // Screen 1 RIGHT hero confidence — Monte Carlo on the PLAN (summary % only; the band chart is gated on Screen 2)
   const [planChance, setPlanChance] = useState<number | null>(null);
-  useEffect(() => { setPlanChance(simulate(planInputs()).chance_of_success); },
-    [age, nestEgg, planRetireAge, planSave, planSpend, planInfl, planGrowth, ssIncome, claimAge, horizon]);
+  useEffect(() => {
+    const c = simulate(planInputs()).chance_of_success;
+    setPlanChance(c);
+    useStore.getState().setLastRetireChance(c);   // cache for the Insights "retirement needs attention" card (avoids re-running the sim there)
+  }, [age, nestEgg, planRetireAge, planSave, planSpend, planInfl, planGrowth, ssIncome, claimAge, horizon]);
   const level = planChance == null ? Colors.textTertiary : planChance >= 80 ? Colors.primary : planChance >= 60 ? Colors.amber : Colors.red;
 
   // donut segments (earmarked, grouped by section, Net-Worth colors)

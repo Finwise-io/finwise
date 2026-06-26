@@ -232,6 +232,7 @@ type AppState = {
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   estatePlan: Record<string, boolean>;            // estate checklist: item id → done
   retirementScenarios: RetirementScenario[];      // saved what-if scenarios
+  lastRetireChance: number | null;                // last Monte-Carlo success % the cockpit computed (so Insights can show the retire-offtrack card without re-running the sim)
   benchmarkReturns: Record<string, number>;       // asset-kind → expected annual return (decimal); overrides ASSET_KINDS defaults
   priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
   pricesFetchedAt: string | null;                 // ISO of last successful market-data refresh
@@ -284,6 +285,7 @@ type AppState = {
   setExpenseTarget: (type: 'fixed' | 'percent', amount: number, percent: number) => void;
   setSavingsDistribution: (type: 'fixed' | 'percent' | 'leftover') => void;
   setRetirementPlan: (plan: RetirementPlan) => void;
+  setLastRetireChance: (n: number | null) => void;
 
   // Actions - Data
   addIncome: (entry: Omit<IncomeEntry, 'id' | 'createdAt'>) => void;
@@ -424,6 +426,7 @@ export const useStore = create<AppState>()(
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
+      lastRetireChance: null,
       benchmarkReturns: {},
       priceCache: {},
       pricesFetchedAt: null,
@@ -473,6 +476,7 @@ export const useStore = create<AppState>()(
       setExpenseTarget: (type, amount, percent) => set({ expenseTargetType: type, expenseTargetAmount: amount, expenseTargetPercent: percent }),
       setSavingsDistribution: (type) => set({ savingsDistribution: type }),
       setRetirementPlan: (plan) => { set({ retirementPlan: plan }); get().earnBadge('retirement_set'); },
+      setLastRetireChance: (n) => set({ lastRetireChance: n }),
 
       // ── Data actions ─────────────────────────────────────────────
       addIncome: (entry) => {
@@ -803,6 +807,7 @@ export const useStore = create<AppState>()(
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [],
+      lastRetireChance: null,
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [],
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
