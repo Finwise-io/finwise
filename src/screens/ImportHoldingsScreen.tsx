@@ -10,7 +10,7 @@ import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
 import { importHoldings, decodeCsvBase64, type ImportResult } from '../domain/import/holdingsImport';
-import type { AssetClass, TaxBucket } from '../domain/assets';
+import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
 import { round2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
@@ -141,14 +141,19 @@ export default function ImportHoldingsScreen() {
 
         <View style={styles.card}>
           <View style={[styles.row, styles.rowHead]}>
-            <Text style={[styles.cTicker, styles.headTxt]}>Ticker</Text>
+            <Text style={[styles.cTicker, styles.headTxt]}>Security</Text>
             <Text style={[styles.cShares, styles.headTxt]}>Shares</Text>
             <Text style={[styles.cCost, styles.headTxt]}>Cost/share</Text>
           </View>
           {result.holdings.map((h, i) => (
             <View key={i} style={[styles.row, i < result.holdings.length - 1 && styles.rowBorder]}>
-              <Text style={styles.cTicker}>{h.ticker}</Text>
-              <Text style={styles.cShares}>{h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 })}</Text>
+              {/* show a name for EVERY row — non-equities (CD/bond/option) have no ticker, so fall back
+                  to the security description/symbol; tag the asset class so the user sees how it classified. */}
+              <View style={styles.cTicker}>
+                <Text style={styles.secName} numberOfLines={1}>{h.ticker || h.label || h.symbol || '—'}</Text>
+                <Text style={styles.secClass}>{ASSET_CLASS_LABEL[h.assetClass] ?? h.assetClass}</Text>
+              </View>
+              <Text style={styles.cShares}>{h.shares > 0 ? h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}</Text>
               <Text style={styles.cCost}>{h.costPerShare > 0 ? fmt(h.costPerShare) : '—'}</Text>
             </View>
           ))}
@@ -211,7 +216,9 @@ const styles = StyleSheet.create({
   rowHead: { paddingTop: 0, paddingBottom: 8 },
   rowBorder: { borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   headTxt: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  cTicker: { flex: 1.2, fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  cTicker: { flex: 1.2 },
+  secName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  secClass: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
   cShares: { flex: 1, fontSize: 14, color: Colors.textSecondary, textAlign: 'right' },
   cCost: { flex: 1.2, fontSize: 14, color: Colors.textSecondary, textAlign: 'right' },
   note: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 16, textAlign: 'center', marginTop: 12 },
