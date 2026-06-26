@@ -36,6 +36,14 @@ export function setMoneyFormat(currency?: string | null, locale?: string | null)
   }
 }
 
+// Hide-balances (privacy): the ONE place display masking lives, so every formatted amount across the app
+// becomes •••• when on. Module-level (like _code/_locale) + synced from the store in app/_layout.tsx, which
+// also remounts the tree on toggle so all money() call sites re-run. Pure MATH (round2, etc.) is unaffected.
+export const BALANCE_MASK = '••••';
+let _hide = false;
+export function setHideBalances(b: boolean) { _hide = !!b; }
+export function balancesHidden(): boolean { return _hide; }
+
 export function activeCurrency(): Currency {
   return CURRENCIES.find((c) => c.code === _code) ?? CURRENCIES[0];
 }
@@ -46,6 +54,7 @@ export function currencySymbol(): string {
 // Full amount, no minor units (matches the app's whole-number money style), locale-grouped.
 // e.g. USD 2460137 → "$2,460,137" · INR → "₹24,60,137" · EUR (en-IE) → "€2,460,137".
 export function formatMoney(n: number): string {
+  if (_hide) return BALANCE_MASK;
   const v = Number.isFinite(n) ? Math.round(n) : 0;
   try {
     return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, maximumFractionDigits: 0 }).format(v);
@@ -58,6 +67,7 @@ export function formatMoney(n: number): string {
 // Compact form for tight spaces (chart labels, donut center). Manual K/M/MM so it works on any
 // runtime and honors the symbol; placement is symbol-first (refine per-locale in Phase 3).
 export function moneyCompact(n: number, style: 'M' | 'MM' = 'MM'): string {
+  if (_hide) return BALANCE_MASK;
   const s = currencySymbol();
   const neg = n < 0 ? '-' : '';
   const a = Math.abs(n);

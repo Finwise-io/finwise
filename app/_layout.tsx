@@ -5,7 +5,7 @@ import { TouchableOpacity, Text } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
-import { setMoneyFormat } from '../src/domain/_shared/money';
+import { setMoneyFormat, setHideBalances } from '../src/domain/_shared/money';
 import { patchTextScaling, setGlobalFontScale } from '../src/utils/fontScale';
 import { onAuthChange, loadUserData, loadUserRoot, saveUserData } from '../src/services/firebase';
 import { Colors } from '../src/utils/theme';
@@ -52,11 +52,14 @@ function BackButton({ onPress }: { onPress: () => void }) {
 }
 
 export default function RootLayout() {
-  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode, pendingRecoveryCode, setPendingRecoveryCode, securingAccount } = useStore() as any;
+  const { user, setUser, onboardingComplete, onboardingPaused, loadFromCloud, resetAll, fontScale, displayMode, hideBalances, pendingRecoveryCode, setPendingRecoveryCode, securingAccount } = useStore() as any;
   setGlobalFontScale(fontScale ?? 1);   // keep the global text scale current
   // B-23: the app is USD-only until per-country tax/retirement engines exist. Force USD here so a
   // stale non-USD `currency` synced from an old cloud profile can never desync the formatter.
   setMoneyFormat('USD', 'en-US');
+  // Hide-balances: sync the display-mask flag so EVERY money() across the app masks. The remount key
+  // below includes hideBalances, so toggling re-runs all formatters live.
+  setHideBalances(!!hideBalances);
   const router    = useRouter();
   const segments  = useSegments();
   const [isReady, setIsReady] = useState(false);
@@ -157,7 +160,7 @@ export default function RootLayout() {
           onDone={() => setPendingRecoveryCode?.(null)}
         />
         <Stack
-          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}`}   /* remount the tree when text size / display mode changes so it applies everywhere live */
+          key={`fs-${fontScale ?? 1}-${displayMode ?? 'simple'}-${hideBalances ? 'h' : 's'}`}   /* remount the tree when text size / display mode / hide-balances changes so it applies everywhere live */
           screenOptions={{
             headerStyle: { backgroundColor: Colors.bgSecondary },
             headerShadowVisible: false,

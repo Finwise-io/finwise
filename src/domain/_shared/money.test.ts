@@ -1,7 +1,18 @@
 // Money formatting — the single source of truth for how amounts display app-wide.
-import { setMoneyFormat, activeCurrency, currencySymbol, formatMoney, moneyCompact, CURRENCIES } from './money';
+import { setMoneyFormat, setHideBalances, activeCurrency, currencySymbol, formatMoney, moneyCompact, CURRENCIES, BALANCE_MASK } from './money';
 
-afterEach(() => setMoneyFormat('USD', 'en-US'));   // module-level state — always reset
+afterEach(() => { setMoneyFormat('USD', 'en-US'); setHideBalances(false); });   // module-level state — always reset
+
+describe('hide-balances masking (the one display-mask source)', () => {
+  test('setHideBalances(true) masks every formatter; (false) restores', () => {
+    setHideBalances(true);
+    expect(formatMoney(2_500_000)).toBe(BALANCE_MASK);
+    expect(moneyCompact(2_500_000)).toBe(BALANCE_MASK);
+    setHideBalances(false);
+    expect(formatMoney(2500)).toBe('$2,500');
+    expect(moneyCompact(2500)).toBe('$3K');
+  });
+});
 
 describe('setMoneyFormat / activeCurrency', () => {
   test('defaults to USD', () => {
