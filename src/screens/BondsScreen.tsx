@@ -6,6 +6,7 @@ import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
+import { InfoDot } from '../components/UI';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
 
@@ -29,7 +30,7 @@ export default function BondsScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Bonds</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text><InfoDot term="bonds" /></View>
 
       {bonds.length === 0 ? (
         <View style={styles.card}>

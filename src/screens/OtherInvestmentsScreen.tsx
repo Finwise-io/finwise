@@ -6,6 +6,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
+import { InfoDot } from '../components/UI';
 import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isAlternative, alternativesSummary, ALT_KINDS } from '../domain/alternatives';
 
@@ -34,7 +35,7 @@ export default function OtherInvestmentsScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.h1}>Alternatives</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text><InfoDot term="alternatives" /></View>
 
       {alts.length === 0 ? (
         <View style={styles.card}>

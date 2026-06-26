@@ -6,7 +6,7 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { ProgressBar } from '../components/UI';
+import { ProgressBar, InfoDot } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
 import { k401Headroom, annualIraLimit, annualHsaLimit, IRS_LIMITS } from '../domain/income/limits';
 
@@ -46,7 +46,7 @@ export default function ContributionRoomScreen() {
 
   return (
     <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.h1}>Contribution room · {IRS_LIMITS.year}</Text>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={s.h1}>Contribution room · {IRS_LIMITS.year}</Text><InfoDot term="contributionRoom" /></View>
       <Text style={s.sub}>How much more you can still put into tax-advantaged accounts this year. Limits are set by the IRS{age != null ? ` for your age (${age})` : ''}.</Text>
 
       <RoomCard icon="💼" title="401(k)" limit={k401.limit} used={k401.used} knownUsed catchUp={k401.catchUp}

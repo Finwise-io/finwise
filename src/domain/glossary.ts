@@ -5,7 +5,11 @@
 // the canonical selectors (take-home = after tax + 401k; surplus = after debt; etc.).
 export type GlossaryTerm =
   | 'rmd' | 'surplus' | 'nestEgg' | 'unclassified' | 'earmarked'
-  | 'takeHome' | 'investable' | 'emergencyFund' | 'savingsRate' | 'netWorth';
+  | 'takeHome' | 'investable' | 'emergencyFund' | 'savingsRate' | 'netWorth'
+  // asset classes (what your money is invested in) + income — added so the same plain-English meaning
+  // shows wherever these appear (Net Worth classes, holdings, Income).
+  | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
+  | 'grossIncome' | 'contributionRoom';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
@@ -18,4 +22,12 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   rmd:          { title: 'RMD', body: 'Required Minimum Distribution — the amount the IRS requires you to withdraw from pre-tax retirement accounts each year starting at age 73.' },
   emergencyFund:{ title: 'Emergency fund', body: 'Cash set aside for the unexpected — a common target is 3–6 months of your essential spending.' },
   savingsRate:  { title: 'Savings rate', body: 'The share of your take-home pay you set aside each month. Around 20% is a healthy benchmark.' },
+  cash:         { title: 'Cash', body: 'Money in checking, savings, or money-market accounts. Safe and available any time, but earns little.' },
+  stocks:       { title: 'Stocks & ETFs', body: 'Shares of companies, or funds (ETFs) that bundle many stocks together. Higher long-term growth, with more ups and downs along the way.' },
+  bonds:        { title: 'Bonds', body: 'Loans to a government or company that pay you interest (a coupon) and return the face value at maturity. Steadier than stocks; you can also sell them before maturity.' },
+  alternatives: { title: 'Alternatives', body: 'Investments outside plain stocks and bonds — crypto, private equity, commodities, options. Often higher risk and harder to value.' },
+  realEstate:   { title: 'Real estate', body: 'Property you own — your home, rentals, or land. Counts toward net worth; your primary home is left out of the retirement nest egg.' },
+  personalProperty: { title: 'Personal property', body: 'Valuable things you own — vehicles, jewelry, collectibles. Counted in net worth, but not in investable assets.' },
+  grossIncome:  { title: 'Gross income', body: 'Your total pay before any taxes or deductions. Take-home is what’s left after tax and your 401(k).' },
+  contributionRoom: { title: 'Contribution room', body: 'How much more you can still add to a tax-advantaged account (401(k), IRA, HSA) this year before hitting the IRS limit.' },
 };

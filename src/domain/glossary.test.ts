@@ -15,4 +15,12 @@ describe('GLOSSARY (in-context education, §3.3)', () => {
     expect(GLOSSARY.surplus.body).toMatch(/debt/i);              // surplus is after debt
     expect(GLOSSARY.rmd.body).toMatch(/73/);                     // RMD start age
   });
+
+  // device-test: glossary now covers asset classes + income so InfoDots can explain them in-context.
+  test('asset-class + income terms exist (Net Worth class headers, holdings, Income)', () => {
+    for (const t of ['cash', 'stocks', 'bonds', 'alternatives', 'realEstate', 'personalProperty', 'grossIncome', 'contributionRoom'] as const) {
+      expect(GLOSSARY[t].title.trim().length).toBeGreaterThan(0);
+    }
+    expect(GLOSSARY.bonds.body).toMatch(/coupon|maturity/i);     // bonds explained in plain terms
+  });
 });

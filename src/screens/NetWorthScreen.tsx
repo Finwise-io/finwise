@@ -13,7 +13,13 @@ import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from 
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
+import { InfoDot } from '../components/UI';
+import { type GlossaryTerm } from '../domain/glossary';
 
+// asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
+const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
+  cash: 'cash', stocks_etf: 'stocks', bonds: 'bonds', alternatives: 'alternatives', real_estate: 'realEstate', personal_property: 'personalProperty',
+};
 const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
 // #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
 // Labels come from the canonical ASSET_CLASS_LABEL (single source) — only color lives here.
@@ -177,7 +183,13 @@ export default function NetWorthScreen() {
           </View>
           {Object.entries(groups).map(([g, items]) => (
             <View key={g}>
-              <View style={styles.groupHead}><Text style={styles.groupName}>{g}</Text><Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text></View>
+              <View style={styles.groupHead}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Text style={styles.groupName}>{g}</Text>
+                  {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} />}
+                </View>
+                <Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text>
+              </View>
               <View style={styles.card}>
                 {items.map((a, i) => assetRow(a, i,
                   a.label,
