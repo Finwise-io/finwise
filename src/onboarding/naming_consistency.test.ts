@@ -68,6 +68,12 @@ test('NW: investment rows group by asset CLASS label + a true By-institution vie
   expect(src).toMatch(/ASSET_CLASS_LABEL\[assetClassOf\(a\)\]/);  // class label, not assetKind().label
 });
 
+test('NW: a brokerage account surfaces the tickers it holds (LCTX not buried under "Imported holdings")', () => {
+  const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
+  expect(src).toMatch(/withTickers/);
+  expect(src).toMatch(/positions/);
+});
+
 test('Theme 1: Net Worth capture reads as account framing (Option B) with canonical hints', () => {
   const src = fs.readFileSync(path.join(__dirname, '..', 'screens', 'NetWorthScreen.tsx'), 'utf8');
   expect(src).toMatch(/Investments: 'Taxable accounts'/);

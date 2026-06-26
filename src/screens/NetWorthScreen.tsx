@@ -155,6 +155,14 @@ export default function NetWorthScreen() {
     if (sec === 'Investments' && rows.length > 0) {
       const classLabel = (a: AssetAccount) => ASSET_CLASS_LABEL[assetClassOf(a)] ?? 'Unclassified';
       const keyOf = (a: AssetAccount) => invGroup === 'type' ? classLabel(a) : (a.institution?.trim() || 'No institution set');
+      // Surface the tickers inside a brokerage account (e.g. an imported "Imported holdings" account that
+      // holds LCTX, AAPL…) on the row's secondary line, so individual securities aren't buried.
+      const tickersOf = (a: AssetAccount) => ((a as any).positions ?? []).map((p: any) => p.ticker).filter(Boolean) as string[];
+      const withTickers = (a: AssetAccount, base: string) => {
+        const t = tickersOf(a); if (!t.length) return base;
+        const shown = t.slice(0, 4).join(' · ') + (t.length > 4 ? ` +${t.length - 4}` : '');
+        return base ? `${base} · ${shown}` : shown;
+      };
       const groups: Record<string, AssetAccount[]> = {};
       rows.forEach((a) => { (groups[keyOf(a)] ||= []).push(a); });
       return (
@@ -173,7 +181,7 @@ export default function NetWorthScreen() {
               <View style={styles.card}>
                 {items.map((a, i) => assetRow(a, i,
                   a.label,
-                  invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a)))}
+                  withTickers(a, invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a))))}
               </View>
             </View>
           ))}
