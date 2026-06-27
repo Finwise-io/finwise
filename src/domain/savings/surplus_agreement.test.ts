@@ -63,3 +63,9 @@ test('Budget plan total = canonical take-home − spend − debt, labeled "Plann
   expect(s).toMatch(/Planned surplus/);
   expect(s).not.toMatch(/Left over to save/);
 });
+
+test('Goals "free cash to save" capacity = canonical AFTER-debt surplus (build-34 #1)', () => {
+  const s = screen('GoalsScreen.tsx');
+  expect(s).toMatch(/surplusByMonth\(/);              // uses the after-debt grid
+  expect(s).not.toMatch(/savingsByMonth\(op\)/);      // NOT the before-debt grid (over-stated "free up $/mo" by the whole debt payment)
+});
