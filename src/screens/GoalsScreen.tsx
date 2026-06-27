@@ -86,19 +86,21 @@ export default function GoalsScreen() {
         const remaining = Math.max(0, g.target - g.saved);
         const mo = num(g.duration);
         const perMonth = requiredMonthly(g as any) ?? (mo > 0 ? remaining / mo : 0);
-        // On track vs behind: can you fund the required monthly out of your typical free cash (capacity)?
-        const st = goalStatus(g as any, capacity.avg);
+        // build-34 #1b: status from the goal's OWN monthly commitment (savingsAmount), not shared free cash.
+        const committed = g.savingsAmount;
+        const st = goalStatus(g as any, committed);
         const done = pct >= 100 || st === 'done';
         const behind = st === 'behind';
-        const barColor = done ? Colors.successGreen : behind ? Colors.amber : (g.color || Colors.primary);
+        const noPlan = st === 'no_plan';
+        const barColor = done ? Colors.successGreen : behind ? Colors.amber : noPlan ? Colors.textTertiary : (g.color || Colors.primary);
         return (
           <TouchableOpacity key={g.id} style={styles.card} onPress={() => setEdit(g)}>
             <View style={styles.goalHead}>
               <Text style={styles.goalIcon}>{g.icon || '🎯'}</Text>
               <Text style={styles.goalName}>{g.label}</Text>
-              {!done && perMonth > 0 && (
-                <Text style={[styles.goalStatus, { color: behind ? Colors.amber : Colors.successGreen }]}>
-                  {behind ? '🟡 Behind' : '🟢 On track'}
+              {!done && perMonth > 0 && st !== 'no_date' && (
+                <Text style={[styles.goalStatus, { color: behind ? Colors.amber : noPlan ? Colors.textSecondary : Colors.successGreen }]}>
+                  {st === 'on_track' ? '🟢 On track' : behind ? '🟡 Behind' : '⚪ No plan'}
                 </Text>
               )}
               <Text style={styles.goalPct}>{Math.round(pct)}%</Text>
@@ -106,7 +108,10 @@ export default function GoalsScreen() {
             <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: barColor }]} /></View>
             <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · need ~${money(perMonth)}/mo${mo > 0 ? ` for ${mo} mo` : ''}` : ''}</Text>
             {behind && perMonth > 0 && (
-              <Text style={styles.goalBehind}>Needs {money(perMonth)}/mo but you free up ~{money(capacity.avg)}/mo — add more or extend the date.</Text>
+              <Text style={styles.goalBehind}>Saving {money(committed || 0)}/mo but needs {money(perMonth)}/mo — add more or extend the date.</Text>
+            )}
+            {noPlan && perMonth > 0 && (
+              <Text style={styles.goalBehind}>No monthly amount set — needs ~{money(perMonth)}/mo to hit the date. Tap to set one.</Text>
             )}
           </TouchableOpacity>
         );
@@ -262,17 +267,20 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
   const [tMonth, setTMonth] = useState('');
   const [tYear, setTYear] = useState('');
   const [icon, setIcon] = useState('🎯');
+  const [monthly, setMonthly] = useState('');   // build-34 #1b: the goal's own monthly funding commitment
   React.useEffect(() => {
     if (!open) return;
     setLabel(goal?.label ?? ''); setTarget(goal ? String(goal.target) : ''); setSaved(goal ? String(goal.saved) : '');
     const m = String(goal?.targetDate ?? '').match(/(\d{4})-(\d{1,2})/);
     setTMonth(m ? m[2] : ''); setTYear(m ? m[1] : ''); setIcon(goal?.icon || '🎯');
+    setMonthly(goal?.savingsAmount ? String(goal.savingsAmount) : '');
   }, [open]);
   const valid = label.trim() && num(target) > 0;
   // months until the target date (if both set), used to back-calc the monthly amount
   const now = new Date();
   const monthsUntil = (num(tYear) >= now.getFullYear() && num(tMonth) >= 1 && num(tMonth) <= 12)
     ? Math.max(1, (num(tYear) - now.getFullYear()) * 12 + (num(tMonth) - (now.getMonth() + 1))) : 0;
+  const reqMonthly = monthsUntil > 0 ? Math.max(0, (num(target) - num(saved)) / monthsUntil) : 0;
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -295,9 +303,15 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
             <TextInput style={[styles.input, { flex: 1 }]} keyboardType="number-pad" value={tMonth} onChangeText={setTMonth} placeholder="Month (MM)" placeholderTextColor={Colors.textTertiary} />
             <TextInput style={[styles.input, { flex: 1.3 }]} keyboardType="number-pad" value={tYear} onChangeText={setTYear} placeholder="Year (YYYY)" placeholderTextColor={Colors.textTertiary} />
           </View>
-          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(Math.max(0, (num(target) - num(saved)) / monthsUntil))}/mo for {monthsUntil} months to hit it by then.</Text>}
+          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(reqMonthly)}/mo for {monthsUntil} months to hit it by then.</Text>}
+          <Text style={styles.fieldL}>Save toward it each month (optional)</Text>
+          <View style={{ flexDirection: 'row', gap: Spacing.sm, alignItems: 'center' }}>
+            <View style={[styles.amtBox, { flex: 1 }]}><Text style={styles.amtPre}>$</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={monthly} onChangeText={setMonthly} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+            {reqMonthly > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use the required amount, about ${money(reqMonthly)} per month`} onPress={() => setMonthly(String(Math.ceil(reqMonthly)))}><Text style={{ color: Colors.primary, fontWeight: '700', fontSize: 13 }}>Use ~{money(reqMonthly)}</Text></TouchableOpacity>}
+          </View>
+          <Text style={styles.note}>This drives the goal's “On track / Behind” status — it's what you commit to THIS goal, not your spare cash.</Text>
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, icon, color: Colors.primary })}>
+            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, savingsAmount: num(monthly) > 0 ? num(monthly) : undefined, savingsType: num(monthly) > 0 ? 'fixed' : undefined, icon, color: Colors.primary })}>
             <Text style={styles.saveBtnT}>{goal ? 'Save' : 'Add goal'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete goal</Text></TouchableOpacity>}

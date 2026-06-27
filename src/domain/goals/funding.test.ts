@@ -47,4 +47,15 @@ describe('goal funding projections', () => {
     expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('done');
     expect(goalStatus({ target: 6000, saved: 0 }, 100, NOW)).toBe('no_date');
   });
+
+  test('goalStatus: no committed funding (0 / null / undefined) → no_plan, not a misleading green/amber (build-34 #1b)', () => {
+    const g = { target: 6000, saved: 2400, targetDate: '2027-06' };   // needs $300/mo, dated
+    expect(goalStatus(g, 0, NOW)).toBe('no_plan');
+    expect(goalStatus(g, undefined, NOW)).toBe('no_plan');
+    expect(goalStatus(g, null, NOW)).toBe('no_plan');
+    expect(goalStatus(g, 300, NOW)).toBe('on_track');                 // a real commitment resolves normally
+    expect(goalStatus(g, 150, NOW)).toBe('behind');
+    expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('done');   // done/no_date win over no_plan
+    expect(goalStatus({ target: 6000, saved: 0 }, 0, NOW)).toBe('no_date');
+  });
 });
