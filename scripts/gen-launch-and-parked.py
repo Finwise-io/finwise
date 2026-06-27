@@ -209,19 +209,17 @@ P_CAT = {  # short, plain category per id
  "P-71": "Branding",
  **{f"P-{i}": "Other" for i in [72,73,74]},
 }
-# Which backlog items are launch-required v1 work → move up to Tab 1.
-P_TO_TAB1 = {  # id -> (Type, Owner, prefilled Decision)
+# --- Three buckets (re-triaged from your v1 tags into must-ship / fast-follow / future) ---
+# V1 = genuinely must-ship to launch. Only the legal blocker + two safety items join the L-# process list.
+V1_BACKLOG = {  # id -> (Type, Owner, prefilled Decision)
  "P-71": ("Blocker","You→Claude","Before submit — legal"),
- "P-23": ("Important","Claude","Before submit"),
- "P-29": ("Important","Claude","Before submit"),
- "P-63": ("Important","Claude","Before submit"),
- "P-64": ("Important","Claude","Before submit"),
- "P-73": ("Important","Claude","Before submit (enables L-21)"),
- # v1-tagged features lifted up
- **{pid: ("v1 feature","Claude","v1 feature") for pid in
-    ["P-4","P-5","P-6","P-7","P-8","P-10","P-11","P-14","P-15","P-16","P-19","P-20",
-     "P-21","P-27","P-33","P-34","P-35","P-36","P-38","P-39","P-41","P-42","P-43","P-45"]},
+ "P-23": ("Important","Claude","Before submit — safety"),
+ "P-63": ("Important","Claude","Before submit — safety"),
+ "P-33": ("v1 feature","Claude","DONE"),   # already built; ships in the launch build
 }
+# FAST FOLLOW-UP = my recommendation for the first quick update right after launch (ordered by priority).
+FAST = ["P-62","P-38","P-64","P-73","P-4","P-5","P-53","P-28","P-29","P-41","P-39","P-34","P-60"]
+# Everything else in P_TXT (not V1_BACKLOG, not FAST, not the dropped P-59) → V2.
 
 # ---------- 5. BUILD TAB 1 ROWS ----------
 # When each launch item should happen (my recommendation; you can override).
@@ -239,51 +237,58 @@ for (idv, phase, item, owner, typ, stage, status, note) in LAUNCH:
     t1.append([idv, phase, item, owner, typ, stage, status,
                uL(idv,"your_rank"), uL(idv,"j_rank"), uL(idv,"j_notes"),
                LAUNCH_DECISION.get(idv,""), note])
-# append moved backlog items (blockers/important first, then features, in id order)
+# append the few V1 backlog items (blocker first, then important, then the done feature)
 def pnum(pid): return int(pid.split("-")[1])
-movers = sorted(P_TO_TAB1, key=lambda p: ({"Blocker":0,"Important":1,"v1 feature":2}[P_TO_TAB1[p][0]], pnum(p)))
-for pid in movers:
+v1movers = sorted(V1_BACKLOG, key=lambda p: ({"Blocker":0,"Important":1,"v1 feature":2}[V1_BACKLOG[p][0]], pnum(p)))
+for pid in v1movers:
     stage, item, wl, note = P_TXT[pid]
-    typ, owner, decision = P_TO_TAB1[pid]
+    typ, owner, decision = V1_BACKLOG[pid]
     status = "Done — verify" if stage == "Done" else (wl if wl != "Not started" else "Not started")
     t1.append([pid, P_CAT.get(pid,"Backlog"), item, owner, typ, stage, status,
                "", uL(pid,"j_rank"), uL(pid,"j_notes"), decision, note])
 
 write_sheet("V1 — Next launch",
-  "EVERYTHING ON THIS TAB IS V1 (the next launch). It has the must-do steps to ship PLUS the v1 work lifted up "
-  "from the backlog. Type: 'Blocker' = can't ship without it · 'v1 feature' = wanted in the launch but not blocking "
-  "the submission · 'Important'/'Decision'/'Recommended' as labelled. Stage = where it is (Plan→Design→Build→Test→"
-  "Refine→Ready, or Done). The top block (L-#) is the ship process in critical-path order; below it are the v1 "
-  "features. Yellow columns are yours (J Rank / J Notes / Decision); 'Your rank' is my suggested order. To push "
-  "something to a future release, tell me and I'll move it to the V2 tab. Heads-up: the must-ship set is the "
-  "Blockers near the top — the 24 v1 features can't all make a launch that's days away.",
+  "EVERYTHING ON THIS TAB IS V1 — the genuine must-ship list for the next launch, nothing optional. It's the ship "
+  "process (L-#, in critical-path order) plus the only backlog items that truly can't wait: the final app name "
+  "(legal), two safety items, and one feature that's already built. Type: 'Blocker' = can't ship without it · "
+  "'Important' = strongly recommended before submit · 'Decision'/'Recommended' as labelled. Stage = where it is "
+  "(Plan→Design→Build→Test→Refine→Ready, or Done). Yellow columns are yours (J Rank / J Notes / Decision); 'Your "
+  "rank' is my suggested order. Things I'd do right after launch are on the 'Fast follow-up' tab; everything else "
+  "is on 'V2 — Future'.",
   T1_HEAD, t1, [6, 12, 50, 11, 11, 8, 26, 8, 7, 14, 16, 46],
   stage_col=5, user_cols={7,8,9,10}, tab_color="#C00000")
 
-# ---------- 6. BUILD TAB 2 ROWS — V2 (everything NOT in the next launch) ----------
-T2_HEAD = ["ID","Category","Item","Stage","What's left","Your notes","Why it matters"]
-t2 = []
-for i in range(1, 75):
-    pid = f"P-{i}"
-    if pid not in P_TXT:          # dropped (P-59)
-        continue
-    if pid in P_TO_TAB1:          # moved up to the V1 tab
-        continue
+# ---------- 6. BACKLOG TABS — Fast follow-up + V2 (everything NOT in the next launch) ----------
+BL_HEAD = ["ID","Category","Item","Stage","What's left","Your notes","Why it matters"]
+def backlog_row(pid):
     stage, item, wl, note = P_TXT[pid]
-    whats_left = "" if wl == "Not started" else wl
-    t2.append([pid, P_CAT.get(pid,""), item, stage, whats_left, "", note])
+    return [pid, P_CAT.get(pid,""), item, stage, ("" if wl == "Not started" else wl), "", note]
 
+# Fast follow-up — my recommended first update after launch, in priority order.
+fast_rows = [backlog_row(pid) for pid in FAST if pid in P_TXT]
+write_sheet("Fast follow-up",
+  "MY RECOMMENDATION for the first quick update right after launch — high-value, lower-risk improvements that don't "
+  "block the launch but I'd ship soon after. Listed in priority order (top = first). These were pulled out of the "
+  "backlog so they don't get lost behind the bigger V2 work. Want any of these IN the launch instead? Tell me and "
+  "I'll move it to V1. Want one pushed further out? It goes to V2.",
+  BL_HEAD, fast_rows, [6, 13, 52, 8, 34, 18, 52],
+  stage_col=3, user_cols={5}, tab_color="#E69138")
+
+# V2 — everything else, in id order.
+v2_rows = [backlog_row(f"P-{i}") for i in range(1, 75)
+           if f"P-{i}" in P_TXT and f"P-{i}" not in V1_BACKLOG and f"P-{i}" not in FAST]
 write_sheet("V2 — Future",
-  "EVERYTHING ON THIS TAB IS V2 (a future release, after the next launch) — grouped by area. There is no in-between: "
-  "if it's not here, it's in V1. Stage shows how far along each is; 'What's left' spells out what's unfinished for "
-  "the part-done ones. The yellow 'Your notes' column is yours. To pull any of these INTO the next launch, tell me "
-  "and I'll move it to the V1 tab. (I removed the crash-reporting row — it's the same work as launch item L-12.)",
-  T2_HEAD, t2, [6, 13, 52, 8, 34, 18, 52],
+  "EVERYTHING ON THIS TAB IS V2 — a later, bigger release down the road (bank linking, the planning copilot, "
+  "couples, more retirement modelling, translations, design polish, etc.). If it's not on the V1 or Fast follow-up "
+  "tabs, it's here. Stage shows how far along each is; 'What's left' spells out what's unfinished for the part-done "
+  "ones. The yellow 'Your notes' column is yours. To pull anything forward, tell me which tab to move it to. "
+  "(The crash-reporting row was removed — it's the same work as launch item L-12.)",
+  BL_HEAD, v2_rows, [6, 13, 52, 8, 34, 18, 52],
   stage_col=3, user_cols={5}, tab_color="#1F4E5F")
 
 wb.close()
 shutil.copyfile(OUT, SNAP)
 print("wrote", OUT)
 print("snapshot", SNAP)
-print("Tab1 (V1) rows:", len(t1), "| Tab2 (V2) rows:", len(t2), "| dropped: P-59")
+print("V1 rows:", len(t1), "| Fast follow-up rows:", len(fast_rows), "| V2 rows:", len(v2_rows), "| dropped: P-59")
 print("preserved user values for", len(USER), "rows")
