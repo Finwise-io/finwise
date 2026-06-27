@@ -3,6 +3,7 @@
 import {
   totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal,
   investmentsTotal, investableAssets, assetAllocation, type AssetAccount,
+  ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker,
 } from './index';
 
 const a = (over: Partial<AssetAccount>): AssetAccount => ({
@@ -53,5 +54,36 @@ describe('canonical asset selectors — agreement', () => {
     expect(alloc.cash).toBe(cashTotal(portfolio));
     expect(alloc.stocks_etf).toBe(equitiesTotal(portfolio));
     expect(alloc.personal_property).toBe(20000);
+  });
+});
+
+// pj review note: the "add cash" picker only offered Checking/Savings. Added the common cash sub-types.
+// They MUST behave as cash (CASH bucket, class 'cash', no individual tickers) — not be mistaken for investments.
+describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
+  const CASH_KINDS = ['hysa', 'money_market', 'cd', 'cash_mgmt'] as const;
+
+  test('each is registered in the Cash section as a CASH-bucket account', () => {
+    for (const id of CASH_KINDS) {
+      const k = assetKind(id);
+      expect(k).toBeDefined();
+      expect(k!.section).toBe('Cash');
+      expect(k!.bucket).toBe('CASH');
+    }
+  });
+
+  test('each derives asset class "cash" (not "mixed"/investment) and cannot hold tickers', () => {
+    for (const id of CASH_KINDS) {
+      const acct = { asset_id: 'x', label: 'acct', kind: id, tax_bucket: 'CASH', balance: 1000, target_return: 0 } as AssetAccount;
+      expect(assetClassOf(acct)).toBe('cash');
+      expect(accountAllowsTicker(acct)).toBe(false);
+    }
+    // a portfolio of the new cash kinds counts entirely as cash
+    const p = CASH_KINDS.map((id) => ({ asset_id: id, label: id, kind: id, tax_bucket: 'CASH', balance: 1000, target_return: 0 } as AssetAccount));
+    expect(cashTotal(p)).toBe(4000);
+  });
+
+  test('the Cash picker now offers 6 types in order (checking, savings, then the four new ones)', () => {
+    const cashIds = ASSET_KINDS.filter((k) => k.section === 'Cash').map((k) => k.id);
+    expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt']);
   });
 });
