@@ -49,7 +49,10 @@ INSIGHTS (tab)
    Real estate / Personal property), with your net worth in the middle (turns red if negative). A legend
    lists each class with its dollar value and %. Debts show as a red legend row.
    - **✅ Hide balances:** if the eye/Settings toggle is on, the center figure and **every** dollar on this
-     screen (and everywhere else) shows `••••`. *(B-74)*
+     screen (and everywhere else) shows `••••`. *(B-74; **B-90 fixed 2026-06-27** — pj reported "tab not
+     working": the toggle was wired correctly, but ~36 inline `$`-amounts across 12 screens bypassed the
+     formatter and stayed visible. Now masked + locked by a guard test. **Re-verify on device** in build #36.)*
+
 2. **The math, spelled out:** `Assets $X − Debts $Y = Net worth $Z` — so the number is never a mystery.
 3. **Caption + nudge:** explains that you *add money by account*, but the donut *regroups by what it is*
    (a 401(k) splits into the stocks/bonds/cash it holds). If some accounts have unknown holdings, a nudge
