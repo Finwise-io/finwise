@@ -13,50 +13,39 @@ OUT  = "/Users/palakjain/Vibe_Coding/finwise/docs/finwise-launch-and-parked.xlsx
 SNAP = "/Users/palakjain/Vibe_Coding/finwise/docs/snapshots/finwise-launch-and-parked-2026-06-26.xlsx"
 
 # ---------- 1. READ + PRESERVE the user's hand-entered columns from the existing file ----------
+# Sheet-name-agnostic: scan every sheet and capture your_rank / j_rank / j_notes by ID, wherever they live.
 def read_user_cols():
-    pres = {"L": {}, "P": {}}
+    pres = {}
     try:
         wb = openpyxl.load_workbook(OUT, data_only=True)
     except FileNotFoundError:
         return pres
-    def hdr_map(ws):
+    for ws in wb.worksheets:
+        hrow, hm = None, {}
         for r in ws.iter_rows(min_row=1, max_row=6):
             if r and r[0].value == "ID":
-                return r[0].row, {str(c.value).strip().lower(): c.column for c in r if c.value}
-        return None, {}
-    # Tab 1
-    if "Launch Checklist" in wb.sheetnames or "Launch (v1)" in wb.sheetnames:
-        ws = wb["Launch (v1)"] if "Launch (v1)" in wb.sheetnames else wb["Launch Checklist"]
-        hrow, hm = hdr_map(ws)
+                hrow = r[0].row
+                hm = {str(c.value).strip().lower(): c.column for c in r if c.value}
+                break
+        if not hrow:
+            continue
         def col(sub):
             for k, v in hm.items():
                 if sub in k: return v
             return None
         c_yr, c_jr, c_jn = col("your rank"), col("j rank"), col("j notes")
-        for row in ws.iter_rows(min_row=(hrow or 1) + 1):
+        for row in ws.iter_rows(min_row=hrow + 1):
             idv = row[0].value
-            if not idv or not str(idv).startswith("L-"): continue
+            if not idv or not str(idv)[:2] in ("L-", "P-"): continue
             g = lambda c: (ws.cell(row=row[0].row, column=c).value if c else None)
-            pres["L"][str(idv)] = {"your_rank": g(c_yr), "j_rank": g(c_jr), "j_notes": g(c_jn)}
-    # Tab 2
-    if "Parked - Backlog" in wb.sheetnames or "Future backlog" in wb.sheetnames:
-        ws = wb["Future backlog"] if "Future backlog" in wb.sheetnames else wb["Parked - Backlog"]
-        hrow, hm = hdr_map(ws)
-        def col2(sub):
-            for k, v in hm.items():
-                if sub in k: return v
-            return None
-        c_ver = col2("version")
-        for row in ws.iter_rows(min_row=(hrow or 1) + 1):
-            idv = row[0].value
-            if not idv or not str(idv).startswith("P-"): continue
-            g = lambda c: (ws.cell(row=row[0].row, column=c).value if c else None)
-            pres["P"][str(idv)] = {"version": g(c_ver)}
+            cur = pres.setdefault(str(idv), {})
+            for key, c in (("your_rank", c_yr), ("j_rank", c_jr), ("j_notes", c_jn)):
+                if c and g(c) not in (None, ""):
+                    cur[key] = g(c)
     return pres
 
 USER = read_user_cols()
-def uL(pid, k): return (USER["L"].get(pid) or {}).get(k)
-def uP(pid, k): return (USER["P"].get(pid) or {}).get(k)
+def uL(pid, k): return (USER.get(pid) or {}).get(k)
 
 # ---------- 2. WORKBOOK STYLES ----------
 wb = xlsxwriter.Workbook(OUT, {"in_memory": True})
@@ -260,52 +249,41 @@ for pid in movers:
     t1.append([pid, P_CAT.get(pid,"Backlog"), item, owner, typ, stage, status,
                "", uL(pid,"j_rank"), uL(pid,"j_notes"), decision, note])
 
-write_sheet("Launch (v1)",
-  "Everything targeted for the NEXT launch (v1): the must-do steps to ship, PLUS the v1 work lifted up from the "
-  "backlog. Type: 'Blocker' = can't ship without it · 'v1 feature' = wanted in the launch but not blocking the "
-  "submission · 'Important'/'Decision'/'Recommended' as labelled. Stage = where it is (Plan→Design→Build→Test→"
+write_sheet("V1 — Next launch",
+  "EVERYTHING ON THIS TAB IS V1 (the next launch). It has the must-do steps to ship PLUS the v1 work lifted up "
+  "from the backlog. Type: 'Blocker' = can't ship without it · 'v1 feature' = wanted in the launch but not blocking "
+  "the submission · 'Important'/'Decision'/'Recommended' as labelled. Stage = where it is (Plan→Design→Build→Test→"
   "Refine→Ready, or Done). The top block (L-#) is the ship process in critical-path order; below it are the v1 "
-  "features. Yellow columns are yours to fill (J Rank / J Notes / Decision); 'Your rank' is my suggested order. "
-  "Heads-up: the must-ship-to-submit set is the Blockers near the top — the v1 features can't all make a launch that's days away.",
+  "features. Yellow columns are yours (J Rank / J Notes / Decision); 'Your rank' is my suggested order. To push "
+  "something to a future release, tell me and I'll move it to the V2 tab. Heads-up: the must-ship set is the "
+  "Blockers near the top — the 24 v1 features can't all make a launch that's days away.",
   T1_HEAD, t1, [6, 12, 50, 11, 11, 8, 26, 8, 7, 14, 16, 46],
   stage_col=5, user_cols={7,8,9,10}, tab_color="#C00000")
 
-# ---------- 6. BUILD TAB 2 ROWS (everything NOT in v1) ----------
-SOON_TAB2 = {"P-53","P-58","P-60","P-62"}   # soon-after-launch point release (v1.x), not the launch itself
-T2_HEAD = ["ID","Category","Item","Stage","What's left","Version (v1.x soon / v2 future)","Your notes","Why it matters"]
+# ---------- 6. BUILD TAB 2 ROWS — V2 (everything NOT in the next launch) ----------
+T2_HEAD = ["ID","Category","Item","Stage","What's left","Your notes","Why it matters"]
 t2 = []
 for i in range(1, 75):
     pid = f"P-{i}"
     if pid not in P_TXT:          # dropped (P-59)
         continue
-    if pid in P_TO_TAB1:          # moved up to Tab 1
+    if pid in P_TO_TAB1:          # moved up to the V1 tab
         continue
     stage, item, wl, note = P_TXT[pid]
     whats_left = "" if wl == "Not started" else wl
-    ver = uP(pid, "version")
-    ver = str(ver).strip() if ver else ""
-    if ver in ("v1", "v1.x"):
-        ver = "v1.x (soon)"
-    elif pid in SOON_TAB2:
-        ver = "v1.x (soon)"
-    elif ver in ("", "??"):
-        ver = "v2 (future)"       # default untagged/unsure backlog to future for clarity
-    elif ver == "v2":
-        ver = "v2 (future)"
-    t2.append([pid, P_CAT.get(pid,""), item, stage, whats_left, ver, "", note])
+    t2.append([pid, P_CAT.get(pid,""), item, stage, whats_left, "", note])
 
-write_sheet("Future backlog",
-  "Everything NOT in the next launch — future work, grouped by area. Version: 'v1.x (soon)' = a soon-after-launch "
-  "point release · 'v2 (future)' = a later bigger release. Stage shows how far along each is; 'What's left' spells "
-  "out what's unfinished for the part-done ones. Yellow columns are yours (Version / Your notes). Note: I lifted "
-  "every v1 item up to the Launch tab, and removed the crash-reporting row here because it's the same work as a "
-  "launch item (L-12).",
-  T2_HEAD, t2, [6, 13, 52, 8, 34, 20, 18, 50],
-  stage_col=3, user_cols={5,6}, tab_color="#1F4E5F")
+write_sheet("V2 — Future",
+  "EVERYTHING ON THIS TAB IS V2 (a future release, after the next launch) — grouped by area. There is no in-between: "
+  "if it's not here, it's in V1. Stage shows how far along each is; 'What's left' spells out what's unfinished for "
+  "the part-done ones. The yellow 'Your notes' column is yours. To pull any of these INTO the next launch, tell me "
+  "and I'll move it to the V1 tab. (I removed the crash-reporting row — it's the same work as launch item L-12.)",
+  T2_HEAD, t2, [6, 13, 52, 8, 34, 18, 52],
+  stage_col=3, user_cols={5}, tab_color="#1F4E5F")
 
 wb.close()
 shutil.copyfile(OUT, SNAP)
 print("wrote", OUT)
 print("snapshot", SNAP)
-print("Tab1 (Launch v1) rows:", len(t1), "| Tab2 (Future) rows:", len(t2), "| dropped: P-59")
-print("preserved user values for", len(USER["L"]), "L-rows and", len(USER["P"]), "P-rows")
+print("Tab1 (V1) rows:", len(t1), "| Tab2 (V2) rows:", len(t2), "| dropped: P-59")
+print("preserved user values for", len(USER), "rows")
