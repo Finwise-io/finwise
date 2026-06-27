@@ -5,12 +5,12 @@
 # Your hand-entered columns (J Rank, J Notes on Tab 1; Version on Tab 2) are READ LIVE from the existing
 # file and preserved on every rebuild — this script never overwrites them.
 # Usage:  .venv/bin/python scripts/gen-launch-and-parked.py
-import shutil
 import openpyxl
 import xlsxwriter
 
 OUT  = "/Users/palakjain/Vibe_Coding/finwise/docs/finwise-launch-and-parked.xlsx"
-SNAP = "/Users/palakjain/Vibe_Coding/finwise/docs/snapshots/finwise-launch-and-parked-2026-06-26.xlsx"
+# Dated snapshots are a manual step (copy OUT → docs/snapshots/...-<today>.xlsx when committing) so the
+# date is always correct — the generator must NOT hard-code a snapshot filename (it would overwrite an old one).
 
 # ---------- 1. READ + PRESERVE the user's hand-entered columns from the existing file ----------
 # Sheet-name-agnostic: scan every sheet and capture your_rank / j_rank / j_notes by ID, wherever they live.
@@ -287,8 +287,6 @@ write_sheet("V2 — Future",
   stage_col=3, user_cols={5}, tab_color="#1F4E5F")
 
 wb.close()
-shutil.copyfile(OUT, SNAP)
 print("wrote", OUT)
-print("snapshot", SNAP)
 print("V1 rows:", len(t1), "| Fast follow-up rows:", len(fast_rows), "| V2 rows:", len(v2_rows), "| dropped: P-59")
 print("preserved user values for", len(USER), "rows")
