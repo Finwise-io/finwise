@@ -55,6 +55,17 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
   return grid.reduce((t, m) => t + m.amount, 0) / 12;
 }
 
+/** Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share,
+ *  so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3). $ as-is;
+ *  % resolves against take-home (after tax AND 401(k), per A-1) — NOT net-of-tax; non-monthly (yearly) ÷ 12. */
+export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: string } | null | undefined, op: OnboardingProfile | null): number {
+  const amt = toNum(c?.amount); if (amt <= 0) return 0;
+  const pct = c?.unit === 'pct';
+  const base = pctBaseMonthly(op);                                              // take-home/month (== takeHomeMonthly)
+  if (c?.bucket === 'nonmonthly') return (pct ? (amt / 100) * base * 12 : amt) / 12;   // yearly → monthly
+  return pct ? (amt / 100) * base : amt;                                        // fixed / flexible
+}
+
 /** Roll the per-category spending up into the three monthly-normalized buckets.
  *  Categories carry a bucket (fixed/nonmonthly/flexible) and an amount in $ or % of take-home;
  *  non-monthly (yearly) amounts are divided by 12. Falls back to the legacy b_* fields. */
@@ -65,14 +76,12 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
     const fixed = toNum(a.b_fixed), non = toNum(a.b_nonmonthly), flex = toNum(a.b_flexible);
     return { fixed, non_monthly: non, flexible: flex, monthly_total: round2(fixed + non + flex) };
   }
-  const netMonthly = pctBaseMonthly(op);
   let fixed = 0, flex = 0, nonMo = 0;
   for (const c of cats) {
-    const amt = toNum(c?.amount); if (amt <= 0) continue;
-    const pct = c?.unit === 'pct';
-    if (c?.bucket === 'nonmonthly') nonMo += (pct ? (amt / 100) * netMonthly * 12 : amt) / 12;   // yearly → monthly
-    else if (c?.bucket === 'fixed') fixed += pct ? (amt / 100) * netMonthly : amt;
-    else flex += pct ? (amt / 100) * netMonthly : amt;
+    const m = categoryMonthly(c, op); if (m <= 0) continue;                     // the shared per-category $
+    if (c?.bucket === 'nonmonthly') nonMo += m;
+    else if (c?.bucket === 'fixed') fixed += m;
+    else flex += m;
   }
   return { fixed: round2(fixed), non_monthly: round2(nonMo), flexible: round2(flex), monthly_total: round2(fixed + nonMo + flex) };
 }

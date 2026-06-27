@@ -1,4 +1,4 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly } from './index';
 import { takeHomeMonthly } from '../savings';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -200,5 +200,39 @@ describe('plannedMonthlySpend (B-50)', () => {
   });
   test('stated only (no categories) → the stated total', () => {
     expect(plannedMonthlySpend({ monthlySpending: '4200' } as any)).toBe(4200);
+  });
+});
+
+// build-34 #3: a bucket's header total must equal the SUM of its visible line items. Both now flow through
+// ONE helper (categoryMonthly), so % categories resolve against take-home (after tax + 401k) — the screen
+// can no longer show net-of-tax items that overshoot the take-home-based bucket header.
+describe('budget bucket totals reconcile with their line items (categoryMonthly = one source)', () => {
+  const op = {
+    taxMode: 'manual', manualTaxRate: '20',
+    baseSalary: '10000', salaryFreq: 'monthly',     // $120k/yr gross → net-of-tax 8000/mo
+    c_401k: '1000',                                  // 401(k) → take-home < net-of-tax
+    spendCats: [
+      { label: 'Rent', bucket: 'fixed', amount: '50', unit: 'pct' },             // % of take-home
+      { label: 'Utilities', bucket: 'fixed', amount: '500', unit: 'dollar' },
+      { label: 'Travel', bucket: 'nonmonthly', amount: '3600', unit: 'dollar' }, // 3600/yr = 300/mo
+    ],
+  } as any;
+
+  test('a % category resolves against take-home (after tax + 401k), NOT net-of-tax', () => {
+    const th = takeHomeMonthly(op);
+    expect(categoryMonthly(op.spendCats[0], op)).toBeCloseTo(0.5 * th, 2);        // 50% of TAKE-HOME
+    expect(th).toBeLessThan(10000 * (1 - 0.20));                                  // 401(k) subtracted → < net-of-tax
+  });
+
+  test('non-monthly $ category is annual ÷ 12', () => {
+    expect(categoryMonthly(op.spendCats[2], op)).toBeCloseTo(300, 2);            // 3600 / 12
+  });
+
+  test('sum of a bucket\'s line-item limits === the bucket header total', () => {
+    const sumFixed = op.spendCats.filter((c: any) => c.bucket === 'fixed')
+      .reduce((t: number, c: any) => t + categoryMonthly(c, op), 0);
+    expect(sumFixed).toBeCloseTo(spendBuckets(op).fixed, 2);                      // domain header
+    const bva = budgetVsActual([], op);
+    expect(bva.buckets.find((b) => b.key === 'fixed')!.planned).toBeCloseTo(sumFixed, 2); // on-screen header
   });
 });

@@ -10,9 +10,9 @@ import { useStore, useMonthlyStats, useCategorySpend, DebtEntry } from '../store
 import { Card, SegmentedControl, Badge, Button, TipCard, ProgressBar, InfoDot } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTIONS, CATEGORY_BG_OPTIONS, useAllCategories, BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
-import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
+import { budgetVsActual, plannedMonthlySpend, categoryMonthly } from '../domain/budget';
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
-import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
+import { incomeMonthlyGrid } from '../domain/income';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
 import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
@@ -257,13 +257,8 @@ export default function BudgetScreen() {
   const spentOver = spentTotal > planExpenses && planExpenses > 0;
   const budgetPctOfIncome = planIncome > 0 ? Math.round((planExpenses / planIncome) * 100) : 0;
 
-  // per-category $ limit from a spendCat (mirrors spendBuckets() % / non-monthly conversion)
-  const netMonthly = (totalGrossAnnual(op) * (1 - effectiveRate(op))) / 12;
-  const catDollar = (c: any) => {
-    const amt = num(c.amount);
-    if (c.unit === 'pct') return (amt / 100) * netMonthly;
-    return c.bucket === 'nonmonthly' ? amt / 12 : amt;
-  };
+  // per-category $ limit = the SHARED canonical conversion (build-34 #3): same helper spendBuckets uses,
+  // so each line item reconciles with its bucket header (% against take-home after tax + 401(k), not net-of-tax).
 
   // editable budget categories = canonical BUDGET_CATEGORIES + user custom (each carries a bucket)
   const limitCats: { id: string; label: string; bucket: 'fixed' | 'nonmonthly' | 'flexible'; icon: string }[] = [
@@ -282,7 +277,7 @@ export default function BudgetScreen() {
     if (!c?.label) return;
     const bucket = c.bucket || categoryBucketFor(c.label, customCategories ?? []);
     if (!rowsByBucket[bucket]) return;
-    rowsByBucket[bucket].push({ label: c.label, icon: budgetCategoryIcon(c.label, customCategories ?? []), limit: catDollar(c), spent: spentByLabel[c.label] ?? 0 });
+    rowsByBucket[bucket].push({ label: c.label, icon: budgetCategoryIcon(c.label, customCategories ?? []), limit: categoryMonthly(c, op), spent: spentByLabel[c.label] ?? 0 });
     seenCats.add(c.label);
   });
   categorySpend.forEach(({ category, total }) => {
