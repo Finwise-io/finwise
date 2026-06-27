@@ -1,246 +1,311 @@
-# Generates docs/finwise-launch-and-parked.xlsx — ONE workbook for prioritization.
-#   Tab 1 "Launch Checklist" : everything remaining to ship v1 (blockers + recommended).
-#   Tab 2 "Parked / Backlog"  : every consciously-deferred item, deduplicated across all docs.
-# Each tab has a blank "Your rank" + "Decision" column to fill in during review.
-# Statuses reconciled against code/records where the source docs were stale (noted inline).
+# Generates docs/finwise-launch-and-parked.xlsx — ONE workbook for prioritization (plain English).
+#   Tab 1 "Launch (v1)"      : everything targeted for the NEXT launch — process blockers + the v1 work
+#                              lifted up from the backlog. Plain-English items + a lifecycle Stage.
+#   Tab 2 "Future backlog"   : everything NOT in the next launch (v1.x soon / v2 future).
+# Your hand-entered columns (J Rank, J Notes on Tab 1; Version on Tab 2) are READ LIVE from the existing
+# file and preserved on every rebuild — this script never overwrites them.
 # Usage:  .venv/bin/python scripts/gen-launch-and-parked.py
 import shutil
+import openpyxl
 import xlsxwriter
 
 OUT  = "/Users/palakjain/Vibe_Coding/finwise/docs/finwise-launch-and-parked.xlsx"
 SNAP = "/Users/palakjain/Vibe_Coding/finwise/docs/snapshots/finwise-launch-and-parked-2026-06-26.xlsx"
 
-wb = xlsxwriter.Workbook(OUT, {"in_memory": True})
+# ---------- 1. READ + PRESERVE the user's hand-entered columns from the existing file ----------
+def read_user_cols():
+    pres = {"L": {}, "P": {}}
+    try:
+        wb = openpyxl.load_workbook(OUT, data_only=True)
+    except FileNotFoundError:
+        return pres
+    def hdr_map(ws):
+        for r in ws.iter_rows(min_row=1, max_row=6):
+            if r and r[0].value == "ID":
+                return r[0].row, {str(c.value).strip().lower(): c.column for c in r if c.value}
+        return None, {}
+    # Tab 1
+    if "Launch Checklist" in wb.sheetnames or "Launch (v1)" in wb.sheetnames:
+        ws = wb["Launch (v1)"] if "Launch (v1)" in wb.sheetnames else wb["Launch Checklist"]
+        hrow, hm = hdr_map(ws)
+        def col(sub):
+            for k, v in hm.items():
+                if sub in k: return v
+            return None
+        c_yr, c_jr, c_jn = col("your rank"), col("j rank"), col("j notes")
+        for row in ws.iter_rows(min_row=(hrow or 1) + 1):
+            idv = row[0].value
+            if not idv or not str(idv).startswith("L-"): continue
+            g = lambda c: (ws.cell(row=row[0].row, column=c).value if c else None)
+            pres["L"][str(idv)] = {"your_rank": g(c_yr), "j_rank": g(c_jr), "j_notes": g(c_jn)}
+    # Tab 2
+    if "Parked - Backlog" in wb.sheetnames or "Future backlog" in wb.sheetnames:
+        ws = wb["Future backlog"] if "Future backlog" in wb.sheetnames else wb["Parked - Backlog"]
+        hrow, hm = hdr_map(ws)
+        def col2(sub):
+            for k, v in hm.items():
+                if sub in k: return v
+            return None
+        c_ver = col2("version")
+        for row in ws.iter_rows(min_row=(hrow or 1) + 1):
+            idv = row[0].value
+            if not idv or not str(idv).startswith("P-"): continue
+            g = lambda c: (ws.cell(row=row[0].row, column=c).value if c else None)
+            pres["P"][str(idv)] = {"version": g(c_ver)}
+    return pres
 
-HDR = wb.add_format({"bold": True, "font_color": "white", "bg_color": "#1F4E5F",
-                     "border": 1, "border_color": "#CCCCCC", "valign": "vcenter",
-                     "text_wrap": True, "font_size": 11})
+USER = read_user_cols()
+def uL(pid, k): return (USER["L"].get(pid) or {}).get(k)
+def uP(pid, k): return (USER["P"].get(pid) or {}).get(k)
+
+# ---------- 2. WORKBOOK STYLES ----------
+wb = xlsxwriter.Workbook(OUT, {"in_memory": True})
+HDR = wb.add_format({"bold": True, "font_color": "white", "bg_color": "#1F4E5F", "border": 1,
+                     "border_color": "#CCCCCC", "valign": "vcenter", "text_wrap": True, "font_size": 11})
 TITLE = wb.add_format({"bold": True, "font_size": 13, "font_color": "#1F4E5F"})
 NOTE  = wb.add_format({"italic": True, "font_size": 10, "font_color": "#555555", "text_wrap": True, "valign": "top"})
-
-def cell_fmt(bg=None, bold=False):
+def fmt(bg=None, bold=False, italic=False):
     d = {"border": 1, "border_color": "#DDDDDD", "valign": "top", "text_wrap": True, "font_size": 10}
     if bg: d["bg_color"] = bg
     if bold: d["bold"] = True
+    if italic: d["italic"] = True
     return wb.add_format(d)
-BASE = cell_fmt()
-RANK = cell_fmt("#FFF2CC")  # the empty "Your rank" / "Decision" columns — pale yellow = fill me in
-STATUS_BG = {
-    "blocker": "#F8CBCB", "open": "#FCE5CD", "done": "#D9EAD3",
-    "partial": "#FFF2CC", "verify": "#D0E0E3", "decision": "#E6D7F2",
-}
-STATUS_FMT = {k: cell_fmt(v) for k, v in STATUS_BG.items()}
+BASE = fmt()
+USERCOL = fmt("#FFF7DE")          # columns you fill in (pale yellow)
+STAGE_BG = {"Plan": "#EAEAEA", "Design": "#E6D7F2", "Build": "#FCE5CD", "Test": "#D0E0E3",
+            "Refine": "#FFF2CC", "Ready": "#D9EAD3", "Done": "#B6D7A8"}
+STAGE_FMT = {k: fmt(v, bold=True) for k, v in STAGE_BG.items()}
 
-def status_key(s):
-    s = (s or "").lower()
-    if "blocked on build" in s or "blocked" in s: return "open"
-    if "blocker" in s and "done" not in s: return "blocker"
-    if "verify" in s or "likely done" in s: return "verify"
-    if "decision" in s or "decide" in s: return "decision"
-    if "partial" in s: return "partial"
-    if "done" in s or "shipped" in s or "wired" in s: return "done"
-    if "open" in s: return "open"
-    return None
-
-def sheet(name, intro, headers, rows, widths, status_col, rank_cols, tab_color):
+def write_sheet(name, intro, headers, rows, widths, stage_col, user_cols, tab_color):
     ws = wb.add_worksheet(name)
     ws.set_tab_color(tab_color)
-    # intro block (rows 0-1), header on row 3, data from row 4
     ws.merge_range(0, 0, 0, len(headers) - 1, name, TITLE)
     ws.merge_range(1, 0, 2, len(headers) - 1, intro, NOTE)
-    ws.set_row(1, 30)
+    ws.set_row(1, 28)
     HROW = 3
     ws.freeze_panes(HROW + 1, 0)
     for c, (h, w) in enumerate(zip(headers, widths)):
         ws.set_column(c, c, w)
         ws.write(HROW, c, h, HDR)
-    ws.set_row(HROW, 28)
+    ws.set_row(HROW, 30)
     for r, row in enumerate(rows, HROW + 1):
         for c, val in enumerate(row):
-            fmt = BASE
-            if c in rank_cols:
-                fmt = RANK
-            elif status_col is not None and c == status_col:
-                k = status_key(val)
-                if k: fmt = STATUS_FMT[k]
-            ws.write(r, c, val if val is not None else "", fmt)
+            f = BASE
+            if c == stage_col and val in STAGE_FMT:
+                f = STAGE_FMT[val]
+            elif c in user_cols:
+                f = USERCOL
+            ws.write(r, c, "" if val is None else val, f)
     ws.autofilter(HROW, 0, HROW + len(rows), len(headers) - 1)
 
-# ============================ TAB 1 — LAUNCH CHECKLIST ============================
-# Owner: You = account/legal/manual · Claude = in-repo.  Type: Blocker / Recommended / Optional.
-# Status reconciled 2026-06-26: rules ARE deployed (doc stale); build #35 blocked on EAS quota.
-L_HEADERS = ["ID", "Phase", "Item", "Owner", "Type", "Status (2026-06-26)", "Your rank", "Decision", "Notes / next step"]
-L = [
- ["L-1","1.1","Swap market data to a LICENSED vendor (Tiingo / EODHD / AlphaVantage / TwelveData) — replace the unlicensed Yahoo endpoint","You→Claude","Blocker","OPEN — the long pole","","","You pick a vendor + API key (~$10–50/mo EOD); then a ~1-file PriceProvider swap in marketData.ts. Legal blocker."],
- ["L-2","1.2","Deploy Firestore security rules","You","Blocker","DONE 2026-06-17 (checklist doc is STALE)","","","Deployed to finwise-app-jj with the privilege-escalation fix + emulator tests. Verify active in console."],
- ["L-3","1.3","Cut production build #35 + verify OCR + keychain on a real device","You (EAS)","Blocker","BLOCKED on EAS free quota (~Jul 1); code READY","","","739 tests green, tsc clean, T22 loop fix in. Push-button once quota resets. eas build --local fails (macOS-26 keychain)."],
- ["L-4","2","App Store screenshots — 6.9in iPhone, on a REAL device (ML Kit blocks the Simulator)","You","Blocker","OPEN (needs a device build)","","","8 frames + captions + per-persona setup spec'd in finwise-appstore-listing.md."],
- ["L-5","2","Description / keywords / subtitle / promo text","You","Blocker","DRAFTED — needs entry","","","Copy ready in finwise-appstore-listing.md; paste into App Store Connect."],
- ["L-6","2","Category (Finance) + Age rating (4+)","You","Blocker","OPEN (trivial)","","","Questionnaires in ASC."],
- ["L-7","2","Privacy Policy URL + Support URL","You","Blocker","PARTIAL — privacy hosted, needs RE-host of updated copy (see L-11); Support URL TBD","","","finwise-legal is live; B-L1 changed the privacy copy so it must be re-hosted."],
- ["L-8","2.5","App Privacy 'nutrition label' must MATCH the privacy manifest","You","Blocker","OPEN","","","Declare Email, Name, Financial Info, Crash/Diagnostics — all 'app functionality', none 'tracking'. Apple cross-checks."],
- ["L-9","2.5","Reviewer demo login (real account + sample data) in the submission notes","You","Blocker","OPEN","","","Without it the reviewer can't pass the login screen → auto-reject."],
- ["L-10","2.5","Test Delete-account end-to-end on a PRODUCTION build","You","Blocker","OPEN (needs build #35)","","","Guideline 5.1.1(v). Confirm it wipes cloud data + auth."],
- ["L-11","2.6","B-L1 — Re-host the updated privacy/index.html (AI/privacy claim reconciled in code)","You","Blocker","Code DONE (945f929); RE-HOST pending","","","On-device-only tips + ML-Kit OCR; no financial data/receipts leave the device. Live URL must serve the new copy."],
- ["L-12","2.6","B-L2 — Verify a Sentry event lands on the next production build","You","Blocker","WIRED (2026-06-23); VERIFY on build","","","SDK + DSN + plugin + source-maps all set. Fire the Settings test event and confirm it lands."],
- ["L-13","2.6","B-L3 — Disclaimer on every projection / 'on-track' verdict","Claude","Important","DONE (bb68bad)","","","Shared <Disclaimer/> on all judgment screens; coverage guard test."],
- ["L-14","2.6","B-L4 — Graceful network degradation","Claude","Important","DONE (verified, no code change)","","","allSettled + cache fallback; proven by marketData/economicData/store_prices offline tests."],
- ["L-15","2.6","A-1 — One income base (take-home) drives every %-of-income spending category","Claude","Accuracy P0","LIKELY DONE on taxonomy-v1.0.7 — VERIFY","","","take_home_agreement.test + number_agreement.test pass. Confirm the % path specifically."],
- ["L-16","2.6","A-2 — Cross-screen money-agreement matrix + tests","Claude","Accuracy P0","DONE — agreement matrix shipped 2026-06-25","","","number_agreement.test.ts green. A wrong number = lost trust (L-7)."],
- ["L-17","2.6","Verify the bug ledger has no open user-facing money error","Claude","Important","Ongoing — ledger shows 0 open","","","Re-confirm before each submit."],
- ["L-18","2.6","Run the Maestro flows on a real device (auth-signup, smoke, b21-add-sheet, nw-donut, cashflow)","You","Important","OPEN (needs build)","","","Selectors have never executed on-device (ML Kit blocks the simulator)."],
- ["L-19","2.6","Prep the App Review note (educational planning tool; no money movement / linking / securities advice)","You","Important","DRAFT exists (finwise-app-review-notes.md)","","","De-risks the fintech-licensing guideline."],
- ["L-20","2.6","Decide: scope the launch US-only","You","Positioning","DECISION — likely already (USD-only, picker removed)","","","Confirm; don't market global. GLBA/state-privacy posture assumes US."],
- ["L-21","2.6","Decide: track onboarding completion as the #1 launch metric","You","Positioning","DECISION","","","Needs basic analytics (see Parked P-73)."],
- ["L-22","4","Clean onboarding per persona (student / variable-income / professional / retiree) — numbers reconcile","You","Blocker","OPEN (needs build #35)","","","Use finwise-user-guide.md as the script."],
- ["L-23","4","Confirm prices load from the LICENSED provider (not Yahoo)","You","Blocker","Depends on L-1","","",""],
- ["L-24","4","Sign up → log out → recover account → log back in","You","Blocker","OPEN","","",""],
- ["L-25","4","Physical-device test (gestures, keyboard, safe-area, large text)","You","Recommended","OPEN (needs build)","","",""],
- ["L-26","4","eas submit --platform ios --profile production → TestFlight → submit for review","You","Blocker","Final step","","","eas submit is separate from the build quota."],
+# ---------- 3. TAB 1 DATA — Launch (v1) ----------
+# Process / launch items, in critical-path order. (id, phase, item, owner, type, stage, status, note)
+LAUNCH = [
+ ("L-1","Data","Switch to a paid, properly-licensed source for stock & fund prices (the free Yahoo feed isn't legal for a paid app).","You→Claude","Blocker","Plan","Open — the long pole","You pick a provider (Tiingo is cheapest, ~$10–50/mo) and get a key; then I do a small swap. This is a legal must-fix."),
+ ("L-15","Accuracy","Make a spending category entered as a percentage turn into the SAME dollar amount everywhere it's used.","Claude","Accuracy","Test","Likely done — I'm verifying","Automatic checks pass; I'll confirm the percentage path specifically."),
+ ("L-16","Accuracy","Make every screen show the SAME number for the same thing (take-home pay can't differ screen to screen).","Claude","Accuracy","Done","Done 2026-06-25","Locked in by an automatic check. A wrong number = lost trust."),
+ ("L-17","Accuracy","Confirm no money figure shown anywhere is wrong.","Claude","Important","Test","Ongoing — none currently open","Re-check before each submission."),
+ ("L-2","Security","Lock down the cloud database so each person can only read their own data.","You","Blocker","Done","Done 2026-06-17 (the old checklist was stale)","Already deployed; just confirm it's active in the console."),
+ ("L-19","Compliance","Write the note to Apple's reviewer explaining the app is an educational planner (no money movement).","You","Important","Refine","Draft exists","Reduces the risk of rejection under finance-app rules."),
+ ("L-5","Listing","Enter the App Store description, keywords, subtitle, and promo text.","You","Blocker","Refine","Drafted — needs entering","The wording is written; paste it into App Store Connect."),
+ ("L-8","Compliance","Fill in Apple's privacy questionnaire so it matches what the app actually collects.","You","Blocker","Plan","Open","Declare email, name, financial info, crash data — all to run the app, none for tracking. Apple cross-checks."),
+ ("L-6","Listing","Set the app's category (Finance) and age rating (4+).","You","Blocker","Plan","Open (quick)","Short questionnaires in App Store Connect."),
+ ("L-9","Compliance","Create a test login with sample data for Apple's reviewer and include it in the submission.","You","Blocker","Plan","Open","Without it the reviewer can't get past sign-in and will reject."),
+ ("L-7","Listing","Publish a live Privacy Policy page and a Support page, and link them.","You","Blocker","Build","Part done — privacy page needs the new wording re-published; support page not made yet","The privacy page is live but its text changed (see L-11)."),
+ ("L-11","Compliance","Re-publish the privacy page with the new wording: financial data and receipts never leave your device.","You","Blocker","Refine","Wording done in the app; the public page isn't re-published","The promise is already true in the app; the public page must say the same."),
+ ("L-20","Positioning","Decide to launch in the US only for now.","You","Decision","Plan","Likely already (US-dollars only)","Confirm; don't market it globally yet."),
+ ("L-21","Positioning","Decide to track 'how many people finish setup' as the #1 success measure.","You","Decision","Plan","Decision needed","Needs basic usage tracking (see the analytics item below)."),
+ ("L-13","Compliance","Show a 'this is an estimate, not advice' note on every forecast or 'on-track' verdict.","Claude","Important","Done","Done","Added everywhere; a guard test stops it being removed."),
+ ("L-14","Reliability","Make sure the app handles no-internet gracefully instead of crashing.","Claude","Important","Done","Done (verified)","Already safe; proven by offline tests."),
+ ("L-3","Build","Build the real app installer (build #35) and check receipt-scanning + secure storage on a real phone.","You (EAS)","Blocker","Build","Blocked on the free build allowance (~Jul 1); the code is ready","Everything's in and tested; push-button once the allowance resets."),
+ ("L-23","Data","Confirm prices load from the new paid source (not Yahoo).","You","Blocker","Plan","Waiting on the vendor swap (L-1)",""),
+ ("L-12","Reliability","Confirm a crash report actually reaches the dashboard on the new build.","You","Blocker","Test","Wired; verify on the build","Press the test button in Settings and check it lands."),
+ ("L-10","Compliance","Test that 'delete my account' fully wipes your data on a real build.","You","Blocker","Test","Open (needs build #35)","Apple requires this; confirm it removes cloud data and login."),
+ ("L-22","Testing","Walk through setup as each user type (student, variable income, professional, retiree) and check the numbers add up.","You","Blocker","Test","Open (needs build #35)","Use the user guide as the script."),
+ ("L-24","Testing","Test sign up → log out → recover account → log back in.","You","Blocker","Test","Open",""),
+ ("L-18","Testing","Run the automated tap-through tests on a real phone (sign-up, basic screens, add-sheet, net-worth, cash-flow).","You","Important","Test","Open (needs build)","These scripts have never run on a real device, so some may need small fixes the first time."),
+ ("L-25","Testing","Hands-on test on a real phone: gestures, keyboard, screen edges, large text.","You","Recommended","Test","Open (needs build)",""),
+ ("L-4","Listing","Take the App Store screenshots on a real iPhone.","You","Blocker","Build","Open (needs a device build)","8 framed shots with captions are already planned out."),
+ ("L-26","Submit","Submit the build to TestFlight and then to App Review.","You","Blocker","Plan","Final step","Submitting doesn't use the build allowance."),
 ]
-# Recommended order + decision (PRE-FILLED — override freely). rank=col6, decision=col7.
-L_REC = {
- # NOW — not gated on the build; mostly your account/legal tasks + my quick code verifications
- "L-1": (1, "NOW (you+me)"),
- "L-15": (2, "NOW — verify (me)"), "L-16": (3, "NOW — verify (me)"), "L-17": (4, "NOW — verify (me)"),
- "L-2": (5, "DONE — confirm in console"),
- "L-19": (6, "NOW (you)"), "L-5": (7, "NOW (you)"), "L-8": (8, "NOW (you)"), "L-6": (9, "NOW (you)"),
- "L-9": (10, "NOW (you)"), "L-7": (11, "NOW (you)"), "L-11": (12, "NOW (you+me)"),
- "L-20": (13, "NOW — decide"), "L-21": (14, "NOW — decide"),
- "L-13": (15, "DONE"), "L-14": (16, "DONE"),
- # AT BUILD #35 (~Jul 1) — device-side, batches together
- "L-3": (17, "AT BUILD #35"), "L-23": (18, "AT BUILD #35"), "L-12": (19, "AT BUILD #35"),
- "L-10": (20, "AT BUILD #35"), "L-22": (21, "AT BUILD #35"), "L-24": (22, "AT BUILD #35"),
- "L-18": (23, "AT BUILD #35"), "L-25": (24, "AT BUILD #35"), "L-4": (25, "AT BUILD #35"),
- "L-26": (26, "SUBMIT (last)"),
+
+# ---------- 4. BACKLOG DATA (plain English) — from the 74-item rewrite ----------
+# id -> (stage, plain_item, whats_left, plain_note)
+P_TXT = {
+ "P-1": ("Plan","Connect the app to your bank and brokerage so balances and transactions pull in automatically.","Not started","Biggest convenience and stickiness win, but a large build needing a secure server."),
+ "P-2": ("Plan","Automatically figure out dividends from a stock ticker instead of you typing them in.","Not started","Saves manual entry for people who hold dividend-paying stocks."),
+ "P-3": ("Plan","Suggest stock tickers as you type and cache prices so they load faster.","Not started","Nice polish; the core performance views already work."),
+ "P-4": ("Plan","Turn on snap-a-photo receipt scanning and improve how it reads the totals.","Not started","Nearly ready; needs a real device build to switch on and test."),
+ "P-5": ("Plan","Catch bad rows when you import a spreadsheet so imports don't break things.","Not started","Protects against messy files corrupting your data."),
+ "P-6": ("Build","Turn your saved history into smart nudges like 'gas spending up 15% this month'.","A basic 9-rule version works; the richer history-driven version isn't built.","Makes the app feel personal and proactive."),
+ "P-7": ("Plan","Put a consistent tap-to-explain button on every AI suggestion so you see the reasoning.","Not started","Builds trust; explanations exist but aren't uniform yet."),
+ "P-8": ("Plan","Ask the app plain questions like 'can I afford a $600k house?' and get an answer.","Not started","A standout feature that sets the app apart."),
+ "P-9": ("Plan","Compare life choices like buying a home, having a child, or a job change side by side.","Not started","Helps users weigh big decisions."),
+ "P-10": ("Build","Show retirees whether their money will last as they spend it down.","A basic spend-down view exists; deeper retiree-focused views aren't built.","Answers the top question retirees have."),
+ "P-11": ("Plan","Plan smart, tax-savvy withdrawals in retirement to keep more of your money.","Not started","Valuable but sensitive; needs careful, accurate tax handling."),
+ "P-12": ("Plan","Assume your savings grow as your pay rises over the years.","Not started","Makes retirement projections more realistic."),
+ "P-13": ("Plan","Support married filers and other countries' tax and account rules.","Not started","Today it only handles single US filers; needed to expand abroad."),
+ "P-14": ("Plan","Let couples and households share goals while keeping personal views too.","Partner invites are partly built.","Needed for shared finances."),
+ "P-15": ("Plan","Add saving-for-college planning.","Not started","Fills a gap for families with kids."),
+ "P-16": ("Plan","Add life and long-term-care insurance planning.","Not started","Fills a life-stage gap many users hit."),
+ "P-17": ("Plan","Add estate planning like naming who inherits and tracking key documents.","Not started","Rounds out planning for later life stages."),
+ "P-18": ("Plan","Add a job-loss mode showing how long your cash lasts and a survival budget.","Not started","Helps people through a stressful transition."),
+ "P-19": ("Plan","Add a mode for gig and freelance income that smooths uneven pay and sets aside taxes.","Not started","Serves the growing self-employed audience."),
+ "P-20": ("Build","Let users add more details later to sharpen their plan, prompted step by step.","A simple checklist exists; the guided 'add more to sharpen' flow isn't built.","Improves plan accuracy without overwhelming people upfront."),
+ "P-21": ("Plan","Let partners securely share one encrypted account through an invite code.","Not started","Today two logins can't share the same encrypted data; needed for couples."),
+ "P-22": ("Plan","Add two-step login for stronger account security.","Not started","App lock already exists; this is the next security layer."),
+ "P-23": ("Plan","Scan the app's building blocks for known security holes and fix the risky ones.","Not started","A high-priority safety check before launch."),
+ "P-24": ("Plan","Add automated code scanning that flags security flaws as code is written.","Not started","Catches problems early; lower priority."),
+ "P-25": ("Plan","Scan the finished app file for insecure storage or data-transfer issues.","Not started","Extra security check; lower priority."),
+ "P-26": ("Plan","Make sure all data fetches use secure, encrypted connections.","Not started","Protects data in transit; lower priority."),
+ "P-27": ("Plan","Require a fingerprint or face check to confirm the most important actions.","Not started","App unlock already uses biometrics; this adds per-action confirmation."),
+ "P-28": ("Plan","Make every screen work with the screen reader for blind and low-vision users.","Not started","The single biggest accessibility gap (for users with disabilities)."),
+ "P-29": ("Plan","Make buttons big enough to tap reliably for everyone.","Not started","An accessibility basic (for users with disabilities); high priority."),
+ "P-30": ("Plan","Add dark mode and a high-contrast theme.","Not started","A comfort and readability option; lower priority."),
+ "P-31": ("Plan","Check that all text and charts have enough color contrast to be readable.","Not started","An accessibility review (for users with disabilities); medium priority."),
+ "P-32": ("Plan","Tone down animations for users who prefer less motion.","Not started","A small comfort improvement; low priority."),
+ "P-33": ("Done","Add a tap to hide or blur your balances for privacy.","Shipped already; just needs a quick confirmation it works.","Lets you check the app in public without showing your money."),
+ "P-34": ("Plan","Show how many months your cash savings could cover if income stopped.","Not started","A reassuring 'safety cushion' number; overlaps the job-loss mode."),
+ "P-35": ("Plan","Add a Home card showing how your net worth has grown over time.","Not started","A motivating progress view like 'net worth up $40k in 6 months'."),
+ "P-36": ("Build","Redesign the top bar and bottom menu to match the newer look.","The newer style exists elsewhere; the header and menu still use older styling.","Visual consistency across the app."),
+ "P-37": ("Plan","Refresh the older detail screens like budget, transactions, settings, and rewards.","Not started","The new home tiles still open older-looking screens."),
+ "P-38": ("Plan","Make total spending and the category breakdown always add up to the same number.","Not started","Prevents confusing double-counting between summaries and budget."),
+ "P-39": ("Plan","Add loading placeholders and clear offline / syncing states.","Not started","Makes the app feel smoother while data loads; medium priority."),
+ "P-40": ("Plan","Add an app-wide banner showing when you're offline or syncing.","Not started","Keeps users informed about connection status; lower priority."),
+ "P-41": ("Plan","Add an 'undo' option after deleting something by mistake.","Not started","Friendlier than a blocking confirmation pop-up; medium priority."),
+ "P-42": ("Build","Add a reusable 'what's this?' tooltip and a searchable plain-language glossary.","Simple explainer dots were added; the full tooltip and glossary module may be unfinished.","Helps users understand finance terms; lower priority."),
+ "P-43": ("Plan","Set one consistent rule for showing money and dates so cents don't drift.","Not started","Keeps numbers looking correct and uniform; lower priority."),
+ "P-44": ("Plan","Let users pin and rearrange the cards on their Home screen.","Not started","Personalizes the home view; lower priority."),
+ "P-45": ("Plan","Let users switch any chart to a plain data table.","Not started","Easier to read for some users; lower priority."),
+ "P-46": ("Plan","Build a notification system with frequency limits and per-type controls.","Not started","Prevents notification overload; lower priority."),
+ "P-47": ("Plan","Explain why the app needs camera or notification access before the system asks.","Not started","Increases the chance users say yes; lower priority."),
+ "P-48": ("Plan","Show a visible 'your data is encrypted' cue in the app.","Not started","Reassures users their data is protected; low priority."),
+ "P-49": ("Plan","Make form error messages appear at consistent moments across the app.","Not started","Small polish for a smoother experience; low priority."),
+ "P-50": ("Plan","Define standard text styles for titles, body, and captions.","Not started","Keeps typography consistent; low priority."),
+ "P-51": ("Plan","Check that layouts work for one-handed use and large text sizes.","Not started","A comfort and accessibility review (for users with disabilities); low priority."),
+ "P-52": ("Plan","Send reminder nudges like 'you're near your dining budget'.","The plumbing exists; the reminder logic isn't built.","Drives people back into the app."),
+ "P-53": ("Build","Finish the full savings-goals screen with progress, priority, and projections.","The goals tab and funding logic exist; the full visual screen isn't finished.","Helps people set and track goals; a stickiness feature."),
+ "P-54": ("Plan","Add younger, motivational framing and a simpler app-wide mode.","Not started","Makes the app approachable; only one screen has a plain toggle today."),
+ "P-55": ("Plan","Add more game-like rewards, mini lessons, and shareable wins.","Not started","Boosts engagement through milestones and streaks."),
+ "P-56": ("Plan","Add trends, a year-in-review, shareable reports, widgets, and a weekly summary.","Not started","Turns saved history into ongoing value for users."),
+ "P-57": ("Plan","Translate the app's wording into other languages, not just the numbers.","Not started","Needed to reach non-English users; currency formatting already done."),
+ "P-58": ("Build","Confirm money and date formats display correctly on a real device.","The formatting logic is wired; it just needs checking on an actual phone.","Ensures numbers look right everywhere."),
+ "P-60": ("Plan","Let users export their data to a file and import it back.","Not started","Gives users control of their data; medium priority."),
+ "P-61": ("Plan","Safely upgrade saved data as new fields are added over time.","Not started","Prevents data problems when the app updates."),
+ "P-62": ("Plan","Add tests for the core retirement and investment math.","Not started","Protects accuracy of the most important calculations; high priority."),
+ "P-63": ("Plan","Review that every data fetch handles errors gracefully, not just the happy path.","Not started","Prevents crashes and blank screens; high priority."),
+ "P-64": ("Plan","Add timeouts and retries so the app never hangs waiting on data.","Not started","Stops endless loading spinners; medium priority."),
+ "P-65": ("Plan","Replace outdated app components with their current versions.","Not started","Keeps the app maintainable and future-proof; medium priority."),
+ "P-66": ("Plan","Simplify the most tangled parts of the code, like the retirement and income screens.","Not started","Makes future changes safer and easier; lower priority."),
+ "P-67": ("Plan","Remove unused and leftover old code.","Not started","Tidies up the app after launch; lower priority."),
+ "P-68": ("Plan","Tighten up loose data typing to catch more bugs automatically.","Not started","Reduces hidden errors; lower priority."),
+ "P-69": ("Plan","Require core calculations to stay well-tested before any code change ships.","Not started","Guards the most important math automatically."),
+ "P-70": ("Plan","Make design consistency a required check before new code is merged.","Not started","The rules are written but not yet enforced."),
+ "P-71": ("Plan","Pick and trademark a final app name, since 'FinWise' may already be taken.","Not started","A real legal blocker before public launch; 'Hatcho' is the front-runner."),
+ "P-72": ("Plan","Improve overall speed and make the app work well offline.","Not started","A broad, behind-the-scenes quality improvement."),
+ "P-73": ("Plan","Add usage tracking to see how many people finish setup and keep coming back.","Not started","Needed to measure success and the top launch metric."),
+ "P-74": ("Plan","Test the app across many real phone models in the cloud to catch device-specific bugs.","Not started","Ensures it works on the wide range of phones people own."),
+ # P-59 (crash reporting wiring) intentionally DROPPED here — it's the same work as launch item L-12.
 }
-for row in L:
-    rk, dec = L_REC.get(row[0], ("", ""))
-    row[6], row[7] = rk, dec
+P_CAT = {  # short, plain category per id
+ **{f"P-{i}": "Data" for i in [1,2,3,4,5]},
+ **{f"P-{i}": "Insights" for i in [6,7,8,9]},
+ **{f"P-{i}": "Retire" for i in range(10,20)},
+ "P-20": "Onboarding",
+ **{f"P-{i}": "Security" for i in range(21,28)},
+ **{f"P-{i}": "Accessibility" for i in range(28,33)},
+ **{f"P-{i}": "UI/UX" for i in range(33,52)},
+ **{f"P-{i}": "Growth" for i in range(52,57)},
+ **{f"P-{i}": "Quality" for i in range(57,71)},
+ "P-71": "Branding",
+ **{f"P-{i}": "Other" for i in [72,73,74]},
+}
+# Which backlog items are launch-required v1 work → move up to Tab 1.
+P_TO_TAB1 = {  # id -> (Type, Owner, prefilled Decision)
+ "P-71": ("Blocker","You→Claude","Before submit — legal"),
+ "P-23": ("Important","Claude","Before submit"),
+ "P-29": ("Important","Claude","Before submit"),
+ "P-63": ("Important","Claude","Before submit"),
+ "P-64": ("Important","Claude","Before submit"),
+ "P-73": ("Important","Claude","Before submit (enables L-21)"),
+ # v1-tagged features lifted up
+ **{pid: ("v1 feature","Claude","v1 feature") for pid in
+    ["P-4","P-5","P-6","P-7","P-8","P-10","P-11","P-14","P-15","P-16","P-19","P-20",
+     "P-21","P-27","P-33","P-34","P-35","P-36","P-38","P-39","P-41","P-42","P-43","P-45"]},
+}
 
-sheet("Launch Checklist",
-      "Everything left to ship v1, by phase. 'Type' = Blocker (can't ship without) / Recommended / Optional. "
-      "Owner: You = account/legal/manual · Claude = in-repo. Statuses reconciled against code/records on 2026-06-26 "
-      "(a few launch-checklist.md rows were stale — e.g. Firestore rules ARE deployed). The yellow 'Your rank' + "
-      "'Decision' columns are PRE-FILLED with Claude's recommended order — override freely. Headline: ranks 1-16 can "
-      "all happen NOW (before the build resets); 17-25 batch at build #35 (~Jul 1); 26 = submit. 'VERIFY' rows are "
-      "doc/memory-derived — confirm in code before relying.",
-      L_HEADERS, L, [6, 7, 52, 10, 12, 30, 9, 16, 50], status_col=5, rank_cols={6, 7}, tab_color="#C00000")
+# ---------- 5. BUILD TAB 1 ROWS ----------
+# When each launch item should happen (my recommendation; you can override).
+LAUNCH_DECISION = {
+ "L-1":"NOW","L-15":"NOW — verify","L-16":"DONE","L-17":"NOW — verify","L-2":"DONE — confirm console",
+ "L-19":"NOW","L-5":"NOW","L-8":"NOW","L-6":"NOW","L-9":"NOW","L-7":"NOW","L-11":"NOW",
+ "L-20":"NOW — decide","L-21":"NOW — decide","L-13":"DONE","L-14":"DONE",
+ "L-3":"AT BUILD #35","L-23":"AT BUILD #35","L-12":"AT BUILD #35","L-10":"AT BUILD #35",
+ "L-22":"AT BUILD #35","L-24":"AT BUILD #35","L-18":"AT BUILD #35","L-25":"AT BUILD #35",
+ "L-4":"AT BUILD #35","L-26":"SUBMIT (last)",
+}
+T1_HEAD = ["ID","Area","Item","Owner","Type","Stage","Status / what's left","Your rank","J Rank","J Notes","Decision (when)","Notes / next step"]
+t1 = []
+for (idv, phase, item, owner, typ, stage, status, note) in LAUNCH:
+    t1.append([idv, phase, item, owner, typ, stage, status,
+               uL(idv,"your_rank"), uL(idv,"j_rank"), uL(idv,"j_notes"),
+               LAUNCH_DECISION.get(idv,""), note])
+# append moved backlog items (blockers/important first, then features, in id order)
+def pnum(pid): return int(pid.split("-")[1])
+movers = sorted(P_TO_TAB1, key=lambda p: ({"Blocker":0,"Important":1,"v1 feature":2}[P_TO_TAB1[p][0]], pnum(p)))
+for pid in movers:
+    stage, item, wl, note = P_TXT[pid]
+    typ, owner, decision = P_TO_TAB1[pid]
+    status = "Done — verify" if stage == "Done" else (wl if wl != "Not started" else "Not started")
+    t1.append([pid, P_CAT.get(pid,"Backlog"), item, owner, typ, stage, status,
+               "", uL(pid,"j_rank"), uL(pid,"j_notes"), decision, note])
 
-# ============================ TAB 2 — PARKED / BACKLOG ============================
-P_HEADERS = ["ID", "Category", "Item", "Status", "Source doc(s)", "Your rank", "Decision", "Why parked / notes"]
-# Status: Open / Partial / Done-verify / Decision.  "Done-verify" = doc says open but code/memory says shipped — verify & drop.
-P = [
- # --- Data / Integrations ---
- ["P-1","Data/Integrations","Plaid / bank & brokerage linking (account aggregation)","Open","features, roadmap, scorecard, microservices","","","Auto-pull balances/transactions behind an aggregator interface. XL effort, server-side (Cloud Functions). Biggest stickiness/friction lever."],
- ["P-2","Data/Integrations","Auto-derive dividends from ticker (Yahoo yield/events)","Open","features","","","Auto-populate dividends instead of manual entry."],
- ["P-3","Data/Integrations","Ticker autocomplete + price-cache TTL","Open","features","","","Perf v2 polish; attribution/allocation/trend already shipped."],
- ["P-4","Data/Integrations","Receipt OCR native rebuild (activate ML Kit) + tune parsing","Open","features, roadmap","","","npx expo run:ios native rebuild, then test a real scan. Launch-adjacent — folds into build #35."],
- ["P-5","Data/Integrations","CSV import validation (format / length / dup / row-cap)","Open","qa-plan (QA-T2-009)","","","Import has no malformed-row rejection / bounds today. P1."],
- # --- Insights / AI ---
- ["P-6","Insights/AI","History-driven insight engine + notifications (richer than today's 9 rules)","Partial","roadmap 1.5, scorecard","","","9-rule ranked engine shipped; the snapshot-history version ('gas +15%, stocks -12%') powering nudges is parked."],
- ["P-7","Insights/AI","AI 'show your work' — consistent tappable explainer everywhere","Open","ui-compliance (G-27)","","","Explainability strong inline but not a uniform affordance. P2."],
- ["P-8","Insights/AI","Planning copilot — LLM Q&A over your data ('can I afford a $600k house?')","Open","roadmap Ph4","","","Differentiation."],
- ["P-9","Insights/AI","Life-event scenarios (home, child, job change, sabbatical) side-by-side","Open","roadmap Ph4","","",""],
- # --- Retirement / Modeling ---
- ["P-10","Retirement/Modeling","Drawdown / decumulation 'will it last?' view for retirees — deeper surfaces","Partial","features, roadmap, microservices","","","Accumulation done; a drawdown view shipped for the 50yo review; deeper retiree framing open."],
- ["P-11","Retirement/Modeling","Tax-aware drawdown (withdrawal order, cap-gains harvesting, Roth conversions, healthcare/LTC)","Open","features, roadmap, microservices","","","RMDs/order partly shown as transparency; deeper tax-awareness parked (sensitive engine)."],
- ["P-12","Retirement/Modeling","Salary-growth assumption (contributions rise with raises)","Open","features, roadmap, microservices","","",""],
- ["P-13","Retirement/Modeling","Filing status (married/HoH) + multi-country tax & account-type 'packs'","Open","roadmap, scorecard","","","Single-filer US-2026 only today. TaxPack / AccountTypePack abstraction (UK/CA/AU/IN). Tied to global expansion."],
- ["P-14","Retirement/Modeling","Couples / household + shared goals (joint + individual views)","Open","roadmap Ph2.5","","","Partner invite partial. Distinct from the encryption key-sharing item (P-21)."],
- ["P-15","Retirement/Modeling","529 college planning","Open","features","","","Life-stage gap."],
- ["P-16","Retirement/Modeling","Life / long-term-care insurance planning","Open","features","","","Life-stage gap."],
- ["P-17","Retirement/Modeling","Estate / legacy planning (beneficiaries, estate docs)","Open","features, onboarding-matrix","","","Legacy/beneficiary fields deferred from onboarding S7."],
- ["P-18","Retirement/Modeling","Unemployed / transition mode (runway, COBRA, survival budget)","Open","roadmap Ph2.3","","","Overlaps the runway insight (P-34)."],
- ["P-19","Retirement/Modeling","Gig / partially-employed mode (variable-income smoothing, 1099 tax set-aside)","Open","roadmap Ph2.4","","","Pay-yourself-a-salary, irregular cadences, tax reserve."],
- # --- Onboarding ---
- ["P-20","Onboarding","'Sharpen your plan' progressive surface for deferred onboarding fields","Partial","onboarding-matrix, features","","","Checklist version shipped; the progressive 'add more to sharpen' surface (retirement COL, travel/medical budget, allocation, employer match, beneficiaries, risk tolerance, per-goal priority…) is spec'd separately."],
- # --- Security / Privacy ---
- ["P-21","Security/Privacy","Household/partner sharing under zero-knowledge encryption (key-wrapping via invite code)","Open","features","","","Two passwords can't share one key today; fails safe (no crash)."],
- ["P-22","Security/Privacy","Multi-factor authentication (MFA)","Open","features, qa-plan","","","App-lock + inactivity timeout already shipped; MFA is the remaining auth-hardening item."],
- ["P-23","Security/Privacy","Dependency vuln scan (npm audit + Snyk in CI) — triage ~58 advisories","Open","features, qa-plan (T2-005/003)","","","Mostly build-time tooling. Add npm audit --audit-level=high + gitleaks to CI."],
- ["P-24","Security/Privacy","SAST / static analysis (SonarQube / Semgrep) in CI","Open","qa-plan (T2-006)","","","P1."],
- ["P-25","Security/Privacy","Mobile binary scan (MobSF on the EAS build)","Open","qa-plan (T2-007)","","","Insecure-storage/transport scan. P1."],
- ["P-26","Security/Privacy","Transport security hardening (HTTPS-only, cert/timeout handling)","Open","qa-plan (T2-010)","","","Enforce HTTPS on Yahoo/BLS/Treasury fetches. P1."],
- ["P-27","Security/Privacy","Slide-to-confirm / biometric on the heaviest actions (per-action)","Open","ui-compliance (G-15)","","","App-lock biometric shipped; per-action confirm is the gap. P1."],
- # --- Accessibility ---
- ["P-28","A11y","Screen-reader labels (VoiceOver/TalkBack) on the remaining ~26 screens","Open","features, qa-plan, ui-compliance (G-13)","","","Started on shared controls. Single biggest a11y gap. P0."],
- ["P-29","A11y","44x44 touch targets (grow elements, not just hitSlop)","Open","qa-plan, ui-compliance (G-14)","","","Many targets sub-44 via hitSlop. P0."],
- ["P-30","A11y","Dark + high-contrast themes (token swap)","Open","features, qa-plan, ui-compliance (G-21)","","","Light-only today. P2."],
- ["P-31","A11y","WCAG AA contrast audit (text + data viz)","Open","qa-plan, ui-compliance (G-32)","","","Not formally audited. P1/P2."],
- ["P-32","A11y","Reduce-motion-aware micro-interactions","Open","ui-compliance (G-23)","","","P3."],
- # --- UI / UX ---
- ["P-33","UI/UX","Privacy-blur / hide-balances toggle","Done-verify","features, qa-plan, ui-compliance (G-16)","","","features.md says a 'hide-balances mask-ALL' shipped in build #34 — VERIFY in code; likely closable."],
- ["P-34","UI/UX","Runway / emergency-fund insight ('cash covers N months')","Open","features, roadmap","","","Needs a liquid-cash balance. Overlaps unemployed mode (P-18)."],
- ["P-35","UI/UX","Net-worth-over-time card on Home (trend from snapshots)","Open","features","","","'Net worth up $40k over 6 months.'"],
- ["P-36","UI/UX","Header + bottom tab-bar redesign","Partial","features","","","Greeting/streak/avatar header + nav still older styling."],
- ["P-37","UI/UX","Legacy detail-screen redesigns behind nav (Budget/Transactions, Settings, Tips, Rewards)","Open","features, roadmap, scorecard","","","Cockpit tiles route to not-yet-redesigned screens."],
- ["P-38","UI/UX","Single-total vs category-breakdown spend reconciliation (one source of truth)","Open","features","","","Avoid double-counting in recaps vs budget."],
- ["P-39","UI/UX","Skeleton loaders + offline/sync state matrix","Open","ui-compliance (G-25)","","","No skeletons / stale states. P1."],
- ["P-40","UI/UX","App-wide offline / sync indicator banner","Open","ui-compliance (G-20), qa-plan","","","Partial offline handling (tips) but no global status. P2."],
- ["P-41","UI/UX","Undo toasts for reversible deletes ('Deleted · Undo')","Open","ui-compliance (G-11b)","","","Destructive actions use blocking dialogs. P1."],
- ["P-42","UI/UX","Reusable 'what's this?' tooltip + searchable glossary module","Partial","ui-compliance (G-17), microservices","","","Build-#34 added glossary InfoDots; the reusable tooltip/glossary module + deep-links may still be partial — verify scope. P2."],
- ["P-43","UI/UX","Money/date formatting standard (fix cents drift)","Open","ui-compliance (G-26 / B-46)","","","No written standard; cents-vs-whole-dollar drift. P2."],
- ["P-44","UI/UX","User-pinnable / reorderable Home cards","Open","ui-compliance (G-18)","","","Home adapts by persona but users can't pin/reorder. P2."],
- ["P-45","UI/UX","Raw-data / table toggle on charts","Open","ui-compliance (G-19)","","","Cognitive-load + a11y miss. P2."],
- ["P-46","UI/UX","Notification design system (caps, per-type controls, deep-link)","Open","ui-compliance (G-30)","","","Push configured but no frequency caps. P2."],
- ["P-47","UI/UX","Permission priming (camera/notifications) before the OS prompt","Open","ui-compliance (G-29)","","","P2."],
- ["P-48","UI/UX","Surface the encryption cue in the UI (lock / 'encrypted' line)","Open","ui-compliance (G-34)","","","Encryption real but not shown. P3."],
- ["P-49","UI/UX","Form-validation timing consistency (on-blur / submit)","Open","ui-compliance (G-35)","","","P3."],
- ["P-50","UI/UX","Named text styles (Title/Body/Caption) + line-heights","Open","ui-compliance (G-22)","","","Applied ad-hoc, no roles. P3."],
- ["P-51","UI/UX","Thumb-zone / Larger-text layout audit","Open","ui-compliance (G-33), qa-plan","","","P3."],
- # --- Stickiness / Growth ---
- ["P-52","Stickiness/Growth","Push notifications (reminders / nudges)","Open","features","","","Plugin configured; reminder logic not built ('near your dining budget')."],
- ["P-53","Stickiness/Growth","Savings-goals full UI (waterfall-backed: progress, priority, projections)","Partial","features, roadmap, scorecard","","","Goals tab + funding engine exist (B-71); finish the waterfall-backed screen."],
- ["P-54","Stickiness/Growth","Gen-Z motivational framing + app-wide Simple Mode","Open","features, roadmap Ph2.1/2.5","","","Start-now compounding framing; Retirement got only a local plain toggle."],
- ["P-55","Stickiness/Growth","Deeper gamification + education micro-lessons + shareable wins","Open","roadmap Ph2.5","","","Milestones/challenges/streak rewards."],
- ["P-56","Stickiness/Growth","Trends & Year-in-Review + shareable reports + widgets + weekly digest","Open","roadmap Ph4","","","Surface snapshot history as value."],
- # --- Tech-debt / QA ---
- ["P-57","Tech-debt/QA","Full string internationalization (translate copy, not just numbers)","Open","features, roadmap, scorecard","","","Externalize UI strings (i18next), date/number-by-locale, RTL. USD formatter already shipped."],
- ["P-58","Tech-debt/QA","Currency/locale formatting — on-device verification","Partial","features","","","Model + formatter wired on active screens; on-device verify pending."],
- ["P-59","Tech-debt/QA","Sentry full wiring","Done-verify","features, qa-plan","","","MEMORY + launch B-L2 say FULLY WIRED 2026-06-23 — VERIFY & drop (only the on-build verify remains, = L-12)."],
- ["P-60","Tech-debt/QA","Data export (JSON/CSV) — user data-right + round-trip import","Open","qa-plan, ui-compliance (G-28), roadmap 0.4","","","Delete-all exists; no export. P2."],
- ["P-61","Tech-debt/QA","Schema versioning + migrations on store hydrate","Open","roadmap Ph0.4","","","Safe upgrades as fields keep being added."],
- ["P-62","Tech-debt/QA","Unit tests for untested core calcs (Monte-Carlo, corpus, asset returns, grossFromNet…)","Open","qa-plan (T1-030..036)","","","simulate(), capitalNeeded(), solveRetireAge(), blendedReturn, investableValue… lack dedicated tests. P0/P1."],
- ["P-63","Tech-debt/QA","Service-layer error-handling audit (try-catch + typed fallback)","Open","qa-plan (T4-002)","","","Verify BLS/Treasury/OCR/Firebase fetches aren't happy-path-only. P0."],
- ["P-64","Tech-debt/QA","Network timeout / retry on all external calls","Open","qa-plan (T4-003)","","","No infinite spinner; every call needs a timeout + offline fallback. P1."],
- ["P-65","Tech-debt/QA","Deprecated-API sweep (e.g. Swipeable → ReanimatedSwipeable)","Open","qa-plan (T4-001)","","","Migrate deprecated gesture-handler/date/expo APIs. P1."],
- ["P-66","Tech-debt/QA","Complexity-hotspot review (retirement cockpit, income grid)","Open","qa-plan (T4-004)","","","Flag deeply nested logic for refactor. P2."],
- ["P-67","Tech-debt/QA","Dead/orphan code + legacy 'debts' array (B-42) cleanup","Open","qa-plan (T4-005), bug-ledger","","","Unused exports, @deprecated scaffolding. Remove B-42 post-launch once no legacy data. P2."],
- ["P-68","Tech-debt/QA","Type-safety escapes ('as any' casts, store typing) audit","Open","qa-plan (T4-006)","","","P2."],
- ["P-69","Tech-debt/QA","Coverage gate on src/domain (e.g. 80%) in CI","Open","qa-plan §5.2","","",""],
- ["P-70","Tech-debt/QA","Adopt the design-review governance gate as a merge check","Open","ui-compliance (G-36)","","","Tokens/components centralized; the gate is written but not enforced."],
- # --- Branding ---
- ["P-71","Branding","App rename / trademark resolution ('FinWise' may be trademarked)","Open","rename-candidates, README","","","REAL legal blocker before public launch. Front-runner 'Hatcho' (hatcho.io/.ai free, clean open-web TM). Next: pick 2-3, run USPTO TESS (classes 9/36/42), register domains, rename across app."],
- # --- Other ---
- ["P-72","Other","Performance / offline-first architecture (cross-cutting)","Open","roadmap","","",""],
- ["P-73","Other","Analytics / telemetry (activation funnels, D1/D7/D30 retention)","Open","roadmap Ph0.6","","","Needed to know if we're 'top-3'. Enables launch metric L-21."],
- ["P-74","Other","Device-cloud E2E (Maestro on BrowserStack/Sauce for fragmentation)","Open","qa-plan §5.1","","","Broader device-matrix coverage beyond the launch-checklist Maestro flows (L-18)."],
-]
-# Recommended triage (PRE-FILLED — override freely). rank=col5, decision=col6.
-# BEFORE LAUNCH (blockers / quick risk-reducers); SOON (post-launch v1.1); LATER (v1.x/v2); VERIFY → drop.
-P_BEFORE = {"P-71": 1, "P-23": 2, "P-28": 3, "P-29": 4, "P-63": 5, "P-64": 6, "P-73": 7}
-P_SOON   = {"P-4": 8, "P-62": 9, "P-38": 10, "P-53": 11, "P-5": 12, "P-39": 13, "P-41": 14,
-            "P-60": 15, "P-42": 16, "P-34": 17, "P-35": 18, "P-58": 19}
-P_VERIFY = {"P-33", "P-59"}
-for row in P:
-    pid = row[0]
-    if pid in P_BEFORE:   row[5], row[6] = P_BEFORE[pid], "BEFORE LAUNCH"
-    elif pid in P_SOON:   row[5], row[6] = P_SOON[pid], "SOON (v1.1)"
-    elif pid in P_VERIFY: row[5], row[6] = "", "VERIFY → drop"
-    else:                 row[5], row[6] = "", "LATER (v1.x / v2)"
+write_sheet("Launch (v1)",
+  "Everything targeted for the NEXT launch (v1): the must-do steps to ship, PLUS the v1 work lifted up from the "
+  "backlog. Type: 'Blocker' = can't ship without it · 'v1 feature' = wanted in the launch but not blocking the "
+  "submission · 'Important'/'Decision'/'Recommended' as labelled. Stage = where it is (Plan→Design→Build→Test→"
+  "Refine→Ready, or Done). The top block (L-#) is the ship process in critical-path order; below it are the v1 "
+  "features. Yellow columns are yours to fill (J Rank / J Notes / Decision); 'Your rank' is my suggested order. "
+  "Heads-up: the must-ship-to-submit set is the Blockers near the top — the v1 features can't all make a launch that's days away.",
+  T1_HEAD, t1, [6, 12, 50, 11, 11, 8, 26, 8, 7, 14, 16, 46],
+  stage_col=5, user_cols={7,8,9,10}, tab_color="#C00000")
 
-sheet("Parked - Backlog",
-      "Every consciously-deferred item, deduplicated across all docs (features, roadmap, qa-plan, ui-compliance, "
-      "scorecard, microservices, onboarding-matrix, rename-candidates). Status: Open / Partial / Done-verify "
-      "(doc says open but code/memory says shipped — verify & drop). The yellow 'Your rank' + 'Decision' columns are "
-      "PRE-FILLED with Claude's recommended triage — override freely. Recommendation: only 7 items 'BEFORE LAUNCH' "
-      "(P-71 rename is a real blocker; targeted a11y; quick CI/error-handling; light analytics), 2 to VERIFY → drop, "
-      "12 'SOON (v1.1)', the rest 'LATER'. Source = which doc(s) it came from.",
-      P_HEADERS, P, [6, 16, 50, 11, 26, 9, 16, 56], status_col=3, rank_cols={5, 6}, tab_color="#1F4E5F")
+# ---------- 6. BUILD TAB 2 ROWS (everything NOT in v1) ----------
+SOON_TAB2 = {"P-53","P-58","P-60","P-62"}   # soon-after-launch point release (v1.x), not the launch itself
+T2_HEAD = ["ID","Category","Item","Stage","What's left","Version (v1.x soon / v2 future)","Your notes","Why it matters"]
+t2 = []
+for i in range(1, 75):
+    pid = f"P-{i}"
+    if pid not in P_TXT:          # dropped (P-59)
+        continue
+    if pid in P_TO_TAB1:          # moved up to Tab 1
+        continue
+    stage, item, wl, note = P_TXT[pid]
+    whats_left = "" if wl == "Not started" else wl
+    ver = uP(pid, "version")
+    ver = str(ver).strip() if ver else ""
+    if ver in ("v1", "v1.x"):
+        ver = "v1.x (soon)"
+    elif pid in SOON_TAB2:
+        ver = "v1.x (soon)"
+    elif ver in ("", "??"):
+        ver = "v2 (future)"       # default untagged/unsure backlog to future for clarity
+    elif ver == "v2":
+        ver = "v2 (future)"
+    t2.append([pid, P_CAT.get(pid,""), item, stage, whats_left, ver, "", note])
+
+write_sheet("Future backlog",
+  "Everything NOT in the next launch — future work, grouped by area. Version: 'v1.x (soon)' = a soon-after-launch "
+  "point release · 'v2 (future)' = a later bigger release. Stage shows how far along each is; 'What's left' spells "
+  "out what's unfinished for the part-done ones. Yellow columns are yours (Version / Your notes). Note: I lifted "
+  "every v1 item up to the Launch tab, and removed the crash-reporting row here because it's the same work as a "
+  "launch item (L-12).",
+  T2_HEAD, t2, [6, 13, 52, 8, 34, 20, 18, 50],
+  stage_col=3, user_cols={5,6}, tab_color="#1F4E5F")
 
 wb.close()
 shutil.copyfile(OUT, SNAP)
 print("wrote", OUT)
 print("snapshot", SNAP)
-print("launch rows:", len(L), "| parked rows:", len(P))
+print("Tab1 (Launch v1) rows:", len(t1), "| Tab2 (Future) rows:", len(t2), "| dropped: P-59")
+print("preserved user values for", len(USER["L"]), "L-rows and", len(USER["P"]), "P-rows")

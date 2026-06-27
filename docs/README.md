@@ -7,7 +7,7 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 | File | What it is |
 |---|---|
 | `finwise-launch-checklist.md` | **THE** launch checklist — every step to ship, with current status. Start here. |
-| `finwise-launch-and-parked.xlsx` | **Prioritization workbook** — Tab 1 = remaining launch tasks, Tab 2 = all 74 parked/backlog items (deduped across docs). Fill the yellow "Your rank"/"Decision" columns to set work order. Regenerate via `scripts/gen-launch-and-parked.py`. |
+| `finwise-launch-and-parked.xlsx` | **Prioritization workbook (plain English).** Tab "Launch (v1)" = the next-launch board (ship steps + the v1 work lifted from backlog), each with a lifecycle Stage; Tab "Future backlog" = everything else (v1.x soon / v2 future). Yellow columns are user-owned (J Rank/J Notes/Version) and are read-live + preserved on rebuild. Regenerate via `scripts/gen-launch-and-parked.py` (reads openpyxl, writes xlsxwriter). |
 | `finwise-appstore-listing.md` | App Store listing copy (name, subtitle, keywords, description) + screenshot plan |
 | `finwise-app-review-notes.md` | "Notes for the Reviewer" text + demo-login placeholder |
 | `finwise-sentry-setup.md` | Crash reporting (Sentry) setup + verification — **status in the launch checklist** |
