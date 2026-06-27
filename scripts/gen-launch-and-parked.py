@@ -98,12 +98,34 @@ L = [
  ["L-25","4","Physical-device test (gestures, keyboard, safe-area, large text)","You","Recommended","OPEN (needs build)","","",""],
  ["L-26","4","eas submit --platform ios --profile production → TestFlight → submit for review","You","Blocker","Final step","","","eas submit is separate from the build quota."],
 ]
+# Recommended order + decision (PRE-FILLED — override freely). rank=col6, decision=col7.
+L_REC = {
+ # NOW — not gated on the build; mostly your account/legal tasks + my quick code verifications
+ "L-1": (1, "NOW (you+me)"),
+ "L-15": (2, "NOW — verify (me)"), "L-16": (3, "NOW — verify (me)"), "L-17": (4, "NOW — verify (me)"),
+ "L-2": (5, "DONE — confirm in console"),
+ "L-19": (6, "NOW (you)"), "L-5": (7, "NOW (you)"), "L-8": (8, "NOW (you)"), "L-6": (9, "NOW (you)"),
+ "L-9": (10, "NOW (you)"), "L-7": (11, "NOW (you)"), "L-11": (12, "NOW (you+me)"),
+ "L-20": (13, "NOW — decide"), "L-21": (14, "NOW — decide"),
+ "L-13": (15, "DONE"), "L-14": (16, "DONE"),
+ # AT BUILD #35 (~Jul 1) — device-side, batches together
+ "L-3": (17, "AT BUILD #35"), "L-23": (18, "AT BUILD #35"), "L-12": (19, "AT BUILD #35"),
+ "L-10": (20, "AT BUILD #35"), "L-22": (21, "AT BUILD #35"), "L-24": (22, "AT BUILD #35"),
+ "L-18": (23, "AT BUILD #35"), "L-25": (24, "AT BUILD #35"), "L-4": (25, "AT BUILD #35"),
+ "L-26": (26, "SUBMIT (last)"),
+}
+for row in L:
+    rk, dec = L_REC.get(row[0], ("", ""))
+    row[6], row[7] = rk, dec
+
 sheet("Launch Checklist",
       "Everything left to ship v1, by phase. 'Type' = Blocker (can't ship without) / Recommended / Optional. "
       "Owner: You = account/legal/manual · Claude = in-repo. Statuses reconciled against code/records on 2026-06-26 "
-      "(a few launch-checklist.md rows were stale — e.g. Firestore rules ARE deployed). Fill the yellow 'Your rank' "
-      "+ 'Decision' columns to set the order we work them. Rows marked 'VERIFY' are doc/memory-derived — confirm in code before relying.",
-      L_HEADERS, L, [6, 7, 52, 10, 12, 30, 9, 12, 50], status_col=5, rank_cols={6, 7}, tab_color="#C00000")
+      "(a few launch-checklist.md rows were stale — e.g. Firestore rules ARE deployed). The yellow 'Your rank' + "
+      "'Decision' columns are PRE-FILLED with Claude's recommended order — override freely. Headline: ranks 1-16 can "
+      "all happen NOW (before the build resets); 17-25 batch at build #35 (~Jul 1); 26 = submit. 'VERIFY' rows are "
+      "doc/memory-derived — confirm in code before relying.",
+      L_HEADERS, L, [6, 7, 52, 10, 12, 30, 9, 16, 50], status_col=5, rank_cols={6, 7}, tab_color="#C00000")
 
 # ============================ TAB 2 — PARKED / BACKLOG ============================
 P_HEADERS = ["ID", "Category", "Item", "Status", "Source doc(s)", "Your rank", "Decision", "Why parked / notes"]
@@ -195,12 +217,27 @@ P = [
  ["P-73","Other","Analytics / telemetry (activation funnels, D1/D7/D30 retention)","Open","roadmap Ph0.6","","","Needed to know if we're 'top-3'. Enables launch metric L-21."],
  ["P-74","Other","Device-cloud E2E (Maestro on BrowserStack/Sauce for fragmentation)","Open","qa-plan §5.1","","","Broader device-matrix coverage beyond the launch-checklist Maestro flows (L-18)."],
 ]
+# Recommended triage (PRE-FILLED — override freely). rank=col5, decision=col6.
+# BEFORE LAUNCH (blockers / quick risk-reducers); SOON (post-launch v1.1); LATER (v1.x/v2); VERIFY → drop.
+P_BEFORE = {"P-71": 1, "P-23": 2, "P-28": 3, "P-29": 4, "P-63": 5, "P-64": 6, "P-73": 7}
+P_SOON   = {"P-4": 8, "P-62": 9, "P-38": 10, "P-53": 11, "P-5": 12, "P-39": 13, "P-41": 14,
+            "P-60": 15, "P-42": 16, "P-34": 17, "P-35": 18, "P-58": 19}
+P_VERIFY = {"P-33", "P-59"}
+for row in P:
+    pid = row[0]
+    if pid in P_BEFORE:   row[5], row[6] = P_BEFORE[pid], "BEFORE LAUNCH"
+    elif pid in P_SOON:   row[5], row[6] = P_SOON[pid], "SOON (v1.1)"
+    elif pid in P_VERIFY: row[5], row[6] = "", "VERIFY → drop"
+    else:                 row[5], row[6] = "", "LATER (v1.x / v2)"
+
 sheet("Parked - Backlog",
       "Every consciously-deferred item, deduplicated across all docs (features, roadmap, qa-plan, ui-compliance, "
       "scorecard, microservices, onboarding-matrix, rename-candidates). Status: Open / Partial / Done-verify "
-      "(doc says open but code/memory says shipped — verify & drop) / Decision. Fill the yellow 'Your rank' + "
-      "'Decision' (do-now / next / later / drop) columns. Source = which doc(s) it came from.",
-      P_HEADERS, P, [6, 16, 50, 11, 26, 9, 11, 56], status_col=3, rank_cols={5, 6}, tab_color="#1F4E5F")
+      "(doc says open but code/memory says shipped — verify & drop). The yellow 'Your rank' + 'Decision' columns are "
+      "PRE-FILLED with Claude's recommended triage — override freely. Recommendation: only 7 items 'BEFORE LAUNCH' "
+      "(P-71 rename is a real blocker; targeted a11y; quick CI/error-handling; light analytics), 2 to VERIFY → drop, "
+      "12 'SOON (v1.1)', the rest 'LATER'. Source = which doc(s) it came from.",
+      P_HEADERS, P, [6, 16, 50, 11, 26, 9, 16, 56], status_col=3, rank_cols={5, 6}, tab_color="#1F4E5F")
 
 wb.close()
 shutil.copyfile(OUT, SNAP)
