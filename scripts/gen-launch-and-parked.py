@@ -91,7 +91,7 @@ def write_sheet(name, intro, headers, rows, widths, stage_col, user_cols, tab_co
 # Process / launch items, in critical-path order. (id, phase, item, owner, type, stage, status, note)
 LAUNCH = [
  ("L-1","Data","Switch to a paid, properly-licensed source for stock & fund prices (the free Yahoo feed isn't legal for a paid app).","You→Claude","Blocker","Plan","Open — the long pole","You pick a provider (Tiingo is cheapest, ~$10–50/mo) and get a key; then I do a small swap. This is a legal must-fix."),
- ("L-15","Accuracy","Make a spending category entered as a percentage turn into the SAME dollar amount everywhere it's used.","Claude","Accuracy","Test","Likely done — I'm verifying","Automatic checks pass; I'll confirm the percentage path specifically."),
+ ("L-15","Accuracy","Make a spending category entered as a percentage turn into the SAME dollar amount everywhere it's used.","Claude","Accuracy","Done","Done — verified in code 2026-06-27","Confirmed: % spending resolves against the take-home base everywhere (pinned by budget tests)."),
  ("L-16","Accuracy","Make every screen show the SAME number for the same thing (take-home pay can't differ screen to screen).","Claude","Accuracy","Done","Done 2026-06-25","Locked in by an automatic check. A wrong number = lost trust."),
  ("L-17","Accuracy","Confirm no money figure shown anywhere is wrong.","Claude","Important","Test","Ongoing — none currently open","Re-check before each submission."),
  ("L-2","Security","Lock down the cloud database so each person can only read their own data.","You","Blocker","Done","Done 2026-06-17 (the old checklist was stale)","Already deployed; just confirm it's active in the console."),
@@ -153,7 +153,7 @@ P_TXT = {
  "P-30": ("Plan","Add dark mode and a high-contrast theme.","Not started","A comfort and readability option; lower priority."),
  "P-31": ("Plan","Check that all text and charts have enough color contrast to be readable.","Not started","An accessibility review (for users with disabilities); medium priority."),
  "P-32": ("Plan","Tone down animations for users who prefer less motion.","Not started","A small comfort improvement; low priority."),
- "P-33": ("Done","Add a tap to hide or blur your balances for privacy.","Shipped already; just needs a quick confirmation it works.","Lets you check the app in public without showing your money."),
+ "P-33": ("Done","Add a tap to hide or blur your balances for privacy.","Fixed 2026-06-27 (B-90): all 36 leaking displays now masked, locked by a guard test. Re-verify on build #36.","Lets you check the app in public without showing your money."),
  "P-34": ("Plan","Show how many months your cash savings could cover if income stopped.","Not started","A reassuring 'safety cushion' number; overlaps the job-loss mode."),
  "P-35": ("Plan","Add a Home card showing how your net worth has grown over time.","Not started","A motivating progress view like 'net worth up $40k in 6 months'."),
  "P-36": ("Build","Redesign the top bar and bottom menu to match the newer look.","The newer style exists elsewhere; the header and menu still use older styling.","Visual consistency across the app."),
@@ -224,7 +224,7 @@ FAST = ["P-62","P-38","P-64","P-73","P-4","P-5","P-53","P-28","P-29","P-41","P-3
 # ---------- 5. BUILD TAB 1 ROWS ----------
 # When each launch item should happen (my recommendation; you can override).
 LAUNCH_DECISION = {
- "L-1":"NOW","L-15":"NOW — verify","L-16":"DONE","L-17":"NOW — verify","L-2":"DONE — confirm console",
+ "L-1":"NOW","L-15":"DONE","L-16":"DONE","L-17":"NOW — verify","L-2":"DONE — confirm console",
  "L-19":"NOW","L-5":"NOW","L-8":"NOW","L-6":"NOW","L-9":"NOW","L-7":"NOW","L-11":"NOW",
  "L-20":"NOW — decide","L-21":"NOW — decide","L-13":"DONE","L-14":"DONE",
  "L-3":"AT BUILD #35","L-23":"AT BUILD #35","L-12":"AT BUILD #35","L-10":"AT BUILD #35",
