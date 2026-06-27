@@ -95,7 +95,7 @@ export default function TaxOrganizerScreen() {
 
 function orgToHtml(o: TaxOrganizer): string {
   const rows = (lines: { label: string; amount: number }[]) =>
-    lines.map((l) => `<tr><td>${l.label}</td><td style="text-align:right">$${Math.round(l.amount).toLocaleString()}</td></tr>`).join('');
+    lines.map((l) => `<tr><td>${l.label}</td><td style="text-align:right">$${Math.round(l.amount).toLocaleString()}</td></tr>`).join(''); // money-mask-ok: generated HTML export document the user shares with their accountant, not an on-screen display
   return `<html><head><meta name="viewport" content="width=device-width"><style>
     body{font-family:-apple-system,Helvetica,Arial;padding:28px;color:#1a1a1a}
     h1{font-size:22px;margin:0 0 2px} .sub{color:#666;font-size:12px;margin-bottom:18px}
@@ -107,7 +107,7 @@ function orgToHtml(o: TaxOrganizer): string {
     <h1>Tax Organizer — ${o.year}</h1>
     <div class="sub">Prepared in FinWise · a summary for your accountant, not a tax return</div>
     <h2>INCOME</h2><table>${rows(o.income)}
-      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.taxableTotal).toLocaleString()}</td></tr></table>
+      <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.taxableTotal).toLocaleString()}</td></tr></table><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}
     ${o.accounts.length ? `<h2>ACCOUNTS (YEAR-END)</h2><table>${rows(o.accounts.map((a) => ({ label: `${a.label} (${a.kind})`, amount: a.balance })))}</table>` : ''}
     <h2>DOCUMENTS TO GATHER</h2><ul>${o.documents.map((d) => `<li>${d}</li>`).join('')}</ul>

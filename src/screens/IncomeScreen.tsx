@@ -6,6 +6,7 @@ import {
 import { useRouter } from 'expo-router';
 import { useStore, RecurringIncome } from '../store/useStore';
 import { Button, Card, TipCard, SegmentedControl } from '../components/UI';
+import { money2 } from '../domain/_shared/num';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { format, addDays, addMonths } from 'date-fns';
 
@@ -62,7 +63,7 @@ export default function IncomeScreen() {
     });
     setRecurSource(''); setRecurAmount('');
     setRecurStart(format(new Date(), 'yyyy-MM-dd'));
-    Alert.alert('Recurring income added!', `$${amt.toFixed(2)} ${recurFreq} from "${recurSource}" will auto-log on each due date.`);
+    Alert.alert('Recurring income added!', `$${amt.toFixed(2)} ${recurFreq} from "${recurSource}" will auto-log on each due date.`); // money-mask-ok: transient confirmation echoing the amount the user just entered
   }
 
   function handleDeleteRecurring(id: string) {
@@ -145,7 +146,7 @@ export default function IncomeScreen() {
     resetForm();
     Alert.alert(
       editId ? 'Income updated! ✓' : 'Income saved! 💵',
-      `$${amountToSave.toFixed(2)} logged.${monthlyEquiv !== enteredAmount ? `\n≈ $${monthlyEquiv.toFixed(2)}/month` : ''}`,
+      `$${amountToSave.toFixed(2)} logged.${monthlyEquiv !== enteredAmount ? `\n≈ $${monthlyEquiv.toFixed(2)}/month` : ''}`, // money-mask-ok: transient confirmation echoing the amount the user just entered
       [
         { text: 'Add more', style: 'cancel', onPress: () => setTab('add') },
         { text: 'Done', onPress: () => { setTab('list'); } },
@@ -203,7 +204,7 @@ export default function IncomeScreen() {
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.entryAmt}>+${item.amount.toFixed(2)}</Text>
+                  <Text style={styles.entryAmt}>+{money2(item.amount)}</Text>
                   <Text style={styles.entryEdit}>Tap to edit</Text>
                 </View>
               </TouchableOpacity>
@@ -232,7 +233,7 @@ export default function IncomeScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.entryLabel}>{r.source}</Text>
                       <Text style={styles.entryDate}>
-                        ${r.amount.toFixed(2)} · {r.frequency} · next: {format(new Date(r.nextDate), 'MMM d')}
+                        {money2(r.amount)} · {r.frequency} · next: {format(new Date(r.nextDate), 'MMM d')}
                       </Text>
                     </View>
                     <TouchableOpacity onPress={() => updateRecurringIncome(r.id, { active: !r.active })} style={styles.recurToggle}>
@@ -367,7 +368,7 @@ export default function IncomeScreen() {
                     {hourlyTotal > 0 && (
                       <View style={styles.calcBox}>
                         <Text style={styles.calcLabel}>You earned</Text>
-                        <Text style={styles.calcValue}>${hourlyTotal.toFixed(2)}</Text>
+                        <Text style={styles.calcValue}>{money2(hourlyTotal)}</Text>
                       </View>
                     )}
                   </Card>
@@ -392,7 +393,7 @@ export default function IncomeScreen() {
                     {amount !== '' && freq !== 'monthly' && (
                       <View style={styles.calcBox}>
                         <Text style={styles.calcLabel}>Monthly equivalent</Text>
-                        <Text style={styles.calcValue}>${monthlyEquiv.toFixed(2)}/month</Text>
+                        <Text style={styles.calcValue}>{money2(monthlyEquiv)}/month</Text>
                       </View>
                     )}
                   </Card>
@@ -442,7 +443,7 @@ export default function IncomeScreen() {
             </Card>
 
             <Button
-              label={editId ? `Update income ✓` : isValid ? `Save $${enteredAmount.toFixed(2)} ✓` : 'Enter amount above'}
+              label={editId ? `Update income ✓` : isValid ? `Save $${enteredAmount.toFixed(2)} ✓` : 'Enter amount above'} // money-mask-ok: input-echo of the amount the user is actively typing
               onPress={handleSave}
               loading={saving}
               disabled={!isValid}

@@ -6,6 +6,8 @@ import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
 import { Card, DarkCard, TipCard } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
 import { savingsRateCash } from '../domain/savings';   // B-68: ONE canonical savings rate (savings ÷ take-home), not a bespoke per-screen calc
+import { money, money2 } from '../domain/_shared/num';
+import { moneyCompact } from '../domain/_shared/money';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 // Pure JS date helpers — no date-fns needed
@@ -103,18 +105,18 @@ export default function AnalyticsScreen() {
             <View style={styles.triRow}>
               <View style={styles.triItem}>
                 <Text style={styles.triLabel}>Income</Text>
-                <Text style={[styles.triVal, { color: Colors.successGreen }]}>${monthIncome.toFixed(0)}</Text>
+                <Text style={[styles.triVal, { color: Colors.successGreen }]}>{money(monthIncome)}</Text>
               </View>
               <View style={styles.triDiv} />
               <View style={styles.triItem}>
                 <Text style={styles.triLabel}>Actual spend</Text>
-                <Text style={[styles.triVal, { color: '#FAC775' }]}>${monthSpend.toFixed(0)}</Text>
+                <Text style={[styles.triVal, { color: '#FAC775' }]}>{money(monthSpend)}</Text>
               </View>
               <View style={styles.triDiv} />
               <View style={styles.triItem}>
                 <Text style={styles.triLabel}>{remaining >= 0 ? 'Surplus' : 'Over'}</Text>
                 <Text style={[styles.triVal, { color: remaining >= 0 ? Colors.successGreen : '#F09595' }]}>
-                  ${Math.abs(remaining).toFixed(0)}
+                  {money(Math.abs(remaining))}
                 </Text>
               </View>
             </View>
@@ -158,9 +160,9 @@ export default function AnalyticsScreen() {
           <Card>
             <Text style={styles.secTitle}>Last 6 months totals</Text>
             {[
-              { label: 'Total income', value: `$${totalIncome6m.toLocaleString()}`, color: Colors.primary },
-              { label: 'Total expenses', value: `$${totalExpense6m.toLocaleString()}`, color: Colors.red },
-              { label: 'Total saved', value: `$${totalSavings6m.toLocaleString()}`, color: Colors.primary },
+              { label: 'Total income', value: money(totalIncome6m), color: Colors.primary },
+              { label: 'Total expenses', value: money(totalExpense6m), color: Colors.red },
+              { label: 'Total saved', value: money(totalSavings6m), color: Colors.primary },
               { label: 'Avg savings rate (take-home)', value: `${avg6mSavingsRate}%`, color: avg6mSavingsRate >= 20 ? Colors.primary : Colors.amber },
             ].map((row, i) => (
               <View key={i} style={styles.statRow}>
@@ -180,7 +182,7 @@ export default function AnalyticsScreen() {
             <View style={styles.chart}>
               {months.map((m, i) => (
                 <View key={i} style={styles.barGroup}>
-                  {m.income > 0 && <Text style={styles.barAmt}>${(m.income / 1000).toFixed(1)}k</Text>}
+                  {m.income > 0 && <Text style={styles.barAmt}>{moneyCompact(m.income)}</Text>}
                   <View style={[styles.singleBar, { height: barH(m.income), backgroundColor: Colors.primary }]} />
                   <Text style={styles.barLbl}>{m.label}</Text>
                 </View>
@@ -202,7 +204,7 @@ export default function AnalyticsScreen() {
                     <Text style={styles.txLabel}>{e.source}</Text>
                     <Text style={styles.txDate}>{new Date(e.date).toLocaleDateString()}</Text>
                   </View>
-                  <Text style={[styles.txAmt, { color: Colors.primary }]}>+${e.amount.toFixed(2)}</Text>
+                  <Text style={[styles.txAmt, { color: Colors.primary }]}>+{money2(e.amount)}</Text>
                 </View>
               ))}
             {incomes.length === 0 && <Text style={styles.emptyTxt}>No income logged this month</Text>}
@@ -218,7 +220,7 @@ export default function AnalyticsScreen() {
             <View style={styles.chart}>
               {months.map((m, i) => (
                 <View key={i} style={styles.barGroup}>
-                  {m.expense > 0 && <Text style={styles.barAmt}>${(m.expense / 1000).toFixed(1)}k</Text>}
+                  {m.expense > 0 && <Text style={styles.barAmt}>{moneyCompact(m.expense)}</Text>}
                   <View style={[styles.singleBar, { height: barH(m.expense), backgroundColor: Colors.red }]} />
                   <Text style={styles.barLbl}>{m.label}</Text>
                 </View>
@@ -236,7 +238,7 @@ export default function AnalyticsScreen() {
                   <View style={{ flex: 1 }}>
                     <View style={styles.catHeader}>
                       <Text style={styles.catLabel}>{category}</Text>
-                      <Text style={styles.catAmt}>${total.toFixed(0)}</Text>
+                      <Text style={styles.catAmt}>{money(total)}</Text>
                     </View>
                     <View style={styles.catTrack}>
                       <View style={[styles.catFill, {
@@ -261,7 +263,7 @@ export default function AnalyticsScreen() {
             <View style={styles.chart}>
               {months.map((m, i) => (
                 <View key={i} style={styles.barGroup}>
-                  {m.savings > 0 && <Text style={styles.barAmt}>${(m.savings / 1000).toFixed(1)}k</Text>}
+                  {m.savings > 0 && <Text style={styles.barAmt}>{moneyCompact(m.savings)}</Text>}
                   <View style={[styles.singleBar, { height: barH(m.savings), backgroundColor: Colors.blue }]} />
                   <Text style={styles.barLbl}>{m.label}</Text>
                 </View>

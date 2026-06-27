@@ -713,7 +713,6 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
   const top = Math.max(...data.map((d) => d.bal), 1);
   const h = (v: number) => Math.max(2, (v / top) * (H - padTop - padBot));
   const vfs = n > 14 ? 6 : 7;                       // value-label font
-  const vlabel = (v: number) => (v >= 1e6 ? `$${(v / 1e6).toFixed(v / 1e6 >= 10 ? 0 : 1)}M` : `$${Math.round(v / 1e3)}k`);
   return (
     <Svg width={width} height={H}>
       <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
@@ -727,7 +726,7 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
         return (
           <G key={d.year}>
             <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
-            {showVal && <SvgText x={x + bw / 2} y={y - 3} fontSize={vfs} fontWeight="700" fill={d.isRetire ? Colors.amber : Colors.textSecondary} textAnchor="middle">{vlabel(d.bal)}</SvgText>}
+            {showVal && <SvgText x={x + bw / 2} y={y - 3} fontSize={vfs} fontWeight="700" fill={d.isRetire ? Colors.amber : Colors.textSecondary} textAnchor="middle">{moneyCompact(d.bal, 'M')}</SvgText>}
             <SvgText x={lx} y={H - 5} fontSize={fs} fontWeight={d.isRetire ? '700' : '400'} fill={d.isRetire ? Colors.amber : Colors.textTertiary} textAnchor={anchor}>{`'${String(d.year).slice(2)}`}</SvgText>
           </G>
         );

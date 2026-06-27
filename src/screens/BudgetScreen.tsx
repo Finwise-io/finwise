@@ -14,7 +14,7 @@ import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid, totalGrossAnnual, effectiveRate } from '../domain/income';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
-import { money } from '../domain/_shared/num';
+import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
 
@@ -436,7 +436,7 @@ export default function BudgetScreen() {
                       <Text style={styles.txLabel} numberOfLines={1}>{(item as any).source}</Text>
                       <Text style={styles.txSub}>Recurring · {selMonthLabel} · tap to manage</Text>
                     </View>
-                    <Text style={[styles.txAmt, { color: Colors.primary }]}>+${(item as any).amount.toFixed(2)}</Text>
+                    <Text style={[styles.txAmt, { color: Colors.primary }]}>+{money2((item as any).amount)}</Text>
                   </TouchableOpacity>
                 );
               }
@@ -466,7 +466,7 @@ export default function BudgetScreen() {
                       {(item as any).notes ? <Text style={styles.txNote} numberOfLines={1}>{(item as any).notes}</Text> : null}
                     </View>
                     <Text style={[styles.txAmt, { color: isIncome ? Colors.primary : Colors.red }]}>
-                      {isIncome ? '+' : '-'}${(item as any).amount.toFixed(2)}
+                      {isIncome ? '+' : '-'}{money2((item as any).amount)}
                     </Text>
                   </TouchableOpacity>
                 </Swipeable>

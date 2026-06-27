@@ -12,7 +12,7 @@ import { useStore } from '../store/useStore';
 import { importHoldings, decodeCsvBase64, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
-import { round2 } from '../domain/_shared/num';
+import { round2, money2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
 
 // Read a picked CSV robustly (#12). UTF-8 is the common case; a UTF-16 / odd-encoding export either
@@ -34,7 +34,6 @@ async function readCsvText(uri: string): Promise<string> {
 }
 
 const todayIso = () => new Date().toISOString().slice(0, 10);
-const fmt = (n: number) => `$${n.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 
 export default function ImportHoldingsScreen() {
   const router = useRouter();
@@ -158,7 +157,7 @@ export default function ImportHoldingsScreen() {
                 <Text style={styles.secClass}>{ASSET_CLASS_LABEL[h.assetClass] ?? h.assetClass}</Text>
               </View>
               <Text style={styles.cShares}>{h.shares > 0 ? h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}</Text>
-              <Text style={styles.cCost}>{h.costPerShare > 0 ? fmt(h.costPerShare) : '—'}</Text>
+              <Text style={styles.cCost}>{h.costPerShare > 0 ? money2(h.costPerShare) : '—'}</Text>
             </View>
           ))}
         </View>

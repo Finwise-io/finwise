@@ -64,6 +64,19 @@ export function formatMoney(n: number): string {
   }
 }
 
+// Same as formatMoney but keeps 2 decimal places — for precise amounts (transactions, holdings,
+// recurring lines). Also masks to •••• when hide-balances is on, so cents displays don't leak.
+export function formatMoneyCents(n: number): string {
+  if (_hide) return BALANCE_MASK;
+  const v = Number.isFinite(n) ? n : 0;
+  try {
+    return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
+  } catch {
+    const neg = v < 0 ? '-' : '';
+    return neg + currencySymbol() + Math.abs(v).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  }
+}
+
 // Compact form for tight spaces (chart labels, donut center). Manual K/M/MM so it works on any
 // runtime and honors the symbol; placement is symbol-first (refine per-locale in Phase 3).
 export function moneyCompact(n: number, style: 'M' | 'MM' = 'MM'): string {

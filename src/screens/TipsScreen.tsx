@@ -8,6 +8,7 @@ import { useStore, useMonthlyStats, useCategorySpend } from '../store/useStore';
 // here — no spending data is ever sent to an AI/LLM provider. Cloud AI can return post-launch as an
 // explicit, opt-in feature.
 import { Card, TipCard, Button, ProgressBar, Badge, AmountText } from '../components/UI';
+import { money } from '../domain/_shared/num';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 type Tip = { title: string; detail: string; savingsMin: number; savingsMax: number; accepted?: boolean };
@@ -103,7 +104,7 @@ export default function TipsScreen() {
         {overBudget && (
           <View style={{ backgroundColor: Colors.redLight, borderRadius: 8, padding: 8, marginTop: 8 }}>
             <Text style={{ fontSize: 12, color: Colors.red, textAlign: 'center' }}>
-              You have spent ${(monthSpend - monthIncome).toFixed(0)} more than your income this month
+              You have spent {money(monthSpend - monthIncome)} more than your income this month
             </Text>
           </View>
         )}
@@ -121,7 +122,7 @@ export default function TipsScreen() {
                 <View style={{ flex: 1, marginHorizontal: Spacing.sm }}>
                   <ProgressBar pct={pct} color={pct > 30 ? Colors.red : pct > 15 ? Colors.amberMid : Colors.primary} height={6} />
                 </View>
-                <Text style={styles.catAmt}>${total.toFixed(0)}</Text>
+                <Text style={styles.catAmt}>{money(total)}</Text>
               </View>
             );
           })}
@@ -156,11 +157,11 @@ export default function TipsScreen() {
           <Card style={styles.savingsCard}>
             <Text style={styles.sectionTitle}>Potential monthly savings</Text>
             <Text style={styles.savingsRange}>
-              ${totalSavingsMin}–${totalSavingsMax}
+              {money(totalSavingsMin)}–{money(totalSavingsMax)}
             </Text>
             <Text style={styles.savingsNote}>per month if you apply all tips below</Text>
             <Text style={styles.savingsAnnual}>
-              = ${(totalSavingsMin * 12).toLocaleString()}–${(totalSavingsMax * 12).toLocaleString()} per year
+              = {money(totalSavingsMin * 12)}–{money(totalSavingsMax * 12)} per year
             </Text>
           </Card>
 

@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
 import { useStore, RecurringExpense } from '../store/useStore';
 import { Button, Card, TipCard, ProgressBar, SegmentedControl } from '../components/UI';
+import { money, money2 } from '../domain/_shared/num';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 // B-L1: on-device OCR (ML Kit) — the receipt image never leaves the device (was Google Cloud Vision).
 import { ocrReceipt } from '../services/receiptScan';
@@ -53,7 +54,7 @@ export default function ExpenseScreen() {
     });
     setRecurStore(''); setRecurAmount(''); setRecurNotes('');
     setRecurStart(format(new Date(), 'yyyy-MM-dd'));
-    Alert.alert('Recurring expense added!', `$${amt.toFixed(2)} ${recurFreq} for "${recurStore}" will auto-log on each due date.`);
+    Alert.alert('Recurring expense added!', `$${amt.toFixed(2)} ${recurFreq} for "${recurStore}" will auto-log on each due date.`); // money-mask-ok: transient confirmation echoing the amount the user just entered
   }
 
   function handleDeleteRecurring(id: string) {
@@ -136,7 +137,7 @@ export default function ExpenseScreen() {
     if (parsed?.amount) {
       setAmount(parsed.amount.toFixed(2));
       if (parsed.merchant) setStore(parsed.merchant);
-      Alert.alert('Receipt scanned!', `Found $${parsed.amount.toFixed(2)}${parsed.merchant ? ` at ${parsed.merchant}` : ''}. Check details below.`);
+      Alert.alert('Receipt scanned!', `Found $${parsed.amount.toFixed(2)}${parsed.merchant ? ` at ${parsed.merchant}` : ''}. Check details below.`); // money-mask-ok: transient confirmation echoing the amount the user is about to enter
     } else {
       Alert.alert('Could not read receipt', 'Please enter details manually.');
     }
@@ -157,7 +158,7 @@ export default function ExpenseScreen() {
     resetForm();
     Alert.alert(
       editId ? 'Expense updated! ✓' : 'Expense saved! 🧾',
-      `$${parsedAmount.toFixed(2)}${store ? ` at ${store}` : ''} logged.`,
+      `$${parsedAmount.toFixed(2)}${store ? ` at ${store}` : ''} logged.`, // money-mask-ok: transient confirmation echoing the amount the user just entered
       [
         { text: 'Add another', style: 'cancel', onPress: () => setTab('add') },
         { text: 'Done', onPress: () => setTab('list') },
@@ -220,7 +221,7 @@ export default function ExpenseScreen() {
                   </Text>
                 </View>
                 <View style={{ alignItems: 'flex-end' }}>
-                  <Text style={styles.entryAmt}>-${(item as any).amount.toFixed(2)}</Text>
+                  <Text style={styles.entryAmt}>-{money2((item as any).amount)}</Text>
                   <Text style={styles.entryEdit}>Tap to edit</Text>
                 </View>
               </TouchableOpacity>
@@ -292,8 +293,8 @@ export default function ExpenseScreen() {
                 </Text>
                 <ProgressBar pct={Math.min(catPct, 100)} color={catPct > 100 ? Colors.red : Colors.primary} />
                 <Text style={{ fontSize: Typography.sizes.sm, color: catPct > 100 ? Colors.red : Colors.primaryDeep, marginTop: 5 }}>
-                  ${(catSpend + parsedAmount).toFixed(0)} of ${catBudget.toFixed(0)} this month
-                  {catPct > 100 ? ` — over by $${(catSpend + parsedAmount - catBudget).toFixed(0)}` : ''}
+                  {money(catSpend + parsedAmount)} of {money(catBudget)} this month
+                  {catPct > 100 ? ` — over by ${money(catSpend + parsedAmount - catBudget)}` : ''}
                 </Text>
               </TipCard>
             )}
@@ -332,7 +333,7 @@ export default function ExpenseScreen() {
             </Card>
 
             <Button
-              label={editId ? 'Update expense ✓' : isValid ? `Save $${parsedAmount.toFixed(2)} ✓` : 'Enter amount above'}
+              label={editId ? 'Update expense ✓' : isValid ? `Save $${parsedAmount.toFixed(2)} ✓` : 'Enter amount above'} // money-mask-ok: input-echo of the amount the user is actively typing
               onPress={handleSave}
               loading={saving}
               disabled={!isValid}
@@ -356,7 +357,7 @@ export default function ExpenseScreen() {
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.entryLabel}>{r.store}</Text>
-                      <Text style={styles.entryDate}>{r.category} · ${r.amount.toFixed(2)} · {r.frequency}</Text>
+                      <Text style={styles.entryDate}>{r.category} · {money2(r.amount)} · {r.frequency}</Text>
                     </View>
                     <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }}>
                       <Text style={{ color: Colors.red, fontSize: 18 }}>✕</Text>

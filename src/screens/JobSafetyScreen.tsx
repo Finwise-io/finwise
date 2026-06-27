@@ -7,6 +7,7 @@ import { useRouter } from 'expo-router';
 import { useStore, useMonthlyStats } from '../store/useStore';
 import { Card, Button, ProgressBar, TipCard } from '../components/UI';
 import { Disclaimer } from '../components/Disclaimer';
+import { money } from '../domain/_shared/num';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 
 type RiskLevel = 'low' | 'medium' | 'high';
@@ -128,7 +129,7 @@ export default function JobSafetyScreen() {
           <Text style={styles.label}>Monthly expenses ($)</Text>
           <Text style={styles.hint}>
             {monthSpend > 0
-              ? `We detected $${monthSpend.toFixed(0)}/month from your logs. Edit if your typical month differs.`
+              ? `We detected ${money(monthSpend)}/month from your logs. Edit if your typical month differs.`
               : 'Enter your typical monthly expenses (rent, food, bills, etc.)'}
           </Text>
           <TextInput
@@ -175,7 +176,7 @@ export default function JobSafetyScreen() {
                 Liquid savings only
               </Text>
               <Text style={styles.fundTypeSub}>
-                Bank savings account, cash — accessible anytime. Current: ${totalSavings.toLocaleString()}
+                Bank savings account, cash — accessible anytime. Current: {money(totalSavings)}
               </Text>
             </View>
             <View style={[styles.radio, fundType === 'separate' && styles.radioOn]}>
@@ -193,7 +194,7 @@ export default function JobSafetyScreen() {
                 Include retirement savings
               </Text>
               <Text style={styles.fundTypeSub}>
-                401k, IRA, investments — note: early withdrawal has penalties. Total: ${(totalSavings + totalInvestments).toLocaleString()}
+                401k, IRA, investments — note: early withdrawal has penalties. Total: {money(totalSavings + totalInvestments)}
               </Text>
             </View>
             <View style={[styles.radio, fundType === 'retirement' && styles.radioOn]}>
@@ -213,22 +214,22 @@ export default function JobSafetyScreen() {
           <View style={[styles.calcResult, { marginTop: Spacing.md }]}>
             <View style={styles.calcRow}>
               <Text style={styles.calcLabel}>Monthly expenses</Text>
-              <Text style={styles.calcValue}>${baseExpenses.toFixed(0)}</Text>
+              <Text style={styles.calcValue}>{money(baseExpenses)}</Text>
             </View>
             <View style={styles.calcRow}>
               <Text style={styles.calcLabel}>Target ({months} months)</Text>
-              <Text style={styles.calcValue}>${target.toLocaleString()}</Text>
+              <Text style={styles.calcValue}>{money(target)}</Text>
             </View>
             <View style={styles.calcRow}>
               <Text style={styles.calcLabel}>Available funds</Text>
-              <Text style={[styles.calcValue, { color: Colors.primary }]}>${availableFunds.toLocaleString()}</Text>
+              <Text style={[styles.calcValue, { color: Colors.primary }]}>{money(availableFunds)}</Text>
             </View>
             <View style={[styles.calcRow, { borderTopWidth: 0.5, borderTopColor: Colors.border, marginTop: 4, paddingTop: 4 }]}>
               <Text style={[styles.calcLabel, { fontWeight: '700' }]}>
                 {isMet ? 'Goal met! 🎉' : 'Still needed'}
               </Text>
               <Text style={[styles.calcValue, { fontWeight: '700', color: isMet ? Colors.primary : Colors.red }]}>
-                {isMet ? '✓ Covered' : `$${gap.toLocaleString()}`}
+                {isMet ? '✓ Covered' : money(gap)}
               </Text>
             </View>
           </View>

@@ -224,8 +224,8 @@ export default function RewardsScreen() {
                   {done && <Badge label="Complete! 🎉" color="green" />}
                 </View>
                 <View style={styles.goalAmtRow}>
-                  <Text style={styles.goalAmt}>${goal.saved.toLocaleString()}</Text>
-                  <Text style={styles.goalOf}> of ${goal.target.toLocaleString()}</Text>
+                  <Text style={styles.goalAmt}>{money(goal.saved)}</Text>
+                  <Text style={styles.goalOf}> of {money(goal.target)}</Text>
                 </View>
                 <ProgressBar pct={pct} color={!done && st === 'behind' && planned > 0 ? Colors.amber : goal.color} height={7} />
                 <Text style={styles.goalPct}>{Math.round(pct)}% complete</Text>
