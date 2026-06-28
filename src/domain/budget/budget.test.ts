@@ -1,4 +1,4 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly, nonMonthlyBasis } from './index';
 import { takeHomeMonthly } from '../savings';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -234,5 +234,33 @@ describe('budget bucket totals reconcile with their line items (categoryMonthly 
     expect(sumFixed).toBeCloseTo(spendBuckets(op).fixed, 2);                      // domain header
     const bva = budgetVsActual([], op);
     expect(bva.buckets.find((b) => b.key === 'fixed')!.planned).toBeCloseTo(sumFixed, 2); // on-screen header
+  });
+});
+
+// pj build-34: a 15%-of-take-home non-monthly bucket showed an annual $ with no stated basis ("15% of what?").
+// nonMonthlyBasis() drives the label so the figure is never ambiguous.
+describe('nonMonthlyBasis — labels the non-monthly bucket basis', () => {
+  const base = (cats: any[]): OnboardingProfile => ({ status: 'employed', spendCats: cats } as any);
+
+  test('all non-monthly categories are %-based → returns the combined %', () => {
+    expect(nonMonthlyBasis(base([{ bucket: 'nonmonthly', unit: 'pct', amount: 15 }]))).toEqual({ allPct: true, pct: 15 });
+    expect(nonMonthlyBasis(base([
+      { bucket: 'nonmonthly', unit: 'pct', amount: 10 },
+      { bucket: 'nonmonthly', unit: 'pct', amount: 5 },
+      { bucket: 'fixed', unit: 'pct', amount: 30 },            // not counted (different bucket)
+    ]))).toEqual({ allPct: true, pct: 15 });
+  });
+
+  test('any non-monthly category is a $ amount → allPct false (no % label)', () => {
+    expect(nonMonthlyBasis(base([{ bucket: 'nonmonthly', unit: 'dollar', amount: 3673 }])).allPct).toBe(false);
+    expect(nonMonthlyBasis(base([
+      { bucket: 'nonmonthly', unit: 'pct', amount: 10 },
+      { bucket: 'nonmonthly', unit: 'dollar', amount: 1200 },
+    ])).allPct).toBe(false);
+  });
+
+  test('no non-monthly categories → allPct false', () => {
+    expect(nonMonthlyBasis(base([{ bucket: 'fixed', unit: 'pct', amount: 30 }])).allPct).toBe(false);
+    expect(nonMonthlyBasis(null).allPct).toBe(false);
   });
 });

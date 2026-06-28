@@ -10,7 +10,7 @@ import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund, goalStatus, requiredMonthly } from '../domain/goals';
 import { totalGrossAnnual } from '../domain/income';
-import { spendBuckets } from '../domain/budget';
+import { spendBuckets, nonMonthlyBasis } from '../domain/budget';
 import { surplusByMonth } from '../domain/savings';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -35,6 +35,7 @@ export default function GoalsScreen() {
   // which over-stated capacity by the whole debt payment).
   const capacity = useMemo(() => availableToSaveSummary(surplusByMonth(op, liabilities)), [op, liabilities]);
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
+  const sinkBasis = useMemo(() => nonMonthlyBasis(op), [op]);   // e.g. "15% of take-home pay" — state the basis so the $ isn't a mystery
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
   const grossMonthly = totalGrossAnnual(op) / 12;
@@ -72,7 +73,7 @@ export default function GoalsScreen() {
       {sink.monthly > 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
           <Text style={styles.suggestTitle}>💡 Suggested: a sinking fund</Text>
-          <Text style={styles.suggestSub}>Your non-monthly costs (travel, gifts, repairs) run ~{money(sink.annual)}/yr. Save {money(sink.monthly)}/mo into a fund so they never blow the budget.</Text>
+          <Text style={styles.suggestSub}>Your non-monthly budget{sinkBasis.allPct ? ` (${sinkBasis.pct}% of take-home pay)` : ''} comes to ~{money(sink.annual)}/yr. Set aside {money(sink.monthly)}/mo so non-monthly costs (travel, gifts, repairs) never blow the budget.</Text>
           <TouchableOpacity onPress={() => store.addGoal({ label: 'Non-monthly fund', icon: '🛟', target: sink.annual, saved: 0, duration: '12', color: Colors.primary })}>
             <Text style={styles.suggestCta}>Create this goal ›</Text>
           </TouchableOpacity>

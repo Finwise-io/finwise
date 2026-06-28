@@ -86,6 +86,17 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
   return { fixed: round2(fixed), non_monthly: round2(nonMo), flexible: round2(flex), monthly_total: round2(fixed + nonMo + flex) };
 }
 
+/** Label basis for the non-monthly bucket (e.g. "15% of take-home pay") — the combined % when EVERY
+ *  non-monthly category is %-based, else allPct=false (a plain $ total). For unambiguous UI labelling
+ *  (pj build-34: a 15%-of-take-home non-monthly bucket showed an annual $ with no stated basis). */
+export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean; pct: number } {
+  const cats = Array.isArray(op?.spendCats) ? op!.spendCats! : [];
+  const nm = cats.filter((c) => c?.bucket === 'nonmonthly' && toNum(c?.amount) > 0);
+  const allPct = nm.length > 0 && nm.every((c) => c?.unit === 'pct');
+  const pct = allPct ? Math.round(nm.reduce((t, c) => t + toNum(c?.amount), 0)) : 0;
+  return { allPct, pct };
+}
+
 /** Spending placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
  *  Monthly bills repeat; non-monthly costs (tuition, insurance) land in the months chosen;
  *  any estimated-but-uncategorized spend is spread evenly. */
