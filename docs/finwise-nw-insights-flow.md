@@ -49,9 +49,8 @@ INSIGHTS (tab)
    Real estate / Personal property), with your net worth in the middle (turns red if negative). A legend
    lists each class with its dollar value and %. Debts show as a red legend row.
    - **✅ Hide balances:** if the eye/Settings toggle is on, the center figure and **every** dollar on this
-     screen (and everywhere else) shows `••••`. *(B-74; **B-90 fixed 2026-06-27** — pj reported "tab not
-     working": the toggle was wired correctly, but ~36 inline `$`-amounts across 12 screens bypassed the
-     formatter and stayed visible. Now masked + locked by a guard test. **Re-verify on device** in build #36.)*
+     screen (and everywhere else) shows `••••`. *(B-74)* 
+[pj - tab not working]
 
 2. **The math, spelled out:** `Assets $X − Debts $Y = Net worth $Z` — so the number is never a mystery.
 3. **Caption + nudge:** explains that you *add money by account*, but the donut *regroups by what it is*
@@ -61,7 +60,14 @@ INSIGHTS (tab)
 5. **"Explore your holdings" box** — four rows (the four sub-screens, see 1.4).
 6. **Account sections** — Cash, Investments, Retirement, Property. Each lists its accounts; an `+ Add` adds
    one. **Investments** has the class/institution toggle (1.3).
+[pj: add cash pop up screen only has savings and checking, what about other sub-types classified as cash?]
+[pj: add taxable accounts screen has brokerage and sub-types are randomly displayed. Again all center justified - not pleasing to eye from UI perspective]
+
+
+
 7. **Debts** section + a callout for your costliest (highest-APR) debt.
+
+[pj: where is the callout? Also, when I add new debt, it asks for min payment not fixed payment in case of student loan or mortgage]
 
 ## 1.2 Adding / capturing an account
 
@@ -82,6 +88,8 @@ A toggle sits above the Investments list:
   the sub-line shows its institution.
   - **Fix:** an alternative (crypto/PE) used to show as **"Other"** — it now shows under **"Alternatives"**
     with the correct class label.
+[pj: feedback in test-build-34 file #7 and 8]
+
 - **By institution** — groups by *where it's held*: Chase, Vanguard, Fidelity… Each row shows the account
   name; the sub-line shows its class. Accounts with no institution set fall under "No institution set."
 - **✅ Tickers surfaced** *(B-87):* if an account holds individual securities (e.g. an imported brokerage
