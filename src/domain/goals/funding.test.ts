@@ -34,28 +34,28 @@ describe('goal funding projections', () => {
     expect(requiredMonthly({ target: 30000, saved: 0 } as any, NOW)).toBeNull();   // neither → null
   });
 
-  test('goalStatus: a duration goal is BEHIND when the required exceeds savings capacity', () => {
+  test('goalStatus: a duration goal is BEHIND when the required exceeds what was funded this month', () => {
     const home = { target: 740000, saved: 10000, duration: '30' };   // needs ~24,333/mo
-    expect(goalStatus(home as any, 2000, NOW)).toBe('behind');        // can only free up 2,000/mo
-    expect(goalStatus(home as any, 30000, NOW)).toBe('on_track');     // could save 30,000/mo
+    expect(goalStatus(home as any, 2000, NOW)).toBe('behind');        // funded only 2,000 this month
+    expect(goalStatus(home as any, 30000, NOW)).toBe('on_track');     // funded 30,000 this month
   });
 
-  test('goalStatus: funding >= required → on_track, else behind; done when funded; no_date without a date', () => {
+  test('goalStatus: funded-this-month >= required → on_track, else behind; fully_funded when saved>=target; no_date without a date', () => {
     const g = { target: 6000, saved: 2400, targetDate: '2027-06' };   // needs $300/mo
     expect(goalStatus(g, 300, NOW)).toBe('on_track');
     expect(goalStatus(g, 200, NOW)).toBe('behind');
-    expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('done');
+    expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('fully_funded');
     expect(goalStatus({ target: 6000, saved: 0 }, 100, NOW)).toBe('no_date');
   });
 
-  test('goalStatus: no committed funding (0 / null / undefined) → no_plan, not a misleading green/amber (build-34 #1b)', () => {
+  test('goalStatus: $0 funded this month on a dated goal → behind (not a misleading green); fully_funded/no_date win', () => {
     const g = { target: 6000, saved: 2400, targetDate: '2027-06' };   // needs $300/mo, dated
-    expect(goalStatus(g, 0, NOW)).toBe('no_plan');
-    expect(goalStatus(g, undefined, NOW)).toBe('no_plan');
-    expect(goalStatus(g, null, NOW)).toBe('no_plan');
-    expect(goalStatus(g, 300, NOW)).toBe('on_track');                 // a real commitment resolves normally
+    expect(goalStatus(g, 0, NOW)).toBe('behind');
+    expect(goalStatus(g, undefined, NOW)).toBe('behind');
+    expect(goalStatus(g, null, NOW)).toBe('behind');
+    expect(goalStatus(g, 300, NOW)).toBe('on_track');                 // funding the required amount → green
     expect(goalStatus(g, 150, NOW)).toBe('behind');
-    expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('done');   // done/no_date win over no_plan
+    expect(goalStatus({ ...g, saved: 6000 }, 0, NOW)).toBe('fully_funded');
     expect(goalStatus({ target: 6000, saved: 0 }, 0, NOW)).toBe('no_date');
   });
 });

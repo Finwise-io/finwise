@@ -79,6 +79,7 @@ export type Goal = {
   savingsType?: 'fixed' | 'percent' | 'leftover';
   savingsAmount?: number;
   savingsPercent?: number;
+  fundedByMonth?: Record<string, number>;   // 'YYYY-MM' → $ actually allocated to THIS goal that month (drives on-track/behind)
   origin?: 'onboarding';  // seeded from onboarding goals; cleared on restart, kept-distinct from user goals
 };
 
@@ -612,7 +613,11 @@ export const useStore = create<AppState>()(
           const it = items.find((i) => i.goalId === g.id && i.amount > 0);
           if (!it) return g;
           total += it.amount;
-          return { ...g, saved: Math.round(((g.saved || 0) + it.amount) * 100) / 100 };
+          return {
+            ...g,
+            saved: Math.round(((g.saved || 0) + it.amount) * 100) / 100,
+            fundedByMonth: { ...(g.fundedByMonth ?? {}), [ym]: Math.round((((g.fundedByMonth ?? {})[ym] ?? 0) + it.amount) * 100) / 100 },
+          };
         });
         return { goals, allocatedByMonth: { ...s.allocatedByMonth, [ym]: (s.allocatedByMonth[ym] ?? 0) + total } };
       }),

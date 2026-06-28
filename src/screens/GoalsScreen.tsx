@@ -36,6 +36,7 @@ export default function GoalsScreen() {
   const capacity = useMemo(() => availableToSaveSummary(surplusByMonth(op, liabilities)), [op, liabilities]);
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
   const sinkBasis = useMemo(() => nonMonthlyBasis(op), [op]);   // e.g. "15% of take-home pay" — state the basis so the $ isn't a mystery
+  const nowYm = new Date().toISOString().slice(0, 7);          // 'YYYY-MM' — this month, for funded-this-month status
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
   const grossMonthly = totalGrossAnnual(op) / 12;
@@ -87,33 +88,32 @@ export default function GoalsScreen() {
         const remaining = Math.max(0, g.target - g.saved);
         const mo = num(g.duration);
         const perMonth = requiredMonthly(g as any) ?? (mo > 0 ? remaining / mo : 0);
-        // build-34 #1b: status from the goal's OWN monthly commitment (savingsAmount), not shared free cash.
-        const committed = g.savingsAmount;
-        const st = goalStatus(g as any, committed);
-        const done = pct >= 100 || st === 'done';
+        // build-34 #1b: status from REAL money funded into THIS goal THIS MONTH — not a typed promise or shared cash.
+        const fundedMo = g.fundedByMonth?.[nowYm] ?? 0;
+        const st = goalStatus(g as any, fundedMo);
+        const fullyFunded = st === 'fully_funded';
+        const onTrack = st === 'on_track';
         const behind = st === 'behind';
-        const noPlan = st === 'no_plan';
-        const barColor = done ? Colors.successGreen : behind ? Colors.amber : noPlan ? Colors.textTertiary : (g.color || Colors.primary);
+        const noDate = st === 'no_date';
+        const barColor = fullyFunded ? Colors.blue : onTrack ? Colors.successGreen : behind ? Colors.amber : (g.color || Colors.primary);
         return (
           <TouchableOpacity key={g.id} style={styles.card} onPress={() => setEdit(g)}>
             <View style={styles.goalHead}>
               <Text style={styles.goalIcon}>{g.icon || '🎯'}</Text>
               <Text style={styles.goalName}>{g.label}</Text>
-              {!done && perMonth > 0 && st !== 'no_date' && (
-                <Text style={[styles.goalStatus, { color: behind ? Colors.amber : noPlan ? Colors.textSecondary : Colors.successGreen }]}>
-                  {st === 'on_track' ? '🟢 On track' : behind ? '🟡 Behind' : '⚪ No plan'}
-                </Text>
-              )}
+              <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.successGreen : behind ? Colors.amber : Colors.textSecondary }]}>
+                {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
+              </Text>
               <Text style={styles.goalPct}>{Math.round(pct)}%</Text>
             </View>
             <View style={styles.bar}><View style={[styles.barFill, { width: `${pct}%`, backgroundColor: barColor }]} /></View>
             <Text style={styles.goalSub}>{money(g.saved)} of {money(g.target)} · {money(remaining)} to go{perMonth > 0 ? ` · need ~${money(perMonth)}/mo${mo > 0 ? ` for ${mo} mo` : ''}` : ''}</Text>
-            {behind && perMonth > 0 && (
-              <Text style={styles.goalBehind}>Saving {money(committed || 0)}/mo but needs {money(perMonth)}/mo — add more or extend the date.</Text>
+            {!fullyFunded && !noDate && perMonth > 0 && (
+              <Text style={[styles.goalBehind, onTrack ? { color: Colors.textSecondary } : null]}>
+                This month: funded {money(fundedMo)} of {money(perMonth)}/mo{behind ? ' — allocate more to catch up.' : ' ✓'}
+              </Text>
             )}
-            {noPlan && perMonth > 0 && (
-              <Text style={styles.goalBehind}>No monthly amount set — needs ~{money(perMonth)}/mo to hit the date. Tap to set one.</Text>
-            )}
+            {noDate && <Text style={styles.goalBehind}>Set a target date to track on-track / behind.</Text>}
           </TouchableOpacity>
         );
       })}

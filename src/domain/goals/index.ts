@@ -125,14 +125,18 @@ export function goalProgressPct(g: GoalLike): number {
   return Math.min(100, Math.max(0, Math.round(((g.saved || 0) / g.target) * 100)));
 }
 
-/** On-track vs behind, judged by the goal's OWN monthly funding commitment — NOT shared free cash
- *  (build-34 #1b: having spare cash doesn't mean it's going to THIS goal). With no commitment set we
- *  return 'no_plan' rather than a misleading green/amber. `monthlyContribution` = the goal's savingsAmount. */
-export type GoalStatus = 'done' | 'on_track' | 'behind' | 'no_plan' | 'no_date';
-export function goalStatus(g: GoalLike, monthlyContribution: number | null | undefined, now: Date = new Date()): GoalStatus {
-  if ((g.saved || 0) >= (g.target || 0) && (g.target || 0) > 0) return 'done';
+/** Status judged by REAL money allocated to THIS goal THIS MONTH vs the rate needed to hit the date —
+ *  not a typed promise, and not shared free cash (build-34 #1b: spare cash ≠ funding this goal).
+ *   • saved ≥ target            → 'fully_funded' (blue)
+ *   • no target date            → 'no_date'
+ *   • funded this month ≥ need  → 'on_track' (green)   [being ahead lowers `need`, so it stays green]
+ *   • else                      → 'behind' (amber)
+ *  `fundedThisMonth` = goal.fundedByMonth[current 'YYYY-MM']. */
+export type GoalStatus = 'fully_funded' | 'on_track' | 'behind' | 'no_date';
+export function goalStatus(g: GoalLike, fundedThisMonth: number | null | undefined, now: Date = new Date()): GoalStatus {
+  if ((g.saved || 0) >= (g.target || 0) && (g.target || 0) > 0) return 'fully_funded';
   const req = requiredMonthly(g, now);
   if (req == null) return 'no_date';
-  if (monthlyContribution == null || monthlyContribution <= 0) return 'no_plan';   // no committed funding yet
-  return monthlyContribution + 1e-6 >= req ? 'on_track' : 'behind';
+  if (req === 0) return 'fully_funded';
+  return (fundedThisMonth || 0) + 1e-6 >= req ? 'on_track' : 'behind';
 }

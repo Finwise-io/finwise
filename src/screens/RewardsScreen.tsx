@@ -209,11 +209,10 @@ export default function RewardsScreen() {
       {goals.map((goal) => {
         const pct = Math.min((goal.saved / goal.target) * 100, 100);
         const done = pct >= 100;
-        // B-71: on-track/behind from the actual funding vs the target date. The "rate" is the goal's
-        // planned monthly (savingsAmount) if set; we always show the $/mo the date requires.
+        // on-track/behind from REAL money funded into THIS goal THIS MONTH vs the rate the date needs.
         const req = requiredMonthly(goal as any);   // works off targetDate OR duration now
-        const planned = goal.savingsAmount || 0;
-        const st = goalStatus(goal as any, planned);
+        const fundedMo = goal.fundedByMonth?.[new Date().toISOString().slice(0, 7)] ?? 0;
+        const st = goalStatus(goal as any, fundedMo);
         return (
           <Card key={goal.id} style={done ? { borderColor: Colors.primaryMid, borderWidth: 1 } : {}}>
             <View style={styles.goalRow}>
@@ -227,11 +226,11 @@ export default function RewardsScreen() {
                   <Text style={styles.goalAmt}>{money(goal.saved)}</Text>
                   <Text style={styles.goalOf}> of {money(goal.target)}</Text>
                 </View>
-                <ProgressBar pct={pct} color={!done && st === 'behind' && planned > 0 ? Colors.amber : goal.color} height={7} />
+                <ProgressBar pct={pct} color={!done && st === 'behind' ? Colors.amber : goal.color} height={7} />
                 <Text style={styles.goalPct}>{Math.round(pct)}% complete</Text>
                 {!done && req != null && (
                   <Text style={styles.goalPct}>
-                    {planned > 0 ? (st === 'on_track' ? '🟢 On track · ' : '🟡 Behind · ') : ''}
+                    {st === 'on_track' ? '🟢 On track · ' : st === 'behind' ? '🟡 Behind · ' : ''}
                     need {money(req)}/mo{goal.targetDate ? ` by ${fmtYM(goal.targetDate)}` : ''}
                   </Text>
                 )}
