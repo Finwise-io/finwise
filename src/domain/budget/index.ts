@@ -86,6 +86,31 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
   return { fixed: round2(fixed), non_monthly: round2(nonMo), flexible: round2(flex), monthly_total: round2(fixed + nonMo + flex) };
 }
 
+/** Actual money flow for a month from LOGGED data — the exact figures behind the Home cash-flow card,
+ *  so every screen (Home, Goals) shows the SAME surplus. income = net pay (after tax) for the month +
+ *  logged one-off income; spent = actual logged expenses (excl. debt); debtPaid = logged "Debt payment".
+ *  surplus = income − spent − debtPaid (AFTER debt, the canonical definition). */
+export function actualMonthFlow(
+  op: OnboardingProfile | null,
+  incomes: { date?: string; amount?: any }[] | undefined,
+  expenses: { date?: string; amount?: any; category?: string }[] | undefined,
+  ym: string,
+): { income: number; spent: number; debtPaid: number; surplus: number } {
+  const [y, m] = ym.split('-').map(Number);
+  const grid = op ? incomeMonthlyGrid(op, 'net') : [];
+  const baseNet = grid[(m || 1) - 1]?.amount ?? 0;
+  const extraIncome = (incomes ?? []).filter((i) => String(i?.date ?? '').startsWith(ym)).reduce((t, i) => t + (Number(i.amount) || 0), 0);
+  const income = baseNet + extraIncome;
+  const spent = budgetVsActual(expenses ?? [], op, new Date(y || 2000, (m || 1) - 1, 15)).spent_total;
+  const debtPaid = (expenses ?? []).filter((e) => e.category === 'Debt payment' && String(e.date ?? '').startsWith(ym)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
+  return { income, spent, debtPaid, surplus: income - spent - debtPaid };
+}
+
+/** What's LEFT of this month's surplus to put to work = surplus − already-allocated this month (never < 0). */
+export function allocatableThisMonth(surplus: number, allocatedThisMonth: number | undefined): number {
+  return Math.max(0, surplus - (allocatedThisMonth || 0));
+}
+
 /** Label basis for the non-monthly bucket (e.g. "15% of take-home pay") — the combined % when EVERY
  *  non-monthly category is %-based, else allPct=false (a plain $ total). For unambiguous UI labelling
  *  (pj build-34: a 15%-of-take-home non-monthly bucket showed an annual $ with no stated basis). */

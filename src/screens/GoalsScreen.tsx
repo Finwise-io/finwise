@@ -10,7 +10,8 @@ import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund, goalStatus, requiredMonthly } from '../domain/goals';
 import { totalGrossAnnual } from '../domain/income';
-import { spendBuckets, nonMonthlyBasis } from '../domain/budget';
+import { spendBuckets, nonMonthlyBasis, actualMonthFlow, allocatableThisMonth } from '../domain/budget';
+import { currencySymbol } from '../domain/_shared/money';
 import { surplusByMonth } from '../domain/savings';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -37,6 +38,11 @@ export default function GoalsScreen() {
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
   const sinkBasis = useMemo(() => nonMonthlyBasis(op), [op]);   // e.g. "15% of take-home pay" — state the basis so the $ isn't a mystery
   const nowYm = new Date().toISOString().slice(0, 7);          // 'YYYY-MM' — this month, for funded-this-month status
+  // Available surplus to allocate THIS month — the SAME canonical number as the Home cash-flow card.
+  const flow = useMemo(() => actualMonthFlow(op, store.incomes, store.expenses, nowYm), [op, store.incomes, store.expenses, nowYm]);
+  const availableSurplus = allocatableThisMonth(flow.surplus, store.allocatedByMonth?.[nowYm]);
+  const [alloc, setAlloc] = useState<Goal | null>(null);     // goal being funded from surplus
+  const [allocAmt, setAllocAmt] = useState('');
   const hasSinkingGoal = goals.some((g) => /non-?monthly|sinking/i.test(g.label));
   const totalDebt = liabilities.reduce((t, d) => t + d.remaining_balance, 0);
   const grossMonthly = totalGrossAnnual(op) / 12;
@@ -114,6 +120,11 @@ export default function GoalsScreen() {
               </Text>
             )}
             {noDate && <Text style={styles.goalBehind}>Set a target date to track on-track / behind.</Text>}
+            {!fullyFunded && (
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate this month's surplus to ${g.label}`} onPress={() => { setAlloc(g); const d = Math.max(0, Math.min(Math.round(perMonth || 0), Math.round(availableSurplus))); setAllocAmt(d > 0 ? String(d) : ''); }}>
+                <Text style={styles.goalAllocate}>Available surplus this month: {money(availableSurplus)} — <Text style={styles.goalAllocateCta}>Allocate to this goal ›</Text></Text>
+              </TouchableOpacity>
+            )}
           </TouchableOpacity>
         );
       })}
@@ -255,6 +266,25 @@ export default function GoalsScreen() {
       <GoalEditor goal={addOpen ? null : edit} open={addOpen || edit != null} onClose={() => { setAddOpen(false); setEdit(null); }}
         onSave={(g) => { if (edit) store.updateGoal(edit.id, g); else store.addGoal(g); setAddOpen(false); setEdit(null); }}
         onDelete={edit ? () => { store.deleteGoal(edit.id); setEdit(null); } : undefined} />
+
+      {/* Allocate this month's surplus to a goal → fundGoals records it (flips the goal On track) */}
+      <Modal visible={alloc != null} transparent animationType="slide" onRequestClose={() => setAlloc(null)}>
+        <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+          <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Dismiss" onPress={() => setAlloc(null)} />
+          <View style={styles.sheet}>
+            <View style={styles.grab} />
+            <Text style={styles.sheetT}>Fund {alloc?.label}</Text>
+            <Text style={styles.note}>Available surplus this month: {money(availableSurplus)}. What you allocate is set aside for this goal and flips it 🟢 On track.</Text>
+            <View style={[styles.amtBox, { marginTop: Spacing.sm }]}><Text style={styles.amtPre}>{currencySymbol()}</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={allocAmt} onChangeText={setAllocAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
+            {availableSurplus > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use all available surplus, ${money(availableSurplus)}`} onPress={() => setAllocAmt(String(Math.round(availableSurplus)))}><Text style={styles.allocUseAll}>Use all available ({money(availableSurplus)})</Text></TouchableOpacity>}
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Allocate to ${alloc?.label ?? 'this goal'}`} style={[styles.saveBtn, !(num(allocAmt) > 0 && availableSurplus > 0) && { opacity: 0.4 }]} disabled={!(num(allocAmt) > 0 && availableSurplus > 0)}
+              onPress={() => { const amt = Math.min(num(allocAmt), availableSurplus); if (amt > 0 && alloc) store.fundGoals?.(nowYm, [{ goalId: alloc.id, amount: amt }]); setAlloc(null); }}>
+              <Text style={styles.saveBtnT}>Allocate {num(allocAmt) > 0 ? money(Math.min(num(allocAmt), availableSurplus)) : ''}</Text>
+            </TouchableOpacity>
+            <View style={{ height: 16 }} />
+          </View>
+        </KeyboardAvoidingView>
+      </Modal>
     </ScrollView>
   );
 }
@@ -268,13 +298,11 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
   const [tMonth, setTMonth] = useState('');
   const [tYear, setTYear] = useState('');
   const [icon, setIcon] = useState('🎯');
-  const [monthly, setMonthly] = useState('');   // build-34 #1b: the goal's own monthly funding commitment
   React.useEffect(() => {
     if (!open) return;
     setLabel(goal?.label ?? ''); setTarget(goal ? String(goal.target) : ''); setSaved(goal ? String(goal.saved) : '');
     const m = String(goal?.targetDate ?? '').match(/(\d{4})-(\d{1,2})/);
     setTMonth(m ? m[2] : ''); setTYear(m ? m[1] : ''); setIcon(goal?.icon || '🎯');
-    setMonthly(goal?.savingsAmount ? String(goal.savingsAmount) : '');
   }, [open]);
   const valid = label.trim() && num(target) > 0;
   // months until the target date (if both set), used to back-calc the monthly amount
@@ -304,15 +332,9 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
             <TextInput style={[styles.input, { flex: 1 }]} keyboardType="number-pad" value={tMonth} onChangeText={setTMonth} placeholder="Month (MM)" placeholderTextColor={Colors.textTertiary} />
             <TextInput style={[styles.input, { flex: 1.3 }]} keyboardType="number-pad" value={tYear} onChangeText={setTYear} placeholder="Year (YYYY)" placeholderTextColor={Colors.textTertiary} />
           </View>
-          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(reqMonthly)}/mo for {monthsUntil} months to hit it by then.</Text>}
-          <Text style={styles.fieldL}>Save toward it each month (optional)</Text>
-          <View style={{ flexDirection: 'row', gap: Spacing.sm, alignItems: 'center' }}>
-            <View style={[styles.amtBox, { flex: 1 }]}><Text style={styles.amtPre}>$</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" value={monthly} onChangeText={setMonthly} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-            {reqMonthly > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use the required amount, about ${money(reqMonthly)} per month`} onPress={() => setMonthly(String(Math.ceil(reqMonthly)))}><Text style={{ color: Colors.primary, fontWeight: '700', fontSize: 13 }}>Use ~{money(reqMonthly)}</Text></TouchableOpacity>}
-          </View>
-          <Text style={styles.note}>This drives the goal's “On track / Behind” status — it's what you commit to THIS goal, not your spare cash.</Text>
+          {valid && monthsUntil > 0 && <Text style={styles.note}>~{money(reqMonthly)}/mo for {monthsUntil} months to hit it by then. Fund it from your surplus on the goal card — that's what flips it 🟢 On track.</Text>}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, savingsAmount: num(monthly) > 0 ? num(monthly) : undefined, savingsType: num(monthly) > 0 ? 'fixed' : undefined, icon, color: Colors.primary })}>
+            onPress={() => onSave({ label: label.trim(), target: num(target), saved: num(saved), duration: monthsUntil > 0 ? String(monthsUntil) : undefined, targetDate: monthsUntil > 0 ? `${num(tYear)}-${String(num(tMonth)).padStart(2, '0')}` : undefined, icon, color: Colors.primary })}>
             <Text style={styles.saveBtnT}>{goal ? 'Save' : 'Add goal'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete goal</Text></TouchableOpacity>}
@@ -359,6 +381,9 @@ const styles = StyleSheet.create({
   goalSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 6 },
   goalStatus: { fontSize: 11, fontWeight: '800', marginRight: 8 },
   goalBehind: { fontSize: 11, color: Colors.amber, marginTop: 3 },
+  goalAllocate: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
+  goalAllocateCta: { color: Colors.primary, fontWeight: '700' },
+  allocUseAll: { color: Colors.primary, fontWeight: '700', fontSize: 13, marginTop: 6 },
   addLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 2 },
 
   segRow: { flexDirection: 'row', gap: 8 },

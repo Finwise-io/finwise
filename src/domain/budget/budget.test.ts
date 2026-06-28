@@ -1,4 +1,4 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly, nonMonthlyBasis } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly, nonMonthlyBasis, actualMonthFlow, allocatableThisMonth } from './index';
 import { takeHomeMonthly } from '../savings';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -262,5 +262,30 @@ describe('nonMonthlyBasis — labels the non-monthly bucket basis', () => {
   test('no non-monthly categories → allPct false', () => {
     expect(nonMonthlyBasis(base([{ bucket: 'fixed', unit: 'pct', amount: 30 }])).allPct).toBe(false);
     expect(nonMonthlyBasis(null).allPct).toBe(false);
+  });
+});
+
+// The Goals "available surplus this month" line must equal the Home cash-flow card's number, so they're
+// driven by ONE helper. surplus = income − spent(excl. debt) − debtPaid; debt is NOT double-counted.
+describe('actualMonthFlow + allocatableThisMonth — the canonical month surplus (Home == Goals)', () => {
+  const incomes = [{ date: '2026-06-10', amount: 5000 }];
+  const expenses = [
+    { date: '2026-06-05', amount: 1200, category: 'Groceries' },
+    { date: '2026-06-15', amount: 800, category: 'Debt payment' },   // logged as an expense, but it's debt
+    { date: '2026-07-01', amount: 999, category: 'Groceries' },      // other month — ignored
+  ];
+
+  test('income + spent(excl. debt) + debtPaid → surplus, with debt counted once', () => {
+    const f = actualMonthFlow(null, incomes, expenses, '2026-06');   // op=null → baseNet 0, income = logged
+    expect(f.income).toBe(5000);
+    expect(f.debtPaid).toBe(800);
+    expect(f.spent).toBe(1200);                 // groceries only — the $800 debt is NOT in spent
+    expect(f.surplus).toBe(3000);               // 5000 − 1200 − 800 (after debt, once)
+  });
+
+  test('allocatable = surplus − already-allocated, never below 0', () => {
+    expect(allocatableThisMonth(3000, 1000)).toBe(2000);
+    expect(allocatableThisMonth(3000, 3500)).toBe(0);
+    expect(allocatableThisMonth(3000, undefined)).toBe(3000);
   });
 });
