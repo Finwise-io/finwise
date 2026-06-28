@@ -192,6 +192,9 @@ export default function BudgetScreen() {
   const loggedIncomeSel = allEntries.filter((e) => e.kind === 'income' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const monthIncomeSel = baseNetSel + loggedIncomeSel;
   const monthSpendSel = allEntries.filter((e) => e.kind === 'expense' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
+  // "Actual spend" sums ALL expenses, and debt payments are logged as expenses (category 'Debt payment'),
+  // so it already includes debt → "Income − spend(incl. debt) = Surplus" (canonical, matches Home/Cash-flow).
+  const monthDebtSel = allEntries.filter((e) => e.kind === 'expense' && (e as any).category === 'Debt payment' && inSelMonth(e)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
   const filtered = allEntries.filter((e) => {
     if (!inSelMonth(e)) return false;
     if (filter === 'Income' && e.kind !== 'income') return false;
@@ -374,12 +377,12 @@ export default function BudgetScreen() {
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
-              <Text style={styles.stripLabel}>Actual spend</Text>
+              <Text style={styles.stripLabel}>{monthDebtSel > 0 ? 'Actual spend + debt' : 'Actual spend'}</Text>
               <Text style={[styles.stripValue, { color: Colors.red }]}>{money(Math.round(monthSpendSel))}</Text>
             </View>
             <View style={styles.stripDivider} />
             <View style={styles.stripItem}>
-              <Text style={styles.stripLabel}>Net</Text>
+              <Text style={styles.stripLabel}>Surplus</Text>
               <Text style={[styles.stripValue, { color: monthIncomeSel - monthSpendSel >= 0 ? Colors.primary : Colors.red }]}>
                 {money(Math.round(monthIncomeSel - monthSpendSel))}
               </Text>

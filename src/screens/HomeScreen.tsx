@@ -339,7 +339,7 @@ export default function HomeScreen() {
             <Text style={styles.cfOp}>−</Text>
             <View style={styles.cfCell}>
               <Text style={styles.cfV} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(cfOut)}</Text>
-              <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Actual + debt' : 'Actual spend'}</Text>
+              <Text style={styles.cfL} numberOfLines={1}>{hasDebt ? 'Actual spend + debt' : 'Actual spend'}</Text>
             </View>
             <Text style={styles.cfOp}>=</Text>
             <TouchableOpacity style={styles.cfCell} activeOpacity={0.8} onPress={() => setAllocSheet({ open: true, ym, label: monthShort, available: allocatable })}
