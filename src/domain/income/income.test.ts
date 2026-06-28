@@ -99,6 +99,19 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
     expect(buildIncomeState('u1', doc.sources, doc.tax).total_gross_annual).toBe((2000 - 800) * 12);
   });
 
+  // build-34 #7: the Income manager maps these exact source labels → their editors. Pin the contract
+  // so a rename can't silently make Equity / Rental / Self-employment uneditable again.
+  test('source labels match the income-manager editor mapping', () => {
+    const doc = incomeFromOnboarding('u1', {
+      baseSalary: '100000', salaryFreq: 'annual',
+      equityType: 'rsu', rsuGrants: [{ shares: '100', price: '400' }],
+      rentals: [{ type: 'long', income: '2000', expenses: '500' }],
+      seAmount: '30000', seFreq: 'annual',
+    } as any);
+    const labels = doc.sources.map((s) => s.label);
+    expect(labels).toEqual(expect.arrayContaining(['Base salary', 'Equity comp', 'Rental property', 'Self-employment']));
+  });
+
   test('multiple rental properties each become a source, netting their own expenses', () => {
     const doc = incomeFromOnboarding('u1', { rentals: [
       { type: 'long', income: '2000', expenses: '800' },

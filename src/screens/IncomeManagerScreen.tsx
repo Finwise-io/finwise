@@ -9,6 +9,8 @@ import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
+import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the rich grants/rentals editors
+import type { StepCtx } from '../onboarding/modules';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -26,7 +28,14 @@ export default function IncomeManagerScreen() {
   const transactions = store.transactions ?? [];
   const [baseOpen, setBaseOpen] = useState(false);
   const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
+  const [rich, setRich] = useState<null | 'equity' | 'rental'>(null);   // reuse onboarding RsuEditor/RentalEditor
+  const [selfOpen, setSelfOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
+  // Shim the onboarding StepCtx onto the live profile so the reused editors read/write op fields directly.
+  const editorCtx: StepCtx = {
+    status: (op.status ?? null) as any, tracks: [] as any, answers: op,
+    setAnswer: (k, v) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), [k]: v }),
+  };
 
   const investIncome = investmentIncomeAnnual(transactions) + interestIncomeAnnual(store.assetAccounts ?? []);
   // When real holdings/bonds report income, drop the onboarding interest/dividends ESTIMATE so we
@@ -36,8 +45,18 @@ export default function IncomeManagerScreen() {
   const oneOffTotal = incomes.reduce((t: number, i: any) => t + (i.amount || 0), 0);
   const totalAnnual = Math.round(totalGrossAnnual(opLive)) + investIncome + oneOffTotal;
 
-  const editableField = (s: any): null | 'bonusAnnual' | 'signingOnetime' =>
-    s.label === 'Bonus' ? 'bonusAnnual' : s.label === 'Signing bonus' ? 'signingOnetime' : null;
+  // What opens when you tap a source row (null = not directly editable here).
+  const openEditorFor = (label: string): null | (() => void) => {
+    switch (label) {
+      case 'Base salary': return () => setBaseOpen(true);
+      case 'Bonus': return () => setEditKey('bonusAnnual');
+      case 'Signing bonus': return () => setEditKey('signingOnetime');
+      case 'Equity comp': return () => setRich('equity');
+      case 'Rental property': return () => setRich('rental');
+      case 'Self-employment': return () => setSelfOpen(true);
+      default: return null;
+    }
+  };
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -52,12 +71,11 @@ export default function IncomeManagerScreen() {
       <Text style={styles.section}>WHAT YOU ENTERED</Text>
       <View style={styles.card}>
         {sources.map((s: any) => {
-          const ek = editableField(s);
-          const isBase = s.label === 'Base salary';
-          const editable = isBase || !!ek;
+          const open = openEditorFor(s.label);
+          const editable = !!open;
           return (
             <TouchableOpacity key={s.income_source_id} style={styles.row} disabled={!editable}
-              onPress={() => isBase ? setBaseOpen(true) : ek ? setEditKey(ek) : undefined}>
+              onPress={() => open?.()}>
               <View style={{ flex: 1 }}>
                 <Text style={styles.rowName}>{s.label}</Text>
                 <Text style={styles.rowSub}>{s.who_earns === 'partner' ? 'partner · ' : ''}{freqLabel(s.frequency)}{s.operating_expenses ? ` · net of ${money(s.operating_expenses)}/mo costs` : ''}{editable ? ' · tap to edit' : ''}</Text>
@@ -108,7 +126,59 @@ export default function IncomeManagerScreen() {
         onSave={(v) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey]: String(v) }); setEditKey(null); }} />
       <AddIncome open={addOpen} onClose={() => setAddOpen(false)}
         onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: new Date().toISOString().slice(0, 10) }); setAddOpen(false); }} />
+
+      {/* Equity comp + Rental — reuse the rich onboarding editors (grants / multiple properties), live-backed */}
+      <Modal visible={rich != null} transparent animationType="slide" onRequestClose={() => setRich(null)}>
+        <View style={styles.richWrap}>
+          <View style={styles.richBar}>
+            <Text style={styles.richTitle}>{rich === 'equity' ? 'Equity comp' : 'Rental income'}</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done editing" onPress={() => setRich(null)}><Text style={styles.richDone}>Done</Text></TouchableOpacity>
+          </View>
+          <ScrollView contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
+            {rich === 'equity' && <RsuEditor ctx={editorCtx} />}
+            {rich === 'rental' && <RentalEditor ctx={editorCtx} />}
+            <View style={{ height: 40 }} />
+          </ScrollView>
+        </View>
+      </Modal>
+
+      <SelfEmploymentEditor open={selfOpen} op={op} onClose={() => setSelfOpen(false)}
+        onSave={(p) => { store.setOnboardingProfile?.({ ...op, ...p }); setSelfOpen(false); }} />
     </ScrollView>
+  );
+}
+
+// ── self-employment editor (net amount + per year / per month) ──
+function SelfEmploymentEditor({ open, op, onClose, onSave }: { open: boolean; op: any; onClose: () => void; onSave: (p: any) => void }) {
+  const [amt, setAmt] = useState('');
+  const [freq, setFreq] = useState<'annual' | 'monthly'>('annual');
+  React.useEffect(() => { if (open) { setAmt(op.seAmount ? String(op.seAmount) : ''); setFreq(op.seFreq === 'monthly' ? 'monthly' : 'annual'); } }, [open]);
+  const annual = num(amt) * (freq === 'monthly' ? 12 : 1);
+  return (
+    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
+        <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Dismiss" onPress={onClose} />
+        <View style={styles.sheet}>
+          <View style={styles.grab} />
+          <Text style={styles.sheetT}>Self-employment income</Text>
+          <Text style={styles.fieldL}>Net amount (after business expenses)</Text>
+          <TextInput style={styles.input} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+          <Text style={styles.fieldL}>How often</Text>
+          <View style={styles.chips}>
+            {(['annual', 'monthly'] as const).map((f) => (
+              <TouchableOpacity key={f} accessibilityRole="button" accessibilityLabel={f === 'annual' ? 'Per year' : 'Per month'} style={[styles.chip, freq === f && styles.chipOn]} onPress={() => setFreq(f)}>
+                <Text style={[styles.chipT, freq === f && styles.chipTOn]}>{f === 'annual' ? 'Per year' : 'Per month'}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Save self-employment income" style={styles.saveBtn}
+            onPress={() => onSave({ seAmount: num(amt) > 0 ? String(num(amt)) : '', seFreq: freq })}>
+            <Text style={styles.saveBtnT}>Save · {money(annual)}/yr</Text>
+          </TouchableOpacity>
+          <View style={{ height: 16 }} />
+        </View>
+      </KeyboardAvoidingView>
+    </Modal>
   );
 }
 
@@ -211,6 +281,10 @@ const styles = StyleSheet.create({
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
+  richWrap: { flex: 1, backgroundColor: Colors.bgSecondary },
+  richBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.border, backgroundColor: '#fff' },
+  richTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
+  richDone: { fontSize: 16, fontWeight: '700', color: Colors.primary },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },

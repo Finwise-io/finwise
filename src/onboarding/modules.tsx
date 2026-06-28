@@ -1241,7 +1241,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
 // Equity-based compensation — add one row per grant (RSUs or stock options), each valued
 // by its own rule, summed into annual equity income. Refreshers stack up over time.
-function RsuEditor({ ctx }: { ctx: StepCtx }) {
+export function RsuEditor({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const rows = (a.rsuGrants ?? []) as any[];
   const type = a.equityType ?? 'rsu';
@@ -2175,7 +2175,7 @@ function SpendingEditor({ ctx }: { ctx: StepCtx }) {
 }
 
 // Rental properties — one editable card each, type toggle on top, summed into net income.
-function RentalEditor({ ctx }: { ctx: StepCtx }) {
+export function RentalEditor({ ctx }: { ctx: StepCtx }) {
   const stored = (ctx.answers.rentals ?? []) as any[];
   const list = stored.length ? stored : [{}];   // always show at least one to fill in
   const write = (next: any[]) => ctx.setAnswer('rentals', next);
