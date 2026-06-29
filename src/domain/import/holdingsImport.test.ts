@@ -25,6 +25,14 @@ describe('importHoldings', () => {
     expect(r.mapped.cost).toBe('Average Cost Basis');
   });
 
+  // build-34 #7: the name didn't import because the header wasn't "Description/Security/Name/Fund".
+  test('captures the security name from broader header labels (Investment / Holding)', () => {
+    const r1 = importHoldings('Symbol,Investment,Quantity\nVTI,"Vanguard Total Stock",100\n');
+    expect(r1.mapped.name).toBe('Investment');
+    expect(r1.holdings[0]).toMatchObject({ ticker: 'VTI', label: 'Vanguard Total Stock' });
+    expect(importHoldings('Ticker,Holding,Shares\nAAPL,"Apple Inc.",25\n').holdings[0].label).toBe('Apple Inc.');
+  });
+
   test('total Cost Basis is divided by shares to get per-share cost', () => {
     const csv = 'Ticker,Shares,Cost Basis\nSPY,10,"$4,000.00"\n';
     const r = importHoldings(csv);

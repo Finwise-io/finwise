@@ -168,7 +168,7 @@ export function importHoldings(text: string): ImportResult {
   const totalCostCol = findCol(headers, [/cost basis|total cost|cost amount|book cost/i]);
   const valueCol = findCol(headers, [/^value\s*\$?$/i, /market value|current value|^value/i]);
   const dateCol = findCol(headers, [/purchase date|acquired|acquisition|trade date|date/i]);
-  const nameCol = findCol(headers, [/description|security|name|fund/i]);
+  const nameCol = findCol(headers, [/description|security|name|fund|investment|holding|instrument/i]);   // broadened: brokerages label the name column many ways
 
   const holdings: ImportedHolding[] = [];
   let skipped = 0;
