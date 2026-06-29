@@ -25,7 +25,9 @@ export const Colors = {
 
   textPrimary: '#1A1A18',
   textSecondary: '#6B6B66',
-  textTertiary: '#9E9E99',
+  // textTertiary darkened #9E9E99 → #76766F to meet WCAG AA (~4.5:1 on white; was ~2.6:1 and hard to read
+  // as small gray text — UI guidelines §5.2). Still lighter than textSecondary, so hierarchy is preserved.
+  textTertiary: '#76766F',
 
   border: 'rgba(0,0,0,0.10)',
   borderStrong: 'rgba(0,0,0,0.20)',

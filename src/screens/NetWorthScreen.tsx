@@ -1,6 +1,6 @@
 // Net Worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
 import { useRouter } from 'expo-router';
@@ -123,6 +123,15 @@ export default function NetWorthScreen() {
   const investable = investableAssets(assets);   // NW-12: cash + investments (excludes home & belongings)
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
   const pctOf = (v: number) => (totalAssets > 0 ? Math.round((v / totalAssets) * 100) : 0);
+
+  // Tapping a donut-legend item jumps to the accounts that make up that class (feedback: legend is a nav).
+  const scrollRef = useRef<ScrollView>(null);
+  const sectionY = useRef<Record<string, number>>({});
+  const scrollToSection = (sec: string) => { const y = sectionY.current[sec]; if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true }); };
+  const scrollToClass = (cls: AssetClass) => {
+    const target = ASSET_SECTIONS.find((sec) => assets.some((a) => sectionOf(a) === sec && assetClassOf(a) === cls));
+    if (target) scrollToSection(target);
+  };
 
   // ── shared section renderers (used by both the manager and the guided wizard) ──
   const curYm = `${new Date().getFullYear()}-${String(new Date().getMonth() + 1).padStart(2, '0')}`;
@@ -302,7 +311,7 @@ export default function NetWorthScreen() {
   } else {
     // ── manager (self-serve / ongoing) ──
     body = (
-      <ScrollView contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         {/* hero: donut of assets BY ASSET CLASS (#19) + net worth (red if negative, #18) in center */}
         <View style={styles.nwHero}>
           <Donut size={118} stroke={15} segments={classRows.map((r) => ({ value: r.total, color: r.color }))}
@@ -312,20 +321,20 @@ export default function NetWorthScreen() {
           </Donut>
           <View style={styles.nwLegend}>
             {classRows.map((r) => (
-              <View key={r.key} style={styles.lgRow}>
+              <TouchableOpacity key={r.key} style={styles.lgRow} accessibilityRole="button" accessibilityLabel={`${r.label}, ${shortMoney(r.total)}, ${pctOf(r.total)} percent. Tap to jump to these accounts.`} onPress={() => scrollToClass(r.key)}>
                 <View style={[styles.dot, { backgroundColor: r.color }]} />
-                <Text style={[styles.lgName, { color: r.color }]} numberOfLines={1}>{r.label}</Text>
-                <Text style={styles.lgVal}>{shortMoney(r.total)}</Text>
+                <Text style={[styles.lgName, { color: r.color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{r.label}</Text>
+                <Text style={styles.lgVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{shortMoney(r.total)}</Text>
                 <Text style={styles.lgPct}>{pctOf(r.total)}%</Text>
-              </View>
+              </TouchableOpacity>
             ))}
             {dState.total_debt_balance > 0 && (
-              <View style={styles.lgRow}>
+              <TouchableOpacity style={styles.lgRow} accessibilityRole="button" accessibilityLabel={`Debts, ${shortMoney(dState.total_debt_balance)}. Tap to jump to your debts.`} onPress={() => scrollToSection('Debts')}>
                 <View style={[styles.dot, { backgroundColor: Colors.red }]} />
                 <Text style={[styles.lgName, { color: Colors.red }]} numberOfLines={1}>Debts</Text>
-                <Text style={[styles.lgVal, { color: Colors.red }]}>-{shortMoney(dState.total_debt_balance)}</Text>
+                <Text style={[styles.lgVal, { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>-{shortMoney(dState.total_debt_balance)}</Text>
                 <Text style={styles.lgPct} />
-              </View>
+              </TouchableOpacity>
             )}
           </View>
         </View>
@@ -337,7 +346,7 @@ export default function NetWorthScreen() {
         {/* NW-12: surface the canonical "investable assets" total (cash + investments; excludes property) */}
         {investable > 0 && <Text style={styles.nwInvestable}>Investable assets {money(Math.round(investable))} · excludes your home & belongings</Text>}
         {/* NW-8 + #4 transparency: the ring is ASSETS by class; debts are the separate red line below */}
-        <Text style={styles.nwCaption}>The ring shows your assets by class; debts are the red line. You add money by account above — here it's regrouped by what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
+        <Text style={styles.nwCaption}>The ring shows your assets by class; your debt is the red line below it. You add money by account above — here it's regrouped by what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
         {/* #10: don't pretend a wrapper's contents are stocks — show "Unclassified" and nudge the user to set the mix */}
         {alloc.mixed > 0 && (
           <Text style={styles.nwNudge}>
@@ -397,8 +406,10 @@ export default function NetWorthScreen() {
           </View>
         )}
 
-        {ASSET_SECTIONS.map(renderAssetSection)}
-        {renderDebtSection()}
+        {ASSET_SECTIONS.map((sec) => (
+          <View key={sec} onLayout={(e) => { sectionY.current[sec] = e.nativeEvent.layout.y; }}>{renderAssetSection(sec)}</View>
+        ))}
+        <View onLayout={(e) => { sectionY.current['Debts'] = e.nativeEvent.layout.y; }}>{renderDebtSection()}</View>
         {costliest && (
           <View style={styles.callout}>
             <Text style={styles.calloutIcon}>⚠️</Text>
@@ -637,7 +648,7 @@ const styles = StyleSheet.create({
   donutLbl: { fontSize: 10, color: Colors.textSecondary, marginTop: -2 },
   nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
   nwInvestable: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center', marginBottom: 4 },
-  nwCaption: { fontSize: 10.5, color: Colors.textTertiary, textAlign: 'left', marginBottom: 4, lineHeight: 14 },
+  nwCaption: { fontSize: 11, color: Colors.textSecondary, textAlign: 'left', marginBottom: 4, lineHeight: 15 },
   nwNudge: { fontSize: 11, color: '#9A6B4F', textAlign: 'left', marginBottom: 6, lineHeight: 15 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
@@ -651,7 +662,7 @@ const styles = StyleSheet.create({
   runwayLink: { fontSize: 12, fontWeight: '800', color: Colors.primary, marginTop: 6 },
   perfBtnArrow: { fontSize: 22, color: Colors.textTertiary, fontWeight: '400' },
   exploreCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, marginTop: Spacing.sm, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingBottom: 4 },
-  exploreHdr: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: Spacing.sm, marginBottom: 2 },
+  exploreHdr: { fontSize: 10, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: Spacing.sm, marginBottom: 2 },
   exploreRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 13 },
   exploreRowT: { flex: 1, fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   exploreDiv: { height: 1, backgroundColor: Colors.bgTertiary },
