@@ -38,6 +38,7 @@ const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
   { key: 'alternatives', label: 'Alternatives' },
 ];
 const SECTION_ICON: Record<string, string> = { Cash: '💵', Investments: '📈', Retirement: '🏛️', Property: '🏠' };
+const CLASS_ICON: Record<AssetClass, string> = { cash: '💵', stocks_etf: '📈', bonds: '📜', alternatives: '🪙', real_estate: '🏠', personal_property: '🚗', mixed: '🧩' };
 const bucketSection = (b: TaxBucket) => (b === 'CASH' ? 'Cash' : b === 'PROPERTY' ? 'Property' : b === 'TAXABLE' ? 'Investments' : 'Retirement');
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? bucketSection(a.tax_bucket);
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -201,6 +202,14 @@ export default function NetWorthScreen() {
                 </View>
                 <Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text>
               </View>
+              {/* Mock A: under each institution, an at-a-glance class mix (so a "Chase" with mixed holdings
+                  reads as a roll-up, not just a flat list). */}
+              {invGroup === 'account' && (() => {
+                const mix = Object.values(items.reduce((m: Record<string, { c: AssetClass; t: number }>, a) => {
+                  const c = assetClassOf(a); (m[c] ||= { c, t: 0 }); m[c].t += a.balance; return m;
+                }, {})).sort((x, y) => y.t - x.t);
+                return mix.length > 1 ? <Text style={styles.classMix}>{mix.map((x) => `${CLASS_ICON[x.c]} ${shortMoney(x.t)}`).join('   ·   ')}</Text> : null;
+              })()}
               <View style={styles.card}>
                 {items.map((a, i) => {
                   const base = invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a);
@@ -696,6 +705,7 @@ const styles = StyleSheet.create({
   groupHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10, marginBottom: 2, paddingHorizontal: 2 },
   groupName: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   groupVal: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
+  classMix: { fontSize: 11.5, fontWeight: '600', color: Colors.textSecondary, marginTop: 1, marginBottom: 1, paddingHorizontal: 2 },
   empty: { fontSize: 13, color: Colors.primary, fontWeight: '600', paddingVertical: 6 },
   row: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, paddingVertical: 9 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
