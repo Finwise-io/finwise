@@ -30,3 +30,8 @@ action list below).
   open-items list + Principal-PM review + Phase 2 persona-platform plan (3 tabs; your approval/comments columns).
 - [18-35-research-v1.0-2026-06-29.md](18-35-research-v1.0-2026-06-29.md) — what 18–35 actually struggle with;
   fact-checked; points to a daily Safe-to-spend wedge.
+- [18-35-scope-nw-investing-retirement-v1.0-2026-06-29.md](18-35-scope-nw-investing-retirement-v1.0-2026-06-29.md)
+  — data + pros/cons on including Net Worth / Investing / Retirement in v1. Rec: NW light, investing-depth defer,
+  retirement light cue. 🟡 awaiting your scope decision.
+- [18-35-PRD-v0.1-2026-06-29.md](18-35-PRD-v0.1-2026-06-29.md) — PRD (scope §6 to be revised → v0.2 after the
+  scope decision).
