@@ -575,6 +575,11 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
             ))}</View>
+            {/* Mock B: break a lump into its real holdings (the donut then splits it accurately) */}
+            <TouchableOpacity style={sh.itemize} accessibilityRole="button" accessibilityLabel="Itemize this account into holdings" onPress={() => { onClose(); router.push(`/itemize?accountId=${editing!.asset_id}`); }}>
+              <Text style={sh.itemizeT}>🧩  Itemize into holdings →</Text>
+              <Text style={sh.itemizeSub}>Break this into specific stocks, bonds, options…</Text>
+            </TouchableOpacity>
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
           <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
@@ -757,4 +762,7 @@ const sh = StyleSheet.create({
   backLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginBottom: 8 },
   note: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
   specifics: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, paddingVertical: 4 },
+  itemize: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.md },
+  itemizeT: { fontSize: 15, fontWeight: '800', color: Colors.primary },
+  itemizeSub: { fontSize: 12, color: Colors.primaryDark, marginTop: 2 },
 });
