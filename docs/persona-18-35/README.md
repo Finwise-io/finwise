@@ -15,14 +15,15 @@ action list below).
 | Stage | File | Status |
 |-------|------|--------|
 | Research | `18-35-research-v1.0-2026-06-29.md` | ✅ done |
-| Product Requirements (PRD) — persona + wedge + scope cut | `18-35-PRD-v*.md` | pending wedge decision |
+| Product Requirements (PRD) — persona + wedge + scope cut | `18-35-PRD-v0.1-2026-06-29.md` | 🟡 draft — awaiting approval |
 | Conceptual design — experience architecture | `18-35-conceptual-design-v*.md` | pending |
 | Detailed design — per screen/flow | `18-35-detailed-<screen>-v*.md` | pending |
 | Build | (code) | pending |
 
-## Open decisions (blocking the PRD)
-1. **Wedge** — recommended: Safe-to-spend + "Can I afford X?" → emergency fund (see research).
-2. **Low-friction data** — privacy-preserving bank sync vs near-zero-friction manual first (the wedge forces this).
+## Decisions locked (2026-06-29)
+1. **Wedge** — Safe-to-spend + "Can I afford X?" → starter emergency fund. ✅
+2. **Low-friction data** — privacy-preserving bank sync (read-only, on-device, encrypted). ✅
+   (Technical spike needed: aggregator choice + on-device storage model — see PRD §4/§8.)
 
 ## Index
 - [finwise-master-action-list-v1.0-2026-06-29.xlsx](finwise-master-action-list-v1.0-2026-06-29.xlsx) — master
