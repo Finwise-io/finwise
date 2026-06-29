@@ -145,6 +145,18 @@ export function isCashEquivalentLabel(label?: string): boolean {
   return CASH_EQUIV_RE.test((label ?? '').trim());
 }
 
+/** APPROVED ENTRY RULE (build-34 #8): a maturity-bearing instrument (CD, T-bill, short Treasury) is CASH
+ *  if it matures within 12 months, else a BOND. Applied ONCE when the account is added and stored as an
+ *  explicit `asset_class`, so `assetClassOf` stays time-independent (spec §2: "detected by assetClass,
+ *  not maturity"). No maturity (e.g. money-market) → cash. */
+export function maturityClass(maturityDate?: string | null, now: Date = new Date()): 'cash' | 'bonds' {
+  if (!maturityDate) return 'cash';
+  const [y, m] = String(maturityDate).split('-').map(Number);
+  if (!y || !m) return 'cash';
+  const months = (y - now.getFullYear()) * 12 + (m - 1 - now.getMonth());
+  return months >= 12 ? 'bonds' : 'cash';
+}
+
 /** WHAT the account is (asset class). Explicit `asset_class` wins; CDs/T-bills/money-market ⇒ cash;
  *  a maturity date ⇒ a bond; else derive from `kind`, falling back to the tax bucket. */
 export function assetClassOf(a: AssetAccount): AssetClass {

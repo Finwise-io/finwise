@@ -3,7 +3,7 @@
 import {
   totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal,
   investmentsTotal, investableAssets, assetAllocation, type AssetAccount,
-  ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker,
+  ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker, maturityClass,
 } from './index';
 
 const a = (over: Partial<AssetAccount>): AssetAccount => ({
@@ -85,5 +85,22 @@ describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
   test('the Cash picker now offers 6 types in order (checking, savings, then the four new ones)', () => {
     const cashIds = ASSET_KINDS.filter((k) => k.section === 'Cash').map((k) => k.id);
     expect(cashIds).toEqual(['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt']);
+  });
+});
+
+// build-34 #8 approved rule: a CD/short instrument maturing < 12 months = cash, ≥ 12 months = bond.
+describe('maturityClass — entry-time cash-vs-bond by maturity', () => {
+  const now = new Date('2026-06-15');
+  test('matures within 12 months → cash', () => {
+    expect(maturityClass('2026-08', now)).toBe('cash');   // ~2 mo (a short CD / T-bill)
+    expect(maturityClass('2027-05', now)).toBe('cash');   // 11 mo
+  });
+  test('matures in 12+ months → bonds', () => {
+    expect(maturityClass('2027-06', now)).toBe('bonds');  // exactly 12 mo
+    expect(maturityClass('2030-01', now)).toBe('bonds');  // a 2-year+ note stays a bond
+  });
+  test('no maturity (money-market, plain cash) → cash', () => {
+    expect(maturityClass(undefined, now)).toBe('cash');
+    expect(maturityClass(null, now)).toBe('cash');
   });
 });
