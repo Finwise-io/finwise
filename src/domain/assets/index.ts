@@ -106,6 +106,7 @@ export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: Tax
   { id: 'private_equity', label: 'Private equity', icon: '🏢', bucket: 'TAXABLE', section: 'Investments', ret: 0.13 },
   { id: 'hedge_funds', label: 'Hedge funds', icon: '📊', bucket: 'TAXABLE', section: 'Investments', ret: 0.06 },
   { id: 'commodities', label: 'Gold / commodities', icon: '🥇', bucket: 'TAXABLE', section: 'Investments', ret: 0.082 },
+  { id: 'options', label: 'Options', icon: '⚖️', bucket: 'TAXABLE', section: 'Investments', ret: 0.05 },
   { id: 'annuities', label: 'Annuities', icon: '📃', bucket: 'TAXABLE', section: 'Investments', ret: 0.045 },
   { id: 'college_529', label: '529 / College', icon: '🎓', bucket: 'TAXABLE', section: 'Investments', ret: 0.07 },
   { id: 'other_asset', label: 'Other', icon: '📦', bucket: 'TAXABLE', section: 'Investments', ret: 0.05 },
@@ -133,7 +134,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
   stocks_etf: 'stocks_etf',
   fixed_income: 'bonds',
   private_equity: 'alternatives', hedge_funds: 'alternatives', commodities: 'alternatives',
-  crypto: 'alternatives', annuities: 'alternatives', other_asset: 'alternatives',
+  crypto: 'alternatives', annuities: 'alternatives', other_asset: 'alternatives', options: 'alternatives',
   home: 'real_estate', vehicle: 'personal_property',
 };
 

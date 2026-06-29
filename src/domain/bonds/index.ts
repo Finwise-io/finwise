@@ -7,9 +7,11 @@ import { assetClassOf } from '../assets';
 
 export interface BondInfo { face: number; couponRate: number; maturity: string; value: number; }
 
-/** An AssetAccount is a bond if it carries a maturity date. */
+/** An AssetAccount is a bond if its ASSET CLASS is bonds (spec §2: "detected by assetClass, NOT maturity
+ *  date"). So a bond FUND/ETF with no maturity counts, and a CD/T-bill (cash) with a maturity does NOT.
+ *  Existing bonds entered with a maturity but no explicit class still resolve to 'bonds' via assetClassOf. */
 export function isBond(a: AssetAccount): boolean {
-  return !!a.maturity_date;
+  return assetClassOf(a) === 'bonds';
 }
 export function bondInfo(a: AssetAccount): BondInfo {
   return { face: a.face_value || 0, couponRate: a.coupon_rate || 0, maturity: a.maturity_date || '', value: a.balance || 0 };

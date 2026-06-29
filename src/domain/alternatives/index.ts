@@ -4,7 +4,7 @@
 import { round2 } from '../_shared/num';
 import { benchmarkReturn, type AssetAccount } from '../assets';
 
-export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'other_asset'] as const;
+export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options', 'other_asset'] as const;
 export type AltKind = typeof ALT_KINDS[number];
 
 /** Is this account an "other investment" — an alternative held at a manual value (not a bond, not cash/property)? */

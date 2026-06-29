@@ -110,8 +110,10 @@ export default function ImportHoldingsScreen() {
       };
       for (const h of others) {
         const def = CLASS_DEFAULTS[h.assetClass];
+        // NW-11: keep traded options as 'options' (not the generic 'Other') so they read correctly on Alternatives.
+        const kind = h.assetClass === 'alternatives' && /\b(put|call)s?\b/i.test(`${h.symbol} ${h.label}`) ? 'options' : def.kind;
         store.addAsset({
-          label: h.label || h.symbol, kind: def.kind, tax_bucket: def.tax_bucket,
+          label: h.label || h.symbol, kind, tax_bucket: def.tax_bucket,
           asset_class: h.assetClass, balance: round2(h.value || 0), target_return: def.ret,
         });
         added += 1;

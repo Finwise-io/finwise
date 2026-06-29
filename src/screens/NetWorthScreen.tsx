@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -414,63 +414,144 @@ export default function NetWorthScreen() {
   );
 }
 
-// ── asset add/edit sheet ──────────────────────────────────────────────────────
+// ── asset add/edit sheet (class-first, taxonomy two-axis) ─────────────────────
+type AddStep = 'pick' | 'cash' | 'stocks' | 'bonds' | 'alts' | 'realestate' | 'property' | 'retirement' | 'brokerage' | 'quick' | 'edit';
+const ADD_CLASS_PICKS = [
+  { key: 'cash' as const, icon: '💵', label: `${ASSET_CLASS_LABEL.cash} & equivalents` },
+  { key: 'stocks' as const, icon: '📈', label: ASSET_CLASS_LABEL.stocks_etf },
+  { key: 'bonds' as const, icon: '📜', label: ASSET_CLASS_LABEL.bonds },
+  { key: 'alts' as const, icon: '🪙', label: ASSET_CLASS_LABEL.alternatives },
+  { key: 'realestate' as const, icon: '🏠', label: ASSET_CLASS_LABEL.real_estate },
+  { key: 'property' as const, icon: '🚗', label: ASSET_CLASS_LABEL.personal_property },
+];
+const ADD_ACCT_PICKS = [
+  { key: 'retirement' as const, icon: '🏛️', label: 'Retirement (401k / IRA / HSA)' },
+  { key: 'brokerage' as const, icon: '🗂️', label: 'Brokerage (taxable, a mix)' },
+];
+const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
+  { key: 'taxable', label: 'Taxable' }, { key: '401k', label: '401(k)' },
+  { key: 'trad_ira', label: 'Trad. IRA' }, { key: 'roth', label: 'Roth IRA' }, { key: 'hsa', label: 'HSA' },
+];
+const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
+const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt'];
+const ALT_OPTS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options'];
+const PROP_OPTS = ['vehicle', 'other_asset'];
+const INSIDE_OPTS: { key: AssetClass | 'mixed'; label: string }[] = [
+  { key: 'mixed', label: 'Mixed / not sure' }, { key: 'stocks_etf', label: 'Stocks / ETFs' }, { key: 'bonds', label: 'Bonds' }, { key: 'cash', label: 'Cash' },
+];
+
 function AssetSheet({ state, onClose }: { state: { open: boolean; section?: string; edit?: AssetAccount }; onClose: () => void }) {
   const store = useStore() as any;
   const editing = state.edit;
-  const kindsForSection = state.section ? ASSET_KINDS.filter((k) => k.section === state.section) : ASSET_KINDS;
-  const [kind, setKind] = useState(''); const [inst, setInst] = useState(''); const [bal, setBal] = useState('');
-  const [cls, setCls] = useState<AssetClass | 'auto'>('auto');   // #10/#14: what a wrapper holds
+  const [step, setStep] = useState<AddStep>('pick');
+  const [sub, setSub] = useState('');                              // cash kind / alt kind / property kind
+  const [wrapper, setWrapper] = useState<AddWrapper>('taxable');
+  const [inside, setInside] = useState<AssetClass | 'mixed'>('mixed');
+  const [maturity, setMaturity] = useState(''); const [inst, setInst] = useState(''); const [bal, setBal] = useState('');
 
   useEffect(() => {
     if (!state.open) return;
-    setKind(editing?.kind ?? kindsForSection[0]?.id ?? 'brokerage');
-    setInst(editing?.institution ?? ''); setBal(editing ? String(editing.balance) : '');
-    setCls((editing?.asset_class as AssetClass) ?? 'auto');
+    setSub(''); setWrapper('taxable'); setMaturity('');
+    if (editing) {
+      setStep('edit'); setInst(editing.institution ?? ''); setBal(String(editing.balance));
+      setInside((editing.asset_class as AssetClass) ?? 'mixed');
+    } else { setStep('pick'); setInside('mixed'); setInst(''); setBal(''); }
   }, [state.open]);
 
-  const k = assetKind(kind);
-  const amt = num(bal);
-  const ready = assetSheetReady(kind, bal);
-  // A wrapper (401k/IRA/brokerage) has no inherent asset class — offer to set what it HOLDS so the
-  // donut is accurate (#10) and the user classifies the existing account instead of adding a parallel,
-  // double-counting one (#14). Class-specific kinds (cash, a bond, a home) don't need this.
-  const isWrapper = !!k && assetClassOf({ kind: k.id, tax_bucket: k.bucket } as AssetAccount) === 'mixed';
+  const v = num(bal);
+  const choose = (key: AddStep) => {
+    if (key === 'cash') setSub('checking'); else if (key === 'alts') setSub('crypto');
+    else if (key === 'property') setSub('vehicle'); else if (key === 'retirement') setWrapper('401k');
+    setStep(key);
+  };
+  const lbl = (fallback: string) => inst.trim() || fallback;
   const save = () => {
-    if (!ready || !k) return;
-    const label = inst.trim() || k.label;
-    const patch: Partial<AssetAccount> = { label, institution: inst.trim(), kind: k.id, tax_bucket: k.bucket as TaxBucket, balance: amt, target_return: k.ret };
-    patch.asset_class = isWrapper && cls !== 'auto' ? cls : undefined;   // set holdings if chosen; else auto-derive
-    if (editing) store.updateAsset?.(editing.asset_id, patch); else store.addAsset?.(patch);
-    onClose();
+    let patch: Partial<AssetAccount> = { institution: inst.trim(), balance: v };
+    if (step === 'cash') {
+      const cls: AssetClass = sub === 'cd' ? maturityClass(maturity || undefined) : 'cash';
+      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'bonds' ? 'TAXABLE' : 'CASH', maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
+    } else if (step === 'stocks' || step === 'bonds') {
+      const wa = wrapperAccount(wrapper);
+      patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / ETFs' : 'Bonds') };
+    } else if (step === 'alts') {
+      const wa = wrapperAccount(wrapper);
+      patch = { ...patch, asset_class: 'alternatives', kind: sub, tax_bucket: wa.tax_bucket, label: lbl(assetKind(sub)?.label ?? 'Alternatives') };
+    } else if (step === 'realestate') {
+      patch = { ...patch, asset_class: 'real_estate', kind: 'home', tax_bucket: 'PROPERTY', label: lbl('Real estate') };
+    } else if (step === 'property') {
+      patch = { ...patch, asset_class: 'personal_property', kind: sub, tax_bucket: 'PROPERTY', label: lbl(assetKind(sub)?.label ?? 'Personal property') };
+    } else if (step === 'retirement') {
+      const wa = wrapperAccount(wrapper);
+      patch = { ...patch, asset_class: inside === 'mixed' ? undefined : inside, kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(RET_OPTS.find((r) => r.key === wrapper)?.label ?? 'Retirement') };
+    } else if (step === 'brokerage') {
+      patch = { ...patch, asset_class: undefined, kind: 'brokerage', tax_bucket: 'TAXABLE', label: lbl('Brokerage') };
+    } else if (step === 'quick') {
+      patch = { ...patch, asset_class: 'mixed', kind: 'brokerage', tax_bucket: 'TAXABLE', label: inst.trim() || 'Account' };   // Unclassified — user sorts it later
+    } else if (step === 'edit' && editing) {
+      store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside });
+      onClose(); return;
+    }
+    store.addAsset?.(patch); onClose();
   };
   const remove = () => { if (editing) store.deleteAsset?.(editing.asset_id); onClose(); };
+  const TITLES: Record<AddStep, string> = { pick: 'Add to net worth', cash: 'Cash & equivalents', stocks: 'Stocks / ETFs', bonds: 'Bonds', alts: 'Alternatives', realestate: 'Real estate', property: 'Personal property', retirement: 'Retirement account', brokerage: 'Brokerage account', quick: 'Quick add', edit: 'Edit account' };
+  const Chips = ({ ids }: { ids: string[] }) => (
+    <View style={sh.chips}>{ids.map((id) => (
+      <TouchableOpacity key={id} accessibilityRole="button" accessibilityLabel={assetKind(id)?.label ?? id} style={[sh.chip, sub === id && sh.chipOn]} onPress={() => setSub(id)}><Text style={sh.chipTxt}>{assetKind(id)?.label ?? id}</Text></TouchableOpacity>
+    ))}</View>
+  );
+  const Wrappers = ({ opts }: { opts: { key: AddWrapper; label: string }[] }) => (
+    <View style={sh.chips}>{opts.map((w) => (
+      <TouchableOpacity key={w.key} accessibilityRole="button" accessibilityLabel={w.label} style={[sh.chip, wrapper === w.key && sh.chipOn]} onPress={() => setWrapper(w.key)}><Text style={sh.chipTxt}>{w.label}</Text></TouchableOpacity>
+    ))}</View>
+  );
 
   return (
-    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit asset' : `Add ${state.section ? secLabel(state.section).toLowerCase() : 'asset'}`}>
-      <View style={sh.chips}>
-        {kindsForSection.map((ko) => (
-          <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} onPress={() => setKind(ko.id)}>
-            <Text style={sh.chipTxt}>{ko.icon} {ko.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <TextInput style={sh.input} placeholder="Institution / name (e.g. Chase)" placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
-      {isWrapper && (
+    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit account' : TITLES[step]}>
+      {step === 'pick' ? (
         <>
-          <Text style={sh.clsLabel}>What's it invested in?</Text>
-          <View style={sh.chips}>
-            {WRAPPER_CLASS_CHOICES.map((c) => (
-              <TouchableOpacity key={c.key} style={[sh.chip, cls === c.key && sh.chipOn]} onPress={() => setCls(c.key)}>
-                <Text style={sh.chipTxt}>{c.label}</Text>
-              </TouchableOpacity>
-            ))}
-          </View>
+          <TouchableOpacity style={sh.quickRow} accessibilityRole="button" accessibilityLabel="Quick add" onPress={() => choose('quick')}><Text style={sh.quickTxt}>⚡  Quick add — just a name & value</Text></TouchableOpacity>
+          <Text style={sh.pickHdr}>WHAT IT IS</Text>
+          {ADD_CLASS_PICKS.map((p) => (
+            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
+          ))}
+          <Text style={sh.pickHdr}>A WHOLE ACCOUNT (holds a mix)</Text>
+          {ADD_ACCT_PICKS.map((p) => (
+            <TouchableOpacity key={p.key} style={sh.pickRow} accessibilityRole="button" accessibilityLabel={p.label} onPress={() => choose(p.key)}><Text style={sh.pickTxt}>{p.icon}  {p.label}</Text><Text style={sh.pickArrow}>›</Text></TouchableOpacity>
+          ))}
+        </>
+      ) : (
+        <>
+          {!editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Back" onPress={() => setStep('pick')}><Text style={sh.backLink}>‹ Back</Text></TouchableOpacity>}
+          {step === 'cash' && (<>
+            <Chips ids={CASH_OPTS} />
+            {sub === 'cd' && <TextInput style={sh.input} placeholder="Matures YYYY-MM ( < 1yr = cash · ≥ 1yr = bond )" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />}
+          </>)}
+          {step === 'alts' && <Chips ids={ALT_OPTS} />}
+          {step === 'property' && <Chips ids={PROP_OPTS} />}
+          {(step === 'stocks' || step === 'bonds' || step === 'alts') && (<>
+            <Text style={sh.clsLabel}>Held in</Text><Wrappers opts={WRAPPER_OPTS} />
+            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value — or add individual bonds on the Bonds screen.' : step === 'stocks' ? 'Enter a total value — or track specific tickers via Import / the Stocks screen.' : 'Crypto, PE, hedge funds, commodities, annuities.'}</Text>
+          </>)}
+          {step === 'retirement' && (<>
+            <Wrappers opts={RET_OPTS} />
+            <Text style={sh.clsLabel}>What's inside?</Text>
+            <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
+              <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
+            ))}</View>
+          </>)}
+          {step === 'edit' && (<>
+            <Text style={sh.clsLabel}>What's it invested in?</Text>
+            <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
+              <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>
+            ))}</View>
+          </>)}
+          <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
+          <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
+          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? money(v) : ''}</Text></TouchableOpacity>
+          {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}
-      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
-      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {amt > 0 ? money(amt) : 'asset'}</Text></TouchableOpacity>
-      {editing && <TouchableOpacity onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }
@@ -636,4 +717,12 @@ const sh = StyleSheet.create({
   save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.md },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   remove: { color: Colors.red, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md },
+  pickRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 14, paddingHorizontal: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  pickTxt: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  pickArrow: { fontSize: 20, color: Colors.textTertiary },
+  pickHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 16, marginBottom: 2 },
+  quickRow: { paddingVertical: 14, paddingHorizontal: 12, borderRadius: Radii.md, backgroundColor: Colors.primaryLight, marginBottom: 4 },
+  quickTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
+  backLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginBottom: 8 },
+  note: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
 });

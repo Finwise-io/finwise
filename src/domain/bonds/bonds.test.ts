@@ -39,4 +39,13 @@ describe('bonds', () => {
     expect(isBond(accts[1])).toBe(false);
     expect(couponIncomeAnnual(accts)).toBe(450);
   });
+
+  test('NW-1: bond detection is by asset CLASS not maturity (spec §2)', () => {
+    // a bond FUND/ETF has NO maturity date but IS a bond
+    expect(isBond({ asset_id: 'bf', label: 'BND', tax_bucket: 'TAXABLE', balance: 20000, target_return: 0.04, asset_class: 'bonds' } as any)).toBe(true);
+    // a CD has a maturity but is CASH — must NOT count as a bond
+    expect(isBond({ asset_id: 'cd', label: 'Ally 12-mo CD', tax_bucket: 'CASH', balance: 10000, target_return: 0.05, maturity_date: '2027-01-01', asset_class: 'cash' } as any)).toBe(false);
+    // a CD detected by label (no explicit class) is cash, not a bond, even with a maturity
+    expect(isBond({ asset_id: 'cd2', label: 'KeyBank CD 4%', tax_bucket: 'CASH', balance: 5000, target_return: 0.04, maturity_date: '2028-01-01' } as any)).toBe(false);
+  });
 });
