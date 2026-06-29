@@ -54,12 +54,12 @@ export default function OtherInvestmentsScreen() {
           </View>
 
           {alts.map((a) => (
-            <TouchableOpacity key={a.asset_id} style={styles.card} onPress={() => setEdit(a)}>
-              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.val}>{money(a.balance || 0)}</Text></View>
-              <Text style={styles.sub}>{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(1)}%/yr expected</Text>
+            <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`Edit ${a.label}, ${money(a.balance || 0)}`} style={styles.card} onPress={() => setEdit(a)}>
+              <View style={styles.row}><Text style={styles.name} numberOfLines={1}>{a.label}</Text><Text style={styles.val}>{money(a.balance || 0)}</Text></View>
+              <Text style={styles.sub}>{a.institution?.trim() ? `${a.institution.trim()} · ` : ''}{assetKind(a.kind)?.label ?? 'Other'} · ~{(benchmarkReturn(a.kind) * 100).toFixed(1)}%/yr expected</Text>
             </TouchableOpacity>
           ))}
-          <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add an investment</Text></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add an investment" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add an investment</Text></TouchableOpacity>
           <Text style={styles.foot}>Values are what you enter (no live pricing for alternatives). Expected returns are historical class benchmarks, not guarantees.</Text>
         </>
       )}
@@ -142,14 +142,14 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
                   <Text style={styles.sellBtnT}>Record</Text>
                 </TouchableOpacity>
               </View>
-              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sold all of it" onPress={() => setSellAmt(String(num(value)))}><Text style={styles.sellAll}>Sold all of it →</Text></TouchableOpacity>
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel="Sold all of it" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setSellAmt(String(num(value)))}><Text style={styles.sellAll}>Sold all of it →</Text></TouchableOpacity>
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
             onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
-          {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>

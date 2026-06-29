@@ -148,20 +148,38 @@ export default function ImportHoldingsScreen() {
           <View style={[styles.row, styles.rowHead]}>
             <Text style={[styles.cTicker, styles.headTxt]}>Security</Text>
             <Text style={[styles.cShares, styles.headTxt]}>Shares</Text>
-            <Text style={[styles.cCost, styles.headTxt]}>Cost/share</Text>
+            <Text style={[styles.cCost, styles.headTxt]}>Cost/sh</Text>
+            <Text style={[styles.cValue, styles.headTxt]}>Value</Text>
           </View>
-          {result.holdings.map((h, i) => (
-            <View key={i} style={[styles.row, i < result.holdings.length - 1 && styles.rowBorder]}>
-              {/* show a name for EVERY row — non-equities (CD/bond/option) have no ticker, so fall back
-                  to the security description/symbol; tag the asset class so the user sees how it classified. */}
-              <View style={styles.cTicker}>
-                <Text style={styles.secName} numberOfLines={1}>{h.ticker || h.label || h.symbol || '—'}</Text>
-                <Text style={styles.secClass}>{ASSET_CLASS_LABEL[h.assetClass] ?? h.assetClass}</Text>
+          {result.holdings.map((h, i) => {
+            // NW-3/NW-7: every row shows its dollar VALUE (the only meaningful number for non-equities,
+            // whose shares/cost are 0). Wrap the row in one grouped a11y label so a screen reader reads it
+            // as a sentence, not three fragments. money2() masks under hide-balances (no privacy leak).
+            const name = h.ticker || h.label || h.symbol || '—';
+            const classLabel = ASSET_CLASS_LABEL[h.assetClass] ?? h.assetClass;
+            return (
+              <View
+                key={i}
+                style={[styles.row, i < result.holdings.length - 1 && styles.rowBorder]}
+                accessible
+                accessibilityLabel={`${name}, ${classLabel}, ${money2(h.value)}`}
+              >
+                {/* show a name for EVERY row — non-equities (CD/bond/option) have no ticker, so fall back
+                    to the security description/symbol; tag the asset class so the user sees how it classified. */}
+                <View style={styles.cTicker}>
+                  <Text style={styles.secName} numberOfLines={2}>{name}</Text>
+                  <Text style={styles.secClass}>{classLabel}</Text>
+                </View>
+                <Text style={styles.cShares}>{h.shares > 0 ? h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}</Text>
+                <Text style={styles.cCost}>{h.costPerShare > 0 ? money2(h.costPerShare) : '—'}</Text>
+                <Text style={styles.cValue}>{money2(h.value)}</Text>
               </View>
-              <Text style={styles.cShares}>{h.shares > 0 ? h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}</Text>
-              <Text style={styles.cCost}>{h.costPerShare > 0 ? money2(h.costPerShare) : '—'}</Text>
-            </View>
-          ))}
+            );
+          })}
+          <View style={[styles.row, styles.rowTotal]}>
+            <Text style={styles.totalLabel}>Total</Text>
+            <Text style={styles.totalVal}>{money2(result.holdings.reduce((t, h) => t + h.value, 0))}</Text>
+          </View>
         </View>
 
         <Text style={styles.note}>🔒 Imported holdings are encrypted like everything else. Prices update once you open Net Worth or Investments.</Text>
@@ -221,11 +239,15 @@ const styles = StyleSheet.create({
   rowHead: { paddingTop: 0, paddingBottom: 8 },
   rowBorder: { borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   headTxt: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  cTicker: { flex: 1.2 },
+  cTicker: { flex: 1.5 },
   secName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   secClass: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
-  cShares: { flex: 1, fontSize: 14, color: Colors.textSecondary, textAlign: 'right' },
-  cCost: { flex: 1.2, fontSize: 14, color: Colors.textSecondary, textAlign: 'right' },
+  cShares: { width: 56, fontSize: 13, color: Colors.textSecondary, textAlign: 'right' },
+  cCost: { width: 66, fontSize: 13, color: Colors.textSecondary, textAlign: 'right' },
+  cValue: { width: 78, fontSize: 13, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' },
+  rowTotal: { paddingTop: 10, paddingBottom: 0, borderTopWidth: 0.5, borderTopColor: Colors.border, justifyContent: 'space-between' },
+  totalLabel: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
+  totalVal: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, textAlign: 'right' },
   note: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 16, textAlign: 'center', marginTop: 12 },
   error: { fontSize: 13.5, color: Colors.red, lineHeight: 19, marginBottom: Spacing.base, textAlign: 'center' },
   primary: { backgroundColor: Colors.primary, borderRadius: Radii.pill, paddingVertical: 15, alignItems: 'center', justifyContent: 'center', minHeight: 50, marginTop: 6 },

@@ -23,7 +23,15 @@ const ACCT_TYPES: { label: string; bucket: TaxBucket }[] = [
 export default function BondsScreen() {
   const store = useStore() as any;
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
-  const bonds = useMemo(() => accounts.filter(isBond), [accounts]);
+  const bonds = useMemo(() => {
+    // NW-14: show soonest-maturing first (matured / no-maturity sink to the bottom).
+    const sortKey = (a: AssetAccount) => {
+      const m = bondInfo(a).maturity;
+      const t = m ? parseISO(m).getTime() : NaN;
+      return isNaN(t) ? Infinity : t;
+    };
+    return accounts.filter(isBond).slice().sort((a, b) => sortKey(a) - sortKey(b));
+  }, [accounts]);
   const summary = useMemo(() => bondSummary(bonds.map(bondInfo)), [bonds]);
   const [edit, setEdit] = useState<AssetAccount | null>(null);
   const [addOpen, setAddOpen] = useState(false);
@@ -34,8 +42,8 @@ export default function BondsScreen() {
 
       {bonds.length === 0 ? (
         <View style={styles.card}>
-          <Text style={styles.empty}>Track individual bonds — Treasuries, CDs, muni or corporate bonds — with their coupon income, maturity, and yield. They count toward your net worth and retirement nest egg.</Text>
-          <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a bond</Text></TouchableOpacity>
+          <Text style={styles.empty}>Track individual bonds — Treasuries, muni or corporate bonds, bond funds/ETFs — with their coupon income, maturity, and yield. They count toward your net worth and retirement nest egg.</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a bond</Text></TouchableOpacity>
         </View>
       ) : (
         <>
@@ -53,9 +61,9 @@ export default function BondsScreen() {
             const bi = bondInfo(a);
             const yrs = yearsToMaturity(bi.maturity);
             return (
-              <TouchableOpacity key={a.asset_id} style={styles.card} onPress={() => setEdit(a)}>
+              <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`${a.institution?.trim() || a.label}, ${money(a.balance || 0)}, matures ${humanDate(bi.maturity)}`} style={styles.card} onPress={() => setEdit(a)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.bondVal}>{money(a.balance || 0)}</Text></View>
-                <Text style={styles.bondSub}>face {money(bi.face)} · {(bi.couponRate * 100).toFixed(2)}% coupon · matures {bi.maturity}{yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}</Text>
+                <Text style={styles.bondSub} numberOfLines={2}>face {money(bi.face)} · {(bi.couponRate * 100).toFixed(2)}% coupon · matures {humanDate(bi.maturity)}{yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}</Text>
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{money(annualCoupon(bi))}/yr coupon</Text>
                   <Text style={styles.metric}>yield {pct(currentYield(bi))}</Text>
@@ -64,7 +72,7 @@ export default function BondsScreen() {
               </TouchableOpacity>
             );
           })}
-          <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a bond</Text></TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a bond</Text></TouchableOpacity>
           <Text style={styles.foot}>Coupons are paid as cash and counted as investment income. Value is what you enter (held at cost/quote — no live bond pricing). YTM is an estimate.</Text>
         </>
       )}
@@ -171,7 +179,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <Text style={styles.fieldL}>Coupon rate (% per year)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Maturity date</Text>
-          <TouchableOpacity style={styles.input} activeOpacity={0.7} onPress={openPicker}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'} style={styles.input} activeOpacity={0.7} onPress={openPicker}>
             <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
           </TouchableOpacity>
           {showPicker && (
@@ -188,7 +196,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
             />
           )}
           {showPicker && Platform.OS === 'ios' && (
-            <TouchableOpacity onPress={() => setShowPicker(false)} style={{ alignSelf: 'flex-end', paddingVertical: 6 }}>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done picking date" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setShowPicker(false)} style={{ alignSelf: 'flex-end', paddingVertical: 6 }}>
               <Text style={{ color: Colors.primary, fontWeight: '700', fontSize: 15 }}>Done</Text>
             </TouchableOpacity>
           )}
@@ -197,7 +205,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/yr in coupon income.</Text>}
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (
-            <TouchableOpacity key={t.bucket} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>
+            <TouchableOpacity key={t.bucket} accessibilityRole="button" accessibilityLabel={`Account type ${t.label}`} accessibilityState={{ selected: bucket === t.bucket }} style={[styles.chip, bucket === t.bucket && styles.chipOn]} onPress={() => setBucket(t.bucket)}><Text style={[styles.chipT, bucket === t.bucket && styles.chipTOn]}>{t.label}</Text></TouchableOpacity>
           ))}</View>
           {bond && (
             <View style={styles.sellBox}>
@@ -214,7 +222,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}><Text style={styles.saveBtnT}>{bond ? 'Save' : 'Add bond'}</Text></TouchableOpacity>
-          {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete bond</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={onDelete}><Text style={styles.deleteLink}>Delete bond</Text></TouchableOpacity>}
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>

@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, type AssetAccount } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, ASSET_CLASS_LABEL, type AssetAccount } from '../domain/assets';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
@@ -68,11 +68,12 @@ export default function PerformanceScreen() {
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={styles.headRow}>
-        <Text style={styles.eyebrow}>PORTFOLIO PERFORMANCE</Text>
-        <TouchableOpacity onPress={refresh} disabled={loading}>
+        <Text style={styles.eyebrow}>{ASSET_CLASS_LABEL['stocks_etf']}</Text>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>
       </View>
+      <Text style={styles.subtitle}>Your equities across every account.</Text>
       {/* B-18: surface price freshness so stale cached values aren't presented as live. */}
       {positions.length > 0 && (() => {
         const f = priceFreshness(store.pricesFetchedAt, Date.now());
@@ -83,15 +84,15 @@ export default function PerformanceScreen() {
         <View style={styles.empty}>
           <Text style={styles.emptyT}>Track how your investments perform against the market.</Text>
           <Text style={styles.emptyS}>Add a holding with its ticker and what you paid — we'll value it live and compare its return to the right benchmark.</Text>
-          <TouchableOpacity style={styles.addBtn} onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a holding</Text></TouchableOpacity>
-          <TouchableOpacity onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file"><Text style={styles.addLink}>📄 Import from a file instead</Text></TouchableOpacity>
+          <TouchableOpacity style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add a holding" onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a holding</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }}><Text style={styles.addLink}>📄 Import from a file instead</Text></TouchableOpacity>
         </View>
       ) : (
         <>
           {/* PERIOD SELECTOR */}
           <View style={styles.periodRow}>
             {PERIODS.map((p) => (
-              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} onPress={() => setPeriod(p)}>
+              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Show ${p} performance`} onPress={() => setPeriod(p)}>
                 <Text style={[styles.periodT, period === p && styles.periodTOn]}>{p}</Text>
               </TouchableOpacity>
             ))}
@@ -99,12 +100,12 @@ export default function PerformanceScreen() {
 
           {/* PORTFOLIO SUMMARY */}
           <View style={styles.summary}>
-            <Text style={styles.sumVal}>{money(totalValue)}</Text>
+            <Text style={styles.sumVal} numberOfLines={1} adjustsFontSizeToFit>{money(totalValue)}</Text>
             <Text style={styles.sumLab}>portfolio value · live{cashTotal > 0 ? ` · incl. ${money(cashTotal)} cash` : ''}</Text>
             <View style={styles.sumRow}>
               <View style={styles.sumCell}><Text style={styles.sumCellL}>YOUR {period}</Text><Text style={[styles.sumCellV, portReturn != null && { color: portReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(portReturn)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>BENCHMARK</Text><Text style={styles.sumCellV}>{pct(benchPort)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>VS BENCH</Text><Text style={[styles.sumCellV, portBeat != null && { color: portBeat >= 0 ? Colors.primary : Colors.red }]}>{portBeat == null ? '—' : `${portBeat >= 0 ? '+' : ''}${(portBeat * 100).toFixed(1)}`}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>INDEX</Text><Text style={styles.sumCellV}>{pct(benchPort)}</Text></View>
+              <View style={styles.sumCell}><Text style={styles.sumCellL}>VS INDEX</Text><Text style={[styles.sumCellV, portBeat != null && { color: portBeat >= 0 ? Colors.primary : Colors.red }]}>{portBeat == null ? '—' : `${portBeat >= 0 ? '+' : ''}${(portBeat * 100).toFixed(1)}%`}</Text></View>
             </View>
           </View>
 
@@ -129,30 +130,32 @@ export default function PerformanceScreen() {
             <View style={styles.tHead}>
               <Text style={[styles.tHL, { flex: 1 }]}>HOLDING</Text>
               <Text style={[styles.tHL, styles.col]}>YOUR {period}</Text>
-              <Text style={[styles.tHL, styles.col]}>BENCH</Text>
+              <Text style={[styles.tHL, styles.col]}>INDEX</Text>
             </View>
             {rows.map((r) => {
               const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
               return (
-                <TouchableOpacity key={r.position.position_id} style={styles.tRow} onPress={() => setEdit({ accountId: o.accountId, position: r.position })}>
+                <TouchableOpacity key={r.position.position_id} style={styles.tRow} accessibilityRole="button" accessibilityLabel={`${r.position.ticker}, ${money(r.marketValue)}`} onPress={() => setEdit({ accountId: o.accountId, position: r.position })}>
                   <View style={{ flex: 1 }}>
-                    <Text style={styles.hTicker}>{r.position.ticker}{r.position.label ? <Text style={styles.hName}>  {r.position.label}</Text> : null}</Text>
+                    <Text style={styles.hTicker} numberOfLines={1} adjustsFontSizeToFit>{r.position.ticker}{r.position.label ? <Text style={styles.hName}>  {r.position.label}</Text> : null}</Text>
                     <Text style={styles.hSub} numberOfLines={1}>
                       {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position).toLocaleString(undefined, { maximumFractionDigits: 4 })} sh`}
                       {r.totalROI != null ? ` · ${pct(r.totalROI)} since buy` : ''}
                       {!simple ? ` · vs ${r.benchTicker}` : ''}
                     </Text>
                   </View>
-                  <Text style={[styles.col, styles.cellV, r.periodReturn != null && { color: r.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(r.periodReturn)}</Text>
-                  <Text style={[styles.col, styles.cellB]}>{pct(r.benchReturn)}</Text>
+                  <Text style={[styles.col, styles.cellV, r.periodReturn != null && { color: r.periodReturn >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit>{pct(r.periodReturn)}</Text>
+                  <Text style={[styles.col, styles.cellB]} numberOfLines={1} adjustsFontSizeToFit>{pct(r.benchReturn)}</Text>
                 </TouchableOpacity>
               );
             })}
+            <TouchableOpacity style={styles.primaryAction} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add holding" onPress={() => setAddOpen(true)}>
+              <Text style={styles.primaryActionT}>＋ Add holding</Text>
+            </TouchableOpacity>
             <View style={styles.actionRow}>
-              <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add holding</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => router.push('/import-holdings')}><Text style={styles.addLink}>📄 Import file</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => setTxnOpen(true)}><Text style={styles.addLink}>＋ Record transaction</Text></TouchableOpacity>
-              <TouchableOpacity onPress={() => setHistoryOpen(true)}><Text style={styles.addLink}>Activity ›</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')}><Text style={styles.addLink2}>📄 Import file</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Record a transaction" onPress={() => setTxnOpen(true)}><Text style={styles.addLink2}>＋ Record transaction</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="View transaction activity" onPress={() => setHistoryOpen(true)}><Text style={styles.addLink2}>Activity ›</Text></TouchableOpacity>
             </View>
           </View>
 
@@ -298,7 +301,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
@@ -311,7 +314,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           {suggestions.length > 0 && (
             <View style={styles.acBox}>
               {suggestions.map((sug) => (
-                <TouchableOpacity key={sug.sym} style={styles.acRow} onPress={() => {
+                <TouchableOpacity key={sug.sym} style={styles.acRow} accessibilityRole="button" accessibilityLabel={`${sug.sym}, ${sug.name}`} onPress={() => {
                   setTicker(sug.sym); setKind(sug.kind); if (!label.trim()) setLabel(sug.name); setTickerFocus(false);
                 }}>
                   <Text style={styles.acSym}>{sug.sym}</Text>
@@ -331,7 +334,7 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
           <Text style={styles.fieldL}>Type (sets the benchmark — {benchmarkTicker(kind)})</Text>
           <View style={styles.kindWrap}>
             {KIND_OPTIONS.map((k) => (
-              <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} onPress={() => setKind(k.id)}>
+              <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`} onPress={() => setKind(k.id)}>
                 <Text style={[styles.kindChipT, kind === k.id && styles.kindChipTOn]}>{k.label}</Text>
               </TouchableOpacity>
             ))}
@@ -344,22 +347,22 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
-              {lots.length > 1 && <TouchableOpacity onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
+              {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
           ))}
-          <TouchableOpacity onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add another lot" onPress={() => setLots((ls) => [...ls, blankLot()])}><Text style={styles.addLink}>＋ Add another lot</Text></TouchableOpacity>
 
           {accounts.length > 0 && (
             <>
               <Text style={styles.fieldL}>Account</Text>
               <View style={styles.kindWrap}>
                 {investAccts.map((a) => (
-                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} onPress={() => setAccountId(a.asset_id)}>
+                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Account: ${a.institution?.trim() || a.label}`} onPress={() => setAccountId(a.asset_id)}>
                     <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{a.institution?.trim() || a.label}</Text>
                   </TouchableOpacity>
                 ))}
                 {isNew && (
-                  <TouchableOpacity style={[styles.kindChip, accountId === '__new__' && styles.kindChipOn]} onPress={() => setAccountId('__new__')}>
+                  <TouchableOpacity style={[styles.kindChip, accountId === '__new__' && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel="Add a new account" onPress={() => setAccountId('__new__')}>
                     <Text style={[styles.kindChipT, accountId === '__new__' && styles.kindChipTOn]}>＋ New account</Text>
                   </TouchableOpacity>
                 )}
@@ -376,10 +379,10 @@ function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: 
             </>
           )}
 
-          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}>
+          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={isNew ? 'Add holding' : 'Save holding'} onPress={save}>
             <Text style={styles.saveBtnT}>{isNew ? 'Add holding' : 'Save'}{valid && costBasis({ position_id: '', ticker, lots } as Position) > 0 ? ` · cost ${moneyCompact(costBasis({ position_id: '', ticker, lots } as Position), 'M')}` : ''}</Text>
           </TouchableOpacity>
-          {onDelete && <TouchableOpacity onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
+          {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete holding" onPress={onDelete}><Text style={styles.deleteLink}>Delete holding</Text></TouchableOpacity>}
           <View style={{ height: 20 }} />
         </ScrollView>
       </View>
@@ -473,14 +476,14 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
           <Text style={styles.sheetT}>Record a transaction</Text>
           <View style={[styles.kindWrap, { marginTop: 8 }]}>
             {TXN_TYPES.map((t) => (
-              <TouchableOpacity key={t.k} style={[styles.kindChip, type === t.k && styles.kindChipOn]} onPress={() => setType(t.k)}>
+              <TouchableOpacity key={t.k} style={[styles.kindChip, type === t.k && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Transaction type: ${t.label}`} onPress={() => setType(t.k)}>
                 <Text style={[styles.kindChipT, type === t.k && styles.kindChipTOn]}>{t.label}</Text>
               </TouchableOpacity>
             ))}
@@ -489,7 +492,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
           <Text style={styles.fieldL}>{isTransfer ? 'From account' : 'Account'}</Text>
           <View style={styles.kindWrap}>
             {acctList.map((a) => (
-              <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} onPress={() => setAccountId(a.asset_id)}>
+              <TouchableOpacity key={a.asset_id} style={[styles.kindChip, accountId === a.asset_id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Account: ${acctName(a)}`} onPress={() => setAccountId(a.asset_id)}>
                 <Text style={[styles.kindChipT, accountId === a.asset_id && styles.kindChipTOn]}>{acctName(a)}</Text>
               </TouchableOpacity>
             ))}
@@ -500,7 +503,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
               <Text style={styles.fieldL}>To account</Text>
               <View style={styles.kindWrap}>
                 {cashAccts.filter((a) => a.asset_id !== accountId).map((a) => (
-                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, counterId === a.asset_id && styles.kindChipOn]} onPress={() => setCounterId(a.asset_id)}>
+                  <TouchableOpacity key={a.asset_id} style={[styles.kindChip, counterId === a.asset_id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`To account: ${acctName(a)}`} onPress={() => setCounterId(a.asset_id)}>
                     <Text style={[styles.kindChipT, counterId === a.asset_id && styles.kindChipTOn]}>{acctName(a)}</Text>
                   </TouchableOpacity>
                 ))}
@@ -521,7 +524,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
             {held.length === 0
               ? <Text style={styles.note}>No holdings in this account to {isSell ? 'sell' : 'record a dividend for'}. {isDiv ? 'A dividend can only come from a stock you hold here.' : ''}</Text>
               : <View style={styles.kindWrap}>{held.map((tk) => (
-                  <TouchableOpacity key={tk} style={[styles.kindChip, ticker === tk && styles.kindChipOn]} onPress={() => setTicker(tk)}>
+                  <TouchableOpacity key={tk} style={[styles.kindChip, ticker === tk && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Holding: ${tk}`} onPress={() => setTicker(tk)}>
                     <Text style={[styles.kindChipT, ticker === tk && styles.kindChipTOn]}>{tk}</Text>
                   </TouchableOpacity>))}
                 </View>}
@@ -530,8 +533,8 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
 
           {isDiv && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
-              <TouchableOpacity style={[styles.kindChip, !reinvest && styles.kindChipOn]} onPress={() => setReinvest(false)}><Text style={[styles.kindChipT, !reinvest && styles.kindChipTOn]}>Paid as cash</Text></TouchableOpacity>
-              <TouchableOpacity style={[styles.kindChip, reinvest && styles.kindChipOn]} onPress={() => setReinvest(true)}><Text style={[styles.kindChipT, reinvest && styles.kindChipTOn]}>Reinvested</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.kindChip, !reinvest && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel="Dividend paid as cash" onPress={() => setReinvest(false)}><Text style={[styles.kindChipT, !reinvest && styles.kindChipTOn]}>Paid as cash</Text></TouchableOpacity>
+              <TouchableOpacity style={[styles.kindChip, reinvest && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel="Dividend reinvested" onPress={() => setReinvest(true)}><Text style={[styles.kindChipT, reinvest && styles.kindChipTOn]}>Reinvested</Text></TouchableOpacity>
             </View>
           )}
 
@@ -549,7 +552,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
             </View>
           )}
 
-          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} onPress={save}><Text style={styles.saveBtnT}>Record {txnLabel(type).toLowerCase()}</Text></TouchableOpacity>
+          <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid} accessibilityRole="button" accessibilityLabel={`Record ${txnLabel(type).toLowerCase()}`} onPress={save}><Text style={styles.saveBtnT}>Record {txnLabel(type).toLowerCase()}</Text></TouchableOpacity>
           <View style={{ height: 16 }} />
         </ScrollView>
       </View>
@@ -566,7 +569,7 @@ function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
-      <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
+      <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
         <Text style={styles.sheetT}>Activity</Text>
@@ -583,12 +586,12 @@ function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
                   <Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
                 </View>
                 {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.primary : Colors.red }]}>{eff >= 0 ? '+' : ''}{money(eff)}</Text>}
-                <TouchableOpacity onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
+                <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
               </View>
             );
           })}
         </ScrollView>
-        <TouchableOpacity style={styles.applyBtn2} onPress={onClose}><Text style={styles.saveBtnT}>Done</Text></TouchableOpacity>
+        <TouchableOpacity style={styles.applyBtn2} accessibilityRole="button" accessibilityLabel="Done" onPress={onClose}><Text style={styles.saveBtnT}>Done</Text></TouchableOpacity>
       </View>
       </KeyboardAvoidingView>
     </Modal>
@@ -599,6 +602,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
+  subtitle: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2 },
   refresh: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
   freshness: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4 },
   tickerWarn: { fontSize: 11.5, color: Colors.amber, marginTop: 4 },
@@ -626,7 +630,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 12 },
   tHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
   tHL: { fontSize: 9.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
-  col: { width: 62, textAlign: 'right' },
+  col: { width: 70, textAlign: 'right' },
   tRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 11, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   hTicker: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
   hName: { fontSize: 12, fontWeight: '600', color: Colors.textSecondary },
@@ -634,7 +638,10 @@ const styles = StyleSheet.create({
   cellV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   cellB: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
-  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16 },
+  addLink2: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  primaryAction: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: 14 },
+  primaryActionT: { color: '#fff', fontSize: 14.5, fontWeight: '800' },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 12 },
   cardTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   cgRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 3 },
   cgL: { fontSize: 13, color: Colors.textSecondary },

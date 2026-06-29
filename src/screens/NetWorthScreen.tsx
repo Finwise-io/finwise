@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -118,7 +118,9 @@ export default function NetWorthScreen() {
   const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0);
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
-  const topCat = [...sectionTotals].filter((s) => s.total > 0).sort((a, b) => b.total - a.total)[0];
+  // NW-9: the headline insight names the largest asset CLASS (matches the donut), not the account section.
+  const topClass = [...classRows].sort((a, b) => b.total - a.total)[0];
+  const investable = investableAssets(assets);   // NW-12: cash + investments (excludes home & belongings)
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
   const pctOf = (v: number) => (totalAssets > 0 ? Math.round((v / totalAssets) * 100) : 0);
 
@@ -128,7 +130,7 @@ export default function NetWorthScreen() {
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} onPress={() => setAssetSheet({ open: true, edit: a })}>
+      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${title}, ${money(a.balance)}`} onPress={() => setAssetSheet({ open: true, edit: a })}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -151,7 +153,7 @@ export default function NetWorthScreen() {
     const head = (
       <View style={styles.secHead}>
         <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {secLabel(sec).toUpperCase()}{total > 0 ? ` · ${money(total)}` : ''}</Text>
-        <TouchableOpacity onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
 
@@ -176,7 +178,7 @@ export default function NetWorthScreen() {
           {head}
           <View style={styles.invToggle}>
             {(['type', 'account'] as const).map((g) => (
-              <TouchableOpacity key={g} style={[styles.invTab, invGroup === g && styles.invTabOn]} onPress={() => setInvGroup(g)}>
+              <TouchableOpacity key={g} style={[styles.invTab, invGroup === g && styles.invTabOn]} accessibilityRole="button" accessibilityState={{ selected: invGroup === g }} accessibilityLabel={g === 'type' ? 'Group by class' : 'Group by institution'} hitSlop={{ top: 8, bottom: 8 }} onPress={() => setInvGroup(g)}>
                 <Text style={[styles.invTabTxt, invGroup === g && styles.invTabTxtOn]}>{g === 'type' ? 'By class' : 'By institution'}</Text>
               </TouchableOpacity>
             ))}
@@ -191,9 +193,13 @@ export default function NetWorthScreen() {
                 <Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text>
               </View>
               <View style={styles.card}>
-                {items.map((a, i) => assetRow(a, i,
-                  a.label,
-                  withTickers(a, invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a))))}
+                {items.map((a, i) => {
+                  const base = invGroup === 'type' ? (a.institution?.trim() || '') : classLabel(a);
+                  const t = withTickers(a, base);
+                  // NW-15: an Unclassified account has no holdings set — invite a tap to classify it.
+                  const sub = assetClassOf(a) === 'mixed' && !tickersOf(a).length ? (t ? `${t} · tap to set holdings` : 'Tap to set what\'s inside') : t;
+                  return assetRow(a, i, a.label, sub);
+                })}
               </View>
             </View>
           ))}
@@ -206,7 +212,7 @@ export default function NetWorthScreen() {
         {head}
         <View style={styles.card}>
           {rows.length === 0
-            ? <TouchableOpacity onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.empty}>Add a {sec.toLowerCase()} account →</Text></TouchableOpacity>
+            ? <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add a ${secLabel(sec)} account`} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.empty}>Add a {sec.toLowerCase()} account →</Text></TouchableOpacity>
             : rows.map((a, i) => assetRow(a, i, a.label, `${assetKind(a.kind)?.label ?? a.tax_bucket}${a.institution ? ` · ${a.institution}` : ''}`))}
         </View>
       </View>
@@ -217,16 +223,16 @@ export default function NetWorthScreen() {
     <View>
       <View style={styles.secHead}>
         <Text style={styles.secTitle}>💳  DEBTS{dState.total_debt_balance > 0 ? ` · ${money(dState.total_debt_balance)}` : ''}</Text>
-        <TouchableOpacity onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
         {liabilities.length === 0
-          ? <TouchableOpacity onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>Add a debt →</Text></TouchableOpacity>
+          ? <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" onPress={() => setDebtSheet({ open: true })}><Text style={styles.empty}>Add a debt →</Text></TouchableOpacity>
           : (<>
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
               return (
-                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} onPress={() => setDebtSheet({ open: true, edit: d })}>
+                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${money(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
                   <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -328,8 +334,10 @@ export default function NetWorthScreen() {
           Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
           <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
         </Text>
-        {/* caption (#4 transparency rule): what the slices mean, across all account types */}
-        <Text style={styles.nwCaption}>You add money by account above; here it's regrouped by asset class — what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
+        {/* NW-12: surface the canonical "investable assets" total (cash + investments; excludes property) */}
+        {investable > 0 && <Text style={styles.nwInvestable}>Investable assets {money(Math.round(investable))} · excludes your home & belongings</Text>}
+        {/* NW-8 + #4 transparency: the ring is ASSETS by class; debts are the separate red line below */}
+        <Text style={styles.nwCaption}>The ring shows your assets by class; debts are the red line. You add money by account above — here it's regrouped by what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
         {/* #10: don't pretend a wrapper's contents are stocks — show "Unclassified" and nudge the user to set the mix */}
         {alloc.mixed > 0 && (
           <Text style={styles.nwNudge}>
@@ -362,17 +370,17 @@ export default function NetWorthScreen() {
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/performance')}>
+          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Stocks and ETFs — performance vs benchmark" onPress={() => router.push('/performance')}>
             <Text style={styles.exploreRowT}>📈  Stocks / ETFs — performance vs benchmark</Text>
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/bonds')}>
+          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Bonds — coupons, maturity and yield" onPress={() => router.push('/bonds')}>
             <Text style={styles.exploreRowT}>📜  Bonds — coupons, maturity & yield</Text>
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
           <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/other-investments')}>
+          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Alternatives — crypto, private equity, commodities" onPress={() => router.push('/other-investments')}>
             <Text style={styles.exploreRowT}>🪙  Alternatives — crypto, PE, commodities</Text>
             <Text style={styles.perfBtnArrow}>›</Text>
           </TouchableOpacity>
@@ -383,7 +391,7 @@ export default function NetWorthScreen() {
           <View style={styles.insight}>
             <Text style={styles.insightIcon}>💎</Text>
             <View style={{ flex: 1 }}>
-              <Text style={styles.insightTxt}>{topCat ? `${secLabel(topCat.sec)} is your largest holding — ${pctOf(topCat.total)}% of total assets` : 'Your wealth at a glance'}</Text>
+              <Text style={styles.insightTxt}>{topClass ? `${topClass.label} is your largest holding — ${pctOf(topClass.total)}% of total assets` : 'Your wealth at a glance'}</Text>
               <Text style={styles.insightSub}>{dState.total_debt_balance > 0 ? `Debt is ${Math.round(debtRatio * 100)}% of your assets.` : 'You carry no debt — it\'s all yours.'}</Text>
             </View>
           </View>
@@ -442,6 +450,7 @@ const INSIDE_OPTS: { key: AssetClass | 'mixed'; label: string }[] = [
 
 function AssetSheet({ state, onClose }: { state: { open: boolean; section?: string; edit?: AssetAccount }; onClose: () => void }) {
   const store = useStore() as any;
+  const router = useRouter();
   const editing = state.edit;
   const [step, setStep] = useState<AddStep>('pick');
   const [sub, setSub] = useState('');                              // cash kind / alt kind / property kind
@@ -455,7 +464,13 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     if (editing) {
       setStep('edit'); setInst(editing.institution ?? ''); setBal(String(editing.balance));
       setInside((editing.asset_class as AssetClass) ?? 'mixed');
-    } else { setStep('pick'); setInside('mixed'); setInst(''); setBal(''); }
+    } else {
+      // NW-12: a section's "+ Add" jumps straight to that section's form (the cash/retirement forms have a
+      // "‹ Back" to the full picker). Investments & Property hold a mix → start at the class picker.
+      const initial: AddStep = state.section === 'Cash' ? 'cash' : state.section === 'Retirement' ? 'retirement' : 'pick';
+      if (initial === 'cash') setSub('checking'); else if (initial === 'retirement') setWrapper('401k');
+      setStep(initial); setInside('mixed'); setInst(''); setBal('');
+    }
   }, [state.open]);
 
   const v = num(bal);
@@ -531,7 +546,11 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {step === 'property' && <Chips ids={PROP_OPTS} />}
           {(step === 'stocks' || step === 'bonds' || step === 'alts') && (<>
             <Text style={sh.clsLabel}>Held in</Text><Wrappers opts={WRAPPER_OPTS} />
-            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value — or add individual bonds on the Bonds screen.' : step === 'stocks' ? 'Enter a total value — or track specific tickers via Import / the Stocks screen.' : 'Crypto, PE, hedge funds, commodities, annuities.'}</Text>
+            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / ETFs screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, PE, hedge funds, commodities, annuities, options.'}</Text>
+            {/* NW-16: make the "track specifics" path actionable — route to the holdings detail screen */}
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add specific holdings" onPress={() => { onClose(); router.push(step === 'stocks' ? '/performance' : step === 'bonds' ? '/bonds' : '/other-investments'); }}>
+              <Text style={sh.specifics}>＋ Add specific holdings instead →</Text>
+            </TouchableOpacity>
           </>)}
           {step === 'retirement' && (<>
             <Wrappers opts={RET_OPTS} />
@@ -588,7 +607,7 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
     <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit debt' : 'Add debt'}>
       <View style={sh.chips}>
         {DEBT_KINDS.map((ko) => (
-          <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} onPress={() => setKind(ko.id)}>
+          <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} accessibilityRole="button" accessibilityState={{ selected: kind === ko.id }} accessibilityLabel={ko.label} onPress={() => setKind(ko.id)}>
             <Text style={sh.chipTxt}>{ko.icon} {ko.label}</Text>
           </TouchableOpacity>
         ))}
@@ -603,8 +622,8 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
         <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
         <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
       </View>
-      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} debt</Text></TouchableOpacity>
-      {editing && <TouchableOpacity onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
+      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} debt</Text></TouchableOpacity>
+      {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }
@@ -617,8 +636,9 @@ const styles = StyleSheet.create({
   donutVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   donutLbl: { fontSize: 10, color: Colors.textSecondary, marginTop: -2 },
   nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
-  nwCaption: { fontSize: 10.5, color: Colors.textTertiary, textAlign: 'center', marginBottom: 4, lineHeight: 14 },
-  nwNudge: { fontSize: 11, color: '#9A6B4F', textAlign: 'center', marginBottom: 6, lineHeight: 15, paddingHorizontal: 8 },
+  nwInvestable: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center', marginBottom: 4 },
+  nwCaption: { fontSize: 10.5, color: Colors.textTertiary, textAlign: 'left', marginBottom: 4, lineHeight: 14 },
+  nwNudge: { fontSize: 11, color: '#9A6B4F', textAlign: 'left', marginBottom: 6, lineHeight: 15 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
@@ -705,7 +725,7 @@ const sh = StyleSheet.create({
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
   title: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.sm },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'flex-start' },
-  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  chip: { paddingHorizontal: 12, paddingVertical: 10, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   clsLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, alignSelf: 'flex-start', marginTop: 4, marginBottom: 8 },
@@ -725,4 +745,5 @@ const sh = StyleSheet.create({
   quickTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   backLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginBottom: 8 },
   note: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 8, lineHeight: 16 },
+  specifics: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, paddingVertical: 4 },
 });
