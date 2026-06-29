@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, ASSET_CLASS_LABEL, type AssetAccount } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, type AssetAccount } from '../domain/assets';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
@@ -422,7 +422,9 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
   open: boolean; accounts: AssetAccount[]; onClose: () => void; onSave: (t: Omit<Transaction, 'id' | 'created_at'>) => void;
 }) {
   const eligible = accounts.filter(accountAllowsTicker);
-  const cashAccts = accounts.filter((a) => a.tax_bucket !== 'PROPERTY');
+  // Cash actions (deposit/withdraw/transfer) on the Stocks screen apply to your EQUITY accounts + plain
+  // cash accounts — never bond or alternative accounts (those aren't traded here).
+  const cashAccts = accounts.filter((a) => accountAllowsTicker(a) || assetClassOf(a) === 'cash');
   const [type, setType] = useState<TxnType>('BUY');
   const [accountId, setAccountId] = useState('');
   const [counterId, setCounterId] = useState('');

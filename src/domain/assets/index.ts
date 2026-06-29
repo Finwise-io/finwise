@@ -84,6 +84,10 @@ export function accountAllowsTicker(a: AssetAccount): boolean {
   if (a.tax_bucket === 'PROPERTY' || a.tax_bucket === 'CASH') return false;
   if (a.kind === 'college_529') return false;
   if (a.kind === 'checking' || a.kind === 'savings') return false;
+  // A dedicated bond or alternative (crypto/options/commodities/…) account holds THOSE instruments, not
+  // equity tickers — so it must not appear as a stock-trading target on the Stocks/ETFs screen.
+  const cls = assetClassOf(a);
+  if (cls === 'bonds' || cls === 'alternatives') return false;
   return true;
 }
 

@@ -88,6 +88,23 @@ describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
   });
 });
 
+// Device bug: the Stocks/ETFs transaction sheet offered bond ("Chase – fixed income") + alternative
+// accounts as trade/cash targets. A dedicated bond or alternative account must NOT be ticker-eligible.
+describe('accountAllowsTicker excludes dedicated bond + alternative accounts', () => {
+  test('a bond / fixed-income account is not a stock-trading target', () => {
+    expect(accountAllowsTicker(a({ label: 'Chase Treasury', kind: 'fixed_income', asset_class: 'bonds', balance: 50000 }))).toBe(false);
+    expect(accountAllowsTicker(a({ label: 'T-note', maturity_date: '2032-01-01', balance: 10000 }))).toBe(false); // bonds via maturity
+  });
+  test('an alternative (crypto / options) account is not a stock-trading target', () => {
+    expect(accountAllowsTicker(a({ label: 'Coinbase', kind: 'crypto', asset_class: 'alternatives', balance: 8000 }))).toBe(false);
+    expect(accountAllowsTicker(a({ label: 'QQQ Put', kind: 'options', asset_class: 'alternatives', balance: 1400 }))).toBe(false);
+  });
+  test('a brokerage / 401(k) (equity-capable) IS still ticker-eligible', () => {
+    expect(accountAllowsTicker(a({ label: 'Brokerage', kind: 'brokerage', asset_class: 'stocks_etf', balance: 100000 }))).toBe(true);
+    expect(accountAllowsTicker(a({ label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }))).toBe(true);
+  });
+});
+
 // build-34 #8 approved rule: a CD/short instrument maturing < 12 months = cash, ≥ 12 months = bond.
 describe('maturityClass — entry-time cash-vs-bond by maturity', () => {
   const now = new Date('2026-06-15');
