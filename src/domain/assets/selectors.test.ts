@@ -3,7 +3,7 @@
 import {
   totalAssets, cashTotal, equitiesTotal, fixedIncomeTotal, alternativesTotal, realEstateTotal,
   investmentsTotal, investableAssets, assetAllocation, type AssetAccount,
-  ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker, maturityClass,
+  ASSET_KINDS, assetKind, assetClassOf, accountAllowsTicker, maturityClass, wrapperAccount,
 } from './index';
 
 const a = (over: Partial<AssetAccount>): AssetAccount => ({
@@ -102,5 +102,17 @@ describe('maturityClass — entry-time cash-vs-bond by maturity', () => {
   test('no maturity (money-market, plain cash) → cash', () => {
     expect(maturityClass(undefined, now)).toBe('cash');
     expect(maturityClass(null, now)).toBe('cash');
+  });
+});
+
+// NW redesign: "where is it held?" → account kind + tax bucket (axis 2). Same asset class, different wrapper.
+describe('wrapperAccount — maps the held-in wrapper to kind + tax bucket', () => {
+  test('each wrapper maps correctly; default/unspecified = taxable brokerage', () => {
+    expect(wrapperAccount('taxable')).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
+    expect(wrapperAccount('401k')).toEqual({ kind: '401k', tax_bucket: 'PRE_TAX' });
+    expect(wrapperAccount('trad_ira')).toEqual({ kind: 'trad_ira', tax_bucket: 'PRE_TAX' });
+    expect(wrapperAccount('roth')).toEqual({ kind: 'roth_ira', tax_bucket: 'ROTH' });
+    expect(wrapperAccount('hsa')).toEqual({ kind: 'hsa', tax_bucket: 'PRE_TAX' });
+    expect(wrapperAccount(undefined)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
   });
 });

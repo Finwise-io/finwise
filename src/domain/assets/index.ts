@@ -157,6 +157,20 @@ export function maturityClass(maturityDate?: string | null, now: Date = new Date
   return months >= 12 ? 'bonds' : 'cash';
 }
 
+/** The "where is it held?" wrapper (taxonomy axis 2) → its account kind + tax bucket. Default = taxable.
+ *  The wrapper sets the TAX treatment; the separately-chosen assetClass says WHAT it holds (axis 1). So a
+ *  stock in a 401(k) and a stock in a brokerage are the same class, different wrapper. */
+export type AddWrapper = 'taxable' | '401k' | 'trad_ira' | 'roth' | 'hsa';
+export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucket: TaxBucket } {
+  switch (w) {
+    case '401k':     return { kind: '401k',     tax_bucket: 'PRE_TAX' };
+    case 'trad_ira': return { kind: 'trad_ira', tax_bucket: 'PRE_TAX' };
+    case 'roth':     return { kind: 'roth_ira', tax_bucket: 'ROTH' };
+    case 'hsa':      return { kind: 'hsa',      tax_bucket: 'PRE_TAX' };
+    default:         return { kind: 'brokerage', tax_bucket: 'TAXABLE' };   // taxable / unspecified
+  }
+}
+
 /** WHAT the account is (asset class). Explicit `asset_class` wins; CDs/T-bills/money-market ⇒ cash;
  *  a maturity date ⇒ a bond; else derive from `kind`, falling back to the tax bucket. */
 export function assetClassOf(a: AssetAccount): AssetClass {
