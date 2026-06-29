@@ -1,0 +1,40 @@
+# FCC 36–65 — Finance Command Center (peak-complexity / pre-retirement)
+
+Strategy, design, and planning documents for the **36–65** customer group. Kept separate from FCC-65+ so the
+two strategies don't convolute. We work one strategy at a time.
+
+## Target
+**36–65 · 128M people · 48% of US adults — the largest, least-served band.** Peak financial complexity: first
+home, kids & college, **sandwich-generation caregiving** (managing aging parents + kids at once), peak earning
++ tax, and pre-retirement.
+
+## Why here (strategic basis)
+The market research (the "cradle-to-grave gap" workbook + brief) shows the **white space and the highest
+willingness-to-pay are the under-served middle** — coverage is dense for the young and thins exactly where
+stakes rise. This target also **reuses the breadth already built** in the app: retirement cockpit, net worth,
+tax organizer, estate, insurance, goals, budgets.
+
+## Proposed spearhead (pending your decision)
+The **pre-retirement → retirement transition (~55–65)** — highest WTP, thinnest execution (planners *model*
+the math; none *execute* it with daily money), and the **connective tissue to FCC-65+** (capture at 58, keep
+into the 70s). See the "FCC 36-65 strategy" tab in the master action list for the open framing decisions.
+
+## Doc chain (separate files, each gated → approved before the next)
+| Stage | File | Status |
+|-------|------|--------|
+| Strategy (target · spearhead · daily hook · distribution · scope) | `FCC-36-65-strategy-v*.md` | pending framing decisions |
+| Conceptual design — experience architecture | `FCC-36-65-conceptual-design-v*.md` | pending |
+| Detailed design — per screen/flow | `FCC-36-65-detailed-<screen>-v*.md` | pending |
+| Planning / build | `FCC-36-65-plan-v*.md` | pending |
+
+## Naming convention
+`<topic>-v<major.minor>-<YYYY-MM-DD>.md` — always version + date; never duplicate (supersede in place + bump).
+
+## Open framing decisions (block the strategy doc)
+1. **Spearhead** — pre-retirement→retirement transition (proposed) vs caregiving white space vs peak-earn/tax.
+2. **Daily hook** — "am I on track / will it last + next decision."
+3. **Distribution** — direct-to-consumer first (design for B2B2C) vs institution-embedded now.
+4. **Sequencing** — build FCC-36-65 first (proposed), FCC-65+ next.
+
+## Index
+- _(strategy doc to come once framing decisions are locked)_

@@ -1,8 +1,12 @@
 # Persona: Employed 18–35 (the launch wedge)
 
-All documents for the 18–35 focus area (and the active product-strategy plan) live in this folder. This is
-the first persona of the two-persona platform plan (see the "Phase 2 — Persona platform" tab in the master
-action list below).
+> ⚠️ **SUPERSEDED 2026-06-29.** The 18–35 target was retired after the market-opportunity research (the
+> "cradle-to-grave gap"): 18–35 budgeting is the *most crowded, lowest-WTP, most-disposable* segment. The
+> strategy moved to the under-served middle/late — **`docs/FCC-36-65/`** and **`docs/FCC-65+/`**. The master
+> action list moved to **`docs/finwise-master-action-list-v1.1-2026-06-29.xlsx`** (root). The research here is
+> kept for reference (the wedge/pain + Robinhood-gen findings still inform the daily-hook thinking).
+
+All documents for the 18–35 focus area live in this folder (now archived/reference).
 
 ## Naming convention (so we can always trace back)
 `<topic>-v<major.minor>-<YYYY-MM-DD>.md|.xlsx`
