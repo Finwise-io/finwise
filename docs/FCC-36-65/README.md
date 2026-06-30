@@ -31,8 +31,9 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
 `<topic>-v<major.minor>-<YYYY-MM-DD>.md` — always version + date; never duplicate (supersede in place + bump).
 
 ## Decisions locked (2026-06-29, in discussion)
-1. **Identity** — an INSIGHTS ENGINE + honest buddy (NOT a financial advisor). The one rule: *show what's true
-   and what would happen; never tell the user what to do.*
+1. **Identity** — TWO LEVELS. *Primary (shared with 65+):* truth + your **CHIEF OF STAFF** for the big
+   decisions — we guide you through (numbers, options, trade-offs, steps, deadlines), YOU decide; never advise,
+   never predict. *Secondary (this group):* **"Grow and Track."**
 2. **Hook** — investments-led (investment growth / performance / what-if scenarios); retirement-confidence is
    the reassurance layer.
 3. **Voice** — pointed but warm (quantify the truth; celebrate wins).
@@ -41,7 +42,7 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
    (final call after both groups' strategy reviewed).
 
 ## Index
-- [FCC-36-65-problem-strategy-v2.1-2026-06-29.xlsx](FCC-36-65-problem-strategy-v2.1-2026-06-29.xlsx) —
+- [FCC-36-65-problem-strategy-v2.2-2026-06-30.xlsx](FCC-36-65-problem-strategy-v2.2-2026-06-30.xlsx) —
   **CURRENT.** Problem (approved) + Strategy with a clear spine (Identity → Objective → Hook → What we reveal /
   never do → Voice → Sequencing → Scope). v2.1 folds in your two latest notes: the one rule now says we run
   *scenarios for an intelligent estimate* (not predictions), and **income + spending are explicit as the

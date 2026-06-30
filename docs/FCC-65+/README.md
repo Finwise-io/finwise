@@ -30,8 +30,10 @@ with **Social Security / Medicare timing**. (Note: "safe-to-spend" returns here,
 `<topic>-v<major.minor>-<YYYY-MM-DD>.md` — always version + date; never duplicate (supersede in place + bump).
 
 ## Decisions locked (shared with FCC-36-65)
-1. **Identity** — insights engine + honest buddy (NOT advisor). One rule: *show what's true + run scenarios for
-   an estimate; never predict, never tell the user what to do.*
+1. **Identity** — TWO LEVELS. *Primary (shared with 36-65):* truth + your **CHIEF OF STAFF** for the big
+   decisions — we guide you through (numbers, options, trade-offs, steps, deadlines incl. Social Security /
+   Medicare / required withdrawals), YOU decide; never advise, never predict. *Secondary (this group):*
+   **"Worry less, live more."**
 2. **Hook** — **safe-to-spend-in-retirement** (how much can I spend this month without running out); will-it-last
    is the reassurance layer. (The 65+ version of the investments-led 36-65 hook.)
 3. **Voice** — pointed but warm; calm + steady for retirees.
@@ -46,7 +48,7 @@ with **Social Security / Medicare timing**. (Note: "safe-to-spend" returns here,
   (Builds on the existing 12-month grid that already captures lumpy non-monthly items.)
 
 ## Index
-- [FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx](FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx) —
+- [FCC-65+-problem-strategy-v2.1-2026-06-30.xlsx](FCC-65+-problem-strategy-v2.1-2026-06-30.xlsx) —
   **CURRENT.** Problem + Strategy reworked to mirror the approved 36-65 spine (Identity → Objective → Hook →
   What we reveal / never do → Voice → Sequencing → Scope), hook = safe-to-spend-in-retirement. 🟡 awaiting your
   review. (Prior v1.0/v1.1 in git history.)
