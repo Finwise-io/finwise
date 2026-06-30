@@ -29,12 +29,17 @@ with **Social Security / Medicare timing**. (Note: "safe-to-spend" returns here,
 ## Naming convention
 `<topic>-v<major.minor>-<YYYY-MM-DD>.md` — always version + date; never duplicate (supersede in place + bump).
 
-## Open framing decisions
-1. **Spearhead** — decumulation safe-to-spend + SS/Medicare timing (proposed).
-2. **Daily hook** — "how much can I safely spend this month / is my income on track."
-3. **Distribution** — institution-embedded likely, given the trust bar.
+## Decisions locked (shared with FCC-36-65)
+1. **Identity** — insights engine + honest buddy (NOT advisor). One rule: *show what's true + run scenarios for
+   an estimate; never predict, never tell the user what to do.*
+2. **Hook** — **safe-to-spend-in-retirement** (how much can I spend this month without running out); will-it-last
+   is the reassurance layer. (The 65+ version of the investments-led 36-65 hook.)
+3. **Voice** — pointed but warm; calm + steady for retirees.
+4. **Distribution** — direct-to-consumer first (design for B2B2C later).
+5. **Sequencing** — proposed: shared 55–70 core first → deepen 70+ (final call across both groups, pending).
 
 ## Index
-- [FCC-65+-problem-strategy-v1.1-2026-06-29.xlsx](FCC-65+-problem-strategy-v1.1-2026-06-29.xlsx) —
-  **Problem + Strategy (Steps 1–2)** as an approve-and-comment workbook (Problem & Strategy tab + a
-  Critique/pressure-test tab). 🟡 awaiting your review.
+- [FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx](FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx) —
+  **CURRENT.** Problem + Strategy reworked to mirror the approved 36-65 spine (Identity → Objective → Hook →
+  What we reveal / never do → Voice → Sequencing → Scope), hook = safe-to-spend-in-retirement. 🟡 awaiting your
+  review. (Prior v1.0/v1.1 in git history.)
