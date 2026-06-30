@@ -41,8 +41,9 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
    (final call after both groups' strategy reviewed).
 
 ## Index
-- [FCC-36-65-problem-strategy-v2.0-2026-06-29.xlsx](FCC-36-65-problem-strategy-v2.0-2026-06-29.xlsx) —
-  **CURRENT.** Problem (approved, + your 2 additions) + the **rewritten Strategy** with a clear spine
-  (Identity → Objective → Hook → What we reveal / never do → Voice → Sequencing → Scope). 🟡 awaiting your review.
-- `FCC-36-65-problem-strategy-v1.0-2026-06-29.xlsx` — your reviewed copy WITH comments (superseded; kept as the
-  review record; your feedback is folded into v2.0).
+- [FCC-36-65-problem-strategy-v2.1-2026-06-29.xlsx](FCC-36-65-problem-strategy-v2.1-2026-06-29.xlsx) —
+  **CURRENT.** Problem (approved) + Strategy with a clear spine (Identity → Objective → Hook → What we reveal /
+  never do → Voice → Sequencing → Scope). v2.1 folds in your two latest notes: the one rule now says we run
+  *scenarios for an intelligent estimate* (not predictions), and **income + spending are explicit as the
+  Foundation layer** in scope. 🟢 v2.0 spine fully approved; v2.1 = the two refinements.
+- Prior versions (v1.0 with your comments, v2.0) are in git history (superseded; feedback folded forward).
