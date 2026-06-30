@@ -13,7 +13,7 @@ mobile-first · colorblind-safe.
 ## Doc chain (gated — each approved before the next; deliverables in Excel/Word w/ Approve?+Comments)
 | Stage | File | Status |
 |-------|------|--------|
-| High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.0-2026-06-30.xlsx` | 🟡 awaiting your review (first design gate) |
+| High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.2-2026-06-30.xlsx` | 🟡 v1.1 approved → v1.2 folds in the alignment-review fixes; awaiting your review |
 | PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v*.xlsx` | pending |
 | Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-*-v*.xlsx` | pending |
 | UX design (design system · colorblind-safe · mobile) | `FCC-core-ux-v*.xlsx` | pending |
@@ -30,6 +30,10 @@ and the safe withdrawal is annual-only, so "safe to spend THIS month" doesn't ex
 (per the user's non-negotiable accuracy requirement).
 
 ## Index
-- [FCC-core-highlevel-design-v1.0-2026-06-30.xlsx](FCC-core-highlevel-design-v1.0-2026-06-30.xlsx) — overview ·
-  10 principles · 10 features (each traced to a need + reuse/NEW) · navigation (5 tabs) · 6 key screens with
-  phone wireframes · 6 primary journeys. Approve?/Comments on every row.
+- [FCC-core-highlevel-design-v1.2-2026-06-30.xlsx](FCC-core-highlevel-design-v1.2-2026-06-30.xlsx) — **CURRENT.**
+  Overview · 11 principles · 11 features (each traced to a need + reuse/NEW) · navigation (5 tabs) · 8 key screens
+  with phone wireframes · 7 journeys. Front "What changed v1.1→v1.2" tab maps every review fix. Approve?/Comments
+  on every row. (v1.0 = your comments + responses; v1.1 = folded those in; both in git history — superseded.)
+- [FCC-core-highlevel-design-REVIEW-2026-06-30.md](FCC-core-highlevel-design-REVIEW-2026-06-30.md) — the
+  multi-agent alignment review (design vs Problem+Strategy, both groups): verdict "strongly aligned", 2 must-fix +
+  clarifications + the multi-goal scope reconciliation. Drove v1.2.

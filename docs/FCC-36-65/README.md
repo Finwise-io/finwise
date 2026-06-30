@@ -42,9 +42,11 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
    (final call after both groups' strategy reviewed).
 
 ## Index
-- [FCC-36-65-problem-strategy-v2.2-2026-06-30.xlsx](FCC-36-65-problem-strategy-v2.2-2026-06-30.xlsx) —
+- [FCC-36-65-problem-strategy-v2.3-2026-06-30.xlsx](FCC-36-65-problem-strategy-v2.3-2026-06-30.xlsx) —
   **CURRENT.** Problem (approved) + Strategy with a clear spine (Identity → Objective → Hook → What we reveal /
-  never do → Voice → Sequencing → Scope). v2.1 folds in your two latest notes: the one rule now says we run
-  *scenarios for an intelligent estimate* (not predictions), and **income + spending are explicit as the
-  Foundation layer** in scope. 🟢 v2.0 spine fully approved; v2.1 = the two refinements.
-- Prior versions (v1.0 with your comments, v2.0) are in git history (superseded; feedback folded forward).
+  never do → Voice → Sequencing → Scope). **v2.3 reconciles with the 55-70 design review:** the multi-goal
+  trade-off scenario (afford home / college / parents / debt vs retirement) is now explicitly IN v1 at
+  scenario-engine level; only the deeper 36-55 depth (standalone college planner, equity-comp tax) stays phase 2;
+  debt added as a v1 dial. Changed cells are highlighted amber. (v2.2 = the two-level identity + Foundation; v2.1
+  = scenarios-not-predictions.)
+- Prior versions (v1.0 comments, v2.0, v2.1, v2.2) are in git history (superseded; feedback folded forward).
