@@ -30,14 +30,19 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
 ## Naming convention
 `<topic>-v<major.minor>-<YYYY-MM-DD>.md` — always version + date; never duplicate (supersede in place + bump).
 
-## Open framing decisions (block the strategy doc)
-1. **Spearhead** — pre-retirement→retirement transition (proposed) vs caregiving white space vs peak-earn/tax.
-2. **Daily hook** — "am I on track / will it last + next decision."
-3. **Distribution** — direct-to-consumer first (design for B2B2C) vs institution-embedded now.
-4. **Sequencing** — build FCC-36-65 first (proposed), FCC-65+ next.
+## Decisions locked (2026-06-29, in discussion)
+1. **Identity** — an INSIGHTS ENGINE + honest buddy (NOT a financial advisor). The one rule: *show what's true
+   and what would happen; never tell the user what to do.*
+2. **Hook** — investments-led (investment growth / performance / what-if scenarios); retirement-confidence is
+   the reassurance layer.
+3. **Voice** — pointed but warm (quantify the truth; celebrate wins).
+4. **Distribution** — direct-to-consumer first (design for B2B2C later).
+5. **Sequencing** — proposed: 55–70 investments+retirement core first → extend down to 36–55 → deepen 70+
+   (final call after both groups' strategy reviewed).
 
 ## Index
-- [FCC-36-65-problem-strategy-v1.1-2026-06-29.xlsx](FCC-36-65-problem-strategy-v1.1-2026-06-29.xlsx) —
-  **Problem + Strategy (Steps 1–2)** as an approve-and-comment workbook (Problem & Strategy tab + a
-  Critique/pressure-test tab). 🟡 awaiting your review. Supersedes the `FCC-36-65-problem-v1.0-*.md` markdown
-  draft (kept as working material only).
+- [FCC-36-65-problem-strategy-v2.0-2026-06-29.xlsx](FCC-36-65-problem-strategy-v2.0-2026-06-29.xlsx) —
+  **CURRENT.** Problem (approved, + your 2 additions) + the **rewritten Strategy** with a clear spine
+  (Identity → Objective → Hook → What we reveal / never do → Voice → Sequencing → Scope). 🟡 awaiting your review.
+- `FCC-36-65-problem-strategy-v1.0-2026-06-29.xlsx` — your reviewed copy WITH comments (superseded; kept as the
+  review record; your feedback is folded into v2.0).
