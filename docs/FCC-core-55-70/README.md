@@ -14,7 +14,7 @@ mobile-first · colorblind-safe.
 | Stage | File | Status |
 |-------|------|--------|
 | High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.2-2026-06-30.xlsx` | 🟡 v1.1 approved → v1.2 folds in the alignment-review fixes; awaiting your review |
-| PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v*.xlsx` | pending |
+| PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v1.0-2026-06-30.xlsx` | 🟡 awaiting your review (code-grounded; 170 acceptance criteria tagged MET/PARTIAL/GAP) |
 | Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-*-v*.xlsx` | pending |
 | UX design (design system · colorblind-safe · mobile) | `FCC-core-ux-v*.xlsx` | pending |
 | Build | (code) | pending |
