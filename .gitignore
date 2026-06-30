@@ -31,3 +31,6 @@ android/
 # Firebase emulator artifacts (from `npm run test:rules`)
 *-debug.log
 .firebase/
+
+# Excel lock/temp files
+~$*
