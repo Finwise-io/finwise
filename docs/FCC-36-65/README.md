@@ -37,7 +37,7 @@ into the 70s). See the "FCC 36-65 strategy" tab in the master action list for th
 4. **Sequencing** — build FCC-36-65 first (proposed), FCC-65+ next.
 
 ## Index
-- [FCC-36-65-problem-strategy-v1.0-2026-06-29.xlsx](FCC-36-65-problem-strategy-v1.0-2026-06-29.xlsx) —
+- [FCC-36-65-problem-strategy-v1.1-2026-06-29.xlsx](FCC-36-65-problem-strategy-v1.1-2026-06-29.xlsx) —
   **Problem + Strategy (Steps 1–2)** as an approve-and-comment workbook (Problem & Strategy tab + a
   Critique/pressure-test tab). 🟡 awaiting your review. Supersedes the `FCC-36-65-problem-v1.0-*.md` markdown
   draft (kept as working material only).

@@ -35,6 +35,6 @@ with **Social Security / Medicare timing**. (Note: "safe-to-spend" returns here,
 3. **Distribution** — institution-embedded likely, given the trust bar.
 
 ## Index
-- [FCC-65+-problem-strategy-v1.0-2026-06-29.xlsx](FCC-65+-problem-strategy-v1.0-2026-06-29.xlsx) —
+- [FCC-65+-problem-strategy-v1.1-2026-06-29.xlsx](FCC-65+-problem-strategy-v1.1-2026-06-29.xlsx) —
   **Problem + Strategy (Steps 1–2)** as an approve-and-comment workbook (Problem & Strategy tab + a
   Critique/pressure-test tab). 🟡 awaiting your review.
