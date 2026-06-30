@@ -38,6 +38,13 @@ with **Social Security / Medicare timing**. (Note: "safe-to-spend" returns here,
 4. **Distribution** — direct-to-consumer first (design for B2B2C later).
 5. **Sequencing** — proposed: shared 55–70 core first → deepen 70+ (final call across both groups, pending).
 
+## Key requirements captured (for the PRD)
+- **Safe-to-spend must be REAL month-by-month, never a flat average** (user, 2026-06-30). A retiree may get one
+  big pension/annuity payment in a single month, or face a big lumpy expense (property tax, a trip) in another.
+  `income/12 − spend/12` would be WRONG. Safe-to-spend is computed per actual month using the real *timing* of
+  guaranteed income and known lumpy expenses. Accuracy is non-negotiable here (a wrong number = lost trust).
+  (Builds on the existing 12-month grid that already captures lumpy non-monthly items.)
+
 ## Index
 - [FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx](FCC-65+-problem-strategy-v2.0-2026-06-30.xlsx) —
   **CURRENT.** Problem + Strategy reworked to mirror the approved 36-65 spine (Identity → Objective → Hook →
