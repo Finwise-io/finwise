@@ -13,11 +13,17 @@ mobile-first · colorblind-safe.
 ## Doc chain (gated — each approved before the next; deliverables in Excel/Word w/ Approve?+Comments)
 | Stage | File | Status |
 |-------|------|--------|
-| High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.2-2026-06-30.xlsx` | 🟡 v1.1 approved → v1.2 folds in the alignment-review fixes; awaiting your review |
-| PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v1.0-2026-06-30.xlsx` | 🟡 awaiting your review (code-grounded; 170 acceptance criteria tagged MET/PARTIAL/GAP) |
-| Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-*-v*.xlsx` | pending |
-| UX design (design system · colorblind-safe · mobile) | `FCC-core-ux-v*.xlsx` | pending |
+| High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.2-2026-06-30.xlsx` | ✅ APPROVED |
+| PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v1.1-2026-07-01.xlsx` | 🟡 v1.0 reviewed 2026-07-01 (14 comments + Plaid decision, marks preserved in the v1.0 file) → v1.1 answers every comment + adds 10 criteria; review with detailed design + UX together |
+| Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-design-v1.0-2026-07-01.xlsx` | 🟡 awaiting your review (bundled with PRD v1.1 + UX) |
+| UX design (design system · colorblind-safe · mobile) | `FCC-core-UX-design-v1.0-2026-07-01.xlsx` | 🟡 awaiting your review (bundled) |
 | Build | (code) | pending |
+
+## Decisions locked 2026-07-01
+- **Plaid = Option A APPROVED**: opt-in, read-only account connection; manual entry + file import stay
+  first-class forever; "never leaves your device" copy retired for connected data. Cost check: Plaid free for
+  the first 10 connected accounts, then ~$0.50–$1.50/account/month pay-as-you-go, no minimum — MX/Finicity are
+  ~$10–15k/yr sales contracts (2–10× more at our size). Full comparison on the PRD's Plaid tab.
 
 ## Naming convention
 `<topic>-v<major.minor>-<YYYY-MM-DD>.xlsx` — always version + date; supersede in place, never duplicate.
@@ -30,7 +36,21 @@ and the safe withdrawal is annual-only, so "safe to spend THIS month" doesn't ex
 (per the user's non-negotiable accuracy requirement).
 
 ## Index
-- [FCC-core-highlevel-design-v1.2-2026-06-30.xlsx](FCC-core-highlevel-design-v1.2-2026-06-30.xlsx) — **CURRENT.**
+- [FCC-core-PRD-v1.1-2026-07-01.xlsx](FCC-core-PRD-v1.1-2026-07-01.xlsx) — **CURRENT PRD.** 9 tabs: the new
+  "v1.0 review → v1.1" tab answers all 14 of your comments (code-grounded) + records the Plaid decision & cost
+  comparison; 180 acceptance criteria (10 added from your review) tagged MET(91)/PARTIAL(28)/GAP(59); 422-field
+  dictionary (+first_payment_date; actual_ttm editability corrected); 92-calc catalog; sameness contract (+lumpy-
+  income month placement).
+- [FCC-core-PRD-v1.0-2026-06-30.xlsx](FCC-core-PRD-v1.0-2026-06-30.xlsx) — superseded; **keeps your original
+  review marks** (the review record).
+- [FCC-core-detailed-design-v1.0-2026-07-01.xlsx](FCC-core-detailed-design-v1.0-2026-07-01.xlsx) — every screen
+  of the 5 tabs wireframed + specified element-by-element with data lineage (number → engine → fields → sameness
+  pin), all states, and the net-new engine specs (safe-to-spend paycheck, dated 12-month grid, account-sync seam,
+  scenario adoption, scam flag, bond rate-sensitivity).
+- [FCC-core-UX-design-v1.0-2026-07-01.xlsx](FCC-core-UX-design-v1.0-2026-07-01.xlsx) — validated colorblind-safe
+  palette (checked by script, not eyeballed), 65+ readability layer, mobile-fit rules, chart/money display specs,
+  FCC component specs, accessibility gate checklist, voice & tone do/don't.
+- [FCC-core-highlevel-design-v1.2-2026-06-30.xlsx](FCC-core-highlevel-design-v1.2-2026-06-30.xlsx) — **APPROVED.**
   Overview · 11 principles · 11 features (each traced to a need + reuse/NEW) · navigation (5 tabs) · 8 key screens
   with phone wireframes · 7 journeys. Front "What changed v1.1→v1.2" tab maps every review fix. Approve?/Comments
   on every row. (v1.0 = your comments + responses; v1.1 = folded those in; both in git history — superseded.)
