@@ -43,11 +43,16 @@ and the safe withdrawal is annual-only, so "safe to spend THIS month" doesn't ex
   income month placement).
 - [FCC-core-PRD-v1.0-2026-06-30.xlsx](FCC-core-PRD-v1.0-2026-06-30.xlsx) — superseded; **keeps your original
   review marks** (the review record).
-- [FCC-core-detailed-design-v1.0-2026-07-01.xlsx](FCC-core-detailed-design-v1.0-2026-07-01.xlsx) — every screen
+- [FCC-core-detailed-design-v1.1-2026-07-06.xlsx](FCC-core-detailed-design-v1.1-2026-07-06.xlsx) — **CURRENT.**
+  40 screens; the new "v1.0 review → v1.1" tab answers all 32 comments + 4 macro items; adds Onboarding flow map,
+  manual add/edit account, Quick-add expense; top-bar "+" swap PROPOSED (your approve/reject inside).
+- [FCC-core-UX-design-v1.1-2026-07-06.xlsx](FCC-core-UX-design-v1.1-2026-07-06.xlsx) — **CURRENT.** Adds the
+  keyboard-visibility GATE, copy-provenance rule (no AI-generated text), the "+" component spec.
+- [FCC-core-detailed-design-v1.0-2026-07-01.xlsx](FCC-core-detailed-design-v1.0-2026-07-01.xlsx) — superseded; keeps your review marks. Every screen
   of the 5 tabs wireframed + specified element-by-element with data lineage (number → engine → fields → sameness
   pin), all states, and the net-new engine specs (safe-to-spend paycheck, dated 12-month grid, account-sync seam,
   scenario adoption, scam flag, bond rate-sensitivity).
-- [FCC-core-UX-design-v1.0-2026-07-01.xlsx](FCC-core-UX-design-v1.0-2026-07-01.xlsx) — validated colorblind-safe
+- [FCC-core-UX-design-v1.0-2026-07-01.xlsx](FCC-core-UX-design-v1.0-2026-07-01.xlsx) — superseded. Validated colorblind-safe
   palette (checked by script, not eyeballed), 65+ readability layer, mobile-fit rules, chart/money display specs,
   FCC component specs, accessibility gate checklist, voice & tone do/don't.
 - [FCC-core-highlevel-design-v1.2-2026-06-30.xlsx](FCC-core-highlevel-design-v1.2-2026-06-30.xlsx) — **APPROVED.**
