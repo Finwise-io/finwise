@@ -15,8 +15,8 @@ mobile-first · colorblind-safe.
 |-------|------|--------|
 | High-level conceptual design (+ wireframes) | `FCC-core-highlevel-design-v1.2-2026-06-30.xlsx` | ✅ APPROVED |
 | PRD (one-stop-shop + calculation catalog + sameness contract) | `FCC-core-PRD-v1.1-2026-07-01.xlsx` | 🟡 v1.0 reviewed 2026-07-01 (14 comments + Plaid decision, marks preserved in the v1.0 file) → v1.1 answers every comment + adds 10 criteria; review with detailed design + UX together |
-| Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-design-v1.0-2026-07-01.xlsx` | 🟡 awaiting your review (bundled with PRD v1.1 + UX) |
-| UX design (design system · colorblind-safe · mobile) | `FCC-core-UX-design-v1.0-2026-07-01.xlsx` | 🟡 awaiting your review (bundled) |
+| Detailed design (+ wireframes + data-lineage map) | `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` | 🟡 v1.0 reviewed 2026-07-06 (32 comments + 4 macro, marks kept in v1.0) → v1.1 answers all + 3 new screens (40 total); top-bar “+” swap PROPOSED |
+| UX design (design system · colorblind-safe · mobile) | `FCC-core-UX-design-v1.1-2026-07-06.xlsx` | 🟡 v1.1 adds the keyboard GATE (buttons never behind the keyboard), copy-provenance rule, “+” component |
 | Build | (code) | pending |
 
 ## Decisions locked 2026-07-01
