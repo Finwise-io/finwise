@@ -920,10 +920,6 @@ export function useLevel() {
   return { ...current, next, xp, pct };
 }
 
-export function useNetWorth() {
-  const { savings, investments, debts } = useStore();
-  const totalSavings     = savings.reduce((s, e) => s + e.amount, 0);
-  const totalInvestments = investments.reduce((s, e) => s + e.amount, 0);
-  const totalDebt        = debts.reduce((s, d) => s + d.balance, 0);
-  return { totalSavings, totalInvestments, totalDebt, netWorth: totalSavings + totalInvestments - totalDebt };
-}
+// useNetWorth (legacy net-worth path over the deprecated savings/investments/debts arrays) was REMOVED:
+// it computed a second, independent net worth the UI never showed (P0: three coexisting net-worth paths).
+// The one net worth = buildNetWorth over resolveNetWorthRows — everywhere, including frozen history.

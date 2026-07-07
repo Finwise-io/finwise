@@ -120,7 +120,10 @@ export default function HomeScreen() {
   // freeze month-by-month metrics for trailing history (net worth, income, spend, savings, debt)
   useEffect(() => {
     if (!op) return;
-    const a = store.assetAccounts ?? [], l = store.liabilities ?? [];
+    // P0: freeze the SAME rows every screen displays (resolveNetWorthRows), not the raw store arrays —
+    // a pre-seed user with onboarding balances otherwise freezes net_worth: 0 into history while the
+    // hero/chip show real numbers (one concept, one number, everywhere — incl. the frozen past).
+    const { accounts: a, liabilities: l } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
     const nwv = buildNetWorth(uid, buildAssetsState(uid, a).total_asset_value, buildDebtState(uid, l).total_debt_balance);
     const monthExp = (store.expenses ?? []).filter((e: any) => String(e.date).startsWith(ym));
     const dPaid = monthExp.filter((e: any) => e.category === 'Debt payment').reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
@@ -141,7 +144,7 @@ export default function HomeScreen() {
       debts: debtsSnap,                 // per-debt balances
       captured_at: new Date().toISOString(),
     });
-  }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth]);
+  }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
 
   if (!snap) {

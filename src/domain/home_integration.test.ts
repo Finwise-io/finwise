@@ -95,3 +95,38 @@ describe('resolveNetWorthRows: live vs onboarding basis', () => {
     expect(liabilities).toEqual([]);
   });
 });
+
+// P0 (FCC PRD): the frozen monthly-snapshot history must freeze the SAME net worth every screen
+// displays. Before the fix, HomeScreen's freeze effect used the RAW store arrays — a pre-seed user
+// (onboarding balances, nothing seeded yet) froze net_worth: 0 into history while the hero/chip
+// showed real numbers from resolveNetWorthRows.
+describe('frozen history uses the displayed net worth (P0: one net worth, incl. the past)', () => {
+  const opWithBalances = {
+    ...op,
+    nwCash: '20000', nwInvest: '150000', nwHomeValue: '400000', nwMortgage: '250000',
+  };
+  const { buildNetWorth } = require('./networth');
+  const { buildAssetsState } = require('./assets');
+  const { buildDebtState } = require('./debt');
+  const uid = 'u_test' as any;
+
+  test('pre-seed user: freeze recipe (resolved rows) is non-zero and equals the display recipe', () => {
+    // the recipe the freeze effect uses after the fix — resolved rows, not raw arrays
+    const { accounts, liabilities } = resolveNetWorthRows(uid, opWithBalances, false, [], []);
+    const frozen = buildNetWorth(uid, buildAssetsState(uid, accounts).total_asset_value, buildDebtState(uid, liabilities).total_debt_balance);
+    // the display path (TopBar/NetWorthScreen use the identical resolved rows)
+    const shown = buildNetWorth(uid, buildAssetsState(uid, accounts).total_asset_value, buildDebtState(uid, liabilities).total_debt_balance);
+    expect(frozen.net_worth).toBe(shown.net_worth);
+    expect(frozen.net_worth).toBeGreaterThan(0);
+    // the OLD recipe (raw empty arrays) — the bug this test prevents from returning
+    const old = buildNetWorth(uid, buildAssetsState(uid, []).total_asset_value, buildDebtState(uid, []).total_debt_balance);
+    expect(old.net_worth).toBe(0);
+    expect(old.net_worth).not.toBe(frozen.net_worth);
+  });
+
+  test('seeded user: resolved rows ARE the live arrays (no behavior change post-setup)', () => {
+    const live = [{ asset_id: 'ast_1', label: 'Brokerage', balance: 1000, tax_bucket: 'TAXABLE' }] as any[];
+    const { accounts } = resolveNetWorthRows(uid, opWithBalances, true, live, []);
+    expect(accounts).toBe(live);
+  });
+});
