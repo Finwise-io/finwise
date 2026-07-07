@@ -1,4 +1,4 @@
-import { parseCsv, importHoldings, decodeCsvBase64 } from './holdingsImport';
+import { parseCsv, importHoldings, decodeCsvBase64, classifyHolding } from './holdingsImport';
 
 describe('parseCsv', () => {
   test('handles quoted fields with embedded commas and "" escapes', () => {
@@ -144,5 +144,37 @@ describe('decodeCsvBase64 — robust to UTF-8/UTF-16, with or without BOM (#12)'
   test('a UTF-16 export still parses end-to-end after decode', () => {
     const decoded = decodeCsvBase64(b64(Buffer.from(BOM + csv, 'utf16le')));
     expect(importHoldings(decoded).holdings.length).toBe(2);
+  });
+});
+
+// PRD F1 #19 (founder review): crypto / currency / commodities must classify as alternatives,
+// not fall through to the stocks_etf default — while mining COMPANIES stay equities.
+describe('classifyHolding — crypto, commodities, currency (F1 #19)', () => {
+  test('crypto tickers and names → alternatives', () => {
+    expect(classifyHolding('GBTC', 'Grayscale Bitcoin Trust')).toBe('alternatives');
+    expect(classifyHolding('IBIT', '')).toBe('alternatives');
+    expect(classifyHolding('XYZ', 'Something Ethereum Fund')).toBe('alternatives');
+    expect(classifyHolding('ZZZ', 'Cryptocurrency Index')).toBe('alternatives');
+  });
+  test('spot-commodity funds → alternatives', () => {
+    expect(classifyHolding('GLD', 'SPDR Gold Shares')).toBe('alternatives');
+    expect(classifyHolding('SLV', '')).toBe('alternatives');
+    expect(classifyHolding('ZZZ', 'Physical Platinum Trust')).toBe('alternatives');
+  });
+  test('mining COMPANIES with commodity words stay stocks', () => {
+    expect(classifyHolding('GOLD', 'Barrick Gold Corp')).toBe('stocks_etf');
+    expect(classifyHolding('AG', 'First Majestic Silver Corp')).toBe('stocks_etf');
+    expect(classifyHolding('NEM', 'Newmont Mining')).toBe('stocks_etf');
+  });
+  test('COIN (Coinbase) is a stock, not crypto', () => {
+    expect(classifyHolding('COIN', 'Coinbase Global Inc')).toBe('stocks_etf');
+  });
+  test('currency funds → alternatives', () => {
+    expect(classifyHolding('FXE', 'Invesco Currency Shares Euro')).toBe('alternatives');
+  });
+  test('existing classes unchanged: money market → cash, treasuries → bonds/cash, options → alternatives', () => {
+    expect(classifyHolding('SPAXX', 'Fidelity Government Money Market')).toBe('cash');
+    expect(classifyHolding('ZZZ', 'US Treasury Note 2030')).toBe('bonds');
+    expect(classifyHolding('ZZZ', 'AAPL Jan 2027 Call')).toBe('alternatives');
   });
 });

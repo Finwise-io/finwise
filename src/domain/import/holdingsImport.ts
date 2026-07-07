@@ -132,14 +132,26 @@ function cleanTicker(v: string): string | null {
 
 // Common money-market fund tickers (trade at $1 NAV) → classified as cash, not equities.
 const MMF_TICKERS = new Set(['VMFXX', 'VMRXX', 'SPAXX', 'SPRXX', 'SWVXX', 'SNVXX', 'FDRXX', 'FZFXX', 'TTTXX', 'SGOV']);
+// Crypto trusts/ETFs and spot-commodity funds → alternatives, not equities (PRD F1 #19).
+// COIN (Coinbase) is deliberately absent — that's a stock.
+const CRYPTO_TICKERS = new Set(['BTC', 'ETH', 'GBTC', 'ETHE', 'IBIT', 'FBTC', 'BITO', 'ARKB', 'HODL']);
+const COMMODITY_TICKERS = new Set(['GLD', 'SLV', 'IAU', 'SGOL', 'GLDM', 'PPLT', 'PALL', 'USO', 'UNG', 'DBC', 'PDBC']);
+// A commodity word inside a COMPANY name (Barrick Gold Corp, First Majestic Silver) is a mining stock,
+// not a commodity holding — company-shaped names stay equities.
+const COMPANY_WORDS = /\b(corp|corporation|inc|ltd|plc|mining|miners?|resources|company)\b/i;
 
 /** Classify a holding by asset class from its symbol + name (the importer sets asset_class explicitly,
  *  which overrides the kind/tax_bucket derivation). */
 export function classifyHolding(symbol: string, name = ''): AssetClass {
   const s = `${symbol} ${name}`.trim();
-  if (MMF_TICKERS.has(symbol.trim().toUpperCase())) return 'cash';
+  const sym = symbol.trim().toUpperCase();
+  if (MMF_TICKERS.has(sym)) return 'cash';
   if (isCashEquivalentLabel(s)) return 'cash';                          // CD / T-bill / money-market
   if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options
+  if (CRYPTO_TICKERS.has(sym) || /\b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b/i.test(s)) return 'alternatives';
+  if (COMMODITY_TICKERS.has(sym)) return 'alternatives';
+  if (/\b(gold|silver|platinum|palladium|commodit(y|ies))\b/i.test(s) && !COMPANY_WORDS.test(s)) return 'alternatives';
+  if (/\b(currency|currencies|forex)\b/i.test(s)) return 'alternatives';
   if (/\b(bond|note|treasury|t-note|muni|debenture)\b/i.test(s)) return 'bonds';   // fixed income
   return 'stocks_etf';                                                  // default: an equity ticker
 }
