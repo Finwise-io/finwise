@@ -35,6 +35,9 @@ export interface Transaction {
   reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
   note?: string;
   created_at: string;        // ISO — when it was entered (audit)
+  undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
+                              // this row's balance effect exactly (P0: ledger and balances must
+                              // never drift; rows recorded before this field use inverseOf()).
 }
 
 const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetAccount) =>
