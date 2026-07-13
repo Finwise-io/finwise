@@ -30,7 +30,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances, fccPaycheckEnabled, toggleFccPaycheck } = useStore() as any;
 
   // F-2: app lock — confirm the device can authenticate before enabling, so the user can't lock
   // themselves out, and require a successful auth to turn it on.
@@ -337,6 +337,20 @@ export default function SettingsScreen() {
             trackColor={{ true: Colors.primary }}
             accessibilityLabel="Hide balances"
             accessibilityHint="Masks every money amount in the app"
+          />
+        </View>
+
+        <View style={styles.lockRow}>
+          <View style={{ flex: 1, marginRight: Spacing.sm }}>
+            <Text style={styles.actionLabel}>Early preview: your paycheck</Text>
+            <Text style={styles.actionSub}>Try the new month-by-month “Safe to spend” paycheck on Cash flow (for people receiving retirement income). In testing — numbers are estimates.</Text>
+          </View>
+          <Switch
+            value={!!fccPaycheckEnabled}
+            onValueChange={() => toggleFccPaycheck?.()}
+            trackColor={{ true: Colors.primary }}
+            accessibilityLabel="Early preview: paycheck"
+            accessibilityHint="Shows the new safe-to-spend paycheck on the Cash flow screen"
           />
         </View>
 

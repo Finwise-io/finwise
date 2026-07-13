@@ -12,6 +12,8 @@ import { annualCashflow, spendByMonth, budgetVsActual } from '../domain/budget';
 import { surplusByMonth, monthlySavings } from '../domain/savings';   // canonical AFTER-debt surplus
 import { actualDebtPayment } from '../domain/debt';
 import { incomeMonthlyGrid } from '../domain/income';
+import { currentRetirementIncomeMonthly } from '../domain/income';
+import { PaycheckCard } from '../components/PaycheckCard';
 
 export default function CashFlowScreen() {
   const store = useStore() as any;
@@ -34,6 +36,8 @@ export default function CashFlowScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {/* FCC Phase 2 (early preview): the retired paycheck hero — flag-gated, retired lens only */}
+      {store.fccPaycheckEnabled && (op?.status === 'retired' || currentRetirementIncomeMonthly(op) > 0) && <PaycheckCard />}
       <Text style={styles.h1}>Cash flow</Text>
       <Text style={styles.sub}>Where your money goes each month — and what's left to save. Projected from your income and spending plan.</Text>
 

@@ -259,6 +259,7 @@ type AppState = {
   // Display mode — Simple hides jargon/advanced detail; Advisor shows full depth
   displayMode: 'simple' | 'advisor';
   hideBalances: boolean;   // privacy: mask money as •••• everywhere (eye toggle / Settings)
+  fccPaycheckEnabled: boolean;   // FCC Phase 2 early preview: the MoneyKeel retired paycheck hero
   pendingRecoveryCode: string | null;   // transient: a just-issued recovery code to show at the root (survives navigation)
   securingAccount: boolean;             // transient: true while the slow PBKDF2 key-wrapping runs after signup (gates the recovery modal's checkbox so the 10s freeze reads as "Securing…", not a dead button)
   fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
@@ -325,6 +326,7 @@ type AppState = {
   setCurrency: (currency: string, locale?: string) => void;
   setDisplayMode: (m: 'simple' | 'advisor') => void;
   toggleHideBalances: () => void;
+  toggleFccPaycheck: () => void;
   setPendingRecoveryCode: (c: string | null) => void;
   setSecuringAccount: (b: boolean) => void;
   setFontScale: (s: number) => void;
@@ -453,6 +455,7 @@ export const useStore = create<AppState>()(
       locale: 'en-US',
       displayMode: 'simple',
       hideBalances: false,
+      fccPaycheckEnabled: false,   // off until the Phase 2 slice is device-tested
       pendingRecoveryCode: null,
       securingAccount: false,
       fontScale: 1,
@@ -671,6 +674,7 @@ export const useStore = create<AppState>()(
       },
       setDisplayMode: (m) => set({ displayMode: m }),
       toggleHideBalances: () => set((s) => ({ hideBalances: !s.hideBalances })),
+      toggleFccPaycheck: () => set((s) => ({ fccPaycheckEnabled: !s.fccPaycheckEnabled })),
       setPendingRecoveryCode: (c) => set({ pendingRecoveryCode: c }),
       setSecuringAccount: (b) => set({ securingAccount: b }),
       setFontScale: (s) => set({ fontScale: s }),
