@@ -13,6 +13,9 @@ import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
+import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
+import { requiredMonthly } from '../domain/goals';
+import { monthlySavings } from '../domain/savings';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { money } from '../domain/_shared/num';
 
@@ -46,7 +49,35 @@ export function useInsights(limit?: number): Insight[] {
     const nm = (a: any) => a.institution?.trim() || a.label;
     const shareOf = (v: number) => (investable > 0 ? `${money(v)} · ${Math.round((v / investable) * 100)}%` : money(v));
 
+    // ── FCC inputs ──
+    // F10: the newest open worth-a-look flag leads; a user-flagged one keeps a quiet follow-up.
+    const flags = (store.txnFlags ?? []) as any[];
+    const openFlags = flags.filter((f) => f.status === 'open');
+    const followUps = flags.filter((f) => f.status === 'flagged');
+    const lead = openFlags[0] ?? followUps[0] ?? null;
+    const accountName = (id: string) => nm(accounts.find((a: any) => String(a.asset_id) === String(id)) ?? { label: 'an account' });
+    const worthALook = lead ? {
+      amount: lead.amount, account: accountName(lead.account_id),
+      more: openFlags.length > 1 ? openFlags.length - 1 : 0,
+      followUp: lead.status === 'flagged',
+    } : null;
+    // Required withdrawal (age 73+, pre-tax balance) — same figure Plan shows (rmdAtAge).
+    const preTax = taxBucketSplit(accounts).preTax;
+    const rmdDue = age >= RMD_START_AGE && preTax > 0 ? { amount: rmdAtAge(preTax, age) } : null;
+    // Social Security claim window: open from 62 to 70, no adopted timing, no SS income captured.
+    const A = store.retirementAssumptions ?? {};
+    const ssWindow = age >= 62 && age < 70 && A.ssClaimAge == null && num(op.ri_ss) === 0;
+    // Goals vs surplus: what every active goal needs per month, minus what the plan frees up.
+    const activeGoals = ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0));
+    const needed = activeGoals.reduce((t, g) => t + (requiredMonthly(g) ?? 0), 0);
+    const freed = Math.max(0, monthlySavings(op, liabilities));
+    const goalsGap = activeGoals.length > 0 && needed > 0 ? Math.round(needed - freed) : null;
+
     const built = buildInsights({
+      worthALook,
+      rmdDue,
+      ssWindow,
+      goalsGap,
       cashMonths: monthlySpending > 0 ? cash / monthlySpending : null,
       toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
@@ -77,9 +108,12 @@ export function useInsights(limit?: number): Insight[] {
                             { label: 'Investing rate', value: gross > 0 ? pct((monthlyContributionsFromOnboarding(op) * 12) / gross) : '—' }],
       'toxic-debt': () => toxic ? [{ label: toxic.label, value: `${pct(toxic.interest_rate_apr)} APR` }, { label: 'Balance', value: money(toxic.remaining_balance || 0) }] : [],
       'retire-offtrack': () => [{ label: 'Chance your plan lasts', value: typeof store.lastRetireChance === 'number' ? `${store.lastRetireChance}%` : '—' }, { label: 'Healthy target', value: '60%+' }],
+      'rmd-due': () => [{ label: 'Pre-tax balance', value: money(preTax) }, { label: 'Your age', value: String(age) }, { label: 'Required this year', value: money(rmdDue?.amount ?? 0) }],
+      'goals-gap': () => activeGoals.map((g) => ({ label: g.label, value: `${money(requiredMonthly(g) ?? 0)}/mo needed` }))
+        .concat([{ label: 'Planned surplus', value: `${money(freed)}/mo` }]),
     };
     return built.map((i) => ({ ...i, details: detailsById[i.id]?.() }));
-  }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, plan.pct, limit]);
+  }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit]);
 }
 
 export default function InsightsScreen() {

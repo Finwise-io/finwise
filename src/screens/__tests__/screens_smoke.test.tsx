@@ -40,6 +40,9 @@ import TipsScreen from '../TipsScreen';
 // scaffolding; onboarding has its own flow_audit + engine coverage).
 const SCREENS: [string, React.ComponentType<any>][] = [
   ['MonthlyIncomeScreen', require('../MonthlyIncomeScreen').default],
+  ['PlanHubScreen', require('../PlanHubScreen').default],
+  ['WorthALookScreen', require('../WorthALookScreen').default],
+  ['IdleCashScreen', require('../IdleCashScreen').default],
   ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
   ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],

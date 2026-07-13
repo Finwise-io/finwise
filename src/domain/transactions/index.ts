@@ -34,6 +34,9 @@ export interface Transaction {
   amount?: number;           // cash amount (deposit/withdraw/transfer/dividend-as-cash/fee)
   reinvested?: boolean;      // dividend/interest reinvested into the position vs taken as cash
   note?: string;
+  source?: 'manual' | 'connected';  // F10: only connected-account rows are ever reviewed for a
+                                    // "worth a look" flag — hand-typed entries are NEVER questioned.
+                                    // Absent = manual (every row recorded before F1 sync exists).
   created_at: string;        // ISO — when it was entered (audit)
   undo_prev?: AssetAccount[]; // pre-apply copies of the touched accounts — lets a delete reverse
                               // this row's balance effect exactly (P0: ledger and balances must

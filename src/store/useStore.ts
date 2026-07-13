@@ -5,6 +5,7 @@ import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { benchmarkTicker, marketValue, latestClose, costBasis, type Position, type PriceSeries } from '../domain/performance';
 import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, type Transaction } from '../domain/transactions';
+import { reviewTransactions, type TxnFlag } from '../domain/transactions/flags';
 import { round2 } from '../domain/_shared/num';
 import { fetchPriceSeries } from '../services/marketData';
 
@@ -238,6 +239,8 @@ type AppState = {
   priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
   pricesFetchedAt: string | null;                 // ISO of last successful market-data refresh
   transactions: Transaction[];                    // append-only ledger (newest first) — audit/history
+  txnFlags: TxnFlag[];                            // F10 "worth a look" flags (newest first)
+  knownPayees: Record<string, string[]>;          // F10: per-account payees confirmed by "Yes, this was me"
 
   // Gamification
   xp: number;
@@ -308,7 +311,8 @@ type AppState = {
   deletePosition: (accountId: string, positionId: string) => void;
   refreshPrices: () => Promise<void>;
   maybeRefreshPrices: () => Promise<void>;   // throttled (10 min) — safe to call on screen open
-  recordTransaction: (t: Omit<Transaction, 'id' | 'created_at'>) => void;   // append to ledger + apply to accounts
+  recordTransaction: (t: Omit<Transaction, 'id' | 'created_at'>) => void;   // append to ledger + apply to accounts + F10 review
+  resolveTxnFlag: (flagId: string, resolution: 'was_me' | 'flagged' | 'settled') => void;   // F10 two-button resolution
   deleteTransaction: (id: string) => boolean;   // reverses the row's balance effect; false = blocked (legacy un-invertible row)
   addLiability: (d: Omit<Debt, 'debt_id'>) => void;
   updateLiability: (id: string, updates: Partial<Debt>) => void;
@@ -436,6 +440,8 @@ export const useStore = create<AppState>()(
       priceCache: {},
       pricesFetchedAt: null,
       transactions: [],
+      txnFlags: [],
+      knownPayees: {},
       goals: [],
       badges: DEFAULT_BADGES,
 
@@ -544,7 +550,29 @@ export const useStore = create<AppState>()(
         const t = makeTransaction(partial);
         t.undo_prev = undoSnapshot(s.assetAccounts, t);   // pre-apply copies -> deletes can reverse exactly
         const accounts = applyTransaction(s.assetAccounts, t);
-        return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [t, ...s.transactions] };
+        // F10: review connected-account money-out against this account's history (manual rows pass silently)
+        const newFlags = reviewTransactions([t], { history: s.transactions, knownPayees: s.knownPayees });
+        return {
+          assetAccounts: recomputeBalances(accounts, s.priceCache),
+          transactions: [t, ...s.transactions],
+          ...(newFlags.length ? { txnFlags: [...newFlags, ...s.txnFlags] } : {}),
+        };
+      }),
+      // F10 resolution — always an explicit choice (no swipe-dismiss). 'was_me' also remembers the
+      // payee on that account so it is never questioned again (the only learning in v1).
+      resolveTxnFlag: (flagId, resolution) => set((s) => {
+        const f = s.txnFlags.find((x) => x.flag_id === flagId);
+        if (!f) return {};
+        const nowIso = new Date().toISOString();
+        const txnFlags = s.txnFlags.map((x) => x.flag_id === flagId
+          ? { ...x, status: (resolution === 'settled' ? 'was_me' : resolution) as TxnFlag['status'], resolved_at: nowIso }
+          : x);
+        let knownPayees = s.knownPayees;
+        if (resolution === 'was_me' && f.reason === 'first_time_payee' && f.payee) {
+          const list = knownPayees[f.account_id] ?? [];
+          if (!list.includes(f.payee)) knownPayees = { ...knownPayees, [f.account_id]: [...list, f.payee] };
+        }
+        return { txnFlags, knownPayees };
       }),
       // P0: deleting a ledger row must reverse its balance effect — ledger and balances may never drift.
       // Array is NEWEST-FIRST. Unwind newest→target via each row's undo_prev (inverseOf fallback for
@@ -849,7 +877,8 @@ export const useStore = create<AppState>()(
         retirementScenarios: [],
       lastRetireChance: null,
         benchmarkReturns: {},
-        priceCache: {}, pricesFetchedAt: null, transactions: [],
+        priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
+        lensOverride: null,
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],

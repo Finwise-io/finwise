@@ -182,6 +182,8 @@ export default function RootLayout() {
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
           {/* FCC: cash flow is now a bottom TAB (app/(tabs)/cashflow.tsx) — no root stack route. */}
           <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="worth-a-look" options={{ title: 'Worth a look', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="idle-cash" options={{ title: 'Your idle cash', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>
         </AppLockGate>
