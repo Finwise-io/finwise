@@ -10,7 +10,7 @@ export const MODAL_SEGMENTS = [
   // T22: 'cashflow' was missing, so tapping "Cash-flow detail →" pushed /cashflow and the guard
   // immediately replaced back to Home — read as an infinite loop. 'contribution-room' (the 401(k)-room
   // insight target) had the same latent bug. Any NEW root screen must be added here (pinned by a test).
-  'cashflow','contribution-room','itemize','monthly-income',   // FCC Phase 2: retiree income capture
+  'cashflow','contribution-room','itemize','monthly-income','paycheck-months',   // FCC Phase 2: retiree income + paycheck
 ];
 
 export type RouteState = {

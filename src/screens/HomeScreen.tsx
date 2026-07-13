@@ -9,6 +9,8 @@ import { money, round2 } from '../domain/_shared/num';
 import { currencySymbol, moneyCompact } from '../domain/_shared/money';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual, plannedMonthlySpend } from '../domain/budget';
+import { currentRetirementIncomeMonthly } from '../domain/income';
+import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { incomeMonthlyGrid } from '../domain/income';
 import { BUDGET_CATEGORIES, categoryBucketFor, budgetCategoryIcon } from '../constants/categories';
@@ -295,6 +297,9 @@ export default function HomeScreen() {
             )}
           </View>
         </View>
+
+        {/* FCC Phase 2 (early preview): the retired lens leads with the paycheck (approved design) */}
+        {store.fccPaycheckEnabled && (op?.status === 'retired' || currentRetirementIncomeMonthly(op) > 0) && <PaycheckCard />}
 
         {/* sharpen-your-plan nudge (only when incomplete) */}
         {sharpen.pct < 100 && (

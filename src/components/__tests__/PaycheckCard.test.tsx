@@ -68,3 +68,38 @@ describe('Cash flow gating (early-preview flag)', () => {
     expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
   });
 });
+
+// The month-by-month screen: rows sum to the number (the month-detail pin), a December pension
+// lands in December only, and a bill month carries its word.
+describe('PaycheckMonthsScreen', () => {
+  const PaycheckMonthsScreen = require('../../screens/PaycheckMonthsScreen').default;
+  beforeEach(() => {
+    useStore.setState({
+      onboardingProfile: {
+        ...JUNE_OP,
+        ri_pension: '19200', ri_pension_freq: 'annual', ri_pension_month: 12,
+        spendCats: [
+          { id: 'rent', bucket: 'fixed', amount: '1200', unit: 'dollar' },
+          { id: 'proptax', label: 'Property tax', bucket: 'nonmonthly', amount: '1900', unit: 'dollar', months: [11], dueDay: 15, tier: 'critical' },
+        ],
+      },
+    } as any);
+  });
+
+  it('renders 12 dated months; December carries the pension; November is a flagged bill month', () => {
+    render(<PaycheckMonthsScreen />);
+    const dec = screen.getByLabelText(/^Dec.*safe to spend/);
+    fireEvent.press(dec);
+    expect(screen.getByText(/Pension/)).toBeOnTheScreen();
+    expect(screen.getByText('$19,200')).toBeOnTheScreen();          // the lump, in full, in December
+    expect(screen.getByLabelText(/^Nov.*lower — big bill this month/)).toBeOnTheScreen();
+  });
+
+  it('an opened month shows the sum lines (rows → number)', () => {
+    render(<PaycheckMonthsScreen />);
+    fireEvent.press(screen.getByLabelText(/^Nov.*safe to spend/));
+    expect(screen.getByText('Property tax · day 15')).toBeOnTheScreen();
+    expect(screen.getByText('= Safe to spend')).toBeOnTheScreen();
+    expect(screen.getByText('= In')).toBeOnTheScreen();
+  });
+});

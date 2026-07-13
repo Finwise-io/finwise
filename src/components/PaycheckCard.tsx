@@ -71,6 +71,10 @@ export function PaycheckCard() {
         <Text style={styles.flag}>Heads-up: this draw is on the high side of the usual 4%-a-year guideline.</Text>
       )}
 
+      <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/paycheck-months')}>
+        <Text style={styles.monthsLink}>See all 12 months →</Text>
+      </TouchableOpacity>
+
       <Modal visible={whySafe} transparent animationType="fade" onRequestClose={() => setWhySafe(false)}>
         <View style={styles.modalBg}>
           <View style={styles.modalCard}>
@@ -117,6 +121,7 @@ const styles = StyleSheet.create({
   year: { fontSize: 14, color: Colors.textPrimary, fontWeight: '600', marginTop: 4 },
   yearNote: { fontWeight: '400', color: Colors.textSecondary },
   flag: { fontSize: 12, color: Colors.amber, marginTop: 4 },
+  monthsLink: { fontSize: 14, fontWeight: '600', color: Colors.primary, marginTop: 8 },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
   modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
   modalT: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 },
