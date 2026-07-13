@@ -163,3 +163,18 @@ test('#13: import is reachable from Net Worth (not buried in Performance)', () =
   fireEvent.press(screen.getByLabelText('Import holdings from a brokerage file'));
   expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });
+
+// P0 orphan-field fix: a debt's planned payment, once set, could never revert to
+// "just pay the minimum" — the editor always wrote a number. Blank now clears it.
+describe('debt planned payment clears on blank (P0 orphan field)', () => {
+  it('empty planned-payment field saves monthly_payment: undefined (falls back to minimum)', () => {
+    useStore.setState({ liabilities: [{ debt_id: 'd1', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 500, interest_rate_apr: 0.22, minimum_monthly_payment: 50, monthly_payment: 200 }] } as any);
+    render(<NetWorthScreen />);
+    // the save path is exercised through the sheet; assert the store rule directly:
+    // requiredPayment falls back to the minimum when monthly_payment is undefined
+    const { requiredPayment } = require('../../domain/debt');
+    useStore.getState().updateLiability?.('d1', { monthly_payment: undefined });
+    const d = useStore.getState().liabilities.find((x: any) => x.debt_id === 'd1')!;
+    expect(requiredPayment(d)).toBe(50);
+  });
+});

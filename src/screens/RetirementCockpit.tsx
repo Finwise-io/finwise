@@ -807,7 +807,7 @@ function Donut({ segments, size = 124, stroke = 16, children, label }: { segment
 
 // ───────────────────────── Earmark sheet ─────────────────────────
 export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: {
-  open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number) => void; onDone: () => void;
+  open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number | null) => void; onDone: () => void;
 }) {
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -833,6 +833,11 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
                   <>
                     <View style={styles.pctBox}><TextInput style={styles.pctIn} keyboardType="number-pad" value={String(pct)} onChangeText={(t) => onSet(a.asset_id, clamp(Math.round(num(t)), 0, 100))} /><Text style={styles.pctU}>%</Text></View>
                     <Text style={styles.counts}>{moneyCompact(earmarkedAmount(a), 'M')}</Text>
+                    {a.retirement_pct != null && (
+                      <TouchableOpacity accessibilityLabel={`Use the automatic share for ${a.institution?.trim() || a.label}`} onPress={() => onSet(a.asset_id, null)}>
+                        <Text style={styles.autoLink}>auto</Text>
+                      </TouchableOpacity>
+                    )}
                   </>
                 )}
               </View>
@@ -1180,6 +1185,7 @@ const styles = StyleSheet.create({
   accBal: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   pctBox: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   pctIn: { width: 56, borderWidth: 1.5, borderColor: Colors.border, borderRadius: 8, padding: 6, textAlign: 'right', fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  autoLink: { color: Colors.primary, fontSize: 12, fontWeight: '600', marginLeft: 6 },
   pctU: { fontSize: 13, color: Colors.textSecondary },
   counts: { fontSize: 12, fontWeight: '700', color: Colors.primary, minWidth: 60, textAlign: 'right' },
   stepper: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },

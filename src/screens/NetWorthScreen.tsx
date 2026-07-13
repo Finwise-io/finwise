@@ -622,7 +622,7 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
     if (!ready) return;
     const label = inst.trim() || debtKind(kind)?.label || 'Debt';
     const dd = Math.min(31, Math.max(0, Math.round(num(due)))) || undefined;
-    const patch = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(pay), monthly_payment: num(monthly) || num(pay), due_day: dd };
+    const patch = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd };
     if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
     onClose();
   };

@@ -41,7 +41,7 @@ export interface AssetAccount {
   target_return: number;          // annual, decimal (e.g. 0.07)
   change_amount?: number;         // net change this month (from savings allocations)
   change_month?: string;          // 'YYYY-MM' the change applies to
-  retirement_pct?: number;        // 0–100, how much of this account is earmarked for retirement
+  retirement_pct?: number | null; // 0–100 earmark; null/absent = use earmarkDefault (the auto share)
                                   // (rest is for other goals); defaults per kind via earmarkDefault()
   actual_ttm?: number;            // user-reported ACTUAL trailing-12-month return (decimal), for
                                   // performance-vs-benchmark; null/undefined = not reported
