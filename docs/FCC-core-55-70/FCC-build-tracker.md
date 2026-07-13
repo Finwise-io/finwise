@@ -4,6 +4,9 @@ _Working doc. Started 2026-07-13 after the founder's call: **stop building testa
 whole approved design, gate with the automated suite, then cut ONE build.** Source of truth for scope:
 `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` (40 screens) + `FCC-core-UX-design-v1.1` + PRD v1.1._
 
+_Last updated 2026-07-13 end of session 1. Suite: **910 green** (was 839), tsc clean, UI gate passing.
+Commits: 9ac80a7 · 4cb258a · 7b2a507 · acc096c · 9eb6359 (branch taxonomy-v1.0.7, NOT pushed)._
+
 ## Why Build 40 looked identical (recorded so we don't repeat it)
 Build 40 (commit b4205b3) DID contain the new engines + rename, but: (1) the new hero sat behind the
 `fccPaycheckEnabled` Settings switch, default OFF; (2) the bottom bar / navigation rebuild hadn't started;
@@ -12,98 +15,111 @@ flags are invisible and untestable on device. New rule: **build complete → aut
 one build at the end.**
 
 ## Status legend
-✅ done (code + tests green) · 🔨 in progress · ⬜ not started · ♻️ mostly reuse (thin work) · 🚫 blocked
+✅ done (code + tests green) · 🔨 partial · ⬜ not started · ♻️ mostly reuse (thin work) · 🚫 blocked
 
 ## Engines
 | Engine | Status | Where |
 |---|---|---|
-| F5 safe-to-spend paycheck | ✅ core built (14 tests) | `src/domain/paycheck/index.ts` |
-| F2 dated 12-month canonical grid | ✅ built | `src/domain/grid/index.ts` |
-| Lens resolver (stage → hero + tab order) | ⬜ | `src/domain/profile/lens.ts` (new) |
-| F10 single-transaction worth-a-look flag | ⬜ | `src/domain/transactions/flags.ts` (new) |
-| F11 scenario composer + adoption contract | ⬜ | `src/domain/scenario/` (new) |
+| F5 safe-to-spend paycheck | ✅ (+ projection mode used on Cash flow working lens) | `src/domain/paycheck/index.ts` |
+| F2 dated 12-month canonical grid | ✅ | `src/domain/grid/index.ts` |
+| Lens resolver (stage → hero + tab order) | ✅ | `src/domain/profile/lens.ts` |
+| ONE model invocation (hero=bar=detail by construction) | ✅ | `src/hooks/useCashflowModel.ts` |
+| F10 single-transaction worth-a-look flag | ✅ (engine + store wiring + resolution + known-payees) | `src/domain/transactions/flags.ts` |
+| F11 scenario composer + adoption contract | ✅ core (planHistory + adoptPlan/revertPlan + shared sheet) | store + `src/components/UseThisPlanSheet.tsx` |
+| selectWillItLast (the ONE will-it-last selector) | ✅ | `src/domain/retirement/willItLast.ts` |
+| F8 Social Security claim math (SSA schedule) | ✅ | `src/domain/retirement/ssTiming.ts` |
+| Insight rules: worth-a-look slot-1 · rmd-due · ss-window · goals-gap | ✅ | `src/domain/insights/index.ts` |
 | F4 multi-goal weigher | ⬜ | `src/domain/planning/` extension |
-| F1 secure sync seam + connection freshness | ⬜ | `src/services/sync/` (new seam; Plaid later) |
-| Bond rate-sensitivity estimate | ⬜ | `src/domain/bonds/` extension |
-| Look-back counterfactual | ⬜ | `src/domain/performance/` extension |
-| Manual-value freshness nudge | ⬜ | `src/domain/assets/` extension |
-| Holding-level concentration callout | ⬜ | `src/domain/insights/` extension |
-| Insight rules: required-withdrawal · claim-window · goal-offtrack | ⬜ | `src/domain/insights/` |
+| F1 secure sync seam + connection freshness | ⬜ (Transaction.source field ready; manual rows never flagged) | `src/services/sync/` |
+| Bond rate-sensitivity estimate | ⬜ | `src/domain/bonds/` |
+| Look-back counterfactual | ⬜ | `src/domain/performance/` |
+| Manual-value freshness nudge | ⬜ | `src/domain/assets/` |
+| Holding-level concentration callout | ⬜ | `src/domain/insights/` |
 
 ## Screens (40, by tab)
 ### Foundation
 | Item | Status |
 |---|---|
-| 5-tab bar: Home · Net worth · Invest · Cash flow · Plan, lens-ordered, label+underline | ⬜ |
-| Kill `fccPaycheckEnabled` flag — lens drives the experience | ⬜ |
-| '+ Expense' floating button (Home + Cash flow) · top-bar net-worth chip removed | ⬜ |
-| In-app MoneyKeel branding | ⬜ |
+| 5-tab bar: Home · Net worth · Invest · Cash flow · Plan, lens-ordered, label+underline | ✅ |
+| Kill `fccPaycheckEnabled` flag — lens drives the experience (Settings → Your setup override) | ✅ |
+| '+ Expense' floating button (Home + Cash flow) · top-bar net-worth chip removed · MoneyKeel wordmark | ✅ |
+| Mask-ALL discipline: maskedMoney/maskDollars + the zero-'$' walk test | ✅ |
 
 ### Home (9)
 | Screen | Status |
 |---|---|
-| Home — still-working hero (Grow & Track) | ⬜ |
-| Home — retired hero (Safe to spend) | 🔨 PaycheckCard exists; needs spec layout + big-bills line |
-| Worth a look — transaction detail (F10) | ⬜ |
-| First run — what did you come for? (sets the lens) | ⬜ |
-| Home — first run (nothing connected yet) | ⬜ |
-| Home — balances hidden | ♻️ mechanism shipped; needs zero-'$' walk test |
-| Home — stale connection + partial data | ⬜ (price part reusable now; connection part on F1 seam) |
-| Idle cash — nudge detail | ⬜ |
-| 401(k) room this year — nudge detail | ⬜ (contribution-room screen exists; align + route) |
+| Home — still-working hero (Grow & Track) | ✅ (investments + 1M vs market + freshness + net-worth line + what-needs-you + will-it-last) |
+| Home — retired hero (Safe to spend) | ✅ (PaycheckCard leads, no flag) |
+| Worth a look — transaction detail (F10) | ✅ (facts, comparison, two buttons, checklist, prev/next, copy ban tested) |
+| First run — what did you come for? (sets the lens) | ⬜ (Settings 'Your setup' chips cover the revisit path) |
+| Home — first run (nothing connected yet) | 🔨 (honest empty state exists; FCC two-door layout pending) |
+| Home — balances hidden | ✅ (banner + walk test) |
+| Home — stale connection + partial data | 🔨 (price freshness live; connection part blocked on F1) |
+| Idle cash — nudge detail | ✅ (`/idle-cash`; cash-drag insight repointed) |
+| 401(k) room this year — nudge detail | ♻️ (contribution-room screen exists; k401 insight routes there) |
 | Onboarding flow map (5 steps) | ⬜ |
 
-### Net worth (8)
+### Cash flow (7)
 | Screen | Status |
 |---|---|
-| Net worth tab — main | ♻️ NetWorthScreen exists; FCC re-shell |
-| Connect flow — choose institution + consent (F1) | ⬜ |
-| Connect flow — accounts found + merge/reconcile (F1) | ⬜ |
-| Import from a file v2 | ♻️ parser/preview exist; institution + dedup pass |
+| Cash flow main — retired (F5 hero + 12 dated bars + draw-order + will-it-last) | ✅ |
+| Cash flow main — working (in/out/surplus + bars + commitments seam + projection card) | ✅ |
+| Month detail (pure renderer over one F2/F5 cell, prev/next) | ✅ (`/month-detail?slot=N`) |
+| Bill calendar v2 | 🔨 (v1 linked from 'All bills & the calendar'; running-balance table pending) |
+| Draw-order steer sheet | 🔨 (preview + Why sheet live; steering/reordering pending) |
+| Your monthly income (SS · pension · annuity) | ✅ |
+| Quick-add expense (+ sheet) | ✅ (shared MoneySheets) |
+
+### Plan (7)
+| Screen | Status |
+|---|---|
+| Plan hub | ✅ (will-it-last card + band, big decisions, scenarios, revert row, sharpen meter, retired income row) |
+| Social Security claim timing | ✅ (`/ss-timing`, 7-test journey) |
+| Use this plan (adoption sheet, F11 — shared) | ✅ |
+| Multi-goal trade-off composer (F4) | ⬜ (hub row routes to Goals meanwhile; Cash flow already renders adopted `commitments[]`) |
+| Roth conversion (simple scenario) | ♻️ (RothScreen linked from hub; scenario-ify + adoption pending) |
+| Retirement transition + required withdrawals | 🔨 (rmd-due insight + hub row → cockpit; dedicated screen pending) |
+| Will-it-last detail | 🔨 (hub links to cockpit; dedicated detail screen pending) |
+
+### Net worth (8) — next session's first target
+| Screen | Status |
+|---|---|
+| Net worth tab — main | ♻️ (NetWorthScreen live under the new tab title; FCC re-shell pending) |
+| Connect flow — institution + consent / accounts found + merge (F1) | ⬜ ⬜ |
+| Import from a file v2 | ♻️ (parser/preview live; institution + dedup pass pending) |
 | Account detail — any class | ⬜ |
-| Bond editor | ✅ exists |
-| Alternative editor | ✅ exists |
+| Bond editor / Alternative editor | ✅ ✅ |
 | Add or edit an account by hand (dynamic by class) | ⬜ |
 
 ### Invest (8)
 | Screen | Status |
 |---|---|
-| Invest — main (glance then drill) | ♻️ PerformanceScreen re-shell |
-| Holding detail — equity | ⬜ |
-| Holding detail — bond | ♻️ math exists; page new |
-| Holding detail — alternative | ♻️ |
+| Invest — main (glance then drill) | 🔨 (glance header + Home pin DONE; drill re-shell pending) |
+| Holding detail — equity / bond / alternative | ⬜ ♻️ ♻️ |
 | Look back — what if I'd moved money? | ⬜ |
 | What if I add more? (forward what-if) | ⬜ |
-| Record a transaction + History | ✅ exists |
-| Empty/stale/hidden/loading state contract | ⬜ (written contract + tests) |
+| Record a transaction + History | ✅ |
+| Empty/stale/hidden/loading state contract | 🔨 (mask + freshness pinned; written contract pending) |
 
-### Cash flow (7)
-| Screen | Status |
-|---|---|
-| Cash flow main — retired (F5 hero + 12 dated bars) | 🔨 PaycheckCard on old screen; needs FCC layout |
-| Cash flow main — working | ♻️ re-arrangement of CashFlowScreen |
-| Month detail | ⬜ (pure renderer over one F2/F5 cell) |
-| Bill calendar v2 | ♻️ smallest lift |
-| Draw-order steer sheet | ⬜ |
-| Your monthly income (SS · pension · annuity) | ✅ built (MonthlyIncomeScreen + paycheck-months) |
-| Quick-add expense (+ sheet) | ⬜ |
+## Test gates (the founder's ask: thorough automated > manual) — LIVE
+- `fcc_agreement.test.tsx`: Home hero = Invest header (rendered, to the dollar) · will-it-last identical
+  on Home/Plan/Cash flow (one selector, rendered) · the mask walk (zero '$' under hide, both lenses) ·
+  the lens contract (paycheck leads when retired, never when working).
+- `cashflow_fcc.test.tsx`: hero = bar = month-detail (PIN 1) · this-year = exact 12-cell sum ≠ ×12 (PIN 2)
+  · month rows sum visibly (PIN 3) · projection card estimate-labeled · draw-order Why sheet.
+- `ss_timing_journey.test.tsx`: 67-row = statement · SSA factors = design wireframe dollars · adoption
+  through the sheet only · revert exact · receiving/passed states · example numbers never adoptable.
+- `worth_a_look_integration.test.tsx`: store review pipeline · manual rows never flagged · known-payee
+  memory · slot-1 pin · scam/fraud/alert copy ban.
+- Route backstop (every root route in MODAL_SEGMENTS), 34-screen smoke matrix, keyboard gate,
+  a11y ratchet (Home 35→0, Settings 20→0, all new files 0), check-ui-tests.sh.
 
-### Plan (7)
-| Screen | Status |
-|---|---|
-| Plan hub | ⬜ |
-| Social Security claim timing | ⬜ |
-| Multi-goal trade-off composer (F4) | ⬜ |
-| Roth conversion (simple scenario) | ♻️ RothScreen exists; scenario-ify |
-| Retirement transition + required withdrawals | ⬜ |
-| Use this plan (adoption sheet, F11 — shared) | ⬜ |
-| Will-it-last detail | ♻️ engine exists; page new |
-
-## Test gates (the founder's ask: thorough automated > manual)
-- `npx tsc --noEmit` clean · full `npx jest` green · `scripts/check-ui-tests.sh` pass — after EVERY phase.
-- Journey tests: one per lens (working morning walk · retired morning walk), first-run walk, quick-add walk.
-- Cross-screen agreement tests: Home hero = Invest total = Net worth investments row · safe-to-spend Home =
-  Cash flow current month · will-it-last identical on Home/Plan/Insights (extend `home_integration.test.ts`).
-- Full-app smoke: every registered route renders without crash (extend the 28-screen smoke).
-- Mask walk: hideBalances on → zero '$' renders on every tab.
-- Route-guard pin: every new segment in `MODAL_SEGMENTS` (T22 lesson).
+## Next session order
+1. Net worth tab: account detail + unified manual add/edit (M1) + import v2 institution/dedup.
+2. Invest: holding details + look-back + forward what-if + state contract.
+3. Plan: F4 multi-goal composer (writes `commitments[]` — Cash flow already renders them), RMD screen,
+   will-it-last detail, Roth adoption.
+4. First-run screens (intents + stage + empty Home two-door) + onboarding flow map.
+5. F1 connect seam screens (consent + reconcile) — Plaid Option A approved.
+6. Bill calendar v2 running-balance table; draw-order steering.
+7. Then: bump version, ONE TestFlight build.
