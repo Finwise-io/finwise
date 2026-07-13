@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { secureStorage } from './secureStorage';
 import { assetsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { benchmarkTicker, marketValue, latestClose, costBasis, type Position, type PriceSeries } from '../domain/performance';
-import { applyTransaction, makeTransaction, type Transaction } from '../domain/transactions';
+import { applyTransaction, makeTransaction, undoSnapshot, restoreUndo, inverseOf, type Transaction } from '../domain/transactions';
 import { round2 } from '../domain/_shared/num';
 import { fetchPriceSeries } from '../services/marketData';
 
@@ -306,7 +306,7 @@ type AppState = {
   refreshPrices: () => Promise<void>;
   maybeRefreshPrices: () => Promise<void>;   // throttled (10 min) — safe to call on screen open
   recordTransaction: (t: Omit<Transaction, 'id' | 'created_at'>) => void;   // append to ledger + apply to accounts
-  deleteTransaction: (id: string) => void;
+  deleteTransaction: (id: string) => boolean;   // reverses the row's balance effect; false = blocked (legacy un-invertible row)
   addLiability: (d: Omit<Debt, 'debt_id'>) => void;
   updateLiability: (id: string, updates: Partial<Debt>) => void;
   deleteLiability: (id: string) => void;
@@ -537,10 +537,39 @@ export const useStore = create<AppState>()(
       }),
       recordTransaction: (partial) => set((s) => {
         const t = makeTransaction(partial);
+        t.undo_prev = undoSnapshot(s.assetAccounts, t);   // pre-apply copies -> deletes can reverse exactly
         const accounts = applyTransaction(s.assetAccounts, t);
         return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [t, ...s.transactions] };
       }),
-      deleteTransaction: (id) => set((s) => ({ transactions: s.transactions.filter((t) => t.id !== id) })),
+      // P0: deleting a ledger row must reverse its balance effect — ledger and balances may never drift.
+      // Array is NEWEST-FIRST. Unwind newest→target via each row's undo_prev (inverseOf fallback for
+      // legacy cash-delta rows), drop the target, replay the newer rows oldest→newest (fresh snapshots),
+      // recompute once. Returns false (state untouched) when an un-invertible legacy row blocks the unwind.
+      deleteTransaction: (id) => {
+        let ok = true;
+        set((s) => {
+          const idx = s.transactions.findIndex((t) => t.id === id);
+          if (idx < 0) { ok = false; return {}; }
+          const newerFirst = s.transactions.slice(0, idx);
+          const target = s.transactions[idx];
+          if (![...newerFirst, target].every((t) => t.undo_prev || inverseOf(t))) { ok = false; return {}; }
+          let accounts = s.assetAccounts;
+          for (const t of [...newerFirst, target]) {
+            accounts = t.undo_prev ? restoreUndo(accounts, t) : applyTransaction(accounts, inverseOf(t)!);
+          }
+          const replayed: Transaction[] = [];
+          for (const t of [...newerFirst].reverse()) {
+            const fresh = { ...t, undo_prev: undoSnapshot(accounts, t) };
+            accounts = applyTransaction(accounts, fresh);
+            replayed.unshift(fresh);
+          }
+          return {
+            assetAccounts: recomputeBalances(accounts, s.priceCache),
+            transactions: [...replayed, ...s.transactions.slice(idx + 1)],
+          };
+        });
+        return ok;
+      },
       // Fetch live prices for every held ticker (+ its benchmark) and refresh each position-account's
       // balance = Σ(shares × latest price). Balance becomes a cache derived from positions.
       refreshPrices: async () => {

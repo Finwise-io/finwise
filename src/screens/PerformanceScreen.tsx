@@ -1,6 +1,6 @@
 // Portfolio Performance — per-holding actual return vs its SAME-period benchmark (ticker-based, lots).
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
 import { useStore } from '../store/useStore';
@@ -239,7 +239,11 @@ export default function PerformanceScreen() {
       <TransactionSheet open={txnOpen} accounts={accounts} onClose={() => setTxnOpen(false)}
         onSave={(t) => { store.recordTransaction(t); setTxnOpen(false); setTimeout(refresh, 50); }} />
       <HistorySheet open={historyOpen} transactions={store.transactions ?? []} accounts={accounts}
-        onClose={() => setHistoryOpen(false)} onDelete={(id) => store.deleteTransaction(id)} />
+        onClose={() => setHistoryOpen(false)} onDelete={(id) => {
+          if (!store.deleteTransaction(id)) Alert.alert(
+            'Can\u2019t remove this entry',
+            'It was recorded before balance-safe deletes existed, so removing it can\u2019t undo its effect on your balances. Record a correcting entry instead (e.g. a matching deposit or withdrawal).');
+        }} />
     </ScrollView>
   );
 }

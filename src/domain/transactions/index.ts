@@ -139,6 +139,51 @@ export function makeTransaction(p: Omit<Transaction, 'id' | 'created_at'>): Tran
   return { ...p, ticker: p.ticker?.toUpperCase(), id: newEntityId('txn'), created_at: new Date().toISOString() };
 }
 
+// ── Delete-reversal machinery (P0: removing a ledger row must reverse its balance effect) ──────────
+// Strategy: recordTransaction stores pre-apply copies of the touched accounts on the row (undo_prev).
+// Deleting unwinds newest→target by restoring those copies, drops the row, then replays the rest —
+// exact even when a later SELL consumed lots a deleted BUY created. Rows recorded before undo_prev
+// existed fall back to a synthetic opposite transaction (cash-delta types only).
+
+/** The account ids a transaction can touch. */
+export function affectedAccountIds(t: Transaction): EntityId[] {
+  return t.counter_account_id ? [t.account_id, t.counter_account_id] : [t.account_id];
+}
+
+/** Deep copies of the affected accounts, taken BEFORE applyTransaction. */
+export function undoSnapshot(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
+  const ids = new Set(affectedAccountIds(t));
+  return accounts.filter((a) => ids.has(a.asset_id)).map((a) => JSON.parse(JSON.stringify(a)));
+}
+
+/** Restore the affected accounts to the transaction's pre-apply copies (pure). */
+export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
+  const byId = new Map((t.undo_prev ?? []).map((a) => [a.asset_id, a]));
+  return accounts.map((a) => (byId.has(a.asset_id) ? JSON.parse(JSON.stringify(byId.get(a.asset_id))) : a));
+}
+
+/** Legacy fallback for rows recorded before undo_prev: a synthetic opposite transaction.
+ *  Only pure cash-delta types are safely invertible; lot-touching and absolute types (BUY, SELL,
+ *  the OPENING types, TRANSFER_IN_KIND, reinvested income) return null — those need the snapshot. */
+export function inverseOf(t: Transaction): Transaction | null {
+  const base: Transaction = { ...t, id: newEntityId('txn'), note: `reversal of ${t.id}` };
+  switch (t.type) {
+    case 'DEPOSIT': return { ...base, type: 'WITHDRAWAL' };
+    case 'WITHDRAWAL':
+    case 'FEE': return { ...base, type: 'DEPOSIT' };
+    case 'TRANSFER':
+      return t.counter_account_id
+        ? { ...base, account_id: t.counter_account_id, counter_account_id: t.account_id }
+        : { ...base, type: 'DEPOSIT' };   // outbound-only transfer → give the cash back
+    case 'DIVIDEND':
+    case 'INTEREST':
+    case 'COUPON':
+      return t.reinvested ? null : { ...base, type: 'WITHDRAWAL' };
+    default:
+      return null;
+  }
+}
+
 const TYPE_LABEL: Record<TxnType, string> = {
   OPENING_POSITION: 'Opening holding', OPENING_CASH: 'Opening cash', BUY: 'Buy', SELL: 'Sell',
   DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdrawal', TRANSFER: 'Transfer', TRANSFER_IN_KIND: 'Transfer shares',
