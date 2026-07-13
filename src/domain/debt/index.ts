@@ -17,6 +17,8 @@ export interface Debt {
   minimum_monthly_payment: number;
   monthly_payment?: number;        // what you actually pay each month (≥ minimum); defaults to minimum
   due_day?: number;                // day of month the payment is due (1–31)
+  first_payment_date?: string;     // 'YYYY-MM-DD' — payments START here (deferred/future-start loans);
+                                   // absent = already paying. Interest accrues from now either way (F2).
   // #17 / Term #9 — payment shape (drives DTI bucket + installment-vs-revolving handling):
   payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans)
   payment_frequency?: 'monthly' | 'annual';     // default monthly
@@ -101,19 +103,26 @@ export interface PayoffResult {
 }
 /** Simulate paying off debts with a constant monthly budget (sum of minimums + extra), rolling each
  *  cleared debt's freed-up payment into the next per the chosen method. */
-export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMethod = 'avalanche'): PayoffResult {
+export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMethod = 'avalanche', now: Date = new Date()): PayoffResult {
   const live = (debts ?? []).filter((d) => d.remaining_balance > 0)
-    .map((d) => ({ id: d.debt_id, label: d.label, bal: d.remaining_balance, apr: d.interest_rate_apr, min: d.minimum_monthly_payment, interest: 0, payoffMonth: 0 }));
+    .map((d) => {
+      // deferred loans (first_payment_date in the future): interest accrues from now, but no
+      // payment leaves until that month (founder review F2 #17 — a loan due in 3 years is real)
+      const fm = d.first_payment_date?.match(/^(\d{4})-(\d{2})/);
+      const startAfter = fm ? Math.max(0, (+fm[1] * 12 + (+fm[2] - 1)) - (now.getFullYear() * 12 + now.getMonth())) : 0;
+      return { id: d.debt_id, label: d.label, bal: d.remaining_balance, apr: d.interest_rate_apr, min: d.minimum_monthly_payment, interest: 0, payoffMonth: 0, startAfter };
+    });
   if (!live.length) return { months: 0, totalInterest: 0, neverPaysOff: false, order: [] };
-  const budget = live.reduce((t, d) => t + d.min, 0) + Math.max(0, extraMonthly);
+  // budget grows as deferred debts come due (their minimum joins when payments start)
+  const budgetAt = (month: number) => live.concat(cleared).reduce((t, d) => t + (month > d.startAfter ? d.min : 0), 0) + Math.max(0, extraMonthly);
   const cleared: typeof live = [];
   let month = 0;
   while (live.some((d) => d.bal > 0) && month < 600) {
     month++;
     for (const d of live) { const i = (d.bal * d.apr) / 12; d.bal += i; d.interest += i; }            // accrue interest
-    let pool = budget;
-    for (const d of live) { const pay = Math.min(d.min, d.bal, pool); d.bal -= pay; pool -= pay; }     // pay minimums
-    const priority = [...live].filter((d) => d.bal > 0).sort((a, b) => (method === 'avalanche' ? b.apr - a.apr : a.bal - b.bal));
+    let pool = budgetAt(month);
+    for (const d of live) { if (month <= d.startAfter) continue; const pay = Math.min(d.min, d.bal, pool); d.bal -= pay; pool -= pay; }     // pay minimums (deferred debts wait)
+    const priority = [...live].filter((d) => d.bal > 0 && month > d.startAfter).sort((a, b) => (method === 'avalanche' ? b.apr - a.apr : a.bal - b.bal));
     for (const d of priority) { if (pool <= 0) break; const pay = Math.min(pool, d.bal); d.bal -= pay; pool -= pay; }   // extra to priority
     for (let j = live.length - 1; j >= 0; j--) { if (live[j].bal <= 0.01) { live[j].payoffMonth = month; cleared.push(live[j]); live.splice(j, 1); } }
   }

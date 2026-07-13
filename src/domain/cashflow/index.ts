@@ -15,7 +15,7 @@ const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', '
 function zero12(): number[] { return new Array(12).fill(0); }
 
 /** Level annual equity spread across the months it vests (0 for most students). */
-function equityByMonth(op: Record<string, any>): number[] {
+export function equityByMonth(op: Record<string, any>): number[] {
   const rows = Array.isArray(op.rsuGrants) ? op.rsuGrants : [];
   const type = op.equityType ?? 'rsu';
   const weights = zero12(); let total = 0;

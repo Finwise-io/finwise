@@ -28,7 +28,9 @@ export interface OnboardingProfile {
   // other income
   rentals?: RentalEntry[]; rentalType?: 'long' | 'short'; rentalIncome?: Money; rentalExpenses?: Money;
   seAmount?: Money; seFreq?: 'annual' | 'monthly'; invAnnual?: Money;
-  otherAmount?: Money; otherFreq?: 'monthly' | 'annual' | 'onetime'; otherLabel?: string;
+  otherAmount?: Money; otherFreq?: 'monthly' | 'annual' | 'quarterly' | 'onetime';   // quarterly + dated one-time: F2 (approved v1.1)
+  otherIncomeYear?: number | string;   // year for dated one-time/annual other income (F2 dated grid)
+  otherLabel?: string;
   otherMonth?: Money; otherTaxable?: 'yes' | 'no';   // one-time landing month (1-12); gifts = not taxable
   benefitMonthly?: Money; benefitTypes?: string[]; benefitMonths?: number[]; supportMonthly?: Money;
   scholarships?: ScholarshipEntry[]; scholarshipAmount?: Money; scholarshipFreq?: 'annual' | 'monthly'; loans?: LoanEntry[];
