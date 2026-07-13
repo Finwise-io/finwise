@@ -3,7 +3,7 @@
 // whole year), and this month's planned-vs-actual. All numbers come from the same canonical helpers the
 // Home box and budget use (annualCashflow / savingsByMonth / incomeMonthlyGrid / spendByMonth /
 // budgetVsActual), so nothing here can diverge from the rest of the app.
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -12,14 +12,21 @@ import { annualCashflow, spendByMonth, budgetVsActual } from '../domain/budget';
 import { surplusByMonth, monthlySavings } from '../domain/savings';   // canonical AFTER-debt surplus
 import { actualDebtPayment } from '../domain/debt';
 import { incomeMonthlyGrid } from '../domain/income';
-import { currentRetirementIncomeMonthly } from '../domain/income';
 import { PaycheckCard } from '../components/PaycheckCard';
+import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
+import { resolveLens } from '../domain/profile/lens';
+
+const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function CashFlowScreen() {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? null;
   const expenses = store.expenses ?? [];
   const liabilities = store.liabilities ?? [];
+  const lens = resolveLens(op, store.lensOverride);
+  const [sheet, setSheet] = useState(false);
+  const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
+  const now = new Date();
 
   const cf = useMemo(() => annualCashflow(op), [op]);
   // Surplus is AFTER debt (2026-06-23 decision) — same canonical definition as Home & Budget.
@@ -35,9 +42,10 @@ export default function CashFlowScreen() {
   const debtMo = Math.round(actualDebtPayment(liabilities));   // monthly debt service (what leaves your account)
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* FCC Phase 2 (early preview): the retired paycheck hero — flag-gated, retired lens only */}
-      {store.fccPaycheckEnabled && (op?.status === 'retired' || currentRetirementIncomeMonthly(op) > 0) && <PaycheckCard />}
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {/* FCC: the retired lens leads with the paycheck — the F5 hero, no flag (approved design) */}
+      {lens === 'retired' && <PaycheckCard />}
       <Text style={styles.h1}>Cash flow</Text>
       <Text style={styles.sub}>Where your money goes each month — and what's left to save. Projected from your income and spending plan.</Text>
 
@@ -110,6 +118,12 @@ export default function CashFlowScreen() {
         </Text>
       </View>
     </ScrollView>
+
+    {/* '+ Expense' (M4): same corner, same label as Home — one habit, one spot */}
+    <ExpenseFab onPress={() => setSheet(true)} />
+    <QuickAddExpense visible={sheet} onClose={() => setSheet(false)} customCats={customCats}
+      isCurrentMonth baseDate={now} monthLabel={`${MONTHS_LONG[now.getMonth()]} ${now.getFullYear()}`} />
+    </View>
   );
 }
 

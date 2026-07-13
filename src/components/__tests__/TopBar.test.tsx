@@ -1,9 +1,11 @@
+// FCC top bar (M4, decided 2026-07-12): the net-worth chip is GONE (it duplicated Home's line and the
+// Net worth tab); the right side keeps only modes — the hide-balances eye + the settings gear. The
+// ☰ Menu stays as the long-tail escape hatch, now including the Cash flow and Plan tabs.
 import React from 'react';
 import { render, fireEvent, screen } from '@testing-library/react-native';
 import { router } from 'expo-router';
 import TopBar from '../TopBar';
 import { useStore } from '../../store/useStore';
-import { Colors } from '../../utils/theme';
 
 beforeEach(() => {
   useStore.getState().resetAll();
@@ -11,35 +13,25 @@ beforeEach(() => {
 });
 
 describe('TopBar', () => {
-  test('shows the Net Worth chip from live accounts (assets − debts)', () => {
+  test('M4: the net-worth chip is removed — no NW pill, no dollar figure in the header', () => {
     useStore.setState({
       assetAccounts: [{ asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 60000, target_return: 0.07 }],
-      liabilities: [{ debt_id: 'd1', label: 'Loan', debt_type: 'OTHER', remaining_balance: 10000, interest_rate_apr: 0.06, minimum_monthly_payment: 200 }],
+      liabilities: [],
     });
     render(<TopBar />);
-    expect(screen.getByText('$50,000')).toBeOnTheScreen();
+    expect(screen.queryByText('NW')).toBeNull();
+    expect(screen.queryByText('$60,000')).toBeNull();
   });
 
-  test('negative net worth turns the chip RED (#18)', () => {
-    useStore.setState({
-      assetAccounts: [{ asset_id: 'a1', label: 'Cash', kind: 'savings', tax_bucket: 'CASH', balance: 10000, target_return: 0 }],
-      liabilities: [{ debt_id: 'd1', label: 'Loan', debt_type: 'OTHER', remaining_balance: 60000, interest_rate_apr: 0.06, minimum_monthly_payment: 500 }],
-    });
+  test('the brand wordmark shows MoneyKeel', () => {
     render(<TopBar />);
-    const chip = screen.getByLabelText(/^Net worth/);
-    expect(JSON.stringify(chip.props.style)).toContain(Colors.red);   // assets 10k − debt 60k = −50k → red pill
+    expect(screen.getByText('MoneyKeel')).toBeOnTheScreen();
   });
 
-  test('with no accounts, falls back to the onboarding snapshot net worth', () => {
-    useStore.setState({ onboardingProfile: { currentRetirementSavings: '80000', taxMode: 'manual', manualTaxRate: '0' } });
+  test('the settings gear opens Settings from every tab', () => {
     render(<TopBar />);
-    expect(screen.getByText('$80,000')).toBeOnTheScreen();
-  });
-
-  test('tapping the chip navigates to the Net Worth tab', () => {
-    render(<TopBar />);
-    fireEvent.press(screen.getByText('NW'));
-    expect(router.push).toHaveBeenCalledWith('/(tabs)/analytics');
+    fireEvent.press(screen.getByLabelText('Settings'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/settings');
   });
 
   test('the Menu opens the grouped module grid and tiles navigate', () => {
@@ -60,30 +52,35 @@ describe('TopBar', () => {
     expect(screen.queryByText('App & account')).toBeNull();   // footer, no header
   });
 
-  test('T10: "Grow & track" is reachable from the Menu (matches the onboarding name)', () => {
+  test('the five FCC tabs are all reachable from the Menu (Cash flow · Plan · Net worth · Invest)', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
-    fireEvent.press(screen.getByText('Grow & track'));
+    fireEvent.press(screen.getByText('Cash flow'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/cashflow');
+    fireEvent.press(screen.getByText('Menu'));
+    fireEvent.press(screen.getByText('Plan'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/plan');
+    fireEvent.press(screen.getByText('Menu'));
+    fireEvent.press(screen.getByText('Invest'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/invest');
+    fireEvent.press(screen.getByText('Menu'));
+    fireEvent.press(screen.getByText('Net worth'));
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/analytics');
   });
 
-  test('Settings stays reachable from the Menu footer (its only entry point)', () => {
+  test('Settings stays reachable from the Menu footer too', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
     fireEvent.press(screen.getByText('Settings'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/settings');
   });
 
-  test('the eye toggle hides/shows balances (masks the NW chip to ••••)', () => {
-    useStore.setState({
-      assetAccounts: [{ asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 60000, target_return: 0.07 }],
-      liabilities: [],
-    });
+  test('the eye toggle flips the global hide-balances flag', () => {
     render(<TopBar />);
-    expect(screen.getByText('$60,000')).toBeOnTheScreen();
-    fireEvent.press(screen.getByLabelText('Hide balances'));     // the eye button
-    expect(screen.queryByText('$60,000')).toBeNull();
-    expect(screen.getByText('••••')).toBeOnTheScreen();
+    expect(useStore.getState().hideBalances).toBe(false);
+    fireEvent.press(screen.getByLabelText('Hide balances'));
     expect(useStore.getState().hideBalances).toBe(true);
+    fireEvent.press(screen.getByLabelText('Show balances'));
+    expect(useStore.getState().hideBalances).toBe(false);
   });
 });

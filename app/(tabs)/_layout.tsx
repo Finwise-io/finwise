@@ -3,9 +3,10 @@ import { View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../src/utils/theme';
 import TopBar from '../../src/components/TopBar';
+import { useStore } from '../../src/store/useStore';
+import { resolveLens, tabOrder, type FccTab } from '../../src/domain/profile/lens';
 
-// Consistent vector icons (filled when active, outline when not) with a small active indicator —
-// cleaner and more app-like than mixed emoji.
+// Active tab = label + underline, never color alone (FCC accessibility rule); filled icon when active.
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   return (
     <View style={{ alignItems: 'center', justifyContent: 'center', width: 56 }}>
@@ -15,7 +16,22 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
   );
 }
 
+// The five FCC destinations. Route names are invisible to users — `analytics` IS the Net worth tab.
+const TAB_META: Record<FccTab, { title: string; icon: string }> = {
+  home:      { title: 'Home',      icon: 'home' },
+  analytics: { title: 'Net worth', icon: 'diamond' },
+  invest:    { title: 'Invest',    icon: 'stats-chart' },
+  cashflow:  { title: 'Cash flow', icon: 'cash' },
+  plan:      { title: 'Plan',      icon: 'compass' },
+};
+
 export default function TabLayout() {
+  const store = useStore() as any;
+  // Lens sets the tab ORDER (approved design): working = Home · Net worth · Invest · Cash flow · Plan;
+  // retired = Home · Cash flow · Net worth · Plan · Invest (the paycheck sits next to Home).
+  const lens = resolveLens(store.onboardingProfile, store.lensOverride);
+  const order = tabOrder(lens);
+
   return (
     <Tabs
       screenOptions={{
@@ -33,14 +49,16 @@ export default function TabLayout() {
         header: () => <TopBar />,
       }}
     >
-      {/* Option A bottom bar: 4 flat destinations (label = the screen you land on). Everything else —
-          Invest, Plan/Goals, and the long tail — lives in the grouped ☰ Menu (top-left, on every page). */}
-      <Tabs.Screen name="home"       options={{ title: 'Home',      tabBarAccessibilityLabel: 'Home tab',      tabBarIcon: ({ focused }) => <TabIcon name="home" focused={focused} /> }} />
-      <Tabs.Screen name="budget"     options={{ title: 'Money',     tabBarAccessibilityLabel: 'Money tab',     tabBarIcon: ({ focused }) => <TabIcon name="wallet" focused={focused} /> }} />
-      <Tabs.Screen name="analytics"  options={{ title: 'Net Worth', tabBarAccessibilityLabel: 'Net Worth tab', tabBarIcon: ({ focused }) => <TabIcon name="diamond" focused={focused} /> }} />
-      <Tabs.Screen name="retirement" options={{ title: 'Retire',    tabBarAccessibilityLabel: 'Retire tab',    tabBarIcon: ({ focused }) => <TabIcon name="umbrella" focused={focused} /> }} />
-      {/* routable from the Menu grid, hidden from the bar */}
-      <Tabs.Screen name="invest"     options={{ href: null }} />
+      {order.map((name) => (
+        <Tabs.Screen key={name} name={name} options={{
+          title: TAB_META[name].title,
+          tabBarAccessibilityLabel: `${TAB_META[name].title} tab`,
+          tabBarIcon: ({ focused }) => <TabIcon name={TAB_META[name].icon} focused={focused} />,
+        }} />
+      ))}
+      {/* legacy destinations — routable (Menu / deep links), hidden from the bar */}
+      <Tabs.Screen name="budget"     options={{ href: null }} />
+      <Tabs.Screen name="retirement" options={{ href: null }} />
       <Tabs.Screen name="goals"      options={{ href: null }} />
       <Tabs.Screen name="tips"       options={{ href: null }} />
       <Tabs.Screen name="rewards"    options={{ href: null }} />

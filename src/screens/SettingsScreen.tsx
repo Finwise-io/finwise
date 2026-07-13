@@ -6,6 +6,7 @@ import { Card, TipCard } from '../components/UI';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { logoutUser, submitFeedback, resendVerification, refreshEmailVerified, isEmailVerified, deleteAccount, regenerateRecoveryCode, currentUserEmail } from '../services/firebase';
 import { isLockAvailable, authenticate } from '../services/appLock';
+import { resolveLens } from '../domain/profile/lens';
 import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
@@ -30,7 +31,7 @@ const FEEDBACK_TYPES = [
 
 export default function SettingsScreen() {
   const router = useRouter();
-  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances, fccPaycheckEnabled, toggleFccPaycheck } = useStore() as any;
+  const { user, resetAll, setUser, setOnboardingComplete, setOnboardingPaused, setOnboardingDraft, restartOnboarding, budgetFrequency, payFrequency, displayMode, setDisplayMode, fontScale, setFontScale, appLockEnabled, setAppLockEnabled, hideBalances, toggleHideBalances, lensOverride, setLensOverride, onboardingProfile } = useStore() as any;
 
   // F-2: app lock — confirm the device can authenticate before enabling, so the user can't lock
   // themselves out, and require a successful auth to turn it on.
@@ -255,8 +256,8 @@ export default function SettingsScreen() {
         <View style={styles.verifyBanner}>
           <Text style={styles.verifyTxt}>⚠ Verify your email so you can recover your account. We sent a link to {user?.email}.</Text>
           <View style={styles.verifyRow}>
-            <TouchableOpacity onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
-            <TouchableOpacity onPress={handleCheckVerified}><Text style={styles.verifyAction}>I've verified ›</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={handleResendVerify}><Text style={styles.verifyAction}>Resend</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={handleCheckVerified}><Text style={styles.verifyAction}>I've verified ›</Text></TouchableOpacity>
           </View>
         </View>
       )}
@@ -272,7 +273,7 @@ export default function SettingsScreen() {
           <Text style={styles.settingLabel}>Pay frequency</Text>
           <Text style={styles.settingValue}>{payFrequency.charAt(0).toUpperCase() + payFrequency.slice(1)}</Text>
         </View>
-        <TouchableOpacity style={styles.linkBtn} onPress={handleRerunOnboarding}>
+        <TouchableOpacity accessibilityRole="button" style={styles.linkBtn} onPress={handleRerunOnboarding}>
           <Text style={styles.linkText}>Change settings →</Text>
         </TouchableOpacity>
       </Card>
@@ -282,7 +283,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Display mode</Text>
         <View style={styles.modeRow}>
           {(['simple', 'advisor'] as const).map((m) => (
-            <TouchableOpacity key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
+            <TouchableOpacity accessibilityRole="button" key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
               <Text style={[styles.modeT, (displayMode ?? 'simple') === m && styles.modeTOn]}>{m === 'simple' ? 'Simple' : 'Advisor'}</Text>
               <Text style={styles.modeSub}>{m === 'simple' ? 'plain language, less detail' : 'full depth & metrics'}</Text>
             </TouchableOpacity>
@@ -296,7 +297,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Text size</Text>
         <View style={styles.modeRow}>
           {FONT_SCALES.map((f) => (
-            <TouchableOpacity key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
+            <TouchableOpacity accessibilityRole="button" key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
               <Text style={[styles.modeT, (fontScale ?? 1) === f.value && styles.modeTOn, { fontSize: 13 * f.value }]}>{f.label}</Text>
             </TouchableOpacity>
           ))}
@@ -340,18 +341,27 @@ export default function SettingsScreen() {
           />
         </View>
 
+        {/* Your setup (FCC lens): the stage choice that sets which hero leads Home and the tab order.
+            Changing it re-orders the tabs immediately — one field, read by the one lens resolver. */}
         <View style={styles.lockRow}>
           <View style={{ flex: 1, marginRight: Spacing.sm }}>
-            <Text style={styles.actionLabel}>Early preview: your paycheck</Text>
-            <Text style={styles.actionSub}>Try the new month-by-month “Safe to spend” paycheck on Cash flow (for people receiving retirement income). In testing — numbers are estimates.</Text>
+            <Text style={styles.actionLabel}>Your setup</Text>
+            <Text style={styles.actionSub}>Sets up your Home and tab order. Still working leads with your investments; retired leads with your monthly paycheck.</Text>
+            <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+              {([['working', 'Still working'], ['retired', 'Retired, or nearly']] as const).map(([v, label]) => {
+                const active = resolveLens(onboardingProfile, lensOverride) === v;
+                return (
+                  <TouchableOpacity accessibilityRole="button" key={v} onPress={() => setLensOverride?.(v)}
+                    style={{ paddingVertical: 8, paddingHorizontal: 14, borderRadius: 18, backgroundColor: active ? Colors.primary : Colors.bgSecondary, borderWidth: 1, borderColor: active ? Colors.primary : Colors.border }}
+                    accessibilityLabel={label}
+                    accessibilityState={{ selected: active }}
+                    accessibilityHint="Sets up your Home and tab order">
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : Colors.textSecondary }}>{label}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
-          <Switch
-            value={!!fccPaycheckEnabled}
-            onValueChange={() => toggleFccPaycheck?.()}
-            trackColor={{ true: Colors.primary }}
-            accessibilityLabel="Early preview: paycheck"
-            accessibilityHint="Shows the new safe-to-spend paycheck on the Cash flow screen"
-          />
         </View>
 
         <TouchableOpacity style={[styles.actionRow, { borderBottomWidth: 0 }]} onPress={handleRegenRecovery} disabled={rcBusy}
@@ -377,7 +387,7 @@ export default function SettingsScreen() {
       <Card>
         <Text style={styles.sectionTitle}>Account</Text>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleRerunOnboarding}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleRerunOnboarding}>
           <Text style={{ fontSize: 22 }}>⚙️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Re-run setup wizard</Text>
@@ -386,7 +396,7 @@ export default function SettingsScreen() {
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/jobsafety')}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => router.push('/jobsafety')}>
           <Text style={{ fontSize: 22 }}>🛡</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Job safety check</Text>
@@ -395,7 +405,7 @@ export default function SettingsScreen() {
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={() => router.push('/retirement')}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => router.push('/retirement')}>
           <Text style={{ fontSize: 22 }}>🏖</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Retirement planner</Text>
@@ -404,7 +414,7 @@ export default function SettingsScreen() {
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={handleLogout}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleLogout}>
           <Text style={{ fontSize: 22 }}>🚪</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={[styles.actionLabel, { color: Colors.red }]}>Sign out</Text>
@@ -453,17 +463,17 @@ export default function SettingsScreen() {
                 importantForAutofill="no"
                 accessibilityLabel="Password"
               />
-              <TouchableOpacity
+              <TouchableOpacity accessibilityRole="button"
                 onPress={() => setDelShowPass((v) => !v)}
                 style={styles.delShow}
-                accessibilityRole="button"
+               
                 accessibilityLabel={delShowPass ? 'Hide password' : 'Show password'}
               >
                 <Text style={styles.delShowTxt}>{delShowPass ? 'Hide' : 'Show'}</Text>
               </TouchableOpacity>
             </View>
             <View style={styles.delRow}>
-              <TouchableOpacity style={[styles.delBtn, styles.delCancel]} onPress={() => setDelVisible(false)} disabled={delBusy} accessibilityRole="button" accessibilityLabel="Cancel">
+              <TouchableOpacity accessibilityRole="button" style={[styles.delBtn, styles.delCancel]} onPress={() => setDelVisible(false)} disabled={delBusy} accessibilityLabel="Cancel">
                 <Text style={styles.delCancelTxt}>Cancel</Text>
               </TouchableOpacity>
               <TouchableOpacity style={[styles.delBtn, styles.delConfirm, delBusy && { opacity: 0.6 }]} onPress={submitDeleteAccount} disabled={delBusy} accessibilityRole="button" accessibilityLabel="Delete my account">
@@ -475,7 +485,7 @@ export default function SettingsScreen() {
       </Modal>
 
       {/* Feedback */}
-      <TouchableOpacity onPress={() => setFeedbackVisible(true)} activeOpacity={0.8}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => setFeedbackVisible(true)} activeOpacity={0.8}>
         <Card style={styles.feedbackCard}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md }}>
             <View style={styles.feedbackIcon}>
@@ -494,19 +504,19 @@ export default function SettingsScreen() {
       <Card>
         <Text style={styles.sectionTitle}>Legal & Support</Text>
 
-        <TouchableOpacity style={styles.actionRow} onPress={() => openURL(PRIVACY_URL)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(PRIVACY_URL)}>
           <Text style={{ fontSize: 22 }}>🔒</Text>
           <Text style={[styles.actionLabel, { flex: 1, marginLeft: Spacing.sm }]}>Privacy Policy</Text>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={() => openURL(TERMS_URL)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(TERMS_URL)}>
           <Text style={{ fontSize: 22 }}>📄</Text>
           <Text style={[styles.actionLabel, { flex: 1, marginLeft: Spacing.sm }]}>Terms of Service</Text>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity style={styles.actionRow} onPress={() => openURL(`mailto:${SUPPORT_EMAIL}`)}>
+        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(`mailto:${SUPPORT_EMAIL}`)}>
           <Text style={{ fontSize: 22 }}>✉️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Contact Support</Text>
@@ -539,11 +549,11 @@ export default function SettingsScreen() {
       <Modal visible={feedbackVisible} animationType="slide" presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setFeedbackVisible(false)}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => setFeedbackVisible(false)}>
               <Text style={styles.modalCancel}>Cancel</Text>
             </TouchableOpacity>
             <Text style={styles.modalTitle}>Send feedback</Text>
-            <TouchableOpacity onPress={handleSendFeedback} disabled={fbSending}>
+            <TouchableOpacity accessibilityRole="button" onPress={handleSendFeedback} disabled={fbSending}>
               {fbSending
                 ? <ActivityIndicator size="small" color={Colors.primary} />
                 : <Text style={styles.modalSave}>Send</Text>}
@@ -554,7 +564,7 @@ export default function SettingsScreen() {
             <Text style={styles.inputLabel}>What kind of feedback?</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
               {FEEDBACK_TYPES.map(t => (
-                <TouchableOpacity key={t.value}
+                <TouchableOpacity accessibilityRole="button" key={t.value}
                   style={[styles.typeBtn, fbType === t.value && styles.typeBtnOn]}
                   onPress={() => setFbType(t.value)}>
                   <Text style={[styles.typeBtnText, fbType === t.value && styles.typeBtnTextOn]}>
@@ -605,7 +615,7 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Sign out */}
-      <TouchableOpacity style={styles.logoutBtn} onPress={handleLogout}>
+      <TouchableOpacity accessibilityRole="button" style={styles.logoutBtn} onPress={handleLogout}>
         <Text style={styles.logoutText}>Sign out</Text>
       </TouchableOpacity>
 
@@ -617,7 +627,7 @@ export default function SettingsScreen() {
             Resetting will permanently delete all your data. This cannot be undone.
           </Text>
         </TipCard>
-        <TouchableOpacity style={styles.dangerBtn} onPress={handleReset}>
+        <TouchableOpacity accessibilityRole="button" style={styles.dangerBtn} onPress={handleReset}>
           <Text style={styles.dangerBtnText}>Reset all data</Text>
         </TouchableOpacity>
       </Card>

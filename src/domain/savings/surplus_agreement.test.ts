@@ -52,9 +52,13 @@ test('CashFlow shows AFTER-debt surplus from canonical selectors, labeled "Plann
 });
 
 test('Home labels the actual cash-flow residual "Surplus" (not "Left over")', () => {
+  // FCC Home displays hero/net-worth/insights/will-it-last only — it renders NO cash-flow residual
+  // of its own (one home per number: Cash flow owns it). The shared surplus sheet keeps the word.
   const s = screen('HomeScreen.tsx');
-  expect(s).toMatch(/>Surplus</);
+  expect(s).not.toMatch(/>Surplus</);
   expect(s).not.toMatch(/>Left over</);
+  const sheets = fs.readFileSync(path.join(__dirname, '..', '..', 'components', 'MoneySheets.tsx'), 'utf8');
+  expect(sheets).toMatch(/surplus to work/);
 });
 
 test('Budget plan total = canonical take-home − spend − debt, labeled "Planned surplus"', () => {

@@ -22,10 +22,12 @@ test('fundGoals bumps each goal saved from surplus and records it in allocatedBy
 
 const screen = (f: string) => fs.readFileSync(path.join(__dirname, '..', 'screens', f), 'utf8');
 
-test('the Home surplus sheet funds goals (GOALS section + fundGoals call)', () => {
-  const s = screen('HomeScreen.tsx');
-  expect(s).toMatch(/fundGoals/);
-  expect(s).toMatch(/allocSectionHdr/);
+test('the surplus sheet funds goals (GOALS section + fundGoals call) and Home still mounts it', () => {
+  // FCC: the sheet moved to the shared MoneySheets component (one implementation, Home + Cash flow).
+  const sheets = fs.readFileSync(path.join(__dirname, '..', 'components', 'MoneySheets.tsx'), 'utf8');
+  expect(sheets).toMatch(/fundGoals/);
+  expect(sheets).toMatch(/allocSectionHdr/);
+  expect(screen('HomeScreen.tsx')).toMatch(/<AllocateSavings/);   // the month-end prompt still fires from Home
 });
 
 test('Rewards goal cards show required-monthly / on-track status from the domain', () => {

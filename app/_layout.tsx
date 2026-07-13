@@ -180,9 +180,7 @@ export default function RootLayout() {
           <Stack.Screen name="invest"     options={{ title: 'Log investment 📈',  presentation: 'modal', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="jobsafety"  options={{ title: 'Job safety check 🛡', ...backBtn(() => router.back()) }} />
           <Stack.Screen name="income-detail" options={{ title: 'Income 💵', headerShown: true, ...backBtn(() => router.back()) }} />
-          {/* T22: register cashflow with a distinct title + back button so the detail screen isn't a
-              blank-header view that looks like Home's cash-flow box (read as "looped back"). */}
-          <Stack.Screen name="cashflow"   options={{ title: 'Cash-flow detail 📊', headerShown: true, ...backBtn(() => router.back()) }} />
+          {/* FCC: cash flow is now a bottom TAB (app/(tabs)/cashflow.tsx) — no root stack route. */}
           <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>

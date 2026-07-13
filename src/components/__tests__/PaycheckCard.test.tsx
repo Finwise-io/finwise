@@ -1,6 +1,6 @@
-// FCC Phase 2: the retired paycheck hero — pins the card to the F5 engine (real simulation, no
-// stubs), the guaranteed-missing prompt (never a fake $0 guaranteed), the safe-draw explainer,
-// and the Cash flow flag gating (off by default; retired lens only).
+// FCC: the retired paycheck hero — pins the card to the F5 engine (real simulation, no stubs),
+// the guaranteed-missing prompt (never a fake $0 guaranteed), the safe-draw explainer, and the
+// LENS gating (no flag: the retired lens leads with the paycheck; the working lens never sees it).
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import { PaycheckCard } from '../PaycheckCard';
@@ -21,7 +21,7 @@ beforeEach(() => {
   useStore.setState({
     onboardingProfile: JUNE_OP,
     assetAccounts: [{ asset_id: 'a1', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 415000 }],
-    liabilities: [], hideBalances: false, fccPaycheckEnabled: false,
+    liabilities: [], hideBalances: false, lensOverride: null,
   } as any);
 });
 
@@ -52,18 +52,18 @@ describe('PaycheckCard', () => {
   });
 });
 
-describe('Cash flow gating (early-preview flag)', () => {
-  it('flag OFF: no paycheck card on Cash flow', () => {
+describe('Cash flow lens gating (no flag — the lens decides)', () => {
+  it('retired lens: the paycheck card leads the screen, no switch needed', () => {
+    render(<CashFlowScreen />);   // JUNE_OP has status retired → retired lens
+    expect(screen.getByText(/SAFE TO SPEND —/)).toBeOnTheScreen();
+  });
+  it('working lens: no paycheck card', () => {
+    useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000' } } as any);
     render(<CashFlowScreen />);
     expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
   });
-  it('flag ON + retired: the paycheck card leads the screen', () => {
-    useStore.setState({ fccPaycheckEnabled: true } as any);
-    render(<CashFlowScreen />);
-    expect(screen.getByText(/SAFE TO SPEND —/)).toBeOnTheScreen();
-  });
-  it('flag ON but working lens: no card (retired lens only)', () => {
-    useStore.setState({ fccPaycheckEnabled: true, onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000' } } as any);
+  it('the explicit Settings choice (lens override) wins over the profile status', () => {
+    useStore.setState({ lensOverride: 'working' } as any);   // retired profile, but chose "Still working"
     render(<CashFlowScreen />);
     expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
   });

@@ -1,38 +1,36 @@
-// Blend nav top bar: ☰ Menu (grouped grid of every module) on the left, Net Worth chip on the right.
-// Rendered as the shared header for all bottom-tab screens.
-import React, { useMemo, useState } from 'react';
+// Top bar (FCC M4, decided 2026-07-12): ☰ Menu (the long-tail escape hatch) on the left; the right
+// keeps only MODES — hide-balances eye + settings gear. The net-worth chip is REMOVED (it duplicated
+// Home's line and the Net worth tab). Rendered as the shared header for all bottom-tab screens.
+import React, { useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
-import { buildAssetsState } from '../domain/assets';
-import { buildDebtState } from '../domain/debt';
-import { buildNetWorth } from '../domain/networth';
-import { resolveNetWorthRows } from '../domain/snapshot';
+import { Colors, Spacing } from '../utils/theme';
 
 type Mod = { e: string; t: string; route?: string };
 // Menu shows the 4 intent groups (near→far horizon). App utilities (Rewards / Tips / Settings)
 // sit in a compact footer — that's their only entry point, so they must stay reachable.
 const GROUPS: { section: string; items: Mod[] }[] = [
   { section: 'Everyday money', items: [
+    { e: '📊', t: 'Cash flow', route: '/(tabs)/cashflow' },
     { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
     { e: '💵', t: 'Income', route: '/income-manager' },
     { e: '💸', t: 'Expenses', route: '/expense' },
     { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },
   ] },
   { section: 'Track your wealth', items: [
-    { e: '💎', t: 'Net Worth', route: '/(tabs)/analytics' },
+    { e: '💎', t: 'Net worth', route: '/(tabs)/analytics' },
     // T10: this is the "Grow & track" feature (PerformanceScreen) — label it the way onboarding names it
     // so a user who set up "Grow & track" can find it here regardless of which onboarding tracks they picked.
-    { e: '📈', t: 'Grow & track', route: '/(tabs)/invest' },
+    { e: '📈', t: 'Invest', route: '/(tabs)/invest' },
     { e: '💡', t: 'Insights', route: '/insights' },
   ] },
   { section: 'Plan ahead', items: [
+    { e: '🧭', t: 'Plan', route: '/(tabs)/plan' },
     { e: '🏖', t: 'Retirement', route: '/(tabs)/retirement' },
-    { e: '🎯', t: 'Plan', route: '/(tabs)/goals' },
+    { e: '🎯', t: 'Goals', route: '/(tabs)/goals' },
     { e: '🎓', t: 'College planner', route: '/education' },
     { e: '🌪', t: 'Stress test', route: '/stress-test' },
   ] },
@@ -57,20 +55,6 @@ export default function TopBar() {
   const router = useRouter();
   const store = useStore() as any;
   const [menu, setMenu] = useState(false);
-  const op = store.onboardingProfile;
-  const uid = store.user?.uid ?? 'local';
-  const assets = store.assetAccounts ?? [];
-  const liabs = store.liabilities ?? [];
-  // B-49: net worth from the SAME rows Home + the Net Worth screen use (resolveNetWorthRows), via the
-  // same buildNetWorth math — so the chip always agrees with them. Computed directly (not via
-  // buildSnapshot) so the always-mounted header doesn't run the retirement Monte-Carlo for one number.
-  const nw = useMemo(
-    () => {
-      const { accounts, liabilities } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, assets, liabs);
-      return buildNetWorth(uid, buildAssetsState(uid, accounts).total_asset_value, buildDebtState(uid, liabilities).total_debt_balance).net_worth;
-    },
-    [assets, liabs, op, uid, store.nwSeeded],
-  );
 
   const go = (m: Mod) => {
     setMenu(false);
@@ -91,6 +75,7 @@ export default function TopBar() {
         <Ionicons name="grid" size={16} color={Colors.textSecondary} />
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
+      <Text style={s.brand} accessibilityRole="header">MoneyKeel</Text>
       <View style={s.right}>
         <TouchableOpacity
           onPress={() => store.toggleHideBalances?.()}
@@ -103,16 +88,14 @@ export default function TopBar() {
           <Ionicons name={store.hideBalances ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textSecondary} />
         </TouchableOpacity>
         <TouchableOpacity
-          style={[s.nwChip, nw < 0 && !store.hideBalances && { backgroundColor: Colors.red }]}
-          onPress={() => router.push('/(tabs)/analytics')}
+          onPress={() => router.push('/(tabs)/settings')}
+          hitSlop={hit}
+          style={s.eyeBtn}
           accessibilityRole="button"
-          accessibilityLabel={store.hideBalances ? 'Net worth hidden' : `Net worth ${money(nw)}`}
-          accessibilityHint="Opens the Net Worth screen"
+          accessibilityLabel="Settings"
+          accessibilityHint="Opens Settings"
         >
-          <Text style={s.nwLabel}>NW</Text>
-          {!store.hideBalances && <Ionicons name={nw < 0 ? 'trending-down' : 'trending-up'} size={13} color="#BEE7D8" style={{ marginRight: 5 }} />}
-          <Text style={s.nwTxt}>{store.hideBalances ? '••••' : money(nw)}</Text>
-          <Ionicons name="chevron-forward" size={13} color="#BEE7D8" style={{ marginLeft: 2 }} />
+          <Ionicons name="settings-outline" size={18} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
 
@@ -158,9 +141,7 @@ const s = StyleSheet.create({
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   eyeBtn: { height: 38, width: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  nwChip: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primaryDark, borderRadius: 20, paddingHorizontal: 13, paddingVertical: 8 },
-  nwLabel: { color: '#fff', fontSize: 12, fontWeight: '800', letterSpacing: 0.5, marginRight: 5 },
-  nwTxt: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  brand: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark, letterSpacing: 0.3 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
