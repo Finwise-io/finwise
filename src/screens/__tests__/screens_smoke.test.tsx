@@ -39,6 +39,7 @@ import TipsScreen from '../TipsScreen';
 // AuthScreen and OnboardingScreen are exercised separately (auth needs deeper firebase
 // scaffolding; onboarding has its own flow_audit + engine coverage).
 const SCREENS: [string, React.ComponentType<any>][] = [
+  ['MonthlyIncomeScreen', require('../MonthlyIncomeScreen').default],
   ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],
   ['BondsScreen', BondsScreen],
