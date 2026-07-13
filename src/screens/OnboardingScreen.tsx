@@ -227,7 +227,7 @@ export default function OnboardingScreen() {
       const groups = goalGroupsFor(status);
       return (
         <>
-          <Header emoji="🎯" title="What brings you to FinWise?" sub="Pick anything that fits — you can change this later." />
+          <Header emoji="🎯" title="What brings you to MoneyKeel?" sub="Pick anything that fits — you can change this later." />
           {groups.map(group => (
             <View key={group.title}>
               <Text style={styles.groupHeader}>{group.title.toUpperCase()}</Text>

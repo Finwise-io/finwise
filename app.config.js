@@ -1,5 +1,5 @@
 module.exports = {
-  name: 'FinWise',
+  name: 'MoneyKeel',
   slug: 'finwise',
   version: '1.0.8',
   orientation: 'portrait',

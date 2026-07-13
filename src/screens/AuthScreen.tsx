@@ -220,9 +220,9 @@ export default function AuthScreen() {
     forgot: 'Reset password',
   };
   const subs: Record<Mode, string> = {
-    login: 'Sign in to your FinWise account',
+    login: 'Sign in to your MoneyKeel account',
     register: 'Start your financial wellness journey',
-    forgot: 'We\'ll email you a reset link. Your data is end-to-end encrypted — only your password or recovery code can unlock it, not even FinWise can read it. After resetting, sign in and enter your recovery code to restore your data.',
+    forgot: 'We\'ll email you a reset link. Your data is end-to-end encrypted — only your password or recovery code can unlock it, not even MoneyKeel can read it. After resetting, sign in and enter your recovery code to restore your data.',
   };
   const btnLabels: Record<Mode, string> = {
     login: 'Sign in',
@@ -266,7 +266,8 @@ export default function AuthScreen() {
           <View style={styles.logoCircle}>
             <Text style={{ fontSize: 36 }}>💰</Text>
           </View>
-          <Text style={styles.appName}>FinWise</Text>
+          <Text style={styles.appName}>MoneyKeel</Text>
+          <Text style={styles.tagline}>Your money’s chief of staff</Text>
           <Text style={styles.tagline}>Your money, made simple</Text>
         </View>
 
@@ -368,7 +369,7 @@ export default function AuthScreen() {
           {mode === 'login' ? (
             <TouchableOpacity onPress={() => setMode('register')}>
               <Text style={styles.footerText}>
-                New to FinWise? <Text style={styles.footerLink}>Create account</Text>
+                New to MoneyKeel? <Text style={styles.footerLink}>Create account</Text>
               </Text>
             </TouchableOpacity>
           ) : (

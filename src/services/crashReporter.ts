@@ -81,6 +81,6 @@ export function crashReportingEnabled(): boolean {
 /** B-L2 verification: send a harmless test event so you can confirm wiring in the Sentry dashboard
  *  (works on the production/TestFlight build). No-ops to the dev console when Sentry isn't configured. */
 export function sendTestReport(): boolean {
-  captureException(new Error('FinWise diagnostic test — Sentry wiring check'), { kind: 'test_report' });
+  captureException(new Error('MoneyKeel diagnostic test — Sentry wiring check'), { kind: 'test_report' });
   return enabled;
 }

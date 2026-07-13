@@ -30,7 +30,7 @@ export async function scheduleStreakReminder() {
     identifier: 'streak-reminder',
     content: {
       title: '🔥 Keep your streak alive!',
-      body: 'Log one entry today to keep your FinWise streak going.',
+      body: 'Log one entry today to keep your MoneyKeel streak going.',
       data: { screen: 'home' },
     },
     trigger: {

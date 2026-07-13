@@ -125,7 +125,7 @@ export default function SettingsScreen() {
   function confirmDeleteAccount() {
     Alert.alert(
       'Delete account?',
-      `This permanently deletes ${acctEmail ?? 'your account'} and all its FinWise data from our servers. This cannot be undone.`,
+      `This permanently deletes ${acctEmail ?? 'your account'} and all its MoneyKeel data from our servers. This cannot be undone.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Continue', style: 'destructive', onPress: () => { setDelPassword(''); setDelShowPass(false); setDelVisible(true); } },
@@ -246,8 +246,8 @@ export default function SettingsScreen() {
           <Text style={styles.avatarText}>{(user?.name || 'U').charAt(0).toUpperCase()}</Text>
         </View>
         <View>
-          <Text style={styles.userName}>{user?.name || 'FinWise User'}</Text>
-          <Text style={styles.userEmail}>{user?.email || 'user@finwise.app'}{user && verified ? '  ✓ verified' : ''}</Text>
+          <Text style={styles.userName}>{user?.name || 'MoneyKeel User'}</Text>
+          <Text style={styles.userEmail}>{user?.email || 'user@moneykeel.ai'}{user && verified ? '  ✓ verified' : ''}</Text>
         </View>
       </Card>
 
@@ -312,7 +312,7 @@ export default function SettingsScreen() {
             <Text style={styles.actionLabel}>App lock</Text>
             <Text style={styles.actionSub}>
               {lockAvailable
-                ? 'Require Face ID, Touch ID, or your passcode to open FinWise.'
+                ? 'Require Face ID, Touch ID, or your passcode to open MoneyKeel.'
                 : 'Add a passcode or biometrics in your phone settings to use this.'}
             </Text>
           </View>
@@ -422,7 +422,7 @@ export default function SettingsScreen() {
             <Text style={styles.delTitle}>Confirm account deletion</Text>
             <Text style={styles.delBody}>
               Deleting <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{acctEmail ?? 'your account'}</Text>.
-              Enter <Text style={{ fontWeight: '800' }}>this account's</Text> password to permanently delete it and all its FinWise data. This can't be undone.
+              Enter <Text style={{ fontWeight: '800' }}>this account's</Text> password to permanently delete it and all its MoneyKeel data. This can't be undone.
             </Text>
             <View style={styles.delInputRow}>
               <TextInput
@@ -573,7 +573,7 @@ export default function SettingsScreen() {
 
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
-                Your feedback goes directly to the FinWise team. We read every submission and use it to prioritize new features.
+                Your feedback goes directly to the MoneyKeel team. We read every submission and use it to prioritize new features.
               </Text>
             </TipCard>
           </ScrollView>
@@ -584,7 +584,7 @@ export default function SettingsScreen() {
       <Card style={styles.disclaimerCard}>
         <Text style={styles.disclaimerTitle}>⚠️  Financial Disclaimer</Text>
         <Text style={styles.disclaimerText}>
-          FinWise is for informational and educational purposes only. It does not constitute financial,
+          MoneyKeel is for informational and educational purposes only. It does not constitute financial,
           investment, tax, or legal advice. Always consult a qualified financial professional before
           making financial decisions.
         </Text>

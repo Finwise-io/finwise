@@ -1,4 +1,4 @@
-// Centi — FinWise's coin mascot. A friendly gold coin that bobs and wiggles,
+// Centi — MoneyKeel's coin mascot. A friendly gold coin that bobs and wiggles,
 // with the step's emoji floating beside it as an "accessory" badge.
 // Pure SVG + core Animated (transform, native driver) — no native dependency.
 import React, { useEffect, useRef } from 'react';

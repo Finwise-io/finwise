@@ -1,5 +1,9 @@
 # FCC core (55–70) — the shared build
 
+> **BRAND DECISION 2026-07-13: the app is MoneyKeel** (domain moneykeel.ai; tagline: “Your money’s chief of staff”).
+> Docs below predate the rename — read FinWise as MoneyKeel throughout; xlsx branding cells update at the next doc revision.
+> Naming trail: Keel/Helm and every variant squatted (verified at authoritative registries; earlier availability lists were wrong).
+
 Design + build deliverables for the **shared 55–70 core** — the first thing we build. It's the top of the
 working-years product (36–65, *Grow & Track* lens) AND the front door of the retirement product (65+,
 *Safe-to-spend / Worry less, live more* lens): **one product, two faces.** Strategy for both groups is locked

@@ -101,7 +101,7 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
         </>
       )}
 
-      <Text style={s.tagline}>FinWise — your one-stop shop for managing money smartly.</Text>
+      <Text style={s.tagline}>MoneyKeel — your money’s chief of staff.</Text>
     </View>
   );
 }

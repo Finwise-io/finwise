@@ -105,7 +105,7 @@ function orgToHtml(o: TaxOrganizer): string {
     li{font-size:13px;margin:3px 0} .foot{color:#999;font-size:10px;margin-top:24px}
   </style></head><body>
     <h1>Tax Organizer — ${o.year}</h1>
-    <div class="sub">Prepared in FinWise · a summary for your accountant, not a tax return</div>
+    <div class="sub">Prepared in MoneyKeel · a summary for your accountant, not a tax return</div>
     <h2>INCOME</h2><table>${rows(o.income)}
       <tr class="total"><td>Taxable income</td><td style="text-align:right">$${Math.round(o.taxableTotal).toLocaleString()}</td></tr></table><!-- money-mask-ok: generated HTML export document, not an on-screen display -->
     ${o.contributions.length ? `<h2>RETIREMENT CONTRIBUTIONS</h2><table>${rows(o.contributions)}</table>` : ''}

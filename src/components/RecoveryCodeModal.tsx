@@ -11,7 +11,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
   useEffect(() => { if (visible) setAck(false); }, [visible]);
 
   async function share() {
-    try { await Share.share({ message: `My FinWise recovery code: ${code}\n\nKeep this safe — it restores your data if you forget your password.` }); }
+    try { await Share.share({ message: `My MoneyKeel recovery code: ${code}\n\nKeep this safe — it restores your data if you forget your password.` }); }
     catch { /* user dismissed the share sheet */ }
   }
 
@@ -31,7 +31,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
             {'\n\n'}
             <Text style={s.bold}>Save it now</Text> — in a password manager, or written down somewhere safe.
             {'\n\n'}
-            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI or LLM providers</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including FinWise) can recover your data.</Text> We'll never ask you for it.
+            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI or LLM providers</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We'll never ask you for it.
           </Text>
 
           <View style={s.codeBox}>

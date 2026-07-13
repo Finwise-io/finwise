@@ -2234,7 +2234,7 @@ function InvitePartner({ ctx }: { ctx: StepCtx }) {
   const [busy, setBusy] = React.useState(false);
   const [err, setErr] = React.useState('');
   const shareCode = (c: string) =>
-    Share.share({ message: `Join me on FinWise so we can plan our money together! Get the app, create your account, and enter invite code ${c} on the sign-up screen.` });
+    Share.share({ message: `Join me on MoneyKeel so we can plan our money together! Get the app, create your account, and enter invite code ${c} on the sign-up screen.` });
   const createAndShare = async () => {
     setErr('');
     const st = useStore.getState() as any;

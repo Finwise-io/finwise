@@ -18,7 +18,7 @@ export function AppLockGate({ children }: { children: React.ReactNode }) {
   const tryUnlock = async () => {
     if (busy) return;
     setBusy(true);
-    const ok = await authenticate('Unlock FinWise');
+    const ok = await authenticate('Unlock MoneyKeel');
     setBusy(false);
     if (ok) setLocked(false);
   };
@@ -50,16 +50,16 @@ export function AppLockGate({ children }: { children: React.ReactNode }) {
   if (!enabled || !locked) return <>{children}</>;
 
   return (
-    <View style={styles.overlay} accessibilityRole="alert" accessibilityLabel="FinWise is locked">
+    <View style={styles.overlay} accessibilityRole="alert" accessibilityLabel="MoneyKeel is locked">
       <Text style={styles.emoji}>🔒</Text>
-      <Text style={styles.title}>FinWise is locked</Text>
+      <Text style={styles.title}>MoneyKeel is locked</Text>
       <Text style={styles.sub}>Unlock with Face ID, Touch ID, or your passcode to continue.</Text>
       <TouchableOpacity
         style={styles.button}
         onPress={tryUnlock}
         disabled={busy}
         accessibilityRole="button"
-        accessibilityLabel="Unlock FinWise"
+        accessibilityLabel="Unlock MoneyKeel"
         accessibilityHint="Prompts for Face ID, Touch ID, or your device passcode"
       >
         <Text style={styles.buttonText}>{busy ? 'Unlocking…' : 'Unlock'}</Text>

@@ -26,7 +26,7 @@ export async function isLockAvailable(): Promise<boolean> {
 }
 
 /** Prompt for Face ID / Touch ID / device passcode. Returns true on success. */
-export async function authenticate(reason = 'Unlock FinWise'): Promise<boolean> {
+export async function authenticate(reason = 'Unlock MoneyKeel'): Promise<boolean> {
   const m = load();
   if (!m?.authenticateAsync) return false;
   try {

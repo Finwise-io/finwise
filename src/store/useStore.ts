@@ -939,7 +939,7 @@ export function useLevel() {
     { level: 7, name: 'Money Master',   min: 2200 },
     { level: 8, name: 'Wealth Builder', min: 3000 },
     { level: 9, name: 'Financial Guru', min: 4000 },
-    { level: 10,name: 'FinWise Legend', min: 5500 },
+    { level: 10,name: 'MoneyKeel Legend', min: 5500 },
   ];
   let current = levels[0], next = levels[1];
   for (let i = 0; i < levels.length; i++) {
