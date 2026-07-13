@@ -23,6 +23,7 @@ import { ageFromProfile } from '../utils/persona';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { maskedMoney } from '../components/useMoney';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -160,29 +161,29 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
     <>
       <View style={styles.card}>
         <Text style={styles.cardHdr}>THIS MONTH</Text>
-        <Row label="In (take-home)" value={money(Math.round(inflow))} />
-        <Row label={debtMo > 0 ? 'Out (bills + debt)' : 'Out (bills)'} value={money(Math.round(outflow))} dim />
+        <Row label="In (take-home)" value={maskedMoney(Math.round(inflow))} />
+        <Row label={debtMo > 0 ? 'Out (bills + debt)' : 'Out (bills)'} value={maskedMoney(Math.round(outflow))} dim />
         <View style={styles.divider} />
         <Row label={committed > 0 ? 'Free to spend after your plan' : '= Planned surplus'}
-          value={money(committed > 0 ? surplus - committed : surplus)} strong
+          value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong
           color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.primary : Colors.red} />
         {committed > 0 && commitments.map((c, i) => (
-          <Row key={i} label={`${c.label} · from your Plan`} value={`−${money(c.monthlyAmount)}`} dim />
+          <Row key={i} label={`${c.label} · from your Plan`} value={`−${maskedMoney(c.monthlyAmount)}`} dim />
         ))}
         <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
-          accessibilityLabel={`Spent so far ${money(Math.round(bva.spent_total))} of ${money(Math.round(bva.planned_total))} planned — opens this month's detail`}>
-          <Text style={styles.note}>Spent so far {money(Math.round(bva.spent_total))} of {money(Math.round(bva.planned_total))} planned ›</Text>
+          accessibilityLabel={`Spent so far ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(Math.round(bva.planned_total))} planned — opens this month's detail`}>
+          <Text style={styles.note}>Spent so far {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned ›</Text>
         </TouchableOpacity>
       </View>
 
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
-          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${money(projection.monthly)} a month.`}>
+          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${maskedMoney(projection.monthly)} a month.`}>
           <Text style={styles.cardHdr}>YOUR FUTURE PAYCHECK</Text>
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
-          <Text style={styles.projHero}>At {projection.retireAge}:  ~{money(projection.monthly)} / mo</Text>
-          {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${money(projection.guaranteed)}`} dim />}
-          <Row label="Safe draw from savings" value={`~${money(projection.draw)}`} dim />
+          <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>
+          {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
+          <Row label="Safe draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
         </TouchableOpacity>
       )}
     </>
@@ -240,7 +241,7 @@ function DrawOrderWhy({ visible, onClose, accounts, op }: { visible: boolean; on
           <Text style={styles.modalT}>Why this order?</Text>
           {order.map((s: any, i: number) => (
             <View key={i} style={{ marginBottom: 10 }}>
-              <Text style={styles.whyStep}>{i + 1}. {s.label} — {money(s.amount ?? 0)}</Text>
+              <Text style={styles.whyStep}>{i + 1}. {s.label} — {maskedMoney(s.amount ?? 0)}</Text>
               <Text style={styles.whyTxt}>{s.why}</Text>
             </View>
           ))}

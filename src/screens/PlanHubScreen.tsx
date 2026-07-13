@@ -15,6 +15,7 @@ import { retirementIncomeMonthly } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { Disclaimer } from '../components/Disclaimer';
+import { maskedMoney } from '../components/useMoney';
 
 export default function PlanHubScreen() {
   const router = useRouter();
@@ -103,7 +104,7 @@ export default function PlanHubScreen() {
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
           accessibilityLabel="Your monthly income — Social Security and pension">
           <Text style={styles.rowTitle}>Your income</Text>
-          <Text style={styles.rowSub}>{guaranteedMonthly > 0 ? `${money(guaranteedMonthly)}/mo guaranteed — Social Security · pension · annuity` : 'Add your Social Security and pension'} ›</Text>
+          <Text style={styles.rowSub}>{guaranteedMonthly > 0 ? `${maskedMoney(guaranteedMonthly)}/mo guaranteed — Social Security · pension · annuity` : 'Add your Social Security and pension'} ›</Text>
         </TouchableOpacity>
       )}
 

@@ -8,6 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { flagComparisonText, type TxnFlag } from '../domain/transactions/flags';
+import { maskedMoney, maskDollars } from '../components/useMoney';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const prettyDate = (d: string) => {
@@ -61,14 +62,15 @@ export default function WorthALookScreen() {
 
       {/* fact block — pure facts from the transaction record, one sentence for screen readers */}
       <Text style={styles.factHead}
-        accessibilityLabel={`${money(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
-        {money(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
+        accessibilityLabel={`${maskedMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
+        {maskedMoney(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
       </Text>
       {f.payee ? <Text style={styles.payee}>Paid to: {f.payee.toUpperCase()}</Text> : null}
 
       {/* why we're showing this — the comparison stored at flag time, so it never drifts */}
       <Text style={styles.whyHead}>WHY WE'RE SHOWING THIS</Text>
-      <Text style={styles.whyBody}>{flagComparisonText(f)}</Text>
+      {/* the comparison masks its dollars but stays readable — '8 times your usual' is words */}
+      <Text style={styles.whyBody}>{maskDollars(flagComparisonText(f))}</Text>
       <Text style={styles.softener}>Most large {f.reason === 'first_time_payee' ? 'first-time ' : ''}payments are fine — you know best.</Text>
 
       {resolvedWasMe ? (

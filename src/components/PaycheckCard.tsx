@@ -6,8 +6,8 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';             // masks under hide-balances (mask-ALL)
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
 
 export function PaycheckCard() {
   const router = useRouter();
@@ -19,9 +19,9 @@ export function PaycheckCard() {
   const monthName = m.label.split(' ')[0].toUpperCase();
 
   return (
-    <View style={styles.card} accessibilityLabel={`Safe to spend in ${m.label}: ${money(m.netSafeToSpend)}`}>
+    <View style={styles.card} accessibilityLabel={`Safe to spend in ${m.label}: ${maskedMoney(m.netSafeToSpend)}`}>
       <Text style={styles.kicker}>SAFE TO SPEND — {monthName}</Text>
-      <Text style={styles.hero}>{money(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
+      <Text style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
       <Text style={styles.est}>estimate</Text>
 
       {year.guaranteedMissing ? (
@@ -31,20 +31,20 @@ export function PaycheckCard() {
       ) : (
         <View style={styles.breakdown}>
           {m.guaranteed.map((g, i) => (
-            <Row key={i} label={g.source + (g.day ? ` (day ${g.day})` : '')} value={money(g.amount)} />
+            <Row key={i} label={g.source + (g.day ? ` (day ${g.day})` : '')} value={maskedMoney(g.amount)} />
           ))}
-          <Row label="= Guaranteed" value={money(m.guaranteedTotal)} bold />
+          <Row label="= Guaranteed" value={maskedMoney(m.guaranteedTotal)} bold />
           <View style={styles.rowWrap}>
             <Text style={styles.rowLabel}>+ Safe draw from savings</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="What makes the draw safe?"
               onPress={() => setWhySafe(true)} style={styles.infoDot}><Text style={styles.infoDotT}>i</Text></TouchableOpacity>
-            <Text style={styles.rowValue}>{money(m.safeDraw)}</Text>
+            <Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>
           </View>
-          {m.billsTotal > 0 && <Row label={`− Big bills this month (${m.bills.map((b) => b.label).join(', ')})`} value={money(m.billsTotal)} />}
+          {m.billsTotal > 0 && <Row label={`− Big bills this month (${m.bills.map((b) => b.label).join(', ')})`} value={maskedMoney(m.billsTotal)} />}
         </View>
       )}
 
-      <Text style={styles.year}>This year {money(year.thisYear)} <Text style={styles.yearNote}>— varies month to month</Text></Text>
+      <Text style={styles.year}>This year {maskedMoney(year.thisYear)} <Text style={styles.yearNote}>— varies month to month</Text></Text>
       {year.drawRateFlag === 'high' && (
         <Text style={styles.flag}>Heads-up: this draw is on the high side of the usual 4%-a-year guideline.</Text>
       )}
@@ -56,7 +56,7 @@ export function PaycheckCard() {
       <Modal visible={whySafe} transparent animationType="fade" onRequestClose={() => setWhySafe(false)}>
         <View style={styles.modalBg}>
           <View style={styles.modalCard}>
-            <Text style={styles.modalT}>What makes {money(m.safeDraw)} “safe”?</Text>
+            <Text style={styles.modalT}>What makes {maskedMoney(m.safeDraw)} “safe”?</Text>
             <Text style={styles.modalB}>
               It’s the largest steady monthly draw that keeps your will-my-money-last odds at Likely (80 or
               better), re-checked whenever your balances move. Spend more each month and the odds fall — you

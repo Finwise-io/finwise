@@ -24,6 +24,7 @@ import { buildNetWorth } from '../domain/networth';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
 import { useInsights } from './InsightsScreen';
+import { maskedMoney, maskDollars } from '../components/useMoney';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -93,7 +94,7 @@ export default function HomeScreen() {
   useEffect(() => {
     const paidThisMonth = (d: any) => (store.expenses ?? []).some((e: any) => e.category === 'Debt payment' && e.store === d.label && String(e.date).startsWith(ym));
     const due = (store.liabilities ?? []).filter((d: any) => d.due_day && now.getDate() >= d.due_day - 1 && !paidThisMonth(d));
-    if (due.length) Alert.alert('Debt due soon', due.map((d: any) => `${d.label} — ${money(requiredPayment(d))} due day ${d.due_day}`).join('\n'), [{ text: 'OK' }]);
+    if (due.length) Alert.alert('Debt due soon', due.map((d: any) => `${d.label} — ${maskedMoney(requiredPayment(d))} due day ${d.due_day}`).join('\n'), [{ text: 'OK' }]);
   }, []);
 
   // freeze month-by-month metrics for trailing history (net worth, income, spend, savings, debt)
@@ -194,9 +195,9 @@ export default function HomeScreen() {
         ) : (
           <TouchableOpacity accessibilityRole="button" style={styles.heroCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/invest')}
            
-            accessibilityLabel={`Your investments: ${money(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
+            accessibilityLabel={`Your investments: ${maskedMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
             <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
-            <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{money(investTotal)}</Text>
+            <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
             {youReturn != null && (
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.primary : Colors.red, fontWeight: '800' }}>{youReturn >= 0 ? '▲ up' : '▼ down'} {pctTxt(Math.abs(youReturn))}</Text>
@@ -215,9 +216,9 @@ export default function HomeScreen() {
         {/* NET WORTH — one quiet line, taps to its one home */}
         <TouchableOpacity accessibilityRole="button" style={styles.nwLine} activeOpacity={0.7} onPress={() => router.push('/(tabs)/analytics')}
          
-          accessibilityLabel={`Net worth ${money(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
+          accessibilityLabel={`Net worth ${maskedMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
           <Text style={styles.nwLabel}>Net worth</Text>
-          <Text style={styles.nwValue}>{money(netWorth)}</Text>
+          <Text style={styles.nwValue}>{maskedMoney(netWorth)}</Text>
           {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.primary : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>
         </TouchableOpacity>
@@ -230,11 +231,12 @@ export default function HomeScreen() {
             <TouchableOpacity accessibilityRole="button" key={ins.id} style={[styles.needRow, i > 0 && styles.divider]} activeOpacity={0.7}
               onPress={() => ins.route && router.push(ins.route as any)}
              
-              accessibilityLabel={`${i + 1}. ${ins.title}. ${ins.body}`}>
+              accessibilityLabel={`${i + 1}. ${maskDollars(ins.title)}. ${maskDollars(ins.body)}`}>
               <Text style={[styles.needRank, i === 0 && styles.needRankTop]}>{i + 1}{i === 0 ? '◆' : '·'}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={[styles.needTitle, i === 0 && { fontWeight: '800' }]}>{ins.title}</Text>
-                <Text style={styles.needBody}>{ins.body}</Text>
+                {/* engine sentences carry dollar figures — mask them, keep the words (the walk test) */}
+                <Text style={[styles.needTitle, i === 0 && { fontWeight: '800' }]}>{maskDollars(ins.title)}</Text>
+                <Text style={styles.needBody}>{maskDollars(ins.body)}</Text>
               </View>
               <Text style={styles.nwArrow}>›</Text>
             </TouchableOpacity>

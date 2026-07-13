@@ -9,6 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { cashTotal, assetClassOf, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
+import { maskedMoney } from '../components/useMoney';
 
 // Example rates for the comparison — named constants with an as-of date, never a product pitch.
 export const EXAMPLE_RATES = { asOf: '2026-07', highYieldSavings: 0.041, moneyMarket: 0.044 };
@@ -27,7 +28,7 @@ export default function IdleCashScreen() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.fact}>{money(total)} of your cash is earning about $0.</Text>
+      <Text style={styles.fact}>{maskedMoney(total)} of your cash is earning about $0.</Text>
 
       <Text style={styles.section}>WHERE IT SITS</Text>
       <View style={styles.card}>
@@ -38,7 +39,7 @@ export default function IdleCashScreen() {
               <Text style={styles.rowTitle}>{a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}</Text>
               <Text style={styles.rowSub}>{a.apy != null ? `earning ~${(Number(a.apy) * 100).toFixed(1)}%` : 'rate not set'}</Text>
             </View>
-            <Text style={styles.rowVal}>{money(a.balance || 0)}</Text>
+            <Text style={styles.rowVal}>{maskedMoney(a.balance || 0)}</Text>
           </View>
         ))}
       </View>
@@ -47,11 +48,11 @@ export default function IdleCashScreen() {
       <View style={styles.card}>
         <View style={styles.row}>
           <Text style={[styles.rowTitle, { flex: 1 }]}>In high-yield savings (~{(EXAMPLE_RATES.highYieldSavings * 100).toFixed(1)}%)</Text>
-          <Text style={styles.rowVal}>~{money(hys)}/yr</Text>
+          <Text style={styles.rowVal}>~{maskedMoney(hys)}/yr</Text>
         </View>
         <View style={[styles.row, styles.divider]}>
           <Text style={[styles.rowTitle, { flex: 1 }]}>In a money-market fund (~{(EXAMPLE_RATES.moneyMarket * 100).toFixed(1)}%)</Text>
-          <Text style={styles.rowVal}>~{money(mm)}/yr</Text>
+          <Text style={styles.rowVal}>~{maskedMoney(mm)}/yr</Text>
         </View>
         <Text style={styles.note}>Rates are examples as of {EXAMPLE_RATES.asOf} — banks differ. We never move your money; you decide.</Text>
       </View>

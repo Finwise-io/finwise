@@ -7,7 +7,8 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, type AssetAccount } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount } from '../domain/assets';
+import { resolveNetWorthRows } from '../domain/snapshot';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
@@ -48,6 +49,10 @@ export default function PerformanceScreen() {
   })();
   const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
+  // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
+  const investTotalAll = investmentsTotal(resolveNetWorthRows(
+    store.user?.uid ?? 'local', store.onboardingProfile, store.nwSeeded ?? false, accounts, store.liabilities ?? [],
+  ).accounts);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
   const attr = useMemo(() => attribution(rows), [rows]);
@@ -67,13 +72,20 @@ export default function PerformanceScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      {/* FCC Invest glance — THE pin: this headline is the SAME investmentsTotal Home's hero and the
+          Net worth Investments section show, to the dollar (one helper; agreement-tested). The live
+          ticker-tracked portfolio value below remains its own labeled number. */}
       <View style={styles.headRow}>
-        <Text style={styles.eyebrow}>{ASSET_CLASS_LABEL['stocks_etf']}</Text>
+        <View style={{ flex: 1 }}>
+          <Text style={styles.eyebrow}>YOUR INVESTMENTS</Text>
+          <Text style={styles.investBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}
+            accessibilityLabel={`Your investments: ${money(investTotalAll)}`}>{money(investTotalAll)}</Text>
+        </View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.subtitle}>Your equities across every account.</Text>
+      <Text style={styles.subtitle}>Everything invested, across every account — {ASSET_CLASS_LABEL['stocks_etf'].toLowerCase()} with tickers are valued live below.</Text>
       {/* B-18: surface price freshness so stale cached values aren't presented as live. */}
       {positions.length > 0 && (() => {
         const f = priceFreshness(store.pricesFetchedAt, Date.now());
@@ -608,6 +620,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
+  investBig: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   subtitle: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2 },
   refresh: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
   freshness: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4 },

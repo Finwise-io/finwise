@@ -14,6 +14,7 @@ import { ssBenefitAtClaimAge, ssLifetimeTotal, claimWindow, FULL_RETIREMENT_AGE 
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { ageFromProfile } from '../utils/persona';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
+import { maskedMoney } from '../components/useMoney';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const CLAIM_AGES = [62, FULL_RETIREMENT_AGE, 70] as const;
@@ -62,7 +63,7 @@ export default function SsTimingScreen() {
     const monthly = ssBenefitAtClaimAge(effStmt, claimAge);
     const out: PlanChange[] = [
       { label: 'Claim age', from: adopted != null ? `age ${adopted}` : 'not set', to: `age ${claimAge}` },
-      { label: 'Monthly check (today\'s dollars)', from: A.guaranteedMonthly != null ? money(A.guaranteedMonthly) : 'not set', to: money(monthly) },
+      { label: 'Monthly check (today\'s dollars)', from: A.guaranteedMonthly != null ? maskedMoney(A.guaranteedMonthly) : 'not set', to: maskedMoney(monthly) },
     ];
     if (liveTo !== (A.horizonAge ?? liveTo)) out.push({ label: 'Plan-to age', from: `age ${A.horizonAge}`, to: `age ${liveTo}` });
     return out;
@@ -81,7 +82,7 @@ export default function SsTimingScreen() {
       <ScrollView style={styles.root} contentContainerStyle={styles.content}>
         <Text style={styles.tagline}>We lay it out. You decide.</Text>
         <View style={styles.card}>
-          <Text style={styles.receiveHead}>You receive {money(num(op.ri_ss))}/mo ✓</Text>
+          <Text style={styles.receiveHead}>You receive {maskedMoney(num(op.ri_ss))}/mo ✓</Text>
           <Text style={styles.body}>You're already receiving Social Security, so claim timing is decided. Your check lives on the Monthly income screen — edit it there and every number follows.</Text>
           <TouchableOpacity accessibilityRole="button" style={styles.primaryBtn} onPress={() => router.push('/monthly-income')}
             accessibilityLabel="Edit what you receive on the Monthly income screen">
@@ -111,7 +112,7 @@ export default function SsTimingScreen() {
         <Text style={styles.finder}>It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>
       </View>
 
-      {usingExample && <Text style={styles.exampleBanner}>Showing EXAMPLE numbers (a {money(exampleStmt)}/mo statement) — type yours above to see YOUR numbers.</Text>}
+      {usingExample && <Text style={styles.exampleBanner}>Showing EXAMPLE numbers (a {maskedMoney(exampleStmt)}/mo statement) — type yours above to see YOUR numbers.</Text>}
       {!usingExample && <Text style={styles.sandboxBanner}>Trying it out — this won't change your plan until you tap Use this plan.</Text>}
 
       {/* three-way compare */}
@@ -125,10 +126,10 @@ export default function SsTimingScreen() {
           <View key={r.claimAge} style={styles.tr}
             accessible accessibilityLabel={r.passed
               ? `Claiming at ${r.claimAge} has passed — you can no longer claim at ${r.claimAge}`
-              : `Claiming at ${r.claimAge} pays ${money(r.monthly)} a month, about ${money(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
+              : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)} a month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
             <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
-            <Text style={[styles.td, styles.tRight, { width: 90 }, r.passed && styles.passed, usingExample && styles.example]}>{money(r.monthly)}</Text>
-            <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{money(r.lifetime)}</Text>
+            <Text style={[styles.td, styles.tRight, { width: 90 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
+            <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.lifetime)}</Text>
           </View>
         ))}
         <Text style={styles.tableNote}>earlier = smaller checks for longer · later = bigger checks for fewer years</Text>

@@ -9,6 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { maskedMoney } from '../components/useMoney';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const day = (d?: number) => (d ? ` · ${ord(d)}` : '');
@@ -56,9 +57,9 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${money(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${maskedMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
         <Text style={styles.cardHdr}>{retired ? 'SAFE TO SPEND' : 'LEFT OVER'}{isCurrent ? ' · AS OF TODAY' : ''}</Text>
-        <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${money(Math.abs(headline))} short` : money(headline)}</Text>
+        <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
 
@@ -67,17 +68,17 @@ export default function MonthDetailScreen() {
         <Text style={styles.cardHdr}>MONEY IN</Text>
         {retired ? (
           <>
-            {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={money(g.amount)} />)}
-            {pm.safeDraw > 0 && <Row label="Safe draw from savings" value={money(pm.safeDraw)} />}
+            {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
+            {pm.safeDraw > 0 && <Row label="Safe draw from savings" value={maskedMoney(pm.safeDraw)} />}
             <View style={styles.dividerLine} />
-            <Row label="= In" value={money(pm.guaranteedTotal + pm.safeDraw)} strong />
+            <Row label="= In" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />
           </>
         ) : (
           <>
             {cell.incomeItems.length === 0 && <Text style={styles.empty}>No income mapped for this month.</Text>}
-            {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={money(i.amount)} />)}
+            {cell.incomeItems.map((i: any, k: number) => <Row key={k} label={`${i.source}${day(i.day)}${i.approx ? ' (about)' : ''}`} value={maskedMoney(i.amount)} />)}
             {cell.incomeItems.length > 0 && <View style={styles.dividerLine} />}
-            {cell.incomeItems.length > 0 && <Row label="= In" value={money(cell.inflow)} strong />}
+            {cell.incomeItems.length > 0 && <Row label="= In" value={maskedMoney(cell.inflow)} strong />}
           </>
         )}
       </View>
@@ -86,11 +87,11 @@ export default function MonthDetailScreen() {
       <View style={styles.card}>
         <Text style={styles.cardHdr}>BIG BILLS THIS MONTH</Text>
         {bigBills.length === 0 && <Text style={styles.empty}>No big bills this month.</Text>}
-        {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${money(b.amount)}`} />)}
+        {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${maskedMoney(b.amount)}`} />)}
         {retired && (
           <>
             <View style={styles.dividerLine} />
-            <Row label="= Safe to spend" value={money(pm.netSafeToSpend)} strong />
+            <Row label="= Safe to spend" value={maskedMoney(pm.netSafeToSpend)} strong />
           </>
         )}
       </View>
@@ -99,9 +100,9 @@ export default function MonthDetailScreen() {
       <View style={styles.card}>
         <Text style={styles.cardHdr}>{retired ? 'REGULAR BILLS (COME OUT OF YOUR SAFE-TO-SPEND)' : 'REGULAR BILLS & EVERYDAY SPENDING'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
-        {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={money(b.amount)} />)}
+        {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
         {isCurrent && bva && (
-          <Text style={styles.soFar}>So far this month: {money(Math.round(bva.spent_total))} spent of {money(Math.round(bva.planned_total))} planned.</Text>
+          <Text style={styles.soFar}>So far this month: {maskedMoney(Math.round(bva.spent_total))} spent of {maskedMoney(Math.round(bva.planned_total))} planned.</Text>
         )}
       </View>
 

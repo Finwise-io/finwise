@@ -8,6 +8,7 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-nati
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { maskedMoney } from '../components/useMoney';
 
 export default function PaycheckMonthsScreen() {
   const [openSlot, setOpenSlot] = useState<number>(0);
@@ -19,7 +20,7 @@ export default function PaycheckMonthsScreen() {
       <Text style={styles.h1}>Your paycheck, month by month</Text>
       <Text style={styles.sub}>
         Every month is its own real month — a pension that lands in December shows up in December, a
-        property tax in November dents November. This year: {money(year.thisYear)} (estimate).
+        property tax in November dents November. This year: {maskedMoney(year.thisYear)} (estimate).
       </Text>
 
       {year.months.map((m, s) => {
@@ -29,32 +30,32 @@ export default function PaycheckMonthsScreen() {
         return (
           <View key={m.label} style={styles.monthCard}>
             <TouchableOpacity accessibilityRole="button"
-              accessibilityLabel={`${m.label}: safe to spend ${money(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
+              accessibilityLabel={`${m.label}: safe to spend ${maskedMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
               style={styles.monthRow} onPress={() => setOpenSlot(open ? -1 : s)}>
               <Text style={styles.monthLabel}>{m.label}</Text>
               {dip && <Text style={styles.dipWord}>bill month</Text>}
-              <Text style={styles.monthNet}>{money(m.netSafeToSpend)}</Text>
+              <Text style={styles.monthNet}>{maskedMoney(m.netSafeToSpend)}</Text>
             </TouchableOpacity>
             {open && (
               <View style={styles.detail}>
                 <Text style={styles.sectionT}>Money in</Text>
                 {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income captured yet</Text>}
                 {m.guaranteed.map((g, i) => (
-                  <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={money(g.amount)} />
+                  <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
                 ))}
-                <Row label="Safe draw from savings" value={money(m.safeDraw)} />
-                <Row label="= In" value={money(m.guaranteedTotal + m.safeDraw)} bold />
+                <Row label="Safe draw from savings" value={maskedMoney(m.safeDraw)} />
+                <Row label="= In" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
                 <Text style={styles.sectionT}>Big bills this month</Text>
                 {m.bills.length === 0 && <Text style={styles.line}>No big bills this month</Text>}
                 {m.bills.map((b, i) => (
-                  <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${money(b.amount)}`} />
+                  <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
                 ))}
-                <Row label="= Safe to spend" value={money(m.netSafeToSpend)} bold />
+                <Row label="= Safe to spend" value={maskedMoney(m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
                     <Text style={styles.sectionT}>Regular bills (your safe-to-spend pays these)</Text>
                     {regulars.map((b, i) => (
-                      <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={money(b.amount)} muted />
+                      <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />
                     ))}
                   </>
                 )}

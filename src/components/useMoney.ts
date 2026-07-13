@@ -16,3 +16,13 @@ export function useMoney() {
     compact: (n: number, style: 'M' | 'MM' = 'MM') => (hidden ? BALANCE_MASK : moneyCompact(n, style)),
   };
 }
+
+/** Mask-aware money for components that already subscribe to the store (the whole-store useStore()
+ *  pattern every FCC screen uses — a hideBalances flip re-renders them, so reading getState() here
+ *  is reactive in practice). The fcc_agreement mask walk enforces zero '$' under hide. */
+export const maskedMoney = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
+
+/** Mask the dollar figures INSIDE a template sentence (insight bodies, engine copy) while keeping
+ *  the words — '8 times your usual' stays readable, the balances become ••••. */
+export const maskDollars = (text: string, hidden?: boolean) =>
+  (hidden ?? useStore.getState().hideBalances) ? text.replace(/\$\s?[\d,]+(\.\d+)?/g, BALANCE_MASK) : text;
