@@ -51,7 +51,15 @@ export function totalDebtBalance(debts: Debt[]): number {
 
 // ── Loan repayment (standard amortization) — e.g. what a student loan costs once you're repaying ──
 export interface LoanPlan { monthly: number; totalInterest: number; totalPaid: number; }
+/** UNIT LANDMINE (P0): `aprPct` is a PERCENT (7 = 7%), unlike Debt.interest_rate_apr which is a
+ *  DECIMAL (0.07). Passing a decimal here silently computes a ~100× lower rate. The dev-time guard
+ *  below flags decimal-looking inputs; term-loan rates genuinely under 1%/yr don't occur in our
+ *  flows (0% promos pass 0, which is fine). */
 export function loanPayment(principal: number, aprPct: number, termYears: number): LoanPlan {
+  const dev = typeof __DEV__ !== 'undefined' ? __DEV__ : process.env.NODE_ENV !== 'production';
+  if (dev && aprPct > 0 && aprPct < 1) {
+    console.warn(`loanPayment: aprPct=${aprPct} looks like a DECIMAL rate — this parameter is a percent (7 = 7%). Multiply by 100.`);
+  }
   const n = Math.round(termYears * 12), r = aprPct / 100 / 12;
   if (principal <= 0 || n <= 0) return { monthly: 0, totalInterest: 0, totalPaid: 0 };
   const monthly = r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
