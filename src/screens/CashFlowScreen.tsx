@@ -1,129 +1,255 @@
-// Cash Flow detail (#15): the breakdown behind the Home cash-flow box, a month-by-month projection of
-// take-home vs spending and the resulting surplus (forward-looking — the onboarding grid projects the
-// whole year), and this month's planned-vs-actual. All numbers come from the same canonical helpers the
-// Home box and budget use (annualCashflow / savingsByMonth / incomeMonthlyGrid / spendByMonth /
-// budgetVsActual), so nothing here can diverge from the rest of the app.
+// Cash flow main (FCC detailed design v1.1, Cash flow sheet) — ONE screen, lens-switched:
+//   retired → the paycheck told truthfully month by month: the F5 hero, 12 dated bars, the
+//             draw-order preview, and the will-it-last strip (mirroring its home in Plan)
+//   working → today's real cash flow (in/out/surplus, after debt), the same dated bars, and the
+//             future-paycheck PROJECTION card (same F5 engine, projection mode, estimate-labeled)
+// Every by-month number is an F2/F5 cell — this screen computes NOTHING of its own.
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { annualCashflow, spendByMonth, budgetVsActual } from '../domain/budget';
-import { surplusByMonth, monthlySavings } from '../domain/savings';   // canonical AFTER-debt surplus
+import { budgetVsActual } from '../domain/budget';
+import { monthlySavings } from '../domain/savings';
 import { actualDebtPayment } from '../domain/debt';
-import { incomeMonthlyGrid } from '../domain/income';
+import { retirementIncomeMonthly } from '../domain/income';
+import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
+import { simulate } from '../domain/retirement';
+import { selectWillItLast, willItLastInputs, chanceWord } from '../domain/retirement/willItLast';
+import { buildPaycheckYear } from '../domain/paycheck';
+import { resolveNetWorthRows } from '../domain/snapshot';
+import { ageFromProfile } from '../utils/persona';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
-import { resolveLens } from '../domain/profile/lens';
+import { useCashflowModel } from '../hooks/useCashflowModel';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function CashFlowScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile ?? null;
+  const uid = store.user?.uid ?? 'local';
   const expenses = store.expenses ?? [];
   const liabilities = store.liabilities ?? [];
-  const lens = resolveLens(op, store.lensOverride);
   const [sheet, setSheet] = useState(false);
+  const [whyOrder, setWhyOrder] = useState(false);
   const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
   const now = new Date();
 
-  const cf = useMemo(() => annualCashflow(op), [op]);
-  // Surplus is AFTER debt (2026-06-23 decision) — same canonical definition as Home & Budget.
-  const surplus = useMemo(() => surplusByMonth(op, liabilities), [op, liabilities]);   // [{label, amount}] × 12
-  const plannedSurplusMo = useMemo(() => Math.round(monthlySavings(op, liabilities)), [op, liabilities]);
-  const surplusYr = useMemo(() => Math.round(surplus.reduce((t, m) => t + m.amount, 0)), [surplus]);
-  const takeHome = useMemo(() => incomeMonthlyGrid(op, 'available'), [op]); // take-home by month
-  const spend = useMemo(() => spendByMonth(op), [op]);                      // planned spend by month
-  const bva = useMemo(() => budgetVsActual(expenses, op, new Date()), [expenses, op]);
+  // the ONE model — the same cells the hero card, month rows and month detail read
+  const { lens, year, grid } = useCashflowModel();
 
-  const moMax = Math.max(1, ...takeHome.map((m) => m.amount), ...spend);
-  const surMax = Math.max(1, ...surplus.map((m) => Math.abs(m.amount)));
-  const debtMo = Math.round(actualDebtPayment(liabilities));   // monthly debt service (what leaves your account)
+  const bva = useMemo(() => budgetVsActual(expenses, op, now), [expenses, op]);
+  const { accounts } = useMemo(
+    () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
+    [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
+
+  // will-it-last strip mirrors Plan (the one selector — identical seeded run)
+  const wil = useMemo(
+    () => selectWillItLast({ op, accounts, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
+    [op, accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus]);
+
+  const header = `${MONTHS_LONG[now.getMonth()]} ${now.getFullYear()}`;
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* FCC: the retired lens leads with the paycheck — the F5 hero, no flag (approved design) */}
-      {lens === 'retired' && <PaycheckCard />}
-      <Text style={styles.h1}>Cash flow</Text>
-      <Text style={styles.sub}>Where your money goes each month — and what's left to save. Projected from your income and spending plan.</Text>
-
-      {/* ── This month: the breakdown ── */}
-      <View style={styles.card}>
-        <Text style={styles.cardHdr}>A TYPICAL MONTH</Text>
-        <Row label="Net pay (after tax)" value={money(Math.round(cf.netYr / 12))} />
-        <Row label="− 401(k)" value={money(Math.round(cf.k401Yr / 12))} dim />
-        <Row label="− Spending" value={money(Math.round(cf.spendYr / 12))} dim />
-        {debtMo > 0 && <Row label="− Debt payments" value={money(debtMo)} dim />}
-        <View style={styles.divider} />
-        <Row label="= Planned surplus" value={money(plannedSurplusMo)} strong color={plannedSurplusMo >= 0 ? Colors.primary : Colors.red} />
-        <Text style={styles.note}>Planned surplus is your take-home minus 401(k), spending{debtMo > 0 ? ', and debt payments' : ''} — the money free to save or invest.</Text>
+      <View style={styles.headRow}>
+        <Text style={styles.h1}>Cash flow</Text>
+        <Text style={styles.headDate}>{header}</Text>
       </View>
 
-      {/* ── Surplus by month (projected) ── */}
+      {lens === 'retired' ? (
+        <RetiredMain year={year} accounts={accounts} onWhyOrder={() => setWhyOrder(true)} />
+      ) : (
+        <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
+      )}
+
+      {/* BY MONTH — the dated 12 cells; tap a month for its detail */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>PLANNED SURPLUS, MONTH BY MONTH</Text>
-        <Text style={styles.cardSub}>Projected for the year · {money(surplusYr)} total</Text>
-        <View style={styles.chart}>
-          {surplus.map((m) => (
-            <View key={m.label} style={styles.col}>
-              <View style={styles.barWrap}>
-                <View style={[styles.bar, {
-                  height: `${Math.max(2, (Math.abs(m.amount) / surMax) * 100)}%`,
-                  backgroundColor: m.amount >= 0 ? Colors.primary : Colors.red,
-                }]} />
-              </View>
-              <Text style={styles.colLbl}>{m.label[0]}</Text>
-            </View>
-          ))}
-        </View>
+        <Text style={styles.cardHdr}>BY MONTH · {grid.cells[0]?.label} – {grid.cells[11]?.label}</Text>
+        <MonthBars lens={lens} year={year} grid={grid} onOpen={(slot) => router.push(`/month-detail?slot=${slot}` as any)} />
+        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/bill-calendar')}
+          accessibilityLabel="All bills and the calendar">
+          <Text style={styles.link}>All bills & the calendar ›</Text>
+        </TouchableOpacity>
       </View>
 
-      {/* ── Income vs spending by month ── */}
-      <View style={styles.card}>
-        <Text style={styles.cardHdr}>TAKE-HOME vs SPENDING</Text>
-        <View style={styles.legendRow}>
-          <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.primary }]} /><Text style={styles.legendT}>Take-home</Text></View>
-          <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.amber }]} /><Text style={styles.legendT}>Spending</Text></View>
-        </View>
-        <View style={styles.chart}>
-          {takeHome.map((m, i) => (
-            <View key={m.label} style={styles.col}>
-              <View style={styles.pairWrap}>
-                <View style={[styles.pairBar, { height: `${Math.max(2, (m.amount / moMax) * 100)}%`, backgroundColor: Colors.primary }]} />
-                <View style={[styles.pairBar, { height: `${Math.max(2, (spend[i] / moMax) * 100)}%`, backgroundColor: Colors.amber }]} />
-              </View>
-              <Text style={styles.colLbl}>{m.label[0]}</Text>
-            </View>
-          ))}
-        </View>
-      </View>
-
-      {/* ── This month: planned vs actual ── */}
-      <View style={styles.card}>
-        <Text style={styles.cardHdr}>THIS MONTH · PLANNED vs ACTUAL</Text>
-        <Row label="Planned spend" value={money(Math.round(bva.planned_total))} />
-        <Row label="Actual so far" value={money(Math.round(bva.spent_total))} color={bva.spent_total > bva.planned_total ? Colors.red : Colors.textPrimary} />
-        <View style={styles.track}>
-          <View style={[styles.fill, {
-            width: `${Math.min(100, bva.planned_total > 0 ? (bva.spent_total / bva.planned_total) * 100 : 0)}%`,
-            backgroundColor: bva.spent_total > bva.planned_total ? Colors.red : Colors.primary,
-          }]} />
-        </View>
-        <Text style={styles.note}>
-          {bva.spent_total > bva.planned_total
-            ? `${money(Math.round(bva.spent_total - bva.planned_total))} over plan so far this month.`
-            : `${money(Math.round(bva.planned_total - bva.spent_total))} left of this month's plan.`}
-        </Text>
-      </View>
+      {/* will-it-last strip — mirrors Plan, never a second computation */}
+      <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
+        accessibilityLabel={wil.chance != null ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
+        <Text style={styles.cardHdr}>WILL MY MONEY LAST?</Text>
+        {wil.chance != null
+          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <Text style={styles.wilEst}>estimate</Text></Text>
+          : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
+        <Text style={styles.link}>Lives in your Plan ›</Text>
+      </TouchableOpacity>
     </ScrollView>
 
     {/* '+ Expense' (M4): same corner, same label as Home — one habit, one spot */}
     <ExpenseFab onPress={() => setSheet(true)} />
     <QuickAddExpense visible={sheet} onClose={() => setSheet(false)} customCats={customCats}
-      isCurrentMonth baseDate={now} monthLabel={`${MONTHS_LONG[now.getMonth()]} ${now.getFullYear()}`} />
+      isCurrentMonth baseDate={now} monthLabel={header} />
+
+    {/* draw-order 'Why?' — the plain-English text already written in withdrawalOrder */}
+    <DrawOrderWhy visible={whyOrder} onClose={() => setWhyOrder(false)} accounts={accounts} op={op} />
     </View>
+  );
+}
+
+// ── retired: hero + draw-order preview ──────────────────────────────────────────
+function RetiredMain({ year, accounts, onWhyOrder }: { year: any; accounts: any[]; onWhyOrder: () => void }) {
+  const store = useStore() as any;
+  const age = ageFromProfile(store.onboardingProfile) ?? 68;
+  const split = taxBucketSplit(accounts);
+  const order = withdrawalOrder(split, age);
+  return (
+    <>
+      <PaycheckCard />
+      <View style={styles.card}>
+        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+          <Text style={[styles.cardHdr, { flex: 1, marginBottom: 0 }]}>DRAW COMES FROM</Text>
+          <TouchableOpacity accessibilityRole="button" onPress={onWhyOrder} accessibilityLabel="Why this order?">
+            <Text style={styles.link}>Why? ›</Text>
+          </TouchableOpacity>
+        </View>
+        <Text style={styles.orderLine}>
+          {order.map((s: any, i: number) => `${i + 1} ${s.label}`).join('   ')}
+        </Text>
+        <Text style={styles.note}>The order the math would tap your accounts — not a directive. Balances match your Net worth.</Text>
+      </View>
+    </>
+  );
+}
+
+// ── working: in/out/surplus + spent-so-far + commitments + the projection card ──
+function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: any; op: any; liabilities: any[]; store: any }) {
+  const router = useRouter();
+  const cell = grid.cells[0];
+  const inflow = cell?.inflow ?? 0;
+  const outflow = cell?.outflow ?? 0;
+  const surplus = Math.round(monthlySavings(op, liabilities));
+  const debtMo = Math.round(actualDebtPayment(liabilities));
+  const A = store.retirementAssumptions ?? {};
+
+  // Committed from your Plan (F11): adopted commitments visibly reduce free-to-spend
+  const commitments = (A.commitments ?? []) as { label: string; monthlyAmount: number }[];
+  const committed = commitments.reduce((t, c) => t + (c.monthlyAmount || 0), 0);
+
+  // Future paycheck — PROJECTION (same F5 engine, projection mode; estimate label is mandatory copy)
+  const projection = React.useMemo(() => {
+    const age = ageFromProfile(op);
+    const retireAge = A.retireAge ?? (Number(op?.targetRetirementAge) || 67);
+    const futureGuaranteed = retirementIncomeMonthly(op);   // the future SS/pension entries
+    if (age == null || age >= retireAge) return null;
+    const inputs = willItLastInputs({ op, accounts: store.assetAccounts ?? [], assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
+    if (!inputs || inputs.start_balance <= 0) return null;
+    const projectedEgg = simulate(inputs).projected_at_retirement;
+    if (!projectedEgg || projectedEgg <= 0) return null;
+    const projYear = buildPaycheckYear(op, {
+      nestEgg: projectedEgg,
+      sim: { current_age: retireAge, horizon_age: Math.max(retireAge + 5, inputs.horizon_age), mean_return: inputs.mean_return, vol_return: inputs.vol_return, inflation: inputs.inflation, seed: 42, paths: 300 },
+    });
+    return { retireAge, monthly: Math.round(futureGuaranteed + projYear.safeDrawMonthly), guaranteed: Math.round(futureGuaranteed), draw: Math.round(projYear.safeDrawMonthly) };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
+
+  return (
+    <>
+      <View style={styles.card}>
+        <Text style={styles.cardHdr}>THIS MONTH</Text>
+        <Row label="In (take-home)" value={money(Math.round(inflow))} />
+        <Row label={debtMo > 0 ? 'Out (bills + debt)' : 'Out (bills)'} value={money(Math.round(outflow))} dim />
+        <View style={styles.divider} />
+        <Row label={committed > 0 ? 'Free to spend after your plan' : '= Planned surplus'}
+          value={money(committed > 0 ? surplus - committed : surplus)} strong
+          color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.primary : Colors.red} />
+        {committed > 0 && commitments.map((c, i) => (
+          <Row key={i} label={`${c.label} · from your Plan`} value={`−${money(c.monthlyAmount)}`} dim />
+        ))}
+        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
+          accessibilityLabel={`Spent so far ${money(Math.round(bva.spent_total))} of ${money(Math.round(bva.planned_total))} planned — opens this month's detail`}>
+          <Text style={styles.note}>Spent so far {money(Math.round(bva.spent_total))} of {money(Math.round(bva.planned_total))} planned ›</Text>
+        </TouchableOpacity>
+      </View>
+
+      {projection && (
+        <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
+          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${money(projection.monthly)} a month.`}>
+          <Text style={styles.cardHdr}>YOUR FUTURE PAYCHECK</Text>
+          <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
+          <Text style={styles.projHero}>At {projection.retireAge}:  ~{money(projection.monthly)} / mo</Text>
+          {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${money(projection.guaranteed)}`} dim />}
+          <Row label="Safe draw from savings" value={`~${money(projection.draw)}`} dim />
+        </TouchableOpacity>
+      )}
+    </>
+  );
+}
+
+// ── the dated 12-month bars (both lenses) ───────────────────────────────────────
+function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid: any; onOpen: (slot: number) => void }) {
+  const cells = lens === 'retired'
+    ? year.months.map((m: any, s: number) => ({
+        label: m.label,
+        inflow: m.guaranteedTotal + m.safeDraw,
+        outflow: m.billsTotal,
+        flag: m.billsTotal > 0 ? `! ${m.bills[0]?.label ?? 'big bill'}` : (m.guaranteedTotal > year.months[0].guaranteedTotal + 0.005 ? `+ ${m.guaranteed.find((g: any) => g.amount > 0)?.source ?? 'extra income'}` : null),
+        spoken: `${m.label}: ${Math.round(m.guaranteedTotal + m.safeDraw)} dollars in, ${Math.round(m.billsTotal)} out${m.billsTotal > 0 ? `, ${m.bills[0]?.label} due` : ''}`,
+      }))
+    : grid.cells.map((c: any) => ({
+        label: c.label,
+        inflow: c.inflow,
+        outflow: c.outflow,
+        flag: c.incomeItems.some((i: any) => i.source === 'Bonus') ? '+ Bonus lands' : (c.net < -0.005 ? '! short month' : null),
+        spoken: `${c.label}: ${Math.round(c.inflow)} dollars in, ${Math.round(c.outflow)} out${c.net < -0.005 ? ', a short month' : ''}`,
+      }));
+  const max = Math.max(1, ...cells.map((c: any) => Math.max(c.inflow, c.outflow)));
+  return (
+    <View>
+      {cells.map((c: any, s: number) => (
+        <TouchableOpacity accessibilityRole="button" key={c.label} style={styles.barRow} onPress={() => onOpen(s)}
+          accessibilityLabel={c.spoken} accessibilityHint="Opens this month's detail">
+          <Text style={styles.barLabel}>{c.label}</Text>
+          <View style={{ flex: 1 }}>
+            <View style={styles.barTrack}><View style={[styles.barIn, { width: `${Math.max(2, (c.inflow / max) * 100)}%` }]} /></View>
+            <View style={[styles.barTrack, { marginTop: 2 }]}><View style={[styles.barOut, { width: `${Math.max(2, (c.outflow / max) * 100)}%` }]} /></View>
+          </View>
+          {c.flag && <Text style={styles.barFlag} numberOfLines={1}>{c.flag}</Text>}
+        </TouchableOpacity>
+      ))}
+      <View style={styles.legendRow}>
+        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.primary }]} /><Text style={styles.legendT}>in</Text></View>
+        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.amber }]} /><Text style={styles.legendT}>out</Text></View>
+        <Text style={styles.legendT}>· tap a month for detail</Text>
+      </View>
+    </View>
+  );
+}
+
+// ── the 'Why this order?' explainer (text already written in withdrawalOrder) ──
+function DrawOrderWhy({ visible, onClose, accounts, op }: { visible: boolean; onClose: () => void; accounts: any[]; op: any }) {
+  const age = ageFromProfile(op) ?? 68;
+  const order = withdrawalOrder(taxBucketSplit(accounts), age);
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.modalBg}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalT}>Why this order?</Text>
+          {order.map((s: any, i: number) => (
+            <View key={i} style={{ marginBottom: 10 }}>
+              <Text style={styles.whyStep}>{i + 1}. {s.label} — {money(s.amount ?? 0)}</Text>
+              <Text style={styles.whyTxt}>{s.why}</Text>
+            </View>
+          ))}
+          <TouchableOpacity accessibilityRole="button" style={styles.modalBtn} onPress={onClose}>
+            <Text style={styles.modalBtnT}>Got it</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -137,28 +263,39 @@ function Row({ label, value, dim, strong, color }: { label: string; value: strin
 }
 
 const styles = StyleSheet.create({
-  content: { padding: Spacing.base, paddingBottom: 48 },
-  h1: { fontSize: Typography.sizes.xxl, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
-  sub: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginBottom: Spacing.base, lineHeight: 19 },
+  content: { padding: Spacing.base, paddingBottom: 110 },
+  headRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: Spacing.sm },
+  h1: { fontSize: Typography.sizes.xxl, fontWeight: '800', color: Colors.textPrimary },
+  headDate: { fontSize: Typography.sizes.sm, fontWeight: '700', color: Colors.textSecondary },
   card: { backgroundColor: '#fff', borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base },
+  projCard: { backgroundColor: '#fff', borderRadius: Radii.lg, padding: Spacing.base, marginBottom: Spacing.base, borderWidth: 1.5, borderColor: Colors.border, borderStyle: 'dashed' },
   cardHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
-  cardSub: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginBottom: Spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
   rowL: { fontSize: Typography.sizes.base, color: Colors.textPrimary },
   rowV: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
   note: { fontSize: 12, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
-  chart: { flexDirection: 'row', alignItems: 'flex-end', height: 120, gap: 3, marginTop: Spacing.sm },
-  col: { flex: 1, alignItems: 'center' },
-  barWrap: { height: 100, width: '70%', justifyContent: 'flex-end' },
-  bar: { width: '100%', borderRadius: 3, minHeight: 2 },
-  pairWrap: { height: 100, flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'center', gap: 1 },
-  pairBar: { width: 5, borderRadius: 2, minHeight: 2 },
-  colLbl: { fontSize: 9, color: Colors.textTertiary, marginTop: 3 },
-  legendRow: { flexDirection: 'row', gap: 16, marginBottom: 2 },
+  link: { fontSize: 13, color: Colors.primary, fontWeight: '700', marginTop: 8 },
+  orderLine: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary, marginTop: 8 },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 34, paddingVertical: 2 },
+  barLabel: { width: 52, fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
+  barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.bgSecondary, overflow: 'hidden' },
+  barIn: { height: 8, borderRadius: 4, backgroundColor: Colors.primary },
+  barOut: { height: 8, borderRadius: 4, backgroundColor: Colors.amber },
+  barFlag: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary, maxWidth: 92 },
+  legendRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
   legend: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   dot: { width: 9, height: 9, borderRadius: 5 },
   legendT: { fontSize: 12, color: Colors.textSecondary },
-  track: { height: 8, borderRadius: 4, backgroundColor: Colors.bgSecondary, overflow: 'hidden', marginTop: 8 },
-  fill: { height: '100%', borderRadius: 4 },
+  wilTxt: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  wilEst: { fontSize: 12, fontWeight: '500', color: Colors.textTertiary },
+  projTag: { fontSize: 11, fontWeight: '800', color: Colors.amber, letterSpacing: 0.4, marginBottom: 4 },
+  projHero: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
+  modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, maxHeight: '80%' },
+  modalT: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginBottom: 10 },
+  whyStep: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary },
+  whyTxt: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 2 },
+  modalBtn: { alignSelf: 'flex-end', marginTop: 4, padding: 8 },
+  modalBtnT: { color: Colors.primary, fontWeight: '700', fontSize: 15 },
 });

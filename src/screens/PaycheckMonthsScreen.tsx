@@ -3,38 +3,16 @@
 // that month + the safe draw − the big bills due, plus the regular bills the paycheck exists to pay
 // (listed for completeness, never subtracted twice). Pure renderer — every number comes from the
 // F5 paycheck engine and the F2 dated grid; this screen computes nothing of its own.
-import React, { useMemo, useState } from 'react';
+import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
-import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { buildPaycheckYear } from '../domain/paycheck';
-import { buildDatedGrid } from '../domain/grid';
-import { ageFromProfile } from '../utils/persona';
+import { useCashflowModel } from '../hooks/useCashflowModel';
 
 export default function PaycheckMonthsScreen() {
-  const store = useStore() as any;
-  const op = store.onboardingProfile ?? null;
-  const accounts = store.assetAccounts ?? [];
-  const liabilities = store.liabilities ?? [];
-  const A = store.retirementAssumptions ?? {};
   const [openSlot, setOpenSlot] = useState<number>(0);
-
-  const { year, grid } = useMemo(() => {
-    const age = ageFromProfile(op) ?? 68;
-    const mean = A.expectedReturn ?? 0.055;
-    const y = buildPaycheckYear(op, {
-      accounts, liabilities,
-      sim: {
-        current_age: age, horizon_age: A.horizonAge ?? Math.max(age + 5, 92),
-        mean_return: mean, vol_return: Math.min(0.2, Math.max(0.05, mean * 1.7)),
-        inflation: A.inflation ?? 0.025, seed: 42, paths: 300,
-      },
-    });
-    const g = buildDatedGrid(op, { liabilities });   // regular bills live on the grid's cells
-    return { year: y, grid: g };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [op, accounts, liabilities, A.expectedReturn, A.horizonAge, A.inflation]);
+  // ONE model invocation app-wide (hero = bar = month detail, by construction)
+  const { year, grid } = useCashflowModel();
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={{ padding: Spacing.md, paddingBottom: 40 }}>

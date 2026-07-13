@@ -44,10 +44,12 @@ describe('surplus = take-home − spending − debt (canonical, after debt)', ()
 const screen = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', 'screens', f), 'utf8');
 
 test('CashFlow shows AFTER-debt surplus from canonical selectors, labeled "Planned surplus"', () => {
+  // FCC: the by-month view moved to the F2 dated grid (useCashflowModel) — the surplus SCALAR
+  // stays the canonical after-debt monthlySavings, and the before-debt grid stays banned.
   const s = screen('CashFlowScreen.tsx');
-  expect(s).toMatch(/surplusByMonth\(/);
   expect(s).toMatch(/monthlySavings\(/);
   expect(s).toMatch(/Planned surplus/);
+  expect(s).toMatch(/useCashflowModel/);           // by-month = the ONE dated grid
   expect(s).not.toMatch(/savingsByMonth\(op\)/);   // the old before-debt grid must be gone
 });
 

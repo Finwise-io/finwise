@@ -1,6 +1,7 @@
 /**
- * #15: the cash-flow detail screen — breakdown + month-by-month projection + this month's
- * planned-vs-actual. Numbers come from the same canonical helpers as the rest of the app.
+ * The Cash flow tab (FCC lens-switched main). The deep pins live in cashflow_fcc.test.tsx;
+ * this file keeps the original vocabulary guard: the working lens speaks the canonical
+ * after-debt surplus (2026-06-23 decision) and the dated by-month view exists.
  */
 import React from 'react';
 import { render } from '@testing-library/react-native';
@@ -9,9 +10,10 @@ import { useStore } from '../../store/useStore';
 
 beforeEach(() => useStore.getState().resetAll());
 
-test('renders the breakdown, the monthly projection, and planned-vs-actual', () => {
+test('working lens: this-month in/out + the canonical Planned surplus + dated by-month bars', () => {
   useStore.setState({
     onboardingProfile: {
+      status: 'employed', incomeSources: ['employment'],
       taxMode: 'manual', manualTaxRate: '20',
       baseSalary: '8000', salaryFreq: 'monthly', c_401k: '500', monthlySpending: '4000',
     },
@@ -19,9 +21,9 @@ test('renders the breakdown, the monthly projection, and planned-vs-actual', () 
   } as any);
 
   const { getByText } = render(<CashFlowScreen />);
-  expect(getByText('A TYPICAL MONTH')).toBeTruthy();
-  expect(getByText('= Planned surplus')).toBeTruthy();                 // the breakdown bottom line (after-debt, 2026-06-23)
-  expect(getByText('PLANNED SURPLUS, MONTH BY MONTH')).toBeTruthy();   // the projection chart
-  expect(getByText('TAKE-HOME vs SPENDING')).toBeTruthy();            // estimates by month
-  expect(getByText(/THIS MONTH/)).toBeTruthy();                       // planned vs actual
+  expect(getByText('THIS MONTH')).toBeTruthy();
+  expect(getByText('In (take-home)')).toBeTruthy();
+  expect(getByText('= Planned surplus')).toBeTruthy();       // canonical after-debt vocabulary
+  expect(getByText(/BY MONTH ·/)).toBeTruthy();              // the dated F2 window (Jul 26 – Jun 27 style)
+  expect(getByText(/Spent so far/)).toBeTruthy();            // planned-vs-actual line
 });

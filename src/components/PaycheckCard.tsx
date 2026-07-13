@@ -1,41 +1,19 @@
-// The retired hero (FCC Phase 2, approved design v1.1): "Safe to spend — <MONTH>", built from the
+// The retired hero (FCC approved design v1.1): "Safe to spend — <MONTH>", built from the
 // F5 paycheck engine. Source-first lines (founder review c4), the safe-draw explainer dot (June's
 // "says who?" finding), the bills subtraction visible in bill months, and the guaranteed-missing
-// prompt instead of a fake $0. Rendered behind the early-preview flag until the slice ships.
-import React, { useMemo, useState } from 'react';
+// prompt instead of a fake $0. The retired lens leads with this card — no flag.
+import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
-import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';             // masks under hide-balances (mask-ALL)
-import { buildPaycheckYear } from '../domain/paycheck';
-import { ageFromProfile } from '../utils/persona';
+import { useCashflowModel } from '../hooks/useCashflowModel';
 
 export function PaycheckCard() {
-  const store = useStore() as any;
   const router = useRouter();
-  const op = store.onboardingProfile ?? null;
-  const accounts = store.assetAccounts ?? [];
-  const liabilities = store.liabilities ?? [];
-  const A = store.retirementAssumptions ?? {};
   const [whySafe, setWhySafe] = useState(false);
-
-  const year = useMemo(() => {
-    const age = ageFromProfile(op) ?? 68;
-    const mean = A.expectedReturn ?? 0.055;
-    return buildPaycheckYear(op, {
-      accounts, liabilities,
-      sim: {
-        current_age: age,
-        horizon_age: A.horizonAge ?? Math.max(age + 5, 92),
-        mean_return: mean,
-        vol_return: Math.min(0.2, Math.max(0.05, mean * 1.7)),   // same convention as the cockpit
-        inflation: A.inflation ?? 0.025,
-        seed: 42, paths: 300,
-      },
-    });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [op, accounts, liabilities, A.expectedReturn, A.horizonAge, A.inflation]);
+  // ONE model invocation app-wide (hero = bar = month detail, by construction)
+  const { year } = useCashflowModel();
 
   const m = year.thisMonth;
   const monthName = m.label.split(' ')[0].toUpperCase();
