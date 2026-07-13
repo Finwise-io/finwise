@@ -45,6 +45,17 @@ export default function PlanHubScreen() {
     ]);
   };
 
+  // F11: revert is always a confirmation showing exactly what switches back
+  const planHistory = (store.planHistory ?? []) as any[];
+  const confirmRevert = () => {
+    const prev = planHistory[0];
+    if (!prev) return;
+    Alert.alert('Back to your previous plan?', `Restores the plan saved ${prev.date} (${prev.label}). Every number switches back exactly.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Switch back', onPress: () => store.revertPlan?.() },
+    ]);
+  };
+
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Plan</Text>
@@ -116,6 +127,15 @@ export default function PlanHubScreen() {
             ))}
           </View>
         </>
+      )}
+
+      {/* Back to previous plan (appears only after an adoption) */}
+      {planHistory.length > 0 && (
+        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={confirmRevert}
+          accessibilityLabel={`Back to previous plan, saved ${planHistory[0].date}`}>
+          <Text style={styles.rowTitle}>Back to previous plan ({planHistory[0].date})</Text>
+          <Text style={styles.rowSub}>One tap shows exactly what would switch back — nothing changes without a confirmation.</Text>
+        </TouchableOpacity>
       )}
 
       {/* Sharpen your plan meter */}

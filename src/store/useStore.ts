@@ -325,6 +325,11 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
+  // F11 composer: adoption is the ONE write path a decision screen uses — it snapshots the current
+  // plan first so "Back to previous plan" can restore it exactly. History keeps the last 5.
+  planHistory: { snapshot: RetirementAssumptions; label: string; date: string }[];
+  adoptPlan: (patch: Partial<RetirementAssumptions>, label: string) => void;
+  revertPlan: () => void;
   toggleEstateItem: (id: string) => void;
   saveRetirementScenario: (name: string, assumptions: Partial<RetirementAssumptions>, retireAge: number, chance: number) => void;
   deleteRetirementScenario: (id: string) => void;
@@ -435,6 +440,7 @@ export const useStore = create<AppState>()(
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
+      planHistory: [],
       lastRetireChance: null,
       benchmarkReturns: {},
       priceCache: {},
@@ -688,6 +694,15 @@ export const useStore = create<AppState>()(
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
+      adoptPlan: (patch, label) => set((s) => ({
+        planHistory: [{ snapshot: { ...s.retirementAssumptions }, label, date: new Date().toISOString().slice(0, 10) }, ...s.planHistory].slice(0, 5),
+        retirementAssumptions: { ...s.retirementAssumptions, ...patch },
+      })),
+      revertPlan: () => set((s) => {
+        const [prev, ...rest] = s.planHistory;
+        if (!prev) return {};
+        return { retirementAssumptions: { ...prev.snapshot }, planHistory: rest };
+      }),
       toggleEstateItem: (id) => set((s) => ({ estatePlan: { ...s.estatePlan, [id]: !s.estatePlan?.[id] } })),
       saveRetirementScenario: (name, assumptions, retireAge, chance) => set((s) => ({
         retirementScenarios: [
@@ -874,7 +889,7 @@ export const useStore = create<AppState>()(
         allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {},
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
-        retirementScenarios: [],
+        retirementScenarios: [], planHistory: [],
       lastRetireChance: null,
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
@@ -891,7 +906,7 @@ export const useStore = create<AppState>()(
       // only the onboarding-SEEDED net worth, flagged by nwSeeded, is cleared).
       restartOnboarding: () => set((s) => ({
         onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,
-        selectedGoals: [], retirementPlan: null, retirementScenarios: [],
+        selectedGoals: [], retirementPlan: null, retirementScenarios: [], planHistory: [],
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
         // clear onboarding-seeded goals (keep hand-added ones) + reset the seed flag so a re-run re-seeds
         goals: s.goals.filter((g) => g.origin !== 'onboarding'), goalsSeeded: false,

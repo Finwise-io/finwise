@@ -184,6 +184,7 @@ export default function RootLayout() {
           <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="worth-a-look" options={{ title: 'Worth a look', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="idle-cash" options={{ title: 'Your idle cash', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="ss-timing" options={{ title: 'Claim Social Security', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>
         </AppLockGate>
