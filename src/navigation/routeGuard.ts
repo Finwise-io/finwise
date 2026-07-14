@@ -18,6 +18,7 @@ export const MODAL_SEGMENTS = [
   'multi-goal',                 // FCC Plan tab: Afford it all? (the F4 composer)
   'first-run',                  // FCC: the lens questions (intents + stage), also Settings' revisit target
   'look-back','what-if',        // FCC Invest tab: backward + forward what-ifs
+  'will-it-last',               // FCC Plan tab: the one number, opened up
 ];
 
 export type RouteState = {

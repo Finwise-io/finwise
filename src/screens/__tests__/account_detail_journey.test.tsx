@@ -103,3 +103,55 @@ test('an unknown id (a pre-seed setup row) gets the honest fallback, not a crash
   render(<AccountDetailScreen />);
   expect(screen.getByText('This one lives in your setup answers')).toBeOnTheScreen();
 });
+
+// ── FCC: bond + alternative detail sections (the routed holding details) ──
+describe('bond and alternative detail sections', () => {
+  const BOND = {
+    asset_id: 'bnd', label: 'US Treasury 2036', kind: 'fixed_income', tax_bucket: 'TAXABLE',
+    asset_class: 'bonds', balance: 95000, face_value: 100000, coupon_rate: 0.045, maturity_date: '2036-06-30',
+  };
+  const GOLD = { asset_id: 'gld', label: 'Gold coins', kind: 'commodities', tax_bucket: 'TAXABLE', asset_class: 'alternatives', balance: 9000, value_as_of: '2025-11-20' };
+
+  test('a bond shows its facts, both yields, and the rates-move ESTIMATE (never a prediction)', () => {
+    useStore.setState({ assetAccounts: [BOND] } as any);
+    mockParams = { id: 'bnd' };
+    render(<AccountDetailScreen />);
+    expect(screen.getByText('BOND FACTS')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Face value: \$100,000/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Interest payments: 4.50%\/yr · \$4,500\/yr/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Yield if held to maturity: about .*estimate/)).toBeOnTheScreen();
+    expect(screen.getByText('IF INTEREST RATES MOVE')).toBeOnTheScreen();
+    expect(screen.getByText('Estimate, not a prediction')).toBeOnTheScreen();
+    expect(screen.getByText(/Rates rise 1% → value roughly/)).toBeOnTheScreen();
+    expect(screen.getByText(/if the issuer pays as promised/)).toBeOnTheScreen();
+  });
+
+  test('an alternative shows its type, the typical return, the look-back door, and the stale nudge', () => {
+    useStore.setState({ assetAccounts: [GOLD] } as any);
+    mockParams = { id: 'gld' };
+    render(<AccountDetailScreen />);
+    expect(screen.getByLabelText(/Typical yearly return for this type/)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Look back: what if this had been in the stock market?')).toBeOnTheScreen();
+    expect(screen.getByText(/months old — still right\?/)).toBeOnTheScreen();   // Nov 2025 value → stale
+  });
+
+  test('the reported return edits the SAME actual_ttm the Retirement cockpit reads (one field)', () => {
+    useStore.setState({ assetAccounts: [GOLD] } as any);
+    mockParams = { id: 'gld' };
+    render(<AccountDetailScreen />);
+    expect(screen.getByText(/not set — projections use the typical return/)).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('Add reported return'));
+    fireEvent.changeText(screen.getByLabelText(/actual return over the past 12 months/), '2.1');
+    fireEvent.press(screen.getByLabelText('Save reported return'));
+    const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'gld');
+    expect(a.actual_ttm).toBeCloseTo(0.021, 10);
+  });
+
+  test('a bond FUND (no coupon/face/maturity) shows NO bond math — never a guessed number', () => {
+    useStore.setState({ assetAccounts: [{ asset_id: 'bf', label: 'Bond fund', kind: 'fixed_income', tax_bucket: 'TAXABLE', asset_class: 'bonds', balance: 40000 }] } as any);
+    mockParams = { id: 'bf' };
+    render(<AccountDetailScreen />);
+    expect(screen.queryByText('BOND FACTS')).toBeNull();
+    expect(screen.queryByText('IF INTEREST RATES MOVE')).toBeNull();
+  });
+});

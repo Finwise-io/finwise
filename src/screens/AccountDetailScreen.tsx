@@ -9,7 +9,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, type AssetAccount } from '../domain/assets';
+import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, type AssetAccount } from '../domain/assets';
+import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney } from '../components/useMoney';
 
@@ -125,6 +126,15 @@ export default function AccountDetailScreen() {
         )}
       </View>
 
+      {/* bond facts + yields + the if-interest-rates-move ESTIMATE (design v1.1, Invest sheet) */}
+      {cls === 'bonds' && <BondDetail account={account} />}
+
+      {/* alternatives: the type's typical return + the look-back entry */}
+      {cls === 'alternatives' && <AltDetail account={account} />}
+
+      {/* your reported return — the same actual_ttm field the Retirement cockpit reads (one field, two readers) */}
+      {(cls === 'bonds' || cls === 'alternatives') && <ReportedReturnCard account={account} />}
+
       {/* record activity — the ONE engine, surfaced here per class */}
       {(actions.length > 0 || tradeLink) && (
         <>
@@ -177,6 +187,103 @@ export default function AccountDetailScreen() {
       <UpdateValueSheet account={account} visible={valueSheet} onClose={() => setValueSheet(false)} />
       <View style={{ height: 40 }} />
     </ScrollView>
+  );
+}
+
+// ── bond facts, yields, and the rates-move estimate (all from the ONE bonds domain) ──────────
+function BondDetail({ account }: { account: AssetAccount }) {
+  const b = bondInfo(account);
+  if (!(b.face > 0 && b.couponRate > 0 && b.maturity)) return null;   // a bond FUND — no honest bond math
+  const years = yearsToMaturity(b.maturity);
+  const ytm = approxYTM(b);
+  const cy = currentYield(b);
+  const sens = bondRateSensitivity(b);
+  const matured = years <= 0;
+  return (
+    <>
+      <View style={s.card}>
+        <Text style={s.cardHdr2}>BOND FACTS</Text>
+        <FactRow label="Face value" value={maskedMoney(b.face)} />
+        <FactRow label="Interest payments" value={`${(b.couponRate * 100).toFixed(2)}%/yr · ${maskedMoney(annualCoupon(b))}/yr`} />
+        <FactRow label="Matures" value={matured ? `${b.maturity} (matured)` : `${b.maturity} (${Math.round(years)} year${Math.round(years) === 1 ? '' : 's'} away)`} />
+        {!matured && ytm != null && <FactRow label="Yield if held to maturity" value={`about ${(ytm * 100).toFixed(1)}% · estimate`} />}
+        {cy != null && <FactRow label="Yield on today's value" value={`${(cy * 100).toFixed(1)}%`} />}
+      </View>
+      {sens && (
+        <View style={s.card} accessible
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${maskedMoney(sens.ratesUp.low)} to ${maskedMoney(sens.ratesUp.high)}. If rates fall one percent, roughly ${maskedMoney(sens.ratesDown.low)} to ${maskedMoney(sens.ratesDown.high)}. Held to maturity, ${maskedMoney(b.face)} comes back if the issuer pays as promised.`}>
+          <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
+          <Text style={s.estTag}>Estimate, not a prediction</Text>
+          <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(sens.ratesUp.low)}–{maskedMoney(sens.ratesUp.high)} (down about {maskedMoney(Math.abs(sens.ratesUp.delta))})</Text>
+          <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(sens.ratesDown.low)}–{maskedMoney(sens.ratesDown.high)}</Text>
+          <Text style={s.bondNote}>Held to maturity, {maskedMoney(b.face)} comes back — if the issuer pays as promised.</Text>
+        </View>
+      )}
+    </>
+  );
+}
+
+// ── alternatives: what it is + the typical return used in projections + the look-back door ──
+function AltDetail({ account }: { account: AssetAccount }) {
+  const router = useRouter();
+  const kind = assetKind(account.kind);
+  const ret = benchmarkReturn(account.kind);
+  return (
+    <View style={s.card}>
+      <Text style={s.cardHdr2}>ABOUT THIS HOLDING</Text>
+      <FactRow label="Type" value={kind?.label ?? 'Alternative'} />
+      <FactRow label="Typical yearly return for this type" value={`~${(ret * 100).toFixed(1)}% · estimate from history`} />
+      <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/look-back')}
+        accessibilityLabel="Look back: what if this had been in the stock market?">
+        <Text style={s.linkTxt}>Look back: what if this had been in the stock market? ›</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ── your reported return (12 mo) — edits the SAME actual_ttm the Retirement cockpit reads ──
+function ReportedReturnCard({ account }: { account: AssetAccount }) {
+  const store = useStore() as any;
+  const [editing, setEditing] = useState(false);
+  const [val, setVal] = useState('');
+  const ttm = account.actual_ttm;
+  const save = () => {
+    const n = parseFloat(String(val).replace(/[^0-9.\-]/g, ''));
+    store.updateAsset?.(account.asset_id, { actual_ttm: Number.isFinite(n) ? n / 100 : null });
+    setEditing(false);
+  };
+  return (
+    <View style={s.card}>
+      <Text style={s.cardHdr2}>YOUR REPORTED RETURN (12 MO)</Text>
+      {editing ? (
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 4 }}>
+          <TextInput style={s.ttmInput} keyboardType="numbers-and-punctuation" placeholder="e.g. 2.1"
+            placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} autoFocus
+            accessibilityLabel="Your holding's actual return over the past 12 months, in percent" />
+          <Text style={s.bondLine}>%</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.ttmSave} onPress={save} accessibilityLabel="Save reported return">
+            <Text style={s.ttmSaveTxt}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      ) : (
+        <View style={{ flexDirection: 'row', alignItems: 'center', marginTop: 4 }}>
+          <Text style={[s.bondLine, { flex: 1 }]}>{ttm != null ? `${(ttm * 100).toFixed(1)}%` : 'not set — projections use the typical return until you report your own'}</Text>
+          <TouchableOpacity accessibilityRole="button" onPress={() => { setVal(ttm != null ? String((ttm * 100).toFixed(1)) : ''); setEditing(true); }}
+            accessibilityLabel={ttm != null ? 'Edit reported return' : 'Add reported return'}>
+            <Text style={s.linkTxt}>{ttm != null ? 'Edit' : 'Add'}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
+  );
+}
+
+function FactRow({ label, value }: { label: string; value: string }) {
+  return (
+    <View style={s.factRow} accessible accessibilityLabel={`${label}: ${value}`}>
+      <Text style={s.factL}>{label}</Text>
+      <Text style={s.factV}>{value}</Text>
+    </View>
   );
 }
 
@@ -335,4 +442,15 @@ const s = StyleSheet.create({
   dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
   dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 40, justifyContent: 'center' },
   preview: { fontSize: 13.5, fontWeight: '600', color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
+  cardHdr2: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
+  estTag: { fontSize: 11.5, fontWeight: '800', color: Colors.amber, letterSpacing: 0.3, marginBottom: 4 },
+  factRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, gap: 10 },
+  factL: { fontSize: 13.5, color: Colors.textSecondary, flexShrink: 0 },
+  factV: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
+  bondLine: { fontSize: 13.5, color: Colors.textPrimary, lineHeight: 20, marginTop: 4 },
+  bondNote: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 6 },
+  linkTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 8 },
+  ttmInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10, paddingVertical: 8, fontSize: 15, color: Colors.textPrimary, minWidth: 80, backgroundColor: Colors.bgSecondary },
+  ttmSave: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
+  ttmSaveTxt: { color: '#fff', fontSize: 13.5, fontWeight: '800' },
 });

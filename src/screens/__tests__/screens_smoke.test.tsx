@@ -51,6 +51,7 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['FirstRunScreen', require('../FirstRunScreen').default],
   ['LookBackScreen', require('../LookBackScreen').default],
   ['WhatIfScreen', require('../WhatIfScreen').default],
+  ['WillItLastScreen', require('../WillItLastScreen').default],
   ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
   ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],

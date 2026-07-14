@@ -64,9 +64,8 @@ export default function PlanHubScreen() {
 
       {/* WILL MY MONEY LAST? — the one true home of the number */}
       {wil.captured && wil.chance != null ? (
-        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/retirement')}
-         
-          accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.word}, ${wil.chance} percent, an estimate. Opens the full picture.`}>
+        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/will-it-last')}
+          accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.word}, ${wil.chance} percent, an estimate. Opens what drives this.`}>
           <Text style={styles.cardKicker}>WILL MY MONEY LAST? — to {wil.horizonAge}</Text>
           <View style={styles.chanceRow}>
             <Text style={styles.chanceWord}>{wil.word}</Text>
