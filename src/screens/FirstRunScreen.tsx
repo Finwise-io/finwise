@@ -57,6 +57,7 @@ export default function FirstRunScreen() {
         <View style={s.introCard}>
           {([
             ['Map your whole money picture', 'every account, debt, and dollar in one live view.'],
+            ['Stay on top of your cash flow', "every dollar in and out — and what's safe to spend."],
             ['See what needs attention', 'specific priorities with real dollar amounts.'],
             ['Honest odds on the big question', 'how long your money will last, told straight.'],
           ] as const).map(([lead, body]) => (
