@@ -121,9 +121,15 @@ def main():
     mm = render_mark(430)
     sp.paste(mm, ((W - 430) // 2, 940), mm)
     d = ImageDraw.Draw(sp)
-    bold = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial Bold.ttf', 132)
-    nameReg = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial.ttf', 132)
-    reg = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial.ttf', 44)
+    # Inter (the spec's geometric sans), driven by the variable-font weight axis —
+    # Money medium 500 · Keel extra-bold 800 · tagline medium 500
+    def inter(size, weight):
+        f = ImageFont.truetype('assets/fonts/Inter-Variable.ttf', size)
+        f.set_variation_by_axes([max(14, min(32, size / 4)), weight])
+        return f
+    bold = inter(132, 800)
+    nameReg = inter(132, 500)
+    reg = inter(44, 500)
     # founder 2026-07-15: 'Keel' bolder than 'Money' for ease of reading
     mw = d.textlength('Money', font=nameReg)
     kw = d.textlength('Keel', font=bold)
