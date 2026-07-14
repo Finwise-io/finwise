@@ -20,6 +20,7 @@ import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from 
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
 import { buildPerformance, portfolioPeriodReturn, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
+import { connectionFreshness } from '../services/sync';
 import { buildDebtState, requiredPayment } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { resolveLens } from '../domain/profile/lens';
@@ -191,12 +192,13 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        {/* connect: shown honestly as coming soon rather than hidden (design rule) */}
-        <View style={[styles.door, { opacity: 0.65 }]} accessible
-          accessibilityLabel="Connect your first account — coming soon. Read-only: we can look, never touch your money.">
-          <Text style={styles.doorTitle}>Connect your first account <Text style={styles.soonChip}>coming soon</Text></Text>
+        {/* connect: a real door into the flow — the flow itself says honestly whether live
+            bank linking is switched on yet (never a dead button, never a hidden feature) */}
+        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/connect' as any)}
+          accessibilityLabel="Connect your first account. Read-only: we can look, never touch your money.">
+          <Text style={styles.doorTitle}>Connect your first account ›</Text>
           <Text style={styles.doorSub}>Read-only: we can look, never touch your money.</Text>
-        </View>
+        </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/import-holdings')}
           accessibilityLabel="Import a file from your brokerage">
@@ -272,6 +274,22 @@ export default function HomeScreen() {
             <Text style={styles.heroLink}>See your growth ›</Text>
           </TouchableOpacity>
         )}
+
+        {/* STALE CONNECTION — a connected balance older than 3 days must SAY so (F1 freshness) */}
+        {(() => {
+          const stale = (store.assetAccounts ?? [])
+            .filter((a: any) => a.source === 'connected')
+            .map((a: any) => ({ a, f: connectionFreshness(a.last_synced) }))
+            .filter((x: any) => x.f?.stale)
+            .sort((x: any, y: any) => y.f.daysOld - x.f.daysOld)[0];
+          if (!stale) return null;
+          return (
+            <TouchableOpacity accessibilityRole="button" style={styles.staleLine} onPress={() => router.push('/(tabs)/analytics')}
+              accessibilityLabel={`Balances from ${stale.a.institution ?? stale.a.label} are ${stale.f.daysOld} days old — open Net worth to update them.`}>
+              <Text style={styles.staleTxt}>⚠ Balances from {stale.a.institution ?? stale.a.label} are {stale.f.daysOld} days old — tap to update ›</Text>
+            </TouchableOpacity>
+          );
+        })()}
 
         {/* MILESTONE — one calm line under the hero, once, dismissed on tap (the strategy's
             stated retention moment; design Home STATES). Fact-toned, never repeated. */}
@@ -390,6 +408,8 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   h1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary },
+  staleLine: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 40, justifyContent: 'center' },
+  staleTxt: { fontSize: 13, fontWeight: '700', color: Colors.amber },
   milestoneLine: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 40, justifyContent: 'center' },
   milestoneTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark },
   milestoneDismiss: { color: Colors.textTertiary, fontWeight: '800' },

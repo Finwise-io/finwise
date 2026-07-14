@@ -6,7 +6,7 @@
 export const MODAL_SEGMENTS = [
   'income','expense','savings','invest','jobsafety','income-detail','income-manager','performance',
   'bonds','other-investments','sharpen','insights','bill-calendar','credit','stress-test','education',
-  'insurance','estate','roth','tax-organizer','retirement','import-holdings','holding-detail','required-withdrawals',
+  'insurance','estate','roth','tax-organizer','retirement','import-holdings','holding-detail','required-withdrawals','connect','add-account',
   // T22: 'cashflow' was missing, so tapping "Cash-flow detail →" pushed /cashflow and the guard
   // immediately replaced back to Home — read as an infinite loop. 'contribution-room' (the 401(k)-room
   // insight target) had the same latent bug. Any NEW root screen must be added here (pinned by a test).

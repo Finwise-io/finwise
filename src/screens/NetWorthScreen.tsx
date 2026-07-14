@@ -480,12 +480,12 @@ export default function NetWorthScreen() {
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
           <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
             <View style={styles.chooserGrip} />
-            <View style={[styles.chooserRow, { opacity: 0.6 }]} accessible
-              accessibilityLabel="Link it, read-only — coming soon. We can look, never touch your money.">
-              <Text style={styles.chooserTitle}>🔗  Link it (read-only) <Text style={styles.chooserSoon}>coming soon</Text></Text>
+            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/connect' as any); }}
+              accessibilityLabel="Link it, read-only. We can look, never touch your money.">
+              <Text style={styles.chooserTitle}>🔗  Link it (read-only)</Text>
               <Text style={styles.chooserSub}>We can look, never touch your money.</Text>
-            </View>
-            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); setAssetSheet({ open: true }); }}
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/add-account' as any); }}
               accessibilityLabel="Add by hand">
               <Text style={styles.chooserTitle}>✍️  Add by hand</Text>
               <Text style={styles.chooserSub}>Your home, savings, or any account with no login.</Text>

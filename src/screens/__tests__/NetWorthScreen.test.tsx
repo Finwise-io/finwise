@@ -172,7 +172,7 @@ test('#13: import is reachable from Net Worth via the add-or-connect chooser', (
   ], liabilities: [] } as any);
   render(<NetWorthScreen />);
   fireEvent.press(screen.getByLabelText('Add or connect an account'));
-  expect(screen.getByLabelText(/Link it, read-only — coming soon/)).toBeOnTheScreen();   // honest, not hidden
+  expect(screen.getByLabelText(/Link it, read-only/)).toBeOnTheScreen();   // a real door into the connect flow now
   fireEvent.press(screen.getByLabelText('Import from a file'));
   expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });

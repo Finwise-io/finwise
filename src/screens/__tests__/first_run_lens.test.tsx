@@ -79,7 +79,7 @@ test('answering the questions without any money data still shows the three doors
   expect(screen.getByText("Let's get your real numbers in.")).toBeOnTheScreen();
   expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
   expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/Connect your first account — coming soon/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Connect your first account/)).toBeOnTheScreen();
 });
 
 test('the cash-flow goal card exists and toggles (screen-1 benefit has its matching goal)', () => {

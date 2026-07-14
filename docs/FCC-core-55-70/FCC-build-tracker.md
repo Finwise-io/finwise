@@ -44,7 +44,7 @@ one build at the end.**
 | F8 Social Security claim math (SSA schedule) | ✅ | `src/domain/retirement/ssTiming.ts` | |
 | Insight rules: worth-a-look slot-1 · rmd-due · ss-window · goals-gap | ✅ | `src/domain/insights/index.ts` | |
 | F4 multi-goal weigher | ✅ (weighGoals + trimHints-as-pre-runs + retireAgeWithContribution) | `src/domain/planning/multiGoal.ts` | |
-| F1 secure sync seam + connection freshness | ⬜ (Transaction.source field ready; manual rows never flagged) | `src/services/sync/` | |
+| F1 secure sync seam + connection freshness | ✅ seam + freshness (2026-07-15): SyncProvider interface + sandbox impl + connectionFreshness (3-day stale rule → Home line); LIVE Plaid = ONE provider file, blocked on founder keys + native-SDK build (batched w/ Tiingo) | `src/services/sync/` | |
 | Bond rate-sensitivity estimate | ✅ (bondRateSensitivity: approxYTM±1% repricing, honest bands, null when no honest math) | `src/domain/bonds/` | |
 | Look-back counterfactual | ✅ (lookBack + factorOverMonths — real prices only, never extrapolated) | `src/domain/performance/lookBack.ts` | |
 | Manual-value freshness nudge | ✅ (valueFreshness + value_as_of/source/last_synced fields) | `src/domain/assets/` | |
@@ -68,7 +68,7 @@ one build at the end.**
 | First run — what did you come for? (sets the lens) | ✅ FULL B46 flow (founder finding #2): value intro + intents + stage + fast-path; the GUARD now routes new users here; deep questionnaire = the by-hand door | |
 | Home — first run (nothing connected yet) | ✅ (doors: Connect 'coming soon' honest / Import / Add by hand + retired-paycheck fast door; skip completes; 2026-07-14: no-data gate now counts LIVE accounts — skip→import lands on the real Home) | |
 | Home — balances hidden | ✅ (banner + walk test) | |
-| Home — stale connection + partial data | 🔨 (price freshness live; connection part blocked on F1) | |
+| Home — stale connection + partial data | ✅ (2026-07-15): connected balances >3 days old say so on Home (amber line → Net worth), via F1 connectionFreshness | |
 | Idle cash — nudge detail | ✅ (`/idle-cash`; cash-drag insight repointed) | |
 | 401(k) room this year — nudge detail | ♻️ (contribution-room screen exists; k401 insight routes there) | |
 | Onboarding flow map (5 steps) | ✅ (founder finding #2) — intro → intents → stage → routed fast-path → Home; every step skippable | |
@@ -99,11 +99,11 @@ one build at the end.**
 | Screen | Status | 💬 Your comments |
 |---|---|---|
 | Net worth tab — main | ✅ rebuilt to the approved glance-that-expands (2026-07-14, in Build 42): glance + trend + OWN/OWE + math line + collapsed detail + one add-or-connect | |
-| Connect flow — institution + consent / accounts found + merge (F1) | ⬜ ⬜ (merge rule EXISTS: matchImportAccount, shared) | |
+| Connect flow — institution + consent / accounts found + merge (F1) | ✅ ✅ (2026-07-15): /connect — institution search, APPROVED honest consent (through-the-servers wording, banned phrase pinned out), provider handoff behind the F1 seam, accounts-found picker, anti-duplicate merge (update-not-twin, settings kept), equal import/by-hand doors, honest no-provider state | |
 | Import from a file v2 | ✅ (institution required + provenance stamps, merge-not-duplicate w/ asset_id preserved, per-row class correction) | |
 | Account detail — any class | ✅ (/account-detail: source chip, per-class record-activity through recordTransaction, ledger history, value_as_of + 6-month nudge, Edit round-trip) | |
 | Bond editor / Alternative editor | ✅ ✅ | |
-| Add or edit an account by hand (dynamic by class) | ⬜ (AssetSheet remains the editor; unified dynamic add screen pending) | |
+| Add or edit an account by hand (dynamic by class) | ✅ (2026-07-15): /add-account — class-first dynamic fields (cash/stocks/bonds/alts/property/debt), wrapper + earmark chips, value-as-of stamped on every save, edit=manual-update mode, keyboard-safe Save | |
 
 ### Invest (8)
 | Screen | Status | 💬 Your comments |
