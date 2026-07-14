@@ -101,9 +101,9 @@ test('no odds captured → the locked gauge shows SAMPLE 84% (labeled), never an
     onboardingProfile: { status: 'employed', baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '20', name: 'Pat' },
   } as any);
   render(<HomeScreen />);
-  expect(screen.getByText('SAMPLE')).toBeOnTheScreen();                    // the uncroppable pill
+  expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();               // the word comes FIRST — never believable as real
   expect(screen.getByText(/3 quick answers unlock your real number/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/sample, not your number/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/not your number.*questions, not a purchase/)).toBeOnTheScreen();
 });
 
 test("the cash-flow snapshot card: income/spent/left from the month's own figures", () => {
@@ -115,5 +115,5 @@ test("the cash-flow snapshot card: income/spent/left from the month's own figure
   } as any);
   render(<HomeScreen />);
   expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();
-  expect(screen.getByLabelText(/This month's cash flow: income \$6,000, spent \$1,200, \$4,800 left/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/This month's cash flow: income \$6,000, spent so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
 });

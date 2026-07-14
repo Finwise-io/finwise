@@ -300,7 +300,7 @@ export default function HomeScreen() {
          
           accessibilityLabel={wil.chance != null
             ? `Will my money last to ${wil.horizonAge}: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Opens Plan.`
-            : 'Will my money last: sample gauge showing 84 percent, a sample, not your number. Three quick answers unlock your real odds. Opens Plan.'}>
+            : 'Will my money last: sample gauge showing sample 84 percent, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.'}>
           <Text style={styles.boxLabel}>WILL MY MONEY LAST?{wil.chance != null ? ` — to ${wil.horizonAge}` : ''}</Text>
           {wil.chance != null ? (
             <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <Text style={styles.wilEst}>— estimate</Text></Text>
@@ -318,20 +318,19 @@ export default function HomeScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <View style={styles.gaugeLine}>
-                  <Text style={styles.gaugeBlank}>Odds your money lasts: <Text style={styles.gaugeSampleNum}>84%</Text></Text>
-                  <View style={styles.samplePill}><Text style={styles.samplePillTxt}>SAMPLE</Text></View>
+                  <Text style={styles.gaugeBlank}>Odds your money lasts: <Text style={styles.gaugeSampleNum}>Sample: 84%</Text></Text>
                 </View>
                 <Text style={styles.wilInvite}>3 quick answers unlock your real number</Text>
               </View>
             </View>
           )}
-          <Text style={styles.heroLink}>{wil.chance != null ? 'See the full picture ›' : 'Unlock your odds ›'}</Text>
+          <Text style={styles.heroLink}>{wil.chance != null ? 'See the full picture ›' : 'See your real odds ›'}</Text>
         </TouchableOpacity>
 
         {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs spending
             at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
         <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-          accessibilityLabel={`This month's cash flow: income ${maskedMoney(Math.round(thisMonthNet))}, spent ${maskedMoney(Math.round(bva.spent_total))}, ${thisMonthNet - bva.spent_total >= 0 ? `${maskedMoney(Math.round(thisMonthNet - bva.spent_total))} left` : `${maskedMoney(Math.round(bva.spent_total - thisMonthNet))} over`}. Opens the Cash flow tab.`}>
+          accessibilityLabel={`This month's cash flow: income ${maskedMoney(Math.round(thisMonthNet))}, spent so far ${maskedMoney(Math.round(bva.spent_total))}, ${thisMonthNet - bva.spent_total >= 0 ? `${maskedMoney(Math.round(thisMonthNet - bva.spent_total))} left, bills may still be coming` : `${maskedMoney(Math.round(bva.spent_total - thisMonthNet))} over`}. Opens the Cash flow tab.`}>
           <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
           <View style={styles.cfBarTrack}>
             <View style={[styles.cfBarFill, {
@@ -341,9 +340,9 @@ export default function HomeScreen() {
           </View>
           <View style={styles.cfRow}>
             <Text style={styles.cfCell}>Income <Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text></Text>
-            <Text style={styles.cfCell}>Spent <Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></Text>
+            <Text style={styles.cfCell}>Spent so far <Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></Text>
             <Text style={styles.cfCell}>{thisMonthNet - bva.spent_total >= 0 ? 'Left ' : 'Over '}
-              <Text style={[styles.cfNum, { color: thisMonthNet - bva.spent_total >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(thisMonthNet - bva.spent_total)))}</Text>
+              <Text style={[styles.cfNum, thisMonthNet - bva.spent_total < 0 && { color: Colors.red }]}>{maskedMoney(Math.abs(Math.round(thisMonthNet - bva.spent_total)))}</Text>
             </Text>
           </View>
         </TouchableOpacity>
@@ -416,9 +415,7 @@ const styles = StyleSheet.create({
   gaugeLock: { position: 'absolute', alignSelf: 'center', top: 26, fontSize: 20 },
   gaugeBlank: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   gaugeLine: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
-  gaugeSampleNum: { fontWeight: '800', color: Colors.textTertiary },
-  samplePill: { backgroundColor: Colors.bgTertiary, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
-  samplePillTxt: { fontSize: 10, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.8 },
+  gaugeSampleNum: { fontWeight: '800', color: Colors.textTertiary, fontStyle: 'italic' },
   cfBarTrack: { height: 12, borderRadius: 6, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
   cfBarFill: { height: 12, borderRadius: 6 },
   cfRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
