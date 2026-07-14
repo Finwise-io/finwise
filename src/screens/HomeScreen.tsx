@@ -277,7 +277,7 @@ export default function HomeScreen() {
 
         {/* WHAT NEEDS YOU — top 3 from the ONE insights engine (same items/order as Insights) */}
         <View style={styles.box}>
-          <Text style={styles.boxLabel}>WHAT NEEDS YOU {topInsights.length > 0 ? `(${topInsights.length})` : ''}</Text>
+          <Text style={styles.boxLabel}>CHIEF OF STAFF — WHAT NEEDS YOU {topInsights.length > 0 ? `(${topInsights.length})` : ''}</Text>
           {topInsights.length === 0 && <Text style={styles.nothingTxt}>Nothing needs you today — nice.</Text>}
           {topInsights.map((ins, i) => (
             <TouchableOpacity accessibilityRole="button" key={ins.id} style={[styles.needRow, i > 0 && styles.divider]} activeOpacity={0.7}
@@ -299,11 +299,11 @@ export default function HomeScreen() {
         <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
          
           accessibilityLabel={wil.chance != null
-            ? `Will my money last to ${wil.horizonAge}: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Opens Plan.`
-            : 'Will my money last: sample gauge showing sample 84 percent, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.'}>
-          <Text style={styles.boxLabel}>WILL MY MONEY LAST?{wil.chance != null ? ` — to ${wil.horizonAge}` : ''}</Text>
+            ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`
+            : `Will my money last: sample gauge, sample 84 percent odds of lasting to age ${wil.horizonAge}, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.`}>
+          <Text style={styles.boxLabel}>WILL MY MONEY LAST?</Text>
           {wil.chance != null ? (
-            <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <Text style={styles.wilEst}>— estimate</Text></Text>
+            <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% odds of lasting to age {wil.horizonAge} <Text style={styles.wilEst}>— estimate</Text></Text>
           ) : (
             // founder 2026-07-15: a living tease of the prediction engine, never a chore — the full
             // gauge visual, LOCKED, with the number visibly blank (a fake 88% would be a trust bug)
@@ -318,7 +318,7 @@ export default function HomeScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <View style={styles.gaugeLine}>
-                  <Text style={styles.gaugeBlank}>Odds your money lasts: <Text style={styles.gaugeSampleNum}>Sample: 84%</Text></Text>
+                  <Text style={styles.gaugeBlank}><Text style={styles.gaugeSampleNum}>Sample: 84%</Text> odds of lasting to age {wil.horizonAge}</Text>
                 </View>
                 <Text style={styles.wilInvite}>3 quick answers unlock your real number</Text>
               </View>
