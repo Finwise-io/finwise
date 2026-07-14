@@ -347,6 +347,10 @@ export default function SettingsScreen() {
           <View style={{ flex: 1, marginRight: Spacing.sm }}>
             <Text style={styles.actionLabel}>Your setup</Text>
             <Text style={styles.actionSub}>Sets up your Home and tab order. Still working leads with your investments; retired leads with your monthly paycheck.</Text>
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/first-run')}
+              accessibilityLabel="Open your setup — the two questions that set your Home and tab order">
+              <Text style={{ fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 6 }}>Open your setup ›</Text>
+            </TouchableOpacity>
             <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
               {([['working', 'Still working'], ['retired', 'Retired, or nearly']] as const).map(([v, label]) => {
                 const active = resolveLens(onboardingProfile, lensOverride) === v;

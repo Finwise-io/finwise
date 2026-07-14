@@ -16,6 +16,7 @@ export const MODAL_SEGMENTS = [
   'month-detail',               // FCC Cash flow tab: the per-month cell renderer
   'account-detail',             // FCC Net worth tab: one page per account
   'multi-goal',                 // FCC Plan tab: Afford it all? (the F4 composer)
+  'first-run',                  // FCC: the lens questions (intents + stage), also Settings' revisit target
 ];
 
 export type RouteState = {

@@ -48,6 +48,7 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['CashFlowScreen', require('../CashFlowScreen').default],
   ['AccountDetailScreen', require('../AccountDetailScreen').default],
   ['MultiGoalScreen', require('../MultiGoalScreen').default],
+  ['FirstRunScreen', require('../FirstRunScreen').default],
   ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
   ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],
