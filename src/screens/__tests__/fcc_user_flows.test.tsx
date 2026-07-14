@@ -107,9 +107,13 @@ describe('3 · brand-new user, day one, finishes onboarding', () => {
 });
 
 describe('4 · brand-new user who skips everything (just explore)', () => {
-  test('Home invites honestly; Cash flow and Plan show working empty states — no dead end, no fake zeros', () => {
+  test('Home shows the DOORS in (import · by hand · connect-honestly-coming-soon); no dead end, no fake zeros', () => {
     const home = render(<HomeScreen />);
     expect(screen.getByText(/Let's get your real numbers in/)).toBeOnTheScreen();
+    expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Connect your first account — coming soon/)).toBeOnTheScreen();   // honest, not hidden
+    expect(screen.getByText(/WHAT YOU'LL SEE HERE/)).toBeOnTheScreen();
     expect(screen.queryByText(/\$0/)).toBeNull();                      // never a fake zero
     home.unmount();
     const cf = render(<CashFlowScreen />);

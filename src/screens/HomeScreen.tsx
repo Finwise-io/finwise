@@ -146,22 +146,65 @@ export default function HomeScreen() {
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
 
   if (!snap) {
-    // Resume-aware: a saved draft means they're mid-setup — say so, and UN-PAUSE before routing
-    // (the auth guard bounces paused users out of /onboarding, which looked like a dead loop).
+    // Home — first run, nothing connected yet (FCC detailed design v1.1, Home sheet): never fake
+    // zeros or demo charts — one promise and the DOORS in: connect (honestly 'coming soon' until
+    // the bank link ships), add by hand, import a file; the retired-paycheck fast path leads when
+    // that's what they came for. A saved deep-setup draft still resumes (un-pause before routing).
     const draft = store.onboardingDraft;
     const goSetup = () => { store.setOnboardingPaused?.(false); router.replace('/onboarding'); };
+    const paycheckFirst = lens === 'retired' && (Array.isArray(op?.intents) ? op.intents.includes('paycheck') : false);
     return (
-      <View style={[styles.root, { justifyContent: 'center', padding: Spacing.lg }]}>
-        <Text style={styles.coin}>🪙</Text>
-        <Text style={[styles.h1, { textAlign: 'center' }]}>{draft ? 'Pick up where you left off' : "Let's get your real numbers in"}</Text>
-        <Text style={[styles.sub, { textAlign: 'center', marginTop: 6 }]}>
-          {draft ? 'Your progress is saved — a few more steps and your numbers fill in.'
-                 : 'Finish a quick setup and your whole money picture fills in — read-only, we can never move your money.'}
-        </Text>
-        <TouchableOpacity accessibilityRole="button" style={styles.cta} onPress={goSetup}>
-          <Text style={styles.ctaText}>{draft ? 'Continue setup →' : 'Start setup →'}</Text>
+      <ScrollView style={styles.root} contentContainerStyle={[styles.content, { paddingTop: Spacing.xl }]} showsVerticalScrollIndicator={false}>
+        <Text style={styles.sub}>Welcome{name !== 'there' ? `, ${name}` : ''}</Text>
+        <Text style={styles.h1}>Let's get your real numbers in.</Text>
+
+        {draft && (
+          <TouchableOpacity accessibilityRole="button" style={styles.cta} onPress={goSetup}
+            accessibilityLabel="Pick up where you left off — continue setup">
+            <Text style={styles.ctaText}>Pick up where you left off →</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* the retired fast path leads when a retirement paycheck is what they came for */}
+        {paycheckFirst && (
+          <TouchableOpacity accessibilityRole="button" style={[styles.door, styles.doorPrimary]} onPress={() => router.push('/monthly-income')}
+            accessibilityLabel="Get your paycheck — enter your Social Security and pension. Two minutes, no bank login.">
+            <Text style={styles.doorTitle}>Get your paycheck ›</Text>
+            <Text style={styles.doorSub}>Enter your Social Security and pension — 2 minutes, no bank login.</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* connect: shown honestly as coming soon rather than hidden (design rule) */}
+        <View style={[styles.door, { opacity: 0.65 }]} accessible
+          accessibilityLabel="Connect your first account — coming soon. Read-only: we can look, never touch your money.">
+          <Text style={styles.doorTitle}>Connect your first account <Text style={styles.soonChip}>coming soon</Text></Text>
+          <Text style={styles.doorSub}>Read-only: we can look, never touch your money.</Text>
+        </View>
+
+        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/import-holdings')}
+          accessibilityLabel="Import a file from your brokerage">
+          <Text style={styles.doorTitle}>Import a file from your brokerage ›</Text>
+          <Text style={styles.doorSub}>The CSV export — we read your holdings, nothing is uploaded.</Text>
         </TouchableOpacity>
-      </View>
+
+        <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/(tabs)/analytics')}
+          accessibilityLabel="Add something by hand — your home, or an account with no login">
+          <Text style={styles.doorTitle}>Add something by hand ›</Text>
+          <Text style={styles.doorSub}>Your home, savings, or an account with no login.</Text>
+        </TouchableOpacity>
+
+        {!draft && (
+          <TouchableOpacity accessibilityRole="button" onPress={goSetup}
+            accessibilityLabel="Or answer guided setup questions instead">
+            <Text style={styles.quietLink}>Or answer guided setup questions ›</Text>
+          </TouchableOpacity>
+        )}
+
+        <Text style={styles.boxLabel}>WHAT YOU'LL SEE HERE</Text>
+        <Text style={styles.promiseLine}>·  Your whole money picture in one place</Text>
+        <Text style={styles.promiseLine}>·  What needs your attention — with dollar amounts</Text>
+        <Text style={styles.promiseLine}>·  Whether your money will last — as honest odds</Text>
+      </ScrollView>
     );
   }
 
@@ -287,6 +330,13 @@ const styles = StyleSheet.create({
   coin: { fontSize: 44, textAlign: 'center', marginBottom: 10 },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg },
   ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  door: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, minHeight: 64, justifyContent: 'center' },
+  doorPrimary: { borderWidth: 1.5, borderColor: Colors.primary },
+  doorTitle: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
+  doorSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, lineHeight: 18 },
+  soonChip: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary },
+  quietLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: Spacing.md },
+  promiseLine: { fontSize: 14.5, color: Colors.textSecondary, lineHeight: 24 },
 
   heroCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   heroKicker: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6 },
