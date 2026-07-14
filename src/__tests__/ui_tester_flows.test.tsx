@@ -94,7 +94,7 @@ describe('FLOW 2 · the daily habit: log a coffee with + Expense, see it on Cash
     home.unmount();
 
     render(<CashFlowScreen />);
-    expect(screen.getByText(/Spent so far \$(6\.50|7)/)).toBeOnTheScreen();   // budgetVsActual, same helper
+    expect(screen.getByText(/Spent \$(6\.50|7) of/)).toBeOnTheScreen();   // budgetVsActual, same helper
   });
 });
 

@@ -139,6 +139,11 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   const commitments = (A.commitments ?? []) as { label: string; monthlyAmount: number }[];
   const committed = commitments.reduce((t, c) => t + (c.monthlyAmount || 0), 0);
 
+  const wilChance = React.useMemo(() => selectWillItLast({
+    op, accounts: store.assetAccounts ?? [], assumptions: A,
+    inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+  }).chance, [op, store.assetAccounts, A, store.inflationRate, store.employmentStatus]);
+
   // Future paycheck — PROJECTION (same F5 engine, projection mode; estimate label is mandatory copy)
   const projection = React.useMemo(() => {
     const age = ageFromProfile(op);
@@ -161,19 +166,39 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
     <>
       <View style={styles.card}>
         <Text style={styles.cardHdr}>THIS MONTH</Text>
+        {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
+          <>
+            <Text style={[styles.heroNum, { color: free >= 0 ? Colors.primary : Colors.red }]} accessible
+              accessibilityLabel={`${free >= 0 ? '' : 'minus '}${maskedMoney(Math.abs(free))} ${committed > 0 ? 'free to spend after your plan' : 'planned surplus'} this month`}>
+              {free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}
+            </Text>
+            <Text style={styles.heroSub}>{committed > 0 ? 'Free to spend after your plan' : 'Planned surplus'}</Text>
+          </>
+        ); })()}
+        <View style={styles.divider} />
         <Row label="In (take-home)" value={maskedMoney(Math.round(inflow))} />
         <Row label={debtMo > 0 ? 'Out (bills + debt)' : 'Out (bills)'} value={maskedMoney(Math.round(outflow))} dim />
-        <View style={styles.divider} />
         <Row label={committed > 0 ? 'Free to spend after your plan' : '= Planned surplus'}
           value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong
           color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.primary : Colors.red} />
         {committed > 0 && commitments.map((c, i) => (
           <Row key={i} label={`${c.label} · from your Plan`} value={`−${maskedMoney(c.monthlyAmount)}`} dim />
         ))}
-        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
-          accessibilityLabel={`Spent so far ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(Math.round(bva.planned_total))} planned — opens this month's detail`}>
-          <Text style={styles.note}>Spent so far {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned ›</Text>
-        </TouchableOpacity>
+        {(() => {
+          const now = new Date();
+          const monthPct = Math.round((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100);
+          const spentPct = bva.planned_total > 0 ? Math.round((bva.spent_total / bva.planned_total) * 100) : 0;
+          return (
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
+              accessibilityLabel={`Spending pace: ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+              <View style={styles.paceTrack}>
+                <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
+                <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
+              </View>
+              <Text style={styles.note}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned · {spentPct}% spent, {monthPct}% of the month gone ›</Text>
+            </TouchableOpacity>
+          );
+        })()}
       </View>
 
       {projection && (
@@ -184,6 +209,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
           <Row label="Safe draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
+          {wilChance != null && <Text style={styles.note}>Based on your plan's {wilChance}% odds of lasting · see Plan ›</Text>}
         </TouchableOpacity>
       )}
     </>
@@ -204,7 +230,11 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
         label: c.label,
         inflow: c.inflow,
         outflow: c.outflow,
-        flag: c.incomeItems.some((i: any) => i.source === 'Bonus') ? '+ Bonus lands' : (c.net < -0.005 ? '! short month' : null),
+        flag: (() => {
+          const bonus = c.incomeItems.find((i: any) => i.source === 'Bonus');
+          if (bonus) return `+ Bonus ${maskedMoney(Math.round(bonus.amount))}`;
+          return c.net < -0.005 ? '! short month' : null;
+        })(),
         spoken: `${c.label}: ${Math.round(c.inflow)} dollars in, ${Math.round(c.outflow)} out${c.net < -0.005 ? ', a short month' : ''}`,
       }));
   const max = Math.max(1, ...cells.map((c: any) => Math.max(c.inflow, c.outflow)));
@@ -275,6 +305,11 @@ const styles = StyleSheet.create({
   rowL: { fontSize: Typography.sizes.base, color: Colors.textPrimary },
   rowV: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
+  heroNum: { fontSize: 34, fontWeight: '800', marginTop: 2 },
+  heroSub: { fontSize: 13, color: Colors.textSecondary, fontWeight: '700', marginBottom: 6 },
+  paceTrack: { height: 10, borderRadius: 5, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
+  paceFill: { height: 10, borderRadius: 5 },
+  paceMark: { position: 'absolute', top: -2, width: 2, height: 14, backgroundColor: Colors.textSecondary },
   note: { fontSize: 12, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
   link: { fontSize: 13, color: Colors.primary, fontWeight: '700', marginTop: 8 },
   orderLine: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary, marginTop: 8 },

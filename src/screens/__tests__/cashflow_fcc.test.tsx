@@ -99,7 +99,7 @@ describe('working lens', () => {
     expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();
     expect(screen.getByText('In (take-home)')).toBeOnTheScreen();
     expect(screen.getByText(/= Planned surplus/)).toBeOnTheScreen();
-    expect(screen.getByText(/Spent so far/)).toBeOnTheScreen();
+    expect(screen.getByText(/Spent .* of .* planned/)).toBeOnTheScreen();
     expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();   // no retiree hero on the working lens
   });
 

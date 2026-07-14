@@ -25,5 +25,5 @@ test('working lens: this-month in/out + the canonical Planned surplus + dated by
   expect(getByText('In (take-home)')).toBeTruthy();
   expect(getByText('= Planned surplus')).toBeTruthy();       // canonical after-debt vocabulary
   expect(getByText(/BY MONTH ·/)).toBeTruthy();              // the dated F2 window (Jul 26 – Jun 27 style)
-  expect(getByText(/Spent so far/)).toBeTruthy();            // planned-vs-actual line
+  expect(getByText(/Spent .* of .* planned/)).toBeTruthy();            // planned-vs-actual line
 });
