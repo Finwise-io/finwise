@@ -80,7 +80,7 @@ one build at the end.**
 | Cash flow main — working (in/out/surplus + bars + commitments seam + projection card) | ✅ | |
 | Month detail (pure renderer over one F2/F5 cell, prev/next) | ✅ (`/month-detail?slot=N`) | |
 | Bill calendar v2 | 🔨 (v1 linked from 'All bills & the calendar'; running-balance table pending) | |
-| Draw-order steer sheet | 🔨 (preview + Why sheet live; steering/reordering pending) | |
+| Draw-order steer sheet | ✅ (2026-07-15, founder retiree-mock round): reorder by buttons, RMD pinned at 73+, honest depletion-model comparison (lasts-to + taxes; % deliberately not re-run), Keep/Reset persists ONE store.drawOrder the preview reads | |
 | Your monthly income (SS · pension · annuity) | ✅ | |
 | Quick-add expense (+ sheet) | ✅ (shared MoneySheets) | |
 
