@@ -101,3 +101,43 @@ export function rmdAtAge(preTaxBalance: number, age: number): number {
   const d = rmdDivisor(age);
   return d > 0 ? round2(preTaxBalance / d) : 0;
 }
+
+// ── FCC: the required-withdrawals screen (detailed design Plan r43-r51) ─────────────────────
+
+export interface RmdYearRow {
+  age: number;
+  year: number;
+  projectedPreTax: number;   // estimate — moves with balances and returns
+  divisor: number;
+  amount: number;            // the mandated withdrawal that year (estimate for future years)
+  isCurrent: boolean;
+}
+
+/** Year-by-year mandated-withdrawal schedule (ESTIMATES: future balances move with returns).
+ *  ONE growth rule: balance grows at `expReturn`, then the year's RMD leaves the pre-tax bucket.
+ *  Starts at the LATER of age 73 / current age; runs `years` rows. The SAME rmdAtAge() every
+ *  other surface uses (agreement-pinned). */
+export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number, years = 15, nowYear = new Date().getFullYear()): RmdYearRow[] {
+  const rows: RmdYearRow[] = [];
+  if (preTaxNow <= 0) return rows;
+  const startAge = Math.max(RMD_START_AGE, ageNow);
+  let bal = preTaxNow;
+  const r = Math.max(0, Math.min(0.12, expReturn || 0));
+  for (let age = ageNow; age < startAge; age++) bal *= 1 + r;          // grow to the start year
+  for (let i = 0; i < years; i++) {
+    const age = startAge + i;
+    const amount = rmdAtAge(bal, age);
+    rows.push({ age, year: nowYear + (age - ageNow), projectedPreTax: Math.round(bal), divisor: rmdDivisor(age), amount, isCurrent: age === ageNow });
+    bal = Math.max(0, (bal - amount) * (1 + r));
+  }
+  return rows;
+}
+
+/** Withdrawals already taken THIS year from the pre-tax accounts (the one ledger — no side lists).
+ *  Counts WITHDRAWAL rows whose account is in the pre-tax bucket, dated this calendar year. */
+export function rmdTakenThisYear(transactions: { type?: string; account_id?: string; amount?: number; date?: string }[], preTaxAccountIds: string[], nowYear = new Date().getFullYear()): number {
+  const ids = new Set(preTaxAccountIds.map(String));
+  return round2((transactions ?? [])
+    .filter((t) => t.type === 'WITHDRAWAL' && ids.has(String(t.account_id)) && String(t.date ?? '').startsWith(String(nowYear)))
+    .reduce((s, t) => s + (t.amount || 0), 0));
+}

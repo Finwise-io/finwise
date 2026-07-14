@@ -63,7 +63,7 @@ export default function CashFlowScreen() {
       </View>
 
       {lens === 'retired' ? (
-        <RetiredMain year={year} accounts={accounts} onWhyOrder={() => setWhyOrder(true)} />
+        <RetiredMain year={year} accounts={accounts} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
       ) : (
         <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
       )}

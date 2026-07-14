@@ -46,6 +46,25 @@ export async function cancelStreakReminder() {
   await Notifications.cancelScheduledNotificationAsync('streak-reminder');
 }
 
+// ── Required-withdrawal reminders (FCC Plan r48/r51 — logistics only, no timing advice) ──
+/** November 1 nudge ahead of the Dec 31 deadline (this year or a future start year). */
+export async function scheduleRmdReminder(year: number) {
+  const id = `rmd-reminder-${year}`;
+  await Notifications.cancelScheduledNotificationAsync(id);
+  const fireAt = new Date(year, 10, 1, 10, 0, 0);           // Nov 1, 10:00
+  if (fireAt.getTime() <= Date.now()) return false;          // never schedule the past
+  await Notifications.scheduleNotificationAsync({
+    identifier: id,
+    content: {
+      title: 'Required withdrawal — deadline Dec 31',
+      body: `Your ${year} required withdrawal from pre-tax retirement accounts is due by Dec 31.`,
+      data: { screen: 'required-withdrawals' },
+    },
+    trigger: { type: Notifications.SchedulableTriggerInputTypes.DATE, date: fireAt },
+  });
+  return true;
+}
+
 // ── Budget alert (fire immediately) ────────────────────────────────
 export async function sendBudgetAlert(category: string, pct: number) {
   await Notifications.scheduleNotificationAsync({

@@ -57,6 +57,9 @@ export interface GridOptions {
    *  months). When provided, the flat retirement-income line is omitted — the dated rows replace
    *  it (never both; no double counting). */
   guaranteedIncome?: { source: string; amount: number; month: number; year?: number; day?: number }[];
+  /** F11 seam: one-off planned items an ADOPTED plan creates (e.g. the Roth conversion's tax bill
+   *  next April). Placed like named bills; months outside the window land in `later`. */
+  oneOffs?: { label: string; amount: number; month: number; year?: number; critical?: boolean }[];
 }
 
 /** Build the dated 12-month grid. Pure; all placement rules stated here once. */
@@ -174,6 +177,15 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   for (let s = 0; s < 12; s++) {
     const rest = spendCal[calMonth(s)] - named[s];
     if (rest > 0.004) bills[s].push({ label: 'Everyday spending', amount: rest, kind: 'bill' });
+  }
+  // one-off planned items from an adopted plan (kept OUT of the spend reconciliation above —
+  // they are additions the plan created, not part of stated everyday spending)
+  for (const o of (opts.oneOffs ?? [])) {
+    if (!o || !(o.amount > 0)) continue;
+    const s = slotForMY(o.month, o.year);
+    const item: GridBillItem = { label: o.label, amount: o.amount, kind: 'bill', critical: o.critical ?? true };
+    if (s >= 0) bills[s].push(item);
+    else later.push({ label: o.label, amount: o.amount, month: o.month, year: o.year ?? 0 });
   }
   // debt payments: monthly on due_day, starting at first_payment_date, ending at payoff_date
   for (const d of (opts.liabilities ?? [])) {

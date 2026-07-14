@@ -37,8 +37,14 @@ export function useCashflowModel(): CashflowModel {
         seed: 42, paths: 300,
       },
     });
-    const grid = buildDatedGrid(op, { liabilities });
+    // F11 propagation (design r40 pin): an adopted Roth conversion shows its tax bill in the
+    // grid's April of NEXT year — the same dollar figure the adoption sheet previewed.
+    const rothTax = Number(A.rothConversionTax) || 0;
+    const oneOffs = rothTax > 0
+      ? [{ label: 'Roth conversion tax (from your Plan)', amount: rothTax, month: 4, year: new Date().getFullYear() + 1 }]
+      : undefined;
+    const grid = buildDatedGrid(op, { liabilities, oneOffs });
     return { lens, year, grid };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [op, accounts, liabilities, A.expectedReturn, A.horizonAge, A.inflation, lens]);
+  }, [op, accounts, liabilities, A.expectedReturn, A.horizonAge, A.inflation, A.rothConversionTax, lens]);
 }

@@ -54,7 +54,7 @@ const RULES: Rule[] = [
     route: '/worth-a-look',
   } : null,
   // FCC retiree rule: the government-required yearly withdrawal from pre-tax accounts (age 73+).
-  (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/(tabs)/plan' } : null,
+  (i) => i.rmdDue ? { id: 'rmd-due', priority: 1, icon: '📌', title: 'Required withdrawal due', body: `${money0(i.rmdDue.amount)} must come out of your pre-tax retirement accounts by Dec 31 — the IRS requires it from age 73.`, route: '/required-withdrawals' } : null,
   (i) => i.toxicDebt ? { id: 'toxic-debt', priority: 1, icon: '🔥', title: 'Tackle high-interest debt first', body: `${i.toxicDebt.label} is at ${pctTxt(i.toxicDebt.apr)} APR — paying it down beats almost any investment return.`, route: '/(tabs)/goals' } : null,
   // B-44: a robotic "0.0 months" alarms a user with plenty in investments; word the no-cash case plainly.
   (i) => (i.cashMonths != null && i.cashMonths < 3) ? { id: 'runway', priority: 1, icon: '🛟', title: 'Build your emergency fund', body: i.cashMonths < 0.1 ? `You have no cash set aside for emergencies — aim for 3–6 months of spending (investments aren't counted here).` : `Your cash covers about ${i.cashMonths.toFixed(1)} months of spending — aim for 3–6.`, route: '/(tabs)/goals' } : null,
