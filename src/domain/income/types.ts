@@ -17,6 +17,8 @@ export interface IncomeSource {
   operating_expenses: number;      // per period (rentals); 0 for jobs
   who_earns?: WhoEarns;
   employer_match_amount?: number;  // employer adds, per period (W2) — gap-fix for the goals waterfall
+  landing_month?: number;          // 1-12 — where an ANNUAL/ONETIME item actually lands (the user's
+                                   // chosen month); without it the grids disagreed on WHEN (PRD F2 #16)
 }
 
 /** Per-user tax handling (spec: tax config flag + manual override). */

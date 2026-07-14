@@ -13,6 +13,7 @@ import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
+import { maskDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { requiredMonthly } from '../domain/goals';
@@ -139,11 +140,11 @@ export default function InsightsScreen() {
         <View key={t}>
           <Text style={styles.groupHdr}>{THEME_META[t].icon}  {THEME_META[t].label.toUpperCase()}</Text>
           {insights.filter((i) => i.theme === t).map((i) => (
-            <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={i.title} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
+            <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={maskDollars(i.title)} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
               <Text style={styles.icon}>{i.icon}</Text>
               <View style={{ flex: 1 }}>
-                <Text style={styles.title}>{i.title}</Text>
-                <Text style={styles.body}>{i.body}</Text>
+                <Text style={styles.title}>{maskDollars(i.title)}</Text>
+                <Text style={styles.body}>{maskDollars(i.body)}</Text>
               </View>
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
@@ -166,7 +167,7 @@ export default function InsightsScreen() {
                   {open.details.map((d, k) => (
                     <View key={k} style={styles.detailRow}>
                       <Text style={styles.detailLabel} numberOfLines={1}>{d.label}</Text>
-                      <Text style={styles.detailVal}>{d.value}</Text>
+                      <Text style={styles.detailVal}>{maskDollars(d.value)}</Text>
                     </View>
                   ))}
                 </View>

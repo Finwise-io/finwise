@@ -42,6 +42,38 @@ describe('state contract (FCC-state-contract.md)', () => {
     }
   });
 
+  test('AUDIT r94 — success-chance units are 0-100 percent END TO END (never a 100x display bug)', () => {
+    const { simulate } = require('../domain/retirement');
+    const { selectWillItLast } = require('../domain/retirement/willItLast');
+    const r = simulate({
+      current_age: 60, retire_age: 67, horizon_age: 92, start_balance: 500000,
+      annual_contribution: 12000, contribution_growth: 0, retire_monthly_spend_today: 4500,
+      guaranteed_monthly_income: 2000, guaranteed_start_age: 67, mean_return: 0.055,
+      vol_return: 0.11, inflation: 0.025, seed: 42, paths: 200,
+    });
+    expect(Number.isInteger(r.chance_of_success)).toBe(true);
+    expect(r.chance_of_success).toBeGreaterThanOrEqual(0);
+    expect(r.chance_of_success).toBeLessThanOrEqual(100);
+    const wil = selectWillItLast({
+      op: { status: 'employed', birthYear: String(new Date().getFullYear() - 60), baseSalary: '9000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '20', monthlySpending: '4500', targetRetirementAge: '67', horizonAge: '92' },
+      accounts: [{ asset_id: 'k', label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 500000 }],
+      assumptions: {}, inflationRate: 2.5, employmentStatus: null,
+    });
+    if (wil.chance != null) { expect(wil.chance).toBeGreaterThanOrEqual(0); expect(wil.chance).toBeLessThanOrEqual(100); }
+  });
+
+  test('AUDIT r14/F2#16 — a lumpy bonus lands in the SAME month on BOTH grids (the drift is dead)', () => {
+    const { incomeFromOnboarding, buildIncomeState, incomeMonthlyGrid } = require('../domain/income');
+    const op = { status: 'employed', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '20', bonusAnnual: '12000', bonusMonth: 3 };
+    const doc = incomeFromOnboarding('u1', op as any);
+    const state = buildIncomeState('u1', doc.sources, doc.tax);
+    const onboardingGrid = incomeMonthlyGrid(op as any, 'gross');
+    // March carries the bonus on BOTH; December carries it on NEITHER
+    expect(state.monthly_cash_flow_grid[2].gross).toBeGreaterThan(state.monthly_cash_flow_grid[11].gross);
+    expect(onboardingGrid[2].amount).toBeGreaterThan(onboardingGrid[11].amount);
+    expect(Math.round(state.monthly_cash_flow_grid[2].gross)).toBe(Math.round(onboardingGrid[2].amount));
+  });
+
   test('the contract document itself stays present and BINDING', () => {
     const doc = fs.readFileSync(path.join(__dirname, '../../docs/FCC-core-55-70/FCC-state-contract.md'), 'utf8');
     expect(doc).toMatch(/Status: BINDING/);

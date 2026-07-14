@@ -9,7 +9,8 @@ export type GlossaryTerm =
   // asset classes (what your money is invested in) + income — added so the same plain-English meaning
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
-  | 'grossIncome' | 'contributionRoom' | 'capitalGains';
+  | 'grossIncome' | 'contributionRoom' | 'capitalGains'
+  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
@@ -31,4 +32,9 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   grossIncome:  { title: 'Gross income', body: 'Your total pay before any taxes or deductions. Take-home is what’s left after tax and your 401(k).' },
   contributionRoom: { title: 'Contribution room', body: 'How much more you can still add to a tax-advantaged account (401(k), IRA, HSA) this year before hitting the IRS limit.' },
   capitalGains: { title: 'Capital gains tax', body: 'Tax on profit when you sell. Held over a year: the lower long-term rate (often 15%). Held under a year: taxed like regular income. The app shows an estimate — your real rate depends on your full tax picture.' },
+  safeDraw: { title: 'Safe draw', body: 'The steady monthly amount the math says your savings can support without running out before your plan-to age. Re-checked against your live balances — an estimate, not a guarantee.' },
+  guaranteedIncome: { title: 'Guaranteed income', body: 'Money that arrives no matter what markets do — Social Security, a pension, an annuity. The foundation of a retirement paycheck.' },
+  rateSensitivity: { title: 'Rate sensitivity', body: 'How much a bond’s market value moves if interest rates move. Rates up, existing bonds down — but held to maturity, a bond still returns its face value.' },
+  provenance: { title: 'Where this number came from', body: 'Every figure shows its source — connected from your bank, imported from a file, or entered by you — and how fresh it is. You can always trace a number.' },
+  estimate: { title: 'Estimate', body: 'A figure computed from your numbers and stated assumptions — not a promise or a prediction. Change the inputs and it changes. You decide what to do with it.' },
 };

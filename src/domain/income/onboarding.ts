@@ -241,9 +241,9 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   // the employer-match annualization stays correct. Using the max month here inflated income for
   // anyone with $0 gap months (e.g. 6-on/6-off), and disagreed with totalGrossAnnual elsewhere.
   add('Base salary', 'W2_JOB', salaryAnnual(op) / 12, 'MONTHLY', { employer_match_amount: employerMatchMonthly(op) });
-  add('Bonus', 'W2_JOB', toNum(a.bonusAnnual), 'ANNUAL');
+  add('Bonus', 'W2_JOB', toNum(a.bonusAnnual), 'ANNUAL', { landing_month: Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)) });
   add('Equity comp', 'W2_JOB', rsuAnnual(op), 'ANNUAL');  // RSUs + options, summed across grants
-  add('Signing bonus', 'W2_JOB', toNum(a.signingOnetime), 'ONETIME');
+  add('Signing bonus', 'W2_JOB', toNum(a.signingOnetime), 'ONETIME', { landing_month: 1 });
 
   for (const r of rentalList(op)) sources.push({
     income_source_id: newEntityId('inc'), label: 'Rental property',
@@ -264,7 +264,8 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
     add('Scholarship / grant', 'SCHOLARSHIP', toNum(a.scholarshipAmount), a.scholarshipFreq === 'monthly' ? 'MONTHLY' : 'ANNUAL');
   }
   add(a.otherLabel?.trim() || 'Other income', 'OTHER', toNum(a.otherAmount),
-      a.otherFreq === 'annual' ? 'ANNUAL' : a.otherFreq === 'onetime' ? 'ONETIME' : 'MONTHLY');
+      a.otherFreq === 'annual' ? 'ANNUAL' : a.otherFreq === 'onetime' ? 'ONETIME' : 'MONTHLY',
+      { landing_month: Math.min(12, Math.max(1, toNum(a.otherMonth) || 1)) });
 
   const tax = a.taxMode === 'manual'
     ? { use_manual_tax_override: true, manual_effective_tax_rate: Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1) }

@@ -32,6 +32,10 @@ export const Colors = {
   border: 'rgba(0,0,0,0.10)',
   borderStrong: 'rgba(0,0,0,0.20)',
 
+  // validated chart-series tokens (UX design v1.1, Color tab — ΔE 96.7, both ≥3:1 on white)
+  chartIn: '#2A78D6',    // money in — blue
+  chartOut: '#EB6834',   // money out — orange
+  gainText: '#006300',   // dark green for gain TEXT (mid-greens are for marks, not body text)
   cardBg: '#FFFFFF',
   successGreen: '#5DCAA5',
 };

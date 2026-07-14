@@ -49,8 +49,8 @@ function grossByMonth(s: IncomeSource): number[] {
     case 'WEEKLY':  for (let i = 0; i < 12; i++) m[i] += amt * 52 / 12; break;
     case 'BIWEEKLY':for (let i = 0; i < 12; i++) m[i] += amt * 26 / 12; break;
     case 'QUARTERLY': [2, 5, 8, 11].forEach((i) => (m[i] += amt)); break;  // Mar/Jun/Sep/Dec
-    case 'ANNUAL':  m[11] += amt; break;                                     // Dec
-    case 'ONETIME': m[0] += amt; break;                                      // Jan
+    case 'ANNUAL':  m[Math.min(12, Math.max(1, s.landing_month ?? 12)) - 1] += amt; break;   // the user's month (default Dec)
+    case 'ONETIME': m[Math.min(12, Math.max(1, s.landing_month ?? 1)) - 1] += amt; break;    // the user's month (default Jan)
   }
   return m;
 }

@@ -156,3 +156,36 @@ Recording a deposit/withdrawal on a MANUAL-balance investment account (e.g. a pl
 bumped a phantom cash sleeve, and recomputeBalances then REPLACED the entered balance with the
 sleeve (−$5,000 shown for a $310k IRA). The sleeve now exists only on ledger-managed accounts
 (derive_balance / existing sleeve) — the same rule recomputeBalances uses.
+
+## SENIOR AUDIT — COMPLETED 2026-07-15 (the release gate's step 2)
+Method: PRD acceptance criteria (183) + sameness contract (12) + all four UX rule sheets walked
+line-by-line against the live code; detailed-design rows verified during the build (every row ✅
+with its own pin suite) plus the 8-journey adversarial pass. Findings:
+
+### Found and FIXED same day
+| Finding | Severity | Fix |
+|---|---|---|
+| Lumpy-income month DRIFT (PRD F2#16 / sameness r14): Income detail hardcoded bonus→Dec while Cash flow honored the chosen month — same dollar, two months | P1 | IncomeSource.landing_month carried from onboarding; both grids agree, agreement-pinned |
+| Insights screen ignored hide-balances — nudge bodies showed raw dollars | P1 | maskDollars on title/body/details |
+| Success-chance units unpinned end-to-end (PRD F6#9 r94 — the 100x display-bug class) | P2 | units pin in state_contract.test.ts |
+| In/out chart bars used brand green/amber instead of the VALIDATED blue/orange pair (UX Color r5) | P2 | Colors.chartIn #2A78D6 / chartOut #EB6834 applied |
+| Five FCC-mandated glossary terms missing (safe draw, guaranteed income, rate sensitivity, provenance, estimate) | LOW | added |
+
+### FOUNDER DECISIONS (open, not blocking code-complete)
+| Item | The tension | Recommendation |
+|---|---|---|
+| Gain-text color: spec says dark green #006300 for gain TEXT (contrast); app uses brand green #178F6B everywhere | Accessibility spec vs brand look — visual identity call | token added (Colors.gainText); approve and I sweep in one pass |
+| 17pt money floor (Type r2) vs dense tables (bill calendar 12pt, NW inventory 14pt) | Your own type rule vs the approved dense wireframes | decide: bump (rows may wrap on small phones) or approve a dense-table exception |
+
+### DEFERRED — known model/scope limits (each honest in-app today)
+Live bank sync + auto-refresh (needs founder Plaid keys + native SDK build — seam ready) · RMD/tax
+drag not inside the Monte-Carlo odds (noted in-app on the steer sheet) · progressive per-month
+withholding (flat blended rate, labeled estimate) · bracket-derived capital-gains rates (15/24
+hardcoded, labeled) · money-weighted IRR · filing status/state tax · first-RMD April-1 deferral
+nuance · net-worth history schema (untyped snapshots) · generic nudge dismiss/snooze (facts
+self-clear; worth-a-look has resolution) · saved-scenario side-by-side compare · cockpit horizon
+slider · InfoDot wiring for the new glossary terms on every surface.
+
+### DEVICE-ONLY checks (your walk sheet)
+Large-text survival · reduce-motion · grayscale/colorblind screenshot review · app-switcher
+snapshot masking · keyboard-over-button on the smallest phone.

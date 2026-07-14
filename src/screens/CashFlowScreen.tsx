@@ -278,8 +278,8 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
         </TouchableOpacity>
       ))}
       <View style={styles.legendRow}>
-        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.primary }]} /><Text style={styles.legendT}>in</Text></View>
-        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.amber }]} /><Text style={styles.legendT}>out</Text></View>
+        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.chartIn }]} /><Text style={styles.legendT}>in</Text></View>
+        <View style={styles.legend}><View style={[styles.dot, { backgroundColor: Colors.chartOut }]} /><Text style={styles.legendT}>out</Text></View>
         <Text style={styles.legendT}>· tap a month for detail</Text>
       </View>
     </View>
@@ -342,8 +342,8 @@ const styles = StyleSheet.create({
   barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 34, paddingVertical: 2 },
   barLabel: { width: 52, fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
   barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.bgSecondary, overflow: 'hidden' },
-  barIn: { height: 8, borderRadius: 4, backgroundColor: Colors.primary },
-  barOut: { height: 8, borderRadius: 4, backgroundColor: Colors.amber },
+  barIn: { height: 8, borderRadius: 4, backgroundColor: Colors.chartIn },
+  barOut: { height: 8, borderRadius: 4, backgroundColor: Colors.chartOut },
   barFlag: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary, maxWidth: 92 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
   legend: { flexDirection: 'row', alignItems: 'center', gap: 5 },
