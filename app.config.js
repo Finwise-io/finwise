@@ -8,7 +8,7 @@ module.exports = {
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
-    backgroundColor: '#1a1f3a',
+    backgroundColor: '#FFFFFF',
   },
   ios: {
     supportsTablet: false,
@@ -76,7 +76,7 @@ module.exports = {
     package: 'co.finwise.app',   // match the iOS bundle (co.finwise.app is locked to App Store Connect)
     adaptiveIcon: {
       foregroundImage: './assets/adaptive-icon.png',
-      backgroundColor: '#1a1f3a',
+      backgroundColor: '#FFFFFF',
     },
     permissions: ['CAMERA', 'READ_EXTERNAL_STORAGE'],
   },
