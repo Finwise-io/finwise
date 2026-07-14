@@ -66,6 +66,24 @@ export interface AssetAccount {
   asset_class?: AssetClass;
   tax_treatment?: TaxTreatment;
   re_use?: RealEstateUse;         // real_estate only: primary | rental | secondary | land
+  // FCC F1 provenance + manual-value freshness (detailed design v1.1, Net worth sheet):
+  source?: 'connected' | 'imported' | 'manual';  // absent = manual (every pre-FCC row)
+  connection_id?: string;         // F1: which Connection feeds this account (connected only)
+  last_synced?: string;           // ISO — last successful update from its source
+  value_as_of?: string;           // 'YYYY-MM-DD' — when a HAND-ENTERED value was last set/confirmed
+                                  // (display honesty only; the balance stays the one stored number)
+}
+
+/** Manual-value freshness (FCC): how old a hand-entered value is, and whether it needs a nudge.
+ *  Applies to accounts WITHOUT live pricing (no derive_balance positions feed). 6+ months = stale.
+ *  Returns null when the account is live-priced or carries no as-of date (nothing to judge). */
+export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf: string; monthsOld: number; stale: boolean } | null {
+  if (a.derive_balance) return null;                       // live-priced from positions
+  if (!a.value_as_of) return null;
+  const m = a.value_as_of.match(/^(\d{4})-(\d{2})/);
+  if (!m) return null;
+  const monthsOld = Math.max(0, (now.getFullYear() - +m[1]) * 12 + (now.getMonth() + 1 - +m[2]));
+  return { asOf: a.value_as_of, monthsOld, stale: monthsOld >= 6 };
 }
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.

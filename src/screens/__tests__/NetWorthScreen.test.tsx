@@ -115,8 +115,16 @@ test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel
     ],
     liabilities: [],
   } as any);
+  // FCC: a row tap now opens the account DETAIL page; the edit sheet opens via its Edit → ?edit= param
+  const first = render(<NetWorthScreen />);
+  fireEvent.press(screen.getByText('My 401(k)'));
+  expect(router.push).toHaveBeenCalledWith('/account-detail?id=k1');
+  first.unmount();
+  const er = jest.requireMock('expo-router');
+  const restoreParams = er.useLocalSearchParams;
+  er.useLocalSearchParams = () => ({ edit: 'k1' });                     // the detail screen's Edit path
   render(<NetWorthScreen />);
-  fireEvent.press(screen.getByText('My 401(k)'));                       // open the edit sheet
+  er.useLocalSearchParams = restoreParams;
   expect(screen.getByText("What's it invested in?")).toBeOnTheScreen(); // the wrapper class selector (#14 affordance)
   fireEvent.press(screen.getByText('Bonds'));                           // classify the existing account…
   fireEvent.press(screen.getByText(/Save \$/));                         // …instead of adding a separate bond account

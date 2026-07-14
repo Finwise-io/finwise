@@ -14,6 +14,7 @@ export const MODAL_SEGMENTS = [
   'worth-a-look','idle-cash',   // FCC Home tab: F10 flag detail + the idle-cash nudge landing
   'ss-timing',                  // FCC Plan tab: the Social Security claim-timing decision
   'month-detail',               // FCC Cash flow tab: the per-month cell renderer
+  'account-detail',             // FCC Net worth tab: one page per account
 ];
 
 export type RouteState = {

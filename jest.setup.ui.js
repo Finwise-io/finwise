@@ -4,7 +4,7 @@
 // expo-router — screens navigate via useRouter(); tests assert against these spies.
 jest.mock('expo-router', () => {
   const React = require('react');
-  const router = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), navigate: jest.fn() };
+  const router = { push: jest.fn(), replace: jest.fn(), back: jest.fn(), navigate: jest.fn(), setParams: jest.fn() };
   return {
     __esModule: true,
     useRouter: () => router,

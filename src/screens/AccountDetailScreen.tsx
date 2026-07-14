@@ -1,0 +1,338 @@
+// Account detail — any class (FCC detailed design v1.1, Net worth sheet). One page per account:
+// the balance, where the number comes from and how fresh it is, what it holds, its full activity
+// history, and the right record-activity buttons for its class. Every recorded action goes through
+// the ONE transactions engine (recordTransaction) — balances update by the same tested rules
+// everywhere, and hand-recorded rows are never questioned by the F10 watch (no source field).
+import React, { useMemo, useState } from 'react';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { useRouter, useLocalSearchParams } from 'expo-router';
+import { useStore } from '../store/useStore';
+import { Colors, Spacing, Radii } from '../utils/theme';
+import { currencySymbol } from '../domain/_shared/money';
+import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, type AssetAccount } from '../domain/assets';
+import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
+import { maskedMoney } from '../components/useMoney';
+
+const TAX_WORDS: Record<string, string> = {
+  taxable: 'taxable',
+  tax_deferred: 'pre-tax — taxed when it comes out',
+  tax_free: 'tax-free (Roth)',
+};
+const iso = (d: Date) => d.toISOString().slice(0, 10);
+
+type ActionType = 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'COUPON';
+const ACTION_LABEL: Record<ActionType, string> = {
+  DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdraw', TRANSFER: 'Transfer',
+  DIVIDEND: 'Dividend', INTEREST: 'Interest', COUPON: 'Coupon received',
+};
+
+export default function AccountDetailScreen() {
+  const router = useRouter();
+  const { id } = useLocalSearchParams<{ id?: string }>();
+  const store = useStore() as any;
+  const account: AssetAccount | undefined = (store.assetAccounts ?? []).find((a: AssetAccount) => String(a.asset_id) === String(id));
+  const [action, setAction] = useState<ActionType | null>(null);
+  const [showAll, setShowAll] = useState(false);
+  const [valueSheet, setValueSheet] = useState(false);
+
+  const txns: Transaction[] = useMemo(
+    () => ((store.transactions ?? []) as Transaction[]).filter((t) => String(t.account_id) === String(id) || String(t.counter_account_id) === String(id)),
+    [store.transactions, id]);
+
+  if (!account) {
+    // A pre-seed row derived from setup answers isn't a real account yet — say so honestly.
+    return (
+      <View style={[s.root, { justifyContent: 'center', padding: Spacing.lg }]}>
+        <Text style={s.h1}>This one lives in your setup answers</Text>
+        <Text style={s.sub}>Add it as a real account on the Net worth tab to record activity and see history.</Text>
+        <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => router.push('/(tabs)/analytics')}
+          accessibilityLabel="Open the Net worth tab">
+          <Text style={s.primaryTxt}>Open Net worth ›</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  const cls = assetClassOf(account);
+  const source = account.source ?? 'manual';
+  const sourceChip = source === 'connected' ? 'Connected · read-only' : source === 'imported' ? `Imported · ${String(account.last_synced ?? '').slice(0, 10) || '—'}` : 'Manual';
+  const updatedLine = source === 'connected' && account.last_synced
+    ? `Updated ${new Date(account.last_synced).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
+    : account.value_as_of ? `Value as of ${account.value_as_of}` : null;
+  const tickers = (account.positions ?? []).map((p) => p.ticker).filter(Boolean);
+  const fresh = valueFreshness(account);
+
+  // per-class actions (design: only what makes sense for this account)
+  const actions: ActionType[] =
+    cls === 'cash' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER']
+    : cls === 'stocks_etf' || cls === 'mixed' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'INTEREST']
+    : cls === 'bonds' ? ['COUPON']
+    : [];
+  // ticker trades and bond/alt buys-sells keep their existing full flows — one recorder each
+  const tradeLink = cls === 'stocks_etf' || cls === 'mixed' ? { label: 'Buy / Sell holdings ›', route: '/(tabs)/invest' }
+    : cls === 'bonds' ? { label: 'Buy more / Sell this bond ›', route: '/bonds' }
+    : cls === 'alternatives' ? { label: 'Buy more / Record a sale ›', route: '/other-investments' }
+    : null;
+
+  const shown = showAll ? txns : txns.slice(0, 8);
+
+  return (
+    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      {/* header: name + source + freshness — same source language everywhere */}
+      <Text style={s.h1}>{account.institution?.trim() ? `${account.institution.trim()} ${account.label}` : account.label}</Text>
+      <View style={s.chipRow}>
+        <Text style={s.chip}>{sourceChip}</Text>
+        {updatedLine && <Text style={s.updated}>{updatedLine}</Text>}
+      </View>
+
+      <View style={s.card} accessible
+        accessibilityLabel={`Balance ${maskedMoney(account.balance || 0)}. ${ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
+        <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
+        <Text style={s.classLine}>{ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
+        {tickers.length > 0 && <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>}
+      </View>
+
+      {/* stale hand-entered value — the gentle 6-month nudge (never red, never a zero) */}
+      {fresh?.stale && (
+        <View style={s.staleCard}>
+          <Text style={s.staleTxt}>⏱ This value is {fresh.monthsOld} months old — still right?</Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+            <TouchableOpacity accessibilityRole="button" style={s.staleBtn}
+              onPress={() => store.updateAsset?.(account.asset_id, { value_as_of: iso(new Date()) })}
+              accessibilityLabel="Still right — keep the amount and re-stamp today">
+              <Text style={s.staleBtnTxt}>Still right</Text>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
+              accessibilityLabel="Update the value">
+              <Text style={s.staleBtnTxt}>Update value</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {/* edit + update value */}
+      <View style={{ flexDirection: 'row', gap: 8 }}>
+        <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn}
+          onPress={() => router.push((cls === 'bonds' ? '/bonds' : cls === 'alternatives' ? '/other-investments' : `/(tabs)/analytics?edit=${account.asset_id}`) as any)}
+          accessibilityLabel={`Edit ${account.label}`}>
+          <Text style={s.secondaryTxt}>Edit</Text>
+        </TouchableOpacity>
+        {!account.derive_balance && source !== 'connected' && (
+          <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setValueSheet(true)}
+            accessibilityLabel="Update this account's value">
+            <Text style={s.secondaryTxt}>Update value</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* record activity — the ONE engine, surfaced here per class */}
+      {(actions.length > 0 || tradeLink) && (
+        <>
+          <Text style={s.section}>RECORD ACTIVITY</Text>
+          <View style={s.actionRow}>
+            {actions.map((t) => (
+              <TouchableOpacity accessibilityRole="button" key={t} style={s.actionBtn} onPress={() => setAction(t)}
+                accessibilityLabel={`Record a ${ACTION_LABEL[t].toLowerCase()} for ${account.label}`}>
+                <Text style={s.actionTxt}>{ACTION_LABEL[t]}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {tradeLink && (
+            <TouchableOpacity accessibilityRole="button" onPress={() => router.push(tradeLink.route as any)}
+              accessibilityLabel={tradeLink.label}>
+              <Text style={s.link}>{tradeLink.label}</Text>
+            </TouchableOpacity>
+          )}
+        </>
+      )}
+
+      {/* activity history — the ledger, in plain words with signed effects */}
+      <Text style={s.section}>ACTIVITY</Text>
+      <View style={s.card}>
+        {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
+        {shown.map((t) => {
+          const incoming = String(t.counter_account_id) === String(id) && t.type === 'TRANSFER';
+          const eff = incoming ? (t.amount || 0) : cashEffect(t);
+          return (
+            <View key={String(t.id)} style={s.txnRow} accessible
+              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${maskedMoney(Math.abs(eff))}`}>
+              <Text style={s.txnDate}>{String(t.date).slice(5)}</Text>
+              <Text style={s.txnLabel} numberOfLines={1}>
+                {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
+              </Text>
+              <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.primary : Colors.textPrimary }]}>
+                {eff >= 0 ? '+' : '−'}{maskedMoney(Math.abs(eff))}
+              </Text>
+            </View>
+          );
+        })}
+        {txns.length > 8 && !showAll && (
+          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)} accessibilityLabel="See all activity">
+            <Text style={s.link}>See all activity ({txns.length}) ›</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      <RecordActivitySheet account={account} action={action} onClose={() => setAction(null)} />
+      <UpdateValueSheet account={account} visible={valueSheet} onClose={() => setValueSheet(false)} />
+      <View style={{ height: 40 }} />
+    </ScrollView>
+  );
+}
+
+// ── the small record sheet: date + amount (+ destination for transfers) + effect preview ──
+function RecordActivitySheet({ account, action, onClose }: { account: AssetAccount; action: ActionType | null; onClose: () => void }) {
+  const store = useStore() as any;
+  const [amount, setAmount] = useState('');
+  const [day, setDay] = useState<'today' | 'yesterday'>('today');
+  const [destId, setDestId] = useState<string | null>(null);
+  const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
+  const others = ((store.assetAccounts ?? []) as AssetAccount[]).filter((a) => a.asset_id !== account.asset_id);
+  const dest = others.find((a) => String(a.asset_id) === String(destId)) ?? null;
+  const ready = amt > 0 && (action !== 'TRANSFER' || !!dest);
+
+  React.useEffect(() => { if (action) { setAmount(''); setDay('today'); setDestId(null); } }, [action]);
+
+  const save = () => {
+    if (!action || !ready) return;
+    const d = new Date(); if (day === 'yesterday') d.setDate(d.getDate() - 1);
+    store.recordTransaction?.({
+      type: action, account_id: account.asset_id, amount: amt, date: iso(d),
+      ...(action === 'TRANSFER' && dest ? { counter_account_id: dest.asset_id } : {}),
+    });
+    onClose();
+  };
+
+  const preview = !ready ? null
+    : action === 'TRANSFER' ? `−${maskedMoney(amt)} from ${account.label} → +${maskedMoney(amt)} into ${dest?.label}`
+    : action === 'WITHDRAWAL' ? `−${maskedMoney(amt)} from ${account.label}`
+    : `+${maskedMoney(amt)} into ${account.label}`;
+
+  return (
+    <Modal visible={action != null} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
+        <View style={s.sheet} onStartShouldSetResponder={() => true}>
+          <View style={s.handle} />
+          <Text style={s.sheetTitle}>{action ? ACTION_LABEL[action] : ''} — {account.label}</Text>
+          <View style={s.amtRow}>
+            <Text style={s.amtPrefix}>{currencySymbol()}</Text>
+            <TextInput style={s.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
+              value={amount} onChangeText={setAmount} autoFocus accessibilityLabel="Amount" />
+          </View>
+          {action === 'TRANSFER' && (
+            <View style={s.destWrap}>
+              <Text style={s.destHdr}>INTO</Text>
+              {others.map((a) => (
+                <TouchableOpacity accessibilityRole="button" key={a.asset_id}
+                  style={[s.destRow, destId === a.asset_id && s.destOn]}
+                  onPress={() => setDestId(String(a.asset_id))}
+                  accessibilityLabel={`Transfer into ${a.label}`}
+                  accessibilityState={{ selected: destId === a.asset_id }}>
+                  <Text style={s.destTxt}>{a.label}</Text>
+                </TouchableOpacity>
+              ))}
+              {others.length === 0 && <Text style={s.empty}>Add another account first.</Text>}
+            </View>
+          )}
+          <View style={s.dayRow}>
+            {(['today', 'yesterday'] as const).map((dd) => (
+              <TouchableOpacity accessibilityRole="button" key={dd} style={[s.dayChip, day === dd && s.destOn]} onPress={() => setDay(dd)}
+                accessibilityState={{ selected: day === dd }}>
+                <Text style={s.destTxt}>{dd}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+          {preview && <Text style={s.preview}>{preview}</Text>}
+          <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}
+            accessibilityLabel={`Save this ${action ? ACTION_LABEL[action].toLowerCase() : ''}`}>
+            <Text style={s.primaryTxt}>Save</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+// ── update a hand-entered value (re-stamps value_as_of — display honesty, one stored number) ──
+function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount; visible: boolean; onClose: () => void }) {
+  const store = useStore() as any;
+  const [amount, setAmount] = useState('');
+  React.useEffect(() => { if (visible) setAmount(String(account.balance ?? '')); }, [visible]);
+  const amt = parseFloat(String(amount).replace(/[^0-9.]/g, '')) || 0;
+  const save = () => {
+    if (amt <= 0) return;
+    store.updateAsset?.(account.asset_id, { balance: amt, value_as_of: iso(new Date()) });
+    onClose();
+  };
+  return (
+    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+      <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
+        <View style={s.sheet} onStartShouldSetResponder={() => true}>
+          <View style={s.handle} />
+          <Text style={s.sheetTitle}>Update value — {account.label}</Text>
+          <View style={s.amtRow}>
+            <Text style={s.amtPrefix}>{currencySymbol()}</Text>
+            <TextInput style={s.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
+              value={amount} onChangeText={setAmount} autoFocus accessibilityLabel="Current value" />
+          </View>
+          <Text style={s.preview}>Stamped “Value as of {iso(new Date())}” — the amount is yours to set.</Text>
+          <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, amt <= 0 && { opacity: 0.4 }]} disabled={amt <= 0} onPress={save}
+            accessibilityLabel="Save the updated value">
+            <Text style={s.primaryTxt}>Save value</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+      </KeyboardAvoidingView>
+    </Modal>
+  );
+}
+
+const s = StyleSheet.create({
+  root: { flex: 1, backgroundColor: Colors.bgSecondary },
+  content: { padding: Spacing.lg },
+  h1: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary },
+  sub: { fontSize: 14, color: Colors.textSecondary, marginTop: 6, lineHeight: 20 },
+  chipRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 6, marginBottom: Spacing.sm, flexWrap: 'wrap' },
+  chip: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 4, overflow: 'hidden' },
+  updated: { fontSize: 12, color: Colors.textTertiary },
+  card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  balance: { fontSize: 32, fontWeight: '800', color: Colors.textPrimary },
+  classLine: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4 },
+  holdsLine: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
+  staleCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
+  staleTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  staleBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
+  staleBtnTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
+  section: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
+  actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
+  actionBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: 20, paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
+  actionTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  link: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 10 },
+  txnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 40 },
+  txnDate: { width: 46, fontSize: 12, fontWeight: '700', color: Colors.textTertiary },
+  txnLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  txnAmt: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  empty: { fontSize: 13.5, color: Colors.textSecondary, paddingVertical: 6 },
+  primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  primaryTxt: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  secondaryBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 44, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 18 },
+  secondaryTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
+  handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  amtPrefix: { fontSize: 28, fontWeight: '800', color: Colors.textSecondary },
+  amtInput: { fontSize: 40, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
+  destWrap: { marginTop: Spacing.sm },
+  destHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
+  destRow: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, marginBottom: 6, minHeight: 44, justifyContent: 'center' },
+  destOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  destTxt: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary, textTransform: 'capitalize' },
+  dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
+  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 40, justifyContent: 'center' },
+  preview: { fontSize: 13.5, fontWeight: '600', color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm },
+});

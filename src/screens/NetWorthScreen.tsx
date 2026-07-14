@@ -3,7 +3,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
 import Svg, { Circle, G } from 'react-native-svg';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -114,6 +114,15 @@ export default function NetWorthScreen() {
   const [step, setStep] = useState(0);
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
 
+  // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
+  const { edit: editParam } = useLocalSearchParams<{ edit?: string }>();
+  useEffect(() => {
+    if (!editParam) return;
+    const target = assets.find((a) => String(a.asset_id) === String(editParam));
+    if (target) setAssetSheet({ open: true, edit: target });
+    router.setParams({ edit: undefined } as any);   // consume the param so back/refocus doesn't reopen
+  }, [editParam]);
+
   const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
   const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
   const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0);
@@ -139,8 +148,9 @@ export default function NetWorthScreen() {
   const assetRow = (a: AssetAccount, i: number, title: string, sub: string) => {
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
+    // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${title}, ${money(a.balance)}`} onPress={() => setAssetSheet({ open: true, edit: a })}>
+      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${money(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
