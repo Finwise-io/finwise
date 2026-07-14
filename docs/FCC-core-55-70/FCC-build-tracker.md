@@ -4,9 +4,8 @@ _Working doc. Started 2026-07-13 after the founder's call: **stop building testa
 whole approved design, gate with the automated suite, then cut ONE build.** Source of truth for scope:
 `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` (40 screens) + `FCC-core-UX-design-v1.1` + PRD v1.1._
 
-_Last updated 2026-07-13 end of session 2. Suite: **937 green** (was 839 pre-FCC), tsc clean, UI gate
-passing. Commits: 9ac80a7 · 4cb258a · 7b2a507 · acc096c · 9eb6359 · 04777bc · d33eeae · f26bf23 · 95c0853
-(branch taxonomy-v1.0.7, NOT pushed). NOTE 2026-07-13: Apple account is registered as an INDIVIDUAL —
+_Last updated 2026-07-13 end of session 3. Suite: **952 green** (was 839 pre-FCC), tsc clean, UI gate
+passing. Commits: 9ac80a7 → d058ce1 (13 FCC commits, branch taxonomy-v1.0.7, NOT pushed). NOTE 2026-07-13: Apple account is registered as an INDIVIDUAL —
 founder decided NO App Store Connect rename needed; the device shows MoneyKeel from the binary._
 
 ## Why Build 40 looked identical (recorded so we don't repeat it)
@@ -33,8 +32,8 @@ one build at the end.**
 | Insight rules: worth-a-look slot-1 · rmd-due · ss-window · goals-gap | ✅ | `src/domain/insights/index.ts` |
 | F4 multi-goal weigher | ✅ (weighGoals + trimHints-as-pre-runs + retireAgeWithContribution) | `src/domain/planning/multiGoal.ts` |
 | F1 secure sync seam + connection freshness | ⬜ (Transaction.source field ready; manual rows never flagged) | `src/services/sync/` |
-| Bond rate-sensitivity estimate | ⬜ | `src/domain/bonds/` |
-| Look-back counterfactual | ⬜ | `src/domain/performance/` |
+| Bond rate-sensitivity estimate | ✅ (bondRateSensitivity: approxYTM±1% repricing, honest bands, null when no honest math) | `src/domain/bonds/` |
+| Look-back counterfactual | ✅ (lookBack + factorOverMonths — real prices only, never extrapolated) | `src/domain/performance/lookBack.ts` |
 | Manual-value freshness nudge | ✅ (valueFreshness + value_as_of/source/last_synced fields) | `src/domain/assets/` |
 | Holding-level concentration callout | ⬜ | `src/domain/insights/` |
 
@@ -98,8 +97,8 @@ one build at the end.**
 |---|---|
 | Invest — main (glance then drill) | 🔨 (glance header + Home pin DONE; drill re-shell pending) |
 | Holding detail — equity / bond / alternative | ⬜ ♻️ ♻️ |
-| Look back — what if I'd moved money? | ⬜ |
-| What if I add more? (forward what-if) | ⬜ |
+| Look back — what if I'd moved money? | ✅ (/look-back; design's worked example pinned to the dollar) |
+| What if I add more? (forward what-if) | ✅ (/what-if; before-chance = hub chance pinned; ?addMonthly= prefill from the 401(k)-room try-it) |
 | Record a transaction + History | ✅ |
 | Empty/stale/hidden/loading state contract | 🔨 (mask + freshness pinned; written contract pending) |
 
@@ -117,8 +116,9 @@ one build at the end.**
   a11y ratchet (Home 35→0, Settings 20→0, all new files 0), check-ui-tests.sh.
 
 ## Next session order
-1. Invest drills: holding detail (equity/bond/alt), look-back counterfactual, forward what-if,
-   state contract; bond rate-sensitivity + concentration callout engines.
+1. Invest holding-detail pages (equity/bond/alt — routed details replacing row expansions; the
+   rate-sensitivity card + value_as_of nudge + shared ReportedReturnEditor land there) + the
+   empty/stale/hidden state contract + concentration callout engine.
 2. Plan: RMD/transition screen, will-it-last detail, Roth scenario-ify + adoption.
 3. Net worth: unified manual add/edit (M1) + FCC main re-shell; F1 connect screens (consent +
    accounts-found reconcile — matchImportAccount is the shared merge rule; Plaid sandbox live).
