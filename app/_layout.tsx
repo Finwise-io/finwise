@@ -189,6 +189,8 @@ export default function RootLayout() {
           <Stack.Screen name="account-detail" options={{ title: 'Account', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="multi-goal" options={{ title: 'Afford it all?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="first-run" options={{ title: 'Your setup', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="look-back" options={{ title: 'Look back', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="what-if" options={{ title: 'What if I add more?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
         </Stack>
         </AppLockGate>

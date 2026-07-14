@@ -1,7 +1,8 @@
 // Contribution room — where the "Room left in your 401(k)" insight should land (per device feedback): the
 // IRS limit, what you've contributed, what's left, and how to add it — for 401(k), IRA, and HSA.
 import React from 'react';
-import { View, Text, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -36,6 +37,7 @@ function RoomCard({ icon, title, limit, used, knownUsed, catchUp, how, note }: {
 }
 
 export default function ContributionRoomScreen() {
+  const router = useRouter();
   const op = (useStore((st: any) => st.onboardingProfile) ?? {}) as any;
   const age = num(op.birthYear) ? new Date().getFullYear() - num(op.birthYear) : null;
 
@@ -51,6 +53,19 @@ export default function ContributionRoomScreen() {
 
       <RoomCard icon="💼" title="401(k)" limit={k401.limit} used={k401.used} knownUsed catchUp={k401.catchUp}
         how="raise your paycheck deferral % with your employer/plan." />
+
+      {/* FCC: the designed try-it landing — the room ÷ months left, pre-filled into the forward what-if */}
+      {k401.remaining > 0 && (() => {
+        const monthsLeft = Math.max(1, 12 - new Date().getMonth());
+        const perMonth = Math.round(k401.remaining / monthsLeft / 100) * 100;
+        return (
+          <TouchableOpacity accessibilityRole="button" style={s.tryBtn}
+            onPress={() => router.push(`/what-if?addMonthly=${perMonth}` as any)}
+            accessibilityLabel={`Try it in a what-if: about ${money(perMonth)} a month for the rest of the year`}>
+            <Text style={s.tryTxt}>Try it in a what-if — about {money(perMonth)}/mo ›</Text>
+          </TouchableOpacity>
+        );
+      })()}
 
       <RoomCard icon="🏦" title="IRA (Traditional + Roth)" limit={iraLimit} used={iraUsed} knownUsed={iraUsed > 0} catchUp={age != null && age >= 50}
         note="Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible."
@@ -77,4 +92,6 @@ const s = StyleSheet.create({
   line: { fontSize: 13, color: Colors.textPrimary, marginTop: 8 },
   note: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 4, lineHeight: 16 },
   how: { fontSize: 12.5, color: Colors.primaryDeep, marginTop: 6, fontWeight: '600' },
+  tryBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  tryTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
 });

@@ -49,3 +49,24 @@ describe('bonds', () => {
     expect(isBond({ asset_id: 'cd2', label: 'KeyBank CD 4%', tax_bucket: 'CASH', balance: 5000, target_return: 0.04, maturity_date: '2028-01-01' } as any)).toBe(false);
   });
 });
+
+// ── FCC: the if-interest-rates-move estimate ──
+describe('bondRateSensitivity', () => {
+  const { bondRateSensitivity } = require('./index');
+  const NOW = new Date('2026-07-13T12:00:00Z');
+  const BOND = { face: 100000, couponRate: 0.045, maturity: '2036-06-30', value: 95000 };
+
+  test('rates up → value falls; rates down → value rises; deltas anchored to today\'s value', () => {
+    const s = bondRateSensitivity(BOND, NOW)!;
+    expect(s.ratesUp.high).toBeLessThan(BOND.value);        // the whole up-band sits below today
+    expect(s.ratesDown.low).toBeGreaterThan(BOND.value);    // the whole down-band sits above today
+    expect(s.ratesUp.delta).toBeLessThan(0);
+    expect(s.ratesDown.delta).toBeGreaterThan(0);
+    expect(s.ratesUp.low).toBeLessThan(s.ratesUp.high);     // an honest range, rounded to $1,000
+  });
+
+  test('no honest math possible → null (bond fund without coupon/maturity; matured bond)', () => {
+    expect(bondRateSensitivity({ face: 0, couponRate: 0, maturity: '', value: 50000 }, NOW)).toBeNull();
+    expect(bondRateSensitivity({ ...BOND, maturity: '2020-01-01' }, NOW)).toBeNull();
+  });
+});

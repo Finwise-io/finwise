@@ -74,3 +74,35 @@ export function interestIncomeAnnual(accounts: AssetAccount[]): number {
     return t;
   }, 0));
 }
+
+// ── FCC: the if-interest-rates-move ESTIMATE (detailed design v1.1, Invest sheet) ────────────────
+// Reprices the bond's remaining payments at approxYTM ± 1% — the SAME starting yield the detail
+// page shows, so the card can never contradict the yield line. Shown as a rough RANGE (±1% around
+// the repriced value), always titled 'Estimate, not a prediction'. null when no honest math is
+// possible (no coupon/face/maturity, or matured) — never a guessed number.
+export interface RateMove { low: number; high: number; delta: number }
+export interface RateSensitivity { ratesUp: RateMove; ratesDown: RateMove }
+
+/** Price the bond's future cash flows at a given annual yield (yearly approximation). */
+function priceAtYield(b: BondInfo, y: number, now: Date): number {
+  const n = Math.max(1, Math.round(yearsToMaturity(b.maturity, now)));
+  const c = annualCoupon(b);
+  let pv = 0;
+  for (let t = 1; t <= n; t++) pv += c / Math.pow(1 + y, t);
+  pv += b.face / Math.pow(1 + y, n);
+  return pv;
+}
+
+export function bondRateSensitivity(b: BondInfo, now: Date = new Date()): RateSensitivity | null {
+  const ytm = approxYTM(b, now);
+  if (ytm == null || b.face <= 0 || b.couponRate <= 0) return null;
+  const move = (delta: number): RateMove => {
+    const v = priceAtYield(b, Math.max(0.0001, ytm + delta), now);
+    return {
+      low: Math.round((v * 0.99) / 1000) * 1000,      // a rough, honest band — not a fake-precise number
+      high: Math.round((v * 1.01) / 1000) * 1000,
+      delta: Math.round((v - b.value) / 1000) * 1000,
+    };
+  };
+  return { ratesUp: move(0.01), ratesDown: move(-0.01) };
+}

@@ -121,6 +121,18 @@ export default function PerformanceScreen() {
             </View>
           </View>
 
+          {/* FCC: the two honest what-ifs — backward (real past prices) and forward (estimates) */}
+          <View style={styles.whatIfRow}>
+            <TouchableOpacity accessibilityRole="button" style={styles.whatIfBtn} onPress={() => router.push('/look-back')}
+              accessibilityLabel="Look back — what if I'd moved money? Facts about the past only">
+              <Text style={styles.whatIfTxt}>Look back ›</Text>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" style={styles.whatIfBtn} onPress={() => router.push('/what-if')}
+              accessibilityLabel="What if I add more? A forward estimate">
+              <Text style={styles.whatIfTxt}>What if I add more? ›</Text>
+            </TouchableOpacity>
+          </View>
+
           {/* TREND — portfolio vs benchmark over time */}
           {trend.length > 1 && (
             <View style={styles.card}>
@@ -643,6 +655,9 @@ const styles = StyleSheet.create({
   sumLab: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   sumRow: { flexDirection: 'row', marginTop: 14, alignSelf: 'stretch' },
   sumCell: { flex: 1, alignItems: 'center' },
+  whatIfRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  whatIfBtn: { flex: 1, backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
+  whatIfTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
   sumCellL: { fontSize: 9.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   sumCellV: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 3 },
 

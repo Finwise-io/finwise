@@ -17,6 +17,7 @@ export const MODAL_SEGMENTS = [
   'account-detail',             // FCC Net worth tab: one page per account
   'multi-goal',                 // FCC Plan tab: Afford it all? (the F4 composer)
   'first-run',                  // FCC: the lens questions (intents + stage), also Settings' revisit target
+  'look-back','what-if',        // FCC Invest tab: backward + forward what-ifs
 ];
 
 export type RouteState = {
