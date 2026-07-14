@@ -9,6 +9,7 @@ from PIL import Image, ImageDraw, ImageFont
 NAVY = (13, 35, 58)        # #0D233A
 BLUE = (24, 95, 165)       # #185FA5 (0.5 stop) — blue means trust; the blue must actually read
 MINT = (26, 196, 167)      # #1AC4A7
+GREEN_TXT = (14, 140, 116) # #0E8C74 — 'Money' text green: same hue family as the arrow tip, dark enough to read
 SS = 4                     # supersample factor for masks
 
 # ── the mark's geometry, in the SVG's 400×400 space ──────────────────────────
@@ -127,7 +128,7 @@ def main():
     mw = d.textlength('Money', font=nameReg)
     kw = d.textlength('Keel', font=bold)
     x0 = (W - (mw + kw)) / 2
-    d.text((x0, 1450), 'Money', font=nameReg, fill=NAVY)
+    d.text((x0, 1450), 'Money', font=nameReg, fill=GREEN_TXT)
     d.text((x0 + mw, 1450), 'Keel', font=bold, fill=NAVY)
     tag = 'YOUR FINANCE COMMAND CENTER'
     ls = 10                                           # wide tracking, institutional

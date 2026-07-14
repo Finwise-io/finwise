@@ -27,7 +27,7 @@
 
   <!-- ═══ TYPOGRAPHY: brand name + tagline, left-aligned block, vertically centered ═══ -->
   <g fill="#0D233A" font-family="Inter, Montserrat, 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif">
-    <text x="470" y="200" font-size="110" font-weight="500" letter-spacing="-1">Money<tspan font-weight="800">Keel</tspan></text>
+    <text x="470" y="200" font-size="110" font-weight="500" letter-spacing="-1" fill="#0E8C74">Money<tspan font-weight="800" fill="#0D233A">Keel</tspan></text>
     <text x="474" y="260" font-size="29" font-weight="500" letter-spacing="7.5">YOUR FINANCE COMMAND CENTER</text>
   </g>
 </svg>
