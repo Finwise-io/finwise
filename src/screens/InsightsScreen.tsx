@@ -13,6 +13,7 @@ import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
+import { buildPerformance, topHoldingConcentration } from '../domain/performance';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { requiredMonthly } from '../domain/goals';
 import { monthlySavings } from '../domain/savings';
@@ -42,6 +43,10 @@ export function useInsights(limit?: number): Insight[] {
     const investable = investableAssets(accounts);
     const investAccts = accounts.filter((a: any) => a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
     const topAccount = investAccts.length ? Math.max(...investAccts.map((a: any) => a.balance || 0)) : 0;
+    // holding-level concentration: the SAME shared rule Invest main shows (one concept, one helper)
+    const allPositions = accounts.flatMap((a: any) => a.positions ?? []);
+    const priceOf = (t: string) => (store.priceCache ?? {})[t.trim().toUpperCase()];
+    const topHolding = topHoldingConcentration(buildPerformance(allPositions, priceOf, '1Y'));
     const toxic = liabilities.reduce((m: any, d: any) => (d.interest_rate_apr > (m?.interest_rate_apr ?? 0) ? d : m), null);
     const actual = portfolioActualReturn(accounts);
     const bench = blendedReturn(accounts);
@@ -85,6 +90,7 @@ export function useInsights(limit?: number): Insight[] {
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
       cashDragPct: investable > 0 ? (cash / investable) * 100 : 0,
       topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
+      topHolding,
       planPct: plan.pct,
       beatBy: actual != null ? actual - bench : null,
       investRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,

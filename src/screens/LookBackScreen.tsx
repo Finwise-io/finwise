@@ -3,6 +3,7 @@
 // forward estimate, never a suggestion to trade now. When prices don't reach back far enough, the
 // screen says so — it never invents a price.
 import React, { useMemo, useState } from 'react';
+import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -26,8 +27,10 @@ export default function LookBackScreen() {
   const yardsticks = useMemo(() => [...new Set(Object.values(BENCHMARK_TICKER))], []);
   const choices = useMemo(() => [...new Set([...held, ...yardsticks])], [held, yardsticks]);
 
-  const [amount, setAmount] = useState('20000');
-  const [from, setFrom] = useState<string>(() => held[0] ?? yardsticks.find((t) => t !== 'SPY') ?? 'BND');
+  // the equity detail page's "what if I'd sold a year ago?" arrives pre-filled with that holding
+  const params = useLocalSearchParams<{ from?: string; amount?: string }>();
+  const [amount, setAmount] = useState(() => (params.amount && parseFloat(params.amount) > 0 ? String(Math.round(parseFloat(params.amount))) : '20000'));
+  const [from, setFrom] = useState<string>(() => (params.from ? String(params.from).toUpperCase() : held[0] ?? yardsticks.find((t) => t !== 'SPY') ?? 'BND'));
   const [to, setTo] = useState<string>('SPY');
   const [months, setMonths] = useState<12 | 24 | 36>(12);
 

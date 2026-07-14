@@ -16,6 +16,7 @@ export interface InsightInput {
   retireChance: number | null;                      // Monte-Carlo % the plan lasts
   cashDragPct: number;                              // % of investable assets sitting in cash
   topAccountPct: number;                            // largest single investment ACCOUNT as % of investable
+  topHolding?: { ticker: string; pct: number } | null; // largest single HOLDING at 25%+ (topHoldingConcentration — same rule Invest main shows)
   planPct: number;                                  // "sharpen your plan" completeness
   beatBy: number | null;                            // portfolio vs benchmark (decimal pts)
   investRate: number | null;                        // retirement/investment contributions ÷ GROSS income
@@ -37,7 +38,7 @@ type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the t
 type Rule = (i: InsightInput) => RawInsight | null;
 const THEME_BY_ID: Record<string, InsightTheme> = {
   'worth-a-look': 'protect', 'rmd-due': 'protect', 'goals-gap': 'protect',
-  'toxic-debt': 'protect', 'runway': 'protect', 'retire-offtrack': 'protect', 'concentration': 'protect',
+  'toxic-debt': 'protect', 'runway': 'protect', 'retire-offtrack': 'protect', 'concentration': 'protect', 'holding-concentration': 'protect',
   'behind-bench': 'grow', 'cash-drag': 'grow', 'invest-rate': 'grow',
   'k401-room': 'optimize', 'plan-incomplete': 'optimize', 'ss-window': 'optimize',
 };
@@ -63,6 +64,8 @@ const RULES: Rule[] = [
   (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
   // FCC: routes to the designed idle-cash landing (the fact + where it sits + comparison math) — no more dead-end.
   (i) => i.cashDragPct > 30 ? { id: 'cash-drag', priority: 2, icon: '💵', title: 'A lot is sitting in cash', body: `${Math.round(i.cashDragPct)}% of your investable money is in cash earning little — see what it could earn.`, route: '/idle-cash' } : null,
+  // FCC: HOLDING-level concentration — the same 25%+ fact Invest main shows, surfaced as an insight.
+  (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one stock', body: `${i.topHolding.pct}% of your invested money is in one stock (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
   // B-45: this measures the largest ACCOUNT, not a single ticker — word it honestly.
   (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${Math.round(i.topAccountPct)}% of your invested money is in a single account — add the holdings inside it and spread across accounts to lower risk.`, route: '/performance' } : null,
   // B-52: this is contributions/gross — name it "investing" so it doesn't collide with the budget's

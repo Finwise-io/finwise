@@ -9,7 +9,7 @@ export type GlossaryTerm =
   // asset classes (what your money is invested in) + income — added so the same plain-English meaning
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
-  | 'grossIncome' | 'contributionRoom';
+  | 'grossIncome' | 'contributionRoom' | 'capitalGains';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
@@ -30,4 +30,5 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   personalProperty: { title: 'Personal property', body: 'Valuable things you own — vehicles, jewelry, collectibles. Counted in net worth, but not in investable assets.' },
   grossIncome:  { title: 'Gross income', body: 'Your total pay before any taxes or deductions. Take-home is what’s left after tax and your 401(k).' },
   contributionRoom: { title: 'Contribution room', body: 'How much more you can still add to a tax-advantaged account (401(k), IRA, HSA) this year before hitting the IRS limit.' },
+  capitalGains: { title: 'Capital gains tax', body: 'Tax on profit when you sell. Held over a year: the lower long-term rate (often 15%). Held under a year: taxed like regular income. The app shows an estimate — your real rate depends on your full tax picture.' },
 };

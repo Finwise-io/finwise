@@ -16,7 +16,8 @@ import { maskedMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
-  attribution, allocation, portfolioTrend, capGains, capGainsTax, PERIODS, type Period, type Position, type Lot, type TrendPoint,
+  attribution, allocation, portfolioTrend, capGains, capGainsTax, topHoldingConcentration,
+  PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
@@ -78,13 +79,9 @@ export default function PerformanceScreen() {
   const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
   const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
   const shownRanked = listMode === 'top' ? [...winners, ...laggards] : ranked;
-  // concentration: one HOLDING at 25%+ of invested money — a quantified fact, never advice
-  const concentration = (() => {
-    if (investedValue <= 0 || rows.length < 2) return null;
-    const top = rows.reduce((m, r) => (r.marketValue > m.marketValue ? r : m), rows[0]);
-    const pctOfTotal = Math.round((top.marketValue / investedValue) * 100);
-    return pctOfTotal >= 25 ? { ticker: top.position.ticker, pct: pctOfTotal } : null;
-  })();
+  // concentration: one HOLDING at 25%+ of invested money — the SAME shared rule the insights
+  // engine uses (one concept, one helper), a quantified fact, never advice
+  const concentration = topHoldingConcentration(rows);
   const bondAccts = accounts.filter(isBond);
   const altAccts = accounts.filter(isAlternative);
   const equitiesTotal = rows.reduce((t, r) => t + r.marketValue, 0);
@@ -164,8 +161,8 @@ export default function PerformanceScreen() {
                 const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
                 return (
                   <TouchableOpacity accessibilityRole="button" key={r.position.position_id} style={styles.wlRow}
-                    onPress={() => setEdit({ accountId: o.accountId, position: r.position })}
-                    accessibilityLabel={`${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}`}>
+                    onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
+                    accessibilityLabel={`${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
                     <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>
                     <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
                     <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
@@ -225,8 +222,8 @@ export default function PerformanceScreen() {
                     const o = owned.find((x) => x.p.position_id === it.position.position_id)!;
                     return (
                       <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
-                        onPress={() => setEdit({ accountId: o.accountId, position: it.position })}
-                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}`}>
+                        onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
+                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}. Opens its page.`}>
                         <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
                         <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
                         {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
@@ -310,7 +307,7 @@ export default function PerformanceScreen() {
 }
 
 // ───────────────────────── Add / edit holding (ticker + lots) ─────────────────────────
-function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: {
+export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: {
   open: boolean; accounts: AssetAccount[]; existing: { accountId: string; position: Position } | null;
   onClose: () => void; onSave: (accountId: string, position: Position, isNew: boolean) => void; onDelete?: () => void;
 }) {
@@ -483,8 +480,9 @@ const TXN_TYPES: { k: TxnType; label: string }[] = [
   { k: 'BUY', label: 'Buy' }, { k: 'SELL', label: 'Sell' }, { k: 'DEPOSIT', label: 'Deposit cash' },
   { k: 'WITHDRAWAL', label: 'Withdraw' }, { k: 'TRANSFER', label: 'Transfer' }, { k: 'DIVIDEND', label: 'Dividend' },
 ];
-function TransactionSheet({ open, accounts, onClose, onSave }: {
+export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   open: boolean; accounts: AssetAccount[]; onClose: () => void; onSave: (t: Omit<Transaction, 'id' | 'created_at'>) => void;
+  prefill?: { accountId?: string; ticker?: string };
 }) {
   const eligible = accounts.filter(accountAllowsTicker);
   // Cash actions (deposit/withdraw/transfer) on the Stocks screen apply to your EQUITY accounts + plain
@@ -499,7 +497,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
   const [amount, setAmount] = useState('');
   const [reinvest, setReinvest] = useState(false);
   const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  useEffect(() => { if (open) { setType('BUY'); setAccountId((accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(new Date().toISOString().slice(0, 10)); } }, [open]);
+  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(new Date().toISOString().slice(0, 10)); } }, [open]);
 
   const isTrade = type === 'BUY' || type === 'SELL';
   const isBuy = type === 'BUY';
@@ -629,7 +627,7 @@ function TransactionSheet({ open, accounts, onClose, onSave }: {
 }
 
 // ───────────────────────── Activity / history ─────────────────────────
-function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
+export function HistorySheet({ open, transactions, accounts, onClose, onDelete }: {
   open: boolean; transactions: Transaction[]; accounts: AssetAccount[]; onClose: () => void; onDelete: (id: string) => void;
 }) {
   const acctName = (id?: string) => { const a = accounts.find((x) => x.asset_id === id); return a ? (a.institution?.trim() || a.label) : '—'; };

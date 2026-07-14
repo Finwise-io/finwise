@@ -169,6 +169,17 @@ export function buildPerformance(
   });
 }
 
+/** The holding-concentration FACT (Invest main + the insights engine share this one rule):
+ *  the largest single holding as a % of invested money, reported only at 25%+ with 2+ holdings —
+ *  below that it isn't a fact worth a card. Never advice, just the number and the ticker. */
+export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: string; pct: number } | null {
+  const invested = rows.reduce((t, r) => t + r.marketValue, 0);
+  if (invested <= 0 || rows.length < 2) return null;
+  const top = rows.reduce((m, r) => (r.marketValue > m.marketValue ? r : m), rows[0]);
+  const pct = Math.round((top.marketValue / invested) * 100);
+  return pct >= 25 ? { ticker: top.position.ticker, pct } : null;
+}
+
 /** Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
  *  The contributions sum (approx) to the portfolio return; sorted best→worst for winners/detractors. */
 export function attribution(rows: PerformanceRow[]): { position: Position; contribution: number; weight: number }[] {
