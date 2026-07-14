@@ -19,10 +19,23 @@ export function PaycheckCard() {
   const monthName = m.label.split(' ')[0].toUpperCase();
 
   return (
-    <View style={styles.card} accessibilityLabel={`Safe to spend in ${m.label}: ${maskedMoney(m.netSafeToSpend)}`}>
+    <View style={styles.card} accessibilityLabel={m.netSafeToSpend < 0
+      ? `${maskedMoney(Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
+      : `Safe to spend in ${m.label}: ${maskedMoney(m.netSafeToSpend)}`}>
       <Text style={styles.kicker}>SAFE TO SPEND — {monthName}</Text>
-      <Text style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
-      <Text style={styles.est}>estimate</Text>
+      {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
+          the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
+      {m.netSafeToSpend < 0 ? (
+        <>
+          <Text style={styles.hero}>− {maskedMoney(Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></Text>
+          <Text style={styles.est}>estimate · {m.bills[0]?.label ?? 'a big bill'} lands this month</Text>
+        </>
+      ) : (
+        <>
+          <Text style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
+          <Text style={styles.est}>estimate</Text>
+        </>
+      )}
 
       {year.guaranteedMissing ? (
         <TouchableOpacity accessibilityRole="link" style={styles.promptBtn} onPress={() => router.push('/monthly-income')}>

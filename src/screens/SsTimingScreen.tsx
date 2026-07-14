@@ -44,8 +44,13 @@ export default function SsTimingScreen() {
     () => willItLastInputs({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
     [op, accounts, A, store.inflationRate, store.employmentStatus]);
 
+  // Past 70 the credit stops — every standard age has 'passed', so the honest option is claim NOW
+  // at the age-70 amount (the factor clamps at 124%). Never a dead end, never a choice that no
+  // longer exists (edge-case audit E1).
+  const claimAges: number[] = age != null && age > 70 ? [age] : [...CLAIM_AGES];
+
   // three seeded runs — the SAME engine and inputs the hub uses, patched per claim age
-  const rows = useMemo(() => CLAIM_AGES.map((claimAge) => {
+  const rows = useMemo(() => claimAges.map((claimAge) => {
     const monthly = ssBenefitAtClaimAge(effStmt, claimAge);
     const lifetime = ssLifetimeTotal(effStmt, claimAge, liveTo);
     const passed = age != null && age > claimAge;
@@ -127,12 +132,14 @@ export default function SsTimingScreen() {
             accessible accessibilityLabel={r.passed
               ? `Claiming at ${r.claimAge} has passed — you can no longer claim at ${r.claimAge}`
               : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)} a month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
-            <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
+            <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{age != null && age > 70 && r.claimAge === age ? ' (now)' : ''}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
             <Text style={[styles.td, styles.tRight, { width: 90 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
             <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.lifetime)}</Text>
           </View>
         ))}
-        <Text style={styles.tableNote}>earlier = smaller checks for longer · later = bigger checks for fewer years</Text>
+        <Text style={styles.tableNote}>{age != null && age > 70
+          ? 'The waiting credit stops at 70 — claiming now pays the age-70 amount; waiting longer adds nothing.'
+          : 'earlier = smaller checks for longer · later = bigger checks for fewer years'}</Text>
         <TouchableOpacity accessibilityRole="button" onPress={() => setWhyOpen(true)} style={styles.whyDot}
           accessibilityLabel="Where these numbers come from">
           <Text style={styles.whyDotTxt}>ⓘ where these numbers come from</Text>

@@ -608,6 +608,10 @@ export const useStore = create<AppState>()(
           return {
             assetAccounts: recomputeBalances(accounts, s.priceCache),
             transactions: [...replayed, ...s.transactions.slice(idx + 1)],
+            // F10 hygiene (edge-case audit E2): an OPEN flag must not outlive its transaction —
+            // deleting the row drops the open card (Home never questions money that no longer
+            // exists). RESOLVED flags stay: they carry their own facts and are the audit trail.
+            txnFlags: s.txnFlags.filter((f) => !(f.status === 'open' && f.transaction_ids.includes(String(id)))),
           };
         });
         return ok;
