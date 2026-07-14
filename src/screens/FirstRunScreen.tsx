@@ -12,7 +12,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { resolveLens, type Lens } from '../domain/profile/lens';
 
 const INTENTS = [
-  { id: 'grow', label: 'Grow your investments' },
+  { id: 'grow', label: 'Know how your investments are doing' },
   { id: 'paycheck', label: 'Plan for a secure retirement' },
   { id: 'whole_picture', label: 'See your full money picture' },
 ] as const;
@@ -97,7 +97,7 @@ export default function FirstRunScreen() {
         );
       })}
 
-      <Text style={s.q}>Where are you in your career?</Text>
+      <Text style={s.q}>Where are you these days?</Text>
       {([['working', 'Still working'], ['retired', 'Retired, or nearly']] as const).map(([v, label]) => (
         <TouchableOpacity accessibilityRole="radio" key={v} style={[s.option, stage === v && s.optionOn]}
           onPress={() => setStage(v)}
