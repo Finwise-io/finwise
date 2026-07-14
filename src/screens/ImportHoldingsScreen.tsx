@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
-import { importHoldings, decodeCsvBase64, type ImportResult } from '../domain/import/holdingsImport';
+import { importHoldings, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
 import { round2, money2 } from '../domain/_shared/num';
@@ -40,8 +40,26 @@ export default function ImportHoldingsScreen() {
   const store = useStore() as any;
   const [result, setResult] = useState<ImportResult | null>(null);
   const [accountName, setAccountName] = useState('Imported holdings');
+  // Import v2 (FCC): which institution the file came from — powers 'By institution' grouping and
+  // the never-double-an-account merge rule. Required before the import button enables.
+  const [institution, setInstitution] = useState('');
+  const [mergeChoice, setMergeChoice] = useState<'update' | 'new'>('update');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const matched = matchImportAccount(store.assetAccounts ?? [], institution);
+
+  // per-row class correction (Import v2): tap a row's class tag to cycle through the choices —
+  // the chosen class is saved as the explicit asset_class, which the whole taxonomy honors first.
+  const CLASS_CYCLE: AssetClass[] = ['stocks_etf', 'bonds', 'cash', 'alternatives'];
+  const cycleClass = (i: number) => {
+    if (!result) return;
+    const holdings = result.holdings.map((h, k) => {
+      if (k !== i) return h;
+      const next = CLASS_CYCLE[(CLASS_CYCLE.indexOf(h.assetClass as AssetClass) + 1) % CLASS_CYCLE.length];
+      return { ...h, assetClass: next };
+    });
+    setResult({ ...result, holdings });
+  };
 
   async function pickFile() {
     setError(null);
@@ -75,10 +93,12 @@ export default function ImportHoldingsScreen() {
   }
 
   function confirmImport() {
-    if (!result || result.holdings.length === 0) return;
+    if (!result || result.holdings.length === 0 || !institution.trim()) return;
     setBusy(true);
     try {
       const acctName = accountName.trim() || 'Imported holdings';
+      const inst = institution.trim();
+      const provenance = { institution: inst, source: 'imported' as const, last_synced: new Date().toISOString() };
       // Equities (tradeable tickers) → one brokerage account with tracked positions.
       const equities = result.holdings.filter((h) => h.assetClass === 'stocks_etf' && h.ticker);
       // Everything else (CD/money-market/cash, bonds, options/alternatives) → manual-balance accounts,
@@ -92,10 +112,18 @@ export default function ImportHoldingsScreen() {
           lots: [{ lot_id: newEntityId('lot'), shares: h.shares, cost_per_share: round2(h.costPerShare), purchase_date: h.date || todayIso() }],
         }));
         const mktValue = round2(equities.reduce((t, h) => t + (h.value || h.shares * h.costPerShare), 0));
-        store.addAsset({
-          label: acctName, kind: 'brokerage', tax_bucket: 'TAXABLE', asset_class: 'stocks_etf',
-          balance: mktValue, target_return: 0.08, positions, derive_balance: true,
-        });
+        if (matched && mergeChoice === 'update') {
+          // Merge-not-duplicate (Import v2): refresh the existing account — asset_id is preserved,
+          // so its history, retirement earmark and class settings survive. Never a twin.
+          store.updateAsset(matched.asset_id, {
+            positions, balance: mktValue, derive_balance: true, asset_class: 'stocks_etf', ...provenance,
+          });
+        } else {
+          store.addAsset({
+            label: acctName, kind: 'brokerage', tax_bucket: 'TAXABLE', asset_class: 'stocks_etf',
+            balance: mktValue, target_return: 0.08, positions, derive_balance: true, ...provenance,
+          });
+        }
         added += equities.length;
       }
 
@@ -115,6 +143,7 @@ export default function ImportHoldingsScreen() {
         store.addAsset({
           label: h.label || h.symbol, kind, tax_bucket: def.tax_bucket,
           asset_class: h.assetClass, balance: round2(h.value || 0), target_return: def.ret,
+          value_as_of: todayIso(), ...provenance,
         });
         added += 1;
       }
@@ -140,9 +169,27 @@ export default function ImportHoldingsScreen() {
         </Text>
 
         <View style={styles.card}>
-          <Text style={styles.label}>Account name</Text>
+          <Text style={styles.label}>Which institution is this file from?</Text>
+          <TextInput style={styles.input} value={institution} onChangeText={setInstitution} placeholder="e.g. Vanguard" placeholderTextColor={Colors.textTertiary}
+            accessibilityLabel="Which institution is this file from" accessibilityHint="Files the account under this institution and prevents duplicates" />
+          <Text style={[styles.label, { marginTop: 12 }]}>Account name</Text>
           <TextInput style={styles.input} value={accountName} onChangeText={setAccountName} placeholder="Imported holdings" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Account name" />
         </View>
+
+        {/* merge-not-duplicate: re-importing the same institution updates instead of doubling */}
+        {matched && (
+          <View style={styles.card}>
+            <Text style={styles.mergeHead}>⚑ You already track a “{matched.institution?.trim() || matched.label}” account</Text>
+            {([['update', `Update it (no twin) — keeps its history and settings`], ['new', 'Add as a new account']] as const).map(([v, label]) => (
+              <TouchableOpacity accessibilityRole="button" key={v} style={[styles.mergeRow, mergeChoice === v && styles.mergeOn]}
+                onPress={() => setMergeChoice(v)}
+                accessibilityState={{ selected: mergeChoice === v }} accessibilityLabel={label}>
+                <Text style={styles.mergeTxt}>{mergeChoice === v ? '◉' : '○'}  {label}</Text>
+              </TouchableOpacity>
+            ))}
+            <Text style={styles.note}>Nothing is ever added twice without asking you.</Text>
+          </View>
+        )}
 
         <View style={styles.card}>
           <View style={[styles.row, styles.rowHead]}>
@@ -168,7 +215,11 @@ export default function ImportHoldingsScreen() {
                     to the security description/symbol; tag the asset class so the user sees how it classified. */}
                 <View style={styles.cTicker}>
                   <Text style={styles.secName} numberOfLines={2}>{name}</Text>
-                  <Text style={styles.secClass}>{classLabel}</Text>
+                  {/* Import v2: the class is CORRECTABLE before anything is saved — tap to cycle */}
+                  <TouchableOpacity accessibilityRole="button" onPress={() => cycleClass(i)}
+                    accessibilityLabel={`${name} classified as ${classLabel} — tap to change`} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                    <Text style={styles.secClassBtn}>{classLabel} ▾</Text>
+                  </TouchableOpacity>
                 </View>
                 <Text style={styles.cShares}>{h.shares > 0 ? h.shares.toLocaleString('en-US', { maximumFractionDigits: 4 }) : '—'}</Text>
                 <Text style={styles.cCost}>{h.costPerShare > 0 ? money2(h.costPerShare) : '—'}</Text>
@@ -182,10 +233,11 @@ export default function ImportHoldingsScreen() {
           </View>
         </View>
 
-        <Text style={styles.note}>🔒 Imported holdings are encrypted like everything else. Prices update once you open Net Worth or Investments.</Text>
+        <Text style={styles.note}>🔒 The file is read on this device; your saved data syncs encrypted to your cloud backup. Prices update once you open Net Worth or Investments.</Text>
 
-        <TouchableOpacity style={[styles.primary, busy && { opacity: 0.6 }]} onPress={confirmImport} disabled={busy} accessibilityRole="button" accessibilityLabel={`Add ${result.holdings.length} holdings`}>
-          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryTxt}>Add {result.holdings.length} holding{result.holdings.length === 1 ? '' : 's'}</Text>}
+        <TouchableOpacity style={[styles.primary, (busy || !institution.trim()) && { opacity: 0.6 }]} onPress={confirmImport} disabled={busy || !institution.trim()} accessibilityRole="button"
+          accessibilityLabel={!institution.trim() ? 'Name the institution first, then import' : `Import ${result.holdings.length} holdings`}>
+          {busy ? <ActivityIndicator color="#fff" /> : <Text style={styles.primaryTxt}>{!institution.trim() ? 'Name the institution to import' : `Import ${result.holdings.length} holding${result.holdings.length === 1 ? '' : 's'}`}</Text>}
         </TouchableOpacity>
         <TouchableOpacity style={styles.secondary} onPress={() => { setResult(null); setError(null); }} disabled={busy} accessibilityRole="button" accessibilityLabel="Choose a different file">
           <Text style={styles.secondaryTxt}>Choose a different file</Text>
@@ -242,6 +294,11 @@ const styles = StyleSheet.create({
   cTicker: { flex: 1.5 },
   secName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   secClass: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
+  secClassBtn: { fontSize: 11, fontWeight: '700', color: Colors.primary, marginTop: 1 },
+  mergeHead: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  mergeRow: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, marginBottom: 6, minHeight: 44, justifyContent: 'center' },
+  mergeOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  mergeTxt: { fontSize: 13.5, fontWeight: '600', color: Colors.textPrimary },
   cShares: { width: 56, fontSize: 13, color: Colors.textSecondary, textAlign: 'right' },
   cCost: { width: 66, fontSize: 13, color: Colors.textSecondary, textAlign: 'right' },
   cValue: { width: 78, fontSize: 13, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' },

@@ -21,8 +21,9 @@ test('import holdings: pick CSV → preview → adds positions to Net Worth', as
 
   const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));                       // pickFile → parse → preview
-  await waitFor(() => expect(getByLabelText(/Add \d+ holdings?/)).toBeTruthy());
-  fireEvent.press(getByLabelText(/Add \d+ holdings?/));              // confirmImport → store.addAsset
+  await waitFor(() => expect(getByLabelText(/Name the institution first/)).toBeTruthy());
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');   // Import v2: required
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));           // confirmImport → store.addAsset
 
   await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
   const acct: any = useStore.getState().assetAccounts[0];
@@ -39,8 +40,9 @@ test('#12: a UTF-16 export (read as UTF-8 → NUL-laden) is re-read as bytes and
 
   const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));
-  await waitFor(() => expect(getByLabelText(/Add \d+ holdings?/)).toBeTruthy());
-  fireEvent.press(getByLabelText(/Add \d+ holdings?/));
+  await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
   await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
   expect((useStore.getState().assetAccounts[0] as any).positions.map((p: any) => p.ticker).sort()).toEqual(['AAPL', 'MSFT']);
@@ -75,8 +77,9 @@ test('import a REAL E*TRADE export → accounts sorted by asset class through th
 
   const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));
-  await waitFor(() => expect(getByLabelText(/Add \d+ holdings?/)).toBeTruthy());
-  fireEvent.press(getByLabelText(/Add \d+ holdings?/));
+  await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
   await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(5));
   const accts = useStore.getState().assetAccounts as any[];
@@ -89,4 +92,67 @@ test('import a REAL E*TRADE export → accounts sorted by asset class through th
   expect(cls('alternatives').length).toBe(1);
   // the option is NOT a fake stock position
   expect(cls('alternatives')[0].positions ?? []).toHaveLength(0);
+});
+
+test('Import v2: re-importing the same institution UPDATES the existing account — never a twin', async () => {
+  // an account from a previous Fidelity import already exists
+  useStore.setState({
+    assetAccounts: [{
+      asset_id: 'fid1', label: 'Fidelity Brokerage', institution: 'Fidelity', kind: 'brokerage',
+      tax_bucket: 'TAXABLE', balance: 2900, retirement_pct: 40,
+      positions: [{ position_id: 'p0', ticker: 'AAPL', kind: 'stocks_etf', lots: [{ lot_id: 'l0', shares: 10, cost_per_share: 150, purchase_date: '2026-01-02' }] }],
+    }],
+  } as any);
+  (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://q3.csv' }] });
+  (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('Ticker,Shares,Cost Basis\nAAPL,12,1800\nVTI,4,1000\n');
+
+  const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
+  fireEvent.press(getByText('Choose a file'));
+  await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'fidelity');   // case/spacing-proof match
+
+  // the merge question appears, defaulting to update
+  expect(getByText(/You already track a “Fidelity” account/)).toBeTruthy();
+  expect(getByText(/Nothing is ever added twice without asking you/)).toBeTruthy();
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));
+
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));   // still ONE account
+  const acct: any = useStore.getState().assetAccounts[0];
+  expect(acct.asset_id).toBe('fid1');                                   // asset_id preserved (history survives)
+  expect(acct.retirement_pct).toBe(40);                                 // settings survive the refresh
+  expect(acct.positions.map((p: any) => p.ticker).sort()).toEqual(['AAPL', 'VTI']);
+  expect(acct.source).toBe('imported');
+});
+
+test('Import v2: "Add as a new account" keeps both when the user says they are different', async () => {
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'fid1', label: 'Fidelity', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 2900 }],
+  } as any);
+  (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://x.csv' }] });
+  (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('Ticker,Shares,Cost Basis\nVTI,4,1000\n');
+
+  const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
+  fireEvent.press(getByText('Choose a file'));
+  await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
+  fireEvent.press(getByLabelText('Add as a new account'));
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));
+
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(2));   // both kept, on purpose
+});
+
+test('Import v2: a misclassified row is correctable before saving (tap cycles the class)', async () => {
+  (DocumentPicker.getDocumentAsync as jest.Mock).mockResolvedValue({ canceled: false, assets: [{ uri: 'file://x.csv' }] });
+  (FileSystem.readAsStringAsync as jest.Mock).mockResolvedValue('Ticker,Shares,Cost Basis\nAAPL,10,1500\n');
+
+  const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
+  fireEvent.press(getByText('Choose a file'));
+  await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
+  fireEvent.press(getByLabelText(/AAPL classified as Stocks \/ ETFs — tap to change/));   // → bonds
+  fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
+  fireEvent.press(getByLabelText(/Import \d+ holdings?/));
+
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(1));
+  const acct: any = useStore.getState().assetAccounts[0];
+  expect(acct.asset_class).toBe('bonds');   // the user's correction is what gets saved
 });

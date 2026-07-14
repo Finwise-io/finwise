@@ -229,3 +229,24 @@ export function importHoldings(text: string): ImportResult {
     },
   };
 }
+
+// ── Import v2 (FCC): the merge-not-duplicate rule ──────────────────────────────────────────────
+// Re-importing next quarter's file from the same institution must REFRESH the account, never twin
+// it. Candidate = an existing investment account whose institution (normalized) matches. The same
+// rule serves the F1 connect flow's reconcile step — one behavior: "we never double an account."
+import type { AssetAccount } from '../assets';
+
+const normInst = (s?: string) => (s ?? '').trim().toLowerCase().replace(/[^a-z0-9]/g, '');
+
+/** The existing account a fresh import from `institution` should offer to update (or null). */
+export function matchImportAccount(accounts: AssetAccount[], institution: string): AssetAccount | null {
+  const target = normInst(institution);
+  if (!target) return null;
+  const candidates = accounts.filter((a) =>
+    (normInst(a.institution) === target || normInst(a.label) === target)
+    && a.tax_bucket !== 'PROPERTY' && a.tax_bucket !== 'CASH');
+  if (!candidates.length) return null;
+  // prefer the position-tracked (previously imported/connected) account, then the largest
+  return candidates.sort((a, b) =>
+    Number(!!b.positions?.length) - Number(!!a.positions?.length) || (b.balance || 0) - (a.balance || 0))[0];
+}
