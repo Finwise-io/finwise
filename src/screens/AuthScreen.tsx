@@ -267,7 +267,7 @@ export default function AuthScreen() {
             <Text style={{ fontSize: 36 }}>💰</Text>
           </View>
           <Text style={styles.appName}>MoneyKeel</Text>
-          <Text style={styles.tagline}>Your money’s chief of staff</Text>
+          <Text style={styles.tagline}>Your finance command center</Text>
         </View>
 
         {/* Card */}

@@ -9,6 +9,10 @@ import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
+import { isBond } from '../domain/bonds';
+import { isAlternative } from '../domain/alternatives';
+import { valueFreshness } from '../domain/assets';
+import { maskedMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
@@ -64,6 +68,36 @@ export default function PerformanceScreen() {
   }, [rows]);
   const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
   const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
+  // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,
+  // the holding-concentration fact, and the grouped all-investments list (bonds + alts folded in)
+  const rowGain = (r: any) => (r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
+  const periodDollar = rows.reduce((t, r) => t + rowGain(r), 0);
+  const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
+    .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
+  const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
+  const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
+  const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
+  const shownRanked = listMode === 'top' ? [...winners, ...laggards] : ranked;
+  // concentration: one HOLDING at 25%+ of invested money — a quantified fact, never advice
+  const concentration = (() => {
+    if (investedValue <= 0 || rows.length < 2) return null;
+    const top = rows.reduce((m, r) => (r.marketValue > m.marketValue ? r : m), rows[0]);
+    const pctOfTotal = Math.round((top.marketValue / investedValue) * 100);
+    return pctOfTotal >= 25 ? { ticker: top.position.ticker, pct: pctOfTotal } : null;
+  })();
+  const bondAccts = accounts.filter(isBond);
+  const altAccts = accounts.filter(isAlternative);
+  const equitiesTotal = rows.reduce((t, r) => t + r.marketValue, 0);
+  const bondsTotal = bondAccts.reduce((t, a) => t + (a.balance || 0), 0);
+  const altsTotal = altAccts.reduce((t, a) => t + (a.balance || 0), 0);
+  const contribMonthly = (store.retirementAssumptions ?? {}).contribMonthly as number | null;
+  // investment ACCOUNTS without tickers (a balance-only 401(k)/brokerage) still belong on this
+  // tab — they're inside investmentsTotal, so hiding them would break the Home=Invest pin
+  const untracked = accounts.filter((a) => !isBond(a) && !isAlternative(a)
+    && (a.positions?.length ?? 0) === 0
+    && !['cash', 'real_estate', 'personal_property'].includes(assetClassOf(a)));
+  const untrackedTotal = untracked.reduce((t, a) => t + (a.balance || 0), 0);
+  const [showAllClass, setShowAllClass] = useState<Record<string, boolean>>({});
   const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
   const ALLOC_COLORS = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'];
 
@@ -72,27 +106,20 @@ export default function PerformanceScreen() {
 
   return (
     <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      {/* FCC Invest glance — THE pin: this headline is the SAME investmentsTotal Home's hero and the
-          Net worth Investments section show, to the dollar (one helper; agreement-tested). The live
-          ticker-tracked portfolio value below remains its own labeled number. */}
+      {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
-        <View style={{ flex: 1 }}>
-          <Text style={styles.eyebrow}>YOUR INVESTMENTS</Text>
-          <Text style={styles.investBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}
-            accessibilityLabel={`Your investments: ${money(investTotalAll)}`}>{money(investTotalAll)}</Text>
-        </View>
+        <Text style={styles.investTitle}>Invest</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>
       </View>
-      <Text style={styles.subtitle}>Everything invested, across every account — {ASSET_CLASS_LABEL['stocks_etf'].toLowerCase()} with tickers are valued live below.</Text>
       {/* B-18: surface price freshness so stale cached values aren't presented as live. */}
       {positions.length > 0 && (() => {
         const f = priceFreshness(store.pricesFetchedAt, Date.now());
         return <Text style={[styles.freshness, f.stale && { color: Colors.amber }]}>{f.stale ? '⚠ Prices may be out of date' : 'Prices'} · updated {f.label}{f.stale ? ' — tap Refresh' : ''}</Text>;
       })()}
 
-      {positions.length === 0 ? (
+      {positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0 ? (
         <View style={styles.empty}>
           <Text style={styles.emptyT}>Track how your investments perform against the market.</Text>
           <Text style={styles.emptyS}>Add a holding with its ticker and what you paid — we'll value it live and compare its return to the right benchmark.</Text>
@@ -110,130 +137,140 @@ export default function PerformanceScreen() {
             ))}
           </View>
 
-          {/* PORTFOLIO SUMMARY */}
-          <View style={styles.summary}>
-            <Text style={styles.sumVal} numberOfLines={1} adjustsFontSizeToFit>{money(totalValue)}</Text>
-            <Text style={styles.sumLab}>portfolio value · live{cashTotal > 0 ? ` · incl. ${money(cashTotal)} cash` : ''}</Text>
-            <View style={styles.sumRow}>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>YOUR {period}</Text><Text style={[styles.sumCellV, portReturn != null && { color: portReturn >= 0 ? Colors.primary : Colors.red }]}>{pct(portReturn)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>INDEX</Text><Text style={styles.sumCellV}>{pct(benchPort)}</Text></View>
-              <View style={styles.sumCell}><Text style={styles.sumCellL}>VS INDEX</Text><Text style={[styles.sumCellV, portBeat != null && { color: portBeat >= 0 ? Colors.primary : Colors.red }]}>{portBeat == null ? '—' : `${portBeat >= 0 ? '+' : ''}${(portBeat * 100).toFixed(1)}%`}</Text></View>
-            </View>
-          </View>
-
-          {/* FCC: the two honest what-ifs — backward (real past prices) and forward (estimates) */}
-          <View style={styles.whatIfRow}>
-            <TouchableOpacity accessibilityRole="button" style={styles.whatIfBtn} onPress={() => router.push('/look-back')}
-              accessibilityLabel="Look back — what if I'd moved money? Facts about the past only">
-              <Text style={styles.whatIfTxt}>Look back ›</Text>
-            </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={styles.whatIfBtn} onPress={() => router.push('/what-if')}
-              accessibilityLabel="What if I add more? A forward estimate">
-              <Text style={styles.whatIfTxt}>What if I add more? ›</Text>
-            </TouchableOpacity>
-          </View>
-
-          {/* TREND — portfolio vs benchmark over time */}
-          {trend.length > 1 && (
-            <View style={styles.card}>
-              <View style={styles.trendHead}>
-                <Text style={styles.cardTitle}>Portfolio vs S&P 500 · {period}</Text>
-                {trendChange && <Text style={styles.trendChg}><Text style={{ color: trendChange.you >= 0 ? Colors.primary : Colors.red }}>{pct(trendChange.you)}</Text> <Text style={styles.trendVs}>vs {pct(trendChange.bench)}</Text></Text>}
-              </View>
-              <TrendChartAuto data={trend} />
+          {/* TOTAL RETURN — the glance: $ and %, the market, the gap in points, the two lines */}
+          {rows.length > 0 && <View style={styles.card} accessible
+            accessibilityLabel={`Total return, ${period}: ${portReturn == null ? 'not enough price history yet' : `${periodDollar >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}`}${benchPort != null ? `. Stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
+            <Text style={styles.glanceKicker}>TOTAL RETURN ({period})</Text>
+            <Text style={styles.glanceBig}>
+              <Text style={{ color: periodDollar >= 0 ? Colors.primary : Colors.red }}>{periodDollar >= 0 ? '▲ Up ' : '▼ Down '}{periodDollar >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
+              <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
+            </Text>
+            {benchPort != null && <Text style={styles.glanceLine}>Stock market:  {pct(benchPort)}</Text>}
+            {portBeat != null && <Text style={styles.glanceLine}>You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
+            {trend.length > 1 && <TrendChartAuto data={trend} />}
+            {trend.length > 1 && (
               <View style={styles.legendRow}>
-                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>Your portfolio</Text></View>
-                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.textTertiary }]} /><Text style={styles.legT}>S&P 500 (same start)</Text></View>
+                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>you</Text></View>
+                <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.textTertiary }]} /><Text style={styles.legT}>the market (same start)</Text></View>
               </View>
-              {!simple && <Text style={styles.tinyFoot}>Based on your current holdings across the period (ignores past buys/sells).</Text>}
+            )}
+          </View>}
+
+          {/* WINNERS & LAGGARDS — the same rows as the glance, so they visibly add up */}
+          {ranked.length > 0 && (
+            <View style={styles.card}>
+              <Text style={styles.cardTitle}>Winners & laggards ({period})</Text>
+              {shownRanked.map(({ r, gain }) => {
+                const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
+                return (
+                  <TouchableOpacity accessibilityRole="button" key={r.position.position_id} style={styles.wlRow}
+                    onPress={() => setEdit({ accountId: o.accountId, position: r.position })}
+                    accessibilityLabel={`${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}`}>
+                    <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>
+                    <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
+                    <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
+                    <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+              <View style={styles.actionRow}>
+                {ranked.length > shownRanked.length || listMode !== 'top'
+                  ? <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'top' ? 'all' : 'top')}
+                      accessibilityLabel={listMode === 'top' ? `See all ${ranked.length}` : 'Show fewer'}>
+                      <Text style={styles.addLink2}>{listMode === 'top' ? `See all ${ranked.length} ›` : 'Show top ‹'}</Text>
+                    </TouchableOpacity>
+                  : <View />}
+              </View>
             </View>
           )}
 
-          {/* PER-HOLDING TABLE */}
-          <View style={styles.card}>
-            <View style={styles.tHead}>
-              <Text style={[styles.tHL, { flex: 1 }]}>HOLDING</Text>
-              <Text style={[styles.tHL, styles.col]}>YOUR {period}</Text>
-              <Text style={[styles.tHL, styles.col]}>INDEX</Text>
+          {/* concentration — a quantified fact, shown only when real (25%+ in one holding) */}
+          {concentration && (
+            <View style={styles.concCard} accessible
+              accessibilityLabel={`${concentration.pct} percent of your invested money is in one stock, ${concentration.ticker}.`}>
+              <Text style={styles.concTxt}>⚑ {concentration.pct}% of your invested money is in one stock ({concentration.ticker})</Text>
             </View>
-            {rows.map((r) => {
-              const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
-              return (
-                <TouchableOpacity key={r.position.position_id} style={styles.tRow} accessibilityRole="button" accessibilityLabel={`${r.position.ticker}, ${money(r.marketValue)}`} onPress={() => setEdit({ accountId: o.accountId, position: r.position })}>
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.hTicker} numberOfLines={1} adjustsFontSizeToFit>{r.position.ticker}{r.position.label ? <Text style={styles.hName}>  {r.position.label}</Text> : null}</Text>
-                    <Text style={styles.hSub} numberOfLines={1}>
-                      {r.price == null ? 'no price yet' : `${money(r.marketValue)} · ${totalShares(r.position).toLocaleString(undefined, { maximumFractionDigits: 4 })} sh`}
-                      {r.totalROI != null ? ` · ${pct(r.totalROI)} since buy` : ''}
-                      {!simple ? ` · vs ${r.benchTicker}` : ''}
-                    </Text>
-                  </View>
-                  <Text style={[styles.col, styles.cellV, r.periodReturn != null && { color: r.periodReturn >= 0 ? Colors.primary : Colors.red }]} numberOfLines={1} adjustsFontSizeToFit>{pct(r.periodReturn)}</Text>
-                  <Text style={[styles.col, styles.cellB]} numberOfLines={1} adjustsFontSizeToFit>{pct(r.benchReturn)}</Text>
-                </TouchableOpacity>
-              );
-            })}
-            <TouchableOpacity style={styles.primaryAction} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add holding" onPress={() => setAddOpen(true)}>
-              <Text style={styles.primaryActionT}>＋ Add holding</Text>
+          )}
+
+          {/* the two honest what-ifs — forward (estimate) and backward (facts) */}
+          <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/what-if')}
+            accessibilityLabel="Look ahead: what saving more could do. An estimate.">
+            <Text style={styles.entryTitle}>LOOK AHEAD: what saving more could do <Text style={styles.entryTag}>estimate</Text> ›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/look-back')}
+            accessibilityLabel="Look back: what a past move would have done. Facts about the past.">
+            <Text style={styles.entryTitle}>LOOK BACK: what a past move would have done <Text style={styles.entryTag}>facts</Text> ›</Text>
+          </TouchableOpacity>
+
+          {/* the plan is visible HERE too (F11 propagation) */}
+          {contribMonthly != null && contribMonthly > 0 && (
+            <Text style={styles.planChip}>Saving {maskedMoney(contribMonthly)}/mo toward retirement (from your Plan)</Text>
+          )}
+
+          {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
+          <Text style={styles.groupHdrTop}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
+          {([['Stocks / ETFs', equitiesTotal, 'eq'], ['Bonds', bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
+            if (kind === 'eq' && rows.length === 0) return null;
+            if (kind === 'bond' && bondAccts.length === 0) return null;
+            if (kind === 'alt' && altAccts.length === 0) return null;
+            if (kind === 'acct' && untracked.length === 0) return null;
+            const items: any[] = kind === 'eq' ? rows : kind === 'bond' ? bondAccts : kind === 'alt' ? altAccts : untracked;
+            const showAll = !!showAllClass[kind];
+            const shown = showAll ? items : items.slice(0, 5);
+            return (
+              <View key={kind} style={styles.card}>
+                <Text style={styles.groupHdr}>{label}   {maskedMoney(Math.round(total as number))}</Text>
+                {shown.map((it: any, idx: number) => {
+                  if (kind === 'eq') {
+                    const o = owned.find((x) => x.p.position_id === it.position.position_id)!;
+                    return (
+                      <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
+                        onPress={() => setEdit({ accountId: o.accountId, position: it.position })}
+                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}`}>
+                        <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
+                        <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
+                        {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
+                        <Text style={styles.invChev}>›</Text>
+                      </TouchableOpacity>
+                    );
+                  }
+                  const fresh = valueFreshness(it);
+                  return (
+                    <TouchableOpacity accessibilityRole="button" key={it.asset_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
+                      onPress={() => router.push(`/account-detail?id=${it.asset_id}` as any)}
+                      accessibilityLabel={`${it.label}, ${maskedMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.invName} numberOfLines={1}>{it.label}</Text>
+                        {fresh && <Text style={[styles.invStamp, fresh.stale && { color: Colors.amber }]}>{fresh.stale ? `⏱ value ${fresh.monthsOld} months old` : `value as of ${fresh.asOf}`}</Text>}
+                      </View>
+                      <Text style={styles.invVal}>{maskedMoney(Math.round(it.balance || 0))}</Text>
+                      <Text style={styles.invChev}>›</Text>
+                    </TouchableOpacity>
+                  );
+                })}
+                {items.length > 5 && (
+                  <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClass((m) => ({ ...m, [kind]: !showAll }))}
+                    accessibilityLabel={showAll ? `Show top 5 ${label}` : `Show all ${items.length} ${label}`}>
+                    <Text style={styles.addLink2}>{showAll ? 'Show top 5 ‹' : `Show all ${items.length} ›`}</Text>
+                  </TouchableOpacity>
+                )}
+              </View>
+            );
+          })}
+
+          {/* add / record / import / activity */}
+          <View style={styles.card}>
+            <TouchableOpacity style={styles.primaryAction} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add investment" onPress={() => setAddOpen(true)}>
+              <Text style={styles.primaryActionT}>＋ Add investment</Text>
             </TouchableOpacity>
             <View style={styles.actionRow}>
               <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')}><Text style={styles.addLink2}>📄 Import file</Text></TouchableOpacity>
-              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Record a transaction" onPress={() => setTxnOpen(true)}><Text style={styles.addLink2}>＋ Record transaction</Text></TouchableOpacity>
+              <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Record a transaction" onPress={() => setTxnOpen(true)}><Text style={styles.addLink2}>＋ Record</Text></TouchableOpacity>
               <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="View transaction activity" onPress={() => setHistoryOpen(true)}><Text style={styles.addLink2}>Activity ›</Text></TouchableOpacity>
             </View>
           </View>
 
-          {/* ATTRIBUTION — what drove the period return */}
-          {attr.length > 1 && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>What drove your {period}</Text>
-              {attr.map((x) => (
-                <View key={x.position.position_id} style={styles.attrRow}>
-                  <Text style={styles.attrName} numberOfLines={1}>{x.position.ticker}</Text>
-                  {!simple && <Text style={styles.attrWt}>{Math.round(x.weight * 100)}%</Text>}
-                  <Text style={[styles.attrPts, { color: x.contribution >= 0 ? Colors.primary : Colors.red }]}>{x.contribution >= 0 ? '+' : ''}{(x.contribution * 100).toFixed(1)} pts</Text>
-                </View>
-              ))}
-              {!simple && <Text style={styles.tinyFoot}>Each holding's share of your {period} return (weight × its return).</Text>}
-            </View>
-          )}
-
-          {/* ALLOCATION — current mix */}
-          {alloc.length > 0 && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>Allocation</Text>
-              <View style={styles.allocBar}>
-                {alloc.map((s, i) => <View key={s.key} style={{ width: `${s.pct}%`, backgroundColor: ALLOC_COLORS[i % ALLOC_COLORS.length] }} />)}
-              </View>
-              {alloc.map((s, i) => (
-                <View key={s.key} style={styles.allocRow}>
-                  <View style={[styles.allocDot, { backgroundColor: ALLOC_COLORS[i % ALLOC_COLORS.length] }]} />
-                  <Text style={styles.allocName} numberOfLines={1}>{allocLabel(s.key)}</Text>
-                  <Text style={styles.allocVal}>{money(s.value)}</Text>
-                  <Text style={styles.allocPct}>{s.pct}%</Text>
-                </View>
-              ))}
-            </View>
-          )}
-
-          {/* CAP GAINS — tax if you sold now */}
-          {Math.abs(cg.total) > 1 && (
-            <View style={styles.card}>
-              <Text style={styles.cardTitle}>If you sold everything now</Text>
-              <View style={styles.cgRow}><Text style={styles.cgL}>Unrealized gain</Text><Text style={[styles.cgV, { color: cg.total >= 0 ? Colors.primary : Colors.red }]}>{cg.total >= 0 ? '+' : ''}{money(cg.total)}</Text></View>
-              {cg.total > 0 && <View style={styles.cgRow}><Text style={styles.cgL}>Est. tax if sold</Text><Text style={styles.cgV}>−{money(cg.tax)}</Text></View>}
-              {!simple && (cg.longGain !== 0 || cg.shortGain !== 0) && (
-                <Text style={styles.foot}>Long-term (held &gt; 1 yr): {money(cg.longGain)} at ~15% · short-term: {money(cg.shortGain)} at your income rate. Holding &gt; 1 year is taxed less — a reason not to sell winners too soon. Estimate only.</Text>
-              )}
-            </View>
-          )}
-
-          {simple
-            ? <Text style={styles.foot}>End-of-day prices. Past performance isn't a guarantee.</Text>
-            : <Text style={styles.foot}>
-                Values are end-of-day from a free market-data source{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}.
-                “Your {period}” is the holding's price return over the period; benchmark is the matching index over the SAME period — so the comparison is like-for-like. Past performance isn't a guarantee.
-              </Text>}
+          <Text style={styles.foot}>End-of-day prices{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}. Past performance isn't a guarantee.</Text>
         </>
       )}
 
@@ -632,7 +669,31 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
-  investBig: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  investTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
+  glanceKicker: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
+  glanceBig: { fontSize: 24, fontWeight: '800' },
+  glancePct: { fontSize: 17, fontWeight: '700', color: Colors.textSecondary },
+  glanceLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
+  wlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 42 },
+  wlArrow: { width: 68, fontSize: 12.5, fontWeight: '800' },
+  wlTicker: { flex: 1, fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary },
+  wlGain: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  wlPct: { width: 62, fontSize: 13, color: Colors.textSecondary, textAlign: 'right', fontVariant: ['tabular-nums'] },
+  concCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  concTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, lineHeight: 19 },
+  entryCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, minHeight: 52, justifyContent: 'center' },
+  entryTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, letterSpacing: 0.2 },
+  entryTag: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary },
+  planChip: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginTop: Spacing.sm, overflow: 'hidden' },
+  groupHdrTop: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 2 },
+  groupHdr: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
+  invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
+  invName: { flex: 1, fontSize: 14.5, fontWeight: '600', color: Colors.textPrimary },
+  invVal: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  invRet: { fontSize: 12.5, fontWeight: '700', width: 84, textAlign: 'right' },
+  invStamp: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
+  invChev: { fontSize: 17, color: Colors.textTertiary },
   subtitle: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2 },
   refresh: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
   freshness: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4 },

@@ -2,8 +2,9 @@
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
-import Svg, { Circle, G } from 'react-native-svg';
+import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -113,6 +114,8 @@ export default function NetWorthScreen() {
   const [debtSheet, setDebtSheet] = useState<{ open: boolean; edit?: Debt }>({ open: false });
   const [step, setStep] = useState(0);
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
+  const [expanded, setExpanded] = useState(false);        // FCC: the glance stays a glance
+  const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
 
   // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
   const { edit: editParam } = useLocalSearchParams<{ edit?: string }>();
@@ -148,6 +151,12 @@ export default function NetWorthScreen() {
   const assetRow = (a: AssetAccount, i: number, title: string, sub: string) => {
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
+    // FCC: every row says where its number comes from and how fresh it is
+    const stamp = a.source === 'connected'
+      ? `Connected · ${a.last_synced ? String(a.last_synced).slice(0, 10) : 'linked'}`
+      : a.source === 'imported' ? `Imported · ${a.last_synced ? String(a.last_synced).slice(0, 10) : ''}`
+      : 'Manual · you update it';
+    sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
       <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${money(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
@@ -328,116 +337,129 @@ export default function NetWorthScreen() {
       </View>
     );
   } else {
-    // ── manager (self-serve / ongoing) ──
+    // ── manager: the FCC glance-that-expands (approved wireframe, Net worth sheet) ──
+    // One number, its yearly change, a simple trend — then WHAT YOU OWN / WHAT YOU OWE rows,
+    // the own−owe math line, a collapsed accounts-and-detail expander, the tiny cash-flow
+    // glance, and ONE add-or-connect button with three honest paths. Calm by design: the
+    // donut, captions, explore box and insight cards moved off this screen (Home's insights
+    // engine owns the nudges; class rows carry the allocation story).
+    const snaps = (store.monthlySnapshots ?? {}) as Record<string, any>;
+    const series = Object.values(snaps)
+      .filter((x: any) => x && x.net_worth != null && x.month)
+      .map((x: any) => ({ month: x.month as string, nw: x.net_worth as number }))
+      .sort((a, b) => (a.month < b.month ? -1 : 1)).slice(-12);
+    const jan = `${new Date().getFullYear()}-01`;
+    const janPoint = series.find((pt) => pt.month >= jan && pt.month !== series[series.length - 1]?.month);
+    const changeThisYear = janPoint ? nw.net_worth - janPoint.nw : null;
+    // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
+    const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
+
     body = (
       <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        {/* hero: donut of assets BY ASSET CLASS (#19) + net worth (red if negative, #18) in center */}
-        <View style={styles.nwHero}>
-          <Donut size={118} stroke={15} segments={classRows.map((r) => ({ value: r.total, color: r.color }))}
-            label={store.hideBalances ? 'Net worth hidden' : `Net worth ${shortMoney(nw.net_worth)}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-            <Text style={[styles.donutVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]}>{store.hideBalances ? '••••' : shortMoney(nw.net_worth)}</Text>
-            <Text style={styles.donutLbl}>net worth</Text>
-          </Donut>
-          <View style={styles.nwLegend}>
-            {classRows.map((r) => (
-              <TouchableOpacity key={r.key} style={styles.lgRow} accessibilityRole="button" accessibilityLabel={`${r.label}, ${shortMoney(r.total)}, ${pctOf(r.total)} percent. Tap to jump to these accounts.`} onPress={() => scrollToClass(r.key)}>
-                <View style={[styles.dot, { backgroundColor: r.color }]} />
-                <Text style={[styles.lgName, { color: r.color }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{r.label}</Text>
-                <Text style={styles.lgVal} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>{shortMoney(r.total)}</Text>
-                <Text style={styles.lgPct}>{pctOf(r.total)}%</Text>
-              </TouchableOpacity>
-            ))}
-            {dState.total_debt_balance > 0 && (
-              <TouchableOpacity style={styles.lgRow} accessibilityRole="button" accessibilityLabel={`Debts, ${shortMoney(dState.total_debt_balance)}. Tap to jump to your debts.`} onPress={() => scrollToSection('Debts')}>
-                <View style={[styles.dot, { backgroundColor: Colors.red }]} />
-                <Text style={[styles.lgName, { color: Colors.red }]} numberOfLines={1}>Debts</Text>
-                <Text style={[styles.lgVal, { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.85}>-{shortMoney(dState.total_debt_balance)}</Text>
-                <Text style={styles.lgPct} />
-              </TouchableOpacity>
-            )}
-          </View>
+        {/* GLANCE: the one number + its year change + the 12-month trend */}
+        <View style={styles.glanceCard} accessible
+          accessibilityLabel={store.hideBalances
+            ? 'Net worth hidden'
+            : `Net worth ${money(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${changeThisYear != null ? `, ${changeThisYear >= 0 ? 'up' : 'down'} ${money(Math.round(Math.abs(changeThisYear)))} this year` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+          <Text style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+            {store.hideBalances ? '••••' : money(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
+          </Text>
+          {changeThisYear != null && (
+            <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.primary : Colors.red }]}>
+              {changeThisYear >= 0 ? '▲ up' : '▼ down'} {money(Math.round(Math.abs(changeThisYear)))} this year
+            </Text>
+          )}
+          {series.length >= 2 && (() => {
+            const vals = series.map((pt) => pt.nw);
+            const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
+            const Wd = 280, Ht = 44;
+            const pts = series.map((pt, k) => `${(k / (series.length - 1)) * Wd},${Ht - ((pt.nw - lo) / span) * Ht}`).join(' ');
+            return (
+              <Svg width={Wd} height={Ht + 4} style={{ marginTop: 10 }}>
+                <Polyline points={pts} fill="none" stroke={Colors.primary} strokeWidth={2.5} />
+              </Svg>
+            );
+          })()}
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/will-it-last')}
+            accessibilityLabel="Your path ahead, from Plan">
+            <Text style={styles.glanceLink}>Your path ahead (from Plan) ›</Text>
+          </TouchableOpacity>
         </View>
-        {/* #19: the explicit total — Assets − Debts = Net worth (so the math is never "missing") */}
+
+        {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
+        <Text style={styles.ownHdr}>WHAT YOU OWN   {money(Math.round(totalAssets))}</Text>
+        <View style={styles.card}>
+          {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
+          {classRows.map((r, i) => (
+            <TouchableOpacity key={r.key} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
+              accessibilityLabel={`${r.label}, ${money(Math.round(r.total))}. Opens these accounts.`}
+              onPress={() => { setExpanded(true); setTimeout(() => scrollToClass(r.key), 80); }}>
+              <View style={[styles.dot, { backgroundColor: r.color }]} />
+              <View style={{ flex: 1 }}>
+                <Text style={styles.rowTitle}>{r.label}</Text>
+                {r.key === 'mixed' && <Text style={styles.rowSub}>tap to say what's inside</Text>}
+              </View>
+              <Text style={styles.rowVal}>{money(Math.round(r.total))}</Text>
+              <Text style={styles.chev}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
+        <Text style={styles.ownHdr}>WHAT YOU OWE{dState.total_debt_balance > 0 ? `   −${money(Math.round(dState.total_debt_balance))}` : ''}</Text>
+        <View style={styles.card}>
+          {liabilities.length === 0 && <Text style={styles.empty}>No debts — it's all yours.</Text>}
+          {liabilities.map((d, i) => (
+            <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
+              accessibilityLabel={`${d.label}, you owe ${money(Math.round(d.remaining_balance))}. Opens the editor.`}
+              onPress={() => setDebtSheet({ open: true, edit: d })}>
+              <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
+              <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                <Text style={styles.rowTitle}>{d.label}</Text>
+                {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
+              </View>
+              <Text style={[styles.rowVal, { color: Colors.red }]}>−{money(Math.round(d.remaining_balance))}</Text>
+              <Text style={styles.chev}>›</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
+
+        {/* the arithmetic, spelled out — the headline is never a mystery number */}
         <Text style={styles.nwIdentity}>
-          Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
+          Own {money(Math.round(totalAssets))} − Owe {money(Math.round(dState.total_debt_balance))} ={' '}
           <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
         </Text>
-        {/* NW-12: surface the canonical "investable assets" total (cash + investments; excludes property) */}
-        {investable > 0 && <Text style={styles.nwInvestable}>Investable assets {money(Math.round(investable))} · excludes your home & belongings</Text>}
-        {/* NW-8 + #4 transparency: the ring is ASSETS by class; debts are the separate red line below */}
-        <Text style={styles.nwCaption}>The ring shows your assets by class; your debt is the red line below it. You add money by account above — here it's regrouped by what it actually is (a 401(k) or brokerage splits into the classes it holds).</Text>
-        {/* #10: don't pretend a wrapper's contents are stocks — show "Unclassified" and nudge the user to set the mix */}
-        {alloc.mixed > 0 && (
-          <Text style={styles.nwNudge}>
-            {money(Math.round(alloc.mixed))} is in accounts whose holdings aren't set yet — tap an account to choose stocks / bonds / cash for a true allocation.
-          </Text>
+
+        {/* accounts & detail — collapsed by default so the glance stays a glance */}
+        <TouchableOpacity accessibilityRole="button" style={styles.expandBtn} onPress={() => setExpanded(!expanded)}
+          accessibilityLabel={expanded ? 'Hide accounts and detail' : 'Show accounts and detail'}
+          accessibilityState={{ expanded }}>
+          <Text style={styles.expandTxt}>{expanded ? '▴ Hide accounts & detail' : '▾ Show accounts & detail'}</Text>
+        </TouchableOpacity>
+        {expanded && (
+          <>
+            {ASSET_SECTIONS.map((sec) => (
+              <View key={sec} onLayout={(e) => { sectionY.current[sec] = e.nativeEvent.layout.y; }}>{renderAssetSection(sec)}</View>
+            ))}
+            <View onLayout={(e) => { sectionY.current['Debts'] = e.nativeEvent.layout.y; }}>{renderDebtSection()}</View>
+          </>
         )}
 
-        {/* emergency-fund runway */}
-        {runwayMonths != null && (
-          <View style={[styles.runway, { backgroundColor: runwayMonths >= 6 ? Colors.primaryLight : runwayMonths >= 3 ? '#FFF7E6' : '#FBE9E7' }]}>
-            <Text style={styles.runwayIcon}>🛟</Text>
-            <View style={{ flex: 1 }}>
-              {/* B-44: plain wording for the no-cash case (a "~0.0 months" reads as a glitch and alarms
-                  someone with plenty in investments — which this cash-only runway deliberately excludes). */}
-              <Text style={styles.runwayTitle}>{runwayMonths < 0.05 ? 'No cash set aside for emergencies' : `Your cash covers ~${runwayMonths.toFixed(1)} month${runwayMonths >= 1.95 || runwayMonths < 1 ? 's' : ''} of spending`}</Text>
-              <Text style={styles.runwaySub}>{money(cashOnHand)} cash ÷ {money(monthlySpend)}/mo · {runwayMonths >= 6 ? 'a strong cushion.' : runwayMonths >= 3 ? 'aim for 3–6 months.' : 'build toward 3–6 months (investments aren\'t counted here).'}</Text>
-              <TouchableOpacity onPress={() => router.push('/stress-test')} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
-                <Text style={styles.runwayLink}>Stress-test an emergency →</Text>
-              </TouchableOpacity>
-            </View>
+        {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
+        <TouchableOpacity accessibilityRole="button" style={styles.cfGlance} onPress={() => router.push('/(tabs)/cashflow')}
+          accessibilityLabel={`This month's cash flow: in ${money(Math.round(cfCell?.inflow ?? 0))}, out ${money(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowTitle}>This month's cash flow</Text>
+            <Text style={styles.rowSub}>In {money(Math.round(cfCell?.inflow ?? 0))} · Out {money(Math.round(cfCell?.outflow ?? 0))}</Text>
           </View>
-        )}
+          <Text style={styles.chev}>›</Text>
+        </TouchableOpacity>
 
-        {/* explore your holdings — three launchers grouped into one box */}
-        <View style={styles.exploreCard}>
-          <Text style={styles.exploreHdr}>EXPLORE YOUR HOLDINGS</Text>
-          {/* #13: import is a primary action for building your portfolio — surface it here, not buried in Performance */}
-          <TouchableOpacity style={styles.exploreRow} onPress={() => router.push('/import-holdings')} accessibilityRole="button" accessibilityLabel="Import holdings from a brokerage file">
-            <Text style={styles.exploreRowT}>📄  Import holdings from a brokerage file</Text>
-            <Text style={styles.perfBtnArrow}>›</Text>
-          </TouchableOpacity>
-          <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Stocks and ETFs — performance vs benchmark" onPress={() => router.push('/performance')}>
-            <Text style={styles.exploreRowT}>📈  Stocks / ETFs — performance vs benchmark</Text>
-            <Text style={styles.perfBtnArrow}>›</Text>
-          </TouchableOpacity>
-          <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Bonds — coupons, maturity and yield" onPress={() => router.push('/bonds')}>
-            <Text style={styles.exploreRowT}>📜  Bonds — coupons, maturity & yield</Text>
-            <Text style={styles.perfBtnArrow}>›</Text>
-          </TouchableOpacity>
-          <View style={styles.exploreDiv} />
-          <TouchableOpacity style={styles.exploreRow} accessibilityRole="button" accessibilityLabel="Alternatives — crypto, private equity, commodities" onPress={() => router.push('/other-investments')}>
-            <Text style={styles.exploreRowT}>🪙  Alternatives — crypto, PE, commodities</Text>
-            <Text style={styles.perfBtnArrow}>›</Text>
-          </TouchableOpacity>
-        </View>
-
-        {/* insight */}
-        {totalAssets > 0 && (
-          <View style={styles.insight}>
-            <Text style={styles.insightIcon}>💎</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.insightTxt}>{topClass ? `${topClass.label} is your largest holding — ${pctOf(topClass.total)}% of total assets` : 'Your wealth at a glance'}</Text>
-              <Text style={styles.insightSub}>{dState.total_debt_balance > 0 ? `Debt is ${Math.round(debtRatio * 100)}% of your assets.` : 'You carry no debt — it\'s all yours.'}</Text>
-            </View>
-          </View>
-        )}
-
-        {ASSET_SECTIONS.map((sec) => (
-          <View key={sec} onLayout={(e) => { sectionY.current[sec] = e.nativeEvent.layout.y; }}>{renderAssetSection(sec)}</View>
-        ))}
-        <View onLayout={(e) => { sectionY.current['Debts'] = e.nativeEvent.layout.y; }}>{renderDebtSection()}</View>
-        {costliest && (
-          <View style={styles.callout}>
-            <Text style={styles.calloutIcon}>⚠️</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={styles.calloutTxt}>{money(costliest.remaining_balance)} on {costliest.label} at {(costliest.interest_rate_apr * 100).toFixed(1)}% is your costliest debt</Text>
-              <Text style={styles.calloutSub}>Paying it down first saves the most interest.</Text>
-            </View>
-          </View>
-        )}
+        {/* ONE button, three honest paths */}
+        <TouchableOpacity accessibilityRole="button" style={styles.addConnect} onPress={() => setAddChooser(true)}
+          accessibilityLabel="Add or connect an account">
+          <Text style={styles.addConnectTxt}>＋ Add or connect account</Text>
+        </TouchableOpacity>
         <View style={{ height: 40 }} />
       </ScrollView>
     );
@@ -448,6 +470,30 @@ export default function NetWorthScreen() {
       {body}
       <AssetSheet state={assetSheet} onClose={() => setAssetSheet({ open: false })} />
       <DebtSheet state={debtSheet} onClose={() => setDebtSheet({ open: false })} />
+
+      {/* add-or-connect: three honest paths — manual and file import stay first-class forever */}
+      <Modal visible={addChooser} transparent animationType="slide" onRequestClose={() => setAddChooser(false)}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
+          <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
+            <View style={styles.chooserGrip} />
+            <View style={[styles.chooserRow, { opacity: 0.6 }]} accessible
+              accessibilityLabel="Link it, read-only — coming soon. We can look, never touch your money.">
+              <Text style={styles.chooserTitle}>🔗  Link it (read-only) <Text style={styles.chooserSoon}>coming soon</Text></Text>
+              <Text style={styles.chooserSub}>We can look, never touch your money.</Text>
+            </View>
+            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); setAssetSheet({ open: true }); }}
+              accessibilityLabel="Add by hand">
+              <Text style={styles.chooserTitle}>✍️  Add by hand</Text>
+              <Text style={styles.chooserSub}>Your home, savings, or any account with no login.</Text>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/import-holdings'); }}
+              accessibilityLabel="Import from a file">
+              <Text style={styles.chooserTitle}>📄  Import from a file</Text>
+              <Text style={styles.chooserSub}>The CSV export from your brokerage.</Text>
+            </TouchableOpacity>
+          </View>
+        </TouchableOpacity>
+      </Modal>
     </View>
   );
 }
@@ -666,6 +712,25 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
 // (the local Sheet was replaced by the shared, keyboard-aware <KeyboardAwareSheet/> — Theme 3)
 
 const styles = StyleSheet.create({
+  // FCC glance-that-expands
+  glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
+  glanceVal: { fontSize: 36, fontWeight: '800', color: Colors.textPrimary },
+  glanceDelta: { fontSize: 13.5, fontWeight: '800', marginTop: 4 },
+  glanceLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 32 },
+  ownHdr: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
+  chev: { fontSize: 18, color: Colors.textTertiary, marginLeft: 6 },
+  expandBtn: { minHeight: 46, justifyContent: 'center', alignItems: 'center', marginTop: Spacing.sm },
+  expandTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
+  cfGlance: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  addConnect: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  addConnectTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
+  chooserGrip: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  chooserRow: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 64, justifyContent: 'center' },
+  chooserTitle: { fontSize: 15.5, fontWeight: '800', color: Colors.textPrimary },
+  chooserSoon: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary },
+  chooserSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2 },
   content: { padding: Spacing.lg },
   nwHero: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
   donutVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },

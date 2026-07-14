@@ -101,7 +101,7 @@ export default function Summary({ status, tracks, answers: a, name, onOpen }: Pr
         </>
       )}
 
-      <Text style={s.tagline}>MoneyKeel — your money’s chief of staff.</Text>
+      <Text style={s.tagline}>MoneyKeel — your finance command center.</Text>
     </View>
   );
 }

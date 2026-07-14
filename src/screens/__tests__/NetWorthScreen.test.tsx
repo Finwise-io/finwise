@@ -47,15 +47,16 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     expect(screen.getAllByText(/\$14,000/).length).toBeGreaterThan(0);   // car loan
   });
 
-  test('the donut exposes a VoiceOver summary, and Hide-balances masks the center figure', () => {
+  test('the glance exposes a VoiceOver summary, and Hide-balances masks the headline', () => {
     useStore.getState().setOnboardingProfile(employedPartner as any);
     useStore.getState().seedNetWorth(employedPartner as any);
     useStore.setState({ hideBalances: false });
     const { rerender } = render(<NetWorthScreen />);
-    expect(screen.getByLabelText(/Net worth .* By asset class/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Net worth .* By asset class/)).toBeOnTheScreen();   // FCC glance card
     useStore.setState({ hideBalances: true });
     rerender(<NetWorthScreen />);
-    expect(screen.getByLabelText('Net worth hidden')).toBeOnTheScreen();   // donut + center both masked
+    expect(screen.getByLabelText('Net worth hidden')).toBeOnTheScreen();   // headline masked
+    expect(screen.getByText(/••••/)).toBeOnTheScreen();
   });
 
   // UI-level B-15 regression: after a restart + new answers, the intro returns and re-seeding
@@ -102,9 +103,10 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
     liabilities: [],
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText('Cash')).toBeOnTheScreen();          // asset-class legend label (not the "CASH" section header)
-  expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class slice (also a row)
-  expect(screen.getByText('net worth')).toBeOnTheScreen();     // donut center total
+  expect(screen.getByText('Cash')).toBeOnTheScreen();          // WHAT YOU OWN class row
+  expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class row
+  expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();  // the FCC group header
+  expect(screen.getByText(/Own .* − Owe .* =/)).toBeOnTheScreen();   // the spelled-out math line
 });
 
 test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel double-counting account)', () => {
@@ -115,8 +117,9 @@ test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel
     ],
     liabilities: [],
   } as any);
-  // FCC: a row tap now opens the account DETAIL page; the edit sheet opens via its Edit → ?edit= param
+  // FCC: accounts live behind the expander; a row tap opens the account DETAIL page
   const first = render(<NetWorthScreen />);
+  fireEvent.press(screen.getByLabelText('Show accounts and detail'));
   fireEvent.press(screen.getByText('My 401(k)'));
   expect(router.push).toHaveBeenCalledWith('/account-detail?id=k1');
   first.unmount();
@@ -142,9 +145,9 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
     liabilities: [],
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest slice — the spec fix
+  expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest class row — the spec fix
   expect(screen.queryByText('Stocks / ETFs')).toBeNull();                  // NOT pretended to be stocks
-  expect(screen.getByText(/holdings aren't set yet/)).toBeOnTheScreen();   // the nudge to classify
+  expect(screen.getByText(/tap to say what's inside/)).toBeOnTheScreen();  // the nudge, on the row itself
 });
 
 test('#9: the guided-setup running total carries the Assets − Debts identity (not a bare aggregate)', () => {
@@ -162,13 +165,15 @@ test('#9: the guided-setup running total carries the Assets − Debts identity (
   expect(screen.getByText(/Assets .*− Debts /)).toBeOnTheScreen();
 });
 
-test('#13: import is reachable from Net Worth (not buried in Performance)', () => {
+test('#13: import is reachable from Net Worth via the add-or-connect chooser', () => {
   (router.push as jest.Mock).mockClear();
   useStore.setState({ nwSeeded: true, assetAccounts: [
     { asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 50000, target_return: 0.07 },
   ], liabilities: [] } as any);
   render(<NetWorthScreen />);
-  fireEvent.press(screen.getByLabelText('Import holdings from a brokerage file'));
+  fireEvent.press(screen.getByLabelText('Add or connect an account'));
+  expect(screen.getByLabelText(/Link it, read-only — coming soon/)).toBeOnTheScreen();   // honest, not hidden
+  fireEvent.press(screen.getByLabelText('Import from a file'));
   expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });
 
