@@ -15,7 +15,7 @@ import { budgetVsActual } from '../domain/budget';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { QuickAddExpense, AllocateSavings, ExpenseFab } from '../components/MoneySheets';
-import { incomeMonthlyGrid } from '../domain/income';
+import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
 import { buildPerformance, portfolioPeriodReturn, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
@@ -147,7 +147,13 @@ export default function HomeScreen() {
     [op, resolvedRows.accounts, store.retirementAssumptions, store.inflationRate, store.employmentStatus]);
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
 
-  if (!snap) {
+  // founder finding 2026-07-15: answering the two setup questions creates a PROFILE, not DATA —
+  // a user who finished the questions still needs the doors in (connect / import / add by hand).
+  // The doors show until real money data exists from ANY source: a live or onboarding-derived
+  // account or debt, or a captured income. Never a dashboard of fake zeros.
+  const hasMoneyData = resolvedRows.accounts.length > 0 || resolvedRows.liabilities.length > 0
+    || salaryAnnual(op) > 0 || currentRetirementIncomeMonthly(op) > 0;
+  if (!snap || !hasMoneyData) {
     // Home — first run, nothing connected yet (FCC detailed design v1.1, Home sheet): never fake
     // zeros or demo charts — one promise and the DOORS in: connect (honestly 'coming soon' until
     // the bank link ships), add by hand, import a file; the retired-paycheck fast path leads when

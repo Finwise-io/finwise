@@ -14,6 +14,7 @@ import { resolveLens, type Lens } from '../domain/profile/lens';
 const INTENTS = [
   { id: 'grow', label: 'Know how your investments are doing vs the market' },
   { id: 'paycheck', label: 'Plan for a secure retirement' },
+  { id: 'cashflow', label: 'Stay on top of income and spending' },
   { id: 'whole_picture', label: 'See your full money picture' },
 ] as const;
 

@@ -66,3 +66,28 @@ test('the Settings revisit skips the intro and shows the questions directly, tit
   expect(screen.queryByText('MoneyKeel: Your finance command center.')).toBeNull();
   expect(screen.getByText('Your setup')).toBeOnTheScreen();
 });
+
+// founder finding 2026-07-15: finishing the QUESTIONS (a profile, not data) must still land on
+// the doors — connect / import / add by hand — never a dashboard of fake zeros.
+test('answering the questions without any money data still shows the three doors on Home', () => {
+  const HomeScreen = require('../HomeScreen').default;
+  useStore.setState({
+    onboardingComplete: true,
+    onboardingProfile: { intents: ['cashflow'], status: 'employed', name: 'Pat' },   // questions answered, zero dollars anywhere
+  } as any);
+  render(<HomeScreen />);
+  expect(screen.getByText("Let's get your real numbers in.")).toBeOnTheScreen();
+  expect(screen.getByLabelText('Import a file from your brokerage')).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Add something by hand/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Connect your first account — coming soon/)).toBeOnTheScreen();
+});
+
+test('the cash-flow goal card exists and toggles (screen-1 benefit has its matching goal)', () => {
+  useStore.getState().resetAll();
+  render(<FirstRunScreen />);
+  fireEvent.press(screen.getByLabelText('Continue'));                       // intro → questions
+  fireEvent.press(screen.getByLabelText('Stay on top of income and spending'));
+  fireEvent.press(screen.getByLabelText('Still working'));
+  fireEvent.press(screen.getByLabelText('Continue'));
+  expect(((useStore.getState() as any).onboardingProfile.intents)).toContain('cashflow');
+});
