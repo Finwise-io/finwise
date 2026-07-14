@@ -4,8 +4,10 @@ _Working doc. Started 2026-07-13 after the founder's call: **stop building testa
 whole approved design, gate with the automated suite, then cut ONE build.** Source of truth for scope:
 `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` (40 screens) + `FCC-core-UX-design-v1.1` + PRD v1.1._
 
-_Last updated 2026-07-13 end of session 1. Suite: **910 green** (was 839), tsc clean, UI gate passing.
-Commits: 9ac80a7 · 4cb258a · 7b2a507 · acc096c · 9eb6359 (branch taxonomy-v1.0.7, NOT pushed)._
+_Last updated 2026-07-13 end of session 2. Suite: **937 green** (was 839 pre-FCC), tsc clean, UI gate
+passing. Commits: 9ac80a7 · 4cb258a · 7b2a507 · acc096c · 9eb6359 · 04777bc · d33eeae · f26bf23 · 95c0853
+(branch taxonomy-v1.0.7, NOT pushed). NOTE 2026-07-13: Apple account is registered as an INDIVIDUAL —
+founder decided NO App Store Connect rename needed; the device shows MoneyKeel from the binary._
 
 ## Why Build 40 looked identical (recorded so we don't repeat it)
 Build 40 (commit b4205b3) DID contain the new engines + rename, but: (1) the new hero sat behind the
@@ -29,11 +31,11 @@ one build at the end.**
 | selectWillItLast (the ONE will-it-last selector) | ✅ | `src/domain/retirement/willItLast.ts` |
 | F8 Social Security claim math (SSA schedule) | ✅ | `src/domain/retirement/ssTiming.ts` |
 | Insight rules: worth-a-look slot-1 · rmd-due · ss-window · goals-gap | ✅ | `src/domain/insights/index.ts` |
-| F4 multi-goal weigher | ⬜ | `src/domain/planning/` extension |
+| F4 multi-goal weigher | ✅ (weighGoals + trimHints-as-pre-runs + retireAgeWithContribution) | `src/domain/planning/multiGoal.ts` |
 | F1 secure sync seam + connection freshness | ⬜ (Transaction.source field ready; manual rows never flagged) | `src/services/sync/` |
 | Bond rate-sensitivity estimate | ⬜ | `src/domain/bonds/` |
 | Look-back counterfactual | ⬜ | `src/domain/performance/` |
-| Manual-value freshness nudge | ⬜ | `src/domain/assets/` |
+| Manual-value freshness nudge | ✅ (valueFreshness + value_as_of/source/last_synced fields) | `src/domain/assets/` |
 | Holding-level concentration callout | ⬜ | `src/domain/insights/` |
 
 ## Screens (40, by tab)
@@ -51,7 +53,7 @@ one build at the end.**
 | Home — still-working hero (Grow & Track) | ✅ (investments + 1M vs market + freshness + net-worth line + what-needs-you + will-it-last) |
 | Home — retired hero (Safe to spend) | ✅ (PaycheckCard leads, no flag) |
 | Worth a look — transaction detail (F10) | ✅ (facts, comparison, two buttons, checklist, prev/next, copy ban tested) |
-| First run — what did you come for? (sets the lens) | ⬜ (Settings 'Your setup' chips cover the revisit path) |
+| First run — what did you come for? (sets the lens) | ✅ (/first-run: intents + stage + retired fast-path + Skip; Settings links to it). Onboarding-flow insertion for brand-new users still pending |
 | Home — first run (nothing connected yet) | 🔨 (honest empty state exists; FCC two-door layout pending) |
 | Home — balances hidden | ✅ (banner + walk test) |
 | Home — stale connection + partial data | 🔨 (price freshness live; connection part blocked on F1) |
@@ -76,7 +78,7 @@ one build at the end.**
 | Plan hub | ✅ (will-it-last card + band, big decisions, scenarios, revert row, sharpen meter, retired income row) |
 | Social Security claim timing | ✅ (`/ss-timing`, 7-test journey) |
 | Use this plan (adoption sheet, F11 — shared) | ✅ |
-| Multi-goal trade-off composer (F4) | ⬜ (hub row routes to Goals meanwhile; Cash flow already renders adopted `commitments[]`) |
+| Multi-goal trade-off composer (F4) | ✅ (/multi-goal: dials, verdict vs canonical capacity, before→after retirement, tappable trim hints, adoption → commitments[] named on Cash flow) |
 | Roth conversion (simple scenario) | ♻️ (RothScreen linked from hub; scenario-ify + adoption pending) |
 | Retirement transition + required withdrawals | 🔨 (rmd-due insight + hub row → cockpit; dedicated screen pending) |
 | Will-it-last detail | 🔨 (hub links to cockpit; dedicated detail screen pending) |
@@ -84,12 +86,12 @@ one build at the end.**
 ### Net worth (8) — next session's first target
 | Screen | Status |
 |---|---|
-| Net worth tab — main | ♻️ (NetWorthScreen live under the new tab title; FCC re-shell pending) |
-| Connect flow — institution + consent / accounts found + merge (F1) | ⬜ ⬜ |
-| Import from a file v2 | ♻️ (parser/preview live; institution + dedup pass pending) |
-| Account detail — any class | ⬜ |
+| Net worth tab — main | ♻️ rows now open Account detail; FCC glance re-shell pending |
+| Connect flow — institution + consent / accounts found + merge (F1) | ⬜ ⬜ (merge rule EXISTS: matchImportAccount, shared) |
+| Import from a file v2 | ✅ (institution required + provenance stamps, merge-not-duplicate w/ asset_id preserved, per-row class correction) |
+| Account detail — any class | ✅ (/account-detail: source chip, per-class record-activity through recordTransaction, ledger history, value_as_of + 6-month nudge, Edit round-trip) |
 | Bond editor / Alternative editor | ✅ ✅ |
-| Add or edit an account by hand (dynamic by class) | ⬜ |
+| Add or edit an account by hand (dynamic by class) | ⬜ (AssetSheet remains the editor; unified dynamic add screen pending) |
 
 ### Invest (8)
 | Screen | Status |
@@ -115,11 +117,11 @@ one build at the end.**
   a11y ratchet (Home 35→0, Settings 20→0, all new files 0), check-ui-tests.sh.
 
 ## Next session order
-1. Net worth tab: account detail + unified manual add/edit (M1) + import v2 institution/dedup.
-2. Invest: holding details + look-back + forward what-if + state contract.
-3. Plan: F4 multi-goal composer (writes `commitments[]` — Cash flow already renders them), RMD screen,
-   will-it-last detail, Roth adoption.
-4. First-run screens (intents + stage + empty Home two-door) + onboarding flow map.
-5. F1 connect seam screens (consent + reconcile) — Plaid Option A approved.
-6. Bill calendar v2 running-balance table; draw-order steering.
-7. Then: bump version, ONE TestFlight build.
+1. Invest drills: holding detail (equity/bond/alt), look-back counterfactual, forward what-if,
+   state contract; bond rate-sensitivity + concentration callout engines.
+2. Plan: RMD/transition screen, will-it-last detail, Roth scenario-ify + adoption.
+3. Net worth: unified manual add/edit (M1) + FCC main re-shell; F1 connect screens (consent +
+   accounts-found reconcile — matchImportAccount is the shared merge rule; Plaid sandbox live).
+4. First-run insertion into the new-user onboarding flow + empty-Home two-door state.
+5. Bill calendar v2 running-balance table; draw-order steering.
+6. Then: bump version, ONE TestFlight build (quota fresh; Apple account = individual, no ASC rename).
