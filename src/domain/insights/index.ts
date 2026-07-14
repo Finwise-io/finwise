@@ -17,6 +17,7 @@ export interface InsightInput {
   cashDragPct: number;                              // % of investable assets sitting in cash
   topAccountPct: number;                            // largest single investment ACCOUNT as % of investable
   topHolding?: { ticker: string; pct: number } | null; // largest single HOLDING at 25%+ (topHoldingConcentration — same rule Invest main shows)
+  planNext?: string | null;                         // the FIRST missing plan-completeness item (specific beats percent — founder 2026-07-15)
   planPct: number;                                  // "sharpen your plan" completeness
   beatBy: number | null;                            // portfolio vs benchmark (decimal pts)
   investRate: number | null;                        // retirement/investment contributions ÷ GROSS income
@@ -75,7 +76,9 @@ const RULES: Rule[] = [
   (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/mo more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
   // FCC: the Social Security claim window is open and no timing has been adopted — logistics, no opinion.
   (i) => i.ssWindow ? { id: 'ss-window', priority: 2, icon: '🗓️', title: 'Your Social Security window is open', body: `You can claim any time from 62 to 70 — no deadline, but timing changes the check. See it laid out in your dollars.`, route: '/ss-timing' } : null,
-  (i) => i.planPct < 100 ? { id: 'plan-incomplete', priority: 3, icon: '✨', title: 'Sharpen your plan', body: `Your plan is ${i.planPct}% complete — finishing it makes every number sharper.`, route: '/sharpen' } : null,
+  // founder 2026-07-15: a chief of staff never says 'your work is 17% done' — name the ONE
+  // specific next thing and what it buys; the percent stays on the Sharpen screen itself.
+  (i) => (i.planPct < 100 && i.planNext) ? { id: 'plan-incomplete', priority: 3, icon: '✨', title: 'One thing would sharpen every number', body: `Next: ${i.planNext.toLowerCase()} — two minutes in Plan.`, route: '/sharpen' } : null,
 ];
 
 /** Ranked insights (highest priority first). `limit` caps the result (default all). */

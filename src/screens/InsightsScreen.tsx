@@ -92,6 +92,7 @@ export function useInsights(limit?: number): Insight[] {
       topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
       topHolding,
       planPct: plan.pct,
+      planNext: plan.checks.find((c: any) => !c.done)?.label ?? null,
       beatBy: actual != null ? actual - bench : null,
       investRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,
     }, limit);

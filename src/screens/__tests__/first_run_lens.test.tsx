@@ -91,3 +91,29 @@ test('the cash-flow goal card exists and toggles (screen-1 benefit has its match
   fireEvent.press(screen.getByLabelText('Continue'));
   expect(((useStore.getState() as any).onboardingProfile.intents)).toContain('cashflow');
 });
+
+// founder Home-dashboard round (2026-07-15): the will-it-last tease is a SAMPLE, never a real-looking
+// claim; the cash-flow snapshot reads the same month figures the rest of Home uses.
+test('no odds captured → the locked gauge shows SAMPLE 84% (labeled), never an unlabeled number', () => {
+  const HomeScreen = require('../HomeScreen').default;
+  useStore.setState({
+    onboardingComplete: true,
+    onboardingProfile: { status: 'employed', baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '20', name: 'Pat' },
+  } as any);
+  render(<HomeScreen />);
+  expect(screen.getByText('SAMPLE')).toBeOnTheScreen();                    // the uncroppable pill
+  expect(screen.getByText(/3 quick answers unlock your real number/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/sample, not your number/)).toBeOnTheScreen();
+});
+
+test("the cash-flow snapshot card: income/spent/left from the month's own figures", () => {
+  const HomeScreen = require('../HomeScreen').default;
+  useStore.setState({
+    onboardingComplete: true,
+    onboardingProfile: { status: 'employed', baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '25', name: 'Pat', monthlySpending: '3000' },
+    expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
+  } as any);
+  render(<HomeScreen />);
+  expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();
+  expect(screen.getByLabelText(/This month's cash flow: income \$6,000, spent \$1,200, \$4,800 left/)).toBeOnTheScreen();
+});

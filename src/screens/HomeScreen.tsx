@@ -6,6 +6,7 @@
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).
 import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -299,14 +300,52 @@ export default function HomeScreen() {
          
           accessibilityLabel={wil.chance != null
             ? `Will my money last to ${wil.horizonAge}: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Opens Plan.`
-            : 'Answer three quick questions in Plan to see your odds. Opens Plan.'}>
+            : 'Will my money last: sample gauge showing 84 percent, a sample, not your number. Three quick answers unlock your real odds. Opens Plan.'}>
           <Text style={styles.boxLabel}>WILL MY MONEY LAST?{wil.chance != null ? ` — to ${wil.horizonAge}` : ''}</Text>
           {wil.chance != null ? (
             <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <Text style={styles.wilEst}>— estimate</Text></Text>
           ) : (
-            <Text style={styles.wilInvite}>Answer 3 quick questions in Plan to see your odds</Text>
+            // founder 2026-07-15: a living tease of the prediction engine, never a chore — the full
+            // gauge visual, LOCKED, with the number visibly blank (a fake 88% would be a trust bug)
+            <View style={styles.gaugeRow}>
+              <View accessible={false}>
+                <Svg width={104} height={60} viewBox="0 0 104 60">
+                  {[['#E4655F', 'M 8 56 A 44 44 0 0 1 17.4 29.2'], ['#EDA33B', 'M 21.2 24.4 A 44 44 0 0 1 44.6 8.6'], ['#E8D24C', 'M 50.6 7.2 A 44 44 0 0 1 74.9 12.9'], ['#9BCB63', 'M 80.1 16.4 A 44 44 0 0 1 93.9 39.1'], ['#3DA982', 'M 95.6 44.9 A 44 44 0 0 1 96 56']].map(([c, d]) => (
+                    <Path key={c} d={d} stroke={c} strokeWidth={9} strokeLinecap="round" fill="none" opacity={0.9} />
+                  ))}
+                </Svg>
+                <Text style={styles.gaugeLock}>🔒</Text>
+              </View>
+              <View style={{ flex: 1 }}>
+                <View style={styles.gaugeLine}>
+                  <Text style={styles.gaugeBlank}>Odds your money lasts: <Text style={styles.gaugeSampleNum}>84%</Text></Text>
+                  <View style={styles.samplePill}><Text style={styles.samplePillTxt}>SAMPLE</Text></View>
+                </View>
+                <Text style={styles.wilInvite}>3 quick answers unlock your real number</Text>
+              </View>
+            </View>
           )}
-          <Text style={styles.heroLink}>See the full picture ›</Text>
+          <Text style={styles.heroLink}>{wil.chance != null ? 'See the full picture ›' : 'Unlock your odds ›'}</Text>
+        </TouchableOpacity>
+
+        {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs spending
+            at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
+        <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
+          accessibilityLabel={`This month's cash flow: income ${maskedMoney(Math.round(thisMonthNet))}, spent ${maskedMoney(Math.round(bva.spent_total))}, ${thisMonthNet - bva.spent_total >= 0 ? `${maskedMoney(Math.round(thisMonthNet - bva.spent_total))} left` : `${maskedMoney(Math.round(bva.spent_total - thisMonthNet))} over`}. Opens the Cash flow tab.`}>
+          <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
+          <View style={styles.cfBarTrack}>
+            <View style={[styles.cfBarFill, {
+              width: `${Math.min(100, thisMonthNet > 0 ? (bva.spent_total / thisMonthNet) * 100 : (bva.spent_total > 0 ? 100 : 0))}%`,
+              backgroundColor: thisMonthNet <= 0 || bva.spent_total > thisMonthNet ? Colors.red : bva.spent_total > 0.7 * thisMonthNet ? Colors.amber : Colors.primary,
+            }]} />
+          </View>
+          <View style={styles.cfRow}>
+            <Text style={styles.cfCell}>Income <Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text></Text>
+            <Text style={styles.cfCell}>Spent <Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></Text>
+            <Text style={styles.cfCell}>{thisMonthNet - bva.spent_total >= 0 ? 'Left ' : 'Over '}
+              <Text style={[styles.cfNum, { color: thisMonthNet - bva.spent_total >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(thisMonthNet - bva.spent_total)))}</Text>
+            </Text>
+          </View>
         </TouchableOpacity>
 
         <Disclaimer />
@@ -373,4 +412,16 @@ const styles = StyleSheet.create({
   wilTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   wilEst: { fontSize: 13, fontWeight: '500', color: Colors.textTertiary },
   wilInvite: { fontSize: 14, color: Colors.textSecondary, marginTop: 4, lineHeight: 20 },
+  gaugeRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 6 },
+  gaugeLock: { position: 'absolute', alignSelf: 'center', top: 26, fontSize: 20 },
+  gaugeBlank: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  gaugeLine: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
+  gaugeSampleNum: { fontWeight: '800', color: Colors.textTertiary },
+  samplePill: { backgroundColor: Colors.bgTertiary, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
+  samplePillTxt: { fontSize: 10, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.8 },
+  cfBarTrack: { height: 12, borderRadius: 6, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
+  cfBarFill: { height: 12, borderRadius: 6 },
+  cfRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
+  cfCell: { fontSize: 13, color: Colors.textSecondary },
+  cfNum: { fontSize: 13.5, fontWeight: '800', color: Colors.textPrimary },
 });
