@@ -95,7 +95,7 @@ export default function PlanHubScreen() {
       <View style={styles.card}>
         <DecisionRow title="Claim Social Security" sub={ssChip ?? 'when to start the check — laid out in your dollars'} onPress={() => router.push('/ss-timing')} />
         <DecisionRow divider title="Required withdrawals" sub={age != null && age >= RMD_START_AGE ? 'they apply to you now' : `they start at ${RMD_START_AGE}`} onPress={() => router.push('/retirement')} />
-        <DecisionRow divider title="Afford it all?" sub="home · college · parents · debt — together" onPress={() => router.push('/(tabs)/goals')} />
+        <DecisionRow divider title="Afford it all?" sub="home · college · parents · debt — together" onPress={() => router.push('/multi-goal')} />
         <DecisionRow divider title="Move money into a Roth" sub="pay some tax now, in a low-tax year" onPress={() => router.push('/roth')} />
       </View>
 

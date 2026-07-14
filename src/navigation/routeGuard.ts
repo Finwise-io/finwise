@@ -15,6 +15,7 @@ export const MODAL_SEGMENTS = [
   'ss-timing',                  // FCC Plan tab: the Social Security claim-timing decision
   'month-detail',               // FCC Cash flow tab: the per-month cell renderer
   'account-detail',             // FCC Net worth tab: one page per account
+  'multi-goal',                 // FCC Plan tab: Afford it all? (the F4 composer)
 ];
 
 export type RouteState = {

@@ -171,6 +171,9 @@ export type RetirementAssumptions = {
   ssClaimAge: number | null;                 // age SS begins (default 67)
   actualReturn: number | null;               // self-reported actual portfolio return, trailing 12mo (decimal)
   returnBasis: 'benchmark' | 'actual' | 'scenario' | null;  // which growth rate drives the nest-egg projection
+  // F4/F11 (FCC): adopted goal commitments — each appears as a named planned line on Cash flow
+  // ('Parents $2,000/mo · from your Plan'); written ONLY through the adoption sheet.
+  commitments?: { goalId: string; label: string; monthlyAmount: number; endDate?: string }[];
 };
 
 // A saved what-if the user can re-open / compare (stickiness).
