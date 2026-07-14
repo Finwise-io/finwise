@@ -79,7 +79,7 @@ one build at the end.**
 | Cash flow main — retired (F5 hero + 12 dated bars + draw-order + will-it-last) | ✅ | |
 | Cash flow main — working (in/out/surplus + bars + commitments seam + projection card) | ✅ | |
 | Month detail (pure renderer over one F2/F5 cell, prev/next) | ✅ (`/month-detail?slot=N`) | |
-| Bill calendar v2 | 🔨 (v1 linked from 'All bills & the calendar'; running-balance table pending) | |
+| Bill calendar v2 | ✅ (2026-07-15): the ONE F2 grid as a running-balance table (In/Out/End chains from editable cash-on-hand), dated verdict + biggest-cause sentence, day-level coming-up (savings-or-backup copy), add/edit dated bills w/ YEAR one-offs, deferred-debt visibility (r42 four-surface pin), later-section, masked verdict keeps words | |
 | Draw-order steer sheet | ✅ (2026-07-15, founder retiree-mock round): reorder by buttons, RMD pinned at 73+, honest depletion-model comparison (lasts-to + taxes; % deliberately not re-run), Keep/Reset persists ONE store.drawOrder the preview reads | |
 | Your monthly income (SS · pension · annuity) | ✅ | |
 | Quick-add expense (+ sheet) | ✅ (shared MoneySheets) | |
