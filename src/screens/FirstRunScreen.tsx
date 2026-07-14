@@ -12,9 +12,9 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { resolveLens, type Lens } from '../domain/profile/lens';
 
 const INTENTS = [
-  { id: 'grow', label: 'Grow my investments' },
-  { id: 'paycheck', label: 'A retirement paycheck I can trust' },
-  { id: 'whole_picture', label: 'See everything in one place' },
+  { id: 'grow', label: 'Grow your investments' },
+  { id: 'paycheck', label: 'Plan for a secure retirement' },
+  { id: 'whole_picture', label: 'See your full money picture' },
 ] as const;
 
 export default function FirstRunScreen() {
@@ -82,27 +82,27 @@ export default function FirstRunScreen() {
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.h1}>{isFirstRun ? 'Welcome to MoneyKeel' : 'Your setup'}</Text>
+      <Text style={s.h1}>{isFirstRun ? 'Customize your command center' : 'Your setup'}</Text>
 
-      <Text style={s.q}>What did you come for? <Text style={s.qSub}>(pick all that apply)</Text></Text>
+      <Text style={s.q}>What are your primary goals? <Text style={s.qSub}>(pick all that apply)</Text></Text>
       {INTENTS.map((it) => {
         const on = intents.includes(it.id);
         return (
           <TouchableOpacity accessibilityRole="checkbox" key={it.id} style={[s.option, on && s.optionOn]}
             onPress={() => toggleIntent(it.id)}
             accessibilityState={{ checked: on }} accessibilityLabel={it.label}>
-            <Text style={s.optionMark}>{on ? '☑' : '☐'}</Text>
+            <View style={[s.badge, on && s.badgeOn]}>{on ? <Text style={s.badgeTick}>✓</Text> : null}</View>
             <Text style={s.optionTxt}>{it.label}</Text>
           </TouchableOpacity>
         );
       })}
 
-      <Text style={s.q}>Where are you these days?</Text>
+      <Text style={s.q}>Where are you in your career?</Text>
       {([['working', 'Still working'], ['retired', 'Retired, or nearly']] as const).map(([v, label]) => (
         <TouchableOpacity accessibilityRole="radio" key={v} style={[s.option, stage === v && s.optionOn]}
           onPress={() => setStage(v)}
           accessibilityState={{ selected: stage === v }} accessibilityLabel={label}>
-          <Text style={s.optionMark}>{stage === v ? '◉' : '○'}</Text>
+          <View style={[s.badge, stage === v && s.badgeRingOn]}>{stage === v ? <View style={s.badgeDot} /> : null}</View>
           <Text style={s.optionTxt}>{label}</Text>
         </TouchableOpacity>
       ))}
@@ -129,9 +129,13 @@ const s = StyleSheet.create({
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.md },
   q: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },
   qSub: { fontSize: 13, fontWeight: '500', color: Colors.textSecondary },
-  option: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 52 },
+  option: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, minHeight: 56 },
   optionOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  optionMark: { fontSize: 17, color: Colors.primaryDark },
+  badge: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Colors.borderStrong, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.cardBg },
+  badgeOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  badgeTick: { color: Colors.white, fontSize: 14, fontWeight: '800' },
+  badgeRingOn: { borderColor: Colors.primary },
+  badgeDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.primary },
   optionTxt: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   consequence: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },

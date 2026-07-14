@@ -37,7 +37,7 @@ test('answering the stage question sets the lens for the whole app (the one reso
 test('the retired fast-path: paycheck intent + retired → the Monthly-income door (two typed numbers first)', () => {
   render(<FirstRunScreen />);
   fireEvent.press(screen.getByLabelText('Continue'));
-  fireEvent.press(screen.getByLabelText('A retirement paycheck I can trust'));
+  fireEvent.press(screen.getByLabelText('Plan for a secure retirement'));
   fireEvent.press(screen.getByLabelText('Retired, or nearly'));
   fireEvent.press(screen.getByLabelText('Continue'));
   expect(mockReplaces).toEqual(['/monthly-income']);
