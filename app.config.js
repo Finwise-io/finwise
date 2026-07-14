@@ -1,7 +1,7 @@
 module.exports = {
   name: 'MoneyKeel',
   slug: 'finwise',
-  version: '1.0.8',
+  version: '1.1.0',   // the MoneyKeel FCC redesign — 5-tab nav, lens heroes, Plan decisions
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
