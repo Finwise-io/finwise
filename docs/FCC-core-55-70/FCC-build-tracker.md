@@ -91,8 +91,8 @@ one build at the end.**
 | Social Security claim timing | ✅ (`/ss-timing`, 7-test journey) | |
 | Use this plan (adoption sheet, F11 — shared) | ✅ | |
 | Multi-goal trade-off composer (F4) | ✅ (/multi-goal: dials, verdict vs canonical capacity, before→after retirement, tappable trim hints, adoption → commitments[] named on Cash flow) | |
-| Roth conversion (simple scenario) | ♻️ (RothScreen linked from hub; scenario-ify + adoption pending) | |
-| Retirement transition + required withdrawals | 🔨 (rmd-due insight + hub row → cockpit; dedicated screen pending) | |
+| Roth conversion (simple scenario) | ✅ (2026-07-15): real taxBucketSplit balances (NW-pin), capped dial, editable tax rate w/ estimate label, RMD-smaller + tax-free-bucket effects, honest will-it-last delta, UseThisPlanSheet adoption → April tax in Cash flow grid (r40 pin) | |
+| Retirement transition + required withdrawals | ✅ (2026-07-15): /required-withdrawals — required/taken/still (one rmdAtAge + one ledger), Mark-as-taken (real WITHDRAWAL row; P1 phantom-sleeve bug found+fixed), Nov reminder, getting-ready checklist, year-by-year estimates, which-accounts, under-73/no-pretax states | |
 | Will-it-last detail | ✅ (/will-it-last: one-selector headline + range + plain meaning + sourced drivers with change-roads) | |
 
 ### Net worth (8) — next session's first target
@@ -144,3 +144,15 @@ one build at the end.**
 |---|---|---|---|
 | Home ignored LIVE accounts in its no-data gate — skip the questions, import a file, and Home still showed "Let's get your real numbers in" | P1 | ✅ FIXED same day (7b400be) — **not in Build 42**; lands in the next build | |
 | + Expense button said "Add $7" for a typed $6.50 (display only; saved amount was exact) | LOW | ✅ FIXED same day (7b400be) — **not in Build 42**; lands in the next build | |
+
+## Milestone moment — DONE 2026-07-15
+The PRD gap the Senior Audit confirmed: one calm line under the Home hero ('Your net worth just
+crossed $500k.'), once, dismissed on tap. Honesty rules built in: first sight sets a SILENT
+baseline (never congratulate walked-in wealth); a dip never re-arms the same rung.
+src/domain/milestones.ts + store.milestoneHighSeen. Pinned in plan_fcc.test.tsx.
+
+## P1 found during the Plan-tab tests — FIXED same day
+Recording a deposit/withdrawal on a MANUAL-balance investment account (e.g. a plain $310k IRA)
+bumped a phantom cash sleeve, and recomputeBalances then REPLACED the entered balance with the
+sleeve (−$5,000 shown for a $310k IRA). The sleeve now exists only on ledger-managed accounts
+(derive_balance / existing sleeve) — the same rule recomputeBalances uses.

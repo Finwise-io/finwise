@@ -26,6 +26,7 @@ describe('InsuranceScreen prefill (B-36)', () => {
 describe('RothScreen prefill (B-36)', () => {
   test('pre-tax 401(k) balance is prefilled from PRE_TAX accounts', () => {
     render(<RothScreen />);
-    expect(screen.getByDisplayValue('120000')).toBeOnTheScreen();   // the $120k 401(k), not $0
+    // FCC rebuild: the balance is no longer a prefilled input — the REAL bucket shows as fact
+    expect(screen.getByText(/from your pre-tax \$120,000/)).toBeOnTheScreen();
   });
 });

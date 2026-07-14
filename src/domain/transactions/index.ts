@@ -49,7 +49,11 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
 // Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash
 // accounts (checking/savings) and property hold their money in `balance`. Moving cash must hit the
 // right field, or a transfer/deposit on a savings account corrupts net worth.
-const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY';
+// The sleeve exists ONLY on ledger-managed accounts (derive_balance, or a sleeve already present) —
+// the SAME rule recomputeBalances uses. Bumping a phantom sleeve on a manual-balance IRA made
+// recompute REPLACE the entered $310k with the sleeve's −$5k (P1, caught by the RMD screen's test).
+const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY'
+  && (a.derive_balance === true || a.cash_balance != null);
 const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0) : (a.balance || 0));
 function bumpCash(a: AssetAccount, delta: number): AssetAccount {
   return usesSleeve(a)

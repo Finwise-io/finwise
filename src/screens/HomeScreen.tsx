@@ -24,6 +24,7 @@ import { buildDebtState, requiredPayment } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
+import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
 import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars } from '../components/useMoney';
 
@@ -57,6 +58,13 @@ export default function HomeScreen() {
     },
     [op, uid, store.inflationRate, store.treasuryYield, store.nwSeeded, store.assetAccounts, store.liabilities],
   );
+
+  const netWorthNow = snap ? Math.round((snap as any).networth?.net_worth ?? 0) : null;
+  useEffect(() => {
+    if (netWorthNow == null) return;
+    if (store.milestoneHighSeen == null) store.setMilestoneHighSeen?.(milestoneFloor(netWorthNow));
+  }, [netWorthNow == null, store.milestoneHighSeen == null]);
+  const milestone = netWorthNow != null ? milestoneCrossed(netWorthNow, store.milestoneHighSeen) : null;
 
   const resolvedRows = useMemo(
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
@@ -265,6 +273,16 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
+        {/* MILESTONE — one calm line under the hero, once, dismissed on tap (the strategy's
+            stated retention moment; design Home STATES). Fact-toned, never repeated. */}
+        {milestone != null && (
+          <TouchableOpacity accessibilityRole="button" style={styles.milestoneLine}
+            onPress={() => store.setMilestoneHighSeen?.(milestone)}
+            accessibilityLabel={`Your net worth just crossed ${milestoneLabel(milestone)}. Tap to dismiss.`}>
+            <Text style={styles.milestoneTxt}>Your net worth just crossed {milestoneLabel(milestone)}. <Text style={styles.milestoneDismiss}>✕</Text></Text>
+          </TouchableOpacity>
+        )}
+
         {/* NET WORTH — one quiet line, taps to its one home */}
         <TouchableOpacity accessibilityRole="button" style={styles.nwLine} activeOpacity={0.7} onPress={() => router.push('/(tabs)/analytics')}
          
@@ -372,6 +390,9 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   h1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary },
+  milestoneLine: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 40, justifyContent: 'center' },
+  milestoneTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark },
+  milestoneDismiss: { color: Colors.textTertiary, fontWeight: '800' },
   hiddenBanner: { fontSize: 12.5, fontWeight: '600', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingVertical: 6, paddingHorizontal: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   coin: { fontSize: 44, textAlign: 'center', marginBottom: 10 },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg },
