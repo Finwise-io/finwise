@@ -22,12 +22,15 @@ describe('auth routing guard (L-4 regression contract)', () => {
     });
   });
 
-  describe('authenticated but onboarding unfinished → questions, NOT a dead-end', () => {
-    test('a freshly-created account goes to /onboarding (the bug showed "You\'re signed in" instead)', () => {
-      expect(nextRoute(S({ user: true, onboardingComplete: false, segment: 'auth' }))).toBe('/onboarding');
-      expect(nextRoute(S({ user: true, onboardingComplete: false, segment: '(tabs)' }))).toBe('/onboarding');
+  describe('authenticated but onboarding unfinished → the first-run questions, NOT a dead-end', () => {
+    test('a freshly-created account goes to /first-run (FCC B46: value intro → intents → stage)', () => {
+      expect(nextRoute(S({ user: true, onboardingComplete: false, segment: 'auth' }))).toBe('/first-run');
+      expect(nextRoute(S({ user: true, onboardingComplete: false, segment: '(tabs)' }))).toBe('/first-run');
     });
-    test('stays in onboarding once there', () => {
+    test('stays put on first-run once there', () => {
+      expect(nextRoute(S({ user: true, onboardingComplete: false, segment: 'first-run' }))).toBeNull();
+    });
+    test('the deep questionnaire stays legal (the set-up-by-hand door) — never bounced out of it', () => {
       expect(nextRoute(S({ user: true, onboardingComplete: false, segment: 'onboarding' }))).toBeNull();
     });
   });

@@ -1,7 +1,9 @@
-// First run — what did you come for? (FCC detailed design v1.1, Home sheet). Two friendly questions
-// set the lens (which hero leads Home) and the tab order. Pick-all-that-apply intents ONLY order
-// suggestions — they never change a number. Skippable with no dead end; changeable in Settings.
-// Also the Settings "Your setup" revisit target (same screen, same one stage field).
+// First run (FCC detailed design v1.1, Home tab B46 — the onboarding flow map). THE first-run for
+// new users: STEP 1 value intro (what MoneyKeel can do + the read-only promise) → STEP 2 intents
+// (pick all that apply — they only order suggestions, never change a number) → STEP 3 the stage
+// question (sets the lens: hero + tab order) → STEP 4 routed by answers (retired + paycheck →
+// the Monthly-income fast path; otherwise Home). Every step skippable; skip = sensible defaults.
+// Also the Settings "Your setup" revisit target (same screen, same one stage field, no intro).
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
@@ -19,6 +21,8 @@ export default function FirstRunScreen() {
   const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
+  const isFirstRun = !store.onboardingComplete;               // Settings revisit skips the intro
+  const [step, setStep] = useState<'intro' | 'questions'>(isFirstRun ? 'intro' : 'questions');
   const [intents, setIntents] = useState<string[]>(() => (op.intents as string[]) ?? []);
   const [stage, setStage] = useState<Lens | null>(() => store.lensOverride ?? null);
 
@@ -27,9 +31,15 @@ export default function FirstRunScreen() {
 
   const finish = (skipped: boolean) => {
     if (!skipped) {
-      store.setOnboardingProfile?.({ ...op, intents });          // intents order suggestions, never numbers
-      if (stage) store.setLensOverride?.(stage);                 // the ONE stage field the resolver reads
+      // intents order suggestions, never numbers; the stage answer also seeds the profile's
+      // status for the income modules (only when the deep questionnaire hasn't set one yet)
+      const statusSeed = stage && !op.status ? { status: stage === 'retired' ? 'retired' : 'employed' } : {};
+      store.setOnboardingProfile?.({ ...op, intents, ...statusSeed });
+      if (stage) store.setLensOverride?.(stage);               // the ONE stage field the resolver reads
     }
+    // B46: the light flow IS onboarding — the deep questionnaire stays reachable as the
+    // set-up-by-hand door on Home. Completing (or skipping) here never traps the user.
+    if (isFirstRun) store.setOnboardingComplete?.(true);
     // the retired fast-path: paycheck intent + retired → two typed numbers give a real hero
     // before any connect decision (the Monthly-income door)
     const lens = resolveLens(store.onboardingProfile, !skipped && stage ? stage : store.lensOverride);
@@ -37,9 +47,32 @@ export default function FirstRunScreen() {
     else router.replace('/(tabs)/home');
   };
 
+  // ── STEP 1: what MoneyKeel can do (value first, questions second — B46) ──
+  if (step === 'intro') {
+    return (
+      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        <Text style={s.h1}>What MoneyKeel can do</Text>
+        <View style={s.introCard}>
+          <Text style={s.introLine}>·  Your whole money picture in one place</Text>
+          <Text style={s.introLine}>·  What needs your attention — with dollar amounts</Text>
+          <Text style={s.introLine}>·  Whether your money will last — as honest odds</Text>
+        </View>
+        <Text style={s.promise}>Read-only: we can look, never touch — we can never move your money.</Text>
+        <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => setStep('questions')}
+          accessibilityLabel="Continue">
+          <Text style={s.primaryTxt}>Continue</Text>
+        </TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" style={s.skipBtn} onPress={() => finish(true)}
+          accessibilityLabel="Skip — just explore">
+          <Text style={s.skipTxt}>Skip — just explore</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.h1}>Welcome to MoneyKeel</Text>
+      <Text style={s.h1}>{isFirstRun ? 'Welcome to MoneyKeel' : 'Your setup'}</Text>
 
       <Text style={s.q}>What did you come for? <Text style={s.qSub}>(pick all that apply)</Text></Text>
       {INTENTS.map((it) => {
@@ -95,4 +128,7 @@ const s = StyleSheet.create({
   primaryTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   skipBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   skipTxt: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
+  introCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  introLine: { fontSize: 15.5, color: Colors.textPrimary, lineHeight: 26 },
+  promise: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
 });

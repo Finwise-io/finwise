@@ -268,7 +268,6 @@ export default function AuthScreen() {
           </View>
           <Text style={styles.appName}>MoneyKeel</Text>
           <Text style={styles.tagline}>Your money’s chief of staff</Text>
-          <Text style={styles.tagline}>Your money, made simple</Text>
         </View>
 
         {/* Card */}

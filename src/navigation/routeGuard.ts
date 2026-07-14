@@ -43,8 +43,10 @@ export function nextRoute({ user, onboardingComplete, onboardingPaused, segment 
       // Paused setup — let them use the app; don't trap them back in onboarding.
       if (inOnboarding) return '/(tabs)/home';
     } else {
-      // Authenticated but setup unfinished → onboarding QUESTIONS (no account step; L-4).
-      if (!inOnboarding) return '/onboarding';
+      // FCC (B46): a brand-new user gets the LIGHT first-run (value intro → intents → stage →
+      // routed fast-path). The deep questionnaire (/onboarding) stays legal — it's the
+      // set-up-by-hand door Home offers; the guard must not bounce someone who chose it.
+      if (!inOnboarding && segment !== 'first-run') return '/first-run';
     }
   } else {
     // Unauthenticated → AuthScreen first (the only place to sign up or log in).

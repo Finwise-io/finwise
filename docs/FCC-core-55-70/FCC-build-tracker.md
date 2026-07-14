@@ -16,6 +16,7 @@ All FCC commits PUSHED (9ac80a7 → 0969193, branch taxonomy-v1.0.7)._
 | TestFlight | ✅ auto-submitted (submission 19e8e1b1…) — update the app on your phone; Apple emails when processed |
 | Review materials | `FCC-launch-review-2026-07-13.md` (the verdict + script) · `../finwise-device-test-build41.xlsx` (the fillable walk sheet) |
 | Founder verdict | 💬 _your call after the device walk:_ |
+| Founder findings (2026-07-14) | **#1 FW logo/splash** — icon, splash and adaptive icon still carried the May FinWise artwork (the rename never regenerated the images). FIXED: interim MoneyKeel marks generated in the same visual family (MK tile + keel bar); stale second tagline removed from sign-in. Needs BUILD #42 to appear (images are baked into the binary). **#2 Onboarding ≠ B46** — new users got the old 4-way questionnaire. FIXED: the guard now routes brand-new users to the approved light flow (value intro → what-did-you-come-for → still-working/retired → routed fast-path; every step skippable); the deep questionnaire remains as the set-up-by-hand door from Home. Visible immediately for new accounts in #42. |
 
 _Note 2026-07-13: the Apple account is registered as an INDIVIDUAL — founder decided no App Store
 Connect rename is needed; the device shows MoneyKeel from the binary._
@@ -64,13 +65,13 @@ one build at the end.**
 | Home — still-working hero (Grow & Track) | ✅ (investments + 1M vs market + freshness + net-worth line + what-needs-you + will-it-last) | |
 | Home — retired hero (Safe to spend) | ✅ (PaycheckCard leads, no flag) | |
 | Worth a look — transaction detail (F10) | ✅ (facts, comparison, two buttons, checklist, prev/next, copy ban tested) | |
-| First run — what did you come for? (sets the lens) | ✅ (/first-run: intents + stage + retired fast-path + Skip; Settings links to it). Onboarding-flow insertion for brand-new users still pending | |
+| First run — what did you come for? (sets the lens) | ✅ FULL B46 flow (founder finding #2): value intro + intents + stage + fast-path; the GUARD now routes new users here; deep questionnaire = the by-hand door | |
 | Home — first run (nothing connected yet) | 🔨 (honest empty state exists; FCC two-door layout pending) | |
 | Home — balances hidden | ✅ (banner + walk test) | |
 | Home — stale connection + partial data | 🔨 (price freshness live; connection part blocked on F1) | |
 | Idle cash — nudge detail | ✅ (`/idle-cash`; cash-drag insight repointed) | |
 | 401(k) room this year — nudge detail | ♻️ (contribution-room screen exists; k401 insight routes there) | |
-| Onboarding flow map (5 steps) | ⬜ | |
+| Onboarding flow map (5 steps) | ✅ (founder finding #2) — intro → intents → stage → routed fast-path → Home; every step skippable | |
 
 ### Cash flow (7)
 | Screen | Status | 💬 Your comments |

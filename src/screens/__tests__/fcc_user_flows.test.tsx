@@ -89,9 +89,10 @@ describe('2 · returning RETIRED user upgrades from Build 40', () => {
 });
 
 describe('3 · brand-new user, day one, finishes onboarding', () => {
-  test('the guard walks them auth → onboarding → Home (the routing contract)', () => {
+  test('the guard walks them auth → first-run → Home (the B46 routing contract)', () => {
     expect(nextRoute({ user: false, onboardingComplete: false, onboardingPaused: false, segment: '(tabs)' })).toBe('/auth');
-    expect(nextRoute({ user: true, onboardingComplete: false, onboardingPaused: false, segment: 'auth' })).toBe('/onboarding');
+    expect(nextRoute({ user: true, onboardingComplete: false, onboardingPaused: false, segment: 'auth' })).toBe('/first-run');
+    expect(nextRoute({ user: true, onboardingComplete: false, onboardingPaused: false, segment: 'onboarding' })).toBeNull();   // the by-hand door stays legal
     expect(nextRoute({ user: true, onboardingComplete: true, onboardingPaused: false, segment: '(tabs)' })).toBeNull();
   });
 
