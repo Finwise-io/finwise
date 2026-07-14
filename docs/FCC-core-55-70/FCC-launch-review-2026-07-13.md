@@ -1,8 +1,13 @@
 # MoneyKeel v1.1.0 — launch-readiness review (Sr PM pass, 2026-07-13)
 
+**BUILD STATUS (updated 2026-07-14): Build #41 · v1.1.0 is OUT — EAS build finished 2026-07-13
+11:57 PM and auto-submitted to TestFlight. Update MoneyKeel on your phone and walk the script below.
+Log findings in the fillable sheet: `docs/finwise-device-test-build41.xlsx` (Pass/Fail + comments
+per step) or straight into the 💬 columns here.**
+
 **Verdict: READY FOR FOUNDER REVIEW.** The approved FCC design is built end-to-end for the core
 journeys of both audiences, every number is pinned by cross-screen agreement tests, and the suite
-is the gate you asked for: **960 automated tests green** (was 839 before the rebuild), zero
+is the gate you asked for: **969 automated tests green** (was 839 before the rebuild — incl. the persona flow walks: upgrade-from-Build-40, new user, skip-everything, semi-retired), zero
 TypeScript errors, zero dead navigation links (audited: 54 targets × 59 routes), accessibility
 ratchet at zero on every new file. One build, everything in it — no switches to flip.
 
@@ -10,27 +15,21 @@ ratchet at zero on every new file. One build, everything in it — no switches t
 
 ## The 10-minute review script (what to walk on your phone)
 
-**As yourself (working lens):**
-1. Open the app → the bottom bar is FIVE tabs: **Home · Net worth · Invest · Cash flow · Plan**.
-2. Home leads with **YOUR INVESTMENTS** (the number equals the Invest header to the dollar — tested),
-   one net-worth line, **What needs you** (top 3), and the **Will my money last?** strip.
-3. Tap the eye — every dollar on every tab becomes •••• (tested: zero $ leaks). Tap it back.
-4. Tap **+ Expense** (bottom-right, Home or Cash flow) — amount → category → Save. Two taps.
-5. **Cash flow**: this month in/out/**Planned surplus**, twelve dated month bars (tap one → the
-   month's full arithmetic, rows visibly sum), and **Your future paycheck — PROJECTION**.
-6. **Plan**: the hub. Tap the headline → **what drives this** (every input sourced: "you set it" /
-   "estimated from your data"). Try **Claim Social Security** (type 2600 → the 62/67/70 table in
-   your dollars) and **Afford it all?** (toggle goals → "Covered/Short $X per month" + what it does
-   to retirement). Adopt one → the "here's exactly what changes" sheet → then see it named on
-   Cash flow, with **Back to previous plan** on the hub. Undo it.
-7. **Net worth**: tap any account → its own page (freshness, activity history, Deposit/Withdraw/
-   Transfer for cash; bond pages show "If interest rates move — estimate, not a prediction").
-8. **Invest**: the glance header, then **Look back** (BND vs the market, real past prices) and
-   **What if I add more?** (+$100/mo steppers).
-
-**As June (retired lens):** Settings → **Your setup** → "Retired, or nearly" → the tab ORDER changes
-(Cash flow moves next to Home) and Home leads with **SAFE TO SPEND — <month>** with the Social
-Security + pension + safe-draw breakdown. Tap the (i) on Safe draw for the "says who?" answer.
+| # | Step | What you should see | ✅ Pass? | 💬 Your comments |
+|---|---|---|---|---|
+| 0 | Update in TestFlight over your existing install | Your data survives the upgrade; the app opens as MoneyKeel | | |
+| 1 | Open the app | The bottom bar is FIVE tabs: Home · Net worth · Invest · Cash flow · Plan | | |
+| 2 | Look at Home | YOUR INVESTMENTS hero (equals the Invest header to the dollar), one net-worth line, What needs you (top 3), Will my money last? strip | | |
+| 3 | Tap the eye, then tap it back | Every dollar on every tab becomes •••• ; percentages stay | | |
+| 4 | Tap + Expense (bottom-right) | Amount → category → Save, two taps, no chooser menu | | |
+| 5 | Cash flow tab | This month in/out/Planned surplus; twelve dated bars; tap a bar → the month's arithmetic, rows visibly sum; the future-paycheck PROJECTION card | | |
+| 6 | Plan tab → tap the headline | What drives this: every input with its source (you set it / estimated) | | |
+| 7 | Plan → Claim Social Security → type 2600 | The 62/67/70 table in your dollars; adoption asks 'here's exactly what changes' | | |
+| 8 | Plan → Afford it all? → toggle goals | Covered/Short $X per month + the retirement effect; adopt → named on Cash flow → Back to previous plan undoes it | | |
+| 9 | Net worth → tap any account | Its own page: freshness, activity history, Deposit/Withdraw/Transfer for cash; a bond shows 'If interest rates move — estimate, not a prediction' | | |
+| 10 | Invest tab | The glance header; Look back (real past prices) and What if I add more? (+$100/mo) | | |
+| 11 | Settings → Your setup → 'Retired, or nearly' | Tab ORDER changes (Cash flow next to Home); Home leads with SAFE TO SPEND — <month> with the breakdown; the (i) on Safe draw answers 'says who?' | | |
+| 12 | Switch back to 'Still working' | Everything returns exactly | | |
 
 ---
 
