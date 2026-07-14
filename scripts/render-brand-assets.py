@@ -7,7 +7,7 @@ Run: .venv/bin/python scripts/render-brand-assets.py
 from PIL import Image, ImageDraw, ImageFont
 
 NAVY = (13, 35, 58)        # #0D233A
-TEAL = (15, 95, 102)       # #0F5F66 (0.55 stop)
+BLUE = (24, 95, 165)       # #185FA5 (0.5 stop) — blue means trust; the blue must actually read
 MINT = (26, 196, 167)      # #1AC4A7
 SS = 4                     # supersample factor for masks
 
@@ -53,6 +53,17 @@ def mark_mask(size):
     d = ImageDraw.Draw(rest)
     d.polygon([(px * scale, py * scale) for px, py in LEG], fill=255)
     stroke_bezier(d, ARC, ARC_W, scale)
+    # founder 2026-07-15: square (not round) back on the arrow's tail — erase everything
+    # behind a flat edge perpendicular to the arc's start direction
+    (sx, sy), (c1x, c1y) = ARC[0], ARC[1]
+    import math
+    ux, uy = c1x - sx, c1y - sy
+    ul = math.hypot(ux, uy); ux, uy = ux / ul, uy / ul
+    px_, py_ = -uy, ux                                   # perpendicular
+    P = lambda mx, my: ((sx + mx) * scale, (sy + my) * scale)
+    hw, back = ARC_W * 0.75, ARC_W * 2.5
+    d.polygon([P(px_ * hw, py_ * hw), P(-px_ * hw, -py_ * hw),
+               P(-px_ * hw - ux * back, -py_ * hw - uy * back), P(px_ * hw - ux * back, py_ * hw - uy * back)], fill=0)
     d.polygon([(px * scale, py * scale) for px, py in ARROW], fill=255)
 
     from PIL import ImageChops
@@ -75,7 +86,7 @@ def gradient(size):
         for xx in range(size):
             t = ((xx - gx0) * dx + (yy - gy0) * dy) / L2
             t = 0.0 if t < 0 else (1.0 if t > 1 else t)
-            c = lerp(NAVY, TEAL, t / 0.55) if t <= 0.55 else lerp(TEAL, MINT, (t - 0.55) / 0.45)
+            c = lerp(NAVY, BLUE, t / 0.5) if t <= 0.5 else lerp(BLUE, MINT, (t - 0.5) / 0.5)
             px[xx, yy] = c
     return img
 
@@ -110,10 +121,14 @@ def main():
     sp.paste(mm, ((W - 430) // 2, 940), mm)
     d = ImageDraw.Draw(sp)
     bold = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial Bold.ttf', 132)
+    nameReg = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial.ttf', 132)
     reg = ImageFont.truetype('/System/Library/Fonts/Supplemental/Arial.ttf', 44)
-    name = 'MoneyKeel'
-    nw = d.textlength(name, font=bold)
-    d.text(((W - nw) / 2, 1450), name, font=bold, fill=NAVY)
+    # founder 2026-07-15: 'Keel' bolder than 'Money' for ease of reading
+    mw = d.textlength('Money', font=nameReg)
+    kw = d.textlength('Keel', font=bold)
+    x0 = (W - (mw + kw)) / 2
+    d.text((x0, 1450), 'Money', font=nameReg, fill=NAVY)
+    d.text((x0 + mw, 1450), 'Keel', font=bold, fill=NAVY)
     tag = 'YOUR FINANCE COMMAND CENTER'
     ls = 10                                           # wide tracking, institutional
     tw = sum(d.textlength(ch, font=reg) + ls for ch in tag) - ls

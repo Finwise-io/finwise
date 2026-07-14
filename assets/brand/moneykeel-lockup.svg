@@ -3,7 +3,7 @@
     <!-- bottom-left → top-right: deep corporate navy → deep teal → vibrant tech mint -->
     <linearGradient id="keelGradient" x1="60" y1="360" x2="360" y2="40" gradientUnits="userSpaceOnUse">
       <stop offset="0" stop-color="#0D233A"/>
-      <stop offset="0.55" stop-color="#0F5F66"/>
+      <stop offset="0.5" stop-color="#185FA5"/>
       <stop offset="1" stop-color="#1AC4A7"/>
     </linearGradient>
     <!-- the swoosh slices OVER the stem: a subtle channel cut into the stem along the arc's path -->
@@ -20,14 +20,14 @@
     <!-- lower leg: blocky diagonal, tucked under the arc so the junction reads connected -->
     <path d="M 106 238 L 170 238 L 298 346 L 234 346 Z" fill="url(#keelGradient)"/>
     <!-- the swooping arrow arc (upper branch of the K) -->
-    <path d="M 44 258 C 150 252, 240 208, 298 124" fill="none" stroke="url(#keelGradient)" stroke-width="40" stroke-linecap="round"/>
+    <path d="M 44 258 C 150 252, 240 208, 298 124" fill="none" stroke="url(#keelGradient)" stroke-width="40" stroke-linecap="butt"/>
     <!-- sharp chart arrowhead, pointing northeast -->
     <path d="M 334 71 L 329 138 L 273 100 Z" fill="url(#keelGradient)"/>
   </g>
 
   <!-- ═══ TYPOGRAPHY: brand name + tagline, left-aligned block, vertically centered ═══ -->
   <g fill="#0D233A" font-family="Inter, Montserrat, 'Proxima Nova', 'Helvetica Neue', Arial, sans-serif">
-    <text x="470" y="200" font-size="110" font-weight="700" letter-spacing="-1">MoneyKeel</text>
+    <text x="470" y="200" font-size="110" font-weight="500" letter-spacing="-1">Money<tspan font-weight="800">Keel</tspan></text>
     <text x="474" y="260" font-size="29" font-weight="500" letter-spacing="7.5">YOUR FINANCE COMMAND CENTER</text>
   </g>
 </svg>
