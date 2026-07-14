@@ -66,7 +66,7 @@ one build at the end.**
 | Home — retired hero (Safe to spend) | ✅ (PaycheckCard leads, no flag) | |
 | Worth a look — transaction detail (F10) | ✅ (facts, comparison, two buttons, checklist, prev/next, copy ban tested) | |
 | First run — what did you come for? (sets the lens) | ✅ FULL B46 flow (founder finding #2): value intro + intents + stage + fast-path; the GUARD now routes new users here; deep questionnaire = the by-hand door | |
-| Home — first run (nothing connected yet) | 🔨 (honest empty state exists; FCC two-door layout pending) | |
+| Home — first run (nothing connected yet) | ✅ (doors: Connect 'coming soon' honest / Import / Add by hand + retired-paycheck fast door; skip completes; 2026-07-14: no-data gate now counts LIVE accounts — skip→import lands on the real Home) | |
 | Home — balances hidden | ✅ (banner + walk test) | |
 | Home — stale connection + partial data | 🔨 (price freshness live; connection part blocked on F1) | |
 | Idle cash — nudge detail | ✅ (`/idle-cash`; cash-drag insight repointed) | |
@@ -98,7 +98,7 @@ one build at the end.**
 ### Net worth (8) — next session's first target
 | Screen | Status | 💬 Your comments |
 |---|---|---|
-| Net worth tab — main | ♻️ rows now open Account detail; FCC glance re-shell pending | |
+| Net worth tab — main | ✅ rebuilt to the approved glance-that-expands (2026-07-14, in Build 42): glance + trend + OWN/OWE + math line + collapsed detail + one add-or-connect | |
 | Connect flow — institution + consent / accounts found + merge (F1) | ⬜ ⬜ (merge rule EXISTS: matchImportAccount, shared) | |
 | Import from a file v2 | ✅ (institution required + provenance stamps, merge-not-duplicate w/ asset_id preserved, per-row class correction) | |
 | Account detail — any class | ✅ (/account-detail: source chip, per-class record-activity through recordTransaction, ledger history, value_as_of + 6-month nudge, Edit round-trip) | |
@@ -108,7 +108,7 @@ one build at the end.**
 ### Invest (8)
 | Screen | Status | 💬 Your comments |
 |---|---|---|
-| Invest — main (glance then drill) | 🔨 (glance header + Home pin DONE; drill re-shell pending) | |
+| Invest — main (glance then drill) | ✅ rebuilt to the approved wireframe (2026-07-14, in Build 42): TOTAL RETURN glance + winners/laggards + concentration fact + look ahead/back + plan chip + ONE grouped list (bonds/alts/untracked folded in) | |
 | Holding detail — equity / bond / alternative | ⬜ ✅ ✅ (bond facts + yields + rates card, alt typical-return + look-back door, shared reported-return editor — all on /account-detail; equity per-ticker page pending) | |
 | Look back — what if I'd moved money? | ✅ (/look-back; design's worked example pinned to the dollar) | |
 | What if I add more? (forward what-if) | ✅ (/what-if; before-chance = hub chance pinned; ?addMonthly= prefill from the 401(k)-room try-it) | |
@@ -136,3 +136,11 @@ one build at the end.**
 4. First-run insertion into the new-user onboarding flow + empty-Home two-door state.
 5. Bill calendar v2 running-balance table; draw-order steering.
 6. Then: bump version, ONE TestFlight build (quota fresh; Apple account = individual, no ASC rename).
+
+## Senior-UI-Tester pass — 2026-07-14 (after Build 42 was cut)
+10 executable journeys added (`src/__tests__/ui_tester_flows.test.tsx`): 5 paying-user flows + 5 new edge cases. Suite 1004 green.
+
+| Finding | Severity | Status | Founder comment 💬 |
+|---|---|---|---|
+| Home ignored LIVE accounts in its no-data gate — skip the questions, import a file, and Home still showed "Let's get your real numbers in" | P1 | ✅ FIXED same day (7b400be) — **not in Build 42**; lands in the next build | |
+| + Expense button said "Add $7" for a typed $6.50 (display only; saved amount was exact) | LOW | ✅ FIXED same day (7b400be) — **not in Build 42**; lands in the next build | |
