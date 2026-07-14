@@ -5,7 +5,7 @@
 // the Monthly-income fast path; otherwise Home). Every step skippable; skip = sensible defaults.
 // Also the Settings "Your setup" revisit target (same screen, same one stage field, no intro).
 import React, { useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, Image, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -47,15 +47,24 @@ export default function FirstRunScreen() {
     else router.replace('/(tabs)/home');
   };
 
-  // ── STEP 1: what MoneyKeel can do (value first, questions second — B46) ──
+  // ── STEP 1: identity + value (founder redesign 2026-07-15: state who we are proudly, ──
+  // ── checkmarked benefits instead of dry text dots, mark up top, no back control)     ──
   if (step === 'intro') {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <Text style={s.h1}>What MoneyKeel can do</Text>
+        <Image source={require('../../assets/brand/mark.png')} style={s.introMark} accessibilityLabel="MoneyKeel" />
+        <Text style={s.introH1} accessibilityRole="header">MoneyKeel: Your finance command center.</Text>
         <View style={s.introCard}>
-          <Text style={s.introLine}>·  Your whole money picture in one place</Text>
-          <Text style={s.introLine}>·  What needs your attention — with dollar amounts</Text>
-          <Text style={s.introLine}>·  Whether your money will last — as honest odds</Text>
+          {([
+            ['Map your whole money picture', 'every account, debt, and dollar in one live view.'],
+            ['See what needs attention', 'specific priorities with real dollar amounts.'],
+            ['Honest odds on the big question', 'how long your money will last, told straight.'],
+          ] as const).map(([lead, body]) => (
+            <View key={lead} style={s.introRow}>
+              <View style={s.introCheck}><Text style={s.introCheckTxt}>✓</Text></View>
+              <Text style={s.introLine}><Text style={s.introLead}>{lead}</Text> — {body}</Text>
+            </View>
+          ))}
         </View>
         <Text style={s.promise}>Read-only: we can look, never touch — we can never move your money.</Text>
         <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => setStep('questions')}
@@ -129,6 +138,12 @@ const s = StyleSheet.create({
   skipBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   skipTxt: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
   introCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
-  introLine: { fontSize: 15.5, color: Colors.textPrimary, lineHeight: 26 },
+  introMark: { width: 92, height: 92, alignSelf: 'center', marginBottom: Spacing.sm },
+  introH1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', lineHeight: 33, marginBottom: Spacing.md },
+  introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 7 },
+  introCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
+  introCheckTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },
+  introLead: { fontWeight: '800' },
+  introLine: { flex: 1, fontSize: 15.5, color: Colors.textPrimary, lineHeight: 23 },
   promise: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
 });

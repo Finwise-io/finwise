@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="400" height="400" viewBox="0 0 400 400" role="img" aria-label="MoneyKeel mark">
+  <defs>
+    <linearGradient id="keelGradient" x1="60" y1="360" x2="360" y2="40" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#0D233A"/>
+      <stop offset="0.55" stop-color="#0F5F66"/>
+      <stop offset="1" stop-color="#1AC4A7"/>
+    </linearGradient>
+    <mask id="stemSlice" maskUnits="userSpaceOnUse" x="0" y="0" width="400" height="400">
+      <rect x="0" y="0" width="400" height="400" fill="#fff"/>
+      <path d="M 44 258 C 150 252, 240 208, 298 124" fill="none" stroke="#000" stroke-width="56" stroke-linecap="round"/>
+    </mask>
+  </defs>
+  <rect x="70" y="56" width="64" height="288" rx="12" fill="url(#keelGradient)" mask="url(#stemSlice)"/>
+  <path d="M 106 238 L 170 238 L 298 346 L 234 346 Z" fill="url(#keelGradient)"/>
+  <path d="M 44 258 C 150 252, 240 208, 298 124" fill="none" stroke="url(#keelGradient)" stroke-width="40" stroke-linecap="round"/>
+  <path d="M 334 71 L 329 138 L 273 100 Z" fill="url(#keelGradient)"/>
+</svg>
