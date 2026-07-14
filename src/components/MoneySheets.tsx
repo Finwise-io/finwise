@@ -6,7 +6,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { money, money2 } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
 import { BUDGET_CATEGORIES, categoryBucketFor } from '../constants/categories';
 import { assetKind } from '../domain/assets';
@@ -140,7 +140,8 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
             )}
 
             <TouchableOpacity accessibilityRole="button" style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} onPress={save}>
-              <Text style={sh.saveTxt}>Add {amt > 0 ? money(amt) : 'expense'}</Text>
+              {/* show cents when the user typed cents — the button must say exactly what will be saved */}
+              <Text style={sh.saveTxt}>Add {amt > 0 ? (amt % 1 ? money2(amt) : money(amt)) : 'expense'}</Text>
             </TouchableOpacity>
           </View>
         </ScrollView>

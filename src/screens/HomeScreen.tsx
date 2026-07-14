@@ -48,7 +48,9 @@ export default function HomeScreen() {
     // B-49: net worth + nest egg come from the live store rows (so account edits/deletions show),
     // resolved by the one shared rule so Home, the Net worth tab and Plan always agree.
     () => {
-      if (!op && !store.nwSeeded) return null;
+      // no data = no answers AND nothing live — mirror resolveNetWorthRows' useLive rule, else a
+      // skip-then-import user gets stuck on the doors with real money already in the store
+      if (!op && !store.nwSeeded && (store.assetAccounts?.length ?? 0) === 0 && (store.liabilities?.length ?? 0) === 0) return null;
       const { accounts, liabilities } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
       return buildSnapshot(uid, op, { inflationRate: store.inflationRate ?? 2.4, treasuryYield: store.treasuryYield ?? 4.3 }, accounts, liabilities);
     },
