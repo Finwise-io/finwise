@@ -48,7 +48,7 @@ one build at the end.**
 | Bond rate-sensitivity estimate | ✅ (bondRateSensitivity: approxYTM±1% repricing, honest bands, null when no honest math) | `src/domain/bonds/` | |
 | Look-back counterfactual | ✅ (lookBack + factorOverMonths — real prices only, never extrapolated) | `src/domain/performance/lookBack.ts` | |
 | Manual-value freshness nudge | ✅ (valueFreshness + value_as_of/source/last_synced fields) | `src/domain/assets/` | |
-| Holding-level concentration callout | ⬜ | `src/domain/insights/` | |
+| Holding-level concentration callout | ✅ (2026-07-15, with the equity page): topHoldingConcentration — the ONE 25%+ rule Invest main shows, surfaced as the 'holding-concentration' insight | `src/domain/performance` + insights | |
 
 ## Screens (40, by tab)
 ### Foundation
@@ -70,7 +70,7 @@ one build at the end.**
 | Home — balances hidden | ✅ (banner + walk test) | |
 | Home — stale connection + partial data | ✅ (2026-07-15): connected balances >3 days old say so on Home (amber line → Net worth), via F1 connectionFreshness | |
 | Idle cash — nudge detail | ✅ (`/idle-cash`; cash-drag insight repointed) | |
-| 401(k) room this year — nudge detail | ♻️ (contribution-room screen exists; k401 insight routes there) | |
+| 401(k) room this year — nudge detail | ✅ verified 2026-07-15: k401-room insight → /contribution-room (in MODAL_SEGMENTS since T22), earned-income gated (B-48), provenance detail on Insights | |
 | Onboarding flow map (5 steps) | ✅ (founder finding #2) — intro → intents → stage → routed fast-path → Home; every step skippable | |
 
 ### Cash flow (7)
@@ -109,11 +109,11 @@ one build at the end.**
 | Screen | Status | 💬 Your comments |
 |---|---|---|
 | Invest — main (glance then drill) | ✅ rebuilt to the approved wireframe (2026-07-14, in Build 42): TOTAL RETURN glance + winners/laggards + concentration fact + look ahead/back + plan chip + ONE grouped list (bonds/alts/untracked folded in) | |
-| Holding detail — equity / bond / alternative | ⬜ ✅ ✅ (bond facts + yields + rates card, alt typical-return + look-back door, shared reported-return editor — all on /account-detail; equity per-ticker page pending) | |
+| Holding detail — equity / bond / alternative | ✅ ✅ ✅ (equity per-ticker page /holding-detail shipped 2026-07-15 — 12-pin suite; bond + alt detail on /account-detail) | |
 | Look back — what if I'd moved money? | ✅ (/look-back; design's worked example pinned to the dollar) | |
 | What if I add more? (forward what-if) | ✅ (/what-if; before-chance = hub chance pinned; ?addMonthly= prefill from the 401(k)-room try-it) | |
 | Record a transaction + History | ✅ | |
-| Empty/stale/hidden/loading state contract | 🔨 (mask + freshness pinned; written contract pending) | |
+| Empty/stale/hidden/loading state contract | ✅ (2026-07-15): FCC-state-contract.md (BINDING) + state_contract meta-pin (three staleness thresholds, pure-money rule, mask-walk coverage list) | |
 
 ## Test gates (the founder's ask: thorough automated > manual) — LIVE
 - `fcc_agreement.test.tsx`: Home hero = Invest header (rendered, to the dollar) · will-it-last identical
