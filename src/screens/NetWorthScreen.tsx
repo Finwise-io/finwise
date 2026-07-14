@@ -8,6 +8,7 @@ import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
+import { maskedMoney } from '../components/useMoney';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
@@ -48,7 +49,7 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 export const assetSheetReady = (kind: string, bal: string) => !!kind && bal.trim() !== '' && num(bal) >= 0;
 const shortMoney = (n: number) => {
   if (Math.abs(n) >= 1000) return moneyCompact(n, 'MM');   // $2.43MM / $182K (currency-aware)
-  return money(n);
+  return maskedMoney(n);
 };
 
 // Donut ring (react-native-svg) with content in the center hole.
@@ -114,7 +115,8 @@ export default function NetWorthScreen() {
   const [debtSheet, setDebtSheet] = useState<{ open: boolean; edit?: Debt }>({ open: false });
   const [step, setStep] = useState(0);
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
-  const [expanded, setExpanded] = useState(false);        // FCC: the glance stays a glance
+  const [expanded, setExpanded] = useState(false);        // legacy editors section (kept for edit flows)
+  const [showAllClassRows, setShowAllClassRows] = useState<Record<string, boolean>>({});
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
 
   // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
@@ -159,7 +161,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${money(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${maskedMoney(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -168,9 +170,9 @@ export default function NetWorthScreen() {
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
             {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.primary : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
-            <Text style={styles.rowVal}>{money(a.balance)}</Text>
+            <Text style={styles.rowVal}>{maskedMoney(a.balance)}</Text>
           </View>
-          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.primary : Colors.red }]}>{up ? '+' : '−'}{money(Math.abs(ch))} this mo</Text>}
+          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.primary : Colors.red }]}>{up ? '+' : '−'}{maskedMoney(Math.abs(ch))} this mo</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -181,7 +183,7 @@ export default function NetWorthScreen() {
     const total = rows.reduce((t, a) => t + a.balance, 0);
     const head = (
       <View style={styles.secHead}>
-        <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {secLabel(sec).toUpperCase()}{total > 0 ? ` · ${money(total)}` : ''}</Text>
+        <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {secLabel(sec).toUpperCase()}{total > 0 ? ` · ${maskedMoney(total)}` : ''}</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -219,7 +221,7 @@ export default function NetWorthScreen() {
                   <Text style={styles.groupName}>{g}</Text>
                   {invGroup === 'type' && CLASS_TO_TERM[assetClassOf(items[0])] && <InfoDot term={CLASS_TO_TERM[assetClassOf(items[0])]!} />}
                 </View>
-                <Text style={styles.groupVal}>{money(items.reduce((t, a) => t + a.balance, 0))}</Text>
+                <Text style={styles.groupVal}>{maskedMoney(items.reduce((t, a) => t + a.balance, 0))}</Text>
               </View>
               {/* Mock A: under each institution, an at-a-glance class mix (so a "Chase" with mixed holdings
                   reads as a roll-up, not just a flat list). */}
@@ -259,7 +261,7 @@ export default function NetWorthScreen() {
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
-        <Text style={styles.secTitle}>💳  DEBTS{dState.total_debt_balance > 0 ? ` · ${money(dState.total_debt_balance)}` : ''}</Text>
+        <Text style={styles.secTitle}>💳  DEBTS{dState.total_debt_balance > 0 ? ` · ${maskedMoney(dState.total_debt_balance)}` : ''}</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
@@ -269,20 +271,20 @@ export default function NetWorthScreen() {
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
               return (
-                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${money(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
+                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${maskedMoney(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
                   <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                       <Text style={styles.rowTitle}>{d.label}</Text>
                       {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
                     </View>
-                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(1)}% APR · {money(d.minimum_monthly_payment)}/mo</Text>
+                    <Text style={[styles.rowSub, hot && { color: Colors.red }]}>{(d.interest_rate_apr * 100).toFixed(1)}% APR · {maskedMoney(d.minimum_monthly_payment)}/mo</Text>
                   </View>
-                  <Text style={styles.rowVal}>{money(d.remaining_balance)}</Text>
+                  <Text style={styles.rowVal}>{maskedMoney(d.remaining_balance)}</Text>
                 </TouchableOpacity>
               );
             })}
-            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{money(dState.total_monthly_debt_service)}/mo</Text></View>
+            <View style={[styles.row, styles.divider]}><Text style={[styles.rowSub, { flex: 1 }]}>Monthly debt payments</Text><Text style={styles.rowVal}>{maskedMoney(dState.total_monthly_debt_service)}/mo</Text></View>
           </>)}
       </View>
     </View>
@@ -322,10 +324,10 @@ export default function NetWorthScreen() {
           {cur === 'Debts' ? renderDebtSection() : renderAssetSection(cur)}
           {/* #9: never show the aggregate without its components — the running total carries the
               Assets − Debts identity so it's clear WHY it differs from what's on this one step. */}
-          <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{money(nw.net_worth)}</Text></View>
+          <View style={styles.wizTotal}><Text style={styles.wizTotalL}>Net worth so far</Text><Text style={styles.wizTotalV}>{maskedMoney(nw.net_worth)}</Text></View>
           <Text style={styles.nwIdentity}>
-            Assets {money(Math.round(totalAssets))} − Debts {money(Math.round(dState.total_debt_balance))} ={' '}
-            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
+            Assets {maskedMoney(Math.round(totalAssets))} − Debts {maskedMoney(Math.round(dState.total_debt_balance))} ={' '}
+            <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {maskedMoney(Math.round(nw.net_worth))}</Text>
           </Text>
         </ScrollView>
         <View style={styles.footer}>
@@ -360,13 +362,14 @@ export default function NetWorthScreen() {
         <View style={styles.glanceCard} accessible
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
-            : `Net worth ${money(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${changeThisYear != null ? `, ${changeThisYear >= 0 ? 'up' : 'down'} ${money(Math.round(Math.abs(changeThisYear)))} this year` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+            : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${changeThisYear != null ? `, ${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} this year` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+          <Text style={styles.glanceKickerNW}>YOUR NET WORTH</Text>
           <Text style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-            {store.hideBalances ? '••••' : money(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
+            {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
           </Text>
           {changeThisYear != null && (
             <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.primary : Colors.red }]}>
-              {changeThisYear >= 0 ? '▲ up' : '▼ down'} {money(Math.round(Math.abs(changeThisYear)))} this year
+              {changeThisYear >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.round(Math.abs(changeThisYear)))} this year
             </Text>
           )}
           {series.length >= 2 && (() => {
@@ -380,45 +383,60 @@ export default function NetWorthScreen() {
               </Svg>
             );
           })()}
-          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/will-it-last')}
-            accessibilityLabel="Your path ahead, from Plan">
-            <Text style={styles.glanceLink}>Your path ahead (from Plan) ›</Text>
-          </TouchableOpacity>
         </View>
 
         {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
-        <Text style={styles.ownHdr}>WHAT YOU OWN   {money(Math.round(totalAssets))}</Text>
+        <Text style={styles.ownHdr}>WHAT YOU OWN   {maskedMoney(Math.round(totalAssets))}</Text>
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
-          {classRows.map((r, i) => (
-            <TouchableOpacity key={r.key} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
-              accessibilityLabel={`${r.label}, ${money(Math.round(r.total))}. Opens these accounts.`}
-              onPress={() => { setExpanded(true); setTimeout(() => scrollToClass(r.key), 80); }}>
-              <View style={[styles.dot, { backgroundColor: r.color }]} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.rowTitle}>{r.label}</Text>
-                {r.key === 'mixed' && <Text style={styles.rowSub}>tap to say what's inside</Text>}
+          {classRows.map((r, i) => {
+            const members = assets.filter((a) => assetClassOf(a) === r.key);
+            const shownMembers = showAllClassRows[r.key] ? members : members.slice(0, 5);
+            return (
+              <View key={r.key} style={i > 0 ? styles.divider : undefined}>
+                <View style={styles.row} accessible
+                  accessibilityLabel={`${r.label}, ${maskedMoney(Math.round(r.total))}${r.key === 'mixed' ? '. Tap an account to say what is inside.' : ''}`}>
+                  <View style={[styles.dot, { backgroundColor: r.color }]} />
+                  <View style={{ flex: 1 }}>
+                    <Text style={styles.rowTitle}>{r.label}</Text>
+                    {r.key === 'mixed' && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
+                  </View>
+                  <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
+                </View>
+                {shownMembers.map((a) => (
+                  <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
+                    onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
+                    accessibilityLabel={`${a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                    <Text style={styles.acctRowLabel} numberOfLines={1}>{a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}</Text>
+                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
+                    <Text style={styles.acctChev}>›</Text>
+                  </TouchableOpacity>
+                ))}
+                {members.length > 5 && !showAllClassRows[r.key] && (
+                  <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
+                    accessibilityLabel={`Show all ${members.length} ${r.label} accounts`}>
+                    <Text style={styles.acctMore}>all {members.length} ›</Text>
+                  </TouchableOpacity>
+                )}
               </View>
-              <Text style={styles.rowVal}>{money(Math.round(r.total))}</Text>
-              <Text style={styles.chev}>›</Text>
-            </TouchableOpacity>
-          ))}
+            );
+          })}
         </View>
 
         {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
-        <Text style={styles.ownHdr}>WHAT YOU OWE{dState.total_debt_balance > 0 ? `   −${money(Math.round(dState.total_debt_balance))}` : ''}</Text>
+        <Text style={styles.ownHdr}>WHAT YOU OWE{dState.total_debt_balance > 0 ? `   −${maskedMoney(Math.round(dState.total_debt_balance))}` : ''}</Text>
         <View style={styles.card}>
           {liabilities.length === 0 && <Text style={styles.empty}>No debts — it's all yours.</Text>}
           {liabilities.map((d, i) => (
             <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
-              accessibilityLabel={`${d.label}, you owe ${money(Math.round(d.remaining_balance))}. Opens the editor.`}
+              accessibilityLabel={`${d.label}, you owe ${maskedMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
               <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                 <Text style={styles.rowTitle}>{d.label}</Text>
                 {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
               </View>
-              <Text style={[styles.rowVal, { color: Colors.red }]}>−{money(Math.round(d.remaining_balance))}</Text>
+              <Text style={[styles.rowVal, { color: Colors.red }]}>−{maskedMoney(Math.round(d.remaining_balance))}</Text>
               <Text style={styles.chev}>›</Text>
             </TouchableOpacity>
           ))}
@@ -426,31 +444,17 @@ export default function NetWorthScreen() {
 
         {/* the arithmetic, spelled out — the headline is never a mystery number */}
         <Text style={styles.nwIdentity}>
-          Own {money(Math.round(totalAssets))} − Owe {money(Math.round(dState.total_debt_balance))} ={' '}
-          <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {money(Math.round(nw.net_worth))}</Text>
+          Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))} ={' '}
+          <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {maskedMoney(Math.round(nw.net_worth))}</Text>
         </Text>
 
-        {/* accounts & detail — collapsed by default so the glance stays a glance */}
-        <TouchableOpacity accessibilityRole="button" style={styles.expandBtn} onPress={() => setExpanded(!expanded)}
-          accessibilityLabel={expanded ? 'Hide accounts and detail' : 'Show accounts and detail'}
-          accessibilityState={{ expanded }}>
-          <Text style={styles.expandTxt}>{expanded ? '▴ Hide accounts & detail' : '▾ Show accounts & detail'}</Text>
-        </TouchableOpacity>
-        {expanded && (
-          <>
-            {ASSET_SECTIONS.map((sec) => (
-              <View key={sec} onLayout={(e) => { sectionY.current[sec] = e.nativeEvent.layout.y; }}>{renderAssetSection(sec)}</View>
-            ))}
-            <View onLayout={(e) => { sectionY.current['Debts'] = e.nativeEvent.layout.y; }}>{renderDebtSection()}</View>
-          </>
-        )}
 
         {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
         <TouchableOpacity accessibilityRole="button" style={styles.cfGlance} onPress={() => router.push('/(tabs)/cashflow')}
-          accessibilityLabel={`This month's cash flow: in ${money(Math.round(cfCell?.inflow ?? 0))}, out ${money(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
+          accessibilityLabel={`This month's cash flow: in ${maskedMoney(Math.round(cfCell?.inflow ?? 0))}, out ${maskedMoney(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>This month's cash flow</Text>
-            <Text style={styles.rowSub}>In {money(Math.round(cfCell?.inflow ?? 0))} · Out {money(Math.round(cfCell?.outflow ?? 0))}</Text>
+            <Text style={styles.rowSub}>In {maskedMoney(Math.round(cfCell?.inflow ?? 0))} · Out {maskedMoney(Math.round(cfCell?.outflow ?? 0))}</Text>
           </View>
           <Text style={styles.chev}>›</Text>
         </TouchableOpacity>
@@ -648,7 +652,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           <TextInput style={sh.input} placeholder={step === 'quick' ? 'Name (e.g. My Robinhood)' : 'Institution / name (e.g. Chase)'} placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
           <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
-          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? money(v) : ''}</Text></TouchableOpacity>
+          <TouchableOpacity style={sh.save} accessibilityRole="button" accessibilityLabel={editing ? 'Save account' : 'Add account'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {v > 0 ? maskedMoney(v) : ''}</Text></TouchableOpacity>
           {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}
@@ -714,6 +718,12 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
 const styles = StyleSheet.create({
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
+  glanceKickerNW: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
+  acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 26, paddingRight: 2, paddingVertical: 8, minHeight: 40 },
+  acctRowLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  acctRowVal: { fontSize: 14, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
+  acctChev: { fontSize: 15, color: Colors.textTertiary },
+  acctMore: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 6 },
   glanceVal: { fontSize: 36, fontWeight: '800', color: Colors.textPrimary },
   glanceDelta: { fontSize: 13.5, fontWeight: '800', marginTop: 4 },
   glanceLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 32 },

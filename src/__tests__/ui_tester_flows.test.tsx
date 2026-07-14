@@ -144,7 +144,7 @@ describe('FLOW 4 · a big decision end to end: claim Social Security, then chang
 });
 
 describe('FLOW 5 · money management: add → drill → move money → hide it all', () => {
-  test('NW expander → account page → a $500 transfer moves both sides → the eye masks everything', () => {
+  test('NW inventory row → account page → a $500 transfer moves both sides → the eye masks everything', () => {
     useStore.setState({
       onboardingProfile: WORKER, onboardingComplete: true, nwSeeded: true,
       assetAccounts: [
@@ -153,8 +153,7 @@ describe('FLOW 5 · money management: add → drill → move money → hide it a
       ],
     } as any);
     const nw = render(<NetWorthScreen />);
-    fireEvent.press(screen.getByLabelText('Show accounts and detail'));
-    fireEvent.press(screen.getByText('Checking'));
+    fireEvent.press(screen.getByLabelText(/Chase Checking, \$12,000\. Opens its page\./));
     expect(mockPushes).toContain('/account-detail?id=chk');
     nw.unmount();
 
@@ -171,7 +170,7 @@ describe('FLOW 5 · money management: add → drill → move money → hide it a
 
     useStore.setState({ hideBalances: true } as any);
     render(<NetWorthScreen />);
-    expect(screen.getByText(/••••/)).toBeOnTheScreen();
+    expect(screen.getAllByText(/••••/).length).toBeGreaterThan(0);   // the whole inventory masks
     expect(screen.queryByText('$11,500')).toBeNull();               // the moved money is masked too
   });
 });

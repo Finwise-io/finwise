@@ -102,7 +102,8 @@ describe('pin 2 — will-it-last: one selector, three surfaces, one percent', ()
 
 describe('pin 3 — the mask walk: hideBalances leaves ZERO dollar signs', () => {
   const walkScreens = () => {
-    for (const [name, El] of [['Home', HomeScreen], ['CashFlow', CashFlowScreen], ['PlanHub', PlanHubScreen]] as const) {
+    const NetWorthScreen = require('../NetWorthScreen').default;
+    for (const [name, El] of [['Home', HomeScreen], ['CashFlow', CashFlowScreen], ['PlanHub', PlanHubScreen], ['NetWorth', NetWorthScreen]] as const) {
       const r = render(React.createElement(El as any));
       const offenders = allText(r).filter((t) => /\$\s?\d/.test(t));
       r.unmount();

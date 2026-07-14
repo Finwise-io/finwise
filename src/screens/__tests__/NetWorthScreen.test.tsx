@@ -10,6 +10,7 @@ import { employedPartner } from '../../testing/personas';
 
 beforeEach(() => {
   useStore.getState().resetAll();
+  useStore.setState({ hideBalances: false } as any);   // resetAll keeps prefs; the mask test flips it on
 });
 
 describe('NetWorthScreen first-run intro', () => {
@@ -56,7 +57,7 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     useStore.setState({ hideBalances: true });
     rerender(<NetWorthScreen />);
     expect(screen.getByLabelText('Net worth hidden')).toBeOnTheScreen();   // headline masked
-    expect(screen.getByText(/••••/)).toBeOnTheScreen();
+    expect(screen.getAllByText(/••••/).length).toBeGreaterThan(0);   // every dollar masks now, not just the headline
   });
 
   // UI-level B-15 regression: after a restart + new answers, the intro returns and re-seeding
@@ -117,10 +118,9 @@ test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel
     ],
     liabilities: [],
   } as any);
-  // FCC: accounts live behind the expander; a row tap opens the account DETAIL page
+  // FCC founder round 2026-07-15: the inventory is VISIBLE — the account row routes directly
   const first = render(<NetWorthScreen />);
-  fireEvent.press(screen.getByLabelText('Show accounts and detail'));
-  fireEvent.press(screen.getByText('My 401(k)'));
+  fireEvent.press(screen.getByLabelText(/My 401\(k\), \$200,000\. Opens its page\./));
   expect(router.push).toHaveBeenCalledWith('/account-detail?id=k1');
   first.unmount();
   const er = jest.requireMock('expo-router');
@@ -147,7 +147,7 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
   render(<NetWorthScreen />);
   expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest class row — the spec fix
   expect(screen.queryByText('Stocks / ETFs')).toBeNull();                  // NOT pretended to be stocks
-  expect(screen.getByText(/tap to say what's inside/)).toBeOnTheScreen();  // the nudge, on the row itself
+  expect(screen.getByText(/tap an account to say what's inside/)).toBeOnTheScreen();  // the nudge, on the class row
 });
 
 test('#9: the guided-setup running total carries the Assets − Debts identity (not a bare aggregate)', () => {
