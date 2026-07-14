@@ -4,8 +4,9 @@ _Working doc. Started 2026-07-13 after the founder's call: **stop building testa
 whole approved design, gate with the automated suite, then cut ONE build.** Source of truth for scope:
 `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` (40 screens) + `FCC-core-UX-design-v1.1` + PRD v1.1._
 
-_Last updated 2026-07-13 end of session 3. Suite: **952 green** (was 839 pre-FCC), tsc clean, UI gate
-passing. Commits: 9ac80a7 → d058ce1 (13 FCC commits, branch taxonomy-v1.0.7, NOT pushed). NOTE 2026-07-13: Apple account is registered as an INDIVIDUAL —
+_Last updated 2026-07-13 end of session 3. Suite: **960 green** (was 839 pre-FCC), tsc clean, UI gate
+passing. Commits: 9ac80a7 → f282921 (15 FCC commits, branch taxonomy-v1.0.7, PUSHED through 158f2c4;
+f282921 pending push). NOTE 2026-07-13: Apple account is registered as an INDIVIDUAL —
 founder decided NO App Store Connect rename needed; the device shows MoneyKeel from the binary._
 
 ## Why Build 40 looked identical (recorded so we don't repeat it)
@@ -80,7 +81,7 @@ one build at the end.**
 | Multi-goal trade-off composer (F4) | ✅ (/multi-goal: dials, verdict vs canonical capacity, before→after retirement, tappable trim hints, adoption → commitments[] named on Cash flow) |
 | Roth conversion (simple scenario) | ♻️ (RothScreen linked from hub; scenario-ify + adoption pending) |
 | Retirement transition + required withdrawals | 🔨 (rmd-due insight + hub row → cockpit; dedicated screen pending) |
-| Will-it-last detail | 🔨 (hub links to cockpit; dedicated detail screen pending) |
+| Will-it-last detail | ✅ (/will-it-last: one-selector headline + range + plain meaning + sourced drivers with change-roads) |
 
 ### Net worth (8) — next session's first target
 | Screen | Status |
@@ -96,7 +97,7 @@ one build at the end.**
 | Screen | Status |
 |---|---|
 | Invest — main (glance then drill) | 🔨 (glance header + Home pin DONE; drill re-shell pending) |
-| Holding detail — equity / bond / alternative | ⬜ ♻️ ♻️ |
+| Holding detail — equity / bond / alternative | ⬜ ✅ ✅ (bond facts + yields + rates card, alt typical-return + look-back door, shared reported-return editor — all on /account-detail; equity per-ticker page pending) |
 | Look back — what if I'd moved money? | ✅ (/look-back; design's worked example pinned to the dollar) |
 | What if I add more? (forward what-if) | ✅ (/what-if; before-chance = hub chance pinned; ?addMonthly= prefill from the 401(k)-room try-it) |
 | Record a transaction + History | ✅ |
@@ -116,10 +117,8 @@ one build at the end.**
   a11y ratchet (Home 35→0, Settings 20→0, all new files 0), check-ui-tests.sh.
 
 ## Next session order
-1. Invest holding-detail pages (equity/bond/alt — routed details replacing row expansions; the
-   rate-sensitivity card + value_as_of nudge + shared ReportedReturnEditor land there) + the
-   empty/stale/hidden state contract + concentration callout engine.
-2. Plan: RMD/transition screen, will-it-last detail, Roth scenario-ify + adoption.
+1. Equity per-ticker detail page + the empty/stale/hidden state contract + concentration callout.
+2. Plan: RMD/transition screen, Roth scenario-ify + adoption.
 3. Net worth: unified manual add/edit (M1) + FCC main re-shell; F1 connect screens (consent +
    accounts-found reconcile — matchImportAccount is the shared merge rule; Plaid sandbox live).
 4. First-run insertion into the new-user onboarding flow + empty-Home two-door state.
