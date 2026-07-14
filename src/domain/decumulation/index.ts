@@ -61,14 +61,22 @@ export interface OrderStep { bucket: keyof BucketSplit | 'rmd'; label: string; a
 /** Tax-efficient withdrawal order. Pass `age` so RMD-age users see the mandatory RMD as step 1
  *  (RMDs legally force pre-tax withdrawals first — a static cash→taxable→pre-tax→roth order is wrong
  *  once you're 73+). Omitting age keeps the classic order for accumulation/pre-RMD users. */
-export function withdrawalOrder(split: BucketSplit, age = 0): OrderStep[] {
+export type DrawBucket = 'cash' | 'taxable' | 'preTax' | 'roth';
+export const DEFAULT_DRAW_ORDER: DrawBucket[] = ['cash', 'taxable', 'preTax', 'roth'];
+
+export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBucket[] | null): OrderStep[] {
   const base: { bucket: keyof BucketSplit; label: string; why: string }[] = [
     { bucket: 'cash', label: 'Cash', why: 'Spend first — it earns the least, so use it before it loses to inflation.' },
     { bucket: 'taxable', label: 'Taxable / brokerage', why: 'Next — lets your tax-advantaged accounts keep compounding (you only owe tax on gains).' },
     { bucket: 'preTax', label: 'Pre-tax (401k / Traditional IRA)', why: 'Then pre-tax — withdrawals are taxed as income, and RMDs force this from 73 anyway.' },
     { bucket: 'roth', label: 'Roth', why: 'Last — tax-free growth and no RMDs, so let it run as long as possible.' },
   ];
-  const steps: OrderStep[] = base.filter((s) => split[s.bucket] > 0).map((s) => ({ ...s, amount: split[s.bucket] }));
+  // a saved user preference reorders the buckets (the steer sheet writes it; the RMD pin below
+  // is law, not preference, and always stays on top)
+  const seq = (userOrder && userOrder.length === 4 && DEFAULT_DRAW_ORDER.every((b) => userOrder.includes(b)))
+    ? userOrder.map((b) => base.find((x) => x.bucket === b)!)
+    : base;
+  const steps: OrderStep[] = seq.filter((s) => split[s.bucket] > 0).map((s) => ({ ...s, amount: split[s.bucket] }));
   if (age >= RMD_START_AGE && split.preTax > 0) {
     const pre = steps.find((s) => s.bucket === 'preTax');
     if (pre) pre.why = 'The rest, beyond your required withdrawal — taxed as income.';
@@ -140,4 +148,50 @@ export function rmdTakenThisYear(transactions: { type?: string; account_id?: str
   return round2((transactions ?? [])
     .filter((t) => t.type === 'WITHDRAWAL' && ids.has(String(t.account_id)) && String(t.date ?? '').startsWith(String(nowYear)))
     .reduce((s, t) => s + (t.amount || 0), 0));
+}
+
+// ── the draw-order steer sheet's comparator (design r50) ───────────────────────────────────
+// Deterministic bucket-by-bucket depletion with the assumptions stated, no Monte-Carlo cosplay:
+// each year the spending gap (spend − guaranteed) is drawn from the buckets in the given order;
+// pre-tax draws are grossed up by the ordinary rate, taxable draws by the capital-gains rate on
+// the gain share; cash and Roth draw tax-free. Balances grow at a REAL return (inflation already
+// removed), so dollars stay today-sized. From 73 the law forces the RMD out of pre-tax first —
+// spent toward the need, any excess moved (after tax) into the taxable bucket.
+export interface DrawOutcome { lastsToAge: number | null; totalTaxes: number; }
+export function drawOrderOutcome(
+  split: BucketSplit,
+  order: DrawBucket[],
+  o: { age: number; horizon: number; spendAnnual: number; guaranteedAnnual: number; realGrowth: number; ordinaryRate?: number; capGainsRate?: number; gainShare?: number },
+): DrawOutcome {
+  const ord = o.ordinaryRate ?? 0.22, cg = (o.capGainsRate ?? 0.15) * (o.gainShare ?? 0.5);
+  const grossUp: Record<DrawBucket, number> = { cash: 0, taxable: cg, preTax: ord, roth: 0 };
+  const bal: Record<DrawBucket, number> = { cash: split.cash, taxable: split.taxable, preTax: split.preTax, roth: split.roth };
+  let taxes = 0;
+  const need0 = Math.max(0, o.spendAnnual - o.guaranteedAnnual);
+  if (need0 <= 0) return { lastsToAge: null, totalTaxes: 0 };
+  for (let age = o.age; age <= o.horizon; age++) {
+    let need = need0;
+    if (age >= RMD_START_AGE && bal.preTax > 0) {
+      const rmd = rmdAtAge(bal.preTax, age);
+      const take = Math.min(rmd, bal.preTax);
+      bal.preTax -= take;
+      const tax = take * ord; taxes += tax;
+      const net = take - tax;
+      const toNeed = Math.min(net, need); need -= toNeed;
+      bal.taxable += net - toNeed;                    // excess RMD reinvested after tax
+    }
+    for (const b of order) {
+      if (need <= 0.005) break;
+      if (bal[b] <= 0) continue;
+      const rate = grossUp[b];
+      const grossNeeded = need / (1 - rate);
+      const take = Math.min(bal[b], grossNeeded);
+      bal[b] -= take;
+      const tax = take * rate; taxes += tax;
+      need -= take - tax;
+    }
+    if (need > 0.005) return { lastsToAge: age, totalTaxes: round2(taxes) };
+    (Object.keys(bal) as DrawBucket[]).forEach((b) => { bal[b] = bal[b] * (1 + Math.max(-0.05, o.realGrowth)); });
+  }
+  return { lastsToAge: null, totalTaxes: round2(taxes) };   // survives the whole horizon
 }

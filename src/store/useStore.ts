@@ -272,6 +272,8 @@ type AppState = {
   setMilestoneHighSeen: (t: number | null) => void;
   transitionChecks: Record<string, boolean>;   // getting-ready checklist flags the target screens can't derive (drawOrder, health)
   setTransitionCheck: (key: string, done: boolean) => void;
+  drawOrder: string[] | null;                  // steer sheet's saved preference; null = the math's order
+  setDrawOrder: (o: string[] | null) => void;
   pendingRecoveryCode: string | null;   // transient: a just-issued recovery code to show at the root (survives navigation)
   securingAccount: boolean;             // transient: true while the slow PBKDF2 key-wrapping runs after signup (gates the recovery modal's checkbox so the 10s freeze reads as "Securing…", not a dead button)
   fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
@@ -479,6 +481,7 @@ export const useStore = create<AppState>()(
       lensOverride: null,   // derive from onboarding until the person answers the stage question
       milestoneHighSeen: null,
       transitionChecks: {},
+      drawOrder: null,
       pendingRecoveryCode: null,
       securingAccount: false,
       fontScale: 1,
@@ -735,6 +738,7 @@ export const useStore = create<AppState>()(
       setLensOverride: (l) => set({ lensOverride: l }),
       setMilestoneHighSeen: (t) => set({ milestoneHighSeen: t }),
       setTransitionCheck: (key, done) => set((st) => ({ transitionChecks: { ...st.transitionChecks, [key]: done } })),
+      setDrawOrder: (o) => set({ drawOrder: o }),
       setPendingRecoveryCode: (c) => set({ pendingRecoveryCode: c }),
       setSecuringAccount: (b) => set({ securingAccount: b }),
       setFontScale: (s) => set({ fontScale: s }),
@@ -909,7 +913,7 @@ export const useStore = create<AppState>()(
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
         lensOverride: null,
-        milestoneHighSeen: null, transitionChecks: {},
+        milestoneHighSeen: null, transitionChecks: {}, drawOrder: null,
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],

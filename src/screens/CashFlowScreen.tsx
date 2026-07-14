@@ -17,6 +17,7 @@ import { retirementIncomeMonthly } from '../domain/income';
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { simulate } from '../domain/retirement';
 import { selectWillItLast, willItLastInputs, chanceWord } from '../domain/retirement/willItLast';
+import { DrawSteerSheet } from '../components/DrawSteerSheet';
 import { buildPaycheckYear } from '../domain/paycheck';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { ageFromProfile } from '../utils/persona';
@@ -63,7 +64,7 @@ export default function CashFlowScreen() {
       </View>
 
       {lens === 'retired' ? (
-        <RetiredMain year={year} accounts={accounts} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
+        <RetiredMain year={year} accounts={accounts} bva={bva} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
       ) : (
         <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
       )}
@@ -101,26 +102,47 @@ export default function CashFlowScreen() {
 }
 
 // ── retired: hero + draw-order preview ──────────────────────────────────────────
-function RetiredMain({ year, accounts, onWhyOrder }: { year: any; accounts: any[]; onWhyOrder: () => void }) {
+function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts: any[]; bva: any; onWhyOrder: () => void }) {
+  const router = useRouter();
   const store = useStore() as any;
   const age = ageFromProfile(store.onboardingProfile) ?? 68;
   const split = taxBucketSplit(accounts);
-  const order = withdrawalOrder(split, age);
+  const order = withdrawalOrder(split, age, store.drawOrder ?? null);   // the saved steer preference applies
+  const [steerOpen, setSteerOpen] = useState(false);
+  const m0 = year.months[0];
+  const safePool = Math.max(0, Math.round(m0?.netSafeToSpend ?? 0));
+  const now = new Date();
+  const monthPct = Math.round((now.getDate() / new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate()) * 100);
+  const spentPct = safePool > 0 ? Math.round((bva.spent_total / safePool) * 100) : 0;
   return (
     <>
       <PaycheckCard />
+      {safePool > 0 && (
+        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/month-detail?slot=0' as any)}
+          accessibilityLabel={`Spending pace: ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(safePool)} safe to spend — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+          <View style={styles.paceTrack}>
+            <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
+            <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
+          </View>
+          <Text style={styles.note}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} safe this month · {spentPct}% spent, {monthPct}% of the month gone ›</Text>
+        </TouchableOpacity>
+      )}
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={[styles.cardHdr, { flex: 1, marginBottom: 0 }]}>DRAW COMES FROM</Text>
-          <TouchableOpacity accessibilityRole="button" onPress={onWhyOrder} accessibilityLabel="Why this order?">
+          <TouchableOpacity accessibilityRole="button" onPress={() => setSteerOpen(true)} accessibilityLabel="Steer it — reorder where the draw comes from">
+            <Text style={styles.link}>Steer it ›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" onPress={onWhyOrder} accessibilityLabel="Why this order?" style={{ marginLeft: 12 }}>
             <Text style={styles.link}>Why? ›</Text>
           </TouchableOpacity>
         </View>
         <Text style={styles.orderLine}>
           {order.map((s: any, i: number) => `${i + 1} ${s.label}`).join('   ')}
         </Text>
-        <Text style={styles.note}>The order the math would tap your accounts — not a directive. Balances match your Net worth.</Text>
+        <Text style={styles.note}>{store.drawOrder ? 'Your order — steered by you. Balances match your Net worth.' : 'The order the math would tap your accounts — not a directive. Balances match your Net worth.'}</Text>
       </View>
+      <DrawSteerSheet visible={steerOpen} onClose={() => setSteerOpen(false)} />
     </>
   );
 }
@@ -223,7 +245,11 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
         label: m.label,
         inflow: m.guaranteedTotal + m.safeDraw,
         outflow: m.billsTotal,
-        flag: m.billsTotal > 0 ? `! ${m.bills[0]?.label ?? 'big bill'}` : (m.guaranteedTotal > year.months[0].guaranteedTotal + 0.005 ? `+ ${m.guaranteed.find((g: any) => g.amount > 0)?.source ?? 'extra income'}` : null),
+        flag: m.billsTotal > 0
+          ? `! ${m.bills[0]?.label ?? 'big bill'} −${maskedMoney(Math.round(m.bills[0]?.amount ?? m.billsTotal))}`
+          : (m.guaranteedTotal > year.months[0].guaranteedTotal + 0.005
+            ? (() => { const extra = m.guaranteedTotal - year.months[0].guaranteedTotal; return `+ ${m.guaranteed.find((g: any) => g.amount > 0)?.source ?? 'extra income'} +${maskedMoney(Math.round(extra))}`; })()
+            : null),
         spoken: `${m.label}: ${Math.round(m.guaranteedTotal + m.safeDraw)} dollars in, ${Math.round(m.billsTotal)} out${m.billsTotal > 0 ? `, ${m.bills[0]?.label} due` : ''}`,
       }))
     : grid.cells.map((c: any) => ({
