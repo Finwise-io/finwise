@@ -175,3 +175,22 @@ describe('E5 — a $25M nest egg does not break the math or the display', () => 
     expect(ssLifetimeTotal(2600, 70, 105)).toBe(3224 * 420);
   });
 });
+
+// ── audit follow-up: the tab layout's wiring had ZERO test contact (coverage sweep) ─────────────
+describe('audit — the tab bar wiring is pinned at the source level', () => {
+  const fs = require('fs'); const path = require('path');
+  const layout = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '(tabs)', '_layout.tsx'), 'utf8');
+
+  test('the bar derives its order from the ONE lens resolver (never a hardcoded list)', () => {
+    expect(layout).toMatch(/tabOrder\(/);
+    expect(layout).toMatch(/resolveLens\(/);
+    expect(layout).toMatch(/order\.map\(/);
+  });
+
+  test('all five FCC tabs are registered and every legacy destination stays routable but hidden', () => {
+    for (const t of ['home', 'analytics', 'invest', 'cashflow', 'plan']) expect(layout).toContain(`${t}:`);
+    for (const legacy of ['budget', 'retirement', 'goals', 'tips', 'rewards', 'settings']) {
+      expect(layout).toMatch(new RegExp(`name="${legacy}"\\s+options=\\{\\{ href: null \\}\\}`));
+    }
+  });
+});

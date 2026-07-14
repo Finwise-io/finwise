@@ -52,6 +52,8 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['LookBackScreen', require('../LookBackScreen').default],
   ['WhatIfScreen', require('../WhatIfScreen').default],
   ['WillItLastScreen', require('../WillItLastScreen').default],
+  ['ContributionRoomScreen', require('../ContributionRoomScreen').default],   // audit: had zero test contact
+  ['ItemizeScreen', require('../ItemizeScreen').default],                     // audit: had zero test contact
   ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
   ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],
