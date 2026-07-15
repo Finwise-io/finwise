@@ -13,6 +13,7 @@ import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetK
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney } from '../components/useMoney';
+import { InfoDot } from '../components/UI';
 
 const TAX_WORDS: Record<string, string> = {
   taxable: 'taxable',
@@ -82,7 +83,10 @@ export default function AccountDetailScreen() {
       {/* header: name + source + freshness — same source language everywhere */}
       <Text style={s.h1}>{account.institution?.trim() ? `${account.institution.trim()} ${account.label}` : account.label}</Text>
       <View style={s.chipRow}>
-        <Text style={s.chip}>{sourceChip}</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+          <Text style={s.chip}>{sourceChip}</Text>
+          <InfoDot term="provenance" />
+        </View>
         {updatedLine && <Text style={s.updated}>{updatedLine}</Text>}
       </View>
 
@@ -212,7 +216,10 @@ function BondDetail({ account }: { account: AssetAccount }) {
       {sens && (
         <View style={s.card} accessible
           accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${maskedMoney(sens.ratesUp.low)} to ${maskedMoney(sens.ratesUp.high)}. If rates fall one percent, roughly ${maskedMoney(sens.ratesDown.low)} to ${maskedMoney(sens.ratesDown.high)}. Held to maturity, ${maskedMoney(b.face)} comes back if the issuer pays as promised.`}>
-          <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+            <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
+            <InfoDot term="rateSensitivity" />
+          </View>
           <Text style={s.estTag}>Estimate, not a prediction</Text>
           <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(sens.ratesUp.low)}–{maskedMoney(sens.ratesUp.high)} (down about {maskedMoney(Math.abs(sens.ratesUp.delta))})</Text>
           <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(sens.ratesDown.low)}–{maskedMoney(sens.ratesDown.high)}</Text>

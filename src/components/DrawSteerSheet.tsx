@@ -11,6 +11,7 @@ import { Modal, View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'rea
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney } from './useMoney';
+import { InfoDot } from './UI';
 import {
   taxBucketSplit, withdrawalOrder, drawOrderOutcome, rmdAtAge,
   DEFAULT_DRAW_ORDER, RMD_START_AGE, type DrawBucket,
@@ -89,7 +90,10 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
       <View style={s.sheet}>
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text style={s.title}>Where the draw comes from</Text>
-          <Text style={s.sub}>The order the math taps your accounts — a starting point. You decide.</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <Text style={[s.sub, { flex: 1 }]}>The order the math taps your accounts to fund the safe draw — a starting point. You decide.</Text>
+            <InfoDot term="safeDraw" />
+          </View>
           {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today's money.</Text>}
 
           {/* pinned required-withdrawal step (r48) — law, not preference */}

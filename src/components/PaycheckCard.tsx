@@ -7,6 +7,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
 
 export function PaycheckCard() {
@@ -46,7 +47,11 @@ export function PaycheckCard() {
           {m.guaranteed.map((g, i) => (
             <Row key={i} label={g.source + (g.day ? ` (day ${g.day})` : '')} value={maskedMoney(g.amount)} />
           ))}
-          <Row label="= Guaranteed" value={maskedMoney(m.guaranteedTotal)} bold />
+          <View style={styles.rowWrap}>
+            <Text style={[styles.rowLabel, { fontWeight: '800' }]}>= Guaranteed</Text>
+            <InfoDot term="guaranteedIncome" />
+            <Text style={[styles.rowValue, { fontWeight: '800' }]}>{maskedMoney(m.guaranteedTotal)}</Text>
+          </View>
           <View style={styles.rowWrap}>
             <Text style={styles.rowLabel}>+ Safe draw from savings</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="What makes the draw safe?"

@@ -28,6 +28,7 @@ import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
 import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars } from '../components/useMoney';
+import { InfoDot } from '../components/UI';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -339,7 +340,10 @@ export default function HomeScreen() {
             : `Will my money last: sample gauge, sample 84 percent odds of lasting to age ${wil.horizonAge}, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.`}>
           <Text style={styles.boxLabel}>WILL MY MONEY LAST?</Text>
           {wil.chance != null ? (
-            <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% odds of lasting to age {wil.horizonAge} <Text style={styles.wilEst}>— estimate</Text></Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+              <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% odds of lasting to age {wil.horizonAge} <Text style={styles.wilEst}>— estimate</Text></Text>
+              <InfoDot term="estimate" />
+            </View>
           ) : (
             // founder 2026-07-15: a living tease of the prediction engine, never a chore — the full
             // gauge visual, LOCKED, with the number visibly blank (a fake 88% would be a trust bug)
