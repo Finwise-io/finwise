@@ -20,6 +20,7 @@ import {
   PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
+import { userCapGainsRates } from '../domain/income';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -65,8 +66,9 @@ export default function PerformanceScreen() {
   const cg = useMemo(() => {
     let lg = 0, sg = 0;
     rows.forEach((r) => { const c = capGains(r.position, r.price); lg += c.longGain; sg += c.shortGain; });
-    return { longGain: lg, shortGain: sg, total: lg + sg, tax: capGainsTax(lg, sg) };
-  }, [rows]);
+    const rates = userCapGainsRates(store.onboardingProfile ?? null);   // PRD F3#17: bracket-derived
+    return { longGain: lg, shortGain: sg, total: lg + sg, tax: capGainsTax(lg, sg, rates.lt, rates.st) };
+  }, [rows, store.onboardingProfile]);
   const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
   const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,

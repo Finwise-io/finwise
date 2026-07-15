@@ -16,6 +16,7 @@ import {
   latestClose, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
+import { userCapGainsRates } from '../domain/income';
 import type { AssetAccount } from '../domain/assets';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 1000) / 10)}%`);
@@ -70,7 +71,8 @@ export default function HoldingDetailScreen() {
 
   // r26: the tax card — per-lot long/short split; the two gains sum to the header gain by construction
   const cg = hasPrice ? capGains(position, row.price) : null;
-  const tax = cg ? capGainsTax(cg.longGain, cg.shortGain) : null;
+  const cgRates = userCapGainsRates(store.onboardingProfile ?? null);   // PRD F3#17: THEIR rates, not 15/24 flat
+  const tax = cg ? capGainsTax(cg.longGain, cg.shortGain, cgRates.lt, cgRates.st) : null;
 
   // r29: dividends received — this ticker's DIVIDEND rows in the ONE ledger
   const dividends = useMemo(() => {

@@ -12,8 +12,8 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney } from '../components/useMoney';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
-import { taxOwed } from '../domain/income/tax';
-import { totalGrossAnnual } from '../domain/income';
+import { taxOwedFor } from '../domain/income/tax';
+import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -42,7 +42,8 @@ export default function RothScreen() {
   const gross = totalGrossAnnual(op);
   const estRate = useMemo(() => {
     if (amt <= 0) return null;
-    const cost = taxOwed(gross + amt) - taxOwed(gross);
+    const status = filingStatusOf(op), state = stateRateOf(op);
+    const cost = taxOwedFor(gross + amt, status, state) - taxOwedFor(gross, status, state);
     return Math.max(0, Math.round((cost / amt) * 100) / 100);
   }, [gross, amt]);
   const [rateOverride, setRateOverride] = useState<string>('');

@@ -58,13 +58,71 @@ export function grossFromNet(net: number): number {
  *  month by month (Jan→Dec), so tax_m = taxOwed(cumulative through m) − taxOwed(cumulative through
  *  m−1). Telescoping guarantees Σ tax_m === taxOwed(annual) EXACTLY — the annual identity the
  *  sameness contract requires — while a bonus month visibly withholds at its higher bracket. */
-export function progressiveMonthlyTax(taxableByMonth: number[]): number[] {
+export function progressiveMonthlyTax(taxableByMonth: number[], status: FilingStatus = 'single', stateRate = 0): number[] {
   let cum = 0, prevTax = 0;
   return taxableByMonth.map((g) => {
     cum += Math.max(0, g);
-    const t = taxOwed(cum);
+    const t = taxOwedFor(cum, status, 0);
     const m = t - prevTax;
     prevTax = t;
-    return m;
+    return m + Math.max(0, g) * Math.min(0.15, Math.max(0, stateRate));   // flat state rides each month
   });
+}
+
+// ── PRD F9#14 / F3#17: filing status + optional flat state rate ─────────────────────────────
+// 2026 tables (IRS Rev. Proc. 2025-32). Married-filing-jointly thresholds are exactly 2× single
+// through the 35% bracket (the 37% top threshold differs slightly at the IRS — immaterial for a
+// labeled estimate at this audience's incomes and documented here). Head-of-household uses the
+// IRS's wider 10/12% brackets (~1.43× single), then converges on the single thresholds.
+export type FilingStatus = 'single' | 'married' | 'hoh';
+const T = TAX_BRACKETS;
+export const TAX_TABLES: Record<FilingStatus, { brackets: [number, number][]; deduction: number }> = {
+  single: { brackets: T, deduction: STANDARD_DEDUCTION },
+  married: { brackets: T.map(([u, r]) => [u === Infinity ? Infinity : u * 2, r]), deduction: STANDARD_DEDUCTION * 2 },
+  hoh: {
+    brackets: [[Math.round(T[0][0] * 1.43), 0.10], [Math.round(T[1][0] * 1.31), 0.12], ...T.slice(2)] as [number, number][],
+    deduction: Math.round(STANDARD_DEDUCTION * 1.5),
+  },
+};
+
+export function taxableIncomeFor(gross: number, status: FilingStatus = 'single'): number {
+  return Math.max(0, gross - TAX_TABLES[status].deduction);
+}
+
+/** Federal tax owed under a filing status, plus an optional user-set FLAT state rate on gross —
+ *  states differ wildly, so a single honest user-entered percent beats fifty guessed tables. */
+export function taxOwedFor(gross: number, status: FilingStatus = 'single', stateRate = 0): number {
+  const ti = taxableIncomeFor(gross, status);
+  let tax = 0, lower = 0;
+  if (ti > 0) {
+    for (const [upper, rate] of TAX_TABLES[status].brackets) {
+      if (ti <= lower) break;
+      tax += (Math.min(ti, upper) - lower) * rate;
+      lower = upper;
+    }
+  }
+  return tax + Math.max(0, gross) * Math.min(0.15, Math.max(0, stateRate));
+}
+
+export function effectiveRateOnGrossFor(gross: number, status: FilingStatus = 'single', stateRate = 0): number {
+  return gross > 0 ? taxOwedFor(gross, status, stateRate) / gross : 0;
+}
+
+export function marginalBracketFor(gross: number, status: FilingStatus = 'single'): number {
+  const ti = taxableIncomeFor(gross, status);
+  for (const [upper, rate] of TAX_TABLES[status].brackets) if (ti <= upper) return rate;
+  return 0.37;
+}
+
+// Long-term capital-gains brackets (0/15/20) by filing status, 2026 (taxable-income thresholds).
+const LTCG: Record<FilingStatus, [number, number]> = {
+  single: [49_450, 545_500],
+  married: [98_900, 613_700],
+  hoh: [66_200, 579_600],
+};
+/** The user's own long-term capital-gains rate, from their income + filing status (federal). */
+export function ltcgRateFor(gross: number, status: FilingStatus = 'single'): number {
+  const ti = taxableIncomeFor(gross, status);
+  const [zeroTop, fifteenTop] = LTCG[status];
+  return ti <= zeroTop ? 0 : ti <= fifteenTop ? 0.15 : 0.20;
 }

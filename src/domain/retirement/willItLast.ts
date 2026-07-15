@@ -5,8 +5,8 @@
 import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
 import { retirementEarmarkedValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
 import { taxBucketSplit } from '../decumulation';
-import { effectiveRateOnGross } from '../income/tax';
-import { totalGrossAnnual } from '../income';
+import { effectiveRateOnGrossFor } from '../income/tax';
+import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../income';
 import { retirementIncomeMonthly } from '../income';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -84,7 +84,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
       const eggForShare = isRetired ? spendableEgg : nestEgg;
       return eggForShare > 0 ? Math.min(1, sp.preTax / eggForShare) : 0;
     })(),
-    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGross(Math.max(30000, totalGrossAnnual(op))))),
+    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(op)), filingStatusOf(op), stateRateOf(op)))),
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: A.salaryGrowth ?? 0,
     retire_monthly_spend_today: planSpend,

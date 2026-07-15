@@ -2,7 +2,7 @@
 // Reviewable in-app; "Share PDF" builds an HTML→PDF and opens the share sheet (needs a native build;
 // degrades to a friendly message in Expo Go).
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -46,6 +46,32 @@ export default function TaxOrganizerScreen() {
       <TouchableOpacity style={[styles.share, busy && { opacity: 0.5 }]} disabled={busy} onPress={sharePdf}>
         <Text style={styles.shareT}>{busy ? 'Preparing…' : '⬇  Share as PDF'}</Text>
       </TouchableOpacity>
+
+      {/* PRD F9#14: filing status + optional flat state rate — every tax ESTIMATE in the app
+          (withholding, Roth, capital gains, the RMD drag) reads these two answers */}
+      <Text style={styles.section}>HOW YOU FILE</Text>
+      <View style={styles.card}>
+        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
+          {([['single', 'Single'], ['married', 'Married, filing jointly'], ['hoh', 'Head of household']] as const).map(([v, label]) => {
+            const on = (store.onboardingProfile?.filingStatus ?? 'single') === v;
+            return (
+              <TouchableOpacity accessibilityRole="radio" key={v}
+                style={[styles.fileChip, on && styles.fileChipOn]}
+                accessibilityState={{ selected: on }} accessibilityLabel={label}
+                onPress={() => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), filingStatus: v })}>
+                <Text style={[styles.fileChipTxt, on && { color: Colors.primaryDark }]}>{label}</Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text style={styles.fieldL}>State income tax % (optional — leave blank for no state tax)</Text>
+        <TextInput style={styles.stateInput} keyboardType="decimal-pad" placeholder="0"
+          placeholderTextColor={Colors.textTertiary}
+          value={String(store.onboardingProfile?.stateTaxRate ?? '')}
+          onChangeText={(t: string) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), stateTaxRate: t })}
+          accessibilityLabel="State income tax percent, optional" />
+        <Text style={styles.tinyNote}>These tune every tax estimate in the app — withholding, Roth conversions, capital gains, required-withdrawal taxes. Estimates, not tax advice.</Text>
+      </View>
 
       {/* income */}
       <Text style={styles.section}>INCOME</Text>
@@ -117,6 +143,12 @@ function orgToHtml(o: TaxOrganizer): string {
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
+  fileChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 42, justifyContent: 'center', backgroundColor: Colors.cardBg },
+  fileChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  fileChipTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
+  fieldL: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary, marginTop: 12, marginBottom: 5 },
+  stateInput: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 10, fontSize: 16, color: Colors.textPrimary, width: 120 },
+  tinyNote: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 10, lineHeight: 19 },
   share: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 13, alignItems: 'center' },

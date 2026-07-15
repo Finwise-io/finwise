@@ -305,6 +305,15 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
+/** PRD F9#14 — filing status + optional flat state rate, read from the profile in ONE place. */
+export function filingStatusOf(op: OnboardingProfile | null): import('./tax').FilingStatus {
+  const v = (op as any)?.filingStatus;
+  return v === 'married' || v === 'hoh' ? v : 'single';
+}
+export function stateRateOf(op: OnboardingProfile | null): number {
+  return Math.min(0.15, Math.max(0, toNum((op as any)?.stateTaxRate) / 100));
+}
+
 /** PRD F2#11 — the ONE per-calendar-month effective tax-rate vector (Jan→Dec). Estimate mode:
  *  progressive bracket-filling over the calendar-year taxable profile, so a bonus month carries
  *  its real higher withholding while Σ monthly tax === the annual schedule EXACTLY. Manual mode:
@@ -318,7 +327,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
   const total = taxable.reduce((t, g) => t + g, 0);
   if (total <= 0) return new Array(12).fill(flat);
   const { progressiveMonthlyTax } = require('./tax');
-  const tax = progressiveMonthlyTax(taxable);
+  const tax = progressiveMonthlyTax(taxable, filingStatusOf(op), stateRateOf(op));
   return taxable.map((g, i) => (g > 0 ? Math.min(0.6, Math.max(0, tax[i] / g)) : flat));
 }
 
@@ -359,7 +368,18 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
 export function effectiveRate(op: OnboardingProfile | null): number {
   const a = op ?? {};
   if (a.taxMode === 'manual') return Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
-  return effectiveRateOnGross(taxableAnnual(op));
+  const { effectiveRateOnGrossFor } = require('./tax');
+  return effectiveRateOnGrossFor(taxableAnnual(op), filingStatusOf(op), stateRateOf(op));
+}
+
+/** PRD F3#17 — the user's OWN capital-gains rates (long: 0/15/20 ladder by filing status;
+ *  short: their marginal bracket), each plus the flat state rate. Still a labeled estimate. */
+export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; st: number } {
+  const { ltcgRateFor, marginalBracketFor } = require('./tax');
+  const gross = totalGrossAnnual(op);
+  const status = filingStatusOf(op);
+  const state = stateRateOf(op);
+  return { lt: ltcgRateFor(gross, status) + state, st: marginalBracketFor(gross, status) + state };
 }
 
 /** A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness:
