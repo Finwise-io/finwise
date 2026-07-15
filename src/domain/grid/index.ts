@@ -10,7 +10,7 @@
 import type { OnboardingProfile } from '../onboardingProfile';
 import { toNum, round2 } from '../_shared/num';
 import {
-  salaryGrossByMonth, effectiveRate, currentRetirementIncomeMonthly, otherIncomeMonth,
+  salaryGrossByMonth, effectiveRate, monthlyTaxRates, currentRetirementIncomeMonthly, otherIncomeMonth,
   benefitActiveMonths, rentalNetAnnual,
 } from '../income';
 import { spendByMonth } from '../budget';
@@ -66,8 +66,9 @@ export interface GridOptions {
 export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions = {}): DatedGrid {
   const a: Record<string, any> = op ?? {};
   const now = opts.now ?? new Date();
-  const rate = effectiveRate(op);
-  const net = (gross: number) => gross * (1 - rate);
+  const rates = monthlyTaxRates(op, opts.now ?? new Date());   // PRD F2#11 — the ONE shared per-month vector
+  // net varies by CALENDAR month (progressive withholding); slot → its calendar month's rate
+  const netAt = (s: number, gross: number) => gross * (1 - rates[calMonth(s)]);
 
   const startMonth = now.getMonth();                       // 0–11
   const startYear = now.getFullYear();
@@ -91,41 +92,41 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   for (let s = 0; s < 12; s++) {
     const sal = salByMonth[calMonth(s)];
     if (sal > 0) {
-      put(s, { source: 'Salary (take-home share)', amount: net(sal), gross: sal });
-      if (tipsM > 0) put(s, { source: 'Tips', amount: net(tipsM), gross: tipsM, approx: true });
+      put(s, { source: 'Salary (take-home share)', amount: netAt(s, sal), gross: sal });
+      if (tipsM > 0) put(s, { source: 'Tips', amount: netAt(s, tipsM), gross: tipsM, approx: true });
     }
   }
   const seM = a.seFreq === 'annual' ? toNum(a.seAmount) / 12 : toNum(a.seAmount);
   const rentalM = rentalNetAnnual(op) / 12;
   const invM = toNum(a.invAnnual) / 12;
   for (let s = 0; s < 12; s++) {
-    if (seM > 0) put(s, { source: 'Self-employment', amount: net(seM), gross: seM, approx: a.seFreq === 'annual' });
-    if (rentalM > 0) put(s, { source: 'Rental (after costs)', amount: net(rentalM), gross: rentalM, approx: true });
-    if (invM > 0) put(s, { source: 'Investment income', amount: net(invM), gross: invM, approx: true });
+    if (seM > 0) put(s, { source: 'Self-employment', amount: netAt(s, seM), gross: seM, approx: a.seFreq === 'annual' });
+    if (rentalM > 0) put(s, { source: 'Rental (after costs)', amount: netAt(s, rentalM), gross: rentalM, approx: true });
+    if (invM > 0) put(s, { source: 'Investment income', amount: netAt(s, invM), gross: invM, approx: true });
   }
   // "other" income — every rhythm honored, incl. QUARTERLY (anchored, not hardcoded) and a REAL
   // year on one-time money (founder review F2 #16: money lands when it actually lands):
   const otherAmt = toNum(a.otherAmount);
   if (otherAmt > 0) {
     const taxable = a.otherTaxable !== 'no';
-    const val = (g: number): GridIncomeItem => taxable
-      ? { source: a.otherLabel || 'Other income', amount: net(g), gross: g }
+    const val = (s: number, g: number): GridIncomeItem => taxable
+      ? { source: a.otherLabel || 'Other income', amount: netAt(s, g), gross: g }
       : { source: a.otherLabel || 'Other income', amount: g };
     const freq = a.otherFreq ?? 'monthly';
-    if (freq === 'monthly') for (let s = 0; s < 12; s++) put(s, val(otherAmt));
-    else if (freq === 'annual') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(otherAmt)); else later.push({ label: a.otherLabel || 'Other income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
-    else if (freq === 'quarterly') { const anchor = slotOf(otherIncomeMonth(op)); for (let q = 0; q < 4; q++) { const s = (anchor + q * 3) % 12; put(s, val(otherAmt)); } }
-    else if (freq === 'onetime') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(otherAmt)); else later.push({ label: a.otherLabel || 'One-time income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
+    if (freq === 'monthly') for (let s = 0; s < 12; s++) put(s, val(s, otherAmt));
+    else if (freq === 'annual') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(s, otherAmt)); else later.push({ label: a.otherLabel || 'Other income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
+    else if (freq === 'quarterly') { const anchor = slotOf(otherIncomeMonth(op)); for (let q = 0; q < 4; q++) { const s = (anchor + q * 3) % 12; put(s, val(s, otherAmt)); } }
+    else if (freq === 'onetime') { const s = slotForMY(otherIncomeMonth(op), toNum(a.otherIncomeYear) || undefined); if (s >= 0) put(s, val(s, otherAmt)); else later.push({ label: a.otherLabel || 'One-time income', amount: otherAmt, month: otherIncomeMonth(op), year: toNum(a.otherIncomeYear) }); }
   }
   if (toNum(a.bonusAnnual) > 0) {
     const m = Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12));
-    put(slotOf(m), { source: 'Bonus', amount: net(toNum(a.bonusAnnual)), gross: toNum(a.bonusAnnual) });
+    put(slotOf(m), { source: 'Bonus', amount: netAt(slotOf(m), toNum(a.bonusAnnual)), gross: toNum(a.bonusAnnual) });
   }
-  if (toNum(a.signingOnetime) > 0) put(0, { source: 'Signing bonus', amount: net(toNum(a.signingOnetime)), gross: toNum(a.signingOnetime) });
+  if (toNum(a.signingOnetime) > 0) put(0, { source: 'Signing bonus', amount: netAt(0, toNum(a.signingOnetime)), gross: toNum(a.signingOnetime) });
   const eq = equityByMonth(a);
   for (let s = 0; s < 12; s++) {
     const v = eq[calMonth(s)];
-    if (v > 0) put(s, { source: 'Equity vesting', amount: net(v), gross: v });
+    if (v > 0) put(s, { source: 'Equity vesting', amount: netAt(s, v), gross: v });
   }
   const benM = toNum(a.benefitMonthly);
   if (benM > 0) { const set = new Set(benefitActiveMonths(op)); for (let s = 0; s < 12; s++) if (set.has(calMonth(s) + 1)) put(s, { source: 'Benefits', amount: benM }); }
@@ -153,7 +154,7 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
     }
   } else {
     const retM = currentRetirementIncomeMonthly(op);
-    if (retM > 0) for (let s = 0; s < 12; s++) put(s, { source: 'Retirement income', amount: net(retM), gross: retM, approx: true });
+    if (retM > 0) for (let s = 0; s < 12; s++) put(s, { source: 'Retirement income', amount: netAt(s, retM), gross: retM, approx: true });
   }
 
   // ── bills: named non-monthly items + a reconciling remainder, so Σ billItems(bill) per cell

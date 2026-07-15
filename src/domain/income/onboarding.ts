@@ -305,6 +305,57 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
 }
 
 /** Effective tax rate in use: the user's manual rate, else the IRS-schedule estimate on taxable income. */
+/** PRD F2#11 — the ONE per-calendar-month effective tax-rate vector (Jan→Dec). Estimate mode:
+ *  progressive bracket-filling over the calendar-year taxable profile, so a bonus month carries
+ *  its real higher withholding while Σ monthly tax === the annual schedule EXACTLY. Manual mode:
+ *  the user's flat rate in every month — their explicit number always wins. Both money grids
+ *  (this module's and the dated F2 grid) read THIS vector, so they cannot disagree on take-home. */
+export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Date()): number[] {
+  const a = op ?? {};
+  const flat = effectiveRate(op);
+  if (a.taxMode === 'manual') return new Array(12).fill(flat);
+  const taxable = taxableByCalendarMonth(op, now);
+  const total = taxable.reduce((t, g) => t + g, 0);
+  if (total <= 0) return new Array(12).fill(flat);
+  const { progressiveMonthlyTax } = require('./tax');
+  const tax = progressiveMonthlyTax(taxable);
+  return taxable.map((g, i) => (g > 0 ? Math.min(0.6, Math.max(0, tax[i] / g)) : flat));
+}
+
+/** The calendar-year TAXABLE profile (Jan→Dec) — the same placement rules incomeMonthlyGrid uses,
+ *  extracted so the rate vector and the grid can never drift apart. */
+export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date = new Date()): number[] {
+  const a = op ?? {};
+  const salByMonth = salaryGrossByMonth(op);
+  const tipsM = toNum(a.tipsMonthly);
+  const rentalM = rentalNetAnnual(op) / 12;
+  const ex = extraIncome(op);
+  const retIncMonthly = currentRetirementIncomeMonthly(op);
+  const eqAnnual = rsuAnnual(op);
+  const equityByMonth = new Array(12).fill(0);
+  const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
+  const type = a.equityType ?? 'rsu';
+  const weights = new Array(12).fill(0);
+  let totalV = 0;
+  for (const r of rows) {
+    const v = equityRowValue(r, type, a.optStrike, a.optMarket);
+    if (v <= 0) continue;
+    const m = String(r?.date ?? '').match(/\d{4}-(\d{1,2})/);
+    const idx = m ? Math.min(11, Math.max(0, +m[1] - 1)) : 11;
+    weights[idx] += v; totalV += v;
+  }
+  if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
+  const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));
+  const otherIdx = otherIncomeMonth(op) - 1;
+  return new Array(12).fill(0).map((_, i) => {
+    let t = salByMonth[i] + (salByMonth[i] > 0 ? tipsM : 0) + rentalM + equityByMonth[i] + ex.taxableMonthly + retIncMonthly;
+    if (i === bonusIdx) t += toNum(a.bonusAnnual);
+    if (i === 0) t += toNum(a.signingOnetime);
+    if (i === otherIdx) t += ex.onetimeTaxable;
+    return t;
+  });
+}
+
 export function effectiveRate(op: OnboardingProfile | null): number {
   const a = op ?? {};
   if (a.taxMode === 'manual') return Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
@@ -324,7 +375,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   const bonus = toNum(a.bonusAnnual);
   const signing = toNum(a.signingOnetime);
   const c401kM = toNum(a.c_401k);
-  const rate = effectiveRate(op);
+  const rates = monthlyTaxRates(op, now);   // PRD F2#11 — per-month withholding, one shared vector
 
   // distribute the level annual equity by the months its vests land on
   const equityByMonth = new Array(12).fill(0);
@@ -359,7 +410,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     const nontax = nontaxFlat + schByMonth[i] + (benSet.has(i + 1) ? benM : 0)
       + (i === otherIdx ? ex.onetimeNontax : 0);    // support steady; benefits/scholarships/gifts in their months
     const gross = taxable + nontax;                 // benefits/support/scholarship are non-taxable
-    let amount = mode === 'gross' ? gross : taxable * (1 - rate) + nontax;
+    let amount = mode === 'gross' ? gross : taxable * (1 - rates[i]) + nontax;
     if (mode === 'available') amount -= c401kM;     // employee 401(k) is locked away
     return { label, amount: round2(amount) };
   });

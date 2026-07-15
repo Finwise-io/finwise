@@ -96,6 +96,29 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(Math.abs(rmdDivisor(75) - 24.6)).toBeLessThan(0.01);
   });
 
+  test('PRD F2#11 — progressive monthly withholding: EXACT annual identity + honest bonus months + manual stays flat', () => {
+    const { progressiveMonthlyTax, taxOwed } = require('../domain/income/tax');
+    const { monthlyTaxRates, incomeMonthlyGrid } = require('../domain/income');
+    // telescoping identity: the twelve monthly taxes sum to the annual schedule TO THE CENT
+    const lumpy = [6000, 6000, 36000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000];
+    const tax = progressiveMonthlyTax(lumpy);
+    expect(Math.abs(tax.reduce((a: number, b: number) => a + b, 0) - taxOwed(lumpy.reduce((a, b) => a + b, 0)))).toBeLessThan(0.01);
+    // the bonus month's effective rate exceeds a plain month's (brackets fill up)
+    expect(tax[2] / lumpy[2]).toBeGreaterThan(tax[1] / lumpy[1]);
+    // estimate mode: the vector reflects that; manual mode: the user's flat number in all 12
+    const est = { status: 'employed', baseSalary: '6000', salaryMode: 'gross', salaryFreq: 'monthly', bonusAnnual: '30000', bonusMonth: 3 };
+    const rates = monthlyTaxRates(est as any);
+    expect(rates[2]).toBeGreaterThan(rates[1]);
+    const man = monthlyTaxRates({ ...est, taxMode: 'manual', manualTaxRate: '20' } as any);
+    expect(new Set(man.map((r: number) => Math.round(r * 1000))).size).toBe(1);
+    expect(man[0]).toBeCloseTo(0.2);
+    // and the visible grid carries it: March take-home rate is HIGHER-taxed than February's
+    const grid = incomeMonthlyGrid(est as any, 'net');
+    const gross = incomeMonthlyGrid(est as any, 'gross');
+    const rateOf = (i: number) => 1 - grid[i].amount / gross[i].amount;
+    expect(rateOf(2)).toBeGreaterThan(rateOf(1));
+  });
+
   test('the contract document itself stays present and BINDING', () => {
     const doc = fs.readFileSync(path.join(__dirname, '../../docs/FCC-core-55-70/FCC-state-contract.md'), 'utf8');
     expect(doc).toMatch(/Status: BINDING/);

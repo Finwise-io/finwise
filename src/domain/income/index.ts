@@ -10,7 +10,7 @@ export {
   buildIncomeState, grossAnnualBaseline, annualNet, estimateEffectiveTaxRate,
   effectiveTaxRate, employerMatchAnnual,
 } from './calc';
-export { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rowVestYear, rentalList, rentalNetAnnual, totalGrossAnnual, taxableAnnual, extraIncome, retirementIncomeMonthly, currentRetirementIncomeMonthly, scholarshipByCalendarMonth, tipsAnnual, salaryAnnual, salaryActiveMonths, salaryGrossByMonth, jobActiveMonth, effectiveRate, incomeMonthlyGrid, SALARY_PERIODS, benefitAnnual, benefitActiveMonths, otherIncomeMonth } from './onboarding';
+export { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rowVestYear, rentalList, rentalNetAnnual, totalGrossAnnual, taxableAnnual, extraIncome, retirementIncomeMonthly, currentRetirementIncomeMonthly, scholarshipByCalendarMonth, tipsAnnual, salaryAnnual, salaryActiveMonths, salaryGrossByMonth, jobActiveMonth, effectiveRate, monthlyTaxRates, taxableByCalendarMonth, incomeMonthlyGrid, SALARY_PERIODS, benefitAnnual, benefitActiveMonths, otherIncomeMonth } from './onboarding';
 export { taxOwed, effectiveRateOnGross, grossFromNet, marginalBracket, TAX_YEAR, TAX_BRACKETS } from './tax';
 
 const COLLECTION = 'incomes';

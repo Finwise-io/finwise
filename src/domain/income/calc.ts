@@ -25,7 +25,7 @@ export function employerMatchAnnual(sources: IncomeSource[]): number {
 // ── tax ──────────────────────────────────────────────────────────────────────
 // SYSTEM_CALCULATED default uses the IRS federal bracket schedule (see ./tax.ts).
 // Deliberately federal-single-filer for now — state tax, filing status, deductions deferred.
-import { effectiveRateOnGross } from './tax';
+import { effectiveRateOnGross , progressiveMonthlyTax } from './tax';
 
 export function estimateEffectiveTaxRate(grossAnnual: number): number {
   return effectiveRateOnGross(grossAnnual);
@@ -60,10 +60,16 @@ export function buildIncomeState(userId: string, sources: IncomeSource[], tax: T
   const rate = effectiveTaxRate(gross, tax);
   const net = gross * (1 - rate);
 
+  // PRD F2#11: per-month net uses progressive bracket-filling (manual override = the user's flat
+  // rate) — the same withholding concept the cash-flow grids use, so months can't disagree
+  const monthlyGross = new Array(12).fill(0).map((_, i) => sources.reduce((t, s) => t + grossByMonth(s)[i], 0));
+  const monthlyTax = tax.use_manual_tax_override
+    ? monthlyGross.map((g) => g * rate)
+    : progressiveMonthlyTax(monthlyGross);
   const grid: MonthlyCell[] = [];
   for (let i = 0; i < 12; i++) {
-    const g = sources.reduce((t, s) => t + grossByMonth(s)[i], 0);
-    grid.push({ month: i + 1, gross: round2(g), net: round2(g * (1 - rate)) });
+    const g = monthlyGross[i];
+    grid.push({ month: i + 1, gross: round2(g), net: round2(g - monthlyTax[i]) });
   }
 
   return {

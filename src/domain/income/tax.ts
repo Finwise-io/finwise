@@ -53,3 +53,18 @@ export function grossFromNet(net: number): number {
   }
   return Math.round((lo + hi) / 2);
 }
+
+/** PRD F2#11 — progressive PER-MONTH tax: brackets fill as the year's taxable income accumulates
+ *  month by month (Jan→Dec), so tax_m = taxOwed(cumulative through m) − taxOwed(cumulative through
+ *  m−1). Telescoping guarantees Σ tax_m === taxOwed(annual) EXACTLY — the annual identity the
+ *  sameness contract requires — while a bonus month visibly withholds at its higher bracket. */
+export function progressiveMonthlyTax(taxableByMonth: number[]): number[] {
+  let cum = 0, prevTax = 0;
+  return taxableByMonth.map((g) => {
+    cum += Math.max(0, g);
+    const t = taxOwed(cum);
+    const m = t - prevTax;
+    prevTax = t;
+    return m;
+  });
+}
