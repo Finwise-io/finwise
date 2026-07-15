@@ -123,6 +123,11 @@ export default function RequiredWithdrawalsScreen() {
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
             {still <= 0 && <Text style={s.doneTxt}>✓ Done for {nowYear} — nothing left to take.</Text>}
+            {age === RMD_START_AGE && (
+              // PRD F9#16 (SECURE 2.0): the very FIRST one may wait until April 1 next year —
+              // stated as a fact with the trade-off, never a recommendation
+              <Text style={s.note}>First-year rule: because this is your first required withdrawal, the law lets it wait until April 1, {nowYear + 1} — but then you'd take two in {nowYear + 1}, which can mean more tax that year. Your call; your tax preparer knows your picture.</Text>
+            )}
             <View style={s.btnRow}>
               <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => setMarkOpen(true)} accessibilityLabel="Mark a withdrawal as taken">
                 <Text style={s.secondaryTxt}>Mark as taken</Text>

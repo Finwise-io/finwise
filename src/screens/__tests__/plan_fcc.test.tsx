@@ -166,3 +166,14 @@ test('Home: a WATCHED crossing shows one calm line; tapping dismisses it for goo
   expect((useStore.getState() as any).milestoneHighSeen).toBe(500000);
   expect(screen.queryByText(/just crossed/)).toBeNull();
 });
+
+test('PRD F9#16: the FIRST-year RMD states the April-1 deferral rule as a fact (only at exactly 73)', () => {
+  useStore.setState({ onboardingProfile: { ...WORKER60, birthYear: String(new Date().getFullYear() - 73), status: 'retired' } } as any);
+  const first = render(<RequiredWithdrawalsScreen />);
+  expect(screen.getByText(/law lets it wait until April 1/)).toBeOnTheScreen();
+  expect(screen.getByText(/two in \d{4}, which can mean more tax/)).toBeOnTheScreen();   // the trade-off, not advice
+  first.unmount();
+  useStore.setState({ onboardingProfile: { ...WORKER60, birthYear: String(new Date().getFullYear() - 74), status: 'retired' } } as any);
+  render(<RequiredWithdrawalsScreen />);
+  expect(screen.queryByText(/April 1/)).toBeNull();                                        // 74+: not the first year
+});
