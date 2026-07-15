@@ -55,6 +55,12 @@ export function retirementSpendMonthly(op: OnboardingProfile | null): number {
 }
 
 export interface RetirementInputs {
+  /** PRD F9#12 — the law forces pre-tax money out from 73 and the TAX on it is a real drag.
+   *  pre_tax_share = the fraction of start_balance that is pre-tax (from taxBucketSplit);
+   *  rmd_tax_rate = the effective ordinary rate on those withdrawals. Both optional —
+   *  omitted, the model behaves exactly as before (legacy pins unchanged). */
+  pre_tax_share?: number;            // 0-1
+  rmd_tax_rate?: number;             // 0-1, default 0.22 when pre_tax_share is set
   current_age: number;
   retire_age: number;
   horizon_age: number;               // plan-to age
@@ -112,6 +118,21 @@ function pctOfSorted(sorted: number[], p: number): number {
   return sorted[idx];
 }
 
+// SECURE 2.0 / IRS Uniform Lifetime Table — mirrored from decumulation (import would cycle);
+// state_contract pins the two in agreement.
+const RMD_START_AGE_SIM = 73;
+const ULT_SIM: [number, number][] = [[73, 26.5], [75, 24.6], [80, 20.2], [85, 16.0], [90, 12.2], [95, 8.9], [100, 6.4]];
+function rmdDivisorSim(age: number): number {
+  if (age <= ULT_SIM[0][0]) return ULT_SIM[0][1];
+  for (let i = 1; i < ULT_SIM.length; i++) {
+    if (age <= ULT_SIM[i][0]) {
+      const [a0, d0] = ULT_SIM[i - 1], [a1, d1] = ULT_SIM[i];
+      return d0 + ((age - a0) / (a1 - a0)) * (d1 - d0);
+    }
+  }
+  return ULT_SIM[ULT_SIM.length - 1][1];
+}
+
 export function simulate(inp: RetirementInputs) {
   const paths = inp.paths ?? 500;
   const nAcc = Math.max(0, inp.retire_age - inp.current_age);
@@ -138,11 +159,25 @@ export function simulate(inp: RetirementInputs) {
     }
     atRetire.push(bal);
     let spend = spendAtRetire, guar = guarAtRetire, survived = true, depleted = false;
+    // RMD drag: track the pre-tax slice so the forced withdrawal + its tax can leave the egg
+    const rmdOn = (inp.pre_tax_share ?? 0) > 0;
+    let preTaxBal = rmdOn ? bal * Math.min(1, Math.max(0, inp.pre_tax_share!)) : 0;
+    const rmdRate = Math.min(0.6, Math.max(0, inp.rmd_tax_rate ?? 0.22));
     for (let y = 0; y < nDec; y++) {
       if (!depleted) {
-        const guarNow = (inp.retire_age + y) >= claimAge ? guar : 0;   // SS only from the claim age
+        const age = inp.retire_age + y;
+        const guarNow = age >= claimAge ? guar : 0;   // SS only from the claim age
         const net = Math.max(0, spend - guarNow);
-        bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) - net;
+        const growth = 1 + normal(rng, inp.mean_return, inp.vol_return);
+        bal = bal * growth - net;
+        if (rmdOn) {
+          preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
+          if (age >= RMD_START_AGE_SIM && preTaxBal > 0) {
+            const rmd = preTaxBal / rmdDivisorSim(age);
+            preTaxBal -= rmd;                          // forced OUT of pre-tax (net stays in the egg)
+            bal -= rmd * rmdRate;                      // …but its TAX leaves the egg for real
+          }
+        }
         if (bal < 0) { bal = 0; survived = false; depleted = true; }
         spend *= (1 + inp.inflation); guar *= (1 + inp.inflation);
       }

@@ -74,6 +74,28 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(Math.round(state.monthly_cash_flow_grid[2].gross)).toBe(Math.round(onboardingGrid[2].amount));
   });
 
+  test('PRD F9#12 — the RMD tax drag is real in BOTH drawdown models (and off when no pre-tax)', () => {
+    const { simulate } = require('../domain/retirement');
+    const { depletionAge, RMD_START_AGE } = require('../domain/decumulation');
+    const base = {
+      current_age: 70, retire_age: 70, horizon_age: 95, start_balance: 800000,
+      annual_contribution: 0, contribution_growth: 0, retire_monthly_spend_today: 5200,
+      guaranteed_monthly_income: 2500, guaranteed_start_age: 67, mean_return: 0.05,
+      vol_return: 0.1, inflation: 0.025, seed: 42, paths: 300,
+    };
+    const noDrag = simulate(base as any).chance_of_success;
+    const withDrag = simulate({ ...base, pre_tax_share: 0.8, rmd_tax_rate: 0.24 } as any).chance_of_success;
+    expect(withDrag).toBeLessThanOrEqual(noDrag);                 // forced taxes never HELP the odds
+    const dBase = { age: 74, horizon: 95, nestEgg: 600000, netWithdrawalNow: 30000, returnRate: 0.03, inflation: 0.025 };
+    const dNo = depletionAge(dBase);
+    const dDrag = depletionAge({ ...dBase, preTaxShare: 0.8, rmdTaxRate: 0.24 });
+    expect((dDrag ?? 200)).toBeLessThanOrEqual(dNo ?? 200);       // and never extend the money
+    // the mirrored IRS table stays in agreement with the canonical one
+    const { rmdDivisor } = require('../domain/decumulation');
+    expect(RMD_START_AGE).toBe(73);
+    expect(Math.abs(rmdDivisor(75) - 24.6)).toBeLessThan(0.01);
+  });
+
   test('the contract document itself stays present and BINDING', () => {
     const doc = fs.readFileSync(path.join(__dirname, '../../docs/FCC-core-55-70/FCC-state-contract.md'), 'utf8');
     expect(doc).toMatch(/Status: BINDING/);

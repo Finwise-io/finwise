@@ -4,6 +4,9 @@
 // The derivation mirrors RetirementCockpit's committed-plan inputs exactly (pinned by tests).
 import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
 import { retirementEarmarkedValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
+import { taxBucketSplit } from '../decumulation';
+import { effectiveRateOnGross } from '../income/tax';
+import { totalGrossAnnual } from '../income';
 import { retirementIncomeMonthly } from '../income';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -75,6 +78,13 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     retire_age: isRetired ? age : Math.max(age + 1, planRetireAge),
     horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
     start_balance: isRetired ? spendableEgg : nestEgg,
+    // PRD F9#12: the odds are RMD-tax-aware — the pre-tax slice + the user's own effective rate
+    pre_tax_share: (() => {
+      const sp = taxBucketSplit(a.accounts ?? []);
+      const eggForShare = isRetired ? spendableEgg : nestEgg;
+      return eggForShare > 0 ? Math.min(1, sp.preTax / eggForShare) : 0;
+    })(),
+    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGross(Math.max(30000, totalGrossAnnual(op))))),
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: A.salaryGrowth ?? 0,
     retire_monthly_spend_today: planSpend,

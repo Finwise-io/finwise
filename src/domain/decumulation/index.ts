@@ -45,11 +45,24 @@ export function withdrawalPlan(spendMonthly: number, guaranteedMonthly: number, 
 // ---- deterministic depletion ----
 /** Age the portfolio runs out (deterministic), or null if it lasts to the horizon.
  *  Net withdrawal grows with inflation; balance grows at the expected return. */
-export function depletionAge(o: { age: number; horizon: number; nestEgg: number; netWithdrawalNow: number; returnRate: number; inflation: number }): number | null {
+export function depletionAge(o: { age: number; horizon: number; nestEgg: number; netWithdrawalNow: number; returnRate: number; inflation: number; preTaxShare?: number; rmdTaxRate?: number }): number | null {
   let bal = o.nestEgg;
   let net = o.netWithdrawalNow;
+  // PRD F9#12: from 73 the forced pre-tax withdrawal's TAX drags the egg (optional — legacy unchanged)
+  const rmdOn = (o.preTaxShare ?? 0) > 0;
+  let preTaxBal = rmdOn ? bal * Math.min(1, Math.max(0, o.preTaxShare!)) : 0;
+  const rate = Math.min(0.6, Math.max(0, o.rmdTaxRate ?? 0.22));
   for (let a = o.age; a < o.horizon; a++) {
-    bal = bal * (1 + o.returnRate) - net;
+    const growth = 1 + o.returnRate;
+    bal = bal * growth - net;
+    if (rmdOn) {
+      preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
+      if (a >= RMD_START_AGE && preTaxBal > 0) {
+        const rmd = rmdAtAge(preTaxBal, a);
+        preTaxBal -= rmd;
+        bal -= rmd * rate;
+      }
+    }
     if (bal <= 0) return a + 1;          // depleted during this year
     net = net * (1 + o.inflation);
   }
