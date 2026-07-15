@@ -14,6 +14,16 @@ A TestFlight build may ONLY be cut after ALL of the following, in order:
 Lesson: Builds 41 and 42 both shipped with known-incomplete scope / unfinished audit — the founder
 found bugs on device that journey tests found the same day. Sequencing for speed broke trust.
 
+## DEFINITION OF COMPLETE (added 2026-07-15 after the second trust breach)
+"Complete" = the UNION of every approved document (PRD acceptance criteria AND detailed-design
+screens AND UX rules) — not any tracker/checklist derived from one of them. An exclusion is valid
+ONLY if (a) an approved document states it in writing (e.g. dark mode "out of scope v1"), or
+(b) the founder approved a NAMED exclusions list BEFORE completion was claimed. The word
+"deferred" is a tripwire: if I am about to write it, the item goes to the founder FIRST.
+Lesson: after Build 42 the tracker was built from the 40 screens only; PRD criteria that didn't
+map to a screen silently fell off and were disclosed as "deferred" AFTER declaring 100% —
+the founder had approved all of it. Never again.
+
 ## Status & truth
 - **Verify status against the CODE, not docs.** For any "is X done / what's the current state" question,
   check the live source — the actual file, `package.json`, `app.config.js`, `eas.json`, `eas env:list`,
