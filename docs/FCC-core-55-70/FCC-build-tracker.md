@@ -177,14 +177,26 @@ with its own pin suite) plus the 8-journey adversarial pass. Findings:
 | Gain-text color: spec says dark green #006300 for gain TEXT (contrast); app uses brand green #178F6B everywhere | Accessibility spec vs brand look — visual identity call | token added (Colors.gainText); approve and I sweep in one pass |
 | 17pt money floor (Type r2) vs dense tables (bill calendar 12pt, NW inventory 14pt) | Your own type rule vs the approved dense wireframes | decide: bump (rows may wrap on small phones) or approve a dense-table exception |
 
-### DEFERRED — known model/scope limits (each honest in-app today)
-Live bank sync + auto-refresh (needs founder Plaid keys + native SDK build — seam ready) · RMD/tax
-drag not inside the Monte-Carlo odds (noted in-app on the steer sheet) · progressive per-month
-withholding (flat blended rate, labeled estimate) · bracket-derived capital-gains rates (15/24
-hardcoded, labeled) · money-weighted IRR · filing status/state tax · first-RMD April-1 deferral
-nuance · net-worth history schema (untyped snapshots) · generic nudge dismiss/snooze (facts
-self-clear; worth-a-look has resolution) · saved-scenario side-by-side compare · cockpit horizon
-slider · InfoDot wiring for the new glossary terms on every surface.
+### THE PRD BUILD QUEUE — ALL TEN BUILT 2026-07-15 (the definition-of-complete correction)
+After the founder's correction ('complete' = the union of every approved doc; my 'deferred'
+list was an unapproved scope cut), every item was built the same day with full pins:
+| # | Item | Where |
+|---|---|---|
+| 1 | RMD + its TAX inside both drawdown models (odds honest about forced withdrawals) | simulate/depletionAge + willItLast feed |
+| 2 | Progressive per-month withholding (bonus months honest; year reconciles to the cent) | monthlyTaxRates → both grids |
+| 3 | Filing status + optional state rate → EVERY tax estimate incl. 0/15/20 cap-gains ladder | tax tables + Tax organizer UI |
+| 4 | Money-weighted personal return (XIRR from the one ledger, three honesty rules) | domain/performance/moneyWeighted + Invest |
+| 5 | Nudges dismissible/snoozable by button, persisted, self-expiring | store + Insights ✕ |
+| 6 | Saved scenarios side-by-side (dials + re-run outcomes) | cockpit Compare two ›|
+| 7 | First-RMD April-1 deferral stated as fact at exactly 73 | required-withdrawals |
+| 8 | Plan-to-age dial in the sandbox, committed via Use-as-my-plan | cockpit stepper |
+| 9 | Five glossary ⓘ dots at their homes | paycheck/steer/bond/source-chip/Home |
+| 10 | Typed versioned net-worth history (structural identity; legacy normalized) | domain/history |
+
+### STILL FOUNDER-GATED (the only remaining external dependencies)
+Live bank linking = Plaid keys + native SDK build (F1 seam + full flow tested against sandbox) ·
+Tiingo price key (provider seam ready). Doc-stated exclusions that stand: dark mode (UX doc),
+per-spouse income split (PRD's own wording).
 
 ### DEVICE-ONLY checks (your walk sheet)
 Large-text survival · reduce-motion · grayscale/colorblind screenshot review · app-switcher

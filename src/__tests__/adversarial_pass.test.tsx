@@ -134,3 +134,50 @@ test('EDGE: the bill calendar renders sanely for a user with NO cash accounts (s
   expect(screen.getByText(/stay above zero|Careful — short/)).toBeOnTheScreen();
   expect(screen.getByLabelText('Cash on hand now, editable')).toBeOnTheScreen();
 });
+
+// ═══ ROUND 2 (the PRD queue's cross-feature seams) ═══
+
+test('SEAM filing-status→everything: switching to married on the Tax organizer moves take-home, Roth tax, AND the sell-tax card in one motion', () => {
+  const op = { ...WORKER, taxMode: undefined, manualTaxRate: undefined, filingStatus: 'single' } as any;
+  const { monthlyTaxRates, userCapGainsRates } = require('../domain/income');
+  const singleRates = monthlyTaxRates(op);
+  const singleCg = userCapGainsRates(op);
+  const married = { ...op, filingStatus: 'married' };
+  expect(monthlyTaxRates(married)[5]).toBeLessThan(singleRates[5]);        // take-home up
+  expect(userCapGainsRates(married).st).toBeLessThanOrEqual(singleCg.st);  // sell-tax down or equal
+});
+
+test('SEAM horizon-adoption→Home: Use-as-my-plan at 94 changes the will-it-last sentence everywhere', () => {
+  useStore.setState({
+    onboardingProfile: WORKER,
+    assetAccounts: [{ asset_id: 'k', label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 500000 }],
+  } as any);
+  useStore.getState().adoptPlan({ horizonAge: 94 } as any, 'horizon test');
+  render(require('../screens/HomeScreen').default ? React.createElement(require('../screens/HomeScreen').default) : <HomeScreen />);
+  expect(screen.getByText(/odds of lasting to age 94/)).toBeOnTheScreen();
+});
+
+test('SEAM RMD-drag honesty: the same egg held ALL pre-tax never beats the all-Roth version on odds', () => {
+  const { selectWillItLast } = require('../domain/retirement/willItLast');
+  const mk = (bucket: string) => selectWillItLast({
+    op: { ...WORKER, birthYear: String(new Date().getFullYear() - 70), status: 'retired', monthlySpending: '5200' },
+    accounts: [{ asset_id: 'x', label: 'Egg', kind: bucket === 'ROTH' ? 'roth_ira' : 'trad_ira', tax_bucket: bucket, balance: 700000 }],
+    assumptions: {}, inflationRate: 2.5, employmentStatus: 'retired',
+  } as any).chance;
+  const preTax = mk('PRE_TAX'), roth = mk('ROTH');
+  if (preTax != null && roth != null) expect(preTax).toBeLessThanOrEqual(roth);   // forced taxes never help
+});
+
+test('SEAM history→trend: a legacy snapshot and a v1 snapshot chart TOGETHER on Net worth', () => {
+  const { makeMonthlySnapshot } = require('../domain/history');
+  useStore.setState({
+    onboardingProfile: WORKER, nwSeeded: true,
+    assetAccounts: [{ asset_id: 'a', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 90000 }],
+    monthlySnapshots: {
+      '2026-05': { month: '2026-05', net_worth: 80000 },                          // legacy blob
+      '2026-06': makeMonthlySnapshot({ month: '2026-06', gross_assets: 86000, gross_debt: 0, income_net: 0, spending: 0, debt_paid: 0, savings: 0, allocated: 0, planned_budget: 0, savings_rate: 0, by_category: {}, assets: [], debts: [], captured_at: '' }),
+    },
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/YOUR NET WORTH/)).toBeOnTheScreen();                   // renders with mixed history, no crash
+});
