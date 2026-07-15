@@ -195,7 +195,11 @@ list was an unapproved scope cut), every item was built the same day with full p
 
 ### STILL FOUNDER-GATED (the only remaining external dependencies)
 Live bank linking = Plaid keys + native SDK build (F1 seam + full flow tested against sandbox) ·
-Tiingo price key (provider seam ready). Doc-stated exclusions that stand: dark mode (UX doc),
+LIVE PRICE PROVIDER — **Tiingo ruled out 2026-07-15 (its license is internal-use only; a consumer
+app displaying prices to users needs redistribution/display rights)**. Selection open; the
+PriceProvider seam takes any vendor in one file. Shortlist to verify with CURRENT terms:
+Polygon · Financial Modeling Prep · EODHD · Alpaca · Finnhub · Twelve Data (check: end-user
+display rights, delayed/EOD tier, monthly price, attribution requirements). Doc-stated exclusions that stand: dark mode (UX doc),
 per-spouse income split (PRD's own wording).
 
 ### DEVICE-ONLY checks (your walk sheet)
