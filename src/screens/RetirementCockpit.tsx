@@ -280,8 +280,8 @@ export default function RetirementCockpit() {
             <Text style={styles.heroArrow}>→</Text>
             <View style={styles.heroCol}>
               <Text style={styles.heroColLabel}>{scProjLabel}</Text>
-              <Text style={[styles.heroColNum, { color: scDelta >= 0 ? Colors.primary : Colors.red }]}>{big(scProjected)}</Text>
-              <Text style={[styles.heroDelta, { color: scDelta >= 0 ? Colors.primary : Colors.red }]}>{scDelta >= 0 ? '▲ +' : '▼ −'}{big(Math.abs(scDelta))}{scRetired ? ` / ${scHorizonYears}y` : ''}</Text>
+              <Text style={[styles.heroColNum, { color: scDelta >= 0 ? Colors.gainText : Colors.red }]}>{big(scProjected)}</Text>
+              <Text style={[styles.heroDelta, { color: scDelta >= 0 ? Colors.gainText : Colors.red }]}>{scDelta >= 0 ? '▲ +' : '▼ −'}{big(Math.abs(scDelta))}{scRetired ? ` / ${scHorizonYears}y` : ''}</Text>
             </View>
           </View>
           {ssIncome > 0 && <Text style={styles.heroSs}>incl. Social Security {money(ssIncome)}/mo from {claimAge}</Text>}
@@ -642,7 +642,7 @@ export default function RetirementCockpit() {
                 <TouchableOpacity style={styles.tColNum} onPress={() => setTtmEdit(a)}>
                   {ttm == null
                     ? <Text style={styles.ttmAdd}>+ Add</Text>
-                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.primary : Colors.red }]}>{(ttm * 100).toFixed(1)}%</Text>}
+                    : <Text style={[styles.instRet, { color: ttm >= info.ret ? Colors.gainText : Colors.red }]}>{(ttm * 100).toFixed(1)}%</Text>}
                 </TouchableOpacity>
                 {uncategorized
                   ? <Text style={[styles.tColNum, styles.instBench, { color: Colors.textTertiary }]}>—</Text>

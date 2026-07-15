@@ -171,11 +171,11 @@ with its own pin suite) plus the 8-journey adversarial pass. Findings:
 | In/out chart bars used brand green/amber instead of the VALIDATED blue/orange pair (UX Color r5) | P2 | Colors.chartIn #2A78D6 / chartOut #EB6834 applied |
 | Five FCC-mandated glossary terms missing (safe draw, guaranteed income, rate sensitivity, provenance, estimate) | LOW | added |
 
-### FOUNDER DECISIONS (open, not blocking code-complete)
-| Item | The tension | Recommendation |
+### FOUNDER DECISIONS — BOTH DECIDED 2026-07-15 ✅
+| Item | Decision | Done |
 |---|---|---|
-| Gain-text color: spec says dark green #006300 for gain TEXT (contrast); app uses brand green #178F6B everywhere | Accessibility spec vs brand look — visual identity call | token added (Colors.gainText); approve and I sweep in one pass |
-| 17pt money floor (Type r2) vs dense tables (bill calendar 12pt, NW inventory 14pt) | Your own type rule vs the approved dense wireframes | decide: bump (rows may wrap on small phones) or approve a dense-table exception |
+| Gain-text color | Dark green #006300 per the UX rulebook | ✅ swept across all 6 money screens (16 sites); budget-STATUS colors untouched (separate rule) |
+| 17pt floor vs dense tables | Keep dense + documented exception | ✅ amendment row added to the UX workbook Type sheet + state contract |
 
 ### THE PRD BUILD QUEUE — ALL TEN BUILT 2026-07-15 (the definition-of-complete correction)
 After the founder's correction ('complete' = the union of every approved doc; my 'deferred'

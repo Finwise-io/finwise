@@ -190,7 +190,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         <Text style={styles.cardHdr}>THIS MONTH</Text>
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
-            <Text style={[styles.heroNum, { color: free >= 0 ? Colors.primary : Colors.red }]} accessible
+            <Text style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
               accessibilityLabel={`${free >= 0 ? '' : 'minus '}${maskedMoney(Math.abs(free))} ${committed > 0 ? 'free to spend after your plan' : 'planned surplus'} this month`}>
               {free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}
             </Text>
@@ -202,7 +202,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         <Row label={debtMo > 0 ? 'Out (bills + debt)' : 'Out (bills)'} value={maskedMoney(Math.round(outflow))} dim />
         <Row label={committed > 0 ? 'Free to spend after your plan' : '= Planned surplus'}
           value={maskedMoney(committed > 0 ? surplus - committed : surplus)} strong
-          color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.primary : Colors.red} />
+          color={(committed > 0 ? surplus - committed : surplus) >= 0 ? Colors.gainText : Colors.red} />
         {committed > 0 && commitments.map((c, i) => (
           <Row key={i} label={`${c.label} · from your Plan`} value={`−${maskedMoney(c.monthlyAmount)}`} dim />
         ))}

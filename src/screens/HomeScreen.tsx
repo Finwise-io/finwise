@@ -263,7 +263,7 @@ export default function HomeScreen() {
             <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
             {youReturn != null && (
               <Text style={styles.heroLine}>
-                <Text style={{ color: youReturn >= 0 ? Colors.primary : Colors.red, fontWeight: '800' }}>{youReturn >= 0 ? '▲ up' : '▼ down'} {pctTxt(Math.abs(youReturn))}</Text>
+                <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>{youReturn >= 0 ? '▲ up' : '▼ down'} {pctTxt(Math.abs(youReturn))}</Text>
                 <Text> this month</Text>
               </Text>
             )}
@@ -308,7 +308,7 @@ export default function HomeScreen() {
           accessibilityLabel={`Net worth ${maskedMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
           <Text style={styles.nwLabel}>Net worth</Text>
           <Text style={styles.nwValue}>{maskedMoney(netWorth)}</Text>
-          {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.primary : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
+          {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.gainText : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>
         </TouchableOpacity>
 

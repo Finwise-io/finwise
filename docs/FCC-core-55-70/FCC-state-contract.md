@@ -45,3 +45,11 @@ EMPTY state (rule 1), not a shimmer. Refresh affordances say what they refresh (
 `state_contract.test.ts` asserts the contract's load-bearing helpers exist and behave:
 the three staleness clocks' thresholds, the mask walk's coverage list, and the pure-money rule.
 Change any of those and the contract test names this document.
+
+## Founder-decided amendments (2026-07-15)
+- **Gain text = dark green `#006300`** (`Colors.gainText`) for every gains/losses/change sentence
+  (investment gains, net-worth deltas, returns, ledger effects, the surplus hero); brand green
+  stays for buttons, marks, and status. Loss red unchanged. Words always carry the sign.
+- **Dense-table exception:** reference tables (bill calendar, NW inventory rows, steer buckets)
+  may use 12–15pt tabular money below the 17pt floor because every row speaks a full sentence
+  to VoiceOver; all other money keeps the floor. Recorded in the UX workbook's Type sheet.

@@ -113,7 +113,7 @@ export default function HoldingDetailScreen() {
           <>
             <Text style={s.big}>{maskedMoney(Math.round(value))}</Text>
             {gain != null && (
-              <Text style={[s.gainLine, { color: gain >= 0 ? Colors.primary : Colors.red }]}>
+              <Text style={[s.gainLine, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>
                 {gain >= 0 ? '▲ Up +' : '▼ Down −'}{maskedMoney(Math.abs(Math.round(gain)))}{roi != null ? ` (${pct(roi)})` : ''} since purchase
               </Text>
             )}
@@ -134,7 +134,7 @@ export default function HoldingDetailScreen() {
           <Text style={s.kicker}>VS THE STOCK MARKET (1 yr)</Text>
           <Text style={s.line}>{ticker} {row.periodReturn >= 0 ? 'up' : 'down'} {pct(row.periodReturn)} · market {pct(row.benchReturn)}</Text>
           {row.beatBy != null && (
-            <Text style={[s.line, { fontWeight: '800', color: row.beatBy >= 0 ? Colors.primary : Colors.red }]}>
+            <Text style={[s.line, { fontWeight: '800', color: row.beatBy >= 0 ? Colors.gainText : Colors.red }]}>
               {row.beatBy >= 0 ? 'Ahead' : 'Behind'} by {Math.abs(Math.round(row.beatBy * 1000) / 10)} points
             </Text>
           )}

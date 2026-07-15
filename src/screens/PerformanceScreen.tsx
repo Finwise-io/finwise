@@ -152,7 +152,7 @@ export default function PerformanceScreen() {
             accessibilityLabel={`Total return, ${period}: ${portReturn == null ? 'not enough price history yet' : `${periodDollar >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}`}${benchPort != null ? `. Stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
             <Text style={styles.glanceKicker}>TOTAL RETURN ({period})</Text>
             <Text style={styles.glanceBig}>
-              <Text style={{ color: periodDollar >= 0 ? Colors.primary : Colors.red }}>{periodDollar >= 0 ? '▲ Up ' : '▼ Down '}{periodDollar >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
+              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ Up ' : '▼ Down '}{periodDollar >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
               <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
             </Text>
             {benchPort != null && <Text style={styles.glanceLine}>Stock market:  {pct(benchPort)}</Text>}
@@ -188,9 +188,9 @@ export default function PerformanceScreen() {
                   <TouchableOpacity accessibilityRole="button" key={r.position.position_id} style={styles.wlRow}
                     onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
                     accessibilityLabel={`${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
-                    <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>
+                    <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>
                     <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
-                    <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.primary : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
+                    <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
                     <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
                   </TouchableOpacity>
                 );
@@ -251,7 +251,7 @@ export default function PerformanceScreen() {
                         accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}. Opens its page.`}>
                         <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
                         <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
-                        {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.primary : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
+                        {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
                         <Text style={styles.invChev}>›</Text>
                       </TouchableOpacity>
                     );
@@ -675,7 +675,7 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
                   <Text style={styles.hType}>{txnLabel(t.type)} <Text style={styles.hDetail}>{detail}</Text></Text>
                   <Text style={styles.hMeta}>{t.date} · {acctName(t.account_id)}{t.counter_account_id ? ` → ${acctName(t.counter_account_id)}` : ''}{t.reinvested ? ' · reinvested' : ''}</Text>
                 </View>
-                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.primary : Colors.red }]}>{eff >= 0 ? '+' : ''}{money(eff)}</Text>}
+                {eff !== 0 && <Text style={[styles.hAmt, { color: eff >= 0 ? Colors.gainText : Colors.red }]}>{eff >= 0 ? '+' : ''}{money(eff)}</Text>}
                 <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Delete ${txnLabel(t.type).toLowerCase()}${t.ticker ? ` ${t.ticker}` : ''}`} onPress={() => onDelete(t.id)}><Text style={styles.hDel}>✕</Text></TouchableOpacity>
               </View>
             );

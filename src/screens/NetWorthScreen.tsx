@@ -170,10 +170,10 @@ export default function NetWorthScreen() {
         </View>
         <View style={{ alignItems: 'flex-end' }}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 3 }}>
-            {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.primary : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
+            {ch !== 0 && <Text style={[styles.chArrow, { color: up ? Colors.gainText : Colors.red }]}>{up ? '▲' : '▼'}</Text>}
             <Text style={styles.rowVal}>{maskedMoney(a.balance)}</Text>
           </View>
-          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.primary : Colors.red }]}>{up ? '+' : '−'}{maskedMoney(Math.abs(ch))} this mo</Text>}
+          {ch !== 0 && <Text style={[styles.chDelta, { color: up ? Colors.gainText : Colors.red }]}>{up ? '+' : '−'}{maskedMoney(Math.abs(ch))} this mo</Text>}
         </View>
       </TouchableOpacity>
     );
@@ -366,7 +366,7 @@ export default function NetWorthScreen() {
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
           </Text>
           {changeThisYear != null && (
-            <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.primary : Colors.red }]}>
+            <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
               {changeThisYear >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.round(Math.abs(changeThisYear)))} this year
             </Text>
           )}
