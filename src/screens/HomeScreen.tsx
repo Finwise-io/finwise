@@ -26,6 +26,7 @@ import { buildNetWorth } from '../domain/networth';
 import { resolveLens } from '../domain/profile/lens';
 import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
+import { makeMonthlySnapshot, readHistory } from '../domain/history';
 import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
@@ -123,9 +124,10 @@ export default function HomeScreen() {
     monthExp.filter((e: any) => e.category !== 'Debt payment').forEach((e: any) => { byCategory[e.category] = (byCategory[e.category] ?? 0) + (Number(e.amount) || 0); });
     const assetsSnap = a.map((x: any) => ({ id: x.asset_id, label: x.label, kind: x.kind ?? null, bucket: x.tax_bucket, institution: x.institution ?? null, balance: x.balance }));
     const debtsSnap = l.map((x: any) => ({ id: x.debt_id, label: x.label, type: x.debt_type, balance: x.remaining_balance, apr: x.interest_rate_apr }));
-    store.captureMonthlySnapshot?.(ym, {
+    // PRD F1#15: the typed, versioned writer — the identity net_worth = assets − debt is structural
+    store.captureMonthlySnapshot?.(ym, makeMonthlySnapshot({
       month: ym,
-      net_worth: nwv.net_worth, gross_assets: nwv.gross_assets, gross_debt: nwv.gross_debt,
+      gross_assets: nwv.gross_assets, gross_debt: nwv.gross_debt,
       income_net: Math.round(thisMonthNet), spending: eSpent, debt_paid: dPaid,
       savings: Math.round(thisMonthNet - eSpent - dPaid), allocated: store.allocatedByMonth?.[ym] ?? 0,
       planned_budget: bva.planned_total, savings_rate: thisMonthNet > 0 ? Math.round(((thisMonthNet - eSpent - dPaid) / thisMonthNet) * 100) : 0,
@@ -133,7 +135,7 @@ export default function HomeScreen() {
       assets: assetsSnap,
       debts: debtsSnap,
       captured_at: new Date().toISOString(),
-    });
+    }));
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
@@ -230,10 +232,8 @@ export default function HomeScreen() {
 
   const netWorth = snap.networth.net_worth;
   // direction vs last frozen month (word + arrow — never color alone)
-  const snaps = (store.monthlySnapshots ?? {}) as Record<string, any>;
-  const nwHistory = Object.values(snaps).filter((s: any) => s && s.net_worth != null && s.month && s.month !== ym)
-    .sort((a: any, b: any) => (a.month < b.month ? -1 : 1));
-  const prevNw = nwHistory.length ? (nwHistory[nwHistory.length - 1] as any).net_worth : null;
+  const nwHistory = readHistory(store.monthlySnapshots).filter((h) => h.month !== ym);
+  const prevNw = nwHistory.length ? nwHistory[nwHistory.length - 1].net_worth : null;
   const nwDir = prevNw != null && netWorth !== prevNw ? (netWorth > prevNw ? 'up' : 'down') : null;
 
   const monthName = MONTHS_LONG[now.getMonth()];

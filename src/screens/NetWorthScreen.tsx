@@ -9,6 +9,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
+import { readHistory } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
@@ -345,11 +346,8 @@ export default function NetWorthScreen() {
     // glance, and ONE add-or-connect button with three honest paths. Calm by design: the
     // donut, captions, explore box and insight cards moved off this screen (Home's insights
     // engine owns the nudges; class rows carry the allocation story).
-    const snaps = (store.monthlySnapshots ?? {}) as Record<string, any>;
-    const series = Object.values(snaps)
-      .filter((x: any) => x && x.net_worth != null && x.month)
-      .map((x: any) => ({ month: x.month as string, nw: x.net_worth as number }))
-      .sort((a, b) => (a.month < b.month ? -1 : 1)).slice(-12);
+    const series = readHistory(store.monthlySnapshots)
+      .map((h) => ({ month: h.month, nw: h.net_worth })).slice(-12);   // typed, normalized, garbage-free (PRD F1#15)
     const jan = `${new Date().getFullYear()}-01`;
     const janPoint = series.find((pt) => pt.month >= jan && pt.month !== series[series.length - 1]?.month);
     const changeThisYear = janPoint ? nw.net_worth - janPoint.nw : null;
