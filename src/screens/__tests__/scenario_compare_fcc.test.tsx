@@ -55,3 +55,15 @@ test('closing the comparison changes nothing (no adoption, no plan writes)', () 
   expect(JSON.stringify((useStore.getState() as any).retirementAssumptions)).toBe(before);
   expect(screen.queryByText(/Side by side/)).toBeNull();
 });
+
+// PRD F11#14 / F8#11 — plan-to age is a dial inside the scenario, and adoption carries it
+test('the horizon stepper moves plan-to age and Use-as-plan commits it to the shared assumptions', () => {
+  render(<RetirementCockpit />);
+  fireEvent.press(screen.getByText(/Run scenario analysis/));
+  expect(screen.getByLabelText('Planning to age 92')).toBeOnTheScreen();     // from the profile
+  fireEvent.press(screen.getByLabelText('Plan to an older age'));
+  fireEvent.press(screen.getByLabelText('Plan to an older age'));
+  expect(screen.getByLabelText('Planning to age 94')).toBeOnTheScreen();
+  fireEvent.press(screen.getAllByText(/^Use as my plan$/).pop()!);   // the button (the note sentence matches too)
+  expect((useStore.getState() as any).retirementAssumptions.horizonAge).toBe(94);   // F11 propagation: every surface reads it
+});

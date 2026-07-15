@@ -197,22 +197,23 @@ export default function RetirementCockpit() {
   const [spendMo, setSpendMo] = useState<number>(planSpend);
   const [inflPct, setInflPct] = useState<number>(Math.round(planInfl * 1000) / 10);
   const [salGrow, setSalGrow] = useState<number>(Math.round((A.salaryGrowth ?? 0) * 1000) / 10);   // raises %/yr
+  const [horizonSand, setHorizonSand] = useState<number>(horizon);   // PRD F11#14 — plan-to age is a dial too
   const [scChance, setScChance] = useState<number | null>(null);
   const [scBand, setScBand] = useState<any>(null);
   const resetSandbox = () => {
     setRAge(planRetireAge); setRetPct(Math.round(planGrowth * 1000) / 10); setSaveMo(planSave);
-    setSpendMo(planSpend); setInflPct(Math.round(planInfl * 1000) / 10); setScChance(null); setScBand(null);
+    setSpendMo(planSpend); setInflPct(Math.round(planInfl * 1000) / 10); setHorizonSand(horizon); setScChance(null); setScBand(null);
   };
   const openScenario = () => { resetSandbox(); setScreen('scenario'); };
   const loadScenario = (a: any) => {
     setRAge(a.retireAge ?? planRetireAge); setRetPct(Math.round((a.expectedReturn ?? planGrowth) * 1000) / 10);
     setSaveMo(a.contribMonthly ?? planSave); setSpendMo(a.spendMonthly ?? planSpend);
-    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setSalGrow(Math.round((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 1000) / 10); setScChance(null); setScBand(null);
+    setInflPct(Math.round((a.inflation ?? planInfl) * 1000) / 10); setSalGrow(Math.round((a.salaryGrowth ?? A.salaryGrowth ?? 0) * 1000) / 10); setHorizonSand(a.horizonAge ?? horizon); setScChance(null); setScBand(null);
   };
   const scRetired = store.employmentStatus === 'retired' || age >= rAge;
   const scInputs = (over: any = {}) => ({
     current_age: age, retire_age: scRetired ? age : Math.max(age + 1, rAge),
-    horizon_age: Math.max((scRetired ? age : rAge) + 1, horizon), start_balance: nestEgg,
+    horizon_age: Math.max((scRetired ? age : rAge) + 1, horizonSand), start_balance: nestEgg,
     annual_contribution: (scRetired ? 0 : saveMo) * 12, contribution_growth: salGrow / 100, retire_monthly_spend_today: spendMo,
     guaranteed_monthly_income: ssIncome, guaranteed_start_age: claimAge,
     inflation: inflPct / 100, mean_return: retPct / 100, vol_return: volOf(retPct / 100),
@@ -229,6 +230,7 @@ export default function RetirementCockpit() {
     vol_return: volOf(sc.assumptions?.expectedReturn ?? retPct / 100),
     inflation: sc.assumptions?.inflation ?? inflPct / 100,
     guaranteed_start_age: sc.assumptions?.ssClaimAge ?? claimAge,
+    horizon_age: Math.max((sc.assumptions?.retireAge ?? rAge) + 1, sc.assumptions?.horizonAge ?? horizon),
     paths: 300,
   });
   const togglePick = (id: string) => {
@@ -254,7 +256,7 @@ export default function RetirementCockpit() {
   const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
   const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
   const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
-  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, salaryGrowth: salGrow / 100, returnBasis: 'scenario' }); setScreen('current'); };
+  const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, salaryGrowth: salGrow / 100, horizonAge: horizonSand, returnBasis: 'scenario' }); setScreen('current'); };
 
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
@@ -299,6 +301,23 @@ export default function RetirementCockpit() {
         {/* SLIDERS — with benchmark + current-plan reference markers */}
         <View style={styles.card}>
           {!scRetired && <SliderRow label="Retire at age" valueLabel={`${rAge}`} value={rAge} min={Math.max(age + 1, 45)} max={75} step={1} onChange={(v) => { setRAge(v); invalidateMC(); }} markers={[{ value: planRetireAge, label: 'plan' }]} fmt={(v) => `${Math.round(v)}`} />}
+
+          {/* PRD F11#14 / F8#11 — plan-to (horizon) age is adjustable IN the scenario */}
+          <View style={styles.horizonRow}>
+            <Text style={styles.horizonLabel}>Plan to age</Text>
+            <TouchableOpacity accessibilityRole="button" style={styles.horizonBtn}
+              accessibilityLabel="Plan to a younger age"
+              onPress={() => { setHorizonSand((h) => Math.max(Math.max(age, rAge) + 1, 75, h - 1)); invalidateMC(); }}>
+              <Text style={styles.horizonBtnT}>−</Text>
+            </TouchableOpacity>
+            <Text style={styles.horizonVal} accessible accessibilityLabel={`Planning to age ${horizonSand}`}>{horizonSand}</Text>
+            <TouchableOpacity accessibilityRole="button" style={styles.horizonBtn}
+              accessibilityLabel="Plan to an older age"
+              onPress={() => { setHorizonSand((h) => Math.min(105, h + 1)); invalidateMC(); }}>
+              <Text style={styles.horizonBtnT}>+</Text>
+            </TouchableOpacity>
+            <Text style={styles.horizonHint}>how long the money must last</Text>
+          </View>
           <SliderRow label="Expected return" valueLabel={`${retPct.toFixed(1)}%`} value={retPct} min={2} max={14} step={0.5} onChange={(v) => { setRetPct(v); invalidateMC(); }}
             markers={[{ value: benchBlended * 100, label: 'bench' }, ...(actualBlended != null ? [{ value: actualBlended * 100, label: '12mo' }] : []), { value: planGrowth * 100, label: 'plan' }]} fmt={(v) => `${v.toFixed(1)}%`} />
           {!scRetired && <SliderRow label="Save / month" valueLabel={money(saveMo)} value={saveMo} min={0} max={8000} step={100} onChange={(v) => { setSaveMo(v); invalidateMC(); }} markers={[{ value: planSave, label: 'plan' }]} fmt={(v) => money(v)} />}
@@ -405,7 +424,7 @@ export default function RetirementCockpit() {
 
         <View style={{ height: 40 }} />
         <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={scRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
-          onSave={(name) => { store.saveRetirementScenario(name, { retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100 }, scRetired ? age : rAge, scChance ?? 0); setSaveOpen(false); }} />
+          onSave={(name) => { store.saveRetirementScenario(name, { retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, horizonAge: horizonSand }, scRetired ? age : rAge, scChance ?? 0); setSaveOpen(false); }} />
       </ScrollView>
     );
   }
@@ -1222,6 +1241,12 @@ const styles = StyleSheet.create({
   saveT: { color: '#fff', fontSize: 15, fontWeight: '800' },
   foot: { fontSize: 11.5, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 },
 
+  horizonRow: { flexDirection: 'row', alignItems: 'center', gap: 10, marginTop: 10, minHeight: 44 },
+  horizonLabel: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, width: 92 },
+  horizonBtn: { width: 40, height: 40, borderRadius: Radii.md, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center' },
+  horizonBtnT: { fontSize: 18, fontWeight: '800', color: Colors.primaryDark },
+  horizonVal: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, width: 40, textAlign: 'center', fontVariant: ['tabular-nums'] },
+  horizonHint: { flex: 1, fontSize: 11.5, color: Colors.textTertiary },
   chipPicked: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   compareLink: { fontSize: 13.5, fontWeight: '800', color: Colors.primaryDark, paddingVertical: 6 },
   cmpScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
