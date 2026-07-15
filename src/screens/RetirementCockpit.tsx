@@ -13,6 +13,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
+import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
@@ -217,6 +218,26 @@ export default function RetirementCockpit() {
     inflation: inflPct / 100, mean_return: retPct / 100, vol_return: volOf(retPct / 100),
     paths: 400, seed: 42, ...over,
   });
+  // PRD F11#13 — compare two saved scenarios side by side, both re-run on TODAY'S balances
+  const [pickMode, setPickMode] = useState(false);
+  const [picked, setPicked] = useState<string[]>([]);
+  const scenarioInputs = (sc: any) => scInputs({
+    retire_age: scRetired ? age : Math.max(age + 1, sc.assumptions?.retireAge ?? rAge),
+    annual_contribution: (scRetired ? 0 : (sc.assumptions?.contribMonthly ?? saveMo)) * 12,
+    retire_monthly_spend_today: sc.assumptions?.spendMonthly ?? spendMo,
+    mean_return: sc.assumptions?.expectedReturn ?? retPct / 100,
+    vol_return: volOf(sc.assumptions?.expectedReturn ?? retPct / 100),
+    inflation: sc.assumptions?.inflation ?? inflPct / 100,
+    guaranteed_start_age: sc.assumptions?.ssClaimAge ?? claimAge,
+    paths: 300,
+  });
+  const togglePick = (id: string) => {
+    setPicked((xs) => xs.includes(id) ? xs.filter((x) => x !== id) : xs.length < 2 ? [...xs, id] : [xs[1], id]);
+  };
+  const comparePair = picked.length === 2
+    ? (store.retirementScenarios ?? []).filter((sc: any) => picked.includes(sc.id))
+    : null;
+
   const scProj = projectNestEgg(scInputs());
   // two-up hero: today's nest egg → projected balance at the horizon (reacts to every slider).
   // Retiree: roll the drawdown forward 10 yrs (grow at return, subtract inflation-rising net spend).
@@ -327,15 +348,60 @@ export default function RetirementCockpit() {
 
         {(store.retirementScenarios?.length ?? 0) > 0 && (
           <View style={styles.chips}>
-            <Text style={styles.chipHint}>Saved scenarios — tap to load, long-press to delete</Text>
+            <Text style={styles.chipHint}>{pickMode ? 'Pick two to compare' : 'Saved scenarios — tap to load, long-press to delete'}</Text>
             {store.retirementScenarios.map((sc: any) => (
-              <TouchableOpacity key={sc.id} style={styles.chip} onLongPress={() => store.deleteRetirementScenario(sc.id)}
-                onPress={() => loadScenario(sc.assumptions || {})}>
-                <Text style={styles.chipT}>{sc.name} · {sc.chance}%</Text>
+              <TouchableOpacity key={sc.id} style={[styles.chip, pickMode && picked.includes(sc.id) && styles.chipPicked]}
+                onLongPress={() => store.deleteRetirementScenario(sc.id)}
+                accessibilityRole="button"
+                accessibilityLabel={pickMode ? `${sc.name}: ${picked.includes(sc.id) ? 'picked' : 'not picked'} for comparison` : `Load scenario ${sc.name}`}
+                onPress={() => (pickMode ? togglePick(sc.id) : loadScenario(sc.assumptions || {}))}>
+                <Text style={styles.chipT}>{pickMode && picked.includes(sc.id) ? '✓ ' : ''}{sc.name} · {sc.chance}%</Text>
               </TouchableOpacity>
             ))}
+            {(store.retirementScenarios?.length ?? 0) >= 2 && (
+              <TouchableOpacity accessibilityRole="button" onPress={() => { setPickMode(!pickMode); setPicked([]); }}
+                accessibilityLabel={pickMode ? 'Cancel comparing' : 'Compare two scenarios side by side'}>
+                <Text style={styles.compareLink}>{pickMode ? 'Cancel' : 'Compare two ›'}</Text>
+              </TouchableOpacity>
+            )}
           </View>
         )}
+
+        {/* PRD F11#13 — the side-by-side: dials AND outcomes, both re-run on today's balances */}
+        <Modal visible={!!comparePair} transparent animationType="slide" onRequestClose={() => setPicked([])}>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close the comparison" style={styles.cmpScrim} activeOpacity={1} onPress={() => setPicked([])} />
+          {comparePair && (() => {
+            const [A, B] = comparePair;
+            const rA = simulate(scenarioInputs(A)); const rB = simulate(scenarioInputs(B));
+            const rows: [string, string, string][] = [
+              ['Retire at', String(A.assumptions?.retireAge ?? '—'), String(B.assumptions?.retireAge ?? '—')],
+              ['Saving / month', maskedMoney(A.assumptions?.contribMonthly ?? 0), maskedMoney(B.assumptions?.contribMonthly ?? 0)],
+              ['Spending / month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
+              ['Expected return', `${Math.round((A.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`, `${Math.round((B.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`],
+              ['Odds it lasts', `${rA.chance_of_success}%`, `${rB.chance_of_success}%`],
+              ['At retirement (median)', maskedMoney(Math.round(rA.projected_at_retirement)), maskedMoney(Math.round(rB.projected_at_retirement))],
+            ];
+            return (
+              <View style={styles.cmpSheet}>
+                <Text style={styles.cmpTitle}>Side by side — re-run on today's balances</Text>
+                <View style={styles.cmpHead}>
+                  <Text style={[styles.cmpCell, styles.cmpLabel]} />
+                  <Text style={[styles.cmpCell, styles.cmpColHead]} numberOfLines={1}>{A.name}</Text>
+                  <Text style={[styles.cmpCell, styles.cmpColHead]} numberOfLines={1}>{B.name}</Text>
+                </View>
+                {rows.map(([label, va, vb]) => (
+                  <View key={label} style={styles.cmpRow} accessible
+                    accessibilityLabel={`${label}: ${va} versus ${vb}${va !== vb ? ' — different' : ''}`}>
+                    <Text style={[styles.cmpCell, styles.cmpLabel]}>{label}</Text>
+                    <Text style={[styles.cmpCell, va !== vb && styles.cmpDiff]}>{va}</Text>
+                    <Text style={[styles.cmpCell, va !== vb && styles.cmpDiff]}>{vb}</Text>
+                  </View>
+                ))}
+                <Text style={styles.cmpNote}>Estimates — same engine, same balances, only the dials differ. You decide.</Text>
+              </View>
+            );
+          })()}
+        </Modal>
 
         <View style={{ height: 40 }} />
         <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={scRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
@@ -1156,6 +1222,18 @@ const styles = StyleSheet.create({
   saveT: { color: '#fff', fontSize: 15, fontWeight: '800' },
   foot: { fontSize: 11.5, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 },
 
+  chipPicked: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  compareLink: { fontSize: 13.5, fontWeight: '800', color: Colors.primaryDark, paddingVertical: 6 },
+  cmpScrim: { flex: 1, backgroundColor: 'rgba(0,0,0,0.35)' },
+  cmpSheet: { backgroundColor: Colors.cardBg, borderTopLeftRadius: Radii.xl, borderTopRightRadius: Radii.xl, padding: Spacing.lg, paddingBottom: Spacing.xl },
+  cmpTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: Spacing.md },
+  cmpHead: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: Colors.border, paddingBottom: 6 },
+  cmpRow: { flexDirection: 'row', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 40, alignItems: 'center' },
+  cmpCell: { flex: 1, fontSize: 14, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  cmpLabel: { color: Colors.textSecondary, fontWeight: '700', fontSize: 13 },
+  cmpColHead: { fontWeight: '800', fontSize: 13.5 },
+  cmpDiff: { fontWeight: '800' },
+  cmpNote: { fontSize: 12, color: Colors.textTertiary, marginTop: 10, lineHeight: 17 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, alignItems: 'center' },
   chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
   chipT: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
