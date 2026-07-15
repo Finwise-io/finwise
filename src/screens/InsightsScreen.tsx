@@ -2,7 +2,7 @@
 // (which accounts + the math) so a number is never a mystery. useInsights() computes the inputs AND the
 // per-insight detail breakdowns from the store + domain.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -79,6 +79,11 @@ export function useInsights(limit?: number): Insight[] {
     const freed = Math.max(0, monthlySavings(op, liabilities));
     const goalsGap = activeGoals.length > 0 && needed > 0 ? Math.round(needed - freed) : null;
 
+    // PRD F10#16: a dismissed/snoozed nudge stays hidden until its date, across restarts.
+    // worth-a-look is exempt — it has its own explicit resolution flow (never swipe-dismissed).
+    const hiddenUntil = (store.dismissedInsights ?? {}) as Record<string, string>;
+    const nowIso = new Date().toISOString();
+    const notDismissed = (i: { id: string }) => i.id === 'worth-a-look' || !hiddenUntil[i.id] || hiddenUntil[i.id] <= nowIso;
     const built = buildInsights({
       worthALook,
       rmdDue,
@@ -96,7 +101,7 @@ export function useInsights(limit?: number): Insight[] {
       planNext: plan.checks.find((c: any) => !c.done)?.label ?? null,
       beatBy: actual != null ? actual - bench : null,
       investRate: gross > 0 ? (monthlyContributionsFromOnboarding(op) * 12) / gross : null,
-    }, limit);
+    });   // unlimited — the dismissal filter slices to `limit` after
 
     // provenance: which accounts + the math behind each number (so the user can trace it).
     const detailsById: Record<string, () => Detail[]> = {
@@ -120,12 +125,13 @@ export function useInsights(limit?: number): Insight[] {
       'goals-gap': () => activeGoals.map((g) => ({ label: g.label, value: `${money(requiredMonthly(g) ?? 0)}/mo needed` }))
         .concat([{ label: 'Planned surplus', value: `${money(freed)}/mo` }]),
     };
-    return built.map((i) => ({ ...i, details: detailsById[i.id]?.() }));
+    return built.filter(notDismissed).slice(0, limit ?? built.length).map((i) => ({ ...i, details: detailsById[i.id]?.() }));
   }, [store.onboardingProfile, store.assetAccounts, store.liabilities, store.lastRetireChance, store.txnFlags, store.goals, store.retirementAssumptions, plan.pct, limit]);
 }
 
 export default function InsightsScreen() {
   const router = useRouter();
+  const store = useStore() as any;
   const insights = useInsights();
   const [open, setOpen] = useState<Insight | null>(null);
   const order: InsightTheme[] = ['protect', 'grow', 'optimize'];
@@ -146,6 +152,22 @@ export default function InsightsScreen() {
                 <Text style={styles.title}>{maskDollars(i.title)}</Text>
                 <Text style={styles.body}>{maskDollars(i.body)}</Text>
               </View>
+              {/* PRD F10#16: dismiss/snooze BY BUTTON (never gesture-only); worth-a-look keeps
+                  its own explicit resolution flow instead */}
+              {i.id !== 'worth-a-look' && (
+                <TouchableOpacity accessibilityRole="button" style={styles.hideBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                  accessibilityLabel={`Hide the ${maskDollars(i.title)} card for a while`}
+                  onPress={() => {
+                    const until = (days: number) => new Date(Date.now() + days * 86400000).toISOString();
+                    Alert.alert('Hide this card?', 'It comes back on its own — or sooner if the numbers change a lot.', [
+                      { text: 'Hide for a week', onPress: () => store.dismissInsight?.(i.id, until(7)) },
+                      { text: 'Hide for a month', onPress: () => store.dismissInsight?.(i.id, until(30)) },
+                      { text: 'Keep showing', style: 'cancel' },
+                    ]);
+                  }}>
+                  <Text style={styles.hideTxt}>✕</Text>
+                </TouchableOpacity>
+              )}
               <Text style={styles.arrow}>›</Text>
             </TouchableOpacity>
           ))}
@@ -195,6 +217,8 @@ const styles = StyleSheet.create({
   icon: { fontSize: 22 },
   title: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   body: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
+  hideBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  hideTxt: { fontSize: 14, color: Colors.textTertiary, fontWeight: '700' },
   arrow: { fontSize: 22, color: Colors.textTertiary },
   empty: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'flex-end' },

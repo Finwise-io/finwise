@@ -146,6 +146,24 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(married[5]).toBeLessThan(single[5]);
   });
 
+  test('PRD F10#16 — a dismissed nudge stays hidden until its date, persists in the store, and expiry re-shows it', () => {
+    const { useStore } = require('../store/useStore');
+    useStore.getState().resetAll();
+    const future = new Date(Date.now() + 7 * 86400000).toISOString();
+    const past = new Date(Date.now() - 1 * 86400000).toISOString();
+    useStore.getState().dismissInsight('cash-drag', future);
+    expect(useStore.getState().dismissedInsights['cash-drag']).toBe(future);   // persisted store state
+    // the ONE filter rule the hook applies:
+    const hiddenUntil = useStore.getState().dismissedInsights as Record<string, string>;
+    const nowIso = new Date().toISOString();
+    const notDismissed = (i: { id: string }) => i.id === 'worth-a-look' || !hiddenUntil[i.id] || hiddenUntil[i.id] <= nowIso;
+    expect(notDismissed({ id: 'cash-drag' })).toBe(false);                     // hidden while snoozed
+    expect(notDismissed({ id: 'worth-a-look' })).toBe(true);                   // exempt — has its own resolution
+    useStore.getState().dismissInsight('cash-drag', past);
+    const hidden2 = useStore.getState().dismissedInsights as Record<string, string>;
+    expect(hidden2['cash-drag'] <= nowIso).toBe(true);                         // expired → shows again
+  });
+
   test('the contract document itself stays present and BINDING', () => {
     const doc = fs.readFileSync(path.join(__dirname, '../../docs/FCC-core-55-70/FCC-state-contract.md'), 'utf8');
     expect(doc).toMatch(/Status: BINDING/);

@@ -274,6 +274,8 @@ type AppState = {
   setTransitionCheck: (key: string, done: boolean) => void;
   drawOrder: string[] | null;                  // steer sheet's saved preference; null = the math's order
   setDrawOrder: (o: string[] | null) => void;
+  dismissedInsights: Record<string, string>;   // insight id → hidden-until ISO date (snooze/dismiss, persisted)
+  dismissInsight: (id: string, untilIso: string) => void;
   pendingRecoveryCode: string | null;   // transient: a just-issued recovery code to show at the root (survives navigation)
   securingAccount: boolean;             // transient: true while the slow PBKDF2 key-wrapping runs after signup (gates the recovery modal's checkbox so the 10s freeze reads as "Securing…", not a dead button)
   fontScale: number;   // 1 = default, 1.15 large, 1.3 larger (accessibility)
@@ -482,6 +484,7 @@ export const useStore = create<AppState>()(
       milestoneHighSeen: null,
       transitionChecks: {},
       drawOrder: null,
+      dismissedInsights: {},
       pendingRecoveryCode: null,
       securingAccount: false,
       fontScale: 1,
@@ -739,6 +742,7 @@ export const useStore = create<AppState>()(
       setMilestoneHighSeen: (t) => set({ milestoneHighSeen: t }),
       setTransitionCheck: (key, done) => set((st) => ({ transitionChecks: { ...st.transitionChecks, [key]: done } })),
       setDrawOrder: (o) => set({ drawOrder: o }),
+      dismissInsight: (id, untilIso) => set((st) => ({ dismissedInsights: { ...st.dismissedInsights, [id]: untilIso } })),
       setPendingRecoveryCode: (c) => set({ pendingRecoveryCode: c }),
       setSecuringAccount: (b) => set({ securingAccount: b }),
       setFontScale: (s) => set({ fontScale: s }),
@@ -913,7 +917,7 @@ export const useStore = create<AppState>()(
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
         lensOverride: null,
-        milestoneHighSeen: null, transitionChecks: {}, drawOrder: null,
+        milestoneHighSeen: null, transitionChecks: {}, drawOrder: null, dismissedInsights: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,
         lastCheckIn: null, onboardingComplete: false, onboardingPaused: false, retirementPlan: null,
         employmentStatus: null, onboardingDraft: null, onboardingProfile: null, selectedGoals: [], budgetCategories: [], customCategories: [],
