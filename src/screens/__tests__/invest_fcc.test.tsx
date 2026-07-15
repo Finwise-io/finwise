@@ -103,3 +103,21 @@ test('a bonds-only user still gets the grouped list, never the add-a-ticker empt
   expect(screen.queryByText(/Add a holding with its ticker/)).toBeNull();
   expect(screen.getByText(/Bonds\s+\$50,000/)).toBeOnTheScreen();
 });
+
+test('PRD F3#16: the money-weighted line shows ONLY when the ledger stands behind it', () => {
+  // fixture accounts have no ledger history → honest absence
+  render(<PerformanceScreen />);
+  expect(screen.queryByText(/money-weighted/)).toBeNull();
+});
+
+test('PRD F3#16: with a complete ledger the personal return renders, spoken as an estimate', () => {
+  const yearAgo = new Date(Date.now() - 365 * 86400000).toISOString().slice(0, 10);
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'brk2', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 11000 }],
+    transactions: [{ id: 'op1', type: 'DEPOSIT', account_id: 'brk2', amount: 10000, date: yearAgo }],
+    priceCache: {},
+  } as any);
+  render(<PerformanceScreen />);
+  expect(screen.getByText(/money-weighted return: \+10%\/yr/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/counting when you added money.*an estimate/)).toBeOnTheScreen();
+});

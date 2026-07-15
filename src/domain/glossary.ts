@@ -10,7 +10,7 @@ export type GlossaryTerm =
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
   | 'grossIncome' | 'contributionRoom' | 'capitalGains'
-  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate';
+  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
@@ -36,5 +36,6 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   guaranteedIncome: { title: 'Guaranteed income', body: 'Money that arrives no matter what markets do — Social Security, a pension, an annuity. The foundation of a retirement paycheck.' },
   rateSensitivity: { title: 'Rate sensitivity', body: 'How much a bond’s market value moves if interest rates move. Rates up, existing bonds down — but held to maturity, a bond still returns its face value.' },
   provenance: { title: 'Where this number came from', body: 'Every figure shows its source — connected from your bank, imported from a file, or entered by you — and how fresh it is. You can always trace a number.' },
+  moneyWeighted: { title: 'Your money-weighted return', body: 'The yearly rate your OWN dollars actually earned, counting when you put money in and took it out. Different from a fund’s posted return — timing matters. Computed from your recorded activity; an estimate.' },
   estimate: { title: 'Estimate', body: 'A figure computed from your numbers and stated assumptions — not a promise or a prediction. Change the inputs and it changes. You decide what to do with it.' },
 };

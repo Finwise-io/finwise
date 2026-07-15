@@ -21,6 +21,8 @@ import {
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { userCapGainsRates } from '../domain/income';
+import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
+import { InfoDot } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -90,6 +92,15 @@ export default function PerformanceScreen() {
   const bondsTotal = bondAccts.reduce((t, a) => t + (a.balance || 0), 0);
   const altsTotal = altAccts.reduce((t, a) => t + (a.balance || 0), 0);
   const contribMonthly = (store.retirementAssumptions ?? {}).contribMonthly as number | null;
+  // PRD F3#16 — the money-weighted personal return over the investment accounts; shown ONLY
+  // when the ledger can stand behind it (complete history, ≥30 days) — absence over a guess
+  const mwr = useMemo(() => {
+    const investAccts = accounts.filter((a) => !['cash', 'real_estate', 'personal_property'].includes(assetClassOf(a)));
+    if (investAccts.length === 0) return null;
+    // end value = the SAME investments total the header shows (balance-only accounts included)
+    const r = moneyWeightedReturn(store.transactions ?? [], investAccts, new Set(investAccts.map((a) => String(a.asset_id))), investTotalAll);
+    return isMoneyWeighted(r) ? r : null;
+  }, [accounts, store.transactions, investTotalAll]);
   // investment ACCOUNTS without tickers (a balance-only 401(k)/brokerage) still belong on this
   // tab — they're inside investmentsTotal, so hiding them would break the Home=Invest pin
   const untracked = accounts.filter((a) => !isBond(a) && !isAlternative(a)
@@ -154,6 +165,18 @@ export default function PerformanceScreen() {
               </View>
             )}
           </View>}
+
+          {/* PRD F3#16 — YOUR money-weighted return: renders whenever the ledger can stand
+              behind it (works for balance-only accounts too), never guessed */}
+          {mwr && (
+            <View style={styles.card} accessible
+              accessibilityLabel={`Your money-weighted return: ${mwr.ratePerYear >= 0 ? 'plus' : 'minus'} ${Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)} percent a year, counting when you added money. From ${mwr.flows} recorded moves — an estimate.`}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text style={styles.glanceLine}>Your money-weighted return: {mwr.ratePerYear >= 0 ? '+' : '−'}{Math.abs(Math.round(mwr.ratePerYear * 1000) / 10)}%/yr — counts when you added money</Text>
+                <InfoDot term="moneyWeighted" />
+              </View>
+            </View>
+          )}
 
           {/* WINNERS & LAGGARDS — the same rows as the glance, so they visibly add up */}
           {ranked.length > 0 && (
