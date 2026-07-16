@@ -34,22 +34,34 @@ describe('TopBar', () => {
     expect(router.push).toHaveBeenCalledWith('/(tabs)/settings');
   });
 
-  test('the Menu opens the grouped module grid and tiles navigate', () => {
+  test('the Menu mirrors the tab bar: the five-tab strip leads, deeper pages group under their tab', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
-    expect(screen.getByText('All modules')).toBeOnTheScreen();
-    expect(screen.getByText('Everyday money')).toBeOnTheScreen();   // group header
-    expect(screen.getByText('Plan ahead')).toBeOnTheScreen();
+    expect(screen.getByText('Everything in MoneyKeel')).toBeOnTheScreen();
+    expect(screen.getByText(/YOUR FIVE TABS — same order as the bar below/)).toBeOnTheScreen();
+    expect(screen.getByText('MORE IN CASH FLOW')).toBeOnTheScreen();   // group = the tab it lives in
+    expect(screen.getByText('MORE IN PLAN')).toBeOnTheScreen();
+    expect(screen.getByText('TOOLS & CHECK-UPS')).toBeOnTheScreen();
+    // the old intent groups are gone — they didn't map to the button bar
+    expect(screen.queryByText('Plan ahead')).toBeNull();
+    expect(screen.queryByText('Everyday money')).toBeNull();
     fireEvent.press(screen.getByText('Retirement'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/retirement');
   });
 
-  test('the Menu shows the 4 intent groups; App & account is a footer, not a section', () => {
+  test('the five-tab strip follows the LENS order — a retiree sees Cash flow right after Home, like the bar', () => {
+    useStore.setState({ onboardingProfile: { status: 'retired' } } as any);
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
-    expect(screen.getByText('Track your wealth')).toBeOnTheScreen();
-    expect(screen.getByText('Protect & optimize')).toBeOnTheScreen();
-    expect(screen.queryByText('App & account')).toBeNull();   // footer, no header
+    const strip = screen.getAllByLabelText(/^Go to /).map((n) => n.props.accessibilityLabel);
+    expect(strip).toEqual(['Go to Home', 'Go to Cash flow', 'Go to Net worth', 'Go to Plan', 'Go to Invest']);
+  });
+
+  test('the working-lens strip matches the working bar order', () => {
+    render(<TopBar />);
+    fireEvent.press(screen.getByText('Menu'));
+    const strip = screen.getAllByLabelText(/^Go to /).map((n) => n.props.accessibilityLabel);
+    expect(strip).toEqual(['Go to Home', 'Go to Net worth', 'Go to Invest', 'Go to Cash flow', 'Go to Plan']);
   });
 
   test('the five FCC tabs are all reachable from the Menu (Cash flow · Plan · Net worth · Invest)', () => {

@@ -10,9 +10,13 @@ test('T22 (FCC): cash flow is a bottom TAB — the tab file exists and no stale 
   // NOT register a root "cashflow" screen (a registration without a route file breaks expo-router).
   expect(fs.existsSync(path.join(__dirname, '..', '..', 'app', '(tabs)', 'cashflow.tsx'))).toBe(true);
   expect(fs.existsSync(path.join(__dirname, '..', '..', 'app', 'cashflow.tsx'))).toBe(false);
+  // The tab registry moved to ONE shared map (src/constants/tabs.ts) so the Menu can mirror the
+  // bar — the layout registers tabs by importing it, so pin the map AND the layout's use of it.
   const tabs = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '(tabs)', '_layout.tsx'), 'utf8');
-  expect(tabs).toMatch(/cashflow/);
-  expect(tabs).toMatch(/Cash flow/);
+  expect(tabs).toMatch(/TAB_META/);
+  const meta = readSrc('constants/tabs.ts');
+  expect(meta).toMatch(/cashflow/);
+  expect(meta).toMatch(/Cash flow/);
   const layout = fs.readFileSync(path.join(__dirname, '..', '..', 'app', '_layout.tsx'), 'utf8');
   expect(layout).not.toMatch(/name="cashflow"/);
 });

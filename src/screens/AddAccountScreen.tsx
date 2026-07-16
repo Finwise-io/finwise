@@ -105,6 +105,10 @@ export default function AddAccountScreen() {
 
   return (
     <KeyboardAwareScreen style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <TouchableOpacity accessibilityRole="button" onPress={() => router.back()} accessibilityLabel="Back"
+        hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} style={s.backBtn}>
+        <Text style={s.back}>‹ Back</Text>
+      </TouchableOpacity>
       <Text style={s.h1}>{editMode ? `Update ${existing.label}` : 'Add an account'}</Text>
       {editMode && <Text style={s.sub}>Saving updates the balance and stamps today as its value date.</Text>}
 
@@ -196,6 +200,8 @@ export default function AddAccountScreen() {
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
+  backBtn: { alignSelf: 'flex-start', marginBottom: 6 },
+  back: { color: Colors.primary, fontSize: 16, fontWeight: '700' },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },

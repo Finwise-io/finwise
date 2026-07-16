@@ -188,7 +188,11 @@ describe('audit — the tab bar wiring is pinned at the source level', () => {
   });
 
   test('all five FCC tabs are registered and every legacy destination stays routable but hidden', () => {
-    for (const t of ['home', 'analytics', 'invest', 'cashflow', 'plan']) expect(layout).toContain(`${t}:`);
+    // the five tabs now live in the ONE shared map the Menu mirrors (src/constants/tabs.ts);
+    // the layout registers them by importing that map and mapping the lens order over it
+    const meta = fs.readFileSync(path.join(__dirname, '..', 'constants', 'tabs.ts'), 'utf8');
+    for (const t of ['home', 'analytics', 'invest', 'cashflow', 'plan']) expect(meta).toContain(`${t}:`);
+    expect(layout).toMatch(/TAB_META/);
     for (const legacy of ['budget', 'retirement', 'goals', 'tips', 'rewards', 'settings']) {
       expect(layout).toMatch(new RegExp(`name="${legacy}"\\s+options=\\{\\{ href: null \\}\\}`));
     }

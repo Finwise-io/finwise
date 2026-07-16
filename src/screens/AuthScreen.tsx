@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TextInput, StyleSheet, ScrollView,
-  TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Modal,
+  TouchableOpacity, KeyboardAvoidingView, Platform, Alert, Modal, Image,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { loginUser, registerUser, resetPassword, restoreWithRecoveryCode, lookupInvite, setUserHousehold, joinHouseholdMembership, loadUserData } from '../services/firebase';
@@ -263,9 +263,8 @@ export default function AuthScreen() {
 
         {/* Logo */}
         <View style={styles.logoWrap}>
-          <View style={styles.logoCircle}>
-            <Text style={{ fontSize: 36 }}>💰</Text>
-          </View>
+          {/* the approved K-mark — the same brand asset first-run uses, never the old emoji circle */}
+          <Image source={require('../../assets/brand/mark.png')} style={styles.logoMark} accessibilityLabel="MoneyKeel" />
           <Text style={styles.appName}>MoneyKeel</Text>
           <Text style={styles.tagline}>Your finance command center</Text>
         </View>
@@ -426,7 +425,7 @@ const styles = StyleSheet.create({
   restoreInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: Spacing.md, paddingVertical: 12, fontSize: Typography.sizes.md, color: Colors.textPrimary, marginBottom: Spacing.base, fontFamily: 'monospace' },
   restoreFresh: { color: Colors.textTertiary, fontWeight: '600', fontSize: Typography.sizes.sm },
   logoWrap: { alignItems: 'center', marginBottom: Spacing.xl },
-  logoCircle: { width: 72, height: 72, borderRadius: 36, backgroundColor: Colors.primaryDark, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.sm },
+  logoMark: { width: 84, height: 84, marginBottom: Spacing.sm },
   appName: { fontSize: Typography.sizes.xxl, fontWeight: '700', color: Colors.textPrimary },
   tagline: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginTop: 2 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.xl, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.xl },

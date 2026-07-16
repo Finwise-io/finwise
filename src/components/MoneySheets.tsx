@@ -17,6 +17,29 @@ const BUCKET_TITLE: Record<string, string> = { fixed: 'Fixed', nonmonthly: 'Non-
 const iso = (d: Date) => d.toISOString().slice(0, 10);
 const ordinal = (n: number) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 
+// ── shared sheet chrome ────────────────────────────────────────────────────────
+// Every sheet gets an explicit ✕ besides the backdrop tap — the visible way out.
+function SheetClose({ onPress }: { onPress: () => void }) {
+  return (
+    <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" onPress={onPress}
+      style={sh.closeBtn} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+      <Text style={sh.closeTxt}>✕</Text>
+    </TouchableOpacity>
+  );
+}
+
+// One cell of the even choice grid — icon over a 2-line label, all cells the same width so rows
+// never come out ragged. Selection shows a ✓ mark, never color alone (FCC accessibility rule).
+function GridChip({ icon, label, on, onPress }: { icon: string; label: string; on: boolean; onPress: () => void }) {
+  return (
+    <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: on }} accessibilityLabel={label}
+      style={[sh.catCell, on && sh.chipOn]} onPress={onPress}>
+      <Text style={sh.catIcon}>{icon}</Text>
+      <Text style={[sh.catLabel, on && sh.catLabelOn]} numberOfLines={2}>{on ? '✓ ' : ''}{label}</Text>
+    </TouchableOpacity>
+  );
+}
+
 // ── '+ Expense' floating button (M4, decided 2026-07-12): labeled, bottom-right thumb zone,
 //    on HOME and CASH FLOW only. Lists on those screens get bottom padding so it never covers a row.
 export function ExpenseFab({ onPress }: { onPress: () => void }) {
@@ -45,9 +68,14 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
   const [receiptUri, setReceiptUri] = useState<string | null>(null);
   const [scanning, setScanning] = useState(false);
 
-  const chips = [...BUDGET_CATEGORIES.map((c) => ({ label: c.label, icon: c.icon })),
-    ...customCats.map((c) => ({ label: c.label, icon: c.icon || '📦' })),
-    { label: '__other__', icon: '📦' }];
+  // Categories grouped the way the budget thinks, everyday spending first (the ones you log most),
+  // so the list reads in a deliberate order — not the storage order (founder UX review 2026-07-16).
+  const catSections: { title: string; items: { label: string; icon: string }[] }[] = [
+    { title: 'EVERYDAY', items: BUDGET_CATEGORIES.filter((c) => c.bucket === 'flexible').map((c) => ({ label: c.label, icon: c.icon })) },
+    { title: 'ONCE IN A WHILE', items: BUDGET_CATEGORIES.filter((c) => c.bucket === 'nonmonthly').map((c) => ({ label: c.label, icon: c.icon })) },
+    { title: 'BILLS & FIXED', items: BUDGET_CATEGORIES.filter((c) => c.bucket === 'fixed').map((c) => ({ label: c.label, icon: c.icon })) },
+    { title: 'MORE', items: [...customCats.map((c) => ({ label: c.label, icon: c.icon || '📦' })), { label: '__other__', icon: '📦' }] },
+  ];
 
   const isOther = cat === '__other__';
   const finalCat = isOther ? otherName.trim() : cat;
@@ -94,6 +122,7 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
             <View style={sh.handle} />
+            <SheetClose onPress={() => { reset(); onClose(); }} />
             <Text style={sh.title}>Add expense</Text>
 
             <TouchableOpacity accessibilityRole="button" style={sh.scanBtn} onPress={onScan} disabled={scanning}>
@@ -107,16 +136,17 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
             </View>
             <Text style={sh.bucketHint}>{finalCat ? `${finalCat} → ${bucket} budget` : 'Pick a category'}</Text>
 
-            <View style={sh.chips}>
-              {chips.map((c) => {
-                const on = cat === c.label;
-                return (
-                  <TouchableOpacity accessibilityRole="button" key={c.label} style={[sh.chip, on && sh.chipOn]} onPress={() => setCat(c.label)}>
-                    <Text style={sh.chipTxt}>{c.icon} {c.label === '__other__' ? 'Other' : c.label}</Text>
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            {catSections.map((sec) => (
+              <View key={sec.title}>
+                <Text style={sh.catHdr}>{sec.title}</Text>
+                <View style={sh.catGrid}>
+                  {sec.items.map((c) => (
+                    <GridChip key={c.label} icon={c.icon} label={c.label === '__other__' ? 'Other' : c.label}
+                      on={cat === c.label} onPress={() => setCat(c.label)} />
+                  ))}
+                </View>
+              </View>
+            ))}
 
             {isOther && (
               <TextInput style={sh.input} placeholder="Specify category (e.g. Pet care)" placeholderTextColor={Colors.textTertiary}
@@ -174,6 +204,7 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
       <TouchableOpacity accessibilityRole="button" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={sh.card} onStartShouldSetResponder={() => true}>
           <View style={sh.handle} />
+          <SheetClose onPress={onClose} />
           <Text style={sh.title}>Pay {d?.label}</Text>
           <Text style={sh.bucketHint}>{money(d?.remaining_balance ?? 0)} balance · {d?.due_day ? `due ${ordinal(d.due_day)}` : 'no due date'}</Text>
           <View style={sh.amtRow}>
@@ -233,6 +264,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
             <View style={sh.handle} />
+            <SheetClose onPress={onClose} />
             <Text style={sh.title}>Put your {state.label} surplus to work</Text>
             <Text style={[sh.allocHead, over && { color: Colors.red }]}>{money(Math.max(0, available - total))} of {money(available)} left to assign</Text>
 
@@ -287,7 +319,10 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
 
 // ── income bottom sheet — add a one-off inflow OR edit base pay ────────────────
 const FREQS = [{ v: 'hourly', l: 'Hourly' }, { v: 'weekly', l: 'Weekly' }, { v: 'biweekly', l: 'Bi-weekly' }, { v: 'monthly', l: 'Monthly' }];
-const INCOME_SOURCES = ['Gift', 'Bonus', 'Stock sale', 'Refund', 'Side gig', 'Other'];
+const INCOME_SOURCES = [
+  { label: 'Gift', icon: '🎁' }, { label: 'Bonus', icon: '💰' }, { label: 'Stock sale', icon: '📈' },
+  { label: 'Refund', icon: '🧾' }, { label: 'Side gig', icon: '🛠️' }, { label: 'Other', icon: '📦' },
+];
 export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, monthLabel }: {
   visible: boolean; onClose: () => void; op: any; isCurrentMonth: boolean; baseDate: Date; monthLabel: string;
 }) {
@@ -337,6 +372,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
           <View style={sh.card}>
             <View style={sh.handle} />
+            <SheetClose onPress={onClose} />
             <View style={sh.tabRow}>
               <TouchableOpacity accessibilityRole="button" style={[sh.tab, tab === 'add' && sh.tabOn]} onPress={() => setTab('add')}><Text style={[sh.tabTxt, tab === 'add' && sh.tabTxtOn]}>Add income</Text></TouchableOpacity>
               <TouchableOpacity accessibilityRole="button" style={[sh.tab, tab === 'base' && sh.tabOn]} onPress={() => setTab('base')}><Text style={[sh.tabTxt, tab === 'base' && sh.tabTxtOn]}>Edit base pay</Text></TouchableOpacity>
@@ -352,11 +388,9 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                   <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
                   <TextInput style={sh.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={amount} onChangeText={setAmount} autoFocus />
                 </View>
-                <View style={sh.chips}>
-                  {INCOME_SOURCES.map((sname) => (
-                    <TouchableOpacity accessibilityRole="button" key={sname} style={[sh.chip, src === sname && sh.chipOn]} onPress={() => setSrc(sname)}>
-                      <Text style={sh.chipTxt}>{sname}</Text>
-                    </TouchableOpacity>
+                <View style={sh.catGrid}>
+                  {INCOME_SOURCES.map((c) => (
+                    <GridChip key={c.label} icon={c.icon} label={c.label} on={src === c.label} onPress={() => setSrc(c.label)} />
                   ))}
                 </View>
                 {src === 'Other' && (
@@ -426,8 +460,15 @@ const sh = StyleSheet.create({
   amtInput: { fontSize: 44, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
   bucketHint: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm },
   manageLink: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 10 },
-  chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, justifyContent: 'center' },
-  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // the even choice grid — 3 equal cells per row, packed from the left (no ragged centered rows)
+  catHdr: { fontSize: 10.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.7, marginTop: Spacing.md, marginBottom: 6 },
+  catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
+  catCell: { width: '31.5%', minHeight: 64, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 4 },
+  catIcon: { fontSize: 20 },
+  catLabel: { fontSize: 11.5, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', lineHeight: 14, marginTop: 3 },
+  catLabelOn: { fontWeight: '800', color: Colors.primaryDark },
+  closeBtn: { position: 'absolute', top: 14, right: 14, width: 30, height: 30, borderRadius: 15, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
+  closeTxt: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.md },
@@ -435,9 +476,9 @@ const sh = StyleSheet.create({
   dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   toggleRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md, justifyContent: 'center' },
   seg: { flex: 1, paddingVertical: 9, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center' },
-  freqRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: Spacing.md, justifyContent: 'center' },
-  freqChip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
-  freqTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  freqRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },
+  freqChip: { flex: 1, paddingVertical: 9, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center' },
+  freqTxt: { fontSize: 12.5, fontWeight: '600', color: Colors.textPrimary },
   dateNote: { fontSize: 13, color: Colors.textSecondary, marginTop: Spacing.md, textAlign: 'center' },
   save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.md },
   saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },

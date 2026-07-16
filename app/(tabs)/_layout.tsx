@@ -4,7 +4,8 @@ import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../src/utils/theme';
 import TopBar from '../../src/components/TopBar';
 import { useStore } from '../../src/store/useStore';
-import { resolveLens, tabOrder, type FccTab } from '../../src/domain/profile/lens';
+import { resolveLens, tabOrder } from '../../src/domain/profile/lens';
+import { TAB_META } from '../../src/constants/tabs';
 
 // Active tab = label + underline, never color alone (FCC accessibility rule); filled icon when active.
 function TabIcon({ name, focused }: { name: string; focused: boolean }) {
@@ -15,15 +16,6 @@ function TabIcon({ name, focused }: { name: string; focused: boolean }) {
     </View>
   );
 }
-
-// The five FCC destinations. Route names are invisible to users — `analytics` IS the Net worth tab.
-const TAB_META: Record<FccTab, { title: string; icon: string }> = {
-  home:      { title: 'Home',      icon: 'home' },
-  analytics: { title: 'Net worth', icon: 'diamond' },
-  invest:    { title: 'Invest',    icon: 'stats-chart' },
-  cashflow:  { title: 'Cash flow', icon: 'cash' },
-  plan:      { title: 'Plan',      icon: 'compass' },
-};
 
 export default function TabLayout() {
   const store = useStore() as any;

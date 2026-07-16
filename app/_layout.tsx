@@ -193,6 +193,14 @@ export default function RootLayout() {
           <Stack.Screen name="what-if" options={{ title: 'What if I add more?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="will-it-last" options={{ title: 'Will my money last?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="import-holdings" options={{ title: 'Import holdings 📄', headerShown: true, presentation: 'modal', ...backBtn(() => router.back()) }} />
+          {/* Founder UX review 2026-07-16: every pushed page needs a visible way back. These screens
+              carry their own in-content headline, so the header is just the ← Back on the same
+              background — never a duplicated or raw route-name title. */}
+          {['bill-calendar', 'bonds', 'credit', 'estate', 'education', 'income-manager', 'insights',
+            'insurance', 'monthly-income', 'other-investments', 'paycheck-months', 'performance',
+            'required-withdrawals', 'retirement', 'roth', 'stress-test', 'tax-organizer'].map((name) => (
+            <Stack.Screen key={name} name={name} options={{ title: '', headerShown: true, ...backBtn(() => router.back()) }} />
+          ))}
         </Stack>
         </AppLockGate>
         </ErrorBoundary>
