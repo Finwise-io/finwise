@@ -82,7 +82,16 @@ export default function PerformanceScreen() {
   const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
   const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
   const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
-  const shownRanked = listMode === 'top' ? [...winners, ...laggards] : ranked;
+  const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '3Y': 'past 3 years' };
+  const freshLine = (() => {
+    const f = priceFreshness(store.pricesFetchedAt, Date.now());
+    return store.pricesFetchedAt ? `${f.stale ? 'Prices may be out of date — ' : 'Prices updated '}${f.label}` : null;
+  })();
+  const leader = ranked[0];
+  const laggard = ranked.length > 1 ? ranked[ranked.length - 1] : null;
+  const shownRanked = listMode === 'top'
+    ? [leader, ...(laggard && laggard !== leader && laggard.gain < 0 ? [laggard] : [])].filter(Boolean) as typeof ranked
+    : ranked;
   // concentration: one HOLDING at 25%+ of invested money — the SAME shared rule the insights
   // engine uses (one concept, one helper), a quantified fact, never advice
   const concentration = topHoldingConcentration(rows);
@@ -147,16 +156,22 @@ export default function PerformanceScreen() {
             ))}
           </View>
 
-          {/* TOTAL RETURN — the glance: $ and %, the market, the gap in points, the two lines */}
+          {/* PORTFOLIO VALUE hero (founder mock 2026-07-15): the level first, the period gain
+              second, then the NAMED honest comparison + the freshness clock — one card, one story */}
           {rows.length > 0 && <View style={styles.card} accessible
-            accessibilityLabel={`Total return, ${period}: ${portReturn == null ? 'not enough price history yet' : `${periodDollar >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}`}${benchPort != null ? `. Stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
-            <Text style={styles.glanceKicker}>TOTAL RETURN ({period})</Text>
+            accessibilityLabel={`Portfolio value ${maskedMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${PERIOD_PHRASE[period]}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
+            <Text style={styles.glanceKicker}>PORTFOLIO VALUE</Text>
+            <Text style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotalAll)}</Text>
             <Text style={styles.glanceBig}>
-              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ Up ' : '▼ Down '}{periodDollar >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
-              <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
+              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ +' : '▼ −'}{maskedMoney(Math.abs(Math.round(periodDollar)))} ({pct(portReturn)})</Text>
+              <Text style={styles.glancePct}>  {PERIOD_PHRASE[period]}</Text>
             </Text>
-            {benchPort != null && <Text style={styles.glanceLine}>Stock market:  {pct(benchPort)}</Text>}
-            {portBeat != null && <Text style={styles.glanceLine}>You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
+            <View style={styles.honestBlock}>
+              <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
+              {benchPort != null && <Text style={styles.glanceLine}>vs the stock market:  {pct(benchPort)}</Text>}
+              {portBeat != null && <Text style={[styles.glanceLine, { fontWeight: '800' }]}>★ You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
+              {freshLine && <Text style={styles.freshInHero}>🕐 {freshLine}</Text>}
+            </View>
             {trend.length > 1 && <TrendChartAuto data={trend} />}
             {trend.length > 1 && (
               <View style={styles.legendRow}>
@@ -182,26 +197,43 @@ export default function PerformanceScreen() {
           {ranked.length > 0 && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Winners & laggards ({period})</Text>
-              {shownRanked.map(({ r, gain }) => {
+              {(listMode === 'account'
+                ? [...owned].sort((a, b) => a.accountId.localeCompare(b.accountId))
+                    .map((o) => ranked.find((x) => x.r.position.position_id === o.p.position_id))
+                    .filter(Boolean) as typeof ranked
+                : shownRanked
+              ).map(({ r, gain }, idx, arr) => {
                 const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
+                const acct = accounts.find((a) => a.asset_id === o.accountId);
+                const prevAcct = idx > 0 ? owned.find((x) => x.p.position_id === arr[idx - 1].r.position.position_id)?.accountId : null;
+                const roleTag = listMode === 'top' ? (gain >= 0 ? '🏆 Leader:' : '⚠ Laggard:') : null;
                 return (
-                  <TouchableOpacity accessibilityRole="button" key={r.position.position_id} style={styles.wlRow}
-                    onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
-                    accessibilityLabel={`${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
-                    <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>
-                    <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
-                    <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
-                    <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
-                  </TouchableOpacity>
+                  <View key={r.position.position_id}>
+                    {listMode === 'account' && o.accountId !== prevAcct && (
+                      <Text style={styles.wlAcctHdr}>{acct?.institution?.trim() || acct?.label || 'Account'}</Text>
+                    )}
+                    <TouchableOpacity accessibilityRole="button" style={styles.wlRow}
+                      onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
+                      accessibilityLabel={`${roleTag ? roleTag.replace(':', '').replace(/[🏆⚠] /u, '') + ' ' : ''}${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
+                      {roleTag
+                        ? <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{roleTag}</Text>
+                        : <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>}
+                      <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
+                      <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
+                      <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
+                    </TouchableOpacity>
+                  </View>
                 );
               })}
               <View style={styles.actionRow}>
-                {ranked.length > shownRanked.length || listMode !== 'top'
-                  ? <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'top' ? 'all' : 'top')}
-                      accessibilityLabel={listMode === 'top' ? `See all ${ranked.length}` : 'Show fewer'}>
-                      <Text style={styles.addLink2}>{listMode === 'top' ? `See all ${ranked.length} ›` : 'Show top ‹'}</Text>
-                    </TouchableOpacity>
-                  : <View />}
+                <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'all' ? 'top' : 'all')}
+                  accessibilityLabel={listMode === 'all' ? 'Show the leader and laggard only' : `See all ${ranked.length}`}>
+                  <Text style={styles.addLink2}>{listMode === 'all' ? 'Show top ‹' : `See all ${ranked.length} ›`}</Text>
+                </TouchableOpacity>
+                <TouchableOpacity accessibilityRole="button" onPress={() => setListMode(listMode === 'account' ? 'top' : 'account')}
+                  accessibilityLabel={listMode === 'account' ? 'Back to leader and laggard' : 'View by account'}>
+                  <Text style={styles.addLink2}>{listMode === 'account' ? 'By gain ‹' : 'By account ›'}</Text>
+                </TouchableOpacity>
               </View>
             </View>
           )}
@@ -248,8 +280,13 @@ export default function PerformanceScreen() {
                     return (
                       <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                         onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
-                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}. Opens its page.`}>
+                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
                         <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
+                        {it.price != null && (
+                          <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
+                            <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
+                          </View>
+                        )}
                         <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
                         {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
                         <Text style={styles.invChev}>›</Text>
@@ -261,9 +298,13 @@ export default function PerformanceScreen() {
                     <TouchableOpacity accessibilityRole="button" key={it.asset_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                       onPress={() => router.push(`/account-detail?id=${it.asset_id}` as any)}
                       accessibilityLabel={`${it.label}, ${maskedMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
-                      <View style={{ flex: 1 }}>
+                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         <Text style={styles.invName} numberOfLines={1}>{it.label}</Text>
-                        {fresh && <Text style={[styles.invStamp, fresh.stale && { color: Colors.amber }]}>{fresh.stale ? `⏱ value ${fresh.monthsOld} months old` : `value as of ${fresh.asOf}`}</Text>}
+                        {fresh && (
+                          <View style={[styles.freshChip, fresh.stale && styles.freshChipStale]}>
+                            <Text style={[styles.freshChipTxt, fresh.stale && { color: Colors.amber }]}>{fresh.stale ? `⏱ ${fresh.monthsOld} mo old` : `Value as of ${fresh.asOf.slice(0, 7)}`}</Text>
+                          </View>
+                        )}
                       </View>
                       <Text style={styles.invVal}>{maskedMoney(Math.round(it.balance || 0))}</Text>
                       <Text style={styles.invChev}>›</Text>
@@ -292,7 +333,7 @@ export default function PerformanceScreen() {
             </View>
           </View>
 
-          <Text style={styles.foot}>End-of-day prices{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}. Past performance isn't a guarantee.</Text>
+          <Text style={styles.foot}>End-of-day prices{store.pricesFetchedAt ? ` · updated ${new Date(store.pricesFetchedAt).toLocaleDateString()}` : ''}. Comparisons are for information only — no trades suggested. The concentration note is a fact for awareness, not advice.</Text>
         </>
       )}
 
@@ -693,10 +734,15 @@ const styles = StyleSheet.create({
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
   investTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
+  heroValue: { fontSize: 34, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  honestBlock: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary, marginTop: 10, paddingTop: 8 },
+  honestKicker: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 4 },
+  freshInHero: { fontSize: 12, color: Colors.textTertiary, marginTop: 4 },
   glanceKicker: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   glanceBig: { fontSize: 24, fontWeight: '800' },
   glancePct: { fontSize: 17, fontWeight: '700', color: Colors.textSecondary },
   glanceLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
+  wlAcctHdr: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: 8, marginBottom: 2 },
   wlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 42 },
   wlArrow: { width: 68, fontSize: 12.5, fontWeight: '800' },
   wlTicker: { flex: 1, fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary },
@@ -710,6 +756,12 @@ const styles = StyleSheet.create({
   planChip: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginTop: Spacing.sm, overflow: 'hidden' },
   groupHdrTop: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 2 },
   groupHdr: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  addInvestBtn: { backgroundColor: Colors.primaryDeep, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  addInvestTxt: { color: Colors.white, fontSize: 16, fontWeight: '800' },
+  investFoot: { fontSize: 11, color: Colors.textTertiary, textAlign: 'center', lineHeight: 15, marginTop: Spacing.md },
+  freshChip: { borderWidth: 1, borderColor: Colors.border, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
+  freshChipStale: { borderColor: Colors.amberMid, backgroundColor: Colors.amberLight },
+  freshChipTxt: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary },
   invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
   invName: { flex: 1, fontSize: 14.5, fontWeight: '600', color: Colors.textPrimary },

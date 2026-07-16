@@ -46,12 +46,28 @@ beforeEach(() => {
   } as any);
 });
 
-test('the glance: dollar + percent with the up/down WORD, the market line, and the points gap', () => {
+test('the hero (founder mock): value first, the period gain, the NAMED honest comparison + points', () => {
   render(<PerformanceScreen />);
-  expect(screen.getByText(/TOTAL RETURN \(1Y\)/)).toBeOnTheScreen();
-  expect(screen.getByText(/▲ Up \+\$/)).toBeOnTheScreen();          // word + arrow + dollars, never color alone
-  expect(screen.getByText(/Stock market:/)).toBeOnTheScreen();
-  expect(screen.getByText(/You're (ahead|behind) by .* points/)).toBeOnTheScreen();
+  expect(screen.getByText('PORTFOLIO VALUE')).toBeOnTheScreen();
+  expect(screen.getByText(/▲ \+\$[\d,]+ \(\+[\d.]+%\)/)).toBeOnTheScreen();   // gain in $ and %, arrow + sign
+  expect(screen.getByText(/past year/)).toBeOnTheScreen();                       // the period in words
+  expect(screen.getByText('HONEST COMPARISON')).toBeOnTheScreen();
+  expect(screen.getByText(/vs the stock market:/)).toBeOnTheScreen();
+  expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
+});
+
+test('the period chips switch the WHOLE story: 3M relabels the gain phrase', () => {
+  render(<PerformanceScreen />);
+  fireEvent.press(screen.getByText('3M'));
+  expect(screen.getByText(/past 3 months/)).toBeOnTheScreen();
+});
+
+test('winners: top mode is 🏆 Leader + ⚠ Laggard; by-account groups under account names', () => {
+  render(<PerformanceScreen />);
+  expect(screen.getByText(/🏆 Leader:/)).toBeOnTheScreen();
+  expect(screen.getByText(/⚠ Laggard:/)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('View by account'));
+  expect(screen.getByText('Brokerage')).toBeOnTheScreen();                        // the account header
 });
 
 test('winners & laggards from the SAME rows: NVDA up, BND down with the word', () => {
@@ -70,9 +86,9 @@ test('bonds and alternatives fold into the grouped list with value-as-of stamps 
   render(<PerformanceScreen />);
   expect(screen.getByText(/YOUR INVESTMENTS/)).toBeOnTheScreen();
   expect(screen.getByText(/Bonds\s+\$95,000/)).toBeOnTheScreen();
-  expect(screen.getByText(/value as of 2026-03-03/)).toBeOnTheScreen();      // fresh: dated, no flag
+  expect(screen.getByText(/Value as of 2026-03/)).toBeOnTheScreen();          // fresh: a dated CHIP, no flag
   expect(screen.getByText(/Alternatives\s+\$9,000/)).toBeOnTheScreen();
-  expect(screen.getByText(/⏱ value \d+ months old/)).toBeOnTheScreen();      // Nov 2025 gold → the nudge
+  expect(screen.getByText(/⏱ \d+ mo old/)).toBeOnTheScreen();                // Nov 2025 gold → the stale chip
 });
 
 test('tapping a bond row opens its account page (the routed holding detail)', () => {
