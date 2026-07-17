@@ -277,7 +277,7 @@ const styles = StyleSheet.create({
   rowVal: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
   del: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
   empty: { fontSize: 13, color: Colors.textTertiary, paddingVertical: 12, textAlign: 'center' },
-  note: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 8 },
+  note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
 
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,

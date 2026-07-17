@@ -286,7 +286,7 @@ const styles = StyleSheet.create({
   verdictTitle: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark },
   verdictSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
   rowHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  hCell: { fontSize: 10, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
+  hCell: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
   numCell: { width: 78, textAlign: 'right' },
   mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 40 },
   mLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
@@ -302,5 +302,5 @@ const styles = StyleSheet.create({
   addBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10, alignItems: 'center', minHeight: 48, justifyContent: 'center', borderWidth: 1.5, borderColor: Colors.border },
   addBtnTxt: { fontSize: 14.5, fontWeight: '800', color: Colors.primaryDark },
   cancelTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
-  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
 });

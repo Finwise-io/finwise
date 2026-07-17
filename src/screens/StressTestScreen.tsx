@@ -89,7 +89,8 @@ export default function StressTestScreen() {
         )}
       </View>
 
-      <Text style={styles.foot}>“Essentials” are your recurring must-pay bills (Critical + Important), not one-off or nice-to-have spending. A planning estimate.</Text>
+      {/* P0 (design audit ST-1): the definition every number depends on — body size, never fine print */}
+      <Text style={styles.essDef}>“Essentials” are your recurring must-pay bills (Critical + Important), not one-off or nice-to-have spending. A planning estimate.</Text>
       <Disclaimer />
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
@@ -118,5 +119,6 @@ const styles = StyleSheet.create({
   note: { fontSize: 12, color: Colors.textTertiary, marginTop: 6, lineHeight: 16 },
   fundTxt: { fontSize: 13.5, color: Colors.textPrimary, lineHeight: 20 },
   bold: { fontWeight: '800' },
-  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 15, marginTop: 14 },
+  essDef: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 14 },
 });

@@ -659,7 +659,8 @@ const styles = StyleSheet.create({
   modeBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   modeT: { fontSize: 14, fontWeight: '800', color: Colors.textSecondary },
   modeTOn: { color: Colors.primaryDark },
-  modeSub: { fontSize: 10, color: Colors.textTertiary, marginTop: 2 },
+  // P0 (design audit S-1): this line is what TELLS the user what Simple/Advisor means — readable, never 10pt
+  modeSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
   modeNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 10, lineHeight: 15 },
   settingRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: Spacing.sm, borderBottomWidth: 0.5, borderBottomColor: Colors.border },
   settingLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },

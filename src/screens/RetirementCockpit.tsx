@@ -797,7 +797,10 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
   const bw = Math.max(4, (width - gap * (n - 1)) / n);
   const top = Math.max(...data.map((d) => d.bal), 1);
   const h = (v: number) => Math.max(2, (v / top) * (H - padTop - padBot));
-  const vfs = n > 14 ? 6 : 7;                       // value-label font
+  // P0 (design audit RC-1): chart text was 6-7.5pt — unreadable for the 55-70 audience.
+  // Floor at 10-11pt and THIN the labels instead of shrinking them: values only on the
+  // first / last / retire bars; year labels on first / retire / last + every 5th.
+  const vfs = 10;
   return (
     <Svg width={width} height={H}>
       <Line x1={0} y1={H - padBot} x2={width} y2={H - padBot} stroke={Colors.border} strokeWidth={1} />
@@ -805,14 +808,13 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
         const bh = h(d.bal), x = i * (bw + gap), y = H - padBot - bh;
         const anchor = i === n - 1 ? 'end' : i === 0 ? 'start' : 'middle';
         const lx = i === n - 1 ? x + bw : i === 0 ? x : x + bw / 2;
-        const fs = n > 16 ? 6.5 : 7.5;
-        // value atop every bar; for dense charts (>14) thin to alternate + first/last/retire to avoid overlap
-        const showVal = n <= 14 || i % 2 === 0 || i === n - 1 || d.isRetire;
+        const showVal = i === 0 || i === n - 1 || d.isRetire;
+        const showYear = i === 0 || i === n - 1 || d.isRetire || (n > 10 ? i % 5 === 0 : i % 2 === 0);
         return (
           <G key={d.year}>
             <Rect x={x} y={y} width={bw} height={bh} rx={2} fill={d.isRetire ? Colors.amber : Colors.primaryMid} opacity={d.isRetire ? 0.95 : 0.85} />
-            {showVal && <SvgText x={x + bw / 2} y={y - 3} fontSize={vfs} fontWeight="700" fill={d.isRetire ? Colors.amber : Colors.textSecondary} textAnchor="middle">{moneyCompact(d.bal, 'M')}</SvgText>}
-            <SvgText x={lx} y={H - 5} fontSize={fs} fontWeight={d.isRetire ? '700' : '400'} fill={d.isRetire ? Colors.amber : Colors.textTertiary} textAnchor={anchor}>{`'${String(d.year).slice(2)}`}</SvgText>
+            {showVal && <SvgText x={x + bw / 2} y={y - 4} fontSize={vfs} fontWeight="700" fill={d.isRetire ? Colors.amber : Colors.textSecondary} textAnchor={anchor}>{moneyCompact(d.bal, 'M')}</SvgText>}
+            {showYear && <SvgText x={lx} y={H - 4} fontSize={11} fontWeight={d.isRetire ? '700' : '400'} fill={d.isRetire ? Colors.amber : Colors.textTertiary} textAnchor={anchor}>{`'${String(d.year).slice(2)}`}</SvgText>}
           </G>
         );
       })}
@@ -1088,7 +1090,7 @@ const styles = StyleSheet.create({
   donutCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base },
   donutRow: { flexDirection: 'row', alignItems: 'center', gap: 14 },
   donutAmt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
-  donutLab: { fontSize: 9, fontWeight: '700', color: Colors.textTertiary },
+  donutLab: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary },
   lg: { flexDirection: 'row', alignItems: 'center', gap: 7, paddingVertical: 3 },
   dot: { width: 9, height: 9, borderRadius: 3 },
   lgL: { flex: 1, fontSize: 12, color: Colors.textPrimary },
@@ -1098,10 +1100,10 @@ const styles = StyleSheet.create({
 
   heroRow: { flexDirection: 'row', marginTop: 10 },
   heroCardG: { flex: 1, backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: 13, paddingVertical: 14, minHeight: 96, justifyContent: 'center' },
-  heroK: { color: '#BEE7D8', fontSize: 9.5, fontWeight: '800', letterSpacing: 0.3 },
+  heroK: { color: Colors.primaryMid, fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
   heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
   heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
-  heroRoi: { color: '#9FD9C6', fontSize: 10.5, fontWeight: '700', marginTop: 5 },
+  heroRoi: { color: '#9FD9C6', fontSize: 11.5, fontWeight: '700', marginTop: 5 },
   dwRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
   dwL: { fontSize: 13, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
   dwV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
@@ -1117,7 +1119,7 @@ const styles = StyleSheet.create({
   orderWhy: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 2, lineHeight: 15 },
   orderCalc: { fontSize: 11.5, color: Colors.primaryDark, fontWeight: '600', marginTop: 3, lineHeight: 15 },
   cardDivider: { height: 1, backgroundColor: Colors.bgTertiary, marginVertical: 12 },
-  heroExplain: { fontSize: 10.5, color: Colors.textSecondary, lineHeight: 14, marginTop: 8 },
+  heroExplain: { fontSize: 12, color: Colors.textSecondary, lineHeight: 16, marginTop: 8 },
   planStmt: { fontSize: 12, color: Colors.primaryDark, fontWeight: '600', marginTop: 8, lineHeight: 16 },
   divider: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.6, marginTop: 18, marginBottom: 2 },
   basisRow: { flexDirection: 'row', gap: 7, marginTop: 8 },
@@ -1128,16 +1130,16 @@ const styles = StyleSheet.create({
   basisPillTOn: { color: Colors.primaryDark },
   basisWarn: { fontSize: 11, color: Colors.amber, fontWeight: '600', marginTop: 8, lineHeight: 15 },
   tTotal: { borderBottomWidth: 0, borderTopWidth: 1.5, borderTopColor: Colors.border, marginTop: 2 },
-  tFootMuted: { fontSize: 10, color: Colors.textTertiary, lineHeight: 13.5, marginTop: 6 },
-  srcTag: { fontSize: 9.5, color: Colors.textTertiary, fontWeight: '700' },
+  tFootMuted: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 13.5, marginTop: 6 },
+  srcTag: { fontSize: 11, color: Colors.textTertiary, fontWeight: '700' },
   instWarn: { fontSize: 11.5, color: Colors.amber, fontWeight: '700', marginTop: 1 },
-  kindSec: { fontSize: 10, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 12, marginBottom: 4 },
+  kindSec: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 12, marginBottom: 4 },
   kindGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   kindChip: { flexDirection: 'row', alignItems: 'center', gap: 6, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 8 },
   kindIc: { fontSize: 15 },
   kindT: { fontSize: 12.5, fontWeight: '700', color: Colors.textPrimary },
 
-  sandboxTag: { fontSize: 10, fontWeight: '800', color: Colors.amber, letterSpacing: 0.6, backgroundColor: Colors.amberLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radii.pill, overflow: 'hidden' },
+  sandboxTag: { fontSize: 11, fontWeight: '800', color: Colors.amber, letterSpacing: 0.6, backgroundColor: Colors.amberLight, paddingHorizontal: 8, paddingVertical: 4, borderRadius: Radii.pill, overflow: 'hidden' },
   actionHint: { fontSize: 11, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 15 },
   scenarioBtnRow: { flexDirection: 'row', gap: 10, marginTop: 12 },
   scenarioBtn2: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center' },
@@ -1147,7 +1149,7 @@ const styles = StyleSheet.create({
   legSwatch: { width: 12, height: 12, borderRadius: 3 },
   legT: { fontSize: 11, color: Colors.textSecondary },
   tick: { position: 'absolute', top: -3, width: 2, height: 12, marginLeft: -1, backgroundColor: Colors.textTertiary, borderRadius: 1 },
-  markerCap: { fontSize: 9.5, color: Colors.textTertiary, marginTop: 6 },
+  markerCap: { fontSize: 11, color: Colors.textTertiary, marginTop: 6 },
   gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
   gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
@@ -1176,29 +1178,29 @@ const styles = StyleSheet.create({
 
   // instruments table
   tHead: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 8, paddingBottom: 4, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  tHL: { fontSize: 9, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  tHL: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   tColBal: { width: 60, textAlign: 'right' },
   tColRet: { width: 72, textAlign: 'right' },
   tColNum: { width: 64, alignItems: 'flex-end', justifyContent: 'center' },
   tRow: { flexDirection: 'row', alignItems: 'center', gap: 14, paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary },
   instIc: { fontSize: 16 },
   instName: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary },
-  instSrc: { fontSize: 10.5, color: Colors.textSecondary, marginTop: 1, lineHeight: 14 },
+  instSrc: { fontSize: 12, color: Colors.textSecondary, marginTop: 1, lineHeight: 16 },
   instBal: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   instRet: { fontSize: 13.5, fontWeight: '800', color: Colors.primary, textAlign: 'right' },
   instBench: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary, textAlign: 'right' },
   ttmAdd: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'right' },
   instLinks: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
   editLink2: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
-  tFoot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 8 },
-  benchCaveat: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 6, fontStyle: 'italic' },
+  tFoot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 8 },
+  benchCaveat: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14, marginTop: 6, fontStyle: 'italic' },
   clearLink: { fontSize: 12.5, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 12 },
 
   // projection breakdown (now + you add + growth = total)
   breakdown: { flexDirection: 'row', alignItems: 'flex-end', justifyContent: 'space-between', marginTop: 12, paddingTop: 10, borderTopWidth: 1, borderTopColor: Colors.bgTertiary },
   bdItem: { alignItems: 'center', flexShrink: 1 },
   bdV: { fontSize: 12.5, fontWeight: '800', color: Colors.textPrimary },
-  bdL: { fontSize: 9.5, color: Colors.textSecondary, marginTop: 1 },
+  bdL: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
   bdOp: { fontSize: 12, color: Colors.textTertiary, fontWeight: '700', marginBottom: 10 },
 
   // beating-benchmark insight
@@ -1262,14 +1264,14 @@ const styles = StyleSheet.create({
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 12, alignItems: 'center' },
   chip: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 7 },
   chipT: { fontSize: 12, fontWeight: '700', color: Colors.textPrimary },
-  chipHint: { fontSize: 10.5, color: Colors.textTertiary, width: '100%' },
+  chipHint: { fontSize: 12, color: Colors.textTertiary, width: '100%' },
 
   topbar: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   back: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   chip2: { borderRadius: Radii.pill, paddingHorizontal: 10, paddingVertical: 5 },
   chip2T: { color: '#fff', fontSize: 11, fontWeight: '700' },
   axis: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 2 },
-  axisT: { fontSize: 9, color: Colors.textTertiary },
+  axisT: { fontSize: 11, color: Colors.textTertiary },
   fx: { fontSize: 11, color: Colors.textSecondary, marginTop: 8 },
 
   li: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },

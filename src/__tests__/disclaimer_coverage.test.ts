@@ -8,7 +8,8 @@ import * as fs from 'fs';
 import * as path from 'path';
 
 const read = (f: string) => fs.readFileSync(path.join(__dirname, '..', 'screens', f), 'utf8');
-const JUDGMENT = ['RetirementCockpit.tsx', 'AnalyticsScreen.tsx', 'HomeScreen.tsx', 'StressTestScreen.tsx', 'JobSafetyScreen.tsx'];
+// AnalyticsScreen deleted 2026-07-16 (dead code — the analytics tab routes to NetWorthScreen)
+const JUDGMENT = ['RetirementCockpit.tsx', 'HomeScreen.tsx', 'StressTestScreen.tsx', 'JobSafetyScreen.tsx'];
 
 test.each(JUDGMENT)('%s renders the shared <Disclaimer/> (B-L3)', (f) => {
   expect(read(f)).toMatch(/<Disclaimer\s*\/>/);

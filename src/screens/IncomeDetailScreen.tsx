@@ -13,7 +13,9 @@ import { interestIncomeAnnual } from '../domain/bonds';
 const CADENCE: Record<string, string> = {
   MONTHLY: '/mo', ANNUAL: '/yr', QUARTERLY: '/qtr', WEEKLY: '/wk', BIWEEKLY: '/2wk', ONETIME: 'one-time',
 };
-const MONTHS = ['J', 'F', 'M', 'A', 'M', 'J', 'J', 'A', 'S', 'O', 'N', 'D'];
+// P0 (design audit ID-1): single-letter axis had three J's and two M's — unreadable ambiguity.
+// 3-letter labels on alternating months keep the axis legible without crowding.
+const MONTHS = ['Jan', '', 'Mar', '', 'May', '', 'Jul', '', 'Sep', '', 'Nov', ''];
 
 export default function IncomeDetailScreen() {
   const store = useStore() as any;
@@ -182,7 +184,7 @@ const styles = StyleSheet.create({
   col: { flex: 1, alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
   barWrap: { flex: 1, width: '70%', justifyContent: 'flex-end' },
   bar: { width: '100%', backgroundColor: Colors.primary, borderTopLeftRadius: 3, borderTopRightRadius: 3 },
-  mLabel: { fontSize: 9, color: Colors.textTertiary, marginTop: 3 },
+  mLabel: { fontSize: 11, color: Colors.textTertiary, marginTop: 3 },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.sm },
   toggle: { flexDirection: 'row', backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: 3 },
   toggleBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radii.sm },

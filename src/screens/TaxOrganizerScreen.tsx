@@ -158,11 +158,11 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
   rowL: { fontSize: 13, color: Colors.textSecondary, flex: 1 },
   rowV: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
-  tag: { fontSize: 10.5, color: Colors.textTertiary, fontWeight: '600' },
+  tag: { fontSize: 12, color: Colors.textTertiary, fontWeight: '600' },
   total: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4, paddingTop: 8 },
   totalL: { fontSize: 13.5, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
   totalV: { fontSize: 15, fontWeight: '800', color: Colors.primary },
   note: { fontSize: 11, color: Colors.textTertiary, marginTop: 8, lineHeight: 15 },
   doc: { fontSize: 13, color: Colors.textPrimary, paddingVertical: 3, lineHeight: 18 },
-  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
 });

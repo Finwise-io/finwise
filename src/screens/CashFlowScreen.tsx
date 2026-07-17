@@ -124,7 +124,9 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
             <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
             <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
           </View>
-          <Text style={styles.note}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} safe this month · {spentPct}% spent, {monthPct}% of the month gone ›</Text>
+          {/* P0 (design audit CF-1): the pace card's numbers are its message — money size, never 12pt gray */}
+          <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} safe this month</Text>
+          <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
         </TouchableOpacity>
       )}
       <View style={styles.card}>
@@ -217,7 +219,8 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
                 <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
                 <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
               </View>
-              <Text style={styles.note}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned · {spentPct}% spent, {monthPct}% of the month gone ›</Text>
+              <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(Math.round(bva.planned_total))} planned</Text>
+              <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
             </TouchableOpacity>
           );
         })()}
@@ -273,8 +276,10 @@ function MonthBars({ lens, year, grid, onOpen }: { lens: string; year: any; grid
           <View style={{ flex: 1 }}>
             <View style={styles.barTrack}><View style={[styles.barIn, { width: `${Math.max(2, (c.inflow / max) * 100)}%` }]} /></View>
             <View style={[styles.barTrack, { marginTop: 2 }]}><View style={[styles.barOut, { width: `${Math.max(2, (c.outflow / max) * 100)}%` }]} /></View>
+            {/* P0 (design audit CF-2): the flag is why the chart exists — a full-width readable
+                line under the bars, never a 10.5pt truncated gutter caption */}
+            {c.flag && <Text style={styles.barFlag}>{c.flag}</Text>}
           </View>
-          {c.flag && <Text style={styles.barFlag} numberOfLines={1}>{c.flag}</Text>}
         </TouchableOpacity>
       ))}
       <View style={styles.legendRow}>
@@ -336,15 +341,18 @@ const styles = StyleSheet.create({
   paceTrack: { height: 10, borderRadius: 5, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
   paceFill: { height: 10, borderRadius: 5 },
   paceMark: { position: 'absolute', top: -2, width: 2, height: 14, backgroundColor: Colors.textSecondary },
-  note: { fontSize: 12, color: Colors.textTertiary, marginTop: 8, lineHeight: 16 },
-  link: { fontSize: 13, color: Colors.primary, fontWeight: '700', marginTop: 8 },
-  orderLine: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary, marginTop: 8 },
-  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 34, paddingVertical: 2 },
+  note: { fontSize: 13, color: Colors.textSecondary, marginTop: 8, lineHeight: 18 },
+  // P0 CF-1: the pace numbers lead at 15pt primary; the ratio line supports at 13pt
+  paceLine: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, marginTop: 8, fontVariant: ['tabular-nums'] },
+  paceSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, fontVariant: ['tabular-nums'] },
+  link: { fontSize: 13, color: Colors.primary, fontWeight: '700', marginTop: 8, paddingVertical: 12 },
+  orderLine: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, marginTop: 8 },
+  barRow: { flexDirection: 'row', alignItems: 'center', gap: 8, minHeight: 44, paddingVertical: 4 },
   barLabel: { width: 52, fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
   barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.bgSecondary, overflow: 'hidden' },
   barIn: { height: 8, borderRadius: 4, backgroundColor: Colors.chartIn },
   barOut: { height: 8, borderRadius: 4, backgroundColor: Colors.chartOut },
-  barFlag: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary, maxWidth: 92 },
+  barFlag: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 3 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 12, marginTop: 8 },
   legend: { flexDirection: 'row', alignItems: 'center', gap: 5 },
   dot: { width: 9, height: 9, borderRadius: 5 },

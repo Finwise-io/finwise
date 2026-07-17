@@ -109,5 +109,5 @@ const styles = StyleSheet.create({
   bold: { fontWeight: '800' },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 14, alignItems: 'center', marginTop: 12 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
-  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
 });

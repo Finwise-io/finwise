@@ -107,7 +107,8 @@ export default function GoalsScreen() {
             <View style={styles.goalHead}>
               <Text style={styles.goalIcon}>{g.icon || '🎯'}</Text>
               <Text style={styles.goalName}>{g.label}</Text>
-              <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.successGreen : behind ? Colors.amber : Colors.textSecondary }]}>
+              {/* P0 (design audit G-1): status TEXT uses the AA green (gainText) — successGreen is a mark color (~2:1 on white) */}
+              <Text style={[styles.goalStatus, { color: fullyFunded ? Colors.blue : onTrack ? Colors.gainText : behind ? Colors.amber : Colors.textSecondary }]}>
                 {fullyFunded ? '🔵 Fully funded' : noDate ? 'Set a date' : onTrack ? '🟢 On track' : '🟡 Behind'}
               </Text>
               <Text style={styles.goalPct}>{Math.round(pct)}%</Text>
@@ -350,7 +351,7 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 22, marginBottom: 8 },
-  cardKicker: { fontSize: 10, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: 12, marginBottom: 4 },
+  cardKicker: { fontSize: 11, fontWeight: '700', color: Colors.textTertiary, letterSpacing: 0.4, marginTop: 12, marginBottom: 4 },
   creditCard: { flexDirection: 'row', alignItems: 'center', gap: 10, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10, borderWidth: 1, borderColor: Colors.border },
   creditIcon: { fontSize: 22 },
   creditTitle: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
@@ -379,7 +380,7 @@ const styles = StyleSheet.create({
   bar: { height: 8, borderRadius: 4, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   barFill: { height: 8, borderRadius: 4 },
   goalSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 6 },
-  goalStatus: { fontSize: 11, fontWeight: '800', marginRight: 8 },
+  goalStatus: { fontSize: 13, fontWeight: '800', marginRight: 8 },
   goalBehind: { fontSize: 11, color: Colors.amber, marginTop: 3 },
   goalAllocate: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
   goalAllocateCta: { color: Colors.primary, fontWeight: '700' },
@@ -391,7 +392,7 @@ const styles = StyleSheet.create({
   segOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   segT: { fontSize: 13.5, fontWeight: '800', color: Colors.textSecondary },
   segTOn: { color: Colors.primaryDark },
-  segSub: { fontSize: 10, color: Colors.textTertiary, marginTop: 1 },
+  segSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   note: { fontSize: 11.5, color: Colors.textSecondary, lineHeight: 16, marginTop: 8 },
   dRow: { marginTop: 12 },
   dL: { fontSize: 12.5, color: Colors.textSecondary, fontWeight: '600' },

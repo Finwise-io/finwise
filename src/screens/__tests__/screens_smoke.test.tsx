@@ -8,7 +8,6 @@ import { render } from '@testing-library/react-native';
 import { useStore } from '../../store/useStore';
 import { employedPartner, retiree75 } from '../../testing/personas';
 
-import AnalyticsScreen from '../AnalyticsScreen';
 import BillCalendarScreen from '../BillCalendarScreen';
 import BondsScreen from '../BondsScreen';
 import BudgetScreen from '../BudgetScreen';
@@ -55,7 +54,6 @@ const SCREENS: [string, React.ComponentType<any>][] = [
   ['ContributionRoomScreen', require('../ContributionRoomScreen').default],   // audit: had zero test contact
   ['ItemizeScreen', require('../ItemizeScreen').default],                     // audit: had zero test contact
   ['PaycheckMonthsScreen', require('../PaycheckMonthsScreen').default],
-  ['AnalyticsScreen', AnalyticsScreen],
   ['BillCalendarScreen', BillCalendarScreen],
   ['BondsScreen', BondsScreen],
   ['BudgetScreen', BudgetScreen],

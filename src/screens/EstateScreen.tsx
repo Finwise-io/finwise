@@ -69,5 +69,5 @@ const styles = StyleSheet.create({
   itemTitle: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
   itemTitleOn: { color: Colors.textSecondary, textDecorationLine: 'line-through' },
   itemSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
-  foot: { fontSize: 10.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
 });

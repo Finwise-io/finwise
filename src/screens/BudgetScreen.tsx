@@ -1232,9 +1232,9 @@ const styles = StyleSheet.create({
   catLabel: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.medium, color: Colors.textPrimary },
   catAmt: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold },
   catLimit: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: '400' },
-  catOverText: { fontSize: 10, color: Colors.red, marginTop: 1 },
+  catOverText: { fontSize: 12, color: Colors.red, marginTop: 1 },
   noLimitBar: { height: 5, borderRadius: 5, backgroundColor: Colors.bgTertiary, justifyContent: 'center', alignItems: 'center' },
-  noLimitText: { fontSize: 9, color: Colors.textTertiary },
+  noLimitText: { fontSize: 11, color: Colors.textTertiary },
   setLimitsBtn: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', borderWidth: 0.5, borderColor: Colors.primaryMid },
   setLimitsBtnText: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.medium, color: Colors.primaryDeep },
 

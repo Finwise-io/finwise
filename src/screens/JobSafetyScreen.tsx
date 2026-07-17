@@ -287,7 +287,8 @@ const styles = StyleSheet.create({
   fundTypeBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
   fundTypeLabel: { fontSize: Typography.sizes.base, fontWeight: '600', color: Colors.textPrimary, marginBottom: 2 },
   fundTypeLabelOn: { color: Colors.primaryDeep },
-  fundTypeSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, lineHeight: 16 },
+  // P0 (design audit JS-1): these sublines carry the balances the whole calculation runs on
+  fundTypeSub: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, lineHeight: 18 },
   calcResult: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, gap: 6, marginBottom: Spacing.sm },
   calcRow: { flexDirection: 'row', justifyContent: 'space-between' },
   calcLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary },

@@ -451,7 +451,7 @@ const styles = StyleSheet.create({
   entryLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   entryDate: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 1 },
   entryAmt: { fontSize: Typography.sizes.md, fontWeight: '700', color: Colors.red },
-  entryEdit: { fontSize: 10, color: Colors.textTertiary, marginTop: 2 },
+  entryEdit: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
   editBanner: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: Spacing.sm },
   editBannerText: { fontSize: Typography.sizes.sm, color: Colors.amber, fontWeight: '500' },
   editCancel: { fontSize: Typography.sizes.sm, color: Colors.red, fontWeight: '600' },
