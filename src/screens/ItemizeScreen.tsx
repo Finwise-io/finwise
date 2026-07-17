@@ -4,6 +4,7 @@
 import React, { useState } from 'react';
 import { View, Text, ScrollView, TextInput, TouchableOpacity, StyleSheet } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
+import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -126,7 +127,7 @@ export default function ItemizeScreen() {
       {pickDef.cls === 'bonds' && (
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <TextInput style={[styles.input, { flex: 1 }]} keyboardType="decimal-pad" placeholder="Coupon % (optional)" placeholderTextColor={Colors.textTertiary} value={coupon} onChangeText={setCoupon} />
-          <TextInput style={[styles.input, { flex: 1 }]} placeholder="Matures YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />
+          <View style={{ flex: 1 }}><DateField value={maturity} onChange={setMaturity} label="maturity date" /></View>
         </View>
       )}
       <View style={styles.amtRow}><Text style={styles.amtPre}>{currencySymbol()}</Text><TextInput style={styles.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={val} onChangeText={setVal} /></View>

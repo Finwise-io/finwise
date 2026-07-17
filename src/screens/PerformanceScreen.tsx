@@ -3,6 +3,7 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, ActivityIndicator, Alert, type LayoutChangeEvent, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
+import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -474,7 +475,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
             <View key={i} style={styles.lotRow}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'shares', l.shares)} onChangeText={(t) => setLotNum(i, 'shares', t)} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Cost / share (opt)</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={lotVal(i, 'cost_per_share', l.cost_per_share)} onChangeText={(t) => setLotNum(i, 'cost_per_share', t)} placeholder="—" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><TextInput style={styles.lotIn} value={l.purchase_date} onChangeText={(t) => setLot(i, { purchase_date: t })} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date (opt)</Text><DateField value={l.purchase_date ?? ''} onChange={(iso) => setLot(i, { purchase_date: iso })} label="purchase date" style={styles.lotIn} /></View>
               {lots.length > 1 && <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Remove lot ${i + 1}`} onPress={() => setLots((ls) => ls.filter((_, j) => j !== i))}><Text style={styles.lotDel}>✕</Text></TouchableOpacity>}
             </View>
           ))}
@@ -673,13 +674,13 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Shares</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={shares} onChangeText={setShares} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
               <View style={styles.lotCell}><Text style={styles.lotL}>Price / share</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={price} onChangeText={setPrice} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} /></View>
             </View>
           )}
           {(isCash || isTransfer || (isDiv && !reinvest)) && (
             <View style={[styles.lotRow, { marginTop: 12 }]}>
               <View style={styles.lotCell}><Text style={styles.lotL}>Amount</Text><TextInput style={styles.lotIn} keyboardType="decimal-pad" value={amount} onChangeText={setAmount} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
-              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><TextInput style={styles.lotIn} value={date} onChangeText={setDate} placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} /></View>
+              <View style={styles.lotCell}><Text style={styles.lotL}>Date</Text><DateField value={date} onChange={setDate} label="transaction date" style={styles.lotIn} /></View>
             </View>
           )}
 

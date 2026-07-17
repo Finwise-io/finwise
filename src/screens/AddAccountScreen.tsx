@@ -4,7 +4,8 @@
 // saving writes the balance AND stamps value-as-of together, the same staleness concept bonds
 // and alternatives use. Writes through the SAME store actions every editor uses — one write path.
 import React, { useMemo, useState } from 'react';
-import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, TextInput, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
+import DateTimePicker from '@react-native-community/datetimepicker';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -13,6 +14,10 @@ import { maskedMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+// native date picker (audit AA-1: no hand-typed YYYY-MM-DD) — same helpers the Bonds editor uses
+const fmtISO = (d: Date) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+const parseISO = (s: string) => { const [y, m, dd] = (s || '').split('-').map(Number); return y ? new Date(y, (m || 1) - 1, dd || 1) : new Date(); };
+const humanDate = (s: string) => (s ? parseISO(s).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }) : '');
 
 type Cls = 'cash' | 'stocks' | 'bonds' | 'alts' | 'property' | 'debt';
 const CLASSES: { id: Cls; label: string }[] = [
@@ -53,6 +58,7 @@ export default function AddAccountScreen() {
   const [face, setFace] = useState<string>(existing?.face_value != null ? String(existing.face_value) : '');
   const [coupon, setCoupon] = useState<string>(existing?.coupon_rate != null ? String(existing.coupon_rate * 100) : '');
   const [maturity, setMaturity] = useState<string>(existing?.maturity_date ?? '');
+  const [showMaturity, setShowMaturity] = useState(false);
   // debt fields
   const [apr, setApr] = useState<string>('');
   const [minPay, setMinPay] = useState<string>('');
@@ -135,7 +141,21 @@ export default function AddAccountScreen() {
         <>
           {field('Face value (optional)', face, setFace, { placeholder: '$10,000', keyboard: 'decimal-pad', a11y: 'Face value' })}
           {field('Interest rate % (optional)', coupon, setCoupon, { placeholder: '4.5', keyboard: 'decimal-pad', a11y: 'Coupon percent' })}
-          {field('Matures (YYYY-MM-DD, optional)', maturity, setMaturity, { placeholder: '2034-06-30', a11y: 'Maturity date' })}
+          <Text style={s.fieldL}>Matures (optional)</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.input} activeOpacity={0.7}
+            accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'}
+            onPress={() => { if (!showMaturity && !maturity) setMaturity(fmtISO(new Date(new Date().getFullYear() + 10, 0, 1))); setShowMaturity((v) => !v); }}>
+            <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
+          </TouchableOpacity>
+          {showMaturity && (
+            <DateTimePicker value={maturity ? parseISO(maturity) : new Date(new Date().getFullYear() + 10, 0, 1)} mode="date"
+              display={Platform.OS === 'ios' ? 'spinner' : 'default'} minimumDate={new Date(2000, 0, 1)}
+              onChange={(e: any, d?: Date) => {
+                if (Platform.OS !== 'ios') setShowMaturity(false);
+                if (e?.type === 'dismissed') return;
+                if (d) setMaturity(fmtISO(d));
+              }} />
+          )}
         </>
       )}
 

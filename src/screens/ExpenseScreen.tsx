@@ -5,6 +5,7 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import * as ImagePicker from 'expo-image-picker';
+import { DateField } from '../components/DateField';
 import { useStore, RecurringExpense } from '../store/useStore';
 import { Button, Card, TipCard, ProgressBar, SegmentedControl } from '../components/UI';
 import { money, money2 } from '../domain/_shared/num';
@@ -313,8 +314,7 @@ export default function ExpenseScreen() {
               <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.inputLabel}>Date</Text>
-                  <TextInput style={styles.input} value={dateStr} onChangeText={setDateStr}
-                    placeholder="YYYY-MM-DD" returnKeyType="next" placeholderTextColor={Colors.textTertiary} />
+                  <DateField value={dateStr} onChange={setDateStr} label="expense date" />
                 </View>
                 <View style={{ flex: 1 }}>
                   <Text style={styles.inputLabel}>Time</Text>
@@ -407,8 +407,7 @@ export default function ExpenseScreen() {
               </View>
 
               <Text style={styles.inputLabel}>First due date</Text>
-              <TextInput style={styles.input} value={recurStart} onChangeText={setRecurStart}
-                placeholder="YYYY-MM-DD" placeholderTextColor={Colors.textTertiary} />
+              <DateField value={recurStart} onChange={setRecurStart} label="first due date" />
 
               <Button label="Add recurring expense" onPress={handleAddRecurring} style={{ marginTop: Spacing.md }} />
             </Card>

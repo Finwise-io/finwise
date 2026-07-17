@@ -4,6 +4,7 @@ import {
   TouchableOpacity, Alert, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { useRouter } from 'expo-router';
+import { DateField } from '../components/DateField';
 import { useStore, RecurringIncome } from '../store/useStore';
 import { Button, Card, TipCard, SegmentedControl } from '../components/UI';
 import { money2 } from '../domain/_shared/num';
@@ -284,13 +285,7 @@ export default function IncomeScreen() {
                 ))}
               </View>
               <Text style={[styles.inputLabel, { marginTop: Spacing.md }]}>First payment date</Text>
-              <TextInput
-                style={styles.input}
-                value={recurStart} onChangeText={setRecurStart}
-                placeholder="YYYY-MM-DD"
-                placeholderTextColor={Colors.textTertiary}
-                returnKeyType="done"
-              />
+              <DateField value={recurStart} onChange={setRecurStart} label="start date" />
             </Card>
 
             <Button
@@ -430,8 +425,7 @@ export default function IncomeScreen() {
             {/* Date + Notes */}
             <Card>
               <Text style={styles.inputLabel}>Date</Text>
-              <TextInput style={[styles.input, { marginBottom: Spacing.md }]} value={date} onChangeText={setDate}
-                placeholder="YYYY-MM-DD" returnKeyType="next" placeholderTextColor={Colors.textTertiary} />
+              <DateField value={date} onChange={setDate} label="income date" style={{ marginBottom: Spacing.md }} />
               <Text style={styles.inputLabel}>Notes (optional)</Text>
               <TextInput
                 style={[styles.input, { height: 64, textAlignVertical: 'top' }]}
