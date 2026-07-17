@@ -243,7 +243,7 @@ const s = StyleSheet.create({
   bigLine: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
   line: { fontSize: 15, color: Colors.textPrimary, marginTop: 4, lineHeight: 21 },
   strong: { fontWeight: '800', color: Colors.textPrimary },
-  warnTxt: { color: '#B45309' },
+  warnTxt: { color: Colors.amber },
   doneTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, marginTop: 6 },
   note: { fontSize: 12, color: Colors.textTertiary, marginTop: 8, lineHeight: 17 },
   btnRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },

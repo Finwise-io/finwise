@@ -6,7 +6,7 @@ import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
 import { readHistory } from '../domain/history';
@@ -23,14 +23,13 @@ import { type GlossaryTerm } from '../domain/glossary';
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
   cash: 'cash', stocks_etf: 'stocks', bonds: 'bonds', alternatives: 'alternatives', real_estate: 'realEstate', personal_property: 'personalProperty',
 };
-const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
+const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 // #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
 // Labels come from the canonical ASSET_CLASS_LABEL (single source) — only color lives here.
 // #10: 'mixed' = a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT as stocks.
-const CLASS_META: { key: AssetClass; label: string; color: string }[] = ([
-  ['cash', '#178F6B'], ['stocks_etf', '#7A5AA7'], ['bonds', '#185FA5'], ['alternatives', '#C77DBB'],
-  ['real_estate', '#EBB23A'], ['personal_property', '#9E9E9E'], ['mixed', '#B0846A'],
-] as [AssetClass, string][]).map(([key, color]) => ({ key, label: ASSET_CLASS_LABEL[key], color }));
+const CLASS_META: { key: AssetClass; label: string; color: string }[] = (
+  Object.entries(ClassMarkColors) as [AssetClass, string][]
+).map(([key, color]) => ({ key, label: ASSET_CLASS_LABEL[key], color }));
 // #10/#14: the asset-class options offered when classifying a wrapper account (what it HOLDS). 'auto'
 // leaves it Unclassified (mixed); the rest set an explicit class so the donut is accurate.
 const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
@@ -746,7 +745,7 @@ const styles = StyleSheet.create({
   nwIdentity: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
   nwInvestable: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center', marginBottom: 4 },
   nwCaption: { fontSize: 11, color: Colors.textSecondary, textAlign: 'left', marginBottom: 4, lineHeight: 15 },
-  nwNudge: { fontSize: 11, color: '#9A6B4F', textAlign: 'left', marginBottom: 6, lineHeight: 15 },
+  nwNudge: { fontSize: 11, color: Colors.amber, textAlign: 'left', marginBottom: 6, lineHeight: 15 },
   nwLegend: { flex: 1, gap: 7 },
   lgRow: { flexDirection: 'row', alignItems: 'center', gap: 7 },
   lgName: { flex: 1, fontSize: 13, fontWeight: '600' },
@@ -768,9 +767,9 @@ const styles = StyleSheet.create({
   insightTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
   insightSub: { fontSize: 12, color: Colors.primaryDark, opacity: 0.85, marginTop: 2 },
   hero: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, padding: Spacing.lg },
-  heroLabel: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
+  heroLabel: { color: Colors.onDeepTint, fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
   heroValue: { color: '#fff', fontSize: 34, fontWeight: '800', marginTop: 4 },
-  heroSub: { color: '#BEE7D8', fontSize: 12, marginTop: 6 },
+  heroSub: { color: Colors.onDeepTint, fontSize: 12, marginTop: 6 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 6 },
   allocBar: { flexDirection: 'row', height: 12, borderRadius: 6, overflow: 'hidden', backgroundColor: Colors.bgTertiary },
   legend: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginTop: 10 },
@@ -798,7 +797,7 @@ const styles = StyleSheet.create({
   rowVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   chArrow: { fontSize: 11, fontWeight: '800' },
   chDelta: { fontSize: 12, fontWeight: '700', marginTop: 1 },
-  hotPill: { backgroundColor: '#FCEBEB', borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
+  hotPill: { backgroundColor: Colors.redLight, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   // P0 (design audit NW-1): the one actionable debt recommendation — never 9pt
   hotPillTxt: { fontSize: 11, fontWeight: '800', color: Colors.red },
   intro: { flex: 1, justifyContent: 'center', padding: Spacing.xl },
@@ -807,7 +806,7 @@ const styles = StyleSheet.create({
   introSub: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: Spacing.lg, lineHeight: 21 },
   introPrimary: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginBottom: Spacing.sm },
   introPrimaryTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  introBtnSub: { color: '#E1F5EE', fontSize: 12, marginTop: 2 },
+  introBtnSub: { color: Colors.primaryLight, fontSize: 12, marginTop: 2 },
   introSecondary: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', borderWidth: 1.5, borderColor: Colors.border },
   introSecondaryTxt: { color: Colors.textPrimary, fontSize: 16, fontWeight: '800' },
   introBtnSub2: { color: Colors.textTertiary, fontSize: 12, marginTop: 2 },
@@ -823,7 +822,7 @@ const styles = StyleSheet.create({
   btnSecTxt: { fontSize: 15, fontWeight: '700', color: Colors.textSecondary },
   btnPri: { flex: 1, backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center' },
   btnPriTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  callout: { flexDirection: 'row', gap: 8, backgroundColor: '#FBE9E7', borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.md },
+  callout: { flexDirection: 'row', gap: 8, backgroundColor: Colors.redLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.md },
   calloutIcon: { fontSize: 15, lineHeight: 20 },
   calloutTxt: { fontSize: 14, fontWeight: '700', color: Colors.red, lineHeight: 20 },
   calloutSub: { fontSize: 12, color: Colors.red, opacity: 0.85, marginTop: 2 },

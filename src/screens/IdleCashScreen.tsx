@@ -37,7 +37,7 @@ export default function IdleCashScreen() {
           <View key={a.asset_id} style={[styles.row, i > 0 && styles.divider]}>
             <View style={{ flex: 1 }}>
               <Text style={styles.rowTitle}>{a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}</Text>
-              <Text style={styles.rowSub}>{a.apy != null ? `earning ~${(Number(a.apy) * 100).toFixed(1)}%` : 'rate not set'}</Text>
+              <Text style={styles.rowSub}>{a.apy != null ? `earning about ${(Number(a.apy) * 100).toFixed(1)}%` : 'rate not set'}</Text>
             </View>
             <Text style={styles.rowVal}>{maskedMoney(a.balance || 0)}</Text>
           </View>
@@ -47,12 +47,12 @@ export default function IdleCashScreen() {
       <Text style={styles.section}>FOR COMPARISON (ESTIMATES)</Text>
       <View style={styles.card}>
         <View style={styles.row}>
-          <Text style={[styles.rowTitle, { flex: 1 }]}>In high-yield savings (~{(EXAMPLE_RATES.highYieldSavings * 100).toFixed(1)}%)</Text>
-          <Text style={styles.rowVal}>~{maskedMoney(hys)}/yr</Text>
+          <Text style={[styles.rowTitle, { flex: 1 }]}>In high-yield savings (about {(EXAMPLE_RATES.highYieldSavings * 100).toFixed(1)}%)</Text>
+          <Text style={styles.rowVal}>≈ {maskedMoney(hys)}/yr</Text>
         </View>
         <View style={[styles.row, styles.divider]}>
-          <Text style={[styles.rowTitle, { flex: 1 }]}>In a money-market fund (~{(EXAMPLE_RATES.moneyMarket * 100).toFixed(1)}%)</Text>
-          <Text style={styles.rowVal}>~{maskedMoney(mm)}/yr</Text>
+          <Text style={[styles.rowTitle, { flex: 1 }]}>In a money-market fund (about {(EXAMPLE_RATES.moneyMarket * 100).toFixed(1)}%)</Text>
+          <Text style={styles.rowVal}>≈ {maskedMoney(mm)}/yr</Text>
         </View>
         <Text style={styles.note}>Rates are examples as of {EXAMPLE_RATES.asOf} — banks differ. We never move your money; you decide.</Text>
       </View>

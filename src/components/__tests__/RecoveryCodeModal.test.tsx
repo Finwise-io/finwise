@@ -9,7 +9,7 @@ const CHECKBOX = "I've saved my recovery code somewhere safe";
 test('B-L1: states the privacy claim — encrypted + never sent to AI/LLM providers', () => {
   const { getByText } = render(<RecoveryCodeModal visible code="ABCD-1234" onDone={() => {}} />);
   expect(getByText(/End-to-end encrypted · never sent to AI/)).toBeTruthy();   // the emphasized badge
-  expect(getByText(/never sent to AI or LLM providers/)).toBeTruthy();         // the in-body bold claim
+  expect(getByText(/never sent to AI services/)).toBeTruthy();                 // the in-body bold claim (plain English — no 'LLM' jargon, audit RM-2)
 });
 
 test('shows the code and starts UNchecked', () => {

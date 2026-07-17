@@ -413,7 +413,7 @@ export default function BudgetScreen() {
             style={styles.list}
             contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 96 }}
             ListHeaderComponent={filtered.length > 0 ? (
-              <Text style={{ fontSize: 11, color: '#9E9E99', textAlign: 'center', paddingBottom: 8 }}>
+              <Text style={{ fontSize: 11, color: Colors.textTertiary, textAlign: 'center', paddingBottom: 8 }}>
                 Tap to edit or delete • or swipe left
               </Text>
             ) : null}
@@ -1241,8 +1241,8 @@ const styles = StyleSheet.create({
   // Import tab
   importTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.textPrimary, marginBottom: Spacing.xs },
   importSub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
-  codeBlock: { backgroundColor: '#1A1A18', borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.sm, gap: 4 },
-  code: { fontSize: 12, color: '#5DCAA5', fontFamily: 'monospace' },
+  codeBlock: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.sm, gap: 4 },
+  code: { fontSize: 12, color: Colors.successGreen, fontFamily: 'monospace' },
 
   // Limits modal
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.base, borderBottomWidth: 0.5, borderBottomColor: Colors.border, backgroundColor: Colors.cardBg },

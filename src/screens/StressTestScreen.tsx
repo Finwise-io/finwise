@@ -52,7 +52,7 @@ export default function StressTestScreen() {
       </View>
 
       {/* the hit */}
-      <View style={[styles.verdict, { backgroundColor: r.coversIt ? Colors.primaryLight : '#FBE9E7' }]}>
+      <View style={[styles.verdict, { backgroundColor: r.coversIt ? Colors.primaryLight : Colors.redLight }]}>
         <Text style={[styles.vTitle, { color: r.coversIt ? Colors.primaryDark : Colors.red }]}>
           {r.coversIt ? `✓ You could cover a ${money(shock)} hit` : `⚠ A ${money(shock)} hit would put you ${money(Math.abs(r.cashAfter))} in the red`}
         </Text>

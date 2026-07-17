@@ -259,5 +259,5 @@ const styles = StyleSheet.create({
   tipAcceptedNote: { fontSize: Typography.sizes.sm, color: Colors.primary, fontWeight: Typography.weights.medium },
   tipSkippedNote: { fontSize: Typography.sizes.sm, color: Colors.textTertiary },
   nudgeTitle: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold, color: Colors.amber, marginBottom: 3 },
-  nudgeText: { fontSize: Typography.sizes.sm, color: '#633806', lineHeight: 20 },
+  nudgeText: { fontSize: Typography.sizes.sm, color: Colors.amber, lineHeight: 20 },
 });

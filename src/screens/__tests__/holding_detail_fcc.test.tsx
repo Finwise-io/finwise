@@ -59,7 +59,7 @@ test('header: name, account, value/gain/shares/avg — the SAME numbers as the I
   expect(screen.getByText('in Fidelity')).toBeOnTheScreen();
   const { money } = require('../../domain/_shared/num');
   expect(screen.getByText(money(Math.round(row.marketValue)))).toBeOnTheScreen();
-  expect(screen.getByText(/360 shares · avg cost/)).toBeOnTheScreen();
+  expect(screen.getByText(/360 shares · average cost/)).toBeOnTheScreen();
   expect(screen.getByText(/▲ Up \+\$/)).toBeOnTheScreen();               // the word, never color alone
   expect(screen.getByText(/Price \$728 · updated/)).toBeOnTheScreen();   // money() whole-dollar + freshness
 });
@@ -86,7 +86,7 @@ test('the tax card: long + short gains SUM to the header gain, labeled an estima
 
 test('lots list shows each purchase with its date words (the cost-basis story)', () => {
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('200 sh @ $410')).toBeOnTheScreen();
+  expect(screen.getByText('200 shares at $410')).toBeOnTheScreen();   // plain English, no trader shorthand (audit HD-3)
   expect(screen.getByText('Jan 12, 2024')).toBeOnTheScreen();
 });
 

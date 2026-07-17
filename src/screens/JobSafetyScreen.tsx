@@ -114,7 +114,7 @@ export default function JobSafetyScreen() {
           <Text style={{ fontSize: Typography.sizes.md, fontWeight: '700', color: selected === 'high' ? Colors.red : selected === 'medium' ? Colors.amber : Colors.primaryDeep, marginBottom: 4 }}>
             {adviceMap[selected].title}
           </Text>
-          <Text style={{ fontSize: Typography.sizes.base, color: selected === 'high' ? '#791F1F' : selected === 'medium' ? '#633806' : Colors.primaryDeep, lineHeight: 22 }}>
+          <Text style={{ fontSize: Typography.sizes.base, color: selected === 'high' ? Colors.red : selected === 'medium' ? Colors.amber : Colors.primaryDeep, lineHeight: 22 }}>
             {adviceMap[selected].text}
           </Text>
         </TipCard>

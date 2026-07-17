@@ -79,7 +79,7 @@ export function Badge({ label, color = 'green' }: { label: string; color?: Badge
     red: { bg: Colors.redLight, text: Colors.red },
     amber: { bg: Colors.amberLight, text: Colors.amber },
     blue: { bg: Colors.blueLight, text: Colors.blue },
-    gray: { bg: '#F1EFE8', text: '#5F5E5A' },
+    gray: { bg: Colors.bgTertiary, text: Colors.textSecondary },
   };
   const { bg, text } = colorMap[color];
   return (

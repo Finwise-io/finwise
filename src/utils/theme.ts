@@ -42,6 +42,17 @@ export const Colors = {
   // section-identity accents (design audit 2026-07-16: no raw hexes on screens)
   purple: '#7A5AA7',
   gold: '#EBB23A',
+
+  // light text tint on dark (primaryDeep) hero cards
+  onDeepTint: '#BEE7D8',
+};
+
+// Shared category/allocation chart palette (design audit 2026-07-16: hoisted from
+// PerformanceScreen + NetWorthScreen so both screens color classes identically).
+export const ChartPalette = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'] as const;
+export const ClassMarkColors: Record<string, string> = {
+  cash: '#178F6B', stocks_etf: '#7A5AA7', bonds: '#185FA5', alternatives: '#C77DBB',
+  real_estate: '#EBB23A', personal_property: '#9E9E9E', mixed: '#B0846A',
 };
 
 // The will-it-last gauge ramp, bad → good (design audit 2026-07-16: tokenized from HomeScreen).

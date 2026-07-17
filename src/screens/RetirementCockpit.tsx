@@ -29,7 +29,7 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 const big = (n: number) => moneyCompact(n, 'M');
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);            // higher return ⇒ more volatility
-const SECTION_COLOR: Record<string, string> = { Cash: '#178F6B', Investments: '#7A5AA7', Retirement: '#185FA5', Property: '#EBB23A' };
+const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
 
 export default function RetirementCockpit() {
@@ -534,7 +534,7 @@ export default function RetirementCockpit() {
             {dPlan.guaranteedAnnual > 0 && <View style={styles.dwRow}><Text style={styles.dwL}>− Social Security / pension</Text><Text style={[styles.dwV, { color: Colors.primary }]}>−{money(dPlan.guaranteedAnnual)}/yr</Text></View>}
             <View style={[styles.dwRow, styles.dwTotal]}><Text style={[styles.dwL, { fontWeight: '800', color: Colors.textPrimary }]}>From your portfolio</Text><Text style={styles.dwV}>{money(dPlan.netWithdrawal)}/yr</Text></View>
             {dPlan.withdrawalRate != null && dPlan.netWithdrawal > 0 && (
-              <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : '#FBE9E9' }]}>
+              <View style={[styles.rateBox, { backgroundColor: dPlan.rateBand === 'safe' ? Colors.primaryLight : dPlan.rateBand === 'moderate' ? Colors.amberLight : Colors.redLight }]}>
                 <Text style={[styles.ratePct, { color: rateColor }]}>{(dPlan.withdrawalRate * 100).toFixed(1)}%</Text>
                 <Text style={styles.rateTxt}>withdrawal rate · {dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit above 4% — watch it' : 'above 5% — high risk of running short'}</Text>
               </View>
@@ -1100,10 +1100,10 @@ const styles = StyleSheet.create({
 
   heroRow: { flexDirection: 'row', marginTop: 10 },
   heroCardG: { flex: 1, backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: 13, paddingVertical: 14, minHeight: 96, justifyContent: 'center' },
-  heroK: { color: Colors.primaryMid, fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
+  heroK: { color: Colors.onDeepTint, fontSize: 11, fontWeight: '800', letterSpacing: 0.3 },
   heroBig: { color: '#fff', fontSize: 25, fontWeight: '800', marginVertical: 3 },
-  heroSub: { color: '#BEE7D8', fontSize: 11, fontWeight: '600', lineHeight: 14 },
-  heroRoi: { color: '#9FD9C6', fontSize: 11.5, fontWeight: '700', marginTop: 5 },
+  heroSub: { color: Colors.onDeepTint, fontSize: 11, fontWeight: '600', lineHeight: 14 },
+  heroRoi: { color: Colors.primaryMid, fontSize: 11.5, fontWeight: '700', marginTop: 5 },
   dwRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6 },
   dwL: { fontSize: 13, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
   dwV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
@@ -1151,9 +1151,9 @@ const styles = StyleSheet.create({
   tick: { position: 'absolute', top: -3, width: 2, height: 12, marginLeft: -1, backgroundColor: Colors.textTertiary, borderRadius: 1 },
   markerCap: { fontSize: 11, color: Colors.textTertiary, marginTop: 6 },
   gbox: { backgroundColor: Colors.primaryDark, borderRadius: Radii.lg, paddingHorizontal: Spacing.base, paddingVertical: 14, marginTop: 10 },
-  gK: { color: '#BEE7D8', fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
+  gK: { color: Colors.onDeepTint, fontSize: 11, fontWeight: '700', letterSpacing: 0.3 },
   gAge: { color: '#fff', fontSize: 36, fontWeight: '800', marginVertical: 2 },
-  gSub: { color: '#BEE7D8', fontSize: 12.5, fontWeight: '600' },
+  gSub: { color: Colors.onDeepTint, fontSize: 12.5, fontWeight: '600' },
   insightBox: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 8 },
   // legacy-reserve total row in the "what you have" legend
   lgTotal: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: Colors.border, marginTop: 4, paddingTop: 6 },
@@ -1207,7 +1207,7 @@ const styles = StyleSheet.create({
   benchBox: { borderRadius: Radii.lg, padding: Spacing.base, marginTop: 10, borderWidth: 1 },
   benchNeutral: { backgroundColor: Colors.cardBg, borderColor: Colors.border },
   benchAhead: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
-  benchBehind: { backgroundColor: '#FBE9E9', borderColor: '#E9B7B7' },
+  benchBehind: { backgroundColor: Colors.redLight, borderColor: Colors.redMid },
   benchK: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.3 },
   benchBig: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary, marginVertical: 1 },
   benchD: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 3 },

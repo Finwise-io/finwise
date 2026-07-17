@@ -71,7 +71,7 @@ export default function ContributionRoomScreen() {
         note="Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible."
         how="open or add to an IRA at any brokerage before the tax-filing deadline." />
 
-      <RoomCard icon="🩺" title="HSA" limit={hsaLimit} used={0} knownUsed={false} catchUp={age != null && age >= 55}
+      <RoomCard icon="🩺" title="HSA (Health Savings Account)" limit={hsaLimit} used={0} knownUsed={false} catchUp={age != null && age >= 55}
         note="Only if you're on a high-deductible health plan. Self-only limit shown; family is higher."
         how="contribute via payroll or directly to your HSA provider." />
 

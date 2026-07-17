@@ -117,7 +117,7 @@ export default function HoldingDetailScreen() {
                 {gain >= 0 ? '▲ Up +' : '▼ Down −'}{maskedMoney(Math.abs(Math.round(gain)))}{roi != null ? ` (${pct(roi)})` : ''} since purchase
               </Text>
             )}
-            <Text style={s.metaLine}>{shares} share{shares === 1 ? '' : 's'} · avg cost {maskedMoney(Math.round(avgCost(position)))}</Text>
+            <Text style={s.metaLine}>{shares} share{shares === 1 ? '' : 's'} · average cost {maskedMoney(Math.round(avgCost(position)))}</Text>
             {hasPrice ? (
               <Text style={[s.metaLine, fresh.stale && s.warn]}>Price {money(row.price as number)} · {fresh.stale ? `prices may be out of date (${fresh.label})` : `updated ${fresh.label}`}</Text>
             ) : (
@@ -153,7 +153,7 @@ export default function HoldingDetailScreen() {
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             accessibilityLabel={`${l.shares} shares at ${maskedMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
-            <Text style={s.lotShares}>{l.shares} sh @ {maskedMoney(l.cost_per_share)}</Text>
+            <Text style={s.lotShares}>{l.shares} share{l.shares === 1 ? '' : 's'} at {maskedMoney(l.cost_per_share)}</Text>
             <Text style={s.lotDate}>{dateWords(l.purchase_date)}</Text>
           </TouchableOpacity>
         ))}
@@ -235,7 +235,7 @@ const s = StyleSheet.create({
   big: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   gainLine: { fontSize: 15, fontWeight: '800', marginTop: 2 },
   metaLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
-  warn: { color: '#B45309' },
+  warn: { color: Colors.amber },
   kicker: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },
   kickerRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   line: { fontSize: 15, color: Colors.textPrimary, marginTop: 3 },

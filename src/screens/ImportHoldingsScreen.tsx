@@ -195,7 +195,7 @@ export default function ImportHoldingsScreen() {
           <View style={[styles.row, styles.rowHead]}>
             <Text style={[styles.cTicker, styles.headTxt]}>Security</Text>
             <Text style={[styles.cShares, styles.headTxt]}>Shares</Text>
-            <Text style={[styles.cCost, styles.headTxt]}>Cost/sh</Text>
+            <Text style={[styles.cCost, styles.headTxt]}>Cost/share</Text>
             <Text style={[styles.cValue, styles.headTxt]}>Value</Text>
           </View>
           {result.holdings.map((h, i) => {

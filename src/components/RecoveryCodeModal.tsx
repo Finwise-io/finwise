@@ -31,7 +31,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
             {'\n\n'}
             <Text style={s.bold}>Save it now</Text> — in a password manager, or written down somewhere safe.
             {'\n\n'}
-            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI or LLM providers</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We'll never ask you for it.
+            Your data is encrypted so even we can't read it, and it's <Text style={s.bold}>never sent to AI services</Text> — which means <Text style={s.bold}>if you lose both your password and this code, no one (including MoneyKeel) can recover your data.</Text> We'll never ask you for it.
           </Text>
 
           <View style={s.codeBox}>

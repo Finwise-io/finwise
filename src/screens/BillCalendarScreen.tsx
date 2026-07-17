@@ -113,7 +113,7 @@ export default function BillCalendarScreen() {
         <Text style={styles.fieldL}>Cash on hand now</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={startStr} onChangeText={setStartStr} accessibilityLabel="Cash on hand now, editable" />
-        <Text style={styles.tiny}>Auto-filled from your accounts ({maskedMoney(Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and every End re-chains.</Text>
+        <Text style={styles.tiny}>Auto-filled from your accounts ({maskedMoney(Math.round(cashOnHand))}) — the starting balance the table carries forward. Edit it and the End column recalculates from there.</Text>
       </View>
 
       {/* verdict (r38) — the flagged months here match the '!' flags on the Cash flow bars */}
@@ -282,7 +282,7 @@ const styles = StyleSheet.create({
   tiny: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   verdict: { borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   verdictGood: { backgroundColor: Colors.primaryLight },
-  verdictBad: { backgroundColor: '#FBE9E7' },
+  verdictBad: { backgroundColor: Colors.redLight },
   verdictTitle: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark },
   verdictSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
   rowHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },

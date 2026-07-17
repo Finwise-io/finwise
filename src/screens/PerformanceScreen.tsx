@@ -4,7 +4,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal,
 import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount } from '../domain/assets';
@@ -118,7 +118,7 @@ export default function PerformanceScreen() {
   const untrackedTotal = untracked.reduce((t, a) => t + (a.balance || 0), 0);
   const [showAllClass, setShowAllClass] = useState<Record<string, boolean>>({});
   const allocLabel = (k: string) => (k === 'cash' ? 'Cash' : assetKind(k)?.label ?? 'Other');
-  const ALLOC_COLORS = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'];
+  const ALLOC_COLORS = ChartPalette;   // one shared palette — Net worth colors classes identically
 
   const refresh = async () => { setLoading(true); try { await store.refreshPrices(); } finally { setLoading(false); } };
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change

@@ -89,7 +89,7 @@ export default function RewardsScreen() {
             {level.level <= 2 ? '🌱' : level.level <= 4 ? '🌿' : level.level <= 6 ? '🌳' : level.level <= 8 ? '⭐' : '🏆'}
           </Text>
         </View>
-        <Text style={styles.xpLabel}>{level.xp.toLocaleString()} / {level.next.min.toLocaleString()} XP to Level {level.next.level}</Text>
+        <Text style={styles.xpLabel}>{level.xp.toLocaleString()} of {level.next.min.toLocaleString()} points to Level {level.next.level}</Text>
         <View style={styles.progressTrack}>
           <View style={[styles.progressFill, { width: `${level.pct}%` as any }]} />
         </View>
@@ -103,13 +103,13 @@ export default function RewardsScreen() {
 
       {/* XP guide */}
       <Card>
-        <Text style={styles.sectionTitle}>How to earn XP</Text>
+        <Text style={styles.sectionTitle}>How to earn points</Text>
         <View style={styles.xpGuideGrid}>
           {[
-            ['Log income', '15 XP'], ['Log expense', '10 XP'],
-            ['Add savings', '20 XP'], ['Log investment', '25 XP'],
-            ['Set a goal', '30 XP'], ['Earn a badge', '50 XP'],
-            ['Daily streak', '5/day'], ['AI analysis', '50 XP'],
+            ['Log income', '15 pts'], ['Log expense', '10 pts'],
+            ['Add savings', '20 pts'], ['Log investment', '25 pts'],
+            ['Set a goal', '30 pts'], ['Earn a badge', '50 pts'],
+            ['Daily streak', '5 pts a day'], ['Expense analysis', '50 pts'],
           ].map(([action, pts]) => (
             <View key={action} style={styles.xpGuideItem}>
               <Text style={styles.xpGuideAction}>{action}</Text>
@@ -133,7 +133,7 @@ export default function RewardsScreen() {
             <TouchableOpacity
               key={badge.id}
               style={styles.badgeCard}
-              onPress={() => Alert.alert(badge.icon + ' ' + badge.label, badge.description + '\n\n+50 XP earned!')}
+              onPress={() => Alert.alert(badge.icon + ' ' + badge.label, badge.description + '\n\n+50 points earned!')}
             >
               <Text style={{ fontSize: 32 }}>{badge.icon}</Text>
               <Text style={styles.badgeLabel}>{badge.label}</Text>

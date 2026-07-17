@@ -65,7 +65,7 @@ export default function WorthALookScreen() {
         accessibilityLabel={`${maskedMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
         {maskedMoney(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
       </Text>
-      {f.payee ? <Text style={styles.payee}>Paid to: {f.payee.toUpperCase()}</Text> : null}
+      {f.payee ? <Text style={styles.payee}>Paid to: {f.payee}</Text> : null}
 
       {/* why we're showing this — the comparison stored at flag time, so it never drifts */}
       <Text style={styles.whyHead}>WHY WE'RE SHOWING THIS</Text>
@@ -74,10 +74,10 @@ export default function WorthALookScreen() {
       <Text style={styles.softener}>Most large {f.reason === 'first_time_payee' ? 'first-time ' : ''}payments are fine — you know best.</Text>
 
       {resolvedWasMe ? (
-        <Text style={styles.confirmed}>You confirmed this on {String(f.resolved_at ?? '').slice(0, 10)} ✓ confirmed</Text>
+        <Text style={styles.confirmed}>✓ You confirmed this on {prettyDate(String(f.resolved_at ?? '').slice(0, 10))}</Text>
       ) : flaggedByYou ? (
         <View style={styles.checklistBox}>
-          <Text style={styles.checklistHead}>WHAT TO DO — just the map, no commands</Text>
+          <Text style={styles.checklistHead}>WHAT TO DO</Text>
           <Text style={styles.checklistItem}>1. Call the number on the back of your bank card — they can freeze the card and reverse charges.</Text>
           <Text style={styles.checklistItem}>2. If you shared a code or password recently, change it.</Text>
           <Text style={styles.checklistItem}>3. This stays here for your records until you mark it settled.</Text>

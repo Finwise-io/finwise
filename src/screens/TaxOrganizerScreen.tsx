@@ -1,4 +1,4 @@
-// Tax Organizer — a year-end summary + tailored document checklist you can hand your CPA.
+// Tax Organizer — a year-end summary + tailored document checklist you can hand your accountant.
 // Reviewable in-app; "Share PDF" builds an HTML→PDF and opens the share sheet (needs a native build;
 // degrades to a friendly message in Expo Go).
 import React, { useMemo, useState } from 'react';
@@ -113,7 +113,7 @@ export default function TaxOrganizerScreen() {
         {org.documents.map((d) => <Text key={d} style={styles.doc}>•  {d}</Text>)}
       </View>
 
-      <Text style={styles.foot}>This is an organizer, not a filed return or tax advice. Your CPA will use your official documents (W-2, 1099s, 1098s, etc.) — this helps you both prepare.</Text>
+      <Text style={styles.foot}>This is an organizer, not a filed return or tax advice. Your accountant will use your official documents (W-2, 1099s, 1098s, etc.) — this helps you both prepare.</Text>
       <View style={{ height: 40 }} />
     </ScrollView>
   );
