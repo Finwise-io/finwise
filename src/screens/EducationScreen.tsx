@@ -70,7 +70,10 @@ export default function EducationScreen() {
               <Text style={styles.trackTxt}>{plan.onTrackPct >= 100 ? 'fully funded — nice.' : 'of the goal already on track from what you\'ve saved'}</Text>
             </View>
             {plan.gap > 0 && (
-              <Text style={styles.gapTxt}>Set aside about <Text style={styles.bold}>{money(plan.monthlyNeeded)}/mo</Text> to close the {money(plan.gap)} gap by the time school starts.</Text>
+              <View style={styles.gapCard}>
+                <Text style={styles.gapHero}>{money(plan.monthlyNeeded)}/mo</Text>
+                <Text style={styles.gapTxt}>set aside monthly closes the {money(plan.gap)} gap by the time school starts.</Text>
+              </View>
             )}
           </View>
 
@@ -105,7 +108,9 @@ const styles = StyleSheet.create({
   trackHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
   trackPct: { fontSize: 30, fontWeight: '800' },
   trackTxt: { flex: 1, fontSize: 12.5, color: Colors.textSecondary },
-  gapTxt: { fontSize: 13.5, color: Colors.textPrimary, marginTop: 10, lineHeight: 20 },
+  gapCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: Spacing.md, marginTop: 10 },
+  gapHero: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
+  gapTxt: { fontSize: 13.5, color: Colors.textPrimary, marginTop: 2, lineHeight: 20 },
   bold: { fontWeight: '800' },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 14, alignItems: 'center', marginTop: 12 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },

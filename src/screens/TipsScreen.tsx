@@ -103,7 +103,7 @@ export default function TipsScreen() {
         </View>
         {overBudget && (
           <View style={{ backgroundColor: Colors.redLight, borderRadius: 8, padding: 8, marginTop: 8 }}>
-            <Text style={{ fontSize: 12, color: Colors.red, textAlign: 'center' }}>
+            <Text style={{ fontSize: 15, color: Colors.red, textAlign: 'center', fontWeight: '700' }}>
               You have spent {money(monthSpend - monthIncome)} more than your income this month
             </Text>
           </View>
@@ -227,12 +227,12 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.base, gap: Spacing.sm },
   summaryCard: { padding: Spacing.md },
-  summaryTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium, color: Colors.textPrimary },
-  summarySub: { fontSize: 12, color: Colors.textTertiary, marginTop: 2, marginBottom: Spacing.sm },
+  summaryTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
+  summarySub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, marginBottom: Spacing.sm },
   summaryRow: { flexDirection: 'row', justifyContent: 'space-between' },
   summaryItem: { alignItems: 'center' },
   summaryLabel: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginBottom: 3 },
-  sectionTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium, color: Colors.textPrimary, marginBottom: Spacing.sm },
+  sectionTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary, marginBottom: Spacing.sm },
   catRow: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm },
   catLabel: { fontSize: Typography.sizes.sm, color: Colors.textPrimary, width: 90 },
   catAmt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium, color: Colors.textPrimary, width: 44, textAlign: 'right' },

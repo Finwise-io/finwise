@@ -200,7 +200,7 @@ export default function MultiGoalScreen() {
               }}
               accessibilityLabel={`${h.label} at ${maskedMoney(h.trimmedAmount)} instead: ${h.chance != null ? `chance ${h.chance} percent` : ''}. Tap to apply. Your call.`}>
               <Text style={s.hintTxt}>
-                {h.label} at {maskedMoney(h.trimmedAmount)} instead:{h.retireAge != null ? ` retire ${h.retireAge},` : ''} chance {h.chance ?? '—'}%. Your call.
+                {h.label} at {maskedMoney(h.trimmedAmount)} instead:{h.retireAge != null ? ` retire ${h.retireAge},` : ''} chance {h.chance ?? '—'}%. <Text style={s.hintCta}>Apply ›</Text>
               </Text>
             </TouchableOpacity>
           ))}
@@ -264,7 +264,8 @@ const s = StyleSheet.create({
   rowV: { fontSize: 13.5, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   rowDivider: { height: 1, backgroundColor: Colors.border, marginVertical: 4 },
   hintRow: { paddingVertical: 8, minHeight: 44, justifyContent: 'center' },
-  hintTxt: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19 },
+  hintTxt: { fontSize: 13.5, color: Colors.textPrimary, lineHeight: 19 },
+  hintCta: { color: Colors.primary, fontWeight: '800' },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: 8 },
   primaryTxt: { color: '#fff', fontSize: 15, fontWeight: '800' },
   secondaryBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 46, alignItems: 'center', justifyContent: 'center' },

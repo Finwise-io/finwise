@@ -134,6 +134,6 @@ const s = StyleSheet.create({
   legLine: { fontSize: 14.5, color: Colors.textPrimary, lineHeight: 22, marginTop: 6 },
   strong: { fontWeight: '800' },
   diffBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: 10, marginTop: 10 },
-  diffTxt: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  diffTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, lineHeight: 26, fontVariant: ['tabular-nums'] },
   note: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
 });

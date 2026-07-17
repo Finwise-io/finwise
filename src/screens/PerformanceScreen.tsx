@@ -808,7 +808,7 @@ const styles = StyleSheet.create({
   cellV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
   cellB: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
-  addLink2: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
+  addLink2: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   primaryAction: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', marginTop: 14 },
   primaryActionT: { color: '#fff', fontSize: 14.5, fontWeight: '800' },
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 12 },

@@ -53,10 +53,12 @@ export default function IncomeDetailScreen() {
     <ScrollView style={styles.root} contentContainerStyle={{ padding: Spacing.lg }}>
       {/* totals */}
       <View style={styles.card}>
+        {/* the headline fact leads (audit ID-2): net income as the hero, not a same-size row */}
+        <Text style={styles.heroK}>NET INCOME / YEAR</Text>
+        <Text style={styles.heroV}>{money(state.total_net_annual)}</Text>
         <Row label="Gross / year" value={money(state.total_gross_annual)} bold />
         <Row label="Effective tax rate" value={`${(state.effective_tax_rate * 100).toFixed(1)}%`} />
         <View style={styles.divider} />
-        <Row label="Net / year" value={money(state.total_net_annual)} bold color={Colors.primary} />
         <Row label="Net / month" value={`${money(state.net_monthly_income)}/mo`} />
         {state.employer_match_annual > 0 && <Row label="Employer 401(k) match" value={`${money(state.employer_match_annual)}/yr`} />}
       </View>
@@ -174,6 +176,8 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
   rowLabel: { fontSize: 14, color: Colors.textSecondary },
   rowVal: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  heroK: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7 },
+  heroV: { fontSize: 30, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'], marginBottom: 8 },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
   srcRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
   srcLabel: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

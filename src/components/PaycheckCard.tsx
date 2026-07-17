@@ -55,7 +55,7 @@ export function PaycheckCard() {
           <View style={styles.rowWrap}>
             <Text style={styles.rowLabel}>+ Safe draw from savings</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="What makes the draw safe?"
-              onPress={() => setWhySafe(true)} style={styles.infoDot}><Text style={styles.infoDotT}>i</Text></TouchableOpacity>
+              onPress={() => setWhySafe(true)} style={styles.infoDot} hitSlop={{ top: 13, bottom: 13, left: 13, right: 13 }}><Text style={styles.infoDotT}>i</Text></TouchableOpacity>
             <Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>
           </View>
           {m.billsTotal > 0 && <Row label={`− Big bills this month (${m.bills.map((b) => b.label).join(', ')})`} value={maskedMoney(m.billsTotal)} />}
@@ -106,7 +106,7 @@ const styles = StyleSheet.create({
   unit: { fontSize: 15, fontWeight: '500', color: Colors.textSecondary },
   est: { fontSize: 12, color: Colors.textTertiary, marginBottom: Spacing.xs },
   breakdown: { marginTop: 4, marginBottom: Spacing.xs },
-  rowWrap: { flexDirection: 'row', alignItems: 'center', paddingVertical: 3 },
+  rowWrap: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
   rowLabel: { flex: 1, fontSize: 14, color: Colors.textSecondary },
   rowValue: { fontSize: 14, color: Colors.textPrimary },
   bold: { fontWeight: '700', color: Colors.textPrimary },
@@ -116,12 +116,12 @@ const styles = StyleSheet.create({
   promptT: { color: Colors.primaryDark, fontWeight: '600', fontSize: 14 },
   year: { fontSize: 14, color: Colors.textPrimary, fontWeight: '600', marginTop: 4 },
   yearNote: { fontWeight: '400', color: Colors.textSecondary },
-  flag: { fontSize: 12, color: Colors.amber, marginTop: 4 },
+  flag: { fontSize: 14, color: Colors.amber, marginTop: 4 },
   monthsLink: { fontSize: 14, fontWeight: '600', color: Colors.primary, marginTop: 8 },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
   modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
   modalT: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, marginBottom: 8 },
   modalB: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },
-  modalBtn: { alignSelf: 'flex-end', marginTop: Spacing.sm, padding: 8 },
+  modalBtn: { alignSelf: 'flex-end', marginTop: Spacing.sm, padding: 12, minHeight: 44, justifyContent: 'center' },
   modalBtnT: { color: Colors.primary, fontWeight: '700' },
 });

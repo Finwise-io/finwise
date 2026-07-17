@@ -361,7 +361,7 @@ const styles = StyleSheet.create({
   loanBigSub: { fontSize: 14, fontWeight: '600', color: Colors.textTertiary },
   loanLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   dtiHead: { flexDirection: 'row', alignItems: 'center', gap: 12 },
-  dtiPct: { fontSize: 30, fontWeight: '800' },
+  dtiPct: { fontSize: 24, fontWeight: '800' },   // never outweigh the capacity hero (audit G-3)
   dtiTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   dtiSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 1 },
   capCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 14 },
@@ -382,7 +382,7 @@ const styles = StyleSheet.create({
   goalSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 6 },
   goalStatus: { fontSize: 13, fontWeight: '800', marginRight: 8 },
   goalBehind: { fontSize: 11, color: Colors.amber, marginTop: 3 },
-  goalAllocate: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 6 },
+  goalAllocate: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 6, paddingVertical: 10, minHeight: 44, lineHeight: 19 },
   goalAllocateCta: { color: Colors.primary, fontWeight: '700' },
   allocUseAll: { color: Colors.primary, fontWeight: '700', fontSize: 13, marginTop: 6 },
   addLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 2 },

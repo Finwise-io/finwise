@@ -24,9 +24,9 @@ beforeEach(() => {
 
 test('worked example until a statement is typed; typing shows YOUR numbers (67 row = statement exactly)', () => {
   render(<SsTimingScreen />);
-  expect(screen.getByText(/Showing EXAMPLE numbers/)).toBeOnTheScreen();
+  expect(screen.getByText(/Showing example numbers/)).toBeOnTheScreen();
   fireEvent.changeText(screen.getByLabelText(/Monthly amount from your Social Security statement/), '2600');
-  expect(screen.queryByText(/Showing EXAMPLE numbers/)).toBeNull();
+  expect(screen.queryByText(/Showing example numbers/)).toBeNull();
   expect(screen.getByText(/Trying it out/)).toBeOnTheScreen();          // sandbox banner
   expect(screen.getByText('$2,600')).toBeOnTheScreen();                 // the 67 row = the statement, exactly
   expect(screen.getByText('$1,820')).toBeOnTheScreen();                 // 62 = 70%

@@ -171,7 +171,7 @@ export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string })
   const def = GLOSSARY[term];
   return (
     <>
-      <TouchableOpacity onPress={() => setOpen(true)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+      <TouchableOpacity onPress={() => setOpen(true)} hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
         accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}>
         <Text style={{ fontSize: 13, color: color || Colors.textTertiary, fontWeight: '700' }}>ⓘ</Text>
       </TouchableOpacity>

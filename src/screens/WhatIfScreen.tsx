@@ -75,6 +75,8 @@ export default function WhatIfScreen() {
         <View style={s.card} accessible
           accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${maskedMoney(result.before.egg)} becomes ${maskedMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
           <Text style={s.cardHdr}>AT {result.retireAge} (ESTIMATES)</Text>
+          {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
+          <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}<Text style={s.deltaSub}>  more by {result.retireAge} — an estimate</Text></Text>
           <Row label="Projected nest egg" value={`${maskedMoney(result.before.egg)} → ${maskedMoney(result.after.egg)}`} />
           <Row label="Will my money last?" value={`${result.before.chance}% → ${result.after.chance}%`} />
           <Text style={s.note}>Same plan, same market assumptions — only the monthly amount moved. Changing what you put in happens at your employer or brokerage; we just show the math.</Text>
@@ -105,7 +107,9 @@ const s = StyleSheet.create({
   stepTxt: { fontSize: 22, fontWeight: '700', color: Colors.primary },
   dial: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, minWidth: 140, textAlign: 'center' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, gap: 10 },
-  rowL: { fontSize: 14, color: Colors.textPrimary },
-  rowV: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'], flexShrink: 1, textAlign: 'right' },
+  rowL: { fontSize: 15, color: Colors.textPrimary },
+  rowV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'], flexShrink: 1, textAlign: 'right' },
+  deltaHero: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'], marginBottom: 6 },
+  deltaSub: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   note: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
 });

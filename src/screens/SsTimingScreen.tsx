@@ -117,14 +117,14 @@ export default function SsTimingScreen() {
         <Text style={styles.finder}>It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>
       </View>
 
-      {usingExample && <Text style={styles.exampleBanner}>Showing EXAMPLE numbers (a {maskedMoney(exampleStmt)}/mo statement) — type yours above to see YOUR numbers.</Text>}
+      {usingExample && <Text style={styles.exampleBanner}>Showing example numbers (a {maskedMoney(exampleStmt)}/mo statement) — type yours above to see your own.</Text>}
       {!usingExample && <Text style={styles.sandboxBanner}>Trying it out — this won't change your plan until you tap Use this plan.</Text>}
 
       {/* three-way compare */}
       <View style={styles.card}>
         <View style={styles.tableHead}>
           <Text style={[styles.th, { flex: 1 }]}>Claim</Text>
-          <Text style={[styles.th, styles.tRight, { width: 90 }]}>Monthly</Text>
+          <Text style={[styles.th, styles.tRight, { width: 104 }]}>Monthly</Text>
           <Text style={[styles.th, styles.tRight, { width: 110 }]}>Total by {liveTo}</Text>
         </View>
         {rows.map((r) => (
@@ -133,7 +133,7 @@ export default function SsTimingScreen() {
               ? `Claiming at ${r.claimAge} has passed — you can no longer claim at ${r.claimAge}`
               : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)} a month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
             <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{age != null && age > 70 && r.claimAge === age ? ' (now)' : ''}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
-            <Text style={[styles.td, styles.tRight, { width: 90 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
+            <Text style={[styles.td, styles.tdMonthly, styles.tRight, { width: 104 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
             <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.lifetime)}</Text>
           </View>
         ))}
@@ -245,6 +245,7 @@ const styles = StyleSheet.create({
   th: { fontSize: 11.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
   tr: { flexDirection: 'row', paddingVertical: 9, borderTopWidth: 1, borderTopColor: Colors.border },
   td: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  tdMonthly: { fontSize: 17, fontWeight: '800' },
   tRight: { textAlign: 'right' },
   passed: { color: Colors.textTertiary },
   example: { color: Colors.textSecondary },
