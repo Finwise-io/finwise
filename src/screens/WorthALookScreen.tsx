@@ -65,7 +65,8 @@ export default function WorthALookScreen() {
         accessibilityLabel={`${maskedMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
         {maskedMoney(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
       </Text>
-      {f.payee ? <Text style={styles.payee}>Paid to: {f.payee}</Text> : null}
+      {/* payee is stored lowercase — show it title-cased, never SHOUTED (audit WL-5) */}
+      {f.payee ? <Text style={styles.payee}>Paid to: {String(f.payee).replace(/\b\w/g, (c) => c.toUpperCase())}</Text> : null}
 
       {/* why we're showing this — the comparison stored at flag time, so it never drifts */}
       <Text style={styles.whyHead}>WHY WE'RE SHOWING THIS</Text>
