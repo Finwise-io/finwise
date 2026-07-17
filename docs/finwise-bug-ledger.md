@@ -150,3 +150,10 @@ All from the real-device test of build #33 (`docs/finwise-device-test-build33.xl
 - **Seen:** 2026-07-12, twice during full `npx jest` runs while heavy parallel work ran on the machine (1 failed / 779-790 passed); 8 consecutive clean runs since, including 6 in a dedicated hunt loop — does not reproduce in isolation.
 - **Suspicion:** a timing-sensitive test (candidates: dataCrypto ~36s, price-refresh throttling) failing under scheduler contention; NOT correlated with any code change (appeared before and after unrelated commits).
 - **Action:** watch; if it fires again, the run log is captured to scratchpad/jest_run_N.log — identify and pin the test with fake timers. Not release-blocking (never fails clean-machine runs).
+
+## B-90 (2026-07-17) — dataCrypto.test.ts flaky under full-suite load
+`recovery-code key envelope › wrong password/code/uid all return null` failed once during a full
+`npx jest` run (`unwrapWithPassword(env, 'other-uid', …)` returned a value instead of null), then
+passed twice in a row in isolation. Suspect shared state or timing in the crypto polyfill under
+parallel workers, NOT a product change (no crypto code touched that day). Watch: if it recurs,
+run the suite with `--runInBand` to confirm worker interference, then isolate the polyfill per test.
