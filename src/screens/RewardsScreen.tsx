@@ -296,7 +296,7 @@ const styles = StyleSheet.create({
   goalAmtRow: { flexDirection: 'row', alignItems: 'baseline', marginBottom: 6 },
   goalAmt: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.primary },
   goalOf: { fontSize: Typography.sizes.sm, color: Colors.textSecondary },
-  goalPct: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 3 },
-  addToGoalBtn: { marginTop: Spacing.sm, paddingVertical: 9, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.primaryMid, alignItems: 'center' },
+  goalPct: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, marginTop: 3 },
+  addToGoalBtn: { marginTop: Spacing.sm, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.primaryMid, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   addToGoalText: { fontSize: Typography.sizes.base, color: Colors.primary, fontWeight: Typography.weights.medium },
 });

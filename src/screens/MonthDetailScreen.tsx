@@ -125,7 +125,7 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   navRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.sm },
-  navTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, paddingVertical: 8, minWidth: 64 },
+  navTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 12, minWidth: 64, minHeight: 44, textAlignVertical: 'center' },
   navOff: { color: Colors.textTertiary },
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },

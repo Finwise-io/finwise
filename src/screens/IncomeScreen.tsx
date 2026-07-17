@@ -495,7 +495,7 @@ const styles = StyleSheet.create({
   quickText: { fontSize: Typography.sizes.base, color: Colors.textSecondary, fontWeight: '500' },
   quickTextOn: { color: Colors.primaryDeep },
   recurRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: Spacing.sm, borderBottomWidth: 0.5, borderBottomColor: Colors.border, gap: Spacing.sm },
-  recurToggle: { paddingHorizontal: 10, paddingVertical: 5, borderRadius: Radii.pill, borderWidth: 0.5, borderColor: Colors.border },
+  recurToggle: { paddingHorizontal: 14, borderRadius: Radii.pill, borderWidth: 0.5, borderColor: Colors.border, minHeight: 44, justifyContent: 'center' },
   recurToggleText: { fontSize: Typography.sizes.xs, fontWeight: Typography.weights.medium },
   sourceGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   sourceBtn: { paddingVertical: 9, paddingHorizontal: 16, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },

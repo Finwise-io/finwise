@@ -218,6 +218,6 @@ const s = StyleSheet.create({
   foundName: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   mergeBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.sm, marginBottom: 8 },
   mergeQ: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
-  mergeOpt: { paddingVertical: 8, minHeight: 40, justifyContent: 'center' },
-  mergeTxt: { fontSize: 13.5, color: Colors.textPrimary, fontWeight: '600' },
+  mergeOpt: { paddingVertical: 10, minHeight: 44, justifyContent: 'center' },
+  mergeTxt: { fontSize: 15, color: Colors.textPrimary, fontWeight: '600' },
 });

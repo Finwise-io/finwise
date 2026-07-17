@@ -127,7 +127,7 @@ const s = StyleSheet.create({
   pickWrap: { marginTop: 10 },
   pickLabel: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 6 },
-  chip: { paddingHorizontal: 12, minHeight: 40, justifyContent: 'center', borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  chip: { paddingHorizontal: 12, minHeight: 44, justifyContent: 'center', borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primaryDark },

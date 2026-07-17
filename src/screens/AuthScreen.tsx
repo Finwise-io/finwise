@@ -365,13 +365,13 @@ export default function AuthScreen() {
         {/* Footer */}
         <View style={styles.footer}>
           {mode === 'login' ? (
-            <TouchableOpacity onPress={() => setMode('register')}>
+            <TouchableOpacity onPress={() => setMode('register')} style={{ paddingVertical: 12, minHeight: 44, justifyContent: 'center' }}>
               <Text style={styles.footerText}>
                 New to MoneyKeel? <Text style={styles.footerLink}>Create account</Text>
               </Text>
             </TouchableOpacity>
           ) : (
-            <TouchableOpacity onPress={() => setMode('login')}>
+            <TouchableOpacity onPress={() => setMode('login')} style={{ paddingVertical: 12, minHeight: 44, justifyContent: 'center' }}>
               <Text style={styles.footerText}>
                 Already have an account? <Text style={styles.footerLink}>Sign in</Text>
               </Text>
@@ -434,9 +434,9 @@ const styles = StyleSheet.create({
   inputLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 6 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.base, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },
   inputError: { borderColor: Colors.red, borderWidth: 1 },
-  errorText: { fontSize: Typography.sizes.xs, color: Colors.red, marginTop: 4 },
-  successText: { fontSize: Typography.sizes.xs, color: Colors.primary, marginTop: 4 },
-  showPassBtn: { alignSelf: 'flex-end', marginTop: -Spacing.sm, marginBottom: Spacing.sm },
+  errorText: { fontSize: Typography.sizes.sm, color: Colors.red, marginTop: 4 },
+  successText: { fontSize: Typography.sizes.sm, color: Colors.primary, marginTop: 4 },
+  showPassBtn: { alignSelf: 'flex-end', paddingVertical: 12, marginBottom: Spacing.xs, minHeight: 44, justifyContent: 'center' },
   showPassText: { fontSize: Typography.sizes.sm, color: Colors.primary, fontWeight: '500' },
   strengthWrap: { marginBottom: Spacing.sm },
   strengthLabel: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginBottom: 4 },
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   strengthFill: { height: 4, borderRadius: 4 },
   strengthText: { fontSize: Typography.sizes.xs, fontWeight: '600' },
   linkBtn: { alignItems: 'center', marginTop: Spacing.md },
-  linkText: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
+  linkText: { fontSize: Typography.sizes.base, color: Colors.primary, fontWeight: '600' },
   footer: { alignItems: 'center', marginTop: Spacing.xl },
   footerText: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   footerLink: { color: Colors.primary, fontWeight: '600' },

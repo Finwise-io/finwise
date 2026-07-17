@@ -217,7 +217,7 @@ export default function ImportHoldingsScreen() {
                   <Text style={styles.secName} numberOfLines={2}>{name}</Text>
                   {/* Import v2: the class is CORRECTABLE before anything is saved — tap to cycle */}
                   <TouchableOpacity accessibilityRole="button" onPress={() => cycleClass(i)}
-                    accessibilityLabel={`${name} classified as ${classLabel} — tap to change`} hitSlop={{ top: 6, bottom: 6, left: 6, right: 6 }}>
+                    accessibilityLabel={`${name} classified as ${classLabel} — tap to change`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
                     <Text style={styles.secClassBtn}>{classLabel} ▾</Text>
                   </TouchableOpacity>
                 </View>
@@ -294,7 +294,7 @@ const styles = StyleSheet.create({
   cTicker: { flex: 1.5 },
   secName: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   secClass: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
-  secClassBtn: { fontSize: 11, fontWeight: '700', color: Colors.primary, marginTop: 1 },
+  secClassBtn: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, marginTop: 3, backgroundColor: Colors.primaryLight, borderRadius: 12, paddingHorizontal: 10, paddingVertical: 6, alignSelf: 'flex-start', overflow: 'hidden' },
   mergeHead: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
   mergeRow: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, marginBottom: 6, minHeight: 44, justifyContent: 'center' },
   mergeOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },

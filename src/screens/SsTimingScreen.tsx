@@ -249,8 +249,8 @@ const styles = StyleSheet.create({
   passed: { color: Colors.textTertiary },
   example: { color: Colors.textSecondary },
   tableNote: { fontSize: 12, color: Colors.textTertiary, marginTop: 8 },
-  whyDot: { marginTop: 6, minHeight: 32, justifyContent: 'center' },
-  whyDotTxt: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+  whyDot: { marginTop: 2, minHeight: 44, justifyContent: 'center' },
+  whyDotTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   barRow: { marginTop: 10 },
   barLabel: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   barTrack: { height: 10, borderRadius: 5, backgroundColor: Colors.bgSecondary, overflow: 'hidden' },
@@ -270,6 +270,6 @@ const styles = StyleSheet.create({
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
   modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
   modalT: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
-  modalBtn: { alignSelf: 'flex-end', marginTop: Spacing.sm, padding: 8 },
+  modalBtn: { alignSelf: 'flex-end', marginTop: Spacing.sm, padding: 12, minHeight: 44, justifyContent: 'center' },
   modalBtnT: { color: Colors.primary, fontWeight: '700', fontSize: 15 },
 });

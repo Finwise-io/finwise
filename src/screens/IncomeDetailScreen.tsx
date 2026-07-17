@@ -187,7 +187,7 @@ const styles = StyleSheet.create({
   mLabel: { fontSize: 11, color: Colors.textTertiary, marginTop: 3 },
   toggleRow: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.sm },
   toggle: { flexDirection: 'row', backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: 3 },
-  toggleBtn: { paddingHorizontal: 14, paddingVertical: 6, borderRadius: Radii.sm },
+  toggleBtn: { paddingHorizontal: 14, borderRadius: Radii.sm, minHeight: 44, justifyContent: 'center' },
   toggleBtnOn: { backgroundColor: Colors.cardBg, shadowColor: '#000', shadowOpacity: 0.08, shadowRadius: 2, shadowOffset: { width: 0, height: 1 }, elevation: 1 },
   toggleTxt: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   toggleTxtOn: { color: Colors.primary, fontWeight: '700' },

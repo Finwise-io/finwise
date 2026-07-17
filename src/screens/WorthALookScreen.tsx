@@ -136,7 +136,7 @@ const styles = StyleSheet.create({
   checklistHead: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 8 },
   checklistItem: { fontSize: 14.5, color: Colors.textPrimary, lineHeight: 21, marginBottom: 8 },
   navRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: Spacing.lg },
-  navTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
+  navTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   navOff: { color: Colors.textTertiary },
   navCount: { fontSize: 13, color: Colors.textSecondary },
   footer: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', lineHeight: 19, marginTop: Spacing.xl },

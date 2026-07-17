@@ -249,7 +249,7 @@ const styles = StyleSheet.create({
   tipTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.textPrimary, flex: 1, marginRight: Spacing.sm },
   tipDetail: { fontSize: Typography.sizes.base, color: Colors.textSecondary, lineHeight: 22, marginBottom: Spacing.sm },
   tipActions: { flexDirection: 'row', gap: Spacing.sm },
-  tipBtn: { flex: 1, paddingVertical: 10, borderRadius: Radii.md, alignItems: 'center' },
+  tipBtn: { flex: 1, borderRadius: Radii.md, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   tipBtnAccept: { backgroundColor: Colors.primary },
   tipBtnAcceptText: { fontSize: Typography.sizes.base, color: '#fff', fontWeight: Typography.weights.medium },
   tipBtnSkip: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },

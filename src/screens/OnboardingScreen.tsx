@@ -326,7 +326,7 @@ const styles = StyleSheet.create({
   choiceIcon: { fontSize: 24, marginRight: Spacing.md },
   choiceTitle: { fontSize: 16, fontWeight: '600', color: Colors.textPrimary },
   choiceTitleOn: { color: Colors.primary },
-  choiceSub: { fontSize: 12, color: Colors.textTertiary, marginTop: 2 },
+  choiceSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: Colors.border },
   radioOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
   check: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
