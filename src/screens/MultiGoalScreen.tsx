@@ -94,7 +94,13 @@ export default function MultiGoalScreen() {
       {/* goal dials */}
       <Text style={s.section}>TRY THESE TOGETHER</Text>
       <View style={s.card}>
-        {dials.length === 0 && <Text style={s.empty}>No goals yet — add one on the Goals screen and come back to weigh it against the rest.</Text>}
+        {dials.length === 0 && (
+          <View>
+            <Text style={s.empty}>No goals yet — add one on the Goals screen and come back to weigh it against the rest.</Text>
+            <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/goals')}
+              accessibilityLabel="Add a goal — opens the Goals screen"><Text style={s.emptyLinkT}>Add a goal ›</Text></TouchableOpacity>
+          </View>
+        )}
         {dials.map((d, i) => (
           <View key={d.id} style={[s.dialRow, i > 0 && s.divider]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
@@ -241,6 +247,8 @@ function Row({ label, value, strong }: { label: string; value: string; strong?: 
 }
 
 const s = StyleSheet.create({
+  emptyLink: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
+  emptyLinkT: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   banner: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },

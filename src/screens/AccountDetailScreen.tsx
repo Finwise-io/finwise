@@ -174,7 +174,7 @@ export default function AccountDetailScreen() {
               <Text style={s.txnLabel} numberOfLines={1}>
                 {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
               </Text>
-              <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.primary : Colors.textPrimary }]}>
+              <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
                 {eff >= 0 ? '+' : '−'}{maskedMoney(Math.abs(eff))}
               </Text>
             </View>
@@ -424,7 +424,7 @@ const s = StyleSheet.create({
   actionRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   actionBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: 20, paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
   actionTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
-  link: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: 10 },
+  link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 4, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   txnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 40 },
   txnDate: { width: 46, fontSize: 12, fontWeight: '700', color: Colors.textTertiary },
   txnLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary },

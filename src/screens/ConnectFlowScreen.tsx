@@ -101,7 +101,7 @@ export default function ConnectFlowScreen() {
                   <Text style={s.chev}>›</Text>
                 </TouchableOpacity>
               ))}
-              {names.length === 0 && <Text style={s.note}>No matches — try a shorter name, or use a door below.</Text>}
+              {names.length === 0 && query.length > 0 && <Text style={s.note}>No matches — try a shorter name, or use a door below.</Text>}
             </View>
           </>
         ) : (
@@ -160,8 +160,9 @@ export default function ConnectFlowScreen() {
                 <View style={[s.checkBadge, on && s.checkBadgeOn]}>{on ? <Text style={s.checkTick}>✓</Text> : null}</View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.foundName}>{f.name} {f.mask ?? ''}</Text>
-                  <Text style={s.note}>{maskedMoney(Math.round(f.balance))}</Text>
                 </View>
+                {/* the balance is how you recognize YOUR account — first-class, never a gray footnote */}
+                <Text style={s.foundBal}>{maskedMoney(Math.round(f.balance))}</Text>
               </TouchableOpacity>
               {on && existing && (
                 <View style={s.mergeBox}>
@@ -180,10 +181,12 @@ export default function ConnectFlowScreen() {
           );
         })}
       </View>
-      <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={save}
-        accessibilityLabel={`Track ${Object.values(picked).filter(Boolean).length} accounts`}>
-        <Text style={s.primaryTxt}>Track {Object.values(picked).filter(Boolean).length} account{Object.values(picked).filter(Boolean).length === 1 ? '' : 's'}</Text>
-      </TouchableOpacity>
+      {(() => { const n = Object.values(picked).filter(Boolean).length; return (
+        <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, n === 0 && { opacity: 0.4 }]} disabled={n === 0} onPress={save}
+          accessibilityLabel={n === 0 ? 'Select an account to track' : `Track ${n} accounts`}>
+          <Text style={s.primaryTxt}>{n === 0 ? 'Select an account to track' : `Track ${n} account${n === 1 ? '' : 's'}`}</Text>
+        </TouchableOpacity>
+      ); })()}
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -205,6 +208,7 @@ const s = StyleSheet.create({
   note: { fontSize: 12.5, color: Colors.textTertiary, marginTop: 4, lineHeight: 17 },
   consentRow: { flexDirection: 'row', gap: 8, paddingVertical: 6 },
   consentDot: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800' },
+  foundBal: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], marginLeft: 8 },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   primaryTxt: { color: Colors.white, fontSize: 16, fontWeight: '800' },
   equalHdr: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: Spacing.lg, marginBottom: 8 },

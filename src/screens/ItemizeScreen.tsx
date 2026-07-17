@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.sm },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   amtPre: { fontSize: 24, fontWeight: '800', color: Colors.textSecondary },
-  amtIn: { fontSize: 32, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
+  amtIn: { fontSize: 32, fontWeight: '800', color: Colors.textPrimary, minWidth: 90, textAlign: 'center', paddingHorizontal: 8, paddingBottom: 2, borderBottomWidth: 2, borderBottomColor: Colors.primary },
   addBtn: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.md },
   addBtnT: { color: Colors.primary, fontSize: 15, fontWeight: '800' },
   footerNote: { marginTop: Spacing.md },

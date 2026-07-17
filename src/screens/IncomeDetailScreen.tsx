@@ -3,6 +3,7 @@
 // the effective tax rate, and the 12-month cash-flow grid (lumpy bonus/RSU months).
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -19,6 +20,7 @@ const MONTHS = ['Jan', '', 'Mar', '', 'May', '', 'Jul', '', 'Sep', '', 'Nov', ''
 
 export default function IncomeDetailScreen() {
   const store = useStore() as any;
+  const router = useRouter();
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
 
@@ -44,7 +46,13 @@ export default function IncomeDetailScreen() {
   const equityMax = Math.max(...equityFlow.map((f) => f.amount), 1);
 
   if (!sources.length) {
-    return <View style={[styles.root, { padding: Spacing.lg }]}><Text style={styles.sub}>No income captured yet. Run setup to add your salary, bonus, RSUs, and more.</Text></View>;
+    return (
+      <View style={[styles.root, { padding: Spacing.lg }]}>
+        <Text style={styles.sub}>No income captured yet. Run setup to add your salary, bonus, RSUs, and more.</Text>
+        <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center', marginTop: 8 }} onPress={() => router.push('/income-manager')}
+          accessibilityLabel="Add your income"><Text style={{ fontSize: 15, fontWeight: '700', color: Colors.primary }}>Add your income ›</Text></TouchableOpacity>
+      </View>
+    );
   }
 
   const maxMonth = Math.max(...state.monthly_cash_flow_grid.map((c) => c.gross), 1);

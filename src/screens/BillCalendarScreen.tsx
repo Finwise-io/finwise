@@ -147,6 +147,7 @@ export default function BillCalendarScreen() {
               <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + maskedMoney(Math.round(c.inflow)) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + maskedMoney(Math.round(c.outflow)) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell, { fontWeight: '800', color: neg ? Colors.red : Colors.textPrimary }]}>{maskedMoney(Math.round(c.runningBalance))}{neg ? ' short' : ''}</Text>
+              <Text style={styles.mChev}>›</Text>
             </TouchableOpacity>
           );
         })}
@@ -287,10 +288,11 @@ const styles = StyleSheet.create({
   verdictSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
   rowHead: { flexDirection: 'row', alignItems: 'center', paddingBottom: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
   hCell: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.3 },
-  numCell: { width: 78, textAlign: 'right' },
-  mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 9, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 40 },
+  numCell: { width: 88, textAlign: 'right' },
+  mRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, borderBottomWidth: 1, borderBottomColor: Colors.bgTertiary, minHeight: 48 },
   mLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
-  mNum: { fontSize: 12, fontVariant: ['tabular-nums'] },
+  mChev: { fontSize: 16, color: Colors.textTertiary, marginLeft: 4 },
+  mNum: { fontSize: 15, fontVariant: ['tabular-nums'] },
   critItem: { fontSize: 13, color: Colors.textPrimary, marginTop: 4, fontWeight: '600' },
   monthWrap: { flexDirection: 'row', flexWrap: 'wrap', gap: 6 },
   monthChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 7, paddingHorizontal: 10, minHeight: 36 },

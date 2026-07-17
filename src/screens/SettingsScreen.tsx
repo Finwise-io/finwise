@@ -273,9 +273,7 @@ export default function SettingsScreen() {
           <Text style={styles.settingLabel}>Pay frequency</Text>
           <Text style={styles.settingValue}>{payFrequency.charAt(0).toUpperCase() + payFrequency.slice(1)}</Text>
         </View>
-        <TouchableOpacity accessibilityRole="button" style={styles.linkBtn} onPress={handleRerunOnboarding}>
-          <Text style={styles.linkText}>Change settings →</Text>
-        </TouchableOpacity>
+        {/* audit S-2: one setup door — the Account section's 'Re-run setup wizard' row */}
       </Card>
 
       {/* Display mode */}
@@ -418,14 +416,7 @@ export default function SettingsScreen() {
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
-        <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleLogout}>
-          <Text style={{ fontSize: 22 }}>🚪</Text>
-          <View style={{ flex: 1, marginLeft: Spacing.sm }}>
-            <Text style={[styles.actionLabel, { color: Colors.red }]}>Sign out</Text>
-            <Text style={styles.actionSub}>Log out of {user?.email ?? 'your account'}</Text>
-          </View>
-          <Text style={styles.arrow}>›</Text>
-        </TouchableOpacity>
+        {/* audit S-2: sign-out lives ONCE — the labeled button at the bottom of the screen */}
 
         <TouchableOpacity
           style={[styles.actionRow, { borderBottomWidth: 0 }]}

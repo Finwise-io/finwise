@@ -392,7 +392,7 @@ export default function BudgetScreen() {
           <View style={styles.searchWrap}>
             <Text style={{ fontSize: 15 }}>🔍</Text>
             <TextInput style={styles.searchInput} value={search} onChangeText={setSearch} placeholder="Search payee, category, note" placeholderTextColor={Colors.textTertiary} returnKeyType="search" />
-            {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Text style={{ color: Colors.textTertiary, fontSize: 16, paddingHorizontal: 4 }}>✕</Text></TouchableOpacity>}
+            {search.length > 0 && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Clear search" hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }} onPress={() => setSearch('')}><Text style={{ color: Colors.textSecondary, fontSize: 17, paddingHorizontal: 6 }}>✕</Text></TouchableOpacity>}
           </View>
 
           <View style={styles.filterRow}>
@@ -1148,7 +1148,7 @@ const styles = StyleSheet.create({
   undoAction: { color: Colors.primaryMid, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, paddingLeft: Spacing.md },
   fab: { position: 'absolute', right: Spacing.base, bottom: 18, backgroundColor: Colors.primary, borderRadius: 24, paddingHorizontal: 20, paddingVertical: 13, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
   fabTxt: { color: '#fff', fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold },
-  txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.pill, paddingHorizontal: 11, paddingVertical: 7, borderWidth: 1, borderColor: Colors.border },
+  txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.pill, paddingHorizontal: 13, borderWidth: 1, borderColor: Colors.border, minHeight: 44 },
   txCatChipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   txCatChipT: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
@@ -1170,7 +1170,7 @@ const styles = StyleSheet.create({
 
   // Filter
   filterRow: { flexDirection: 'row', paddingHorizontal: Spacing.base, gap: Spacing.sm, marginBottom: Spacing.xs },
-  filterBtn: { paddingVertical: 7, paddingHorizontal: 16, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
+  filterBtn: { paddingHorizontal: 16, borderRadius: Radii.pill, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border, minHeight: 44, justifyContent: 'center' },
   filterBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
   filterText: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   filterTextOn: { color: Colors.primaryDeep },
@@ -1210,7 +1210,7 @@ const styles = StyleSheet.create({
   bcatIcon: { fontSize: 16, width: 22, textAlign: 'center' },
   bcatLabel: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textPrimary, fontWeight: Typography.weights.medium },
   bcatAmt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
-  bcatLimit: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, fontWeight: Typography.weights.regular },
+  bcatLimit: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.regular },
   limitBucketHdr: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textSecondary, marginTop: Spacing.sm, marginBottom: 4, letterSpacing: 0.3 },
   // debts payoff
   payoffSummary: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: Spacing.sm },
@@ -1218,7 +1218,7 @@ const styles = StyleSheet.create({
   payoffStatV: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
   payoffStatL: { fontSize: Typography.sizes.xs, color: Colors.textTertiary, marginTop: 1 },
   payFirst: { fontSize: Typography.sizes.xs, color: Colors.primary, fontWeight: Typography.weights.bold },
-  logPayBtn: { marginTop: Spacing.sm, alignSelf: 'flex-start', backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingHorizontal: 14, paddingVertical: 8 },
+  logPayBtn: { marginTop: Spacing.sm, alignSelf: 'flex-start', backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingHorizontal: 16, minHeight: 44, justifyContent: 'center' },
   logPayTxt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.primaryDeep },
   budgetFooterRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 5 },
   budgetFooterText: { fontSize: Typography.sizes.xs, color: Colors.textSecondary },

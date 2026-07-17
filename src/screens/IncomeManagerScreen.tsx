@@ -2,7 +2,7 @@
 // Pulls structured sources from onboarding (salary/bonus/equity/rental), one-off incomes from the
 // store, and investment income (dividends/interest) from the transaction ledger.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform , Alert } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -84,7 +84,14 @@ export default function IncomeManagerScreen() {
             </TouchableOpacity>
           );
         })}
-        {sources.length === 0 && <Text style={styles.empty}>No income captured yet.</Text>}
+        {sources.length === 0 && (
+          <View>
+            <Text style={styles.empty}>No income captured yet.</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add your income" style={styles.emptyBtn} onPress={() => setBaseOpen(true)}>
+              <Text style={styles.emptyBtnT}>＋ Add your income</Text>
+            </TouchableOpacity>
+          </View>
+        )}
       </View>
 
       {/* INVESTMENT INCOME (from the ledger) */}
@@ -111,10 +118,14 @@ export default function IncomeManagerScreen() {
               <Text style={styles.rowSub}>{i.date}{i.notes ? ` · ${i.notes}` : ''}</Text>
             </View>
             <Text style={styles.rowVal}>{money(i.amount)}</Text>
-            <TouchableOpacity onPress={() => store.deleteIncome(i.id)}><Text style={styles.del}>✕</Text></TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Delete ${i.source || i.type}`} hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+              onPress={() => Alert.alert('Delete this income?', `${i.source || i.type} · ${money(i.amount)}`, [
+                { text: 'Cancel', style: 'cancel' },
+                { text: 'Delete', style: 'destructive', onPress: () => store.deleteIncome(i.id) },
+              ])}><Text style={styles.del}>✕</Text></TouchableOpacity>
           </View>
         ))}
-        <TouchableOpacity onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add one-off income</Text></TouchableOpacity>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add one-off income" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add one-off income</Text></TouchableOpacity>
       </View>
 
       <View style={{ height: 40 }} />
@@ -275,8 +286,10 @@ const styles = StyleSheet.create({
   rowName: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary },
   rowSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 2 },
   rowVal: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
-  del: { fontSize: 15, color: Colors.textTertiary, paddingHorizontal: 4 },
-  empty: { fontSize: 13, color: Colors.textTertiary, paddingVertical: 12, textAlign: 'center' },
+  del: { fontSize: 17, color: Colors.textSecondary, paddingHorizontal: 8, paddingVertical: 8 },
+  empty: { fontSize: 13, color: Colors.textSecondary, paddingVertical: 12, textAlign: 'center' },
+  emptyBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginBottom: 6 },
+  emptyBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
   note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
   addLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 12 },
 

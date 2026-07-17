@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { simulate, projectNestEgg } from '../domain/retirement';
@@ -17,6 +18,7 @@ const STEP = 100;
 export default function WhatIfScreen() {
   const params = useLocalSearchParams<{ addMonthly?: string }>();
   const store = useStore() as any;
+  const router = useRouter();
   const op = store.onboardingProfile ?? {};
   const uid = store.user?.uid ?? 'local';
   const A = store.retirementAssumptions ?? {};
@@ -66,10 +68,14 @@ export default function WhatIfScreen() {
       {result == null ? (
         <View style={s.card}>
           <Text style={s.note}>Add your accounts and plan basics first — then this screen can show what an extra monthly amount would do. No guessed numbers.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/analytics')}
+            accessibilityLabel="Add accounts — opens the Net worth tab"><Text style={s.emptyLinkT}>Add accounts ›</Text></TouchableOpacity>
         </View>
       ) : result.retired ? (
         <View style={s.card}>
           <Text style={s.note}>You're already drawing down, so monthly contributions aren't the lever — the Plan tab's scenarios (spending, claim timing) are where your choices live.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
+            accessibilityLabel="Open the Plan tab"><Text style={s.emptyLinkT}>Open the Plan tab ›</Text></TouchableOpacity>
         </View>
       ) : (
         <View style={s.card} accessible
@@ -97,6 +103,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const s = StyleSheet.create({
+  emptyLink: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
+  emptyLinkT: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   banner: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },

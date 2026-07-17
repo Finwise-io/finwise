@@ -166,7 +166,7 @@ export default function RewardsScreen() {
       {/* Goals */}
       <View style={styles.sectionRow}>
         <Text style={styles.sectionTitle}>Savings goals</Text>
-        <TouchableOpacity onPress={() => setShowAddGoal(!showAddGoal)}>
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a savings goal" style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => setShowAddGoal(!showAddGoal)}>
           <Text style={styles.addLink}>+ Add goal</Text>
         </TouchableOpacity>
       </View>
