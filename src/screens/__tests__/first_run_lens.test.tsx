@@ -115,5 +115,7 @@ test("the cash-flow snapshot card: income/spent/left from the month's own figure
   } as any);
   render(<HomeScreen />);
   expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();
-  expect(screen.getByLabelText(/This month's cash flow: income \$6,000, spent so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
+  // the pace now leads with a WORD (approved mock 2026-07-16) — never color alone
+  expect(screen.getByLabelText(/This month's cash flow, On pace: income \$6,000, spent so far \$1,200, \$4,800 left, bills may still be coming/)).toBeOnTheScreen();
+  expect(screen.getByText('✓ On pace')).toBeOnTheScreen();
 });

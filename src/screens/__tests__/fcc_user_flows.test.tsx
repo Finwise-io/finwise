@@ -102,7 +102,7 @@ describe('3 · brand-new user, day one, finishes onboarding', () => {
     s.setOnboardingComplete(true);
     render(<HomeScreen />);
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();   // onboarding-derived rows, not zeros
-    expect(screen.getByLabelText('Add expense')).toBeOnTheScreen();   // the '+ Expense' button
+    expect(screen.queryByLabelText('Add expense')).toBeNull();        // founder 2026-07-16: no + Expense on Home
   });
 });
 

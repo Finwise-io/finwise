@@ -80,10 +80,10 @@ describe('FLOW 1 · brand-new paying user: skip the questions, walk in through t
   });
 });
 
-describe('FLOW 2 · the daily habit: log a coffee with + Expense, see it on Cash flow', () => {
-  test('two taps on Home → the expense lands in the store and the month-so-far line', () => {
+describe('FLOW 2 · the daily habit: log a coffee with + Expense on Cash flow (its ONE home since 2026-07-16)', () => {
+  test('two taps on Cash flow → the expense lands in the store and the month-so-far line', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
-    const home = render(<HomeScreen />);
+    render(<CashFlowScreen />);
     fireEvent.press(screen.getByLabelText('Add expense'));
     fireEvent.changeText(screen.getByPlaceholderText('0'), '6.50');
     fireEvent.press(screen.getByText(/Dining/));
@@ -91,10 +91,13 @@ describe('FLOW 2 · the daily habit: log a coffee with + Expense, see it on Cash
     const exp = (useStore.getState() as any).expenses;
     expect(exp).toHaveLength(1);
     expect(exp[0].amount).toBe(6.5);
-    home.unmount();
-
-    render(<CashFlowScreen />);
     expect(screen.getByText(/Spent \$(6\.50|7) of/)).toBeOnTheScreen();   // budgetVsActual, same helper
+  });
+
+  test('founder decision 2026-07-16: Home has NO + Expense button — logging lives on Cash flow', () => {
+    useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
+    render(<HomeScreen />);
+    expect(screen.queryByLabelText('Add expense')).toBeNull();
   });
 });
 
@@ -201,7 +204,7 @@ describe('EDGE 1 · importing the SAME file twice must not double the money', ()
 describe('EDGE 2 · the + Expense sheet never saves junk', () => {
   test('blank amount or missing category keeps Save disabled; a real entry saves once', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
-    render(<HomeScreen />);
+    render(<CashFlowScreen />);
     fireEvent.press(screen.getByLabelText('Add expense'));
     fireEvent.changeText(screen.getByPlaceholderText('0'), '12');
     fireEvent.press(screen.getByText(/^Add \$12$/));                       // amount but NO category → guarded

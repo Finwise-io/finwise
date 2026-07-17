@@ -9,13 +9,13 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'rea
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, GaugeRamp } from '../utils/theme';
 import { money, round2 } from '../domain/_shared/num';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
 import { budgetVsActual } from '../domain/budget';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
-import { QuickAddExpense, AllocateSavings, ExpenseFab } from '../components/MoneySheets';
+import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
 import { buildPerformance, portfolioPeriodReturn, type Position } from '../domain/performance';
@@ -42,8 +42,6 @@ export default function HomeScreen() {
   const lens = resolveLens(op, store.lensOverride);
   const topInsights = useInsights(3);
   const expenses = (store.expenses ?? []) as any[];
-  const customCats = useMemo(() => (Array.isArray(op?.spendCats) ? op.spendCats : []).filter((c: any) => c?.custom && c?.label), [op]);
-  const [sheet, setSheet] = useState(false);
   const [allocSheet, setAllocSheet] = useState<{ open: boolean; ym?: string; label?: string; available?: number; isPrompt?: boolean }>({ open: false });
 
   const now = new Date();
@@ -236,8 +234,6 @@ export default function HomeScreen() {
   const prevNw = nwHistory.length ? nwHistory[nwHistory.length - 1].net_worth : null;
   const nwDir = prevNw != null && netWorth !== prevNw ? (netWorth > prevNw ? 'up' : 'down') : null;
 
-  const monthName = MONTHS_LONG[now.getMonth()];
-
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
       <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
@@ -350,8 +346,8 @@ export default function HomeScreen() {
             <View style={styles.gaugeRow}>
               <View accessible={false}>
                 <Svg width={104} height={60} viewBox="0 0 104 60">
-                  {[['#E4655F', 'M 8 56 A 44 44 0 0 1 17.4 29.2'], ['#EDA33B', 'M 21.2 24.4 A 44 44 0 0 1 44.6 8.6'], ['#E8D24C', 'M 50.6 7.2 A 44 44 0 0 1 74.9 12.9'], ['#9BCB63', 'M 80.1 16.4 A 44 44 0 0 1 93.9 39.1'], ['#3DA982', 'M 95.6 44.9 A 44 44 0 0 1 96 56']].map(([c, d]) => (
-                    <Path key={c} d={d} stroke={c} strokeWidth={9} strokeLinecap="round" fill="none" opacity={0.9} />
+                  {['M 8 56 A 44 44 0 0 1 17.4 29.2', 'M 21.2 24.4 A 44 44 0 0 1 44.6 8.6', 'M 50.6 7.2 A 44 44 0 0 1 74.9 12.9', 'M 80.1 16.4 A 44 44 0 0 1 93.9 39.1', 'M 95.6 44.9 A 44 44 0 0 1 96 56'].map((d, i) => (
+                    <Path key={d} d={d} stroke={GaugeRamp[i]} strokeWidth={9} strokeLinecap="round" fill="none" opacity={0.9} />
                   ))}
                 </Svg>
                 <Text style={styles.gaugeLock}>🔒</Text>
@@ -369,34 +365,48 @@ export default function HomeScreen() {
 
         {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs spending
             at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
-        <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-          accessibilityLabel={`This month's cash flow: income ${maskedMoney(Math.round(thisMonthNet))}, spent so far ${maskedMoney(Math.round(bva.spent_total))}, ${thisMonthNet - bva.spent_total >= 0 ? `${maskedMoney(Math.round(thisMonthNet - bva.spent_total))} left, bills may still be coming` : `${maskedMoney(Math.round(bva.spent_total - thisMonthNet))} over`}. Opens the Cash flow tab.`}>
-          <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
-          <View style={styles.cfBarTrack}>
-            <View style={[styles.cfBarFill, {
-              width: `${Math.min(100, thisMonthNet > 0 ? (bva.spent_total / thisMonthNet) * 100 : (bva.spent_total > 0 ? 100 : 0))}%`,
-              backgroundColor: thisMonthNet <= 0 || bva.spent_total > thisMonthNet ? Colors.red : bva.spent_total > 0.7 * thisMonthNet ? Colors.amber : Colors.primary,
-            }]} />
-          </View>
-          <View style={styles.cfRow}>
-            <Text style={styles.cfCell}>Income <Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text></Text>
-            <Text style={styles.cfCell}>Spent so far <Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></Text>
-            <Text style={styles.cfCell}>{thisMonthNet - bva.spent_total >= 0 ? 'Left ' : 'Over '}
-              <Text style={[styles.cfNum, thisMonthNet - bva.spent_total < 0 && { color: Colors.red }]}>{maskedMoney(Math.abs(Math.round(thisMonthNet - bva.spent_total)))}</Text>
-            </Text>
-          </View>
-        </TouchableOpacity>
+        {(() => {
+          // the approved mock (2026-07-16): pace carries a WORD (never color alone) + the three
+          // money figures at money size — Income / Spent so far / Left in 17pt lining figures
+          const over = thisMonthNet <= 0 || bva.spent_total > thisMonthNet;
+          const fast = !over && bva.spent_total > 0.7 * thisMonthNet;
+          const pace = over ? { word: 'Over', bg: Colors.redLight, fg: Colors.red }
+            : fast ? { word: 'Spending fast', bg: Colors.amberLight, fg: Colors.amber }
+            : { word: '✓ On pace', bg: Colors.primaryLight, fg: Colors.primaryDark };
+          const pctSpent = thisMonthNet > 0 ? Math.min(999, Math.round((bva.spent_total / thisMonthNet) * 100)) : null;
+          const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+          const left = thisMonthNet - bva.spent_total;
+          return (
+            <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
+              accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${maskedMoney(Math.round(thisMonthNet))}, spent so far ${maskedMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `${maskedMoney(Math.round(left))} left, bills may still be coming` : `${maskedMoney(Math.round(-left))} over`}. Opens the Cash flow tab.`}>
+              <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
+              <View style={styles.paceRow}>
+                <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>
+                <Text style={styles.paceNote}>{pctSpent != null ? `${pctSpent}% spent · ` : ''}day {now.getDate()} of {daysInMonth}</Text>
+              </View>
+              <View style={styles.cfBarTrack}>
+                <View style={[styles.cfBarFill, {
+                  width: `${Math.min(100, thisMonthNet > 0 ? (bva.spent_total / thisMonthNet) * 100 : (bva.spent_total > 0 ? 100 : 0))}%`,
+                  backgroundColor: over ? Colors.red : fast ? Colors.amber : Colors.primary,
+                }]} />
+              </View>
+              <View style={styles.cfRow}>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Income</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(thisMonthNet))}</Text></View>
+                <View style={styles.cfCell}><Text style={styles.cfLabel}>Spent so far</Text><Text style={styles.cfNum}>{maskedMoney(Math.round(bva.spent_total))}</Text></View>
+                <View style={styles.cfCell}>
+                  <Text style={styles.cfLabel}>{left >= 0 ? 'Left' : 'Over'}</Text>
+                  <Text style={[styles.cfNum, { color: left >= 0 ? Colors.primaryDark : Colors.red }]}>{maskedMoney(Math.abs(Math.round(left)))}</Text>
+                </View>
+              </View>
+            </TouchableOpacity>
+          );
+        })()}
 
         <Disclaimer />
-        <View style={{ height: 96 }} />
+        <View style={{ height: 40 }} />
       </ScrollView>
 
-      {/* '+ Expense' (M4): the one capture affordance on Home */}
-      <ExpenseFab onPress={() => setSheet(true)} />
-
-      <QuickAddExpense visible={sheet} onClose={() => setSheet(false)} customCats={customCats}
-        isCurrentMonth baseDate={now} monthLabel={`${monthName} ${now.getFullYear()}`} />
-
+      {/* founder decision 2026-07-16: no '+ Expense' button on Home — logging lives on Cash flow */}
       <AllocateSavings state={allocSheet} onClose={() => setAllocSheet({ open: false })} />
     </View>
   );
@@ -409,61 +419,67 @@ const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctTxt(Math.abs(d))}`
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
+  // Type sizes on this screen come from the official ladder only (11/13/15/17/20/24/38) —
+  // approved mock 2026-07-16; money figures use lining (tabular) digits so columns align.
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
-  h1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary },
-  staleLine: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 40, justifyContent: 'center' },
+  staleLine: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 44, justifyContent: 'center' },
   staleTxt: { fontSize: 13, fontWeight: '700', color: Colors.amber },
-  milestoneLine: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 40, justifyContent: 'center' },
-  milestoneTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark },
+  milestoneLine: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 44, justifyContent: 'center' },
+  milestoneTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   milestoneDismiss: { color: Colors.textTertiary, fontWeight: '800' },
-  hiddenBanner: { fontSize: 12.5, fontWeight: '600', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingVertical: 6, paddingHorizontal: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
+  hiddenBanner: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingVertical: 6, paddingHorizontal: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   coin: { fontSize: 44, textAlign: 'center', marginBottom: 10 },
-  cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg },
-  ctaText: { color: '#fff', fontWeight: '700', fontSize: 16 },
+  cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg, minHeight: 50, justifyContent: 'center' },
+  ctaText: { color: '#fff', fontWeight: '700', fontSize: 17 },
   door: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm, minHeight: 64, justifyContent: 'center' },
   doorPrimary: { borderWidth: 1.5, borderColor: Colors.primary },
-  doorTitle: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
+  doorTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   doorSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, lineHeight: 18 },
   soonChip: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary },
-  quietLink: { fontSize: 13.5, fontWeight: '700', color: Colors.primary, marginTop: Spacing.md },
-  promiseLine: { fontSize: 14.5, color: Colors.textSecondary, lineHeight: 24 },
+  quietLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: Spacing.md, minHeight: 44, textAlignVertical: 'center', paddingVertical: 12 },
+  promiseLine: { fontSize: 15, color: Colors.textSecondary, lineHeight: 24 },
 
   heroCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  heroKicker: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6 },
-  heroBig: { fontSize: 34, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
-  heroLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
-  heroVs: { fontSize: 13, color: Colors.textSecondary, marginTop: 3 },
-  freshness: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 4 },
-  heroLink: { fontSize: 14, fontWeight: '600', color: Colors.primary, marginTop: 10 },
+  heroKicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7 },
+  heroBig: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2, fontVariant: ['tabular-nums'] },
+  heroLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 4 },
+  heroVs: { fontSize: 13, color: Colors.textSecondary, marginTop: 3, fontVariant: ['tabular-nums'] },
+  freshness: { fontSize: 12, color: Colors.textTertiary, marginTop: 4 },
+  heroLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 32, textAlignVertical: 'center' },
 
-  nwLine: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12, marginBottom: Spacing.sm, gap: 8 },
-  nwLabel: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
-  nwValue: { flex: 1, fontSize: 16, fontWeight: '800', color: Colors.textPrimary },
-  nwDir: { fontSize: 12.5, fontWeight: '800' },
+  nwLine: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 13, marginBottom: Spacing.sm, gap: 8, minHeight: 48 },
+  nwLabel: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
+  nwValue: { flex: 1, fontSize: 17, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  nwDir: { fontSize: 13, fontWeight: '800' },
   nwArrow: { fontSize: 20, color: Colors.textTertiary },
 
   box: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  boxLabel: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 4 },
-  nothingTxt: { fontSize: 14, color: Colors.textSecondary, paddingVertical: 8 },
-  needRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 10, minHeight: 44 },
+  boxLabel: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
+  nothingTxt: { fontSize: 15, color: Colors.textSecondary, paddingVertical: 8 },
+  needRow: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingVertical: 11, minHeight: 44 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   needRank: { fontSize: 13, fontWeight: '700', color: Colors.textTertiary, width: 26 },
   needRankTop: { color: Colors.primary, fontWeight: '800' },
-  needTitle: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
-  needBody: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
+  needTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  needBody: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
 
   wilTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   wilEst: { fontSize: 13, fontWeight: '500', color: Colors.textTertiary },
-  wilInvite: { fontSize: 14, color: Colors.textSecondary, marginTop: 4, lineHeight: 20 },
+  wilInvite: { fontSize: 15, color: Colors.textSecondary, marginTop: 4, lineHeight: 20 },
   gaugeRow: { flexDirection: 'row', alignItems: 'center', gap: 14, marginTop: 6 },
   gaugeLock: { position: 'absolute', alignSelf: 'center', top: 26, fontSize: 20 },
   gaugeBlank: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   gaugeLine: { flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' },
   gaugeSampleNum: { fontWeight: '800', color: Colors.textTertiary, fontStyle: 'italic' },
-  cfBarTrack: { height: 12, borderRadius: 6, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
+  paceRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  paceChip: { fontSize: 12, fontWeight: '800', borderRadius: 10, paddingVertical: 3, paddingHorizontal: 9, overflow: 'hidden' },
+  paceNote: { fontSize: 12, color: Colors.textTertiary, fontVariant: ['tabular-nums'] },
+  cfBarTrack: { height: 12, borderRadius: 6, backgroundColor: Colors.bgTertiary, marginTop: 8, overflow: 'hidden' },
   cfBarFill: { height: 12, borderRadius: 6 },
-  cfRow: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 10 },
-  cfCell: { fontSize: 13, color: Colors.textSecondary },
-  cfNum: { fontSize: 13.5, fontWeight: '800', color: Colors.textPrimary },
+  cfRow: { flexDirection: 'row', marginTop: 12 },
+  cfCell: { flex: 1 },
+  cfLabel: { fontSize: 13, color: Colors.textSecondary },
+  cfNum: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 2, fontVariant: ['tabular-nums'] },
 });

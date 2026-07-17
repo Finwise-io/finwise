@@ -37,8 +37,15 @@ export const Colors = {
   chartOut: '#EB6834',   // money out — orange
   gainText: '#006300',   // dark green for gain TEXT (mid-greens are for marks, not body text)
   cardBg: '#FFFFFF',
-  successGreen: '#5DCAA5',
+  successGreen: '#5DCAA5',   // MARKS only (bars, dots) — never text (2:1 on white; use gainText)
+
+  // section-identity accents (design audit 2026-07-16: no raw hexes on screens)
+  purple: '#7A5AA7',
+  gold: '#EBB23A',
 };
+
+// The will-it-last gauge ramp, bad → good (design audit 2026-07-16: tokenized from HomeScreen).
+export const GaugeRamp = ['#E4655F', '#EDA33B', '#E8D24C', '#9BCB63', '#3DA982'] as const;
 
 export const Typography = {
   fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),

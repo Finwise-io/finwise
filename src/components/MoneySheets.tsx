@@ -156,12 +156,13 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
             <TextInput style={sh.input} placeholder="Where? (optional)" placeholderTextColor={Colors.textTertiary}
               value={merchant} onChangeText={setMerchant} />
 
-            {/* date */}
+            {/* date — selection carries a ✓ and weight, never tint alone (approved mock 2026-07-16) */}
             {isCurrentMonth ? (
               <View style={sh.dayRow}>
                 {(['today', 'yesterday'] as const).map((d) => (
-                  <TouchableOpacity accessibilityRole="button" key={d} style={[sh.dayChip, day === d && sh.chipOn]} onPress={() => setDay(d)}>
-                    <Text style={[sh.chipTxt, { textTransform: 'capitalize' }]}>{d}</Text>
+                  <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: day === d }} key={d}
+                    style={[sh.dayChip, day === d && sh.chipOn]} onPress={() => setDay(d)}>
+                    <Text style={[sh.chipTxt, { textTransform: 'capitalize' }, day === d && sh.chipTxtOn]}>{day === d ? '✓ ' : ''}{d}</Text>
                   </TouchableOpacity>
                 ))}
               </View>
@@ -213,8 +214,9 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
           </View>
           <View style={sh.dayRow}>
             {(['today', 'yesterday'] as const).map((dd) => (
-              <TouchableOpacity accessibilityRole="button" key={dd} style={[sh.dayChip, day === dd && sh.chipOn]} onPress={() => setDay(dd)}>
-                <Text style={[sh.chipTxt, { textTransform: 'capitalize' }]}>{dd}</Text>
+              <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: day === dd }} key={dd}
+                style={[sh.dayChip, day === dd && sh.chipOn]} onPress={() => setDay(dd)}>
+                <Text style={[sh.chipTxt, { textTransform: 'capitalize' }, day === dd && sh.chipTxtOn]}>{day === dd ? '✓ ' : ''}{dd}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -412,10 +414,13 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
             ) : (
               <>
                 <Text style={sh.bucketHint}>Your recurring base pay. Bonus, equity & rental live in Setup.</Text>
+                {/* P0 fix (design audit MS-1): which mode is selected must read in WORDS + weight,
+                    never tint alone — it changes what the salary number means */}
                 <View style={sh.toggleRow}>
                   {(['gross', 'takehome'] as const).map((m) => (
-                    <TouchableOpacity accessibilityRole="button" key={m} style={[sh.seg, mode === m && sh.chipOn]} onPress={() => setMode(m)}>
-                      <Text style={sh.chipTxt}>{m === 'gross' ? 'Gross' : 'Take-home'}</Text>
+                    <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: mode === m }} key={m}
+                      style={[sh.seg, mode === m && sh.chipOn]} onPress={() => setMode(m)}>
+                      <Text style={[sh.chipTxt, mode === m && sh.chipTxtOn]}>{mode === m ? '✓ ' : ''}{m === 'gross' ? 'Gross' : 'Take-home'}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -425,8 +430,9 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
                 </View>
                 <View style={sh.freqRow}>
                   {FREQS.map((f) => (
-                    <TouchableOpacity accessibilityRole="button" key={f.v} style={[sh.freqChip, freq === f.v && sh.chipOn]} onPress={() => setFreq(f.v)}>
-                      <Text style={sh.freqTxt}>{f.l}</Text>
+                    <TouchableOpacity accessibilityRole="button" accessibilityState={{ selected: freq === f.v }} key={f.v}
+                      style={[sh.freqChip, freq === f.v && sh.chipOn]} onPress={() => setFreq(f.v)}>
+                      <Text style={[sh.freqTxt, freq === f.v && sh.chipTxtOn]}>{freq === f.v ? '✓ ' : ''}{f.l}</Text>
                     </TouchableOpacity>
                   ))}
                 </View>
@@ -444,52 +450,56 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
 }
 
 const sh = StyleSheet.create({
+  // Sheet family type comes from the official ladder only (11/13/15/17/20/44-hero) —
+  // approved mock 2026-07-16; selection is always ✓ + weight, never tint alone.
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
-  title: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  title: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   tabRow: { flexDirection: 'row', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, padding: 3, marginBottom: 4 },
-  tab: { flex: 1, paddingVertical: 8, borderRadius: Radii.sm, alignItems: 'center' },
+  tab: { flex: 1, paddingVertical: 10, borderRadius: Radii.sm, alignItems: 'center', minHeight: 40, justifyContent: 'center' },
   tabOn: { backgroundColor: Colors.cardBg },
-  tabTxt: { fontSize: 14, fontWeight: '600', color: Colors.textSecondary },
+  tabTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   tabTxtOn: { color: Colors.primary, fontWeight: '700' },
-  scanBtn: { marginTop: Spacing.md, alignSelf: 'center', paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  scanBtn: { marginTop: Spacing.md, alignSelf: 'center', paddingHorizontal: 16, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.primary, backgroundColor: Colors.primaryLight, minHeight: 36, justifyContent: 'center' },
   scanTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
-  amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  amtRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'center', marginTop: Spacing.md },
   amtPrefix: { fontSize: 30, fontWeight: '800', color: Colors.textSecondary },
-  amtInput: { fontSize: 44, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
-  bucketHint: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm },
-  manageLink: { fontSize: 12.5, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 10 },
+  amtInput: { fontSize: 44, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', paddingHorizontal: 6, paddingVertical: 0, paddingBottom: 2, borderBottomWidth: 2, borderBottomColor: Colors.primary, fontVariant: ['tabular-nums'] },
+  bucketHint: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.sm },
+  manageLink: { fontSize: 14, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 4, paddingVertical: 12, minHeight: 44 },
   // the even choice grid — 3 equal cells per row, packed from the left (no ragged centered rows)
-  catHdr: { fontSize: 10.5, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.7, marginTop: Spacing.md, marginBottom: 6 },
+  catHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.7, marginTop: Spacing.md, marginBottom: 6 },
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
-  catCell: { width: '31.5%', minHeight: 64, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 4 },
+  catCell: { width: '31.5%', minHeight: 66, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 4 },
   catIcon: { fontSize: 20 },
-  catLabel: { fontSize: 11.5, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', lineHeight: 14, marginTop: 3 },
+  catLabel: { fontSize: 12.5, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', lineHeight: 15, marginTop: 3 },
   catLabelOn: { fontWeight: '800', color: Colors.primaryDark },
-  closeBtn: { position: 'absolute', top: 14, right: 14, width: 30, height: 30, borderRadius: 15, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
+  closeBtn: { position: 'absolute', top: 14, right: 14, width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
   closeTxt: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  chipTxtOn: { fontWeight: '800', color: Colors.primaryDark },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
-  input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.md },
+  input: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, marginTop: Spacing.md, minHeight: 48 },
   dayRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },
-  dayChip: { paddingHorizontal: 16, paddingVertical: 8, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  dayChip: { paddingHorizontal: 18, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, minHeight: 44, justifyContent: 'center' },
   toggleRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md, justifyContent: 'center' },
-  seg: { flex: 1, paddingVertical: 9, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center' },
+  seg: { flex: 1, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   freqRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.md },
-  freqChip: { flex: 1, paddingVertical: 9, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center' },
-  freqTxt: { fontSize: 12.5, fontWeight: '600', color: Colors.textPrimary },
+  freqChip: { flex: 1, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
+  freqTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   dateNote: { fontSize: 13, color: Colors.textSecondary, marginTop: Spacing.md, textAlign: 'center' },
-  save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: Spacing.md, alignItems: 'center', marginTop: Spacing.md },
-  saveTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
-  remove: { color: Colors.textSecondary, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md },
-  allocHead: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm },
+  save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, alignItems: 'center', marginTop: Spacing.md, minHeight: 50, justifyContent: 'center' },
+  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  remove: { color: Colors.textSecondary, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md, fontSize: 15 },
+  allocHead: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm, fontVariant: ['tabular-nums'] },
   allocSectionHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.sm, marginBottom: 2 },
-  allocRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
+  allocRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border, minHeight: 52 },
   allocIcon: { fontSize: 20, width: 24, textAlign: 'center' },
-  allocName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },
-  allocSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 1 },
-  allocInput: { width: 72, backgroundColor: Colors.cardBg, borderRadius: Radii.sm, paddingHorizontal: 8, paddingVertical: 8, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
-  unitToggle: { width: 34, height: 34, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.cardBg },
-  unitToggleTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
+  allocName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  // the "$2,400 of $5,000" progress line is load-bearing money — 12.5pt secondary, never 11pt (audit MS-2)
+  allocSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 1, fontVariant: ['tabular-nums'] },
+  allocInput: { width: 80, backgroundColor: Colors.cardBg, borderRadius: Radii.sm, paddingHorizontal: 8, paddingVertical: 10, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right', minHeight: 44 },
+  unitToggle: { width: 44, height: 44, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.cardBg },
+  unitToggleTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
 });
