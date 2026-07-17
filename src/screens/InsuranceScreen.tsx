@@ -1,8 +1,9 @@
 // Life-insurance needs calculator — how much coverage protects your family, prefilled from your
 // income and debts. DIME-style: income replacement + debts + future goals + final expenses − assets.
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
+import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -15,6 +16,7 @@ const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/
 
 export default function InsuranceScreen() {
   const store = useStore() as any;
+  const router = useRouter();
   const op = store.onboardingProfile ?? {};
   const incomeGuess = Math.round(totalGrossAnnual(op));
   const debtGuess = Math.round(totalDebtBalance(store.liabilities ?? []));
@@ -58,7 +60,7 @@ export default function InsuranceScreen() {
         <View style={styles.row}>{field('Coverage you already have', existing, setExisting)}<View style={{ flex: 1 }} /></View>
       </View>
 
-      <View style={[styles.hero, { backgroundColor: need.gap > 0 ? Colors.primaryDark : Colors.primary }]}>
+      <View style={[styles.hero, { backgroundColor: need.gap > 0 ? Colors.amber : Colors.primary }]}>
         <Text style={styles.heroLabel}>{need.gap > 0 ? 'Additional coverage to consider' : 'You appear well covered'}</Text>
         <Text style={styles.heroVal}>{money(need.gap)}</Text>
         <Text style={styles.heroSub}>{need.gap > 0 ? 'on top of what you already have' : 'your assets + coverage meet the estimated need'}</Text>
@@ -69,10 +71,15 @@ export default function InsuranceScreen() {
         <View style={styles.bd}><Text style={styles.bdL}>+ Debts, goals & final expenses</Text><Text style={styles.bdV}>{money(need.totalNeed - need.incomeReplacement)}</Text></View>
         <View style={styles.bd}><Text style={styles.bdL}>Total need</Text><Text style={[styles.bdV, styles.bold]}>{money(need.totalNeed)}</Text></View>
         <View style={styles.bd}><Text style={styles.bdL}>− Savings & existing coverage</Text><Text style={styles.bdV}>−{money(need.covered)}</Text></View>
-        <View style={[styles.bd, { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8 }]}><Text style={[styles.bdL, styles.bold]}>Gap</Text><Text style={[styles.bdV, styles.bold, { color: need.gap > 0 ? Colors.red : Colors.primary }]}>{money(need.gap)}</Text></View>
+        <View style={[styles.bd, { borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8 }]}><Text style={[styles.bdL, styles.bold]}>Gap</Text><Text style={[styles.bdV, styles.bold, { color: need.gap > 0 ? Colors.amber : Colors.gainText }]}>{money(need.gap)}</Text></View>
       </View>
 
-      <Text style={styles.foot}>A rule-of-thumb estimate (DIME method), not a recommendation. Term life is usually the cheapest way to cover a gap like this.</Text>
+      <Text style={styles.foot}>A rule-of-thumb estimate (the “DIME” method — debts, income, mortgage, education), not a recommendation.</Text>
+      {need.gap > 0 && (
+        <TouchableOpacity accessibilityRole="button" accessibilityLabel="Stress-test your cushion with this in mind" style={styles.nextStep} onPress={() => router.push('/stress-test' as any)}>
+          <Text style={styles.nextStepT}>Next: stress-test your cushion ›</Text>
+        </TouchableOpacity>
+      )}
       <View style={{ height: 40 }} />
     </KeyboardAwareScreen>
   );
@@ -98,4 +105,6 @@ const styles = StyleSheet.create({
   bdV: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   bold: { fontWeight: '800' },
   foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  nextStep: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
+  nextStepT: { fontSize: 15, fontWeight: '700', color: Colors.primary },
 });

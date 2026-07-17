@@ -35,7 +35,7 @@ export default function CreditScreen() {
   return (
     <KeyboardAwareScreen style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Build credit</Text>
-      <Text style={styles.sub}>Good credit means cheaper loans, easier renting, and lower deposits. Here’s where you stand and how to improve.</Text>
+      <Text style={styles.sub}>Good credit means better loan and refinancing rates, cheaper insurance in many states, and faster fraud recovery. Here’s where you stand and how to keep it strong.</Text>
 
       {/* utilization calculator */}
       <View style={styles.card}>
@@ -60,7 +60,7 @@ export default function CreditScreen() {
               <View style={[styles.fill, { width: `${Math.min(100, util.ratio * 100)}%`, backgroundColor: utilColor }]} />
               <View style={styles.mark30} />
             </View>
-            <Text style={styles.tiny}>The line marks 30%. {money(bal)} of {money(lim)} used.</Text>
+            <Text style={styles.dollarLine}>{money(bal)} of {money(lim)} used — the line marks 30%.</Text>
           </>
         ) : <Text style={styles.tiny}>Enter your total limit to see your utilization.</Text>}
       </View>
@@ -71,7 +71,7 @@ export default function CreditScreen() {
         <TextInput style={styles.input} keyboardType="number-pad" placeholder="e.g. 720" placeholderTextColor={Colors.textTertiary} value={scoreStr} onChangeText={setScoreStr} />
         {band
           ? <Text style={[styles.bandTxt, { color: band.good ? Colors.primary : Colors.amber }]}>{score} · {band.label}</Text>
-          : <Text style={styles.tiny}>Many banks show your score free. Ranges: 800+ excellent · 740+ very good · 670+ good · 580+ fair.</Text>}
+          : <Text style={styles.dollarLine}>Many banks show your score free. Ranges: 800+ excellent · 740+ very good · 670+ good · 580+ fair.</Text>}
       </View>
 
       {/* habits */}
@@ -108,6 +108,7 @@ const styles = StyleSheet.create({
   fill: { position: 'absolute', left: 0, top: 0, bottom: 0, borderRadius: 5 },
   mark30: { position: 'absolute', left: '30%', top: -2, bottom: -2, width: 2, backgroundColor: Colors.textPrimary },
   tiny: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
+  dollarLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, lineHeight: 18, fontVariant: ['tabular-nums'] },
   bandTxt: { fontSize: 18, fontWeight: '800', marginTop: 8 },
   section: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 20, marginBottom: 6 },
   habit: { flexDirection: 'row', gap: 12, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 8 },

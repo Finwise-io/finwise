@@ -122,7 +122,7 @@ export default function TipsScreen() {
                 <View style={{ flex: 1, marginHorizontal: Spacing.sm }}>
                   <ProgressBar pct={pct} color={pct > 30 ? Colors.red : pct > 15 ? Colors.amberMid : Colors.primary} height={6} />
                 </View>
-                <Text style={styles.catAmt}>{money(total)}</Text>
+                <Text style={styles.catAmt}>{money(total)}{pct > 30 ? ' · high' : ''}</Text>
               </View>
             );
           })}

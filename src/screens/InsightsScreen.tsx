@@ -217,7 +217,7 @@ const styles = StyleSheet.create({
   icon: { fontSize: 22 },
   title: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   body: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 2, lineHeight: 19 },
-  hideBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center' },
+  hideBtn: { width: 32, height: 32, borderRadius: 16, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.bgTertiary, marginRight: 6 },
   hideTxt: { fontSize: 14, color: Colors.textTertiary, fontWeight: '700' },
   arrow: { fontSize: 22, color: Colors.textTertiary },
   empty: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20 },

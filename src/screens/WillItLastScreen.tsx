@@ -110,7 +110,7 @@ const s = StyleSheet.create({
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   driverL: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   driverSrc: { fontSize: 12, color: Colors.textTertiary, marginTop: 1 },
-  driverV: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
+  driverV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right', fontVariant: ['tabular-nums'] },   // the data never subordinates to its caption (audit WL-2)
   arrow: { fontSize: 18, color: Colors.textTertiary },
   note: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18 },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },

@@ -176,7 +176,7 @@ const s = StyleSheet.create({
   rowLabel: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   rowWhy: { fontSize: 12, color: Colors.textTertiary, marginTop: 1 },
   rowVal: { fontSize: 14.5, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
-  moveBtn: { width: 40, height: 40, borderRadius: Radii.md, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center' },
+  moveBtn: { width: 44, height: 44, borderRadius: Radii.md, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center', marginLeft: 8 },
   moveTxt: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800' },
   link: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, marginTop: Spacing.md },
   whyLine: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 6, lineHeight: 19 },

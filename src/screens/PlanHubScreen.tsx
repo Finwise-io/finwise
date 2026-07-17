@@ -17,6 +17,9 @@ import { usePlanCompleteness } from './SharpenPlanScreen';
 import { Disclaimer } from '../components/Disclaimer';
 import { maskedMoney } from '../components/useMoney';
 
+// saved-scenario dates read like the rest of the app — never raw ISO (audit PH-3)
+const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
+
 export default function PlanHubScreen() {
   const router = useRouter();
   const store = useStore() as any;
@@ -117,9 +120,9 @@ export default function PlanHubScreen() {
                 <TouchableOpacity accessibilityRole="button" style={{ flex: 1 }} onPress={() => router.push('/retirement')}
                   accessibilityLabel={`Saved scenario ${s.name}, ${s.chance != null ? `${s.chance} percent when saved` : ''}`}>
                   <Text style={styles.rowTitle}>{s.name}</Text>
-                  <Text style={styles.rowSub}>{s.chance != null ? `${s.chance}% when saved` : 'open to re-run'} · {String(s.createdAt ?? '').slice(0, 10)}</Text>
+                  <Text style={styles.rowSub}>{s.chance != null ? `${s.chance}% when saved` : 'open to re-run'} · {prettySavedDate(s.createdAt)}</Text>
                 </TouchableOpacity>
-                <TouchableOpacity accessibilityRole="button" onPress={() => deleteScenario(s)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                <TouchableOpacity accessibilityRole="button" onPress={() => deleteScenario(s)} hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
                   accessibilityLabel={`Delete scenario ${s.name}`}>
                   <Text style={styles.deleteTxt}>✕</Text>
                 </TouchableOpacity>
@@ -170,7 +173,7 @@ function DecisionRow({ title, sub, onPress, divider }: { title: string; sub: str
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
-  h1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary },
+  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },   // never outweigh the verdict hero (audit PH-2)
   tagline: { fontSize: 14, color: Colors.textSecondary, marginBottom: Spacing.md },
   section: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: Spacing.xs },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },

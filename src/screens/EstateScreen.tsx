@@ -68,6 +68,6 @@ const styles = StyleSheet.create({
   checkMark: { color: '#fff', fontSize: 14, fontWeight: '900' },
   itemTitle: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
   itemTitleOn: { color: Colors.textSecondary, textDecorationLine: 'line-through' },
-  itemSub: { fontSize: 12, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
+  itemSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 19 },
   foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
 });

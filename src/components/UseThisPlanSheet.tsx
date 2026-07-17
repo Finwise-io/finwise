@@ -70,7 +70,7 @@ const s = StyleSheet.create({
   valRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginTop: 3 },
   fromVal: { fontSize: 15, color: Colors.textTertiary, textDecorationLine: 'line-through' },
   arrow: { fontSize: 15, color: Colors.textSecondary },
-  toVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  toVal: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },   // the NEW value is the payoff — it leads (audit UP-2)
   adoptBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   adoptTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   cancelBtn: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 6 },

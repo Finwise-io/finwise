@@ -98,7 +98,8 @@ export default function MonthDetailScreen() {
 
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>{retired ? 'REGULAR BILLS (COME OUT OF YOUR SAFE-TO-SPEND)' : 'REGULAR BILLS & EVERYDAY SPENDING'}</Text>
+        <Text style={styles.cardHdr}>REGULAR BILLS</Text>
+        <Text style={styles.cardHdrSub}>{retired ? 'These come out of your safe-to-spend.' : 'Including everyday spending.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
         {isCurrent && bva && (
@@ -130,6 +131,7 @@ const styles = StyleSheet.create({
   title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
+  cardHdrSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 1, marginBottom: 2 },
   headline: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   reason: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 6, lineHeight: 19 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
