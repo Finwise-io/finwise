@@ -88,7 +88,7 @@ export default function InsuranceScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   row: { flexDirection: 'row', gap: Spacing.sm, marginBottom: 4 },
   fieldL: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary, marginBottom: 4, marginTop: 6 },

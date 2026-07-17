@@ -100,7 +100,7 @@ export default function StressTestScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   cardTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginBottom: 5, marginTop: 8 },
@@ -117,7 +117,7 @@ const styles = StyleSheet.create({
   big: { fontSize: 32, fontWeight: '800' },
   bigUnit: { fontSize: 13, color: Colors.textSecondary, flex: 1 },
   note: { fontSize: 13, color: Colors.textSecondary, marginTop: 6, lineHeight: 18 },
-  fundTxt: { fontSize: 13.5, color: Colors.textPrimary, lineHeight: 20 },
+  fundTxt: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20 },
   bold: { fontWeight: '800' },
   foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 15, marginTop: 14 },
   essDef: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 14 },

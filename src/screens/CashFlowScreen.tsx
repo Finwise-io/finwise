@@ -364,7 +364,7 @@ const styles = StyleSheet.create({
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
   modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, maxHeight: '80%' },
   modalT: { fontSize: 16, fontWeight: '800', color: Colors.textPrimary, marginBottom: 10 },
-  whyStep: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary },
+  whyStep: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   whyTxt: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 2 },
   modalBtn: { alignSelf: 'flex-end', marginTop: 4, padding: 8 },
   modalBtnT: { color: Colors.primary, fontWeight: '700', fontSize: 15 },

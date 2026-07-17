@@ -95,7 +95,7 @@ const styles = StyleSheet.create({
   backBtn: { alignSelf: 'flex-start', marginTop: 4, minHeight: 44, justifyContent: 'center' },
   back: { color: Colors.primary, fontSize: 16, fontWeight: '700' },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   kicker: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginTop: 18, marginBottom: 2 },
   scoreCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 14, alignItems: 'center' },
   scorePct: { fontSize: 40, fontWeight: '800', color: Colors.primary },

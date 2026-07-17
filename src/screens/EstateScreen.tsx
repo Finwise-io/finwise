@@ -56,7 +56,7 @@ export default function EstateScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   progressCard: { flexDirection: 'row', alignItems: 'center', gap: 14, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   pct: { fontSize: 30, fontWeight: '800', color: Colors.primary },
   pctLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, marginBottom: 6 },
@@ -66,7 +66,7 @@ const styles = StyleSheet.create({
   check: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   checkMark: { color: '#fff', fontSize: 14, fontWeight: '900' },
-  itemTitle: { fontSize: 14.5, fontWeight: '800', color: Colors.textPrimary },
+  itemTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   itemTitleOn: { color: Colors.textSecondary, textDecorationLine: 'line-through' },
   itemSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 19 },
   foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },

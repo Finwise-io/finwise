@@ -93,5 +93,5 @@ const s = StyleSheet.create({
   note: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 18 },
   how: { fontSize: 12.5, color: Colors.primaryDeep, marginTop: 6, fontWeight: '600' },
   tryBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.lg, minHeight: 44, alignItems: 'center', justifyContent: 'center' },
-  tryTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
+  tryTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary },
 });

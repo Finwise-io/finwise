@@ -138,7 +138,7 @@ const s = StyleSheet.create({
   badgeRingOn: { borderColor: Colors.primary },
   badgeDot: { width: 12, height: 12, borderRadius: 6, backgroundColor: Colors.primary },
   optionTxt: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  consequence: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
+  consequence: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   primaryTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   skipBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
@@ -150,6 +150,6 @@ const s = StyleSheet.create({
   introCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
   introCheckTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   introLead: { fontWeight: '800' },
-  introLine: { flex: 1, fontSize: 15.5, color: Colors.textPrimary, lineHeight: 23 },
-  promise: { fontSize: 13.5, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
+  introLine: { flex: 1, fontSize: 15, color: Colors.textPrimary, lineHeight: 23 },
+  promise: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19, marginTop: Spacing.md },
 });

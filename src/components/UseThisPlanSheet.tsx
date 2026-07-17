@@ -63,7 +63,7 @@ const s = StyleSheet.create({
   card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
   title: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.md, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.md, lineHeight: 19 },
   row: { paddingVertical: 10 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   rowLabel: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },

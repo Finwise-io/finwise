@@ -202,9 +202,9 @@ const s = StyleSheet.create({
   rateInput: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, padding: Spacing.sm, fontSize: 16, color: Colors.textPrimary, marginTop: 8, width: 120 },
   chipRow: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm },
   chip: { backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center' },
-  chipTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark },
+  chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   secondaryBtn: { backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingVertical: 12, alignItems: 'center', minHeight: 44, marginTop: Spacing.md },
-  secondaryTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primaryDark },
+  secondaryTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: 4 },
   primaryTxt: { color: Colors.white, fontSize: 16, fontWeight: '800' },
 });

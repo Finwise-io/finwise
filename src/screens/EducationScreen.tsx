@@ -94,7 +94,7 @@ export default function EducationScreen() {
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginTop: 8 },
-  sub: { fontSize: 13.5, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
+  sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, marginBottom: 6, lineHeight: 19 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 10 },
   row: { flexDirection: 'row', gap: Spacing.sm, marginBottom: 4 },
   fieldL: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary, marginBottom: 4, marginTop: 6 },
@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   trackTxt: { flex: 1, fontSize: 12.5, color: Colors.textSecondary },
   gapCard: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: Spacing.md, marginTop: 10 },
   gapHero: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
-  gapTxt: { fontSize: 13.5, color: Colors.textPrimary, marginTop: 2, lineHeight: 20 },
+  gapTxt: { fontSize: 13, color: Colors.textPrimary, marginTop: 2, lineHeight: 20 },
   bold: { fontWeight: '800' },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 14, alignItems: 'center', marginTop: 12 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },

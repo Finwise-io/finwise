@@ -131,7 +131,7 @@ const s = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primaryDark },
-  legLine: { fontSize: 14.5, color: Colors.textPrimary, lineHeight: 22, marginTop: 6 },
+  legLine: { fontSize: 15, color: Colors.textPrimary, lineHeight: 22, marginTop: 6 },
   strong: { fontWeight: '800' },
   diffBox: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: 10, marginTop: 10 },
   diffTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, lineHeight: 26, fontVariant: ['tabular-nums'] },

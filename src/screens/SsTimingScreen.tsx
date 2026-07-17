@@ -184,7 +184,7 @@ export default function SsTimingScreen() {
       {/* one adoption button per live option */}
       {rows.filter((r) => !r.passed).map((r) => (
         <TouchableOpacity accessibilityRole="button" key={r.claimAge}
-          style={[styles.adoptBtn, usingExample && { opacity: 0.4 }]} disabled={usingExample}
+          style={[styles.adoptBtn, adopted === r.claimAge && styles.adoptBtnOn, usingExample && { opacity: 0.4 }]} disabled={usingExample}
           onPress={() => setAdoptFor(r.claimAge)}
           accessibilityLabel={`Use claim at ${r.claimAge} as my plan`}>
           <Text style={styles.adoptTxt}>{adopted === r.claimAge ? `Your plan: claim at ${r.claimAge} — change it` : `Use claim at ${r.claimAge} as my plan`}</Text>
@@ -253,7 +253,7 @@ const styles = StyleSheet.create({
   whyDot: { marginTop: 2, minHeight: 44, justifyContent: 'center' },
   whyDotTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   barRow: { marginTop: 10 },
-  barLabel: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  barLabel: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   barTrack: { height: 10, borderRadius: 5, backgroundColor: Colors.bgSecondary, overflow: 'hidden' },
   barFill: { height: 10, borderRadius: 5, backgroundColor: Colors.primary },
   stepperRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.lg, marginTop: 10 },
@@ -261,8 +261,11 @@ const styles = StyleSheet.create({
   stepTxt: { fontSize: 22, fontWeight: '700', color: Colors.primary },
   liveTo: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, minWidth: 90, textAlign: 'center' },
   window: { fontSize: 13, color: Colors.textSecondary, marginVertical: Spacing.sm, lineHeight: 19 },
-  adoptBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xs },
-  adoptTxt: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  // option CARDS, not a wall of identical filled buttons (audit SS-4) — the ONE filled confirm
+  // lives in the Use-this-plan sheet each of these opens
+  adoptBtn: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginBottom: Spacing.xs },
+  adoptBtnOn: { backgroundColor: Colors.primaryLight },
+  adoptTxt: { color: Colors.primaryDark, fontSize: 15, fontWeight: '800' },
   couplesNote: { fontSize: 12, color: Colors.textTertiary, lineHeight: 17, marginTop: 8 },
   receiveHead: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
   body: { fontSize: 14, color: Colors.textSecondary, lineHeight: 20, marginTop: 8 },
