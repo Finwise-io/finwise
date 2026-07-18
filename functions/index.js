@@ -78,3 +78,7 @@ exports.aiTips = onRequest(
     }
   }
 );
+
+// SnapTrade relay (design v2, 2026-07-18) — signing + secrets live here, never in the app.
+const { snaptradeRelay } = require('./snaptrade');
+exports.snaptradeRelay = snaptradeRelay;
