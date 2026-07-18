@@ -142,12 +142,21 @@ const COMPANY_WORDS = /\b(corp|corporation|inc|ltd|plc|mining|miners?|resources|
 
 /** Classify a holding by asset class from its symbol + name (the importer sets asset_class explicitly,
  *  which overrides the kind/tax_bucket derivation). */
+// OCC-style option symbols — how brokerages export options: ROOT + YYMMDD + C/P + strike×1000,
+// e.g. 'AAPL250117C00220000' (spaces/padding vary), or date-style 'AAPL 01/17/2026 220 C'.
+// PRD Capability-map G2 (founder, 2026-06-30; closed 2026-07-18): option rows file under
+// ALTERNATIVES, never as stocks — same lesson crypto/currency/commodities learned in F1 #19.
+const OCC_OPTION = /^[A-Z.]{1,6}\d{6}[CP]\d{5,8}$/;
+const DATE_STYLE_OPTION = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\s+[\d.]+\s*[CP]\b/i;
+
 export function classifyHolding(symbol: string, name = ''): AssetClass {
   const s = `${symbol} ${name}`.trim();
   const sym = symbol.trim().toUpperCase();
   if (MMF_TICKERS.has(sym)) return 'cash';
   if (isCashEquivalentLabel(s)) return 'cash';                          // CD / T-bill / money-market
-  if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options
+  if (OCC_OPTION.test(sym.replace(/\s+/g, ''))) return 'alternatives'; // options (OCC symbol)
+  if (DATE_STYLE_OPTION.test(s)) return 'alternatives';                // options (date-style symbol)
+  if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options (named)
   if (CRYPTO_TICKERS.has(sym) || /\b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b/i.test(s)) return 'alternatives';
   if (COMMODITY_TICKERS.has(sym)) return 'alternatives';
   if (/\b(gold|silver|platinum|palladium|commodit(y|ies))\b/i.test(s) && !COMPANY_WORDS.test(s)) return 'alternatives';

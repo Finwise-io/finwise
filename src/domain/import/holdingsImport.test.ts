@@ -178,3 +178,21 @@ describe('classifyHolding — crypto, commodities, currency (F1 #19)', () => {
     expect(classifyHolding('ZZZ', 'AAPL Jan 2027 Call')).toBe('alternatives');
   });
 });
+
+// PRD Capability-map G2 (founder 2026-06-30, closed 2026-07-18): OPTION rows — OCC symbols,
+// date-style symbols, and named calls/puts — file under ALTERNATIVES, never as stocks.
+describe('classifyHolding — options (G2)', () => {
+  const { classifyHolding } = require('./holdingsImport');
+  test('OCC option symbols classify as alternatives', () => {
+    expect(classifyHolding('AAPL250116C00220000')).toBe('alternatives');
+    expect(classifyHolding('F  261218P00009000')).toBe('alternatives');
+  });
+  test('date-style option symbols classify as alternatives', () => {
+    expect(classifyHolding('AAPL 01/16/2027 220.00 C')).toBe('alternatives');
+  });
+  test('named calls/puts classify as alternatives; plain tickers stay equities', () => {
+    expect(classifyHolding('AAPL', 'AAPL Jan 2027 220 Call')).toBe('alternatives');
+    expect(classifyHolding('AAPL', 'Apple Inc')).toBe('stocks_etf');
+    expect(classifyHolding('CALLON', 'Callon Petroleum')).toBe('stocks_etf');   // 'call' inside a word ≠ option
+  });
+});
