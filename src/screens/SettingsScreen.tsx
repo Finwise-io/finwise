@@ -73,6 +73,24 @@ export default function SettingsScreen() {
     Alert.alert(v ? 'Email verified ✓' : 'Not verified yet', v ? 'Thanks — you\'re all set.' : 'Click the link in the email, then try again.');
   };
 
+  function handleDisconnect(c: { id: string; brokerage: string }) {
+    Alert.alert(
+      `Disconnect ${c.brokerage}?`,
+      'The link is removed and its data deleted from the connection service. Your accounts here can stay as manual entries (frozen at today\'s numbers) or be removed.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Keep as manual', onPress: async () => {
+          try { const { snaptradeApi } = await import('../services/sync/snaptradeClient'); await snaptradeApi.disconnect(c.id); } catch {}
+          (useStore.getState() as any).removeConnectionAccounts?.(c.id, true);
+        } },
+        { text: 'Remove accounts', style: 'destructive', onPress: async () => {
+          try { const { snaptradeApi } = await import('../services/sync/snaptradeClient'); await snaptradeApi.disconnect(c.id); } catch {}
+          (useStore.getState() as any).removeConnectionAccounts?.(c.id, false);
+        } },
+      ],
+    );
+  }
+
   function handleLogout() {
     Alert.alert(
       'Sign out',
@@ -138,6 +156,7 @@ export default function SettingsScreen() {
     if (!delPassword) { Alert.alert('Password required', 'Enter your password to confirm.'); return; }
     setDelBusy(true);
     try {
+      try { const { snaptradeApi } = await import('../services/sync/snaptradeClient'); await snaptradeApi.deleteUser(); } catch {}
       await deleteAccount(delPassword);
       // Wipe local data so nothing lingers on the device, then return to auth.
       resetAll();
@@ -387,6 +406,33 @@ export default function SettingsScreen() {
 
       {/* Actions */}
       <Card>
+        {(useStore.getState() as any).snaptradeConnections?.length > 0 && (
+          <>
+            <Text style={styles.sectionTitle}>Connected accounts</Text>
+            {((useStore.getState() as any).snaptradeConnections ?? []).map((c: any) => (
+              <View key={c.id} style={styles.actionRow}>
+                <Text style={{ fontSize: 22 }}>🔗</Text>
+                <View style={{ flex: 1, marginLeft: Spacing.sm }}>
+                  <Text style={styles.actionLabel}>{c.brokerage}</Text>
+                  <Text style={styles.actionSub}>{c.disabled ? 'Needs re-linking — tap Fix' : 'Connected · read-only'}</Text>
+                </View>
+                {c.disabled && (
+                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Fix the ${c.brokerage} connection`}
+                    style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}
+                    onPress={() => router.push(`/connect?reconnect=${c.id}` as any)}>
+                    <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.amber }}>Fix ›</Text>
+                  </TouchableOpacity>
+                )}
+                <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Disconnect ${c.brokerage}`}
+                  style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}
+                  onPress={() => handleDisconnect(c)}>
+                  <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.red }}>Disconnect</Text>
+                </TouchableOpacity>
+              </View>
+            ))}
+          </>
+        )}
+
         <Text style={styles.sectionTitle}>Account</Text>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleRerunOnboarding}>

@@ -242,6 +242,10 @@ type AppState = {
   priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
   pricesFetchedAt: string | null;                 // ISO of last successful market-data refresh
   transactions: Transaction[];                    // append-only ledger (newest first) — audit/history
+  snaptradeSeenKeys: Record<string, true>;        // SnapTrade activity dedupe registry (composite keys)
+  snaptradeConnections: { id: string; brokerage: string; disabled: boolean }[];  // last-known connections meta
+  snaptradeLastSyncAt: string | null;             // ISO of last successful full sync (drives the daily debounce)
+  wrapperConfirmQueue: string[];                  // asset_ids whose tax wrapper the user must confirm
   txnFlags: TxnFlag[];                            // F10 "worth a look" flags (newest first)
   knownPayees: Record<string, string[]>;          // F10: per-account payees confirmed by "Yes, this was me"
 
@@ -315,6 +319,9 @@ type AppState = {
   updateIncome: (id: string, updates: Partial<IncomeEntry>) => void;
   updateExpense: (id: string, updates: Partial<ExpenseEntry>) => void;
   addAsset: (a: Omit<AssetAccount, 'asset_id'>) => void;
+  ingestSnapTradeSync: (r: { accounts: AssetAccount[]; newTransactions: Transaction[]; seenKeys: Record<string, true>; needsWrapperConfirm: string[] }, connections: { id: string; brokerage: string; disabled: boolean }[]) => void;
+  confirmAccountWrapper: (assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']) => void;
+  removeConnectionAccounts: (connectionId: string, keepAsManual: boolean) => void;
   updateAsset: (id: string, updates: Partial<AssetAccount>) => void;
   deleteAsset: (id: string) => void;
   addPosition: (accountId: string, position: Omit<Position, 'position_id'>) => void;
@@ -457,6 +464,10 @@ export const useStore = create<AppState>()(
       priceCache: {},
       pricesFetchedAt: null,
       transactions: [],
+      snaptradeSeenKeys: {},
+      snaptradeConnections: [],
+      snaptradeLastSyncAt: null,
+      wrapperConfirmQueue: [],
       txnFlags: [],
       knownPayees: {},
       goals: [],
@@ -548,6 +559,27 @@ export const useStore = create<AppState>()(
 
       // ── Net Worth: assets & liabilities ──────────────────────────
       addAsset:       (a) => set((s) => ({ assetAccounts: [{ ...a, asset_id: newEntityId('ast') }, ...s.assetAccounts] })),
+      // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
+      // (never applied to balances — the no-double-count rule pinned in ingest.test.ts).
+      ingestSnapTradeSync: (r, connections) => set((s) => ({
+        assetAccounts: r.accounts,
+        transactions: [...r.newTransactions, ...s.transactions],
+        snaptradeSeenKeys: r.seenKeys,
+        snaptradeConnections: connections,
+        snaptradeLastSyncAt: new Date().toISOString(),
+        wrapperConfirmQueue: Array.from(new Set([...(s.wrapperConfirmQueue ?? []), ...r.needsWrapperConfirm])),
+      })),
+      confirmAccountWrapper: (assetId, kind, taxBucket) => set((s) => ({
+        assetAccounts: s.assetAccounts.map((a) => (a.asset_id === assetId ? { ...a, kind, tax_bucket: taxBucket, wrapper_confirmed: true } : a)),
+        wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => id !== assetId),
+      })),
+      // Disconnecting: the user chooses — keep the rows as frozen manual copies, or remove them.
+      removeConnectionAccounts: (connectionId, keepAsManual) => set((s) => ({
+        assetAccounts: keepAsManual
+          ? s.assetAccounts.map((a) => (a.connection_id === connectionId ? { ...a, source: 'manual' as const, connection_id: undefined, last_synced: undefined } : a))
+          : s.assetAccounts.filter((a) => a.connection_id !== connectionId),
+        snaptradeConnections: (s.snaptradeConnections ?? []).filter((c) => c.id !== connectionId),
+      })),
       updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
@@ -916,6 +948,7 @@ export const useStore = create<AppState>()(
       lastRetireChance: null,
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
+        snaptradeSeenKeys: {}, snaptradeConnections: [], snaptradeLastSyncAt: null, wrapperConfirmQueue: [],
         lensOverride: null,
         milestoneHighSeen: null, transitionChecks: {}, drawOrder: null, dismissedInsights: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,

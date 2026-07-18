@@ -98,6 +98,11 @@ export function isEmailVerified(): boolean {
 
 /** The email of the account currently signed in to Firebase — the authoritative identity that
  *  account-level actions (delete, reauth) operate on. Use this, not a possibly-stale store value. */
+/** The signed-in user's Firebase ID token — how server relays (AI proxy, SnapTrade) verify the caller. */
+export async function currentIdToken(): Promise<string | null> {
+  try { return auth.currentUser ? await auth.currentUser.getIdToken() : null; } catch { return null; }
+}
+
 export function currentUserEmail(): string | null {
   return auth.currentUser?.email ?? null;
 }

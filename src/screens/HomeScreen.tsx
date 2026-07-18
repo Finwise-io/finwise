@@ -272,6 +272,21 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
+        {/* BROKEN CONNECTION — SnapTrade serves cached data silently when a link breaks; the
+            disabled flag is the only tell, so it gets a first-class fix line (their launch
+            checklist requires exactly this detection + notification) */}
+        {(() => {
+          const broken = (store.snaptradeConnections ?? []).find((c: any) => c.disabled);
+          if (!broken) return null;
+          return (
+            <TouchableOpacity accessibilityRole="button" style={styles.staleLine}
+              onPress={() => router.push(`/connect?reconnect=${broken.id}` as any)}
+              accessibilityLabel={`The connection to ${broken.brokerage} needs re-linking. Opens the fix.`}>
+              <Text style={styles.staleTxt}>⚠ {broken.brokerage} needs re-linking — fix it ›</Text>
+            </TouchableOpacity>
+          );
+        })()}
+
         {/* STALE CONNECTION — a connected balance older than 3 days must SAY so (F1 freshness) */}
         {(() => {
           const stale = (store.assetAccounts ?? [])

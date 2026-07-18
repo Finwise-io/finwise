@@ -17,7 +17,8 @@ export type TxnType =
   | 'TRANSFER'           // cash between accounts
   | 'TRANSFER_IN_KIND'   // whole position moved between accounts
   | 'DIVIDEND' | 'INTEREST' | 'COUPON'   // income on a holding/account (cash or reinvested)
-  | 'FEE';
+  | 'FEE'
+  | 'ADJUSTMENT';   // broker split/adjustment (SnapTrade v2): a visible history row — touches NOTHING
 
 export interface Transaction {
   id: EntityId;
@@ -96,6 +97,8 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
 /** Apply one transaction to the accounts (pure). The ledger append is the caller's job. */
 export function applyTransaction(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
   switch (t.type) {
+    case 'ADJUSTMENT':
+      return accounts;   // splits/broker adjustments: history row only — balances come from the sync
     case 'OPENING_POSITION':
       return map(accounts, t.account_id, (a) => addLot(a, t, t.shares || 0, t.price || 0));
     case 'OPENING_CASH':
@@ -175,6 +178,7 @@ export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAcco
 export function inverseOf(t: Transaction): Transaction | null {
   const base: Transaction = { ...t, id: newEntityId('txn'), note: `reversal of ${t.id}` };
   switch (t.type) {
+    case 'ADJUSTMENT': return { ...base };   // no-op reverses to no-op
     case 'DEPOSIT': return { ...base, type: 'WITHDRAWAL' };
     case 'WITHDRAWAL':
     case 'FEE': return { ...base, type: 'DEPOSIT' };
@@ -193,7 +197,7 @@ export function inverseOf(t: Transaction): Transaction | null {
 
 const TYPE_LABEL: Record<TxnType, string> = {
   OPENING_POSITION: 'Opening holding', OPENING_CASH: 'Opening cash', BUY: 'Buy', SELL: 'Sell',
-  DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdrawal', TRANSFER: 'Transfer', TRANSFER_IN_KIND: 'Transfer shares',
+  DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdrawal', TRANSFER: 'Transfer', TRANSFER_IN_KIND: 'Transfer shares', ADJUSTMENT: 'Broker adjustment',
   DIVIDEND: 'Dividend', INTEREST: 'Interest', COUPON: 'Coupon', FEE: 'Fee',
 };
 export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }

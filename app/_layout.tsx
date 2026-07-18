@@ -14,6 +14,8 @@ import { RecoveryCodeModal } from '../src/components/RecoveryCodeModal';
 import { AppLockGate } from '../src/components/AppLockGate';
 import { nextRoute } from '../src/navigation/routeGuard';
 import { initCrashReporting, setUserScope } from '../src/services/crashReporter';
+import { snaptradeConfigured } from '../src/services/sync/snaptradeClient';
+import { runSnapTradeSync } from '../src/services/sync/snaptradeSync';
 
 patchTextScaling();      // install the global font-scale hook once
 initCrashReporting();    // F-6: install global error handler + Sentry (when configured) once
@@ -25,7 +27,7 @@ const SYNC_FIELDS = [
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
   'recurringIncomes', 'recurringExpenses', 'customCategories',
-  'assetAccounts', 'liabilities', 'nwSeeded', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
+  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeSeenKeys', 'snaptradeConnections', 'snaptradeLastSyncAt', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
   'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
   'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
@@ -128,6 +130,14 @@ export default function RootLayout() {
       if (syncTimer.current) clearTimeout(syncTimer.current);
     };
   }, []);
+
+  // SnapTrade daily sync on app-open (design v2 §3): the Daily plan refreshes their side once a
+  // day, so one debounced pull per open is the whole schedule. Failures are silent here — the
+  // freshness labels and broken-connection line tell the user the truth either way.
+  useEffect(() => {
+    if (!user || !snaptradeConfigured()) return;
+    runSnapTradeSync().catch(() => {});
+  }, [user]);
 
   // Auth-based routing guard.
   // L-4: account creation lives ONLY on AuthScreen. Every unauthenticated user is sent there

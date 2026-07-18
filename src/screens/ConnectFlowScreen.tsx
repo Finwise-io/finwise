@@ -15,12 +15,27 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney } from '../components/useMoney';
 import { activeSyncProvider, CONSENT_COPY, type FoundAccount } from '../services/sync';
+import { snaptradeConfigured } from '../services/sync/snaptradeClient';
+import SnapTradeConnect from './SnapTradeConnect';
+import { useLocalSearchParams } from 'expo-router';
 import type { AssetAccount } from '../domain/assets';
 
 export default function ConnectFlowScreen() {
   const router = useRouter();
   const store = useStore() as any;
+  const params = useLocalSearchParams<{ reconnect?: string }>();
   const provider = useMemo(() => activeSyncProvider(), []);
+  // LIVE path (design v2): the relay is configured → the real SnapTrade flow with honesty cards.
+  // The sandbox path below stays for dev/tests — same doors, same consent, same merge gate.
+  if (snaptradeConfigured()) {
+    return (
+      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+        <Text style={s.h1}>Connect an account</Text>
+        <Text style={s.sub}>Read-only: we can look, never touch your money.</Text>
+        <SnapTradeConnect reconnectId={params.reconnect ? String(params.reconnect) : undefined} />
+      </ScrollView>
+    );
+  }
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
 
   const [step, setStep] = useState<'institution' | 'consent' | 'found'>('institution');

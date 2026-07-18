@@ -95,6 +95,19 @@ export default function AccountDetailScreen() {
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
         <Text style={s.classLine}>{ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
         {tickers.length > 0 && <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>}
+        {(account.option_holdings ?? []).length > 0 && (
+          <View style={s.optBlock}>
+            <Text style={s.optHdr}>OPTIONS IN THIS ACCOUNT</Text>
+            {(account.option_holdings ?? []).map((o) => (
+              <View key={o.label} style={s.optRow} accessible
+                accessibilityLabel={`${o.label}, ${o.contracts} contract${Math.abs(o.contracts) === 1 ? '' : 's'}, worth ${maskedMoney(Math.abs(o.value))}`}>
+                <Text style={s.optLabel} numberOfLines={2}>{o.label}</Text>
+                <Text style={s.optVal}>{maskedMoney(o.value)}</Text>
+              </View>
+            ))}
+            <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden.</Text>
+          </View>
+        )}
       </View>
 
       {/* stale hand-entered value — the gentle 6-month nudge (never red, never a zero) */}
@@ -416,6 +429,12 @@ const s = StyleSheet.create({
   balance: { fontSize: 32, fontWeight: '800', color: Colors.textPrimary },
   classLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   holdsLine: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
+  optBlock: { marginTop: 10, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8 },
+  optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
+  optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  optVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   staleCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   staleTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   staleBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
