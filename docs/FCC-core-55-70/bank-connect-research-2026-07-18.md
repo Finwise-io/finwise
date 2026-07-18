@@ -30,3 +30,25 @@ at production scale even when the developer tier is self-serve.
 
 Both #1 and #2 implement the existing `SyncProvider` interface (same seam as the sandbox
 provider); each is roughly a day of wiring + tests, and neither blocks Build 43.
+
+## Addendum (same day): does SnapTrade replace the market-data provider? NO — but it shrinks the need
+
+Verified against SnapTrade's docs: its endpoints are ACCOUNT data only — positions (with the
+broker's current marks), balances, orders, and transaction history (often years; e.g. Schwab
+retains ~4). There is **no historical price-series or benchmark endpoint** — no daily closes for
+a ticker, no SPY history. Teller likewise: bank account data only, zero market data.
+
+What that means per feature of the APPROVED Invest design:
+- **Covered by SnapTrade (connected users):** portfolio value hero (broker marks), gain since
+  purchase (cost basis), and — a real win — its multi-year transaction history feeds the
+  money-weighted personal return from REAL flows.
+- **Still needs a market-data provider:** the 1M/3M/1Y/3Y period returns (needs each ticker's
+  historical daily closes), the "vs the market" comparison (SPY series), look-back
+  counterfactuals, and current prices for MANUAL/CSV holdings (users who never connect — a core
+  path for this audience).
+- Our own monthly snapshots grow a trend history going forward, but cannot backfill 1–2 years
+  and carry no benchmark line.
+
+Sizing the remaining need: END-OF-DAY daily closes, ~a few hundred tickers + SPY, ~3 years of
+history — the smallest tier any end-of-day vendor sells. The 2026-07-15 price-provider research
+stands: delayed/end-of-day data with end-user display rights (sales-quote route, e.g. Intrinio).
