@@ -73,6 +73,7 @@ export interface AssetAccount {
   mask?: string;                  // '••4821' — how banks disambiguate accounts
   status?: 'open' | 'closed' | 'archived' | 'unavailable';   // broker-reported; closed is SHOWN, never dropped
   wrapper_confirmed?: boolean;    // the USER confirmed kind/tax_bucket — syncs never override it
+  snaptrade_account_id?: string;  // stable SnapTrade account id — how syncs find an absorbed manual row
   option_holdings?: {             // SnapTrade v2 (G2): itemized option positions on a connected
     label: string;                // account — 'AAPL $220 call · exp Jan 16 2027'. Their value is
     contracts: number;            // already inside `balance` (the broker's total), so these rows

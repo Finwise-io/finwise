@@ -12,6 +12,7 @@ export const MODAL_SEGMENTS = [
   // insight target) had the same latent bug. Any NEW root screen must be added here (pinned by a test).
   'cashflow','contribution-room','itemize','monthly-income','paycheck-months',   // FCC Phase 2: retiree income + paycheck
   'worth-a-look','idle-cash',   // FCC Home tab: F10 flag detail + the idle-cash nudge landing
+  'connect-done',               // SnapTrade portal deep-link return (audit fix P1-3)
   'ss-timing',                  // FCC Plan tab: the Social Security claim-timing decision
   'month-detail',               // FCC Cash flow tab: the per-month cell renderer
   'account-detail',             // FCC Net worth tab: one page per account

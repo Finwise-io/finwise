@@ -225,3 +225,41 @@ describe('USER WALK · 5 edge cases', () => {
     expect(vti?.assetClass).toBe('stocks_etf');
   });
 });
+
+// ── AUDIT-FIX pins at the store level (adversarial review 2026-07-18) ──────────────────────────
+describe('audit fixes · store machinery knows about connected accounts', () => {
+  test('P0: a price refresh can NEVER overwrite a connected balance (options + money market stay counted)', () => {
+    useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
+    seedConnected();
+    const s = useStore.getState() as any;
+    // the classic trigger: recording any manual transaction recomputes all ledger-managed accounts
+    s.addAsset({ label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 500, target_return: 0.005, source: 'manual' });
+    const chk = (useStore.getState() as any).assetAccounts.find((a: any) => a.label === 'Checking');
+    s.recordTransaction({ type: 'DEPOSIT', account_id: chk.asset_id, amount: 100, date: '2026-07-18' });
+    const connected = (useStore.getState() as any).assetAccounts.find((a: any) => a.snaptrade_account_id === 'acc-1');
+    expect(connected.balance).toBe(52000);          // the broker total survived the recompute pass
+  });
+
+  test('P0: deleting a connected history row removes the ROW ONLY — balances untouched', () => {
+    useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
+    seedConnected();
+    const s = useStore.getState() as any;
+    const div = s.transactions.find((t: any) => t.type === 'DIVIDEND');
+    const before = s.assetAccounts.find((a: any) => a.snaptrade_account_id === 'acc-1').balance;
+    expect(s.deleteTransaction(div.id)).toBe(true);
+    const after = (useStore.getState() as any);
+    expect(after.transactions.find((t: any) => t.id === div.id)).toBeUndefined();
+    expect(after.assetAccounts.find((a: any) => a.snaptrade_account_id === 'acc-1').balance).toBe(before);
+  });
+
+  test('P1: disconnect drains the wrapper-confirm queue for removed accounts', () => {
+    useStore.setState({
+      assetAccounts: [{ asset_id: 'st-q1', label: 'X', tax_bucket: 'TAXABLE', balance: 1, target_return: 0.08, source: 'connected', connection_id: 'conn-1' }],
+      wrapperConfirmQueue: ['st-q1'],
+      snaptradeConnections: [{ id: 'conn-1', brokerage: 'X', disabled: false }],
+    } as any);
+    (useStore.getState() as any).removeConnectionAccounts('conn-1', false);
+    expect((useStore.getState() as any).wrapperConfirmQueue).toHaveLength(0);
+    expect((useStore.getState() as any).assetAccounts).toHaveLength(0);
+  });
+});

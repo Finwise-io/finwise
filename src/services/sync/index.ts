@@ -1,8 +1,8 @@
 // F1 — the secure-sync seam (FCC detailed design, engines row 'F1 secure sync seam + connection
 // freshness'). ONE provider interface between the connect-flow UI and whatever vendor does the
 // actual bank linking. The UI, the merge gate, the freshness rules, and every test run against
-// this seam; the real Plaid provider is ONE file implementing it (plus the vendor SDK + keys —
-// a founder-approved dependency, batched with the native-build step, like the Tiingo key).
+// this seam. The REAL provider is SnapTrade (design v2 2026-07-18): snaptradeClient.ts +
+// snaptradeSync.ts + SnapTradeConnect — active whenever SNAPTRADE_RELAY_URL is configured.
 // Until then `activeSyncProvider()` returns the sandbox in dev/test and null in production —
 // and the UI says so honestly instead of pretending.
 
@@ -17,7 +17,7 @@ export interface FoundAccount {
 }
 
 export interface SyncProvider {
-  id: string;                                              // 'sandbox' | 'plaid'
+  id: string;                                              // 'sandbox' | 'snaptrade'
   displayName: string;                                     // shown in the consent copy
   searchInstitutions(query: string): Promise<string[]>;    // names only — the picker's data
   /** Runs the provider's own sign-in for the institution and returns the accounts it found.

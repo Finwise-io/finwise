@@ -42,9 +42,19 @@ export function ingestSync(
 
   for (const p of payloads) {
     const st = p.account;
-    const assetId = stAssetId(st.id);
-    const prior = accounts.find((a) => a.asset_id === assetId);
     const guess = mapAccountType(st.raw_type, st.account_category);
+    const mask = st.number ? `••${String(st.number).slice(-4)}` : undefined;
+    // AUDIT FIX 2026-07-18 (P0 merge gate, design §2.7): find this account by its SnapTrade id
+    // first; failing that, ABSORB a manual/imported twin (same institution + same mask, else same
+    // institution + same tax bucket) instead of creating a double-counting sibling. The absorbed
+    // row keeps its asset_id (ledger references), earmark and any confirmed wrapper.
+    const inst = st.institution_name.trim().toLowerCase();
+    const prior =
+      accounts.find((a) => (a as any).snaptrade_account_id === st.id) ??
+      accounts.find((a) => a.asset_id === stAssetId(st.id)) ??
+      accounts.find((a) => a.source !== 'connected' && (a.institution ?? '').trim().toLowerCase() === inst
+        && (mask && a.mask ? a.mask === mask : a.tax_bucket === guess.tax_bucket));
+    const assetId = prior?.asset_id ?? stAssetId(st.id);
 
     // positions (options are display detail on the account, never re-added to totals)
     const mapped = (p.positions ?? []).map(mapPosition).filter((m): m is NonNullable<typeof m> => !!m);
@@ -70,15 +80,18 @@ export function ingestSync(
       asset_id: assetId,
       label: st.name || `${st.institution_name} account`,
       institution: st.institution_name,
-      mask: st.number ? `••${String(st.number).slice(-4)}` : prior?.mask,
+      mask: mask ?? prior?.mask,
+      snaptrade_account_id: st.id,
       // the wrapper: keep a USER-confirmed wrapper forever; otherwise take the mapping's guess
       kind: prior?.wrapper_confirmed ? prior.kind : guess.kind,
       tax_bucket: prior?.wrapper_confirmed ? prior.tax_bucket : guess.tax_bucket,
       target_return: prior?.target_return ?? 0.08,   // benchmark default for a brokerage; refined by class later
       // THE AUTHORITY RULE: balance = the broker's own total (includes options + money market)
-      balance: st.balance?.total?.amount ?? prior?.balance ?? 0,
+      balance: (st.balance?.total?.currency == null || st.balance?.total?.currency === 'USD')
+        ? (st.balance?.total?.amount ?? prior?.balance ?? 0)
+        : (prior?.balance ?? 0),   // non-USD total: keep what we had rather than mislabel it as dollars
       cash_balance: netCashSleeve(p.balancesCash, mapped),
-      positions: positions.length ? positions : prior?.positions,
+      positions: p.positions != null ? positions : prior?.positions,   // provided-but-empty = sold out (stale rows would lie)
       option_holdings: optionRows.length ? optionRows.map((o) => ({ label: o.label, contracts: o.contracts, value: o.value, cost_basis: o.costBasis })) : undefined,
       source: 'connected',
       connection_id: st.brokerage_authorization,
@@ -99,14 +112,21 @@ export function ingestSync(
       seenKeys[k] = true;
       const m = mapActivityType(act);
       if (m.txnType === 'SKIP') continue;
+      // option trades: the broker's signed `amount` is the true cash — normalize price so the
+      // ledger's shares×price math shows exactly that (per-contract price semantics vary)
+      const isOptionTrade = (m.note === 'option purchase' || m.note === 'option sale');
+      const units = act.units ?? undefined;
+      const price = isOptionTrade && act.amount != null && units
+        ? Math.abs(act.amount) / Math.abs(units)
+        : act.price ?? undefined;
       newTransactions.push({
         id: newEntityId('txn'),
         date: (act.trade_date ?? act.settlement_date ?? nowIso).slice(0, 10),
         type: m.txnType === 'ADJUST' ? 'ADJUSTMENT' : m.txnType,
-        account_id: assetId as any,
+        account_id: assetId as any,   // absorbed-twin ids are pre-existing entity ids
         ticker: act.symbol?.raw_symbol ?? act.symbol?.symbol ?? undefined,
-        shares: act.units ?? undefined,
-        price: act.price ?? undefined,
+        shares: units,
+        price,
         amount: act.amount != null ? Math.abs(act.amount) : undefined,
         reinvested: m.reinvested,
         note: [m.note, act.description].filter(Boolean).join(' · ') || undefined,

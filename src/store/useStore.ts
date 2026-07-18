@@ -17,6 +17,10 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
     // with an explicit cash sleeve) get their balance derived. A manual-balance account (e.g. a $2.2M
     // Fidelity total) where the user added one holding just to track its performance keeps its entered
     // balance — those positions are a SUBSET, so summing them would wipe the rest of the account.
+    // AUDIT FIX 2026-07-18 (P0): a CONNECTED account's balance is the broker's own total —
+    // it includes options and money-market value our positions list deliberately doesn't carry.
+    // Recomputing from sleeve+positions would overwrite it and drop that value. Never touch it.
+    if (a.source === 'connected') return a;
     const ledgerManaged = a.derive_balance === true || a.cash_balance != null;
     if (!ledgerManaged) return a;
     // B-19: a held position with no cached price falls back to its cost basis (what you paid),
@@ -26,6 +30,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
   });
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
+import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
@@ -246,6 +251,7 @@ type AppState = {
   snaptradeConnections: { id: string; brokerage: string; disabled: boolean }[];  // last-known connections meta
   snaptradeLastSyncAt: string | null;             // ISO of last successful full sync (drives the daily debounce)
   wrapperConfirmQueue: string[];                  // asset_ids whose tax wrapper the user must confirm
+  snaptradeActivityCursor: Record<string, string>; // per-account activity cursor (device-local; advances only after the broker's initial sync completes)
   txnFlags: TxnFlag[];                            // F10 "worth a look" flags (newest first)
   knownPayees: Record<string, string[]>;          // F10: per-account payees confirmed by "Yes, this was me"
 
@@ -319,9 +325,10 @@ type AppState = {
   updateIncome: (id: string, updates: Partial<IncomeEntry>) => void;
   updateExpense: (id: string, updates: Partial<ExpenseEntry>) => void;
   addAsset: (a: Omit<AssetAccount, 'asset_id'>) => void;
-  ingestSnapTradeSync: (r: { accounts: AssetAccount[]; newTransactions: Transaction[]; seenKeys: Record<string, true>; needsWrapperConfirm: string[] }, connections: { id: string; brokerage: string; disabled: boolean }[]) => void;
+  ingestSnapTradeSync: (payloads: AccountSyncPayload[], connections: { id: string; brokerage: string; disabled: boolean }[]) => void;
   confirmAccountWrapper: (assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']) => void;
   removeConnectionAccounts: (connectionId: string, keepAsManual: boolean) => void;
+  setSnaptradeActivityCursor: (c: Record<string, string>) => void;
   updateAsset: (id: string, updates: Partial<AssetAccount>) => void;
   deleteAsset: (id: string) => void;
   addPosition: (accountId: string, position: Omit<Position, 'position_id'>) => void;
@@ -467,6 +474,7 @@ export const useStore = create<AppState>()(
       snaptradeSeenKeys: {},
       snaptradeConnections: [],
       snaptradeLastSyncAt: null,
+      snaptradeActivityCursor: {},
       wrapperConfirmQueue: [],
       txnFlags: [],
       knownPayees: {},
@@ -561,25 +569,36 @@ export const useStore = create<AppState>()(
       addAsset:       (a) => set((s) => ({ assetAccounts: [{ ...a, asset_id: newEntityId('ast') }, ...s.assetAccounts] })),
       // SnapTrade sync (design v2): holdings are authoritative; activities append as HISTORY ONLY
       // (never applied to balances — the no-double-count rule pinned in ingest.test.ts).
-      ingestSnapTradeSync: (r, connections) => set((s) => ({
-        assetAccounts: r.accounts,
-        transactions: [...r.newTransactions, ...s.transactions],
-        snaptradeSeenKeys: r.seenKeys,
-        snaptradeConnections: connections,
-        snaptradeLastSyncAt: new Date().toISOString(),
-        wrapperConfirmQueue: Array.from(new Set([...(s.wrapperConfirmQueue ?? []), ...r.needsWrapperConfirm])),
-      })),
+      // AUDIT FIX 2026-07-18 (P1 race): ingest runs INSIDE set() against the state as it is at
+      // write time — a sync that started before cloud hydration can no longer replace hydrated
+      // accounts with a stale empty snapshot.
+      ingestSnapTradeSync: (payloads, connections) => set((s) => {
+        const r = ingestSyncPure(s.assetAccounts, s.snaptradeSeenKeys ?? {}, payloads);
+        return {
+          assetAccounts: r.accounts,
+          transactions: [...r.newTransactions, ...s.transactions],
+          snaptradeSeenKeys: r.seenKeys,
+          snaptradeConnections: connections,
+          snaptradeLastSyncAt: new Date().toISOString(),
+          wrapperConfirmQueue: Array.from(new Set([...(s.wrapperConfirmQueue ?? []), ...r.needsWrapperConfirm])),
+        };
+      }),
+      setSnaptradeActivityCursor: (c) => set(() => ({ snaptradeActivityCursor: c })),
       confirmAccountWrapper: (assetId, kind, taxBucket) => set((s) => ({
         assetAccounts: s.assetAccounts.map((a) => (a.asset_id === assetId ? { ...a, kind, tax_bucket: taxBucket, wrapper_confirmed: true } : a)),
         wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => id !== assetId),
       })),
       // Disconnecting: the user chooses — keep the rows as frozen manual copies, or remove them.
-      removeConnectionAccounts: (connectionId, keepAsManual) => set((s) => ({
-        assetAccounts: keepAsManual
-          ? s.assetAccounts.map((a) => (a.connection_id === connectionId ? { ...a, source: 'manual' as const, connection_id: undefined, last_synced: undefined } : a))
-          : s.assetAccounts.filter((a) => a.connection_id !== connectionId),
-        snaptradeConnections: (s.snaptradeConnections ?? []).filter((c) => c.id !== connectionId),
-      })),
+      removeConnectionAccounts: (connectionId, keepAsManual) => set((s) => {
+        const connIds = new Set(s.assetAccounts.filter((a) => a.connection_id === connectionId).map((a) => a.asset_id));
+        return {
+          assetAccounts: keepAsManual
+            ? s.assetAccounts.map((a) => (a.connection_id === connectionId ? { ...a, source: 'manual' as const, connection_id: undefined, last_synced: undefined, snaptrade_account_id: undefined } : a))
+            : s.assetAccounts.filter((a) => a.connection_id !== connectionId),
+          snaptradeConnections: (s.snaptradeConnections ?? []).filter((c) => c.id !== connectionId),
+          wrapperConfirmQueue: (s.wrapperConfirmQueue ?? []).filter((id) => !connIds.has(id) || keepAsManual),
+        };
+      }),
       updateAsset:    (id, u) => set((s) => ({ assetAccounts: s.assetAccounts.map((x) => x.asset_id === id ? { ...x, ...u } : x) })),
       deleteAsset:    (id) => set((s) => ({ assetAccounts: s.assetAccounts.filter((x) => x.asset_id !== id) })),
       addPosition: (accountId, position) => set((s) => {
@@ -636,6 +655,16 @@ export const useStore = create<AppState>()(
         set((s) => {
           const idx = s.transactions.findIndex((t) => t.id === id);
           if (idx < 0) { ok = false; return {}; }
+          // AUDIT FIX 2026-07-18: connected rows are HISTORY ONLY (never applied) — deleting one
+          // removes the row and nothing else. The undo/replay machinery is for applied manual rows.
+          if (s.transactions[idx].source === 'connected') {
+            // same F10 hygiene as the manual path: an OPEN flag dies with its transaction;
+            // a resolved flag survives as the audit trail (edge-case audit E2)
+            return {
+              transactions: s.transactions.filter((t) => t.id !== id),
+              txnFlags: (s.txnFlags ?? []).filter((f: any) => !(f.status === 'open' && (f.transaction_ids ?? []).includes(id))),
+            };
+          }
           const newerFirst = s.transactions.slice(0, idx);
           const target = s.transactions[idx];
           if (![...newerFirst, target].every((t) => t.undo_prev || inverseOf(t))) { ok = false; return {}; }
@@ -948,7 +977,7 @@ export const useStore = create<AppState>()(
       lastRetireChance: null,
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
-        snaptradeSeenKeys: {}, snaptradeConnections: [], snaptradeLastSyncAt: null, wrapperConfirmQueue: [],
+        snaptradeSeenKeys: {}, snaptradeConnections: [], snaptradeLastSyncAt: null, snaptradeActivityCursor: {}, wrapperConfirmQueue: [],
         lensOverride: null,
         milestoneHighSeen: null, transitionChecks: {}, drawOrder: null, dismissedInsights: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,

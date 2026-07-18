@@ -81,9 +81,9 @@ describe('mapActivityType — the approved v2 table', () => {
     expect(mapActivityType(act('SPLIT')).txnType).toBe('ADJUST');
     expect(mapActivityType(act('ADJUSTMENT')).txnType).toBe('ADJUST');
   });
-  test('option BUY/SELL keep their CASH effect (money never silently drifts)', () => {
-    expect(mapActivityType(act('BUY', { option_type: 'BUY_TO_OPEN' }))).toMatchObject({ txnType: 'WITHDRAWAL', note: 'option purchase' });
-    expect(mapActivityType(act('SELL', { option_type: 'SELL_TO_CLOSE' }))).toMatchObject({ txnType: 'DEPOSIT', note: 'option sale' });
+  test('option trades are BUY/SELL (internal moves), never external flows — faking a deposit/withdrawal would corrupt the money-weighted return (audit fix)', () => {
+    expect(mapActivityType(act('BUY', { option_type: 'BUY_TO_OPEN' }))).toMatchObject({ txnType: 'BUY', note: 'option purchase' });
+    expect(mapActivityType(act('SELL', { option_type: 'SELL_TO_CLOSE' }))).toMatchObject({ txnType: 'SELL', note: 'option sale' });
   });
   test('unknown broker types key off the signed amount (their own guidance)', () => {
     expect(mapActivityType(act('MYSTERY_CREDIT', { amount: 12 })).txnType).toBe('DEPOSIT');
@@ -113,6 +113,7 @@ describe('netCashSleeve — money-market never counted twice', () => {
     const mmf = mapPosition({ symbol: { id: 'm', raw_symbol: 'SPAXX', type: { code: 'oef' } } as any, units: 100, price: 1, cash_equivalent: true })!;
     const vti = mapPosition({ symbol: { id: 'v', raw_symbol: 'VTI', type: { code: 'et' } } as any, units: 10, price: 250 })!;
     expect(netCashSleeve(500, [mmf, vti])).toBe(400);   // 500 cash − 100 SPAXX (VTI untouched)
-    expect(netCashSleeve(80, [mmf, vti])).toBe(0);      // floored — never negative from rounding
+    expect(netCashSleeve(80, [mmf, vti])).toBe(-20);    // a REAL margin debit stays negative (audit fix)
+    expect(netCashSleeve(99.5, [mmf, vti])).toBe(0);    // sub-dollar rounding dust clamps to zero
   });
 });

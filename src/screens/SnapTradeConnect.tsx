@@ -4,7 +4,7 @@
 // the approved consent copy → the broker's own sign-in in the system browser (their docs: never
 // a WebView) → sync → confirm any ambiguous tax wrappers. Unsupported institutions are listed
 // honestly with the by-hand path — never a dead end.
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
@@ -23,7 +23,9 @@ const WRAPPER_CHOICES = [
 export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string }) {
   const router = useRouter();
   const store = useStore() as any;
-  const [step, setStep] = useState<'pick' | 'card' | 'consent' | 'syncing' | 'confirm'>('pick');
+  const [step, setStep] = useState<'pick' | 'card' | 'consent' | 'syncing' | 'review' | 'confirm'>(
+    ((store.wrapperConfirmQueue ?? []).length > 0) ? 'confirm' : 'pick');
+  const [arrived, setArrived] = useState<any[]>([]);
   const [broker, setBroker] = useState<BrokerCoverage | null>(null);
   const [busy, setBusy] = useState(false);
   const queue: string[] = store.wrapperConfirmQueue ?? [];
@@ -44,9 +46,9 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
       if (res.type === 'success' && /status=SUCCESS/i.test(res.url ?? '')) {
         setStep('syncing');
         await runSnapTradeSync({ force: true });
-        const q = (useStore.getState() as any).wrapperConfirmQueue ?? [];
-        if (q.length > 0) setStep('confirm');
-        else router.replace('/(tabs)/analytics' as any);
+        const now = useStore.getState() as any;
+        setArrived((now.assetAccounts ?? []).filter((a: any) => a.source === 'connected'));
+        setStep('review');
       } else if (res.type === 'success' && /status=ERROR/i.test(res.url ?? '')) {
         Alert.alert("That didn't go through", 'The brokerage sign-in reported a problem. Nothing was connected — you can try again.');
       }
@@ -143,6 +145,30 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
     );
   }
 
+  if (step === 'review') {
+    const queueNow: string[] = (useStore.getState() as any).wrapperConfirmQueue ?? [];
+    return (
+      <ScrollView showsVerticalScrollIndicator={false}>
+        <Text style={s.h2}>Here's what came in</Text>
+        {arrived.map((a: any) => (
+          <View key={a.asset_id} style={s.row} accessible
+            accessibilityLabel={`${a.label} ${a.mask ?? ''}, tracked`}>
+            <View style={{ flex: 1 }}>
+              <Text style={s.rowTxt}>{a.label} {a.mask ?? ''}</Text>
+              <Text style={s.note}>{a.institution}{a.status && a.status !== 'open' ? ` · ${a.status}` : ''}</Text>
+            </View>
+          </View>
+        ))}
+        {arrived.length === 0 && <Text style={s.body}>No accounts came back yet — first-time history can take a minute. Pull again from Home shortly.</Text>}
+        <TouchableOpacity accessibilityRole="button" style={s.primaryBtn}
+          onPress={() => { if (queueNow.length > 0) setStep('confirm'); else router.replace('/(tabs)/analytics' as any); }}
+          accessibilityLabel={queueNow.length > 0 ? 'Continue — one question about account types' : 'Done — see your net worth'}>
+          <Text style={s.primaryTxt}>{queueNow.length > 0 ? 'Continue ›' : 'See your net worth ›'}</Text>
+        </TouchableOpacity>
+      </ScrollView>
+    );
+  }
+
   if (step === 'syncing') {
     return (
       <View style={[s.card, { alignItems: 'center', paddingVertical: 40 }]}>
@@ -156,7 +182,11 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
   // step 'confirm' — the wrapper question (SnapTrade has no normalized 401(k)/IRA/Roth label;
   // wrong wrapper = wrong tax math, so we ask instead of guessing)
   const pending = accounts.filter((a: any) => queue.includes(a.asset_id));
-  if (pending.length === 0) { router.replace('/(tabs)/analytics' as any); return null; }
+  // audit fix P2-1: navigation is an EFFECT, never a render side-effect
+  useEffect(() => {
+    if (step === 'confirm' && pending.length === 0) router.replace('/(tabs)/analytics' as any);
+  }, [step, pending.length]);
+  if (pending.length === 0) return null;
   return (
     <ScrollView showsVerticalScrollIndicator={false}>
       <Text style={s.h2}>One quick check</Text>

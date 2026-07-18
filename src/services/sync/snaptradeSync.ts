@@ -3,7 +3,7 @@
 // refreshes SnapTrade's side once a day, so more polling buys nothing) and right after a new
 // connection. All rules that touch money live in ingest.ts and are pinned there.
 import { snaptradeApi, usdCash, snaptradeConfigured } from './snaptradeClient';
-import { ingestSync, type AccountSyncPayload } from './ingest';
+import type { AccountSyncPayload } from './ingest';
 import { useStore } from '../../store/useStore';
 import type { StActivity } from './snaptrade';
 
@@ -41,20 +41,25 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
     disabled: !!c.disabled,
   }));
   if (!connMeta.length) {
-    s.ingestSnapTradeSync?.({ accounts: s.assetAccounts, newTransactions: [], seenKeys: s.snaptradeSeenKeys ?? {}, needsWrapperConfirm: [] }, []);
+    s.ingestSnapTradeSync?.([], []);
     return 0;
   }
 
   const accounts = await snaptradeApi.accounts();
-  // first-ever sync pulls full history; later syncs re-pull a small overlap window
-  const startDate = s.snaptradeLastSyncAt
-    ? new Date(Date.parse(s.snaptradeLastSyncAt) - OVERLAP_DAYS * 86400_000).toISOString().slice(0, 10)
-    : undefined;
+  // PER-ACCOUNT cursor (audit fix): full history until the broker reports the initial transaction
+  // sync COMPLETE — a slow first sync can never be permanently skipped. After that, re-pull with a
+  // small overlap window; the dedupe registry makes overlaps free.
+  const cursors: Record<string, string> = { ...(s.snaptradeActivityCursor ?? {}) };
 
   const payloads: AccountSyncPayload[] = [];
   for (const account of accounts ?? []) {
     try {
       const h = await snaptradeApi.holdings(account.id);
+      const initialDone = account.sync_status?.transactions?.initial_sync_completed === true;
+      const cursor = cursors[account.id];
+      const startDate = cursor
+        ? new Date(Date.parse(cursor) - OVERLAP_DAYS * 86400_000).toISOString().slice(0, 10)
+        : undefined;                                   // no cursor yet → full history
       const activities = await allActivities(account.id, startDate);
       payloads.push({
         account,
@@ -63,13 +68,14 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
         balancesCash: usdCash(h.balances),
         activities,
       });
+      if (initialDone) cursors[account.id] = new Date().toISOString();   // advance ONLY once the broker says complete
     } catch (e) {
       // one broken account never sinks the sync — its prior data stays, freshness shows its age
       console.warn('snaptrade sync: account failed', account.id, (e as Error).message);
     }
   }
 
-  const result = ingestSync(s.assetAccounts ?? [], s.snaptradeSeenKeys ?? {}, payloads);
-  s.ingestSnapTradeSync?.(result, connMeta);
+  s.ingestSnapTradeSync?.(payloads, connMeta);
+  s.setSnaptradeActivityCursor?.(cursors);
   return payloads.length;
 }

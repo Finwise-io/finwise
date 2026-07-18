@@ -27,7 +27,7 @@ const SYNC_FIELDS = [
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
   'recurringIncomes', 'recurringExpenses', 'customCategories',
-  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeSeenKeys', 'snaptradeConnections', 'snaptradeLastSyncAt', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
+  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeConnections', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
   'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
   'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
@@ -135,9 +135,9 @@ export default function RootLayout() {
   // day, so one debounced pull per open is the whole schedule. Failures are silent here — the
   // freshness labels and broken-connection line tell the user the truth either way.
   useEffect(() => {
-    if (!user || !snaptradeConfigured()) return;
+    if (!isReady || !user || !snaptradeConfigured()) return;   // hydration first — never race it
     runSnapTradeSync().catch(() => {});
-  }, [user]);
+  }, [isReady, user]);
 
   // Auth-based routing guard.
   // L-4: account creation lives ONLY on AuthScreen. Every unauthenticated user is sent there

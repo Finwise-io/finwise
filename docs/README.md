@@ -13,7 +13,7 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 | `finwise-sentry-setup.md` | Crash reporting (Sentry) setup + verification — **status in the launch checklist** |
 | `finwise-device-test-build33.md` / `.xlsx` | **Device test checklist** for build #33 (v1.0.8). `.xlsx` = fillable tracker (Pass/Fail/Notes); `.md` = readable source. Same content. |
 | `finwise-device-test-build34.xlsx` · `finwise-device-test-build35.xlsx` | Re-test trackers: #34 = the 11 core fixes; #35 = all 17 fixes + T22 (full). |
-| `finwise-device-test-build41.xlsx` | **CURRENT: the Build #41 (v1.1.0, FCC redesign) device walk** — 22 steps, Pass/Fail + comments (yellow = yours). Verdict + context: `FCC-core-55-70/FCC-launch-review-2026-07-13.md`. |
+| `finwise-device-test-build41.xlsx` | Build #41 device walk (historic — Build 42 is on TestFlight; Build 43 next) — 22 steps, Pass/Fail + comments (yellow = yours). Verdict + context: `FCC-core-55-70/FCC-launch-review-2026-07-13.md`. |
 | `finwise-nw-insights-flow.md` | **Plain-English flow review** of the Net Worth + Insights modules (build #35) — screen-by-screen, ✅ NEW markers, + a design sign-off checklist. Review without a device. |
 | `finwise-dev-loop.md` | Fast local device debug loop (don't use TestFlight to debug) |
 
@@ -24,7 +24,7 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 | `finwise-data-schematics.md` | Data model / schema + the 14 Data-Integrity Rules (DR-1..14) |
 | `finwise-ui-design-guidelines.md` | UI standards (legibility, tone, a11y, progressive disclosure) |
 | `finwise-features.md` | Feature & capability tracker |
-| `finwise-bug-ledger.md` | **THE bug tracker** — every bug + its fix/status (B-1..B-72) |
+| `finwise-bug-ledger.md` | **THE bug tracker** — every bug + its fix/status (B-1..B-95) |
 | `finwise-lessons-learned.md` | Engineering lessons (e.g. L-7 cross-screen agreement) |
 | `finwise-qa-plan.md` | QA plan / process |
 

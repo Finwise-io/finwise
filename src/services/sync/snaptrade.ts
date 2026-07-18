@@ -166,10 +166,11 @@ export function mapActivityType(a: StActivity): MappedActivity {
   const isOption = !!a.option_symbol || !!a.option_type;
   // Option trades: the option POSITION lives at balance level (alternatives rows), but their CASH
   // effect is real — a bought option is cash out, a sold one cash in. Never dropped silently.
+  // AUDIT FIX 2026-07-18: option trades map to BUY/SELL (internal moves), NEVER to
+  // DEPOSIT/WITHDRAWAL — those two are external flows and feed the money-weighted return;
+  // faking them there corrupts the user's personal-return number.
   if (isOption && (t === 'BUY' || t === 'SELL')) {
-    return t === 'BUY'
-      ? { txnType: 'WITHDRAWAL', note: 'option purchase', cashSign: -1 }
-      : { txnType: 'DEPOSIT', note: 'option sale', cashSign: 1 };
+    return { txnType: t as 'BUY' | 'SELL', note: t === 'BUY' ? 'option purchase' : 'option sale' };
   }
   switch (t) {
     case 'BUY': return { txnType: 'BUY' };
@@ -210,6 +211,7 @@ export function activityKey(accountId: string, a: StActivity): string {
     a.units ?? '',
     a.symbol?.id ?? a.symbol?.raw_symbol ?? '',
     a.external_reference_id ?? '',
+    a.description ?? '',   // audit fix: separates two otherwise-identical same-day fills
   ].join('|');
 }
 export function dedupeActivities(accountId: string, incoming: StActivity[], seenKeys: Set<string>): StActivity[] {
@@ -229,5 +231,8 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
 export function netCashSleeve(balancesCash: number | null | undefined, positions: MappedPosition[]): number {
   const mmf = positions.filter((p) => p.cashEquivalent)
     .reduce((t, p) => t + (p.price ?? 0) * p.shares, 0);
-  return Math.max(0, Math.round(((balancesCash ?? 0) - mmf) * 100) / 100);
+  const net = Math.round(((balancesCash ?? 0) - mmf) * 100) / 100;
+  // a real margin debit stays NEGATIVE (audit fix — flooring it overstated the account);
+  // only sub-dollar rounding dust clamps to zero
+  return net < 0 && net > -1 ? 0 : net;
 }

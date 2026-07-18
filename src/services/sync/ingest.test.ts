@@ -93,3 +93,43 @@ test('a closed account is kept and marked, never silently dropped', () => {
   const r = ingestSync([], {}, [payload({ account: acct({ status: 'closed' }) })], NOW);
   expect(r.accounts[0].status).toBe('closed');
 });
+
+// ── AUDIT FIXES 2026-07-18 (design-vs-code + adversarial reviews) ──────────────────────────────
+describe('audit fixes', () => {
+  test('P0 merge gate: a manual twin (same institution + mask) is ABSORBED, never doubled', () => {
+    const manual = [{ asset_id: 'ast-manual1', label: 'My Robinhood', institution: 'Robinhood', kind: 'brokerage',
+      tax_bucket: 'TAXABLE' as const, balance: 51000, target_return: 0.08, mask: '••7665', retirement_pct: 80, source: 'manual' as const }];
+    const r = ingestSync(manual as any, {}, [payload()], NOW);
+    expect(r.accounts).toHaveLength(1);                              // absorbed, not a sibling
+    expect(r.accounts[0].asset_id).toBe('ast-manual1');              // keeps its id (ledger refs live on)
+    expect(r.accounts[0].balance).toBe(50000);                       // broker total takes over
+    expect(r.accounts[0].retirement_pct).toBe(80);                   // earmark survives the absorption
+    expect(r.accounts[0].snaptrade_account_id).toBe('acc-1');        // future syncs find it directly
+    // and the NEXT sync hits the same row again
+    const r2 = ingestSync(r.accounts, r.seenKeys, [payload()], NOW);
+    expect(r2.accounts).toHaveLength(1);
+  });
+
+  test('currency guard: a non-USD broker total never masquerades as dollars', () => {
+    const cad = payload({ account: acct({ balance: { total: { amount: 68000, currency: 'CAD' } } }) });
+    const r = ingestSync([], {}, [cad], NOW);
+    expect(r.accounts[0].balance).toBe(0);                           // no prior → 0, never 68000 "dollars"
+  });
+
+  test('sell-off truth: a PROVIDED-but-empty positions list clears stale holdings; a missing fetch keeps them', () => {
+    const first = ingestSync([], {}, [payload()], NOW);
+    const soldOut = ingestSync(first.accounts, first.seenKeys, [payload({ positions: [] })], NOW);
+    expect(soldOut.accounts[0].positions ?? []).toHaveLength(0);     // sold out — stale rows would lie
+    const fetchFailed = ingestSync(first.accounts, first.seenKeys, [{ account: acct() }], NOW);
+    expect(fetchFailed.accounts[0].positions?.length ?? 0).toBeGreaterThan(0);   // no data ≠ no holdings
+  });
+
+  test('option-trade cash is exact: shares×price equals the broker signed amount', () => {
+    const r = ingestSync([], {}, [payload({ activities: [
+      { id: 'o1', type: 'BUY', option_type: 'BUY_TO_OPEN', trade_date: '2026-07-02', units: 2, price: 6.5, amount: -1300 },
+    ] })], NOW);
+    const t = r.newTransactions.find((x) => x.note?.includes('option purchase'))!;
+    expect(t.type).toBe('BUY');                                      // internal move, not a fake flow
+    expect((t.shares ?? 0) * (t.price ?? 0)).toBe(1300);             // ledger math shows the true cash
+  });
+});

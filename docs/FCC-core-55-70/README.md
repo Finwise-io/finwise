@@ -24,7 +24,7 @@ mobile-first · colorblind-safe.
 | Build | (code) | 🟢 WHOLE-DESIGN BUILD ~85% done — **Build #41 · v1.1.0 ON TESTFLIGHT (2026-07-14)**, awaiting founder device walk. Status: `FCC-build-tracker.md` · review: `FCC-launch-review-2026-07-13.md` · fillable walk: `../finwise-device-test-build41.xlsx` |
 
 ## Decisions locked 2026-07-01
-- **Plaid = Option A APPROVED**: opt-in, read-only account connection; manual entry + file import stay
+- **Plaid = Option A APPROVED [SUPERSEDED 2026-07-18 → SnapTrade, see snaptrade-integration-design-v2-2026-07-18.md — Plaid requires a legal entity]**: opt-in, read-only account connection; manual entry + file import stay
   first-class forever; "never leaves your device" copy retired for connected data. Cost check: Plaid free for
   the first 10 connected accounts, then ~$0.50–$1.50/account/month pay-as-you-go, no minimum — MX/Finicity are
   ~$10–15k/yr sales contracts (2–10× more at our size). Full comparison on the PRD's Plaid tab.

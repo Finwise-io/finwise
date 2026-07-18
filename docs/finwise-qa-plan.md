@@ -219,7 +219,7 @@ a user data-right) to the roadmap.
 ### 5.1 Pipeline (current → target)
 | Phase | Focus | Today | Best-in-class target (cost/ROI) |
 |---|---|---|---|
-| **Unit** | business logic, math | ✅ Jest, 551 tests, `ci.yml` | keep; add coverage gate (e.g. 80% on `domain/`) |
+| **Unit** | business logic, math | ✅ Jest, 1201 tests (2026-07-18), `ci.yml` | keep; add coverage gate (e.g. 80% on `domain/`) |
 | **Static / SAST** | secure-coding, smells | ❌ | **Snyk Code** (paid, ~$25/dev/mo — best vuln DB) + **SonarQube** (Community free / Cloud paid) + Semgrep OSS (free) |
 | **Dependency** | CVEs | ❌ | **`npm audit`** (free, CI) + **Snyk Open Source** (free tier ok) |
 | **Mobile binary** | insecure storage/transport | ❌ | **MobSF** (free, OSS) on EAS builds |

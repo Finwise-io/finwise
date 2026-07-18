@@ -4,7 +4,7 @@ _Working doc. Started 2026-07-13 after the founder's call: **stop building testa
 whole approved design, gate with the automated suite, then cut ONE build.** Source of truth for scope:
 `FCC-core-detailed-design-v1.1-2026-07-06.xlsx` (40 screens) + `FCC-core-UX-design-v1.1` + PRD v1.1._
 
-_Last updated 2026-07-14. Suite: **969 green** (was 839 pre-FCC), tsc clean, UI gate passing.
+_Last updated 2026-07-18 (SnapTrade shipped; suite 1201 green)
 All FCC commits PUSHED (9ac80a7 → 0969193, branch taxonomy-v1.0.7)._
 
 ## BUILD STATUS — the review build is out
@@ -44,7 +44,7 @@ one build at the end.**
 | F8 Social Security claim math (SSA schedule) | ✅ | `src/domain/retirement/ssTiming.ts` | |
 | Insight rules: worth-a-look slot-1 · rmd-due · ss-window · goals-gap | ✅ | `src/domain/insights/index.ts` | |
 | F4 multi-goal weigher | ✅ (weighGoals + trimHints-as-pre-runs + retireAgeWithContribution) | `src/domain/planning/multiGoal.ts` | |
-| F1 secure sync seam + connection freshness | ✅ seam + freshness (2026-07-15): SyncProvider interface + sandbox impl + connectionFreshness (3-day stale rule → Home line); LIVE Plaid = ONE provider file, blocked on founder keys + native-SDK build (batched w/ Tiingo) | `src/services/sync/` | |
+| F1 secure sync seam + connection freshness | ✅ seam + freshness (2026-07-15): SyncProvider interface + sandbox impl + connectionFreshness (3-day stale rule → Home line); LIVE provider = SnapTrade (SHIPPED 2026-07-18: relay function + client + sync + honesty-card connect flow; design v2). Plaid superseded (entity-gated) | `src/services/sync/` | |
 | Bond rate-sensitivity estimate | ✅ (bondRateSensitivity: approxYTM±1% repricing, honest bands, null when no honest math) | `src/domain/bonds/` | |
 | Look-back counterfactual | ✅ (lookBack + factorOverMonths — real prices only, never extrapolated) | `src/domain/performance/lookBack.ts` | |
 | Manual-value freshness nudge | ✅ (valueFreshness + value_as_of/source/last_synced fields) | `src/domain/assets/` | |
@@ -132,13 +132,13 @@ one build at the end.**
 1. Equity per-ticker detail page + the empty/stale/hidden state contract + concentration callout.
 2. Plan: RMD/transition screen, Roth scenario-ify + adoption.
 3. Net worth: unified manual add/edit (M1) + FCC main re-shell; F1 connect screens (consent +
-   accounts-found reconcile — matchImportAccount is the shared merge rule; Plaid sandbox live).
+   accounts-found reconcile — matchImportAccount is the shared merge rule; SnapTrade live (sandbox remains the dev/test provider)).
 4. First-run insertion into the new-user onboarding flow + empty-Home two-door state.
 5. Bill calendar v2 running-balance table; draw-order steering.
 6. Then: bump version, ONE TestFlight build (quota fresh; Apple account = individual, no ASC rename).
 
 ## Senior-UI-Tester pass — 2026-07-14 (after Build 42 was cut)
-10 executable journeys added (`src/__tests__/ui_tester_flows.test.tsx`): 5 paying-user flows + 5 new edge cases. Suite 1004 green.
+10 executable journeys added (`src/__tests__/ui_tester_flows.test.tsx`): 5 paying-user flows + 5 new edge cases. Suite 1201 green.
 
 | Finding | Severity | Status | Founder comment 💬 |
 |---|---|---|---|
@@ -194,7 +194,7 @@ list was an unapproved scope cut), every item was built the same day with full p
 | 10 | Typed versioned net-worth history (structural identity; legacy normalized) | domain/history |
 
 ### STILL FOUNDER-GATED (the only remaining external dependencies)
-Live bank linking = Plaid keys + native SDK build (F1 seam + full flow tested against sandbox) ·
+Live linking = SnapTrade (shipped); native expo-web-browser rides Build 43 (F1 seam + full flow tested against sandbox) ·
 LIVE PRICE PROVIDER — **Tiingo ruled out 2026-07-15 (its license is internal-use only; a consumer
 app displaying prices to users needs redistribution/display rights)**. Selection open; the
 PriceProvider seam takes any vendor in one file. Shortlist to verify with CURRENT terms:
