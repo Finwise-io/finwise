@@ -10,12 +10,13 @@ export type GlossaryTerm =
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
   | 'grossIncome' | 'contributionRoom' | 'capitalGains'
-  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted';
+  | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted' | 'benchmark';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
   surplus:      { title: 'Surplus', body: 'Your take-home minus spending minus debt payments — the money left to save or invest each month.' },
   netWorth:     { title: 'Net worth', body: 'Everything you own minus everything you owe. Assets − debts.' },
+  benchmark:    { title: 'The market comparison', body: 'We compare each holding to a standard yardstick for its type — stocks and funds against the S&P 500 (the 500 largest US companies), bonds against a broad bond index. "Ahead by 2 points" means your money grew 2 percentage points more than that yardstick over the same period.' },
   nestEgg:      { title: 'Retirement nest egg', body: 'The invested money your retirement draws on. Excludes your home, emergency cash, and rentals — those provide income or shelter instead of being spent down.' },
   investable:   { title: 'Investable assets', body: 'Cash plus investments plus retirement accounts. Excludes your home and personal property (cars, valuables).' },
   earmarked:    { title: 'Earmarked', body: 'The share of an account you’ve set aside for retirement. Cash and property default to 0%; investment accounts to 100%.' },

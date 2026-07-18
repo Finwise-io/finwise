@@ -9,6 +9,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
+import { realizedFromLedger } from '../domain/performance/realized';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
@@ -91,6 +92,7 @@ export default function HoldingDetailScreen() {
     : `${name}, worth ${maskedMoney(Math.round(value))}${gain != null ? `, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}${roi != null ? `, ${Math.abs(Math.round(roi * 100))} percent since purchase` : ''}` : ''}`;
 
   const tickerTxns = ((store.transactions ?? []) as any[]).filter((t) => String(t.ticker ?? '').toUpperCase() === ticker.toUpperCase());
+  const realized = realizedFromLedger(store.transactions ?? [], { ticker, accountId: account.asset_id });
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
@@ -174,6 +176,18 @@ export default function HoldingDetailScreen() {
         </View>
       )}
 
+      {/* realized gains from sales — PRD Invest r3 + NW r43 (founder-asked; built 2026-07-18) */}
+      {realized.sellsCounted > 0 && (
+        <View style={s.card}>
+          <Text style={s.kicker}>REALIZED FROM SALES</Text>
+          <Text style={s.line}>
+            {realized.realizedAllTime >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(realized.realizedAllTime)))} all time
+            {` · ${realized.realizedThisYear >= 0 ? '+' : '−'}${maskedMoney(Math.abs(Math.round(realized.realizedThisYear)))} this year`}
+          </Text>
+          <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${realized.sellsWithoutBasis} sale${realized.sellsWithoutBasis === 1 ? '' : 's'} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
+        </View>
+      )}
+
       {/* dividends received — r29 */}
       {dividends.allTime > 0 && (
         <View style={s.card}>
@@ -239,6 +253,7 @@ const s = StyleSheet.create({
   kicker: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 6 },
   kickerRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
   line: { fontSize: 15, color: Colors.textPrimary, marginTop: 3 },
+  noteLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 18 },
   note: { fontSize: 12, color: Colors.textTertiary, marginTop: 6 },
   estimate: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, marginBottom: 4 },
   lotRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 9, minHeight: 44, alignItems: 'center' },

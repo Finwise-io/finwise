@@ -158,3 +158,18 @@ test('engine: holding-concentration insight fires from the SAME shared rule the 
   expect(hit.body).toContain(`${top.pct}% of your invested money is in one stock (NVDA)`);
   expect(hit.theme).toBe('protect');
 });
+
+// Realized P/L (PRD Invest r3 + NW r43 — the founder-asked fragment, built 2026-07-18)
+test('realized gains from sales show honestly, with the FIFO note', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    transactions: [
+      { id: 'b1', date: `${yr - 1}-01-10`, type: 'BUY', account_id: 'brk', ticker: 'NVDA', shares: 100, price: 150, created_at: 'x' },
+      { id: 's1', date: `${yr}-02-10`, type: 'SELL', account_id: 'brk', ticker: 'NVDA', shares: 40, price: 200, created_at: 'x' },
+    ],
+  } as any);
+  render(<HoldingDetailScreen />);
+  expect(screen.getByText('REALIZED FROM SALES')).toBeOnTheScreen();
+  expect(screen.getByText(/\+\$2,000 all time/)).toBeOnTheScreen();   // 40 × (200 − 150)
+  expect(screen.getByText(/oldest shares sold first/)).toBeOnTheScreen();
+});

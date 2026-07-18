@@ -264,7 +264,10 @@ export default function HomeScreen() {
               </Text>
             )}
             {youReturn != null && marketReturn != null && (
-              <Text style={styles.heroVs}>you {signedPct(youReturn)} · market {signedPct(marketReturn)} · {youReturn >= marketReturn ? 'ahead' : 'behind'} by {pctTxt(Math.abs(youReturn - marketReturn))}</Text>
+              <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+                <Text style={styles.heroVs}>you {signedPct(youReturn)} · market {signedPct(marketReturn)} · {youReturn >= marketReturn ? 'ahead' : 'behind'} by {pctTxt(Math.abs(youReturn - marketReturn))}</Text>
+                <InfoDot term="benchmark" />
+              </View>
             )}
             {/* freshness stamp always directly under the hero number block (c11) */}
             {freshness && <Text style={[styles.freshness, freshness.stale && { color: Colors.amber }]}>{freshness.stale ? '⚠ prices may be out of date — ' : 'prices '}updated {freshness.label}</Text>}
@@ -318,6 +321,7 @@ export default function HomeScreen() {
          
           accessibilityLabel={`Net worth ${maskedMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
           <Text style={styles.nwLabel}>Net worth</Text>
+          <InfoDot term="netWorth" />
           <Text style={styles.nwValue}>{maskedMoney(netWorth)}</Text>
           {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.gainText : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>

@@ -94,6 +94,9 @@ export default function AccountDetailScreen() {
         accessibilityLabel={`Balance ${maskedMoney(account.balance || 0)}. ${ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
         <Text style={s.classLine}>{ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
+        {account.status && account.status !== 'open' && (
+          <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>
+        )}
         {tickers.length > 0 && <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>}
         {(account.option_holdings ?? []).length > 0 && (
           <View style={s.optBlock}>
@@ -429,6 +432,7 @@ const s = StyleSheet.create({
   balance: { fontSize: 32, fontWeight: '800', color: Colors.textPrimary },
   classLine: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   holdsLine: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
+  statusBadge: { fontSize: 13, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginTop: 6, overflow: 'hidden' },
   optBlock: { marginTop: 10, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },

@@ -20,8 +20,8 @@
 //   disconnect  → removes one connection                   (param: connectionId)
 //   deleteUser  → removes the SnapTrade user + our secret  (account deletion / offboarding)
 const { onRequest } = require('firebase-functions/v2/https');
-const crypto = require('crypto');
 const admin = require('firebase-admin');
+const { sortedJson, sign } = require('./signing');
 
 if (!admin.apps.length) admin.initializeApp();
 const db = () => admin.firestore();
@@ -29,19 +29,6 @@ const db = () => admin.firestore();
 const BASE = 'https://api.snaptrade.com';
 const SECRETS_COLLECTION = 'snaptrade_users';   // {uid}: { userId, userSecret } — server-only
 
-// ── request signing (their spec: HMAC-SHA256 over {content,path,query}, keys sorted, base64) ──
-function sortedJson(value) {
-  if (Array.isArray(value)) return `[${value.map(sortedJson).join(',')}]`;
-  if (value && typeof value === 'object') {
-    const keys = Object.keys(value).sort();
-    return `{${keys.map((k) => `${JSON.stringify(k)}:${sortedJson(value[k])}`).join(',')}}`;
-  }
-  return JSON.stringify(value);
-}
-function sign(consumerKey, { content, path, query }) {
-  const canonical = sortedJson({ content: content ?? null, path, query });
-  return crypto.createHmac('sha256', consumerKey).update(canonical, 'utf8').digest('base64');
-}
 
 async function stFetch(method, path, { query = {}, body = null } = {}) {
   const clientId = process.env.SNAPTRADE_CLIENT_ID;
@@ -49,7 +36,7 @@ async function stFetch(method, path, { query = {}, body = null } = {}) {
   if (!clientId || !consumerKey) throw new Error('SnapTrade secrets not configured');
   const q = { ...query, clientId, timestamp: String(Math.floor(Date.now() / 1000)) };
   const queryString = Object.keys(q).sort().map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(q[k])}`).join('&');
-  const res = await fetch(`${BASE}${path}?${queryString}`, {
+  const doFetch = () => fetch(`${BASE}${path}?${queryString}`, {
     method,
     headers: {
       'Content-Type': 'application/json',
@@ -57,6 +44,13 @@ async function stFetch(method, path, { query = {}, body = null } = {}) {
     },
     body: body != null ? JSON.stringify(body) : undefined,
   });
+  let res = await doFetch();
+  if (res.status === 429) {
+    // audit fix: honor their rate-limit Reset once (their docs: wait per header + backoff)
+    const wait = Math.min(30, Number(res.headers.get('retry-after') ?? res.headers.get('x-ratelimit-reset') ?? 2));
+    await new Promise((r) => setTimeout(r, (wait + Math.random()) * 1000));
+    res = await doFetch();
+  }
   const text = await res.text();
   let data; try { data = text ? JSON.parse(text) : null; } catch { data = { raw: text }; }
   if (!res.ok) {
@@ -176,4 +170,4 @@ exports.snaptradeRelay = onRequest(
 );
 
 // exported for unit tests (signing must match their spec exactly)
-exports._internal = { sortedJson, sign };
+exports._internal = { sortedJson, sign };   // re-exported from ./signing
