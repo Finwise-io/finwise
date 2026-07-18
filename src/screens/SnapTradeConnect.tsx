@@ -30,6 +30,19 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
   const [busy, setBusy] = useState(false);
   const queue: string[] = store.wrapperConfirmQueue ?? [];
   const accounts = store.assetAccounts ?? [];
+  // runtime flags (design §2.1): a broker in maintenance/degraded gets a temporary warning ON TOP
+  // of its curated honesty card. Best-effort — a failed lookup changes nothing.
+  const [runtimeFlags, setRuntimeFlags] = useState<Record<string, { maintenance: boolean; degraded: boolean }>>({});
+  useEffect(() => {
+    let live = true;
+    snaptradeApi.brokerages?.().then((list: any[]) => {
+      if (!live || !Array.isArray(list)) return;
+      const map: Record<string, { maintenance: boolean; degraded: boolean }> = {};
+      for (const b of list) map[String(b.slug ?? '').toUpperCase()] = { maintenance: !!b.maintenance, degraded: !!b.degraded };
+      setRuntimeFlags(map);
+    }).catch(() => {});
+    return () => { live = false; };
+  }, []);
 
   const openPortal = async () => {
     setBusy(true);
@@ -82,6 +95,9 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
             onPress={() => { setBroker(b); setStep('card'); }}
             accessibilityLabel={`${b.name}${b.tier === 'alpha' ? ', early access' : b.tier === 'gated' ? ', coming soon' : ''}. Shows what it shares.`}>
             <Text style={s.rowTxt}>{b.name}</Text>
+            {(runtimeFlags[b.slug]?.maintenance || runtimeFlags[b.slug]?.degraded) && (
+              <Text style={s.tierTag}>{runtimeFlags[b.slug]?.maintenance ? 'down for maintenance' : 'running slow'}</Text>
+            )}
             {b.tier === 'alpha' && <Text style={s.tierTag}>early access</Text>}
             {b.tier === 'gated' && <Text style={s.tierTag}>coming soon</Text>}
             <Text style={s.chev}>›</Text>

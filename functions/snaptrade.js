@@ -113,6 +113,14 @@ exports.snaptradeRelay = onRequest(
           const out = await stFetch('POST', '/api/v1/snapTrade/login', { query: userQuery(u), body });
           return res.json({ redirectURI: out.redirectURI ?? out.loginRedirectURI ?? null });
         }
+        case 'brokerages': {
+          // reference data — no user context; powers the picker's maintenance/degraded warnings
+          const list = await stFetch('GET', '/api/v1/brokerages');
+          return res.json((list || []).map((b) => ({
+            slug: b.slug ?? b.id, name: b.name, enabled: b.enabled !== false,
+            maintenance: !!b.maintenance_mode, degraded: !!b.is_degraded,
+          })));
+        }
         case 'connections': {
           const u = await getUser(uid);
           if (!u) return res.json([]);

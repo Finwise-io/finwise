@@ -32,7 +32,9 @@ async function call<T>(action: string, params: Record<string, unknown> = {}): Pr
 export interface StConnection { id: string; disabled?: boolean; brokerage?: { name?: string; slug?: string } }
 export interface HoldingsPayload { positions: StPosition[]; optionPositions: StOptionHolding[]; balances: { cash?: number | null; currency?: { code?: string } }[] }
 
+export interface BrokerRuntimeFlag { slug: string; name: string; enabled: boolean; maintenance: boolean; degraded: boolean }
 export const snaptradeApi = {
+  brokerages: () => call<BrokerRuntimeFlag[]>('brokerages'),
   status: () => call<{ registered: boolean; connections: number }>('status'),
   loginUrl: (opts: { broker?: string; reconnect?: string; customRedirect?: string } = {}) =>
     call<{ redirectURI: string | null }>('loginUrl', opts),
