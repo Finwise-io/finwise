@@ -59,6 +59,13 @@ service cloud.firestore {
       allow read, update, delete: if false;
     }
 
+    // SnapTrade per-user secrets ({uid}: userId + userSecret) — SERVER-ONLY, forever. Only the
+    // snaptradeRelay Cloud Function (Admin SDK, bypasses rules) may touch these. The default deny
+    // below already covers this; this block exists so the invariant is stated, not implied.
+    match /snaptrade_users/{uid} {
+      allow read, write: if false;
+    }
+
     // Default: deny everything not explicitly allowed above.
     match /{document=**} {
       allow read, write: if false;

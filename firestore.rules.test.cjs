@@ -89,3 +89,11 @@ test('random top-level collections are denied by default', async () => {
   await assertFails(getDoc(doc(db, 'secrets', 'x')));
   await assertFails(setDoc(doc(db, 'secrets', 'x'), { a: 1 }));
 });
+
+test('snaptrade_users is server-only: a user cannot read even THEIR OWN secret record', async () => {
+  await seed((a) => setDoc(doc(a, 'snaptrade_users', 'alice'), { userId: 'mk-alice', userSecret: 'S' }));
+  const alice = as('alice');
+  await assertFails(getDoc(doc(alice, 'snaptrade_users', 'alice')));
+  await assertFails(setDoc(doc(alice, 'snaptrade_users', 'alice'), { userSecret: 'forged' }));
+  await assertFails(getDoc(doc(as('mallory'), 'snaptrade_users', 'alice')));
+});
