@@ -54,12 +54,16 @@ Store (ledger + accounts) ◀─normalized──    · positions/all · balances
 3. **Consent** — the existing approved `CONSENT_COPY` stands unchanged (it already says data flows
    through the connection service's servers).
 4. **Bank sign-in** — in-app browser portal, read-only connection type (`connectionType: 'read'`).
-5. **Accounts found** — existing screen (name · mask · first-class balance).
+5. **Accounts found** — as built, a dedicated in-flow **review step** (what arrived, per-account
+   status badge) rather than the pre-existing screen (§10.5).
 6. **Wrapper confirm (NEW when needed)** — SnapTrade has **no normalized 401(k)/IRA/Roth/taxable
    label**; only the broker's free-form `raw_type` string. We map the common strings per institution;
    when ambiguous we ask with the existing "Held in" chooser (Taxable / 401(k)/IRA / Roth). Wrong
    wrapper = wrong tax math, so this is confirm-not-guess (accuracy-is-trust P0).
-7. **Merge gate** — the existing update-not-twin logic runs unchanged (same institution+mask ⇒ update).
+7. **Merge gate** — as built, stronger than "runs unchanged": the connected account **absorbs** a
+   manual twin (same institution+mask, else institution+wrapper), keeping the manual row's id,
+   earmarks and confirmed wrapper — so a user who tracked Schwab by hand and then connects it never
+   sees a duplicate (§10.6).
 8. **Broken connections** — at app-open we check `disabled` on the connections list (broken
    connections silently serve CACHED data — the flag is the only tell). Stale banner + "Fix it" opens
    the portal with `reconnect=<connectionId>`. This detection is required by SnapTrade's launch checklist.
@@ -69,9 +73,9 @@ Store (ledger + accounts) ◀─normalized──    · positions/all · balances
 | Moment | Calls | Why |
 |---|---|---|
 | App open (connected user) | list connections (check `disabled`) → per-account `sync_status`, `/positions/all`, balances | SnapTrade's own recommended pattern; holdings are fetched live per request on Real-time |
-| While app active | re-fetch positions/balances every 10 min | their documented cadence; stays far under limits |
-| Activities | on app open, only when `sync_status.transactions.last_successful_sync` advanced; pull from (last ingested date − 7 days) overlap | transactions refresh once daily anyway — more polling buys nothing |
-| First connect | poll `sync_status.initial_sync_completed` (backoff 2s→60s), then page activities 1000/page from `first_transaction_date` | initial transaction sync takes 1–60s+; full history backfill (Schwab ~2yr read-only, Vanguard/Robinhood since account open) |
+| ~~While app active — re-fetch every 10 min~~ | **SUPERSEDED (§10.1)** — no in-session polling on the Daily plan; one sync per app-open, at most once per 20 hours | data only changes once daily; polling would buy nothing and cost calls |
+| Activities | on app open; per-account **cursor** advanced only after the broker's `initial_sync_completed` — **as built, §10.2** (replaces the "−7 days overlap" sketch) | transactions refresh once daily anyway — more polling buys nothing |
+| First connect | sync immediately after the portal returns; if the broker's initial transaction sync isn't finished yet, the cursor stays put and the next app-open completes the backfill (**as built, §10.2** — replaces the 2s→60s poll) | initial transaction sync takes 1–60s+; full history backfill (Schwab ~2yr read-only, Vanguard/Robinhood since account open) |
 | Rate limits | 250 req/min global, **10 req/min per account** | schedule stays well inside; 429 → honor the Reset header |
 
 ## 4 · Data mapping (what we capture, field by field)
@@ -107,11 +111,12 @@ remain total-only (not itemized), stated on the honesty card.
 | FEE / TAX | FEE (TAX noted) | |
 | TRANSFER | TRANSFER; counter-account unknown → DEPOSIT/WITHDRAWAL by sign, noted | |
 | EXTERNAL_ASSET_TRANSFER_IN/OUT | TRANSFER_IN_KIND | |
-| SPLIT / ADJUSTMENT | position adjustment, **no cash effect** (new small handler) | |
-| OPTION-* | skipped in v1, disclosed | |
+| SPLIT / ADJUSTMENT | new `ADJUSTMENT` ledger type — **no cash effect** (as built: a no-op in the apply engine, visible in history) | |
+| ~~OPTION-* skipped in v1~~ | **SUPERSEDED (§10.3)** — option BUY/SELL land as real BUY/SELL ledger rows with exact cash; only EXPIRATION/EXERCISE/ASSIGNMENT are skipped (no cash moves) | G2 closure |
 
 **Dedupe/idempotency:** SnapTrade activity `id` **can change on reprocessing** — we dedupe on a
-composite key (account, trade_date, type, amount, units, symbol-UUID, `external_reference_id`), so
+composite key (account, trade_date, type, amount, units, symbol-UUID, `external_reference_id`,
+description — the last added at build time to keep same-day same-amount rows apart, §10.4), so
 re-ingesting a window never doubles a row. Symbols keyed on SnapTrade's UUID/FIGI, never raw ticker
 (tickers aren't stable). Connected rows carry `source:'connected'` — the F10 worth-a-look review and
 money-weighted return then run on REAL flows (mapped: money-weighted return needs exactly the
@@ -137,8 +142,9 @@ positions with lots · the brokerage cash sleeve · tax-wrapper model · merge-n
 snapshots. The store ingests everything in §4 with **no schema change**.
 
 **New work (the honest list):** ① the relay Cloud Function (register/login-link/list/positions/
-balances/activities, secrets custody) ② extend the `SyncProvider` seam (today it's search+link only)
-to portal-URL + reconnect + positions/activities pull ③ `raw_type`→wrapper mapping + confirm step
+balances/activities, secrets custody) ② ~~extend the `SyncProvider` seam~~ **SUPERSEDED (§10.7)** —
+built as a dedicated client + sync module instead; the old seam stays for the sandbox flow
+③ `raw_type`→wrapper mapping + confirm step
 ④ the curated coverage table + honesty card UI ⑤ the activity mapper + composite-key dedupe
 ⑥ SPLIT/ADJUSTMENT no-cash handler ⑦ `expo-web-browser` dependency (native → Build 43)
 ⑧ Settings: view/disconnect connections + delete-user on account deletion (SnapTrade launch-checklist
@@ -162,3 +168,43 @@ sentence; the v1.1 response answered three of the four and silently dropped "opt
 founder 2026-07-18. Rule going forward: multi-part founder comments are answered fragment by
 fragment, each part named. A comment-by-comment verification pass of the detailed-design/high-level
 v1.0 sheets (~40 comments) against the built app is queued as its own task.
+
+## 10 · As-built amendments (2026-07-18, recorded after the build + 4-agent audit)
+
+The build and its adversarial audit improved on the approved design in seven places. The approved
+text above is kept with ~~strikethrough~~ markers; this section is the record of what shipped and
+why. Rule applied: the code wins, the doc gets fixed.
+
+1. **No 10-minute polling.** On the Daily plan, broker data changes once a day — an in-session
+   poll would only re-download the same answer. As built: one sync per app-open, throttled to once
+   per 20 hours (`shouldDailySync`, `src/services/sync/snaptradeSync.ts`), plus an explicit
+   user-initiated refresh.
+2. **Per-account activity cursor replaces the "−7 days overlap" and the first-connect poll.**
+   Each account remembers the last date it fully ingested; the cursor only advances after the
+   broker reports its initial transaction sync finished (`initial_sync_completed`). That closes
+   two audit findings at once: a first sync that landed mid-backfill can never permanently skip
+   history, and nothing depends on a guessed overlap window. Idempotency comes from the composite
+   dedupe key, not from avoiding re-reads.
+3. **Option trades are real ledger rows (audit P2, money-correctness).** Mapping option BUY/SELL
+   to deposits/withdrawals — the easy path — would have corrupted the money-weighted return
+   (fake external flows). As built they are BUY/SELL with the price normalized so
+   shares × price = the broker's exact cash amount (`ingest.ts`); expirations/exercises/assignments
+   are skipped because the broker reports their cash legs separately.
+4. **Dedupe key gained `description`** — two same-day, same-amount, same-type rows (e.g. two $9.99
+   fees) must not collapse into one.
+5. **A review step ends the connect flow** (`SnapTradeConnect.tsx` step `review`): what arrived,
+   per-account status, before the wrapper questions — the user sees the result where they are,
+   instead of being dropped onto another screen to hunt for it.
+6. **The merge gate absorbs manual twins** (audit P0): connecting a brokerage the user already
+   tracked by hand keeps the manual row's identity (earmarks, confirmed wrapper) and links it to
+   the connection — no duplicate, no double-count (`ingest.ts` + pin in `ingest.test.ts`).
+7. **Dedicated SnapTrade client instead of extending the old `SyncProvider` seam**
+   (`snaptradeClient.ts` + `snaptradeSync.ts`): the seam's search+link shape didn't fit a
+   portal-handoff flow, and forcing it would have entangled the sandbox path. The sandbox flow
+   keeps the old seam; `ConnectFlowScreen` picks live vs sandbox by whether the relay is configured.
+
+Also recorded here for completeness: sync-state fields that must NOT cloud-sync (`snaptradeSeenKeys`,
+`snaptradeLastSyncAt`, `snaptradeActivityCursor` are device-local — syncing seen-keys without the
+rows would blank history on reinstall); connected balances are exempt from price-driven
+`recomputeBalances` (the broker's total is authoritative); the cash sleeve keeps real negative
+values (margin debit is information, not an error).
