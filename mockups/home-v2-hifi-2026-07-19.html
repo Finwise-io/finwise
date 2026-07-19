@@ -1,0 +1,121 @@
+<title>MoneyKeel — Home (hi-fi, Build 44 preview)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1060px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:760px;}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  /* ——— the phone, drawn with the app's REAL tokens (src/utils/theme.ts) ——— */
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18; position:relative;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .greet{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 10px;}
+  .greet .hi{font-size:20px; font-weight:800;}
+  .greet .icons{display:flex; gap:14px; font-size:17px; color:#6B6B66;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66; display:flex; align-items:center; gap:6px;}
+  .idot{width:16px;height:16px;border-radius:50%;border:1.4px solid #76766F;color:#76766F;font-size:10px;font-weight:800;
+    display:inline-flex;align-items:center;justify-content:center;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; letter-spacing:-.5px;}
+  .gain{color:#006300; font-weight:800;}
+  .heroline{font-size:15px; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .vs{font-size:13px; color:#6B6B66; margin-top:3px; display:flex; align-items:center; gap:6px; flex-wrap:wrap;}
+  .stamp{font-size:11.5px; color:#76766F; margin-top:6px;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .nwline{display:flex; justify-content:space-between; align-items:center; font-size:15px; font-weight:600;}
+  .nwline b{font-variant-numeric:tabular-nums;}
+  .needrow{display:flex; gap:10px; padding:11px 2px; border-top:1px solid rgba(0,0,0,.10); font-size:15px; line-height:1.4; align-items:center;}
+  .needrow:first-of-type{border-top:none;}
+  .needrow .num{font-variant-numeric:tabular-nums;}
+  .needrow .go{margin-left:auto; color:#178F6B; font-weight:700; white-space:nowrap;}
+  .lead{font-weight:800;}
+  .diamond{color:#854F0B; font-weight:800;}
+  .strip{font-size:15px;}
+  .strip b{font-size:17px;}
+  .est{font-size:11.5px; color:#76766F;}
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10); margin-top:10px;}
+  .tab{font-size:10.5px; font-weight:700; color:#6B6B66; text-align:center;}
+  .tab.on{color:#0F6E56; border-bottom:2.5px solid #0F6E56; padding-bottom:2px;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:340px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock · Home · lands in Build 44 — for your approval</div>
+  <h1>Home — with investments, and your current first-day state</h1>
+  <p class="lede">Drawn with the app's real colors and type sizes. Left: the approved design with data ("up $11,200 (1.4%) this month"
+  — <b>dollars and percent</b>, per your approved wireframe). Right: <b>your account today</b> — the change slot and the date
+  never disappear; they say the honest thing instead.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>With investments</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span class="num">9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="greet"><span class="hi">Good morning, Pat</span><span class="icons">👁 ⚙︎</span></div>
+          <div class="card">
+            <div class="kicker">YOUR INVESTMENTS <span class="idot">i</span></div>
+            <div class="hero">$843,700</div>
+            <div class="heroline"><span class="gain">▲ up $11,200 (1.4%)</span> this month</div>
+            <div class="vs">you +1.4% · market +0.9% · ahead by 0.5% <span class="idot">i</span></div>
+            <div class="stamp">prices updated today</div>
+            <div class="link">See your growth ›</div>
+          </div>
+          <div class="card nwline"><span>Net worth</span><b>$1,204,900 &nbsp;<span class="gain" style="font-size:13px">▲ up</span></b></div>
+          <div class="card">
+            <div class="kicker">WHAT NEEDS YOU (3)</div>
+            <div class="needrow lead"><span class="diamond">◆</span><span class="num">$18,400 cash earning about $0</span><span class="go">Invest ›</span></div>
+            <div class="needrow"><span>·</span><span class="num">$9,200 of 401(k) room left this year</span><span class="go">Plan ›</span></div>
+            <div class="needrow"><span>·</span><span class="num">$353,800 (42%) sits in one account</span><span class="go">Invest ›</span></div>
+          </div>
+          <div class="card strip">
+            <div class="kicker">WILL MY MONEY LAST? — TO 92</div>
+            <div style="margin-top:4px"><b>Likely — 84%</b> <span class="est">estimate</span></div>
+            <div class="link">See the full picture ›</div>
+          </div>
+          <div class="tabbar"><span class="tab on">Home</span><span class="tab">Net worth</span><span class="tab">Invest</span><span class="tab">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Your account today (first day, $0 invested)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span class="num">9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="greet"><span class="hi">Good morning</span><span class="icons">👁 ⚙︎</span></div>
+          <div class="card">
+            <div class="kicker">YOUR INVESTMENTS <span class="idot">i</span></div>
+            <div class="hero">$0</div>
+            <div class="heroline" style="color:#6B6B66">nothing invested yet — connect or add an account to start</div>
+            <div class="stamp">as of Jul 19</div>
+            <div class="link">See your growth ›</div>
+          </div>
+          <div class="card nwline"><span>Net worth</span><b>$1,500</b></div>
+          <div class="card strip">
+            <div class="kicker">WILL MY MONEY LAST? — TO 92</div>
+            <div style="margin-top:4px; font-size:15px; color:#6B6B66">Answer 3 quick questions in Plan to see your odds</div>
+            <div class="link">Plan ›</div>
+          </div>
+          <div class="tabbar"><span class="tab on">Home</span><span class="tab">Net worth</span><span class="tab">Invest</span><span class="tab">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>The ⓘ dot</b> opens: "Stocks &amp; funds, bonds and alternatives — cash is counted separately. Your net worth is the bigger picture… you can have $0 in investments and still have a net worth."</div></li>
+        <li><span class="dot">2</span><div><b>Change slot always renders</b> — honest words on day one, dollars + percent once there's history.</div></li>
+        <li><span class="dot">3</span><div><b>Date always renders</b> — "prices updated today" when live, "as of Jul 19" for hand-entered numbers.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,111 @@
+<title>MoneyKeel — Net worth (hi-fi, Build 44 preview)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1060px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:760px;}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 10px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .head .icons{display:flex; gap:14px; font-size:17px; color:#6B6B66;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; text-align:center; margin-top:4px; letter-spacing:-.5px;}
+  .gain{color:#006300; font-weight:800;}
+  .delta{font-size:15px; text-align:center; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .stamp{font-size:11.5px; color:#76766F; text-align:center; margin-top:4px;}
+  .trend{display:block; margin:10px auto 2px;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .crow{display:flex; justify-content:space-between; padding:10px 2px; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums;}
+  .crow:first-of-type{border-top:none;}
+  .crow .go{color:#76766F;}
+  .owe{color:#A32D2D; font-weight:700;}
+  .math{font-size:13px; color:#6B6B66; padding-top:10px; border-top:1px solid rgba(0,0,0,.10); font-variant-numeric:tabular-nums;}
+  .chips{display:flex; gap:8px; margin-top:8px;}
+  .chip{font-size:13px; font-weight:700; border:1.5px solid rgba(0,0,0,.10); border-radius:16px; padding:6px 12px; color:#6B6B66;}
+  .chip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56;}
+  .btn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin:6px 0 14px;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:340px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock · Net worth · lands in Build 44 — for your approval</div>
+  <h1>Net worth — with history, and your current first-day state</h1>
+  <p class="lede">Left: the approved glance-that-expands with a year of history. Right: <b>your account today</b> —
+  the change line and the date render from day one with honest words, so the screen never looks like a bare number.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>With history</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Net worth</span><span class="icons">👁 ＋</span></div>
+          <div class="card">
+            <div class="kicker" style="text-align:center">YOUR NET WORTH</div>
+            <div class="hero">$1,204,900</div>
+            <div class="delta"><span class="gain">▲ up $23,100</span> this year</div>
+            <div class="stamp">as of Jul 19</div>
+            <svg class="trend" width="280" height="44"><polyline points="0,40 25,36 50,37 75,30 100,32 125,26 150,27 175,20 200,22 225,14 250,12 280,6" fill="none" stroke="#178F6B" stroke-width="2.5"/></svg>
+            <div class="link" style="text-align:center">Your path ahead (from your Plan) ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">WHAT YOU OWN · $1,388,900</div>
+            <div class="crow"><span>Cash</span><span>$46,600 <span class="go">›</span></span></div>
+            <div class="crow"><span>Stocks / ETFs</span><span>$700,500 <span class="go">›</span></span></div>
+            <div class="crow"><span>Bonds</span><span>$113,000 <span class="go">›</span></span></div>
+            <div class="crow"><span>Real estate</span><span>$190,000 <span class="go">›</span></span></div>
+            <div class="kicker" style="margin-top:10px">WHAT YOU OWE</div>
+            <div class="crow"><span>Mortgage</span><span class="owe">−$184,000 <span class="go">›</span></span></div>
+            <div class="math">Own $1,388,900 − Owe $184,000 = <b>$1,204,900</b></div>
+            <div class="link">▾ Show accounts &amp; detail</div>
+            <div class="chips"><span class="chip on">By class</span><span class="chip">By institution</span><span class="chip">By type</span></div>
+          </div>
+          <div class="card crow" style="border:none"><span>This month's cash flow</span><span>In $9,400 · Out $6,100 <span class="go">›</span></span></div>
+          <div class="btn">＋ Add or connect an account</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Your account today (first day)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Net worth</span><span class="icons">👁 ＋</span></div>
+          <div class="card">
+            <div class="kicker" style="text-align:center">YOUR NET WORTH</div>
+            <div class="hero">$1,500</div>
+            <div class="delta" style="color:#6B6B66">tracking starts today — change shows as history builds</div>
+            <div class="stamp">as of Jul 19</div>
+          </div>
+          <div class="card">
+            <div class="kicker">WHAT YOU OWN · $1,500</div>
+            <div class="crow"><span>Cash</span><span>$1,500 <span class="go">›</span></span></div>
+            <div class="math">Own $1,500 − Owe $0 = <b>$1,500</b></div>
+          </div>
+          <div class="btn">＋ Add or connect an account</div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>Change line always renders</b> — "▲ up $23,100 this year" with history; the honest tracking line on day one. Word + arrow, never color alone.</div></li>
+        <li><span class="dot">2</span><div><b>"as of Jul 19"</b> under the hero on both screens — your build-43 ask.</div></li>
+        <li><span class="dot">3</span><div><b>Trend appears at 2+ months</b> of history; it is never faked on day one.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>

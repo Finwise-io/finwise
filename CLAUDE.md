@@ -47,6 +47,10 @@ the founder had approved all of it. Never again.
 ## MOCK-FIRST — standing order (2026-07-19, after the build-43 trust breach)
 - EVERY screen change gets a mock-up saved in `mockups/` BEFORE it is built — named
   `screen-vN-date.html`, NEVER overwritten (supersede with a new file; old mocks stay).
+- Mocks are FULL-COLOR, HIGH-FIDELITY (founder order, 2026-07-19): styled HTML phone frames using
+  the app's REAL tokens from `src/utils/theme.ts` (colors, type sizes, radii) — never ASCII, never
+  grayscale boxes. Reference examples: `mockups/home-v2-hifi-2026-07-19.html`,
+  `mockups/networth-v2-hifi-2026-07-19.html`. Show BOTH the rich state and the empty/first-day state.
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a
   fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid
   them behind has-data conditions; in the founder's new-account state the screen looked nothing
