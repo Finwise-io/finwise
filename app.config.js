@@ -112,5 +112,8 @@ module.exports = {
     AI_PROXY_URL:                 process.env.AI_PROXY_URL                 || '',
     // F-6: Sentry DSN is a PUBLIC ingest key (not a secret) — safe to bundle as the default.
     SENTRY_DSN:                   process.env.SENTRY_DSN                   || 'https://b25f5219e1c54f8fb5a20e3792f5636b@o4511617236926464.ingest.us.sentry.io/4511617274740736',
+    // SnapTrade relay (deployed 2026-07-19): a non-secret URL — every call requires the caller's
+    // Firebase ID token; the SnapTrade keys live ONLY in Secret Manager on the server.
+    SNAPTRADE_RELAY_URL:          process.env.SNAPTRADE_RELAY_URL          || 'https://us-central1-finwise-app-jj.cloudfunctions.net/snaptradeRelay',
   },
 };
