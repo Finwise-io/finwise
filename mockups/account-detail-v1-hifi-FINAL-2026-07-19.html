@@ -1,0 +1,118 @@
+<title>MoneyKeel — Account detail — FINAL (approved 2026-07-19)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .back{font-size:16px; font-weight:700; color:#178F6B; padding:4px 2px;}
+  .h1{font-size:22px; font-weight:800; margin-top:2px;}
+  .chiprow{display:flex; gap:8px; margin:6px 0 2px; flex-wrap:wrap;}
+  .srcchip{font-size:12px; font-weight:700; color:#0F6E56; background:#E1F5EE; border-radius:12px; padding:4px 10px;}
+  .stamp{font-size:12px; color:#76766F;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; letter-spacing:-.5px;}
+  .classline{font-size:15px; color:#585d59; margin-top:2px;}
+  .h2row{display:flex; align-items:center; gap:8px; padding:9px 2px; font-size:14px; font-variant-numeric:tabular-nums;}
+  .h2row .cdot{width:9px; height:9px; border-radius:50%; flex:none;}
+  .h2row .nm{color:#1A1A18;}
+  .h2row .sub{display:block; font-size:11.5px; color:#76766F;}
+  .h2row .amt{margin-left:auto; font-weight:600;}
+  .note{font-size:11.5px; color:#76766F; margin-top:6px; line-height:1.45;}
+  .gain{color:#006300; font-weight:800;}
+  .red{color:#A32D2D; font-weight:700;}
+  .btnrow{display:flex; gap:8px; flex-wrap:wrap; margin-top:8px;}
+  .abtn{font-size:13.5px; font-weight:700; color:#0F6E56; border:1.5px solid #178F6B; border-radius:18px; padding:8px 14px; min-height:36px;}
+  .txn{display:flex; align-items:baseline; gap:8px; padding:9px 2px; border-top:1px solid rgba(0,0,0,.10); font-size:14px; font-variant-numeric:tabular-nums;}
+  .txn:first-of-type{border-top:none;}
+  .txn .dt{color:#76766F; font-size:12.5px; width:48px; flex:none;}
+  .txn .what{flex:1; color:#1A1A18;}
+  .txn .sub{display:block; font-size:11.5px; color:#76766F;}
+  .txn .amt{font-weight:600;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .two{display:flex; gap:8px; margin:2px 0 10px;}
+  .obtn{flex:1; text-align:center; font-size:15px; font-weight:700; border:1.5px solid rgba(0,0,0,.2); border-radius:12px; padding:12px;}
+  .foot{font-size:11.5px; color:#76766F; text-align:center; padding:4px 10px 24px; line-height:1.5;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:0; padding:0; max-width:360px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · Account detail · ✅ FINAL — APPROVED 2026-07-19 (founder) · builds in Build 44</div>
+  <h1>Account detail — your connected E*TRADE, everything on one page</h1>
+  <p class="lede">What tapping "E*Trade Individual Brokerage · 2" opens. This is the built screen with your build-43 fixes
+  applied — clean name, readable security names instead of CUSIPs, holdings grouped by what they are, the option
+  itemized, realized results, and (new in Build 44) the transaction history that failed to import in Build 43.</p>
+
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Back</div>
+          <div class="h1">E*Trade Individual Brokerage · 2</div>
+          <div class="chiprow"><span class="srcchip">Connected · read-only</span><span class="stamp">Updated today 6:04 am</span></div>
+
+          <div class="card" style="margin-top:10px">
+            <div class="hero">$168,700</div>
+            <div class="classline"><span class="pin">1</span>Mixed holdings · taxable</div>
+          </div>
+
+          <div class="card">
+            <span class="pin">2</span>
+            <div class="kicker">WHAT'S INSIDE · BY TYPE</div>
+            <div class="h2row"><span class="cdot" style="background:#185FA5"></span><span class="nm">CD 4.30% due May 2027<span class="sub">CDs &amp; Treasuries</span></span><span class="amt">$110,000</span></div>
+            <div class="h2row"><span class="cdot" style="background:#5DCAA5"></span><span class="nm">Vanguard Federal Money Market<span class="sub">counts as cash</span></span><span class="amt">$48,700</span></div>
+            <div class="h2row"><span class="cdot" style="background:#5DCAA5"></span><span class="nm">Cash in the account</span><span class="amt">$6,800</span></div>
+            <div class="h2row"><span class="cdot" style="background:#178F6B"></span><span class="nm">LCTX · 965 shares</span><span class="amt">$1,400</span></div>
+            <div class="h2row"><span class="cdot" style="background:#7A5AA7"></span><span class="nm">QQQ $600 put · exp Dec 31 2026<span class="sub">option — 1 contract</span></span><span class="amt">$1,800</span></div>
+            <div class="note">Counted inside this account's total — listed here so nothing is hidden. Adds up: $110,000 + $48,700 + $6,800 + $1,400 + $1,800 = $168,700.</div>
+          </div>
+
+          <div class="card">
+            <div class="kicker">REALIZED FROM SALES</div>
+            <div style="font-size:20px; font-weight:800; margin-top:2px"><span class="gain">+$1,240</span> <span style="font-size:13px; color:#6B6B66; font-weight:600">all time · +$890 this year</span></div>
+            <div class="note">Oldest shares sell first (the standard method). 3 sales had no recorded purchase — reported, never guessed.</div>
+          </div>
+
+          <div class="card">
+            <div class="kicker">ACTIVITY</div>
+            <span class="pin">3</span>
+            <div class="txn"><span class="dt">Jul 1</span><span class="what">CD matured — redeemed<span class="sub">bond/CD redeemed at maturity</span></span><span class="amt gain">+$50,000</span></div>
+            <div class="txn"><span class="dt">Jun 20</span><span class="what">Bought QQQ $600 put<span class="sub">option purchase · 1 contract</span></span><span class="amt">−$5,036</span></div>
+            <div class="txn"><span class="dt">Jun 15</span><span class="what">Dividend · LCTX</span><span class="amt gain">+$85</span></div>
+            <div class="txn"><span class="dt">Jun 1</span><span class="what">Interest</span><span class="amt gain">+$120</span></div>
+            <div class="txn"><span class="dt">May 28</span><span class="what">Margin interest<span class="sub">brokerage charge</span></span><span class="amt red">−$3</span></div>
+            <div class="link">See all activity ›</div>
+          </div>
+
+          <div class="two"><span class="obtn">Edit</span><span class="obtn">Disconnect</span></div>
+          <div class="foot">This connection is read-only — nothing and no one can move your money through it. Balance syncs daily from E*TRADE.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <ul class="legend">
+      <li><span class="dot">1</span><div><b>"Mixed holdings · taxable"</b> replaces the wrong "Stocks/ETFs · taxable" you saw — an account holding CDs + cash + stocks + options is called what it is. (Single-type accounts keep their type name.)</div></li>
+      <li><span class="dot">2</span><div><b>WHAT'S INSIDE, by type, readable:</b> "CD 4.30% due May 2027" instead of "49306SX43", the money-market fund labeled as cash, the option itemized with the counted-inside note — and the lines sum to the hero exactly.</div></li>
+      <li><span class="dot">3</span><div><b>ACTIVITY arrives in Build 44</b> — the import bug you found is fixed and the screen self-heals into the full history on first sync. Plain words per row ("CD matured — redeemed"), signed amounts with words and color together.</div></li>
+    </ul>
+  </div>
+</div>

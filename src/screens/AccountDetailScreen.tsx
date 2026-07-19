@@ -7,9 +7,9 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, type AssetAccount } from '../domain/assets';
+import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount } from '../domain/assets';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney } from '../components/useMoney';
@@ -72,6 +72,30 @@ export default function AccountDetailScreen() {
   const tickers = (account.positions ?? []).map((p) => holdingWord(p as any)).filter(Boolean);
   const fresh = valueFreshness(account);
 
+  // APPROVED account-detail mock (2026-07-19): connected accounts show WHAT'S INSIDE · BY TYPE —
+  // every holding with a readable name, class dot and value; the cash sleeve; each option row.
+  const breakdown = accountClassBreakdown(account);
+  const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
+  const insideRows = !breakdown ? [] : [
+    ...((account.positions ?? []) as any[]).map((p) => {
+      const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
+      const value = p.last_price != null ? Math.round(sh * p.last_price * 100) / 100 : 0;
+      const cls2 = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
+      return {
+        key: p.position_id ?? p.ticker,
+        name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${sh.toLocaleString()} share${sh === 1 ? '' : 's'}` : holdingWord(p),
+        sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
+        color: ClassMarkColors[cls2], value,
+      };
+    }),
+    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in the account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number }] : []),
+    ...(((account.option_holdings ?? []) as any[]).map((o) => ({
+      key: o.label, name: o.label,
+      sub: `option — ${Math.abs(o.contracts)} contract${Math.abs(o.contracts) === 1 ? '' : 's'}${o.contracts < 0 ? ', short' : ''}`,
+      color: ClassMarkColors.alternatives, value: o.value as number,
+    }))),
+  ].sort((x, y) => Math.abs(y.value) - Math.abs(x.value));
+
   // per-class actions (design: only what makes sense for this account)
   const actions: ActionType[] =
     cls === 'cash' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER']
@@ -99,26 +123,34 @@ export default function AccountDetailScreen() {
       </View>
 
       <View style={s.card} accessible
-        accessibilityLabel={`Balance ${maskedMoney(account.balance || 0)}. ${ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
+        accessibilityLabel={`Balance ${maskedMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
-        <Text style={s.classLine}>{ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
+        {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
+            what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
+        <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
         {account.status && account.status !== 'open' && (
           <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>
         )}
-        {tickers.length > 0 && <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>}
-        {(account.option_holdings ?? []).length > 0 && (
+        {insideRows.length > 0 ? (
+          /* APPROVED: WHAT'S INSIDE · BY TYPE — readable names, class dots, exact-sum note */
           <View style={s.optBlock}>
-            <Text style={s.optHdr}>OPTIONS IN THIS ACCOUNT</Text>
-            {(account.option_holdings ?? []).map((o) => (
-              <View key={o.label} style={s.optRow} accessible
-                accessibilityLabel={`${o.label}, ${o.contracts} contract${Math.abs(o.contracts) === 1 ? '' : 's'}, worth ${maskedMoney(Math.abs(o.value))}`}>
-                <Text style={s.optLabel} numberOfLines={2}>{o.label}</Text>
-                <Text style={s.optVal}>{maskedMoney(o.value)}</Text>
+            <Text style={s.optHdr}>WHAT'S INSIDE · BY TYPE</Text>
+            {insideRows.map((rw) => (
+              <View key={rw.key} style={s.insideRow} accessible
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${maskedMoney(Math.abs(rw.value))}`}>
+                <View style={[s.insideDot, { backgroundColor: rw.color }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
+                  {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+                </View>
+                <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
               </View>
             ))}
             <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden.</Text>
           </View>
-        )}
+        ) : tickers.length > 0 ? (
+          <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
+        ) : null}
       </View>
 
       {/* stale hand-entered value — the gentle 6-month nudge (never red, never a zero) */}
@@ -442,6 +474,9 @@ const s = StyleSheet.create({
   holdsLine: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
   statusBadge: { fontSize: 13, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight, borderRadius: 8, paddingHorizontal: 10, paddingVertical: 6, marginTop: 6, overflow: 'hidden' },
   optBlock: { marginTop: 10, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 8 },
+  insideRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
+  insideDot: { width: 9, height: 9, borderRadius: 5 },
+  insideSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   optHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7, marginBottom: 4 },
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },

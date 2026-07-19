@@ -32,6 +32,33 @@ export interface MonthlySnapshot {
   captured_at: string;           // ISO
 }
 
+// ── daily net-worth points (founder approval 2026-07-19: "go with daily snapshot change now") ──
+// A lean 'YYYY-MM-DD' → net-worth map captured once per app-open day, so the trend graph draws
+// within DAYS of first use instead of waiting two month-ends. Monthly snapshots stay the deep,
+// typed record; dailies are just chart points. Retention is bounded (see DAILY_KEEP).
+export const DAILY_KEEP = 400;
+export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (month-end) or 'YYYY-MM-DD'
+
+/** Chart series = monthly snapshots + daily points, chronological ('YYYY-MM' sorts before its days). */
+export function trendPoints(
+  monthly: Record<string, unknown> | null | undefined,
+  daily: Record<string, unknown> | null | undefined,
+): TrendPoint[] {
+  const pts: TrendPoint[] = readHistory(monthly).map((s) => ({ key: s.month, nw: s.net_worth }));
+  for (const [k, v] of Object.entries(daily ?? {})) {
+    if (/^\d{4}-\d{2}-\d{2}$/.test(k) && typeof v === 'number' && Number.isFinite(v)) pts.push({ key: k, nw: round2(v) });
+  }
+  return pts.sort((a, b) => a.key.localeCompare(b.key));
+}
+
+/** Prune helper for the store writer: newest DAILY_KEEP days survive. */
+export function pruneDaily(daily: Record<string, number>): Record<string, number> {
+  const keys = Object.keys(daily).sort();
+  if (keys.length <= DAILY_KEEP) return daily;
+  const keep = new Set(keys.slice(-DAILY_KEEP));
+  return Object.fromEntries(Object.entries(daily).filter(([k]) => keep.has(k)));
+}
+
 const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}$/.test(s);
 const n = (v: unknown, fallback = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 

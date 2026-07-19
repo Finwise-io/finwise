@@ -139,7 +139,10 @@ describe('USER WALK · 10 common flows', () => {
     // approved v4 (2026-07-19): class rows are collapsed by default — the user taps a class open
     fireEvent.press(screen.getByLabelText(/Stocks \/ ETFs.*Expands/));
     fireEvent.press(screen.getByLabelText(/^Cash.*Expands/));
-    expect(screen.getByText(/Robinhood/)).toBeOnTheScreen();
+    // approved v6: the connected account SPLITS — its stocks under Stocks/ETFs AND its cash
+    // sleeve under Cash (two rows), while the manual savings account stays whole under Cash
+    expect(screen.getAllByText(/Robinhood/).length).toBe(2);
+    expect(screen.getByText(/cash in this account/)).toBeOnTheScreen();
     expect(screen.getByText(/Ally Savings/)).toBeOnTheScreen();
   });
 

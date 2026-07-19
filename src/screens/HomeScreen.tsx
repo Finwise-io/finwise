@@ -134,6 +134,9 @@ export default function HomeScreen() {
       debts: debtsSnap,
       captured_at: new Date().toISOString(),
     }));
+    // APPROVED 2026-07-19: one daily net-worth point per open day → the trend graph draws within
+    // days of first use (monthly snapshots stay the deep record; this is just a chart point).
+    store.captureDailyNw?.(new Date().toISOString().slice(0, 10), nwv.net_worth);
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──

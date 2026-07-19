@@ -9,9 +9,9 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
-import { readHistory } from '../domain/history';
+import { trendPoints } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, type AddWrapper } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -347,8 +347,10 @@ export default function NetWorthScreen() {
     // glance, and ONE add-or-connect button with three honest paths. Calm by design: the
     // donut, captions, explore box and insight cards moved off this screen (Home's insights
     // engine owns the nudges; class rows carry the allocation story).
-    const series = readHistory(store.monthlySnapshots)
-      .map((h) => ({ month: h.month, nw: h.net_worth })).slice(-12);   // typed, normalized, garbage-free (PRD F1#15)
+    // APPROVED 2026-07-19 (daily snapshots): the trend draws from monthly snapshots PLUS the daily
+    // net-worth points captured at app open — a real line within days of first use, never invented.
+    const series = trendPoints(store.monthlySnapshots, store.nwDaily)
+      .map((h) => ({ month: h.key, nw: h.nw })).slice(-60);   // ~2 months of dailies / 5 years of monthlies
     const jan = `${new Date().getFullYear()}-01`;
     const janPoint = series.find((pt) => pt.month >= jan && pt.month !== series[series.length - 1]?.month);
     const changeThisYear = janPoint ? nw.net_worth - janPoint.nw : null;
@@ -397,7 +399,16 @@ export default function NetWorthScreen() {
               word+motion never color alone); a lone class auto-expands — hiding the only account
               behind a tap would obscure, not glance. */}
           {classRows.map((r, i) => {
-            const members = assets.filter((a) => assetClassOf(a) === r.key);
+            // APPROVED v6: connected accounts appear under EACH class they hold, with just that
+            // slice; whole accounts appear once under their class. Larger slices first.
+            const members = assets
+              .map((a) => {
+                const b = accountClassBreakdown(a);
+                const portion = b ? b[r.key] : assetClassOf(a) === r.key ? (a.balance || 0) : 0;
+                return { a, portion, split: !!b };
+              })
+              .filter((m) => m.portion !== 0)
+              .sort((x, y) => y.portion - x.portion);
             const isOpen = classRows.length === 1 || !!openClasses[r.key];
             const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
             return (
@@ -413,12 +424,15 @@ export default function NetWorthScreen() {
                   </View>
                   <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
                 </TouchableOpacity>
-                {shownMembers.map((a) => (
+                {shownMembers.map(({ a, portion, split }) => (
                   <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
                     onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                    accessibilityLabel={`${displayNames.get(a.asset_id)}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
-                    <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
-                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
+                    accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${maskedMoney(Math.round(portion))}. Opens its page.`}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
+                      {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
+                    </View>
+                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
                     <Text style={styles.acctChev}>›</Text>
                   </TouchableOpacity>
                 ))}
@@ -731,7 +745,8 @@ const styles = StyleSheet.create({
   glanceKickerNW: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
   acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 40 },
   classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },
-  acctRowLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  acctRowLabel: { fontSize: 14, color: Colors.textPrimary },
+  acctRowSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   acctRowVal: { fontSize: 14, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
   acctChev: { fontSize: 15, color: Colors.textTertiary },
   acctMore: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 6 },

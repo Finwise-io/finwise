@@ -1,0 +1,129 @@
+<title>MoneyKeel — Net worth — FINAL (approved 2026-07-19)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 10px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .head .icons{display:flex; gap:14px; font-size:17px; color:#6B6B66;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; text-align:center; margin-top:4px; letter-spacing:-.5px;}
+  .delta{font-size:15px; text-align:center; margin-top:2px; color:#6B6B66;}
+  .stamp{font-size:11.5px; color:#76766F; text-align:center; margin-top:4px;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .crow{display:flex; align-items:center; gap:8px; padding:12px 2px; border-top:1px solid rgba(0,0,0,.10);
+    font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; cursor:pointer; min-height:44px; user-select:none;}
+  .crow:first-of-type{border-top:none;}
+  .crow .amt{margin-left:auto;}
+  .cdot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .caret{font-size:13px; color:#76766F; width:14px; transition:transform .15s;}
+  .grp.open .caret{transform:rotate(90deg);}
+  .grp .accts{display:none;}
+  .grp.open .accts{display:block;}
+  .acct{display:flex; align-items:center; gap:8px; padding:7px 2px 7px 32px; font-size:14px; font-variant-numeric:tabular-nums;}
+  .acct .nm{color:#585d59; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .acct .part{display:block; font-size:11.5px; color:#76766F;}
+  .acct .amt{margin-left:auto; font-weight:600;}
+  .acct .go{color:#76766F;}
+  .empty{font-size:14px; color:#6B6B66; padding:8px 2px;}
+  .math{font-size:13px; color:#6B6B66; padding-top:10px; border-top:1px solid rgba(0,0,0,.10); font-variant-numeric:tabular-nums;}
+  .chips{display:flex; gap:8px; margin-top:8px;}
+  .chip{font-size:13px; font-weight:700; border:1.5px solid rgba(0,0,0,.10); border-radius:16px; padding:6px 12px; color:#6B6B66;}
+  .chip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56;}
+  .btn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin:6px 0 10px;}
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10);}
+  .tab{font-size:10.5px; font-weight:700; color:#6B6B66; text-align:center;}
+  .tab.on{color:#0F6E56; border-bottom:2.5px solid #0F6E56; padding-bottom:2px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:0; padding:0; max-width:360px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · Net worth · ✅ FINAL — APPROVED 2026-07-19 (founder) · builds in Build 44</div>
+  <h1>Net worth — the whole screen, with mixed accounts split by what they hold</h1>
+  <p class="lede">Your two asks together: the <b>entire screen top to bottom</b> (hero → classes → owe → math → cash flow →
+  add button → tab bar), and the class split from v5 carried into it. Drawn in your current reality: two connected
+  E*TRADE accounts, first day of history. <b>Class rows are tappable here</b> — click to expand/collapse.</p>
+
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Net worth</span><span class="icons">👁 ＋</span></div>
+          <div class="card">
+            <div class="kicker" style="text-align:center">YOUR NET WORTH</div>
+            <div class="hero">$201,500</div>
+            <div class="delta">tracking starts today — change shows as history builds</div>
+            <div class="stamp" style="margin-top:2px">graph draws within days — a net-worth point is saved every day you open the app</div>
+            <div class="stamp">as of Jul 19</div>
+            <div class="link" style="text-align:center">Your path ahead (from your Plan) ›</div>
+          </div>
+          <div class="card">
+            <span class="pin">1</span>
+            <div class="kicker">WHAT YOU OWN · $201,500</div>
+            <div class="grp open">
+              <div class="crow" onclick="this.parentElement.classList.toggle('open')"><span class="caret">▸</span><span class="cdot" style="background:#5DCAA5"></span>Cash<span class="amt">$56,130</span></div>
+              <div class="accts">
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 2<span class="part">money market + cash in this account</span></span><span class="amt">$55,500</span><span class="go">›</span></div>
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 1<span class="part">cash in this account</span></span><span class="amt">$630</span><span class="go">›</span></div>
+              </div>
+            </div>
+            <div class="grp open">
+              <div class="crow" onclick="this.parentElement.classList.toggle('open')"><span class="caret">▸</span><span class="cdot" style="background:#185FA5"></span>Bonds &amp; CDs<span class="amt">$110,000</span></div>
+              <div class="accts">
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 2<span class="part">CDs &amp; Treasuries in this account</span></span><span class="amt">$110,000</span><span class="go">›</span></div>
+              </div>
+            </div>
+            <div class="grp">
+              <div class="crow" onclick="this.parentElement.classList.toggle('open')"><span class="caret">▸</span><span class="cdot" style="background:#178F6B"></span>Stocks / ETFs<span class="amt">$33,570</span></div>
+              <div class="accts">
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 1<span class="part">stocks in this account</span></span><span class="amt">$32,170</span><span class="go">›</span></div>
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 2<span class="part">stocks in this account</span></span><span class="amt">$1,400</span><span class="go">›</span></div>
+              </div>
+            </div>
+            <div class="grp">
+              <div class="crow" onclick="this.parentElement.classList.toggle('open')"><span class="caret">▸</span><span class="cdot" style="background:#7A5AA7"></span>Alternatives<span class="amt">$1,800</span></div>
+              <div class="accts">
+                <div class="acct"><span class="nm">E*Trade Individual Brokerage · 2<span class="part">options in this account</span></span><span class="amt">$1,800</span><span class="go">›</span></div>
+              </div>
+            </div>
+            <div class="kicker" style="margin-top:8px">WHAT YOU OWE</div>
+            <div class="empty">No debts — it's all yours.</div>
+            <div class="math">Own $201,500 − Owe $0 = <b>$201,500</b></div>
+            <div class="chips"><span class="chip on">By class</span><span class="chip">By institution</span><span class="chip">By type</span></div>
+          </div>
+          <div class="card crow" style="border:none; font-weight:600; cursor:default"><span>This month's cash flow</span><span class="amt">In $0 · Out $0 ›</span></div>
+          <div class="btn">＋ Add or connect an account</div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab on">Net worth</span><span class="tab">Invest</span><span class="tab">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <ul class="legend">
+      <li><span class="dot">1</span><div><b>The split (your finding #2):</b> each class row holds just that account's PORTION with an "in this account" line. Portions come from the broker's own holdings and always sum to the account totals: $56,130 + $110,000 + $33,570 + $1,800 = $201,500.</div></li>
+      <li><span class="dot">2</span><div><b>"· 1 / · 2" instead of gibberish:</b> E*TRADE won't share real account digits (the "9Cmw" you saw was its scrambled id) — so identical twins get a stable ordinal. When a broker DOES share digits, you'll see "••4821". You can rename any account on its page.</div></li>
+      <li><span class="dot">4</span><div><b>Daily snapshots (approved):</b> a net-worth point is recorded each day the app opens — the trend line appears within days and grows daily. Full multi-year backfill comes with the price-provider decision.</div></li>
+      <li><span class="dot">3</span><div><b>Whole screen drawn</b> — hero with first-day change line and as-of date, owe section, own−owe math, view toggles, cash-flow glance, add button, tab bar. Mocks always show the full screen from now on.</div></li>
+    </ul>
+  </div>
+</div>

@@ -83,6 +83,55 @@ test('R2-1 · display names: institution never doubles; a REAL digit mask shows;
   expect(new Set(names.values()).size).toBe(2);               // always tellable apart
 });
 
+// ── APPROVED 2026-07-19: class split + daily snapshots + Mixed-holdings line ────────────────────
+test('APPROVED split · slices sum EXACTLY to the broker total; manual accounts never split', () => {
+  const { accountClassBreakdown } = require('../../domain/assets');
+  const connected = {
+    asset_id: 'st-x', source: 'connected', balance: 168700, cash_balance: 6800,
+    positions: [
+      { position_id: 'p1', ticker: '49306SX43', asset_class: 'bond', last_price: 100, lots: [{ shares: 1100, cost_per_share: 100, purchase_date: '' }] },
+      { position_id: 'p2', ticker: 'VMFXX', asset_class: 'cash', last_price: 1, lots: [{ shares: 48700, cost_per_share: 1, purchase_date: '' }] },
+      { position_id: 'p3', ticker: 'LCTX', asset_class: 'stock_etf', last_price: 1.4, lots: [{ shares: 1000, cost_per_share: 2, purchase_date: '' }] },
+    ],
+    option_holdings: [{ label: 'QQQ $600 put · exp Dec 31 2026', contracts: 1, value: 1800 }],
+  };
+  const b = accountClassBreakdown(connected as any)!;
+  expect(b.bonds).toBe(110000);
+  expect(b.cash).toBe(55500);                        // VMFXX 48,700 + sleeve 6,800
+  expect(b.alternatives).toBe(1800);
+  expect(b.stocks_etf).toBe(1400);
+  expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(168700);   // EXACT
+  expect(accountClassBreakdown({ asset_id: 'm', source: 'manual', balance: 5000 } as any)).toBeNull();
+});
+
+test('APPROVED daily snapshots · two open-days draw the trend; same-day recapture overwrites; retention bounded', () => {
+  const { trendPoints, pruneDaily, DAILY_KEEP } = require('../../domain/history');
+  const pts = trendPoints({}, { '2026-07-18': 1500, '2026-07-19': 1650 });
+  expect(pts).toHaveLength(2);
+  expect(pts[1].nw).toBe(1650);
+  const s = (useStore.getState() as any);
+  s.captureDailyNw('2026-07-19', 1500);
+  s.captureDailyNw('2026-07-19', 1650);              // same day → last write wins, ONE point
+  expect((useStore.getState() as any).nwDaily['2026-07-19']).toBe(1650);
+  expect(Object.keys((useStore.getState() as any).nwDaily)).toHaveLength(1);
+  const big: Record<string, number> = {};
+  for (let i = 0; i < DAILY_KEEP + 50; i++) big[`2025-01-${String(100 + i)}`] = i;   // synthetic sortable keys
+  expect(Object.keys(pruneDaily(big))).toHaveLength(DAILY_KEEP);
+});
+
+test('APPROVED detail · a multi-type connected account is called "Mixed holdings", never mislabeled', () => {
+  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'st-m1', label: 'E*Trade Individual Brokerage', institution: 'E-Trade', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 111000, target_return: 0.08, source: 'connected', cash_balance: 1000, last_synced: new Date().toISOString(),
+      positions: [{ position_id: 'p1', ticker: '49306SX43', name: 'CD 4.30% due May 2027', asset_class: 'bond', last_price: 100, lots: [{ shares: 1100, cost_per_share: 100, purchase_date: '' }] }] }],
+  } as any);
+  jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'st-m1' });
+  render(<AccountDetailScreen />);
+  expect(screen.getByText(/Mixed holdings · taxable/)).toBeOnTheScreen();
+  expect(screen.getByText(/CD 4\.30% due May 2027/)).toBeOnTheScreen();     // the readable name, not the CUSIP
+  expect(screen.getByText('Cash in the account')).toBeOnTheScreen();
+});
+
 test('R3-1 · ingest: a scrambled account "number" produces NO mask; real digits produce one', () => {
   const { ingestSync } = require('../../services/sync/ingest');
   const mk = (id: string, number: string) => ({ account: {

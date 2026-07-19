@@ -83,15 +83,16 @@ describe('display & lifecycle', () => {
   const AccountDetailScreen = require('../AccountDetailScreen').default;
   const HomeScreen = require('../HomeScreen').default;
 
-  test('AccountDetail itemizes option holdings with the counted-inside note (G2)', () => {
+  test('AccountDetail: WHAT\'S INSIDE itemizes options with the counted-inside note (G2 + approved detail mock)', () => {
     useStore.setState({
       assetAccounts: [{ asset_id: 'st-a1', label: 'Robinhood Individual', institution: 'Robinhood', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50000, target_return: 0.08, source: 'connected', last_synced: new Date().toISOString(),
         option_holdings: [{ label: 'AAPL $220 call · exp Jan 16 2027', contracts: 2, value: 1300 }] }],
     } as any);
     jest.spyOn(require('expo-router'), 'useLocalSearchParams').mockReturnValue({ id: 'st-a1' });
     render(<AccountDetailScreen />);
-    expect(screen.getByText('OPTIONS IN THIS ACCOUNT')).toBeOnTheScreen();
+    expect(screen.getByText('WHAT\'S INSIDE · BY TYPE')).toBeOnTheScreen();     // approved 2026-07-19
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
+    expect(screen.getByText(/option — 2 contracts/)).toBeOnTheScreen();
     expect(screen.getByText(/Counted inside this account's total/)).toBeOnTheScreen();
   });
 

@@ -311,9 +311,54 @@ export function accountDisplayNames(accounts: Pick<AssetAccount, 'asset_id' | 'l
   return out;
 }
 
+/** APPROVED v6 (2026-07-19): a CONNECTED account splits across the asset classes it actually holds
+ *  — CDs under bonds, money market + sleeve under cash, options under alternatives, stocks under
+ *  stocks — with the slices summing EXACTLY to the broker's authoritative balance. A tiny unpriced
+ *  remainder (accrued interest, rounding) folds into the account's largest slice; a material one is
+ *  honestly 'mixed'. Manual/imported accounts return null — they stay whole (founder-approved rule). */
+export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, number> | null {
+  if (a.source !== 'connected') return null;
+  const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
+  out.cash += (a as any).cash_balance ?? 0;
+  for (const p of (a.positions ?? []) as any[]) {
+    const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
+    const v = p.last_price != null ? sh * p.last_price : 0;
+    const cls: AssetClass = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
+    out[cls] += v;
+  }
+  for (const o of ((a as any).option_holdings ?? []) as any[]) out.alternatives += o.value || 0;
+  (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] = round2(out[k]); });
+  const sum = round2((Object.values(out) as number[]).reduce((t, v) => t + v, 0));
+  const r = round2((a.balance || 0) - sum);
+  if (r !== 0) {
+    if (Math.abs(r) <= Math.max(1, 0.01 * Math.abs(a.balance || 0))) {
+      const largest = (Object.keys(out) as AssetClass[]).sort((x, y) => out[y] - out[x])[0];
+      out[largest] = round2(out[largest] + r);
+    } else out.mixed = round2(out.mixed + r);
+  }
+  return out;
+}
+
+/** Plain words for an account's slice inside a class row ("money market + cash in this account"). */
+export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
+  const hasMmf = ((a.positions ?? []) as any[]).some((p) => p.asset_class === 'cash');
+  const hasOptions = (((a as any).option_holdings ?? []) as any[]).length > 0;
+  switch (cls) {
+    case 'cash': return hasMmf ? 'money market + cash in this account' : 'cash in this account';
+    case 'bonds': return 'CDs & Treasuries in this account';
+    case 'stocks_etf': return 'stocks in this account';
+    case 'alternatives': return hasOptions ? 'options in this account' : 'alternatives in this account';
+    default: return 'unpriced portion of this account';
+  }
+}
+
 export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
   const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
-  for (const a of accounts ?? []) out[assetClassOf(a)] += (a.balance || 0);
+  for (const a of accounts ?? []) {
+    const b = accountClassBreakdown(a);
+    if (b) (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] += b[k]; });
+    else out[assetClassOf(a)] += (a.balance || 0);
+  }
   (Object.keys(out) as AssetClass[]).forEach((k) => { out[k] = round2(out[k]); });
   return out;
 }
