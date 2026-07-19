@@ -18,7 +18,7 @@ import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
-import { buildPerformance, portfolioPeriodReturn, type Position } from '../domain/performance';
+import { buildPerformance, portfolioPeriodReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
 import { buildDebtState, requiredPayment } from '../domain/debt';
@@ -263,8 +263,13 @@ export default function HomeScreen() {
             {/* Build-43 feedback #3: the approved mock shows change + date under the hero ALWAYS —
                 hiding them in the empty state made the built screen look nothing like the mock. */}
             {youReturn != null ? (
+              /* approved wireframe: "up $11,200 this month ▲up" — DOLLAR and percent, word+arrow.
+                 The dollar delta derives from the SAME measured return as the percent shown, so the
+                 two can never disagree (accuracy rule: one source per concept). */
               <Text style={styles.heroLine}>
-                <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>{youReturn >= 0 ? '▲ up' : '▼ down'} {pctTxt(Math.abs(youReturn))}</Text>
+                <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>
+                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctTxt(Math.abs(youReturn))})
+                </Text>
                 <Text> this month</Text>
               </Text>
             ) : (

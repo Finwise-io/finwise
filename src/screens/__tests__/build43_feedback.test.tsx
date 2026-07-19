@@ -47,6 +47,15 @@ test('#3 · Home: holdings without prices say so instead of hiding the line', ()
   expect(screen.getByText(/as of \w{3} \d|updated/)).toBeOnTheScreen();
 });
 
+test('#3 · the hero change is DOLLARS+percent from ONE source — the approved wireframe\'s own numbers round-trip', () => {
+  const { periodDollarDelta } = require('../../domain/performance');
+  // wireframe: hero $843,700 · "up $11,200 this month" → the return that produced it gives back $11,200
+  const ret = 11200 / (843700 - 11200);
+  expect(periodDollarDelta(843700, ret)).toBe(11200);
+  expect(periodDollarDelta(843700, 0)).toBe(0);
+  expect(periodDollarDelta(0, 0.05)).toBe(0);
+});
+
 test('#3 · Net worth: first-day account shows the tracking line AND the as-of date, not a bare number', () => {
   freshWorker();
   useStore.setState({ assetAccounts: [{ asset_id: 'a1', label: 'Checking', kind: 'cash', tax_bucket: 'TAXABLE', balance: 1500, target_return: 0 }] } as any);

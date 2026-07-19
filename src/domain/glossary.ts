@@ -18,7 +18,8 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   surplus:      { title: 'Surplus', body: 'Your take-home minus spending minus debt payments — the money left to save or invest each month.' },
   netWorth:     { title: 'Net worth', body: 'Everything you own minus everything you owe. Assets − debts.' },
   // Build-43 feedback #2: "$0 investments vs $1,500 net worth" needs the difference said in place.
-  investments:  { title: 'Investments', body: 'Only the money you hold in market accounts — brokerage, retirement, and similar. Your net worth is bigger-picture: everything you own (including cash, your home, and property) minus everything you owe. So you can have $0 in investments and still have a net worth.' },
+  // c1 in the approved detailed design (Home tab) + the build-43 clarification ask.
+  investments:  { title: 'Investments', body: 'Stocks & funds, bonds and alternatives — cash is counted separately. Your net worth is the bigger picture: everything you own (including cash, your home, and property) minus everything you owe. So you can have $0 in investments and still have a net worth.' },
   benchmark:    { title: 'The market comparison', body: 'We compare each holding to a standard yardstick for its type — stocks and funds against the S&P 500 (the 500 largest US companies), bonds against a broad bond index. "Ahead by 2 points" means your money grew 2 percentage points more than that yardstick over the same period.' },
   nestEgg:      { title: 'Retirement nest egg', body: 'The invested money your retirement draws on. Excludes your home, emergency cash, and rentals — those provide income or shelter instead of being spent down.' },
   investable:   { title: 'Investable assets', body: 'Cash plus investments plus retirement accounts. Excludes your home and personal property (cars, valuables).' },

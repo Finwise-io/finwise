@@ -240,3 +240,12 @@ export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
   if (total <= 0) return null;
   return Math.round((usable.reduce((t, r) => t + (r.periodReturn as number) * r.marketValue, 0) / total) * 1e4) / 1e4;
 }
+
+/** The DOLLAR change implied by a period return on today's total — the approved Home hero shows
+ *  "up $11,200 (1.4%) this month": dollars AND percent from the SAME measured return, so the two
+ *  figures can never disagree (one concept, one source). currentTotal / (1+ret) is the period-start
+ *  value; the delta is what that grew (or shrank) by. */
+export function periodDollarDelta(currentTotal: number, periodReturn: number): number {
+  if (!Number.isFinite(currentTotal) || !Number.isFinite(periodReturn) || periodReturn <= -1) return 0;
+  return Math.round(currentTotal * periodReturn / (1 + periodReturn));
+}
