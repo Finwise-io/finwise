@@ -5,6 +5,11 @@ module.exports = {
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   icon: './assets/icon.png',
+  // BUILD-43 FEEDBACK #1 (2026-07-19): the approved splash never appeared because the package that
+  // turns this config into the native launch screen (expo-splash-screen) was NOT installed — iOS
+  // fell back to a generated default, which renders BLACK on phones in dark mode. The classic
+  // `splash` key below is kept for reference, but the config-plugin entry in `plugins` is what
+  // actually builds the launch screen now — white in BOTH light and dark (the approved design).
   splash: {
     image: './assets/splash.png',
     resizeMode: 'contain',
@@ -86,6 +91,18 @@ module.exports = {
     'expo-camera',
     'expo-system-ui',
     'expo-sharing',
+    // The launch screen (approved MoneyKeel splash) — full-screen image, white background in BOTH
+    // light and dark so a dark-mode phone never shows a black splash (build-43 feedback #1).
+    [
+      'expo-splash-screen',
+      {
+        image: './assets/splash.png',
+        resizeMode: 'contain',
+        backgroundColor: '#FFFFFF',
+        enableFullScreenImage_legacy: true,
+        dark: { image: './assets/splash.png', backgroundColor: '#FFFFFF' },
+      },
+    ],
     // Sentry: native integration + build-time source-map upload (reads SENTRY_AUTH_TOKEN from the EAS
     // secret). crashReporter.ts initializes the SDK at runtime using SENTRY_DSN from `extra` below.
     ['@sentry/react-native', { organization: 'finwise-35', project: 'react-native' }],

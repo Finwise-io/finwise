@@ -43,7 +43,16 @@ the founder had approved all of it. Never again.
 ## Money/UX conventions
 - Take-home = after tax AND 401(k). Surplus = take-home − spending − debt (after debt), labeled
   Actual (this month) / Planned (from the plan). Canonical labels live in `docs/finwise-taxonomy-spec.md`.
-- Redesigns: mock first (get approval), then build.
+
+## MOCK-FIRST — standing order (2026-07-19, after the build-43 trust breach)
+- EVERY screen change gets a mock-up saved in `mockups/` BEFORE it is built — named
+  `screen-vN-date.html`, NEVER overwritten (supersede with a new file; old mocks stay).
+- A mock is only satisfied when the built screen matches it in EVERY data state — including a
+  fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid
+  them behind has-data conditions; in the founder's new-account state the screen looked nothing
+  like the mock. Verify mock compliance in the founder's actual state, not just rich sample data.
+- Feedback workbooks: `docs/FCC-core-55-70/build43-feedback-v1-2026-07-19.xlsx` pattern — founder
+  rows + verified root cause + fix citation + mock link + status.
 
 ## Workflow
 - Branch `taxonomy-v1.0.7`. Commit per logical change; push when asked. Keep `docs/finwise-bug-ledger.md` current.

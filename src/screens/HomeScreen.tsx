@@ -255,12 +255,21 @@ export default function HomeScreen() {
           <TouchableOpacity accessibilityRole="button" style={styles.heroCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/invest')}
            
             accessibilityLabel={`Your investments: ${maskedMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
-            <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
+              <InfoDot term="investments" />
+            </View>
             <Text style={styles.heroBig} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotal)}</Text>
-            {youReturn != null && (
+            {/* Build-43 feedback #3: the approved mock shows change + date under the hero ALWAYS —
+                hiding them in the empty state made the built screen look nothing like the mock. */}
+            {youReturn != null ? (
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>{youReturn >= 0 ? '▲ up' : '▼ down'} {pctTxt(Math.abs(youReturn))}</Text>
                 <Text> this month</Text>
+              </Text>
+            ) : (
+              <Text style={styles.heroLine}>
+                {investTotal > 0 ? 'change shows once your holdings have prices' : 'nothing invested yet — connect or add an account to start'}
               </Text>
             )}
             {youReturn != null && marketReturn != null && (
@@ -269,8 +278,11 @@ export default function HomeScreen() {
                 <InfoDot term="benchmark" />
               </View>
             )}
-            {/* freshness stamp always directly under the hero number block (c11) */}
-            {freshness && <Text style={[styles.freshness, freshness.stale && { color: Colors.amber }]}>{freshness.stale ? '⚠ prices may be out of date — ' : 'prices '}updated {freshness.label}</Text>}
+            {/* the DATE line always renders (approved mock; build-43 feedback #3) — freshness when
+                prices exist, plain "as of today" for hand-entered balances */}
+            {freshness
+              ? <Text style={[styles.freshness, freshness.stale && { color: Colors.amber }]}>{freshness.stale ? '⚠ prices may be out of date — ' : 'prices '}updated {freshness.label}</Text>
+              : <Text style={styles.freshness}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>}
             <Text style={styles.heroLink}>See your growth ›</Text>
           </TouchableOpacity>
         )}

@@ -364,11 +364,16 @@ export default function NetWorthScreen() {
           <Text style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
           </Text>
-          {changeThisYear != null && (
+          {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
+              honest first-day line instead of a bare number when history hasn't built yet */}
+          {changeThisYear != null ? (
             <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
               {changeThisYear >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.round(Math.abs(changeThisYear)))} this year
             </Text>
+          ) : (
+            <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
+          <Text style={styles.glanceDelta}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
           {series.length >= 2 && (() => {
             const vals = series.map((pt) => pt.nw);
             const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;

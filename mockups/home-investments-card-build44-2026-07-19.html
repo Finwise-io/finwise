@@ -1,0 +1,72 @@
+<title>MoneyKeel — Home investments card (build-43 feedback fixes)</title>
+<style>
+  :root{
+    --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14);
+    --accent:#178F6B; --a-bg:#F6F7F5; --a-card:#FFFFFF; --a-ink:#1A1A18; --a-ink2:#6B6B66;
+    --a-ink3:#76766F; --a-line:rgba(0,0,0,.10); --a-primary:#178F6B; --a-primary-dark:#0F6E56;
+    --a-gain:#006300;
+  }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;}
+  .wrap{max-width:1060px; margin:0 auto;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:720px;}
+  .row{display:flex; gap:28px; flex-wrap:wrap; margin-top:28px;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 10px;}
+  .card{width:353px; background:var(--a-card); border-radius:16px; padding:14px 16px; color:var(--a-ink); position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:var(--a-ink2); display:inline-flex; align-items:center; gap:6px;}
+  .idot{width:16px;height:16px;border-radius:50%;border:1.4px solid var(--a-ink3);color:var(--a-ink3);
+    font-size:10px;font-weight:800;display:inline-flex;align-items:center;justify-content:center;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px;}
+  .delta{font-size:15px; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .delta b{color:var(--a-gain); font-weight:800;}
+  .muted{color:var(--a-ink2); font-size:15px; margin-top:2px;}
+  .date{font-size:11.5px; color:var(--a-ink3); margin-top:6px;}
+  .link{font-size:15px; font-weight:700; color:var(--a-primary); margin-top:8px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .note{margin-top:26px; padding:12px 14px; background:rgba(127,127,127,.08); border:1px solid var(--line);
+    border-radius:10px; font-size:12.5px; line-height:1.55; color:var(--ink2); max-width:720px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · build-43 feedback · lands in build 44</div>
+  <h1>Home — YOUR INVESTMENTS card, both states</h1>
+  <p class="lede">Your three feedback items on this card, drawn exactly as they'll build: <b>①</b> the info dot
+  (tapping it explains investments vs. net worth in plain English), <b>②</b> the change line <b>always</b> renders —
+  honest words when there's no history yet, and <b>③</b> the date line <b>always</b> renders. The same
+  always-render rule is applied to the Net worth screen's hero.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>With investments (as approved 7/16)</h2>
+      <div class="card">
+        <span class="pin">2</span>
+        <div class="kicker">YOUR INVESTMENTS <span class="idot">i</span><span style="position:absolute;left:132px;top:8px" class="pin">1</span></div>
+        <div class="hero">$182,400</div>
+        <div class="delta"><b>▲ up 1.9%</b> this month</div>
+        <div class="delta" style="font-size:13px;color:var(--a-ink2)">you +1.9% · market +1.4% · ahead by 0.5%</div>
+        <div class="date">prices updated today <span class="pin" style="position:static;display:inline-flex">3</span></div>
+        <div class="link">See your growth ›</div>
+      </div>
+    </div>
+    <div class="col">
+      <h2>Your current state ($0 — what build 43 hid)</h2>
+      <div class="card">
+        <div class="kicker">YOUR INVESTMENTS <span class="idot">i</span></div>
+        <div class="hero">$0</div>
+        <div class="muted">nothing invested yet — connect or add an account to start</div>
+        <div class="date">as of Jul 19</div>
+        <div class="link">See your growth ›</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="note"><b>Info-dot text (tap ⓘ):</b> "Only the money you hold in market accounts — brokerage, retirement,
+  and similar. Your net worth is bigger-picture: everything you own (including cash, your home, and property) minus
+  everything you owe. So you can have $0 in investments and still have a net worth."<br><br>
+  <b>Net worth screen gets the same treatment:</b> first-day accounts show "tracking starts today — change shows as
+  history builds" + "as of Jul 19" under the hero instead of a bare number.</div>
+</div>

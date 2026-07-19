@@ -1,0 +1,125 @@
+<title>MoneyKeel — Home & Add-expense mockups</title>
+<style>
+  :root{
+    --bg:#e8ece9; --panel:#f7f8f6; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14);
+    --accent:#178F6B; --accent-dark:#0F6E56; --chip-ink:#ffffff;
+    --a-bg:#F6F7F5; --a-card:#FFFFFF; --a-ink:#1A1A18; --a-ink2:#6B6B66; --a-ink3:#76766F;
+    --a-line:rgba(0,0,0,.10); --a-primary:#178F6B; --a-primary-dark:#0F6E56; --a-primary-light:#E1F5EE;
+    --a-gain:#006300; --a-amber:#854F0B; --a-amber-light:#FAEEDA; --a-tert:#EEEEE9;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#161917; --panel:#1f2320; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14); }
+  }
+  :root[data-theme="dark"]{ --bg:#161917; --panel:#1f2320; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14); }
+  :root[data-theme="light"]{ --bg:#e8ece9; --panel:#f7f8f6; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1060px; margin:0 auto;}
+  header.page{max-width:720px; margin-bottom:36px;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:28px; font-weight:800; margin:6px 0 10px; text-wrap:balance;}
+  .lede{font-size:15px; line-height:1.55; color:var(--ink2); margin:0;}
+  .lede b{color:var(--ink);}
+  section.mock{display:grid; grid-template-columns:auto 1fr; gap:36px; align-items:start; margin-top:44px;}
+  @media (max-width:860px){ section.mock{grid-template-columns:1fr;} }
+  .aside h2{font-size:19px; font-weight:800; margin:2px 0 4px;}
+  .aside .sub{font-size:13.5px; color:var(--ink2); margin:0 0 16px; line-height:1.5;}
+  ul.legend{list-style:none; margin:0; padding:0; display:flex; flex-direction:column;}
+  ul.legend li{display:flex; gap:12px; padding:12px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .was{display:block; margin-top:2px; font-size:12.5px; color:var(--ink2); opacity:.85;}
+  .ref{font-size:11px; font-weight:700; color:var(--accent-dark); letter-spacing:.03em;}
+  .note{margin-top:18px; padding:12px 14px; background:var(--panel); border:1px solid var(--line); border-radius:10px; font-size:12.5px; line-height:1.5; color:var(--ink2);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:var(--chip-ink);
+    font-size:11px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    box-shadow:0 1px 4px rgba(0,0,0,.25); z-index:5;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:var(--a-bg); border-radius:46px; overflow:hidden; position:relative;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; color:var(--a-ink);}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb-right{display:flex; gap:5px; align-items:center;}
+  .sb-right i{display:block; background:var(--a-ink); border-radius:1.5px;}
+  .num{font-variant-numeric:tabular-nums;}
+  .content{padding:10px 20px 0;}
+  .card{position:relative; background:var(--a-card); border-radius:16px; padding:14px 16px; margin-bottom:8px;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:var(--a-ink2);}
+  .cardlink{display:inline-flex; align-items:center; min-height:32px; font-size:15px; font-weight:700; color:var(--a-primary); margin-top:6px;}
+  .day{min-height:44px; display:flex; align-items:center; padding:0 18px; border-radius:22px; border:1.5px solid var(--a-line);
+    background:var(--a-card); font-size:13px; font-weight:600;}
+  .day.on{border-color:var(--a-primary); background:var(--a-primary-light); font-weight:800; color:var(--a-primary-dark);}
+  footer.page{margin-top:52px; padding-top:18px; border-top:1px solid var(--line); font-size:13px; color:var(--ink2); line-height:1.55; max-width:720px;}
+</style>
+
+<div class="wrap">
+<header class="page">
+  <div class="eyebrow">MoneyKeel · design audit · round 2 — for your approval</div>
+  <h1>Job safety — full rebuild mock</h1>
+  <p class="lede">Rounds 1 and 2 (Home + Add expense) are <b>approved and built</b> — this page now carries the one remaining
+  mock that needs your call: the <b>Job safety screen rebuild</b>. The audit graded it lowest in the app (it predates the
+  current design language). Same rules as before: drawn with the app's own tokens, numbered dots mark the changes,
+  and <b>nothing is built until you approve</b>.</p>
+</header>
+
+<section class="mock">
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span class="num">9:41</span>
+      <span class="sb-right"><i style="width:17px;height:10px;border-radius:2px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px;opacity:.9"></i></span>
+    </div>
+    <div class="content" style="padding-top:16px">
+      <div style="font-size:16px;font-weight:700;color:#178F6B;margin-bottom:6px">‹ Back</div>
+      <div style="font-size:24px;font-weight:800">Your safety net</div>
+      <div style="font-size:13px;color:#6B6B66;margin:4px 0 12px;line-height:1.45">If your income stopped, how long would your cash carry you?</div>
+
+      <div class="card">
+        <span class="pin">1</span>
+        <div class="kicker">HOW STEADY IS YOUR INCOME?</div>
+        <div style="display:flex;flex-direction:column;gap:8px;margin-top:8px">
+          <div style="min-height:52px;display:flex;align-items:center;padding:0 14px;border:1.5px solid var(--a-line);border-radius:12px;font-size:15px;font-weight:600">Very stable</div>
+          <div style="min-height:52px;display:flex;align-items:center;justify-content:space-between;padding:0 14px;border:1.5px solid var(--a-primary);border-radius:12px;background:var(--a-primary-light);font-size:15px;font-weight:800;color:var(--a-primary-dark)">✓ Some uncertainty<span style="font-weight:600;font-size:12.5px">could change this year</span></div>
+          <div style="min-height:52px;display:flex;align-items:center;padding:0 14px;border:1.5px solid var(--a-line);border-radius:12px;font-size:15px;font-weight:600">Worried</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="pin">2</span>
+        <div class="kicker">STILL NEEDED FOR YOUR CUSHION</div>
+        <div style="font-size:34px;font-weight:800;color:var(--a-amber);margin-top:2px" class="num">$8,400</div>
+        <div style="font-size:13px;color:var(--a-ink2);margin-top:3px;line-height:1.5" class="num">6 months of essentials is $16,800 ($2,800/mo) — your savings cover $8,400 of it.</div>
+        <div style="display:flex;gap:8px;margin-top:10px">
+          <span class="day">3 mo</span><span class="day on">✓ 6 mo</span><span class="day">9 mo</span><span class="day">12 mo</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <span class="pin">3</span>
+        <div class="kicker">WHAT WOULD CLOSE IT</div>
+        <div style="font-size:15px;line-height:1.5;margin-top:4px" class="num">Setting aside <b>$300/mo</b> closes the gap in <b>28 months</b> — an example pace, set your own.</div>
+        <div class="cardlink">Save it as a goal ›</div>
+      </div>
+      <div style="font-size:11.5px;color:var(--a-ink3);margin:8px 0 20px">Estimates from your logged spending — not advice.</div>
+    </div>
+  </div></div>
+
+  <aside class="aside">
+    <h2>Job safety — what changes and why</h2>
+    <p class="sub">Today this screen has smiley-face answer options, chatty pop-up alerts, an example $2,500/month silently presented as the user's real number, and its answer buried in a same-size table row. The rebuild:</p>
+    <ul class="legend">
+      <li><span class="dot">1</span><div><b>Calm word cards replace the smiley radios.</b> Selection is ✓ + bold — the same language as every toggle in the app now.</div></li>
+      <li><span class="dot">2</span><div><b>The gap is the single hero.</b> "Still needed: $8,400" at 34pt in warning amber, the math spelled out in one readable sentence beneath it, months as finger-sized chips.
+        <span class="was">Was: "Still needed" rendered identically to the input rows; the balances it ran on were 11pt gray.</span></div></li>
+      <li><span class="dot">3</span><div><b>Honest numbers, real action.</b> The $300/month pace is labeled an example; with no spending logged the screen asks for a number instead of assuming $2,500. It ends with "Save it as a goal ›" instead of a chatty alert.</div></li>
+    </ul>
+    <div class="note"><b>Status of everything else:</b> your approved Home and Add-expense mocks are built and pushed, all 14 highest-severity audit findings are fixed app-wide, and three permanent guards now fail the build if tiny text, off-palette colors, or unlabeled controls ever return. This rebuild is the last item needing your approval.</div>
+  </aside>
+</section>
+
+<footer class="page">
+  Approve (or comment) and I build it exactly as shown. The current Job-safety screen keeps working — its
+  severity fixes are already applied — until the rebuild lands.
+</footer>
+</div>
