@@ -17,13 +17,23 @@ export function shouldDailySync(lastSyncAt: string | null | undefined, now: numb
   return Number.isNaN(t) || now - t > 20 * 3600_000;   // ~daily (20h so a morning open re-syncs)
 }
 
+// SnapTrade wraps this endpoint in a pagination envelope {data, pagination:{total}} — LIVE-VERIFIED
+// 2026-07-19 against a real E*TRADE connection (their docs' examples show a bare array; production
+// does not). Accept both shapes so neither side of a rollout can silently produce an empty ledger.
+function unwrapActivities(raw: unknown): { batch: StActivity[]; total: number | null } {
+  if (Array.isArray(raw)) return { batch: raw, total: null };
+  const data = (raw as { data?: unknown } | null | undefined)?.data;
+  const total = (raw as { pagination?: { total?: number } } | null | undefined)?.pagination?.total;
+  return { batch: Array.isArray(data) ? (data as StActivity[]) : [], total: typeof total === 'number' ? total : null };
+}
+
 async function allActivities(accountId: string, startDate?: string): Promise<StActivity[]> {
   const out: StActivity[] = [];
   for (let page = 0; page < MAX_PAGES; page++) {
     const { activities } = await snaptradeApi.activities(accountId, { startDate, offset: page * PAGE });
-    const batch = Array.isArray(activities) ? activities : [];
+    const { batch, total } = unwrapActivities(activities);
     out.push(...batch);
-    if (batch.length < PAGE) break;
+    if (total != null ? out.length >= total : batch.length < PAGE) break;
   }
   return out;
 }

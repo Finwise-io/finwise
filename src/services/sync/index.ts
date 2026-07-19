@@ -78,5 +78,8 @@ export const CONSENT_COPY = [
   'You sign in on your bank’s own page — we never see or store your password.',
   'Your balances and transactions flow through the connection service’s servers to this app.',
   'The connection is read-only: nothing and no one can move your money through it.',
+  // Founder ask 2026-07-19 (seen on a live E*TRADE connect): the broker's own consent page may
+  // describe its data-sharing program broadly, including trading. Say the truth where the worry is.
+  'Your brokerage’s page may mention trading access — MoneyKeel registers every connection read-only, and this app has no trading commands at all.',
   'You can disconnect any time in Settings, and we delete the connection’s data with it.',
 ] as const;

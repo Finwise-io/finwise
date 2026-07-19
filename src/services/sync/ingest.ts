@@ -112,12 +112,17 @@ export function ingestSync(
       seenKeys[k] = true;
       const m = mapActivityType(act);
       if (m.txnType === 'SKIP') continue;
-      // option trades: the broker's signed `amount` is the true cash — normalize price so the
-      // ledger's shares×price math shows exactly that (per-contract price semantics vary)
-      const isOptionTrade = (m.note === 'option purchase' || m.note === 'option sale');
-      const units = act.units ?? undefined;
-      const price = isOptionTrade && act.amount != null && units
-        ? Math.abs(act.amount) / Math.abs(units)
+      // LIVE-VERIFIED 2026-07-19 (real E*TRADE): brokers sign units on sells (−100) while our
+      // ledger + realized-P/L FIFO expect POSITIVE shares with BUY/SELL carrying direction — raw
+      // units would make every connected sale invisible to realized P/L. Shares are stored |units|.
+      const units = act.units != null ? Math.abs(act.units) : undefined;
+      // On EVERY trade row the broker's signed `amount` is the true cash — normalize price so
+      // shares×price equals it exactly. This one rule covers options (per-contract price ×100
+      // multiplier), bonds (priced per $100 of face — raw price would overstate gains 100×), and
+      // folds real fees into basis/proceeds the way the broker's own records do.
+      const isTrade = m.txnType === 'BUY' || m.txnType === 'SELL';
+      const price = isTrade && act.amount != null && units
+        ? Math.abs(act.amount) / units
         : act.price ?? undefined;
       newTransactions.push({
         id: newEntityId('txn'),

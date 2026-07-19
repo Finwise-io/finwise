@@ -150,7 +150,10 @@ export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOp
     label: `${under} ${strike} ${kindWord} · exp ${prettyExpiry(os.expiration_date)}${contracts < 0 ? ' (short)' : ''}`.replace(/\s+/g, ' ').trim(),
     contracts,
     value: Math.round((o.price ?? 0) * contracts * multiplier * 100) / 100,
-    costBasis: o.average_purchase_price != null ? Math.round(o.average_purchase_price * contracts * multiplier * 100) / 100 : null,
+    // LIVE-VERIFIED 2026-07-19 (real E*TRADE): `price` is per SHARE (×100 for the contract) but
+    // `average_purchase_price` is already the whole CONTRACT's dollars — it matched the actual
+    // BUY_TO_OPEN cash to the cent. Multiplying it too showed a $5,035.66 basis as $503,566.
+    costBasis: o.average_purchase_price != null ? Math.round(o.average_purchase_price * contracts * 100) / 100 : null,
   };
 }
 
@@ -191,7 +194,25 @@ export function mapActivityType(a: StActivity): MappedActivity {
     case 'OPTIONEXPIRATION': return { txnType: 'SKIP', note: 'option expired' };  // no cash on expiry
     case 'OPTIONASSIGNMENT':
     case 'OPTIONEXERCISE': return { txnType: 'SKIP', note: 'option exercise/assignment — shares arrive via the paired BUY/SELL row' };
+    // ── LIVE-VERIFIED types (real E*TRADE, 2026-07-19) the docs never listed ──────────────────
+    // A maturing bond/T-bill pays out as REDEMPTION (+cash, −units, CUSIP symbol). It is investment
+    // PROCEEDS — mapping it by sign would book it as a fake DEPOSIT and corrupt the money-weighted
+    // return (the live account had $465k of these). SELL keeps it internal and feeds realized P/L.
+    case 'REDEMPTION': return { txnType: 'SELL', note: 'bond/CD redeemed at maturity' };
+    case 'WIRE IN': return { txnType: 'DEPOSIT', note: 'wire in' };
+    case 'WIRE OUT': return { txnType: 'WITHDRAWAL', note: 'wire out' };
+    // In-kind security movements (reorg exchanges): units move, no cash — never a fake cash flow.
+    case 'EXCHANGE RECEIVED IN': return { txnType: 'TRANSFER_IN_KIND', note: 'securities exchanged in' };
+    case 'EXCHANGE DELIVERED OUT': return { txnType: 'TRANSFER_IN_KIND', note: 'securities exchanged out' };
+    // E*TRADE bills margin interest as MISC ("Thru 08/31/24 for 31 days") and books fee reversals
+    // as positive SERVICE FEE rows. Both are INTERNAL costs/credits, not external flows.
+    case 'MISC':
+      return (a.amount ?? 0) < 0
+        ? { txnType: 'FEE', note: 'brokerage charge (MISC)' }
+        : { txnType: 'INTEREST', note: 'brokerage credit (MISC)' };
     default:
+      // Any *FEE* variant (SERVICE FEE, REORG FEE, ADR FEE…) is a cost/credit, never a cash flow.
+      if (t.includes('FEE')) return { txnType: 'FEE', note: `broker: ${a.type}` };
       // Unknown broker type (their docs: 261 raw types at one broker) — key off the money fields.
       if ((a.amount ?? 0) > 0) return { txnType: 'DEPOSIT', note: `broker: ${a.type ?? 'unknown'}` };
       if ((a.amount ?? 0) < 0) return { txnType: 'WITHDRAWAL', note: `broker: ${a.type ?? 'unknown'}` };

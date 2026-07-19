@@ -56,3 +56,23 @@ test('without force, a fresh lastSyncAt short-circuits (no API calls at all)', a
   expect(n).toBe(0);
   expect(api.connections).not.toHaveBeenCalled();
 });
+
+// LIVE-VERIFIED 2026-07-19 (real E*TRADE): production wraps activities in {data, pagination:{total}}
+// — the docs' bare-array examples do not happen live. The old Array.isArray guard silently dropped
+// the WHOLE envelope → every connected account synced with an empty ledger. Never again.
+test('the real pagination envelope {data, pagination} still lands history (live shape, 2026-07-19)', async () => {
+  api.activities.mockResolvedValue({
+    activities: {
+      data: [
+        { id: 'e1', type: 'DIVIDEND', trade_date: '2026-06-15', amount: 12.4 },
+        { id: 'e2', type: 'CONTRIBUTION', trade_date: '2026-06-01', amount: 250 },
+      ],
+      pagination: { offset: 0, limit: 1000, total: 2 },
+    },
+  });
+  await runSnapTradeSync({ force: true });
+  const s = useStore.getState() as any;
+  expect(s.transactions.some((t: any) => t.type === 'DIVIDEND' && t.amount === 12.4)).toBe(true);
+  expect(s.transactions.some((t: any) => t.type === 'DEPOSIT' && t.amount === 250)).toBe(true);
+  expect(api.activities).toHaveBeenCalledTimes(1);       // total satisfied on page one → no extra calls
+});
