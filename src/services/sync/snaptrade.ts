@@ -152,7 +152,7 @@ export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOp
     value: Math.round((o.price ?? 0) * contracts * multiplier * 100) / 100,
     // LIVE-VERIFIED 2026-07-19 (real E*TRADE): `price` is per SHARE (×100 for the contract) but
     // `average_purchase_price` is already the whole CONTRACT's dollars — it matched the actual
-    // BUY_TO_OPEN cash to the cent. Multiplying it too showed a $5,035.66 basis as $503,566.
+    // BUY_TO_OPEN cash to the cent. Multiplying it too would overstate the basis 100-fold.
     costBasis: o.average_purchase_price != null ? Math.round(o.average_purchase_price * contracts * 100) / 100 : null,
   };
 }
@@ -197,7 +197,7 @@ export function mapActivityType(a: StActivity): MappedActivity {
     // ── LIVE-VERIFIED types (real E*TRADE, 2026-07-19) the docs never listed ──────────────────
     // A maturing bond/T-bill pays out as REDEMPTION (+cash, −units, CUSIP symbol). It is investment
     // PROCEEDS — mapping it by sign would book it as a fake DEPOSIT and corrupt the money-weighted
-    // return (the live account had $465k of these). SELL keeps it internal and feeds realized P/L.
+    // return (the live account had six figures of these). SELL keeps it internal and feeds realized P/L.
     case 'REDEMPTION': return { txnType: 'SELL', note: 'bond/CD redeemed at maturity' };
     case 'WIRE IN': return { txnType: 'DEPOSIT', note: 'wire in' };
     case 'WIRE OUT': return { txnType: 'WITHDRAWAL', note: 'wire out' };

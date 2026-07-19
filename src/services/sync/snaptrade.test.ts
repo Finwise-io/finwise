@@ -56,13 +56,13 @@ describe('mapOptionHolding — G2 closure: options are itemized rows, plain-Engl
     expect(m.costBasis).toBe(820);         // 410/contract × 2 — LIVE-VERIFIED: avg price is already per-contract dollars
   });
 
-  test('LIVE-VERIFIED 2026-07-19: the real E*TRADE QQQ put — per-contract basis is NOT ×100 again', () => {
+  test('LIVE-VERIFIED 2026-07-19: E*TRADE put position — per-contract basis is NOT ×100 again', () => {
     const m = mapOptionHolding({
-      symbol: { option_symbol: { option_type: 'PUT', strike_price: 600, expiration_date: '2026-12-31', underlying_symbol: { raw_symbol: 'QQQ' } } },
-      units: 1, price: 16.8, average_purchase_price: 5035.66,
+      symbol: { option_symbol: { option_type: 'PUT', strike_price: 550, expiration_date: '2027-03-19', underlying_symbol: { raw_symbol: 'QQQ' } } },
+      units: 1, price: 12.4, average_purchase_price: 4180.25,
     })!;
-    expect(m.value).toBe(1680);            // matches the broker's own contract value
-    expect(m.costBasis).toBe(5035.66);     // equals the actual BUY_TO_OPEN cash — not $503,566
+    expect(m.value).toBe(1240);            // price is per SHARE → ×100 for the contract
+    expect(m.costBasis).toBe(4180.25);     // already whole-contract dollars — never ×100 again
   });
   test('a short put is labeled as short', () => {
     const m = mapOptionHolding({ symbol: { option_symbol: { option_type: 'PUT', strike_price: 90, expiration_date: '2026-12-18', underlying_symbol: { raw_symbol: 'F' } } }, units: -1, price: 2 })!;
@@ -104,25 +104,25 @@ describe('mapActivityType — the approved v2 table', () => {
   // money-weighted return treats DEPOSIT/WITHDRAWAL as YOUR money moving — so anything internal
   // (proceeds, fees, margin interest) must never fall through to the by-sign default.
   describe('live-verified E*TRADE types (2026-07-19)', () => {
-    test('REDEMPTION (matured bond/T-bill) is a SELL — $465k of these as fake deposits would destroy the personal return', () => {
-      expect(mapActivityType(act('REDEMPTION', { amount: 105000, units: -105000 }))).toMatchObject({ txnType: 'SELL' });
+    test('REDEMPTION (matured bond/T-bill) is a SELL — six figures of these as fake deposits would destroy the personal return', () => {
+      expect(mapActivityType(act('REDEMPTION', { amount: 50000, units: -50000 }))).toMatchObject({ txnType: 'SELL' });
     });
     test('WIRE IN / WIRE OUT are true external flows', () => {
-      expect(mapActivityType(act('WIRE IN', { amount: 213924.4 })).txnType).toBe('DEPOSIT');
+      expect(mapActivityType(act('WIRE IN', { amount: 25000 })).txnType).toBe('DEPOSIT');
       expect(mapActivityType(act('WIRE OUT', { amount: -5000 })).txnType).toBe('WITHDRAWAL');
     });
     test('EXCHANGE RECEIVED IN / DELIVERED OUT are in-kind moves — units, never cash', () => {
-      expect(mapActivityType(act('EXCHANGE RECEIVED IN', { units: 10, amount: 0 })).txnType).toBe('TRANSFER_IN_KIND');
-      expect(mapActivityType(act('EXCHANGE DELIVERED OUT', { units: -40, amount: 0 })).txnType).toBe('TRANSFER_IN_KIND');
+      expect(mapActivityType(act('EXCHANGE RECEIVED IN', { units: 5, amount: 0 })).txnType).toBe('TRANSFER_IN_KIND');
+      expect(mapActivityType(act('EXCHANGE DELIVERED OUT', { units: -20, amount: 0 })).txnType).toBe('TRANSFER_IN_KIND');
     });
     test('MISC is margin interest (−) or a brokerage credit (+) — internal either way', () => {
-      expect(mapActivityType(act('MISC', { amount: -3.1 })).txnType).toBe('FEE');
+      expect(mapActivityType(act('MISC', { amount: -2.6 })).txnType).toBe('FEE');
       expect(mapActivityType(act('MISC', { amount: 0.5 })).txnType).toBe('INTEREST');
     });
     test('any *FEE* variant is a FEE — including E*TRADE\'s positive SERVICE FEE reversal', () => {
-      expect(mapActivityType(act('SERVICE FEE', { amount: -38 })).txnType).toBe('FEE');
-      expect(mapActivityType(act('SERVICE FEE', { amount: 38 })).txnType).toBe('FEE');
-      expect(mapActivityType(act('MANDATORY REORG FEE', { amount: -38 })).txnType).toBe('FEE');
+      expect(mapActivityType(act('SERVICE FEE', { amount: -12 })).txnType).toBe('FEE');
+      expect(mapActivityType(act('SERVICE FEE', { amount: 12 })).txnType).toBe('FEE');
+      expect(mapActivityType(act('MANDATORY REORG FEE', { amount: -15 })).txnType).toBe('FEE');
     });
   });
 });

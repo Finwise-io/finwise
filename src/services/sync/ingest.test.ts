@@ -136,21 +136,21 @@ describe('audit fixes', () => {
   // ── LIVE-VERIFIED against a real E*TRADE connection, 2026-07-19 ─────────────────────────────
   test('broker sells carry NEGATIVE units — the ledger stores positive shares or realized P/L never sees a single connected sale', () => {
     const r = ingestSync([], {}, [payload({ activities: [
-      { id: 's1', type: 'SELL', trade_date: '2026-06-27', units: -100, price: 6.07, amount: 604.03,
-        symbol: { id: 'u-fmcc', raw_symbol: 'FMCC' } as any },
+      { id: 's1', type: 'SELL', trade_date: '2026-06-27', units: -50, price: 8.1, amount: 402.75,
+        symbol: { id: 'u-gnr', raw_symbol: 'GNR' } as any },
     ] })], NOW);
     const t = r.newTransactions.find((x) => x.type === 'SELL')!;
-    expect(t.shares).toBe(100);                                      // |units| — direction lives in the type
-    expect((t.shares ?? 0) * (t.price ?? 0)).toBeCloseTo(604.03, 2); // exact cash, fees folded in
+    expect(t.shares).toBe(50);                                       // |units| — direction lives in the type
+    expect((t.shares ?? 0) * (t.price ?? 0)).toBeCloseTo(402.75, 2); // exact cash, fees folded in
   });
 
   test('bond math: per-$100-face prices normalize to the true cash, so a redemption gain is $500 — not 100× that', () => {
     const r = ingestSync([], {}, [payload({ activities: [
       // buy $100k face of a T-bill at 99.5 (broker cash −99,500), redeem at maturity for 100,000
       { id: 'b1', type: 'BUY', trade_date: '2026-01-05', units: 100000, price: 99.5, amount: -99500,
-        symbol: { id: 'u-tbill', raw_symbol: '912797TL1' } as any },
+        symbol: { id: 'u-tbill', raw_symbol: '912796ZZ0' } as any },
       { id: 'b2', type: 'REDEMPTION', trade_date: '2026-05-05', units: -100000, amount: 100000,
-        symbol: { id: 'u-tbill', raw_symbol: '912797TL1' } as any },
+        symbol: { id: 'u-tbill', raw_symbol: '912796ZZ0' } as any },
     ] })], NOW);
     const sell = r.newTransactions.find((x) => x.type === 'SELL')!;
     expect(sell.note).toContain('redeemed at maturity');
