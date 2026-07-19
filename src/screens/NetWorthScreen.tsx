@@ -11,7 +11,7 @@ import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
 import { readHistory } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayName, type AddWrapper } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -132,6 +132,7 @@ export default function NetWorthScreen() {
   const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
   const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
   const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0);
+  const displayNames = accountDisplayNames(assets);   // masks only when real digits; twins get " · 1/2"
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
   // NW-9: the headline insight names the largest asset CLASS (matches the donut), not the account section.
@@ -415,8 +416,8 @@ export default function NetWorthScreen() {
                 {shownMembers.map((a) => (
                   <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
                     onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                    accessibilityLabel={`${accountDisplayName(a)}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
-                    <Text style={styles.acctRowLabel} numberOfLines={1}>{accountDisplayName(a)}</Text>
+                    accessibilityLabel={`${displayNames.get(a.asset_id)}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                    <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                     <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
                     <Text style={styles.acctChev}>›</Text>
                   </TouchableOpacity>

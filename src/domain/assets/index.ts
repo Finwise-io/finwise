@@ -291,6 +291,26 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
   return mask && !norm(base).includes(norm(mask)) ? `${base} ${mask}` : base;
 }
 
+/** Display names for a whole LIST of accounts. Masks exist only when they are real digits (build-43
+ *  finding: E*TRADE relays a scrambled identifier, not the account number) — so identical twins get
+ *  a stable " · 1 / · 2" ordinal instead (ordered by asset_id, so the numbering never shuffles). */
+export function accountDisplayNames(accounts: Pick<AssetAccount, 'asset_id' | 'label' | 'institution' | 'mask'>[]): Map<string, string> {
+  const base = new Map(accounts.map((a) => [a.asset_id, accountDisplayName(a)]));
+  const counts = new Map<string, number>();
+  for (const n of base.values()) counts.set(n, (counts.get(n) ?? 0) + 1);
+  const seen = new Map<string, number>();
+  const out = new Map<string, string>();
+  for (const a of [...accounts].sort((x, y) => String(x.asset_id).localeCompare(String(y.asset_id)))) {
+    const n = base.get(a.asset_id)!;
+    if ((counts.get(n) ?? 0) > 1) {
+      const i = (seen.get(n) ?? 0) + 1;
+      seen.set(n, i);
+      out.set(a.asset_id, `${n} · ${i}`);
+    } else out.set(a.asset_id, n);
+  }
+  return out;
+}
+
 export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
   const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
   for (const a of accounts ?? []) out[assetClassOf(a)] += (a.balance || 0);

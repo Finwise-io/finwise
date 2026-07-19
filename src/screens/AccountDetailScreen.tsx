@@ -9,7 +9,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, type AssetAccount } from '../domain/assets';
+import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, type AssetAccount } from '../domain/assets';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney } from '../components/useMoney';
@@ -89,7 +89,7 @@ export default function AccountDetailScreen() {
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       {/* header: name + source + freshness — same source language everywhere */}
-      <Text style={s.h1}>{account.institution?.trim() ? `${account.institution.trim()} ${account.label}` : account.label}</Text>
+      <Text style={s.h1}>{accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
       <View style={s.chipRow}>
         <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
           <Text style={s.chip}>{sourceChip}</Text>

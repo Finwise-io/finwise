@@ -43,7 +43,12 @@ export function ingestSync(
   for (const p of payloads) {
     const st = p.account;
     const guess = mapAccountType(st.raw_type, st.account_category);
-    const mask = st.number ? `••${String(st.number).slice(-4)}` : undefined;
+    // LIVE-VERIFIED 2026-07-19 (founder catch): some brokers (E*TRADE) won't share the real account
+    // number — SnapTrade relays a SCRAMBLED identifier ("…9Cmw"). Its last 4 are gibberish, not the
+    // user's digits. A mask exists ONLY when the tail is actually 4 digits; otherwise none (twins
+    // are told apart by a stable "· 1 / · 2" ordinal in accountDisplayNames).
+    const tail = st.number ? String(st.number).slice(-4) : '';
+    const mask = /^\d{4}$/.test(tail) ? `••${tail}` : undefined;
     // AUDIT FIX 2026-07-18 (P0 merge gate, design §2.7): find this account by its SnapTrade id
     // first; failing that, ABSORB a manual/imported twin (same institution + same mask, else same
     // institution + same tax bucket) instead of creating a double-counting sibling. The absorbed

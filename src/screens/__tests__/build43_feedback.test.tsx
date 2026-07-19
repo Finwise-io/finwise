@@ -65,16 +65,33 @@ test('#3 · Net worth: first-day account shows the tracking line AND the as-of d
 });
 
 // ── round 2 (device findings on the live E*TRADE connection) ────────────────────────────────────
-const { accountDisplayName } = require('../../domain/assets');
+const { accountDisplayName, accountDisplayNames } = require('../../domain/assets');
 
-test('R2-1 · account display name: institution never doubles, the mask tells twins apart', () => {
-  expect(accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••9Cmw' }))
-    .toBe('E*Trade Individual Brokerage ••9Cmw');           // no "E-Trade E*Trade …" doubling
-  expect(accountDisplayName({ label: 'Individual Brokerage', institution: 'Robinhood' }))
-    .toBe('Robinhood Individual Brokerage');                 // prefix only when it adds information
-  const a = accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••9Cmw' });
-  const b = accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••D9LA' });
-  expect(a).not.toBe(b);                                     // the founder's two identical rows, now tellable apart
+test('R2-1 · display names: institution never doubles; a REAL digit mask shows; scrambled broker ids never do', () => {
+  expect(accountDisplayName({ label: 'Individual Brokerage', institution: 'Robinhood', mask: '••4821' }))
+    .toBe('Robinhood Individual Brokerage ••4821');           // real last-4 digits — useful, shown
+  expect(accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade' }))
+    .toBe('E*Trade Individual Brokerage');                    // no "E-Trade E*Trade …" doubling
+  // founder catch R3-1: "9Cmw" is E*TRADE's SCRAMBLED id, not account digits — never shown as a mask.
+  // Twins instead get a stable ordinal:
+  const names = accountDisplayNames([
+    { asset_id: 'st-a', label: 'E*Trade Individual Brokerage', institution: 'E-Trade' },
+    { asset_id: 'st-b', label: 'E*Trade Individual Brokerage', institution: 'E-Trade' },
+  ]);
+  expect(names.get('st-a')).toBe('E*Trade Individual Brokerage · 1');
+  expect(names.get('st-b')).toBe('E*Trade Individual Brokerage · 2');
+  expect(new Set(names.values()).size).toBe(2);               // always tellable apart
+});
+
+test('R3-1 · ingest: a scrambled account "number" produces NO mask; real digits produce one', () => {
+  const { ingestSync } = require('../../services/sync/ingest');
+  const mk = (id: string, number: string) => ({ account: {
+    id, brokerage_authorization: 'c1', name: 'Individual Brokerage', number,
+    institution_name: 'E-Trade', raw_type: 'INDIVIDUAL', balance: { total: { amount: 1000 } }, sync_status: {},
+  } });
+  const r = ingestSync([], {}, [mk('a1', '....9Cmw'), mk('a2', '87654821')] as any, '2026-07-19T00:00:00.000Z');
+  expect(r.accounts.find((a: any) => a.asset_id === 'st-a1').mask).toBeUndefined();
+  expect(r.accounts.find((a: any) => a.asset_id === 'st-a2').mask).toBe('••4821');
 });
 
 test('R2-approved-v4 · class rows collapse by default; tapping expands; a lone class auto-expands', () => {
