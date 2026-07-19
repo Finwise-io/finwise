@@ -5,7 +5,7 @@
 //     whenever the account was new/empty (exactly the founder's device state). Never again: the
 //     empty state renders honest words in the same slots.
 import React from 'react';
-import { render, screen } from '@testing-library/react-native';
+import { render, screen, fireEvent } from '@testing-library/react-native';
 import HomeScreen from '../HomeScreen';
 import NetWorthScreen from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
@@ -62,4 +62,36 @@ test('#3 · Net worth: first-day account shows the tracking line AND the as-of d
   render(<NetWorthScreen />);
   expect(screen.getByText(/tracking starts today — change shows as history builds|▲ up|▼ down/)).toBeOnTheScreen();
   expect(screen.getByText(/as of \w{3} \d/)).toBeOnTheScreen();
+});
+
+// ── round 2 (device findings on the live E*TRADE connection) ────────────────────────────────────
+const { accountDisplayName } = require('../../domain/assets');
+
+test('R2-1 · account display name: institution never doubles, the mask tells twins apart', () => {
+  expect(accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••9Cmw' }))
+    .toBe('E*Trade Individual Brokerage ••9Cmw');           // no "E-Trade E*Trade …" doubling
+  expect(accountDisplayName({ label: 'Individual Brokerage', institution: 'Robinhood' }))
+    .toBe('Robinhood Individual Brokerage');                 // prefix only when it adds information
+  const a = accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••9Cmw' });
+  const b = accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade', mask: '••D9LA' });
+  expect(a).not.toBe(b);                                     // the founder's two identical rows, now tellable apart
+});
+
+test('R2-approved-v4 · class rows collapse by default; tapping expands; a lone class auto-expands', () => {
+  freshWorker();
+  useStore.setState({ assetAccounts: [
+    { asset_id: 'c1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 1500, target_return: 0 },
+    { asset_id: 'b1', label: 'Brokerage', institution: 'Fidelity', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 9000, target_return: 0.08 },
+  ] } as any);
+  render(<NetWorthScreen />);
+  expect(screen.queryByText(/Fidelity Brokerage/)).toBeNull();                  // collapsed by default
+  fireEvent.press(screen.getByLabelText(/Stocks \/ ETFs.*Expands/));
+  expect(screen.getByText(/Fidelity Brokerage/)).toBeOnTheScreen();             // expanded on tap
+});
+
+test('R2-approved-v4 · a single class auto-expands so the only account is never hidden', () => {
+  freshWorker();
+  useStore.setState({ assetAccounts: [{ asset_id: 'c1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 1500, target_return: 0 }] } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('Checking')).toBeOnTheScreen();
 });

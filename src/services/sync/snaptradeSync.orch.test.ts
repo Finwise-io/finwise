@@ -57,6 +57,27 @@ test('without force, a fresh lastSyncAt short-circuits (no API calls at all)', a
   expect(api.connections).not.toHaveBeenCalled();
 });
 
+// SELF-HEAL (build-43 device finding #3): Build 43 advanced the activity cursor while the envelope
+// bug ingested ZERO rows. A cursor with no ledger rows behind it is a lie — the next sync must
+// refetch the FULL history, not cursor-minus-a-week.
+test('a cursor with NO connected ledger rows behind it is ignored — full history refetch', async () => {
+  useStore.setState({ snaptradeActivityCursor: { 'acc-1': '2026-07-19T00:00:00.000Z' } } as any);
+  await runSnapTradeSync({ force: true });
+  // no startDate passed → full history from the beginning
+  expect(api.activities).toHaveBeenCalledWith('acc-1', expect.objectContaining({ startDate: undefined }));
+  const s = useStore.getState() as any;
+  expect(s.transactions.some((t: any) => t.source === 'connected')).toBe(true);   // history landed this time
+});
+
+test('a cursor WITH ledger rows behind it is honored (overlap window, no full refetch)', async () => {
+  await runSnapTradeSync({ force: true });                     // first sync lands rows + sets cursor? (sync_status empty → no cursor)
+  useStore.setState({ snaptradeActivityCursor: { 'acc-1': '2026-07-10T00:00:00.000Z' } } as any);
+  jest.clearAllMocks();
+  await runSnapTradeSync({ force: true });
+  const call = api.activities.mock.calls.find((c: any[]) => c[0] === 'acc-1');
+  expect(call?.[1]?.startDate).toBe('2026-07-03');             // cursor − 7-day overlap, not undefined
+});
+
 // LIVE-VERIFIED 2026-07-19 (real E*TRADE): production wraps activities in {data, pagination:{total}}
 // — the docs' bare-array examples do not happen live. The old Array.isArray guard silently dropped
 // the WHOLE envelope → every connected account synced with an empty ledger. Never again.

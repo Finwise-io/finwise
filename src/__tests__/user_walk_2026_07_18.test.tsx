@@ -131,11 +131,14 @@ describe('USER WALK · 10 common flows', () => {
     expect(screen.getByText(/Our house/)).toBeOnTheScreen();
   });
 
-  test('W8 · net worth folds connected + manual into one picture', () => {
+  test('W8 · net worth folds connected + manual into one picture (v4: classes expand on tap)', () => {
     useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
     seedConnected();
     (useStore.getState() as any).addAsset({ label: 'Ally Savings', kind: 'savings', tax_bucket: 'CASH', balance: 12000, target_return: 0.04, source: 'manual' });
     render(<NetWorthScreen />);
+    // approved v4 (2026-07-19): class rows are collapsed by default — the user taps a class open
+    fireEvent.press(screen.getByLabelText(/Stocks \/ ETFs.*Expands/));
+    fireEvent.press(screen.getByLabelText(/^Cash.*Expands/));
     expect(screen.getByText(/Robinhood/)).toBeOnTheScreen();
     expect(screen.getByText(/Ally Savings/)).toBeOnTheScreen();
   });

@@ -104,13 +104,19 @@ export interface MappedPosition {
   cashEquivalent: boolean;
   lots: { purchase_date: string | null; shares: number; cost_per_share: number | null }[];
 }
+// LIVE-VERIFIED 2026-07-19: E*TRADE does NOT flag money-market funds as cash-equivalent (VMFXX came
+// back plain 'oef'), so $50k of cash-like money displayed as stocks. Curated list of the big
+// money-market tickers — they are CASH in the taxonomy ("checking, savings, or money-market").
+const MONEY_MARKET_TICKERS = new Set(['VMFXX', 'VMRXX', 'VUSXX', 'SPAXX', 'FDRXX', 'FZFXX', 'SPRXX', 'SWVXX', 'SNVXX', 'SNSXX', 'SNOXX', 'SGOV']);
+
 export function mapPosition(p: StPosition): MappedPosition | null {
   const sym = flatSymbol(p);
   const shares = p.units ?? 0;
   if (!sym || shares === 0) return null;
   const code = (sym.type?.code ?? '').toLowerCase();
+  const tick = (sym.raw_symbol || sym.symbol || '').toUpperCase();
   const assetClass: MappedAssetClass =
-    p.cash_equivalent ? 'cash'
+    p.cash_equivalent || MONEY_MARKET_TICKERS.has(tick) ? 'cash'
     : code === 'bnd' ? 'bonds'
     : code === 'crypto' ? 'alternatives'
     : 'stocks_etf';                                     // cs/et/oef/cef/adr and unknown → equities

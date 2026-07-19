@@ -64,8 +64,9 @@ export function ingestSync(
       .map((m, i) => ({
         position_id: prior?.positions?.find((x: any) => x.ticker === m.ticker)?.position_id ?? newEntityId('pos'),
         ticker: m.ticker,
-        kind: m.assetClass === 'bonds' ? 'fixed_income' : m.assetClass === 'alternatives' ? 'crypto' : 'stocks_etf',
-        asset_class: m.assetClass === 'bonds' ? 'bond' as const : m.assetClass === 'alternatives' ? 'other' as const : 'stock_etf' as const,
+        name: m.name,                                            // readable security name (CUSIPs aren't)
+        kind: m.assetClass === 'bonds' ? 'fixed_income' : m.assetClass === 'alternatives' ? 'crypto' : m.assetClass === 'cash' ? 'money_market' : 'stocks_etf',
+        asset_class: m.assetClass === 'bonds' ? 'bond' as const : m.assetClass === 'alternatives' ? 'other' as const : m.assetClass === 'cash' ? 'cash' as const : 'stock_etf' as const,
         lots: m.lots.map((l) => ({
           lot_id: newEntityId('lot'),
           shares: l.shares,

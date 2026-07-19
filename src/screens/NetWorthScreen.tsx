@@ -11,7 +11,7 @@ import { money } from '../domain/_shared/num';
 import { maskedMoney } from '../components/useMoney';
 import { readHistory } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, type AddWrapper } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayName, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -117,6 +117,7 @@ export default function NetWorthScreen() {
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
   const [expanded, setExpanded] = useState(false);        // legacy editors section (kept for edit flows)
   const [showAllClassRows, setShowAllClassRows] = useState<Record<string, boolean>>({});
+  const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});   // v4: per-class expand, default collapsed
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
 
   // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
@@ -391,30 +392,36 @@ export default function NetWorthScreen() {
         <Text style={styles.ownHdr}>WHAT YOU OWN   {maskedMoney(Math.round(totalAssets))}</Text>
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
+          {/* v4 mock APPROVED 2026-07-19: class rows expand/collapse (default collapsed, caret ▸/▾
+              word+motion never color alone); a lone class auto-expands — hiding the only account
+              behind a tap would obscure, not glance. */}
           {classRows.map((r, i) => {
             const members = assets.filter((a) => assetClassOf(a) === r.key);
-            const shownMembers = showAllClassRows[r.key] ? members : members.slice(0, 5);
+            const isOpen = classRows.length === 1 || !!openClasses[r.key];
+            const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
             return (
               <View key={r.key} style={i > 0 ? styles.divider : undefined}>
-                <View style={styles.row} accessible
-                  accessibilityLabel={`${r.label}, ${maskedMoney(Math.round(r.total))}${r.key === 'mixed' ? '. Tap an account to say what is inside.' : ''}`}>
+                <TouchableOpacity style={styles.row} accessibilityRole="button"
+                  onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
+                  accessibilityLabel={`${r.label}, ${maskedMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+                  <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
                   <View style={[styles.dot, { backgroundColor: r.color }]} />
                   <View style={{ flex: 1 }}>
                     <Text style={styles.rowTitle}>{r.label}</Text>
-                    {r.key === 'mixed' && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
+                    {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
                   </View>
                   <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
-                </View>
+                </TouchableOpacity>
                 {shownMembers.map((a) => (
                   <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
                     onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                    accessibilityLabel={`${a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
-                    <Text style={styles.acctRowLabel} numberOfLines={1}>{a.institution?.trim() ? `${a.institution.trim()} ${a.label}` : a.label}</Text>
+                    accessibilityLabel={`${accountDisplayName(a)}, ${maskedMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                    <Text style={styles.acctRowLabel} numberOfLines={1}>{accountDisplayName(a)}</Text>
                     <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
                     <Text style={styles.acctChev}>›</Text>
                   </TouchableOpacity>
                 ))}
-                {members.length > 5 && !showAllClassRows[r.key] && (
+                {isOpen && members.length > 5 && !showAllClassRows[r.key] && (
                   <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
                     accessibilityLabel={`Show all ${members.length} ${r.label} accounts`}>
                     <Text style={styles.acctMore}>all {members.length} ›</Text>
@@ -721,7 +728,8 @@ const styles = StyleSheet.create({
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
   glanceKickerNW: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
-  acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 26, paddingRight: 2, paddingVertical: 8, minHeight: 40 },
+  acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 40 },
+  classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },
   acctRowLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary },
   acctRowVal: { fontSize: 14, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
   acctChev: { fontSize: 15, color: Colors.textTertiary },

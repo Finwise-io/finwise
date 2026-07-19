@@ -61,7 +61,15 @@ export default function AccountDetailScreen() {
   const updatedLine = source === 'connected' && account.last_synced
     ? `Updated ${new Date(account.last_synced).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
     : account.value_as_of ? `Value as of ${account.value_as_of}` : null;
-  const tickers = (account.positions ?? []).map((p) => p.ticker).filter(Boolean);
+  // Build-43 finding #4: a bare CUSIP ("49306SX43") reads as noise — show the security's NAME for
+  // identifier-style tickers (9 alphanumerics with digits), the ticker for everything else.
+  const holdingWord = (p: { ticker?: string; name?: string }) => {
+    const t = (p.ticker ?? '').trim();
+    const isCusip = /^[0-9A-Z]{9}$/.test(t) && /\d/.test(t);
+    const nm = (p.name ?? '').trim();
+    return isCusip && nm ? (nm.length > 22 ? `${nm.slice(0, 22)}…` : nm) : t;
+  };
+  const tickers = (account.positions ?? []).map((p) => holdingWord(p as any)).filter(Boolean);
   const fresh = valueFreshness(account);
 
   // per-class actions (design: only what makes sense for this account)

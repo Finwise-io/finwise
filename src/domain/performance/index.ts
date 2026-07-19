@@ -20,7 +20,7 @@ export interface Position {
   ticker: string;               // e.g. 'AAPL', 'SPY', 'VTI'
   label?: string;               // display name, e.g. 'Apple Inc.'
   kind?: string;                // ASSET_KINDS id, for benchmark mapping
-  asset_class?: 'stock_etf' | 'bond' | 'other';   // explicit class (import/sync sets it; wins over kind)
+  asset_class?: 'stock_etf' | 'bond' | 'other' | 'cash';   // explicit class (import/sync sets it; wins over kind); 'cash' = money-market funds a broker didn't flag (live-verified 2026-07-19)
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
   lots: Lot[];
 }

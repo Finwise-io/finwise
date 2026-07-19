@@ -45,6 +45,15 @@ describe('mapPosition — instrument classing + lots', () => {
   });
 });
 
+test('LIVE-VERIFIED 2026-07-19: an unflagged money-market fund (VMFXX) classes as CASH, not stocks', () => {
+  const m = mapPosition({
+    symbol: { symbol: { raw_symbol: 'VMFXX', description: 'Vanguard Federal Money Market', type: { code: 'oef' } } },
+    units: 50000, price: 1,
+  } as any)!;
+  expect(m.assetClass).toBe('cash');
+  expect(m.cashEquivalent).toBe(false);   // E*TRADE's flag stays false → the cash SLEEVE math is untouched
+});
+
 describe('mapOptionHolding — G2 closure: options are itemized rows, plain-English labels', () => {
   test('a call renders name, strike, expiry and its multiplied value', () => {
     const m = mapOptionHolding({

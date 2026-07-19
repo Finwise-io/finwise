@@ -278,6 +278,19 @@ export function investableAssets(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => !isRealAsset(a));
 }
 /** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
+/** The ONE display name for an account row (build-43 finding #1): institution prefixes the label
+ *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
+ *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
+ *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
+export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'>): string {
+  const label = (a.label ?? '').trim();
+  const inst = (a.institution ?? '').trim();
+  const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
+  const base = inst && !norm(label).includes(norm(inst)) ? `${inst} ${label}` : label || inst;
+  const mask = (a.mask ?? '').trim();
+  return mask && !norm(base).includes(norm(mask)) ? `${base} ${mask}` : base;
+}
+
 export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
   const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
   for (const a of accounts ?? []) out[assetClassOf(a)] += (a.balance || 0);

@@ -66,10 +66,17 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
     try {
       const h = await snaptradeApi.holdings(account.id);
       const initialDone = account.sync_status?.transactions?.initial_sync_completed === true;
-      const cursor = cursors[account.id];
+      // SELF-HEAL (build-43 finding #3): Build 43's envelope bug ingested ZERO activity rows but
+      // still advanced the cursor — trusting that cursor would fetch one week and silently orphan
+      // the whole history. A cursor is only believable if this account actually HAS ledger rows;
+      // otherwise start over from the full history. Dedupe makes the re-pull free.
+      const accountRowId = ((s.assetAccounts ?? []) as any[]).find((a) => a.snaptrade_account_id === account.id)?.asset_id ?? `st-${account.id}`;
+      const hasLedgerRows = ((s.transactions ?? []) as any[]).some((t) => t.source === 'connected' && t.account_id === accountRowId);
+      const cursor = hasLedgerRows ? cursors[account.id] : undefined;
+      if (!hasLedgerRows) delete cursors[account.id];
       const startDate = cursor
         ? new Date(Date.parse(cursor) - OVERLAP_DAYS * 86400_000).toISOString().slice(0, 10)
-        : undefined;                                   // no cursor yet → full history
+        : undefined;                                   // no cursor (or none believable) → full history
       const activities = await allActivities(account.id, startDate);
       payloads.push({
         account,
