@@ -1,0 +1,89 @@
+<title>MoneyKeel — Invest v2: returns capped at your purchase date (for approval)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 8px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .periods{display:flex; gap:6px; padding:0 2px 8px;}
+  .ptab{font-size:12.5px; font-weight:700; color:#6B6B66; border:1.5px solid rgba(0,0,0,.10); border-radius:14px; padding:5px 10px;}
+  .ptab.on{color:#0F6E56; border-color:#178F6B; background:#E1F5EE;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66; display:flex; align-items:center; gap:6px;}
+  .idot{width:16px;height:16px;border-radius:50%;border:1.4px solid #76766F;color:#76766F;font-size:10px;font-weight:800;
+    display:inline-flex;align-items:center;justify-content:center;}
+  .hero{font-size:34px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; letter-spacing:-.5px;}
+  .gain{color:#006300; font-weight:800;}
+  .red{color:#A32D2D; font-weight:700;}
+  .line15{font-size:15px; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .star{font-weight:800;}
+  .stamp{font-size:11.5px; color:#76766F; margin-top:5px;}
+  .wl{display:flex; align-items:baseline; gap:8px; padding:9px 2px; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums;}
+  .wl:first-of-type{border-top:none;}
+  .wl .sub{display:block; font-size:11.5px; color:#76766F; font-weight:400;}
+  .wl .amt{margin-left:auto; font-weight:600; text-align:right;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:0; padding:0; max-width:380px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock v2 · Invest — capped returns · NOT BUILT — for your approval</div>
+  <h1>Winners &amp; laggards: the selected period, or since you bought — whichever is shorter</h1>
+  <p class="lede">Your finding: with 1Y selected, LCTX showed as a winner (the <i>security</i> rose over the year) even though
+  since <i>your</i> purchase it's down. The fix — every row answers "what happened to <b>your money</b>": the window caps at
+  your purchase date, capped rows say so, and the market comparison caps to the <b>same</b> dates so the race is fair.</p>
+
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Invest</span><span style="font-size:17px;color:#6B6B66">👁</span></div>
+          <div class="periods"><span class="ptab">1M</span><span class="ptab">3M</span><span class="ptab">6M</span><span class="ptab">YTD</span><span class="ptab on">1Y</span><span class="ptab">3Y</span></div>
+          <div class="card">
+            <span class="pin">3</span>
+            <div class="kicker">YOUR RETURN (1 YEAR) <span class="idot">i</span></div>
+            <div class="hero"><span class="gain">▲ up $9,040</span> <span style="font-size:20px">(+12.1%)</span></div>
+            <div class="line15">Stock market, same dates: +10.0%</div>
+            <div class="line15 star">★ You're ahead by 2.1 points</div>
+            <div class="stamp">some holdings counted since purchase — marked below · prices updated 2h ago</div>
+          </div>
+          <div class="card">
+            <span class="pin">1</span>
+            <div class="kicker">WINNERS &amp; LAGGARDS (1 YEAR)</div>
+            <div class="wl"><span class="gain">▲ up</span><span>NVDA</span><span class="amt gain">+$7,620 · +41%</span></div>
+            <div class="wl"><span class="gain">▲ up</span><span>VTI</span><span class="amt gain">+$1,890 · +12%</span></div>
+            <div class="wl"><span class="red">▼ down</span><span>LCTX<span class="sub">since you bought · Mar 3</span></span><span class="amt red">−$600 · −30%</span></div>
+            <div class="wl"><span class="red">▼ down</span><span>BND</span><span class="amt red">−$60 · −3%</span></div>
+            <div class="link">See all 12 › &nbsp;&nbsp; By account ›</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <ul class="legend">
+      <li><span class="dot">1</span><div><b>Capped rows are labeled.</b> LCTX bought March 3 → its row covers March 3 → today and says "since you bought · Mar 3". It now honestly shows as the loser it is for you. Unlabeled rows cover the full selected period.</div></li>
+      <li><span class="dot">2</span><div><b>Fair market race.</b> A capped holding is compared to the market over the SAME dates (LCTX vs the market since Mar 3) — never your 4 months vs the market's 12.</div></li>
+      <li><span class="dot">3</span><div><b>The headline follows the same rule</b> and is renamed "YOUR RETURN" — it rolls up the same rows, so it's what happened to your money. The ⓘ explains: "Holdings younger than the selected period count from the day you bought them." Dollar figures are value minus what you paid — the same math the realized/unrealized numbers use everywhere.</div></li>
+    </ul>
+  </div>
+</div>
