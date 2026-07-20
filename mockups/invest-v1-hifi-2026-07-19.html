@@ -1,0 +1,144 @@
+<title>MoneyKeel — Invest (hi-fi, as built + Build-44 engine effects)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 8px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .head .icons{font-size:17px; color:#6B6B66;}
+  .periods{display:flex; gap:6px; padding:0 2px 8px;}
+  .ptab{font-size:12.5px; font-weight:700; color:#6B6B66; border:1.5px solid rgba(0,0,0,.10); border-radius:14px; padding:5px 10px;}
+  .ptab.on{color:#0F6E56; border-color:#178F6B; background:#E1F5EE;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .hero{font-size:34px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:2px; letter-spacing:-.5px;}
+  .gain{color:#006300; font-weight:800;}
+  .red{color:#A32D2D; font-weight:700;}
+  .line15{font-size:15px; margin-top:2px; font-variant-numeric:tabular-nums;}
+  .star{font-weight:800;}
+  .stamp{font-size:11.5px; color:#76766F; margin-top:5px;}
+  .wl{display:flex; align-items:baseline; gap:8px; padding:8px 2px; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums;}
+  .wl:first-of-type{border-top:none;}
+  .wl .amt{margin-left:auto; font-weight:600;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .conc{font-size:14px; background:#FAEEDA; color:#854F0B; border-radius:12px; padding:10px 12px; font-weight:600;}
+  .entry{font-size:15px; font-weight:700; padding:12px 2px;}
+  .entry .tag{font-size:11px; color:#76766F; font-weight:600;}
+  .grp{font-size:13px; font-weight:800; letter-spacing:.04em; color:#6B6B66; padding:8px 2px 2px; display:flex; justify-content:space-between; font-variant-numeric:tabular-nums;}
+  .hold{display:flex; align-items:baseline; gap:8px; padding:8px 2px 8px 12px; border-top:1px solid rgba(0,0,0,.08); font-size:14.5px; font-variant-numeric:tabular-nums;}
+  .hold .sub{display:block; font-size:11.5px; color:#76766F;}
+  .hold .amt{margin-left:auto; font-weight:600; text-align:right;}
+  .btns{display:flex; gap:8px; margin:6px 0 10px;}
+  .obtn{flex:1; text-align:center; font-size:15px; font-weight:700; border:1.5px solid #178F6B; color:#0F6E56; border-radius:12px; padding:12px;}
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10);}
+  .tab{font-size:10.5px; font-weight:700; color:#6B6B66; text-align:center;}
+  .tab.on{color:#0F6E56; border-bottom:2.5px solid #0F6E56; padding-bottom:2px;}
+  .muted{color:#6B6B66;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:340px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock · Invest (main) · matches the built screen — for your review</div>
+  <h1>Invest — glance then drill, and your first-day state</h1>
+  <p class="lede">Drawn from the approved wireframe and the screen as built (they agree). Left: with a year of data.
+  Right: <b>your account today</b> — connected holdings, no price history yet, so the return says the honest thing.
+  Engine effects from today's fixes are reflected: the money-market fund does <b>not</b> masquerade as a stock,
+  and bond/CD rows show readable names with their as-of dates.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>With a year of history</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Invest</span><span class="icons">👁</span></div>
+          <div class="periods"><span class="ptab">1M</span><span class="ptab">3M</span><span class="ptab">6M</span><span class="ptab">YTD</span><span class="ptab on">1Y</span><span class="ptab">3Y</span></div>
+          <div class="card">
+            <div class="kicker">TOTAL RETURN (1 YEAR)</div>
+            <div class="hero"><span class="gain">▲ up $9,640</span> <span style="font-size:20px">(+12.9%)</span></div>
+            <div class="line15">Stock market: +10.1%</div>
+            <div class="line15 star">★ You're ahead by 2.8 points</div>
+            <div class="stamp">prices updated 2h ago</div>
+          </div>
+          <div class="card">
+            <div class="kicker">WINNERS &amp; LAGGARDS (1 YEAR)</div>
+            <div class="wl"><span class="gain">▲ up</span> NVDA <span class="amt gain">+$7,620 · +41%</span></div>
+            <div class="wl"><span class="gain">▲ up</span> VTI <span class="amt gain">+$1,890 · +12%</span></div>
+            <div class="wl"><span class="red">▼ down</span> BND <span class="amt red">−$60 · −3%</span></div>
+            <div class="link">See all 12 › &nbsp;&nbsp; By account ›</div>
+          </div>
+          <div class="conc">⚑ 31% of your invested money is in one stock (NVDA)</div>
+          <div class="card entry">LOOK AHEAD: what saving more could do <span class="tag">estimate</span> ›</div>
+          <div class="card entry">LOOK BACK: what a past move would have done <span class="tag">facts</span> ›</div>
+          <div class="card">
+            <div class="grp"><span>YOUR INVESTMENTS</span><span>$84,370</span></div>
+            <div class="grp" style="color:#178F6B"><span>Stocks / ETFs</span><span>$70,050</span></div>
+            <div class="hold">NVDA<span class="amt">$26,190 <span class="gain">▲ +41%</span> ›</span></div>
+            <div class="hold">VTI<span class="amt">$17,640 <span class="gain">▲ +12%</span> ›</span></div>
+            <div class="grp" style="color:#185FA5"><span>Bonds &amp; CDs</span><span>$11,300</span></div>
+            <div class="hold">Treasury 4.5% due 2036<span class="sub">value as of Mar 3, 2026</span><span class="amt">$9,500 ›</span></div>
+            <div class="hold">BND fund<span class="amt">$1,800 <span class="red">▼ −3%</span> ›</span></div>
+            <div class="grp" style="color:#7A5AA7"><span>Alternatives</span><span>$3,020</span></div>
+            <div class="hold">Bitcoin<span class="sub">value as of Jun 12</span><span class="amt">$2,120 ›</span></div>
+            <div class="hold">Gold coins<span class="sub" style="color:#854F0B">⏱ value 7 months old — still right?</span><span class="amt">$900 ›</span></div>
+          </div>
+          <div class="btns"><span class="obtn">＋ Add investment</span><span class="obtn">Record activity</span></div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab on">Invest</span><span class="tab">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Your account today (connected, first day)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Invest</span><span class="icons">👁</span></div>
+          <div class="periods"><span class="ptab on">1M</span><span class="ptab">3M</span><span class="ptab">6M</span><span class="ptab">YTD</span><span class="ptab">1Y</span><span class="ptab">3Y</span></div>
+          <div class="card">
+            <div class="kicker">TOTAL RETURN (1 MONTH)</div>
+            <div class="hero" style="font-size:22px" class="muted">return appears as price history builds</div>
+            <div class="line15 muted">your holdings arrived today — the first comparison needs a little time</div>
+            <div class="stamp">as of Jul 19</div>
+          </div>
+          <div class="card">
+            <div class="grp"><span>YOUR INVESTMENTS</span><span>$145,570</span></div>
+            <div class="grp" style="color:#185FA5"><span>Bonds &amp; CDs</span><span>$110,000</span></div>
+            <div class="hold">CD 4.30% due May 2027<span class="sub">from E*TRADE · updated today</span><span class="amt">$110,000 ›</span></div>
+            <div class="grp" style="color:#178F6B"><span>Stocks / ETFs</span><span>$33,570</span></div>
+            <div class="hold">FMCC<span class="sub">from E*TRADE · updated today</span><span class="amt">$32,170 ›</span></div>
+            <div class="hold">LCTX<span class="sub">from E*TRADE · updated today</span><span class="amt">$1,400 ›</span></div>
+            <div class="grp" style="color:#7A5AA7"><span>Alternatives</span><span>$2,000</span></div>
+            <div class="hold">QQQ $600 put · exp Dec 31 2026<span class="sub">option — 1 contract</span><span class="amt">$2,000 ›</span></div>
+          </div>
+          <div class="card entry">LOOK AHEAD: what saving more could do <span class="tag">estimate</span> ›</div>
+          <div class="btns"><span class="obtn">＋ Add investment</span><span class="obtn">Record activity</span></div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab on">Invest</span><span class="tab">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>No money-market imposter:</b> your VMFXX counts as cash now, so it doesn't appear among investments — investments are stocks, bonds/CDs, and alternatives.</div></li>
+        <li><span class="dot">2</span><div><b>Readable names</b> ("CD 4.30% due May 2027", never 49306SX43), with provenance under each row.</div></li>
+        <li><span class="dot">3</span><div><b>Honest first-day return:</b> a return needs two price points in the period — the slot says so instead of showing 0% or hiding.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>
