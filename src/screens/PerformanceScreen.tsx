@@ -49,7 +49,24 @@ export default function PerformanceScreen() {
   const owned = useMemo(() => accounts.flatMap((a) => (a.positions ?? []).map((p) => ({ accountId: a.asset_id, p }))), [accounts]);
   const positions = owned.map((o) => o.p);
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
-  const rows = useMemo(() => buildPerformance(positions, priceOf, period), [owned, priceCache, period]);
+  // APPROVED invest-v3 FINAL (2026-07-19): purchase dates for the cap — dated lots win; a
+  // connected holding's average-cost lot has no date, so the ledger's earliest BUY fills in.
+  const earliestBuyByTicker = useMemo(() => {
+    const m: Record<string, string> = {};
+    for (const t of (store.transactions ?? []) as any[]) {
+      if (t.type === 'BUY' && t.ticker) {
+        const k = String(t.ticker).toUpperCase();
+        const d = String(t.date).slice(0, 10);
+        if (/^\d{4}-\d{2}-\d{2}$/.test(d) && (!m[k] || d < m[k])) m[k] = d;
+      }
+    }
+    return m;
+  }, [store.transactions]);
+  const rows = useMemo(
+    () => buildPerformance(positions, priceOf, period, new Date(), (p) => earliestBuyByTicker[p.ticker.trim().toUpperCase()] ?? null),
+    [owned, priceCache, period, earliestBuyByTicker]);
+  const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  const anyCapped = rows.some((r) => r.cappedSince != null);
   const portReturn = portfolioPeriodReturn(rows);
   const benchPort = (() => {
     const usable = rows.filter((r) => r.benchReturn != null && r.marketValue > 0);
@@ -76,7 +93,8 @@ export default function PerformanceScreen() {
   const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,
   // the holding-concentration fact, and the grouped all-investments list (bonds + alts folded in)
-  const rowGain = (r: any) => (r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
+  // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
+  const rowGain = (r: any) => (r.cappedSince ? r.gain : r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
   const periodDollar = rows.reduce((t, r) => t + rowGain(r), 0);
   const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
     .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
@@ -161,16 +179,21 @@ export default function PerformanceScreen() {
               second, then the NAMED honest comparison + the freshness clock — one card, one story */}
           {rows.length > 0 && <View style={styles.card} accessible
             accessibilityLabel={`Portfolio value ${maskedMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${PERIOD_PHRASE[period]}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
-            <Text style={styles.glanceKicker}>PORTFOLIO VALUE</Text>
-            <Text style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>{maskedMoney(investTotalAll)}</Text>
-            <Text style={styles.glanceBig}>
-              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ +' : '▼ −'}{maskedMoney(Math.abs(Math.round(periodDollar)))} ({pct(portReturn)})</Text>
-              <Text style={styles.glancePct}>  {PERIOD_PHRASE[period]}</Text>
+            {/* APPROVED invest-v3 FINAL (2026-07-19): the RETURN leads and is named YOURS — every
+                row it rolls up counts from the later of the period start or the day you bought */}
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={styles.glanceKicker}>YOUR RETURN ({PERIOD_PHRASE[period].toUpperCase()})</Text>
+              <InfoDot term="yourReturn" />
+            </View>
+            <Text style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+              <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
+              <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
             </Text>
             <View style={styles.honestBlock}>
               <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
-              {benchPort != null && <Text style={styles.glanceLine}>vs the stock market:  {pct(benchPort)}</Text>}
+              {benchPort != null && <Text style={styles.glanceLine}>{anyCapped ? 'Stock market, same dates:' : 'vs the stock market:'}  {pct(benchPort)}</Text>}
               {portBeat != null && <Text style={[styles.glanceLine, { fontWeight: '800' }]}>★ You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
+              {anyCapped && <Text style={styles.freshInHero}>some holdings counted since purchase — marked below</Text>}
               {freshLine && <Text style={styles.freshInHero}>🕐 {freshLine}</Text>}
             </View>
             {trend.length > 1 && <TrendChartAuto data={trend} />}
@@ -219,7 +242,10 @@ export default function PerformanceScreen() {
                       {roleTag
                         ? <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{roleTag}</Text>
                         : <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>}
-                      <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
+                      <View style={{ flex: 1, minWidth: 0 }}>
+                        <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
+                        {r.cappedSince && <Text style={styles.wlSince}>{sinceWord(r.cappedSince)}</Text>}
+                      </View>
                       <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
                       <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
                     </TouchableOpacity>
@@ -282,7 +308,10 @@ export default function PerformanceScreen() {
                       <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                         onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
                         accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
-                        <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
+                        <View style={{ flex: 1, minWidth: 0 }}>
+                          <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
+                          {it.cappedSince && <Text style={styles.wlSince}>{sinceWord(it.cappedSince)}</Text>}
+                        </View>
                         {it.price != null && (
                           <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
                             <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
@@ -746,7 +775,8 @@ const styles = StyleSheet.create({
   wlAcctHdr: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: 8, marginBottom: 2 },
   wlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 42 },
   wlArrow: { width: 68, fontSize: 12.5, fontWeight: '800' },
-  wlTicker: { flex: 1, fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  wlTicker: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  wlSince: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   wlGain: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
   wlPct: { width: 62, fontSize: 13, color: Colors.textSecondary, textAlign: 'right', fontVariant: ['tabular-nums'] },
   concCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
@@ -765,7 +795,7 @@ const styles = StyleSheet.create({
   freshChipTxt: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
   invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
-  invName: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  invName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   invVal: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   invRet: { fontSize: 12.5, fontWeight: '700', width: 84, textAlign: 'right' },
   invStamp: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },

@@ -11,7 +11,7 @@ export type GlossaryTerm =
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
   | 'grossIncome' | 'contributionRoom' | 'capitalGains'
   | 'safeDraw' | 'guaranteedIncome' | 'rateSensitivity' | 'provenance' | 'estimate' | 'moneyWeighted' | 'benchmark'
-  | 'investments';
+  | 'investments' | 'yourReturn' | 'nestEggMath';
 
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
@@ -20,6 +20,10 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   // Build-43 feedback #2: "$0 investments vs $1,500 net worth" needs the difference said in place.
   // c1 in the approved detailed design (Home tab) + the build-43 clarification ask.
   investments:  { title: 'Investments', body: 'Stocks & funds, bonds and alternatives — cash is counted separately. Your net worth is the bigger picture: everything you own (including cash, your home, and property) minus everything you owe. So you can have $0 in investments and still have a net worth.' },
+  // invest-v3 FINAL (2026-07-19): returns are capped at the purchase date — say why in place.
+  yourReturn:   { title: 'Your return', body: 'Each holding counts from the later of the period start or the day you bought it — so this is what happened to YOUR money, not the security\'s whole-period story. Rows counted since purchase are marked, and the market comparison uses the same dates.' },
+  // lookahead-v3 FINAL (2026-07-19): the nest-egg estimate explained where the number appears.
+  nestEggMath:  { title: 'How we estimate this', body: 'We take the accounts you\'ve earmarked for retirement, grow them each year until your retirement age at your mix\'s market yardstick (stock-heavy money at the stock market\'s rate, bonds at the bond market\'s), and add each year\'s savings with the growth it has time to earn. The difference shown is what the extra monthly amount changes by then. You can change the growth basis, inflation and every input in Plan. An estimate, not a promise.' },
   benchmark:    { title: 'The market comparison', body: 'We compare each holding to a standard yardstick for its type — stocks and funds against the S&P 500 (the 500 largest US companies), bonds against a broad bond index. "Ahead by 2 points" means your money grew 2 percentage points more than that yardstick over the same period.' },
   nestEgg:      { title: 'Retirement nest egg', body: 'The invested money your retirement draws on. Excludes your home, emergency cash, and rentals — those provide income or shelter instead of being spent down.' },
   investable:   { title: 'Investable assets', body: 'Cash plus investments plus retirement accounts. Excludes your home and personal property (cars, valuables).' },

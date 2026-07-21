@@ -115,6 +115,21 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
   return Math.round(raw * 1e4) / 1e4;
 }
 
+/** Price return from an explicit start DATE to now (for purchase-capped windows). */
+export function periodReturnSince(series: PriceSeries | null | undefined, sinceISO: string, now = new Date()): number | null {
+  if (!series || !(series.points?.length)) return null;
+  const end = latestClose(series);
+  const start = closeAsOf(series, new Date(sinceISO));
+  if (end == null || start == null || start <= 0) return null;
+  return Math.round((end / start - 1) * 1e4) / 1e4;
+}
+
+/** Earliest dated lot — the day this holding became YOUR money. null when no lot carries a date. */
+export function earliestPurchaseDate(p: Position): string | null {
+  const dates = (p.lots ?? []).map((l) => l.purchase_date).filter((d) => /^\d{4}-\d{2}-\d{2}/.test(d ?? ''));
+  return dates.length ? dates.sort()[0]!.slice(0, 10) : null;
+}
+
 /** Default benchmark ETF proxy per asset kind — the index we compare a holding against, same period. */
 export const BENCHMARK_TICKER: Record<string, string> = {
   stocks_etf: 'SPY',        // S&P 500
@@ -143,30 +158,43 @@ export interface PerformanceRow {
   costBasis: number;
   gain: number;
   totalROI: number | null;        // since purchase
-  periodReturn: number | null;    // the holding's price return over the selected period
+  periodReturn: number | null;    // YOUR return over the window (capped at purchase — see cappedSince)
   benchTicker: string;
-  benchReturn: number | null;     // benchmark's SAME-period return — honest comparison
+  benchReturn: number | null;     // benchmark over the SAME dates — honest comparison
   beatBy: number | null;          // periodReturn − benchReturn
+  cappedSince: string | null;     // 'YYYY-MM-DD' when the window starts at YOUR purchase, else null
 }
-/** Build the per-holding rows for a period from positions + a price-series lookup. */
+/** Build the per-holding rows for a period from positions + a price-series lookup.
+ *  APPROVED 2026-07-19 (invest-v3 FINAL): a holding younger than the period counts from the day
+ *  it was bought — its return is what happened to YOUR money ((value − cost)/cost), and the
+ *  benchmark is measured over those SAME dates. `purchaseDateOf` supplies a purchase date when
+ *  the lots don't carry one (e.g. a connected broker's average-cost lot — the ledger's earliest
+ *  BUY fills in). */
 export function buildPerformance(
   positions: Position[],
   priceOf: (ticker: string) => PriceSeries | null | undefined,
   period: Period,
   now = new Date(),
+  purchaseDateOf?: (p: Position) => string | null,
 ): PerformanceRow[] {
+  const periodStart = startDateFor(period, now).toISOString().slice(0, 10);
   return (positions ?? []).map((p) => {
     const series = priceOf(p.ticker);
     const price = latestClose(series);
-    const pr = periodReturn(series, period, now);
+    const bought = earliestPurchaseDate(p) ?? purchaseDateOf?.(p) ?? null;
+    const capped = bought != null && bought > periodStart;
+    const pr = capped ? totalROI(p, price) : periodReturn(series, period, now);
     const benchTicker = benchmarkTicker(p.kind);
-    const benchReturn = periodReturn(priceOf(benchTicker), period, now);
+    const benchReturn = capped
+      ? periodReturnSince(priceOf(benchTicker), bought!, now)
+      : periodReturn(priceOf(benchTicker), period, now);
     return {
       position: p, price,
       marketValue: marketValue(p, price), costBasis: costBasis(p), gain: unrealizedGain(p, price),
       totalROI: totalROI(p, price), periodReturn: pr,
       benchTicker, benchReturn,
       beatBy: pr != null && benchReturn != null ? Math.round((pr - benchReturn) * 1e4) / 1e4 : null,
+      cappedSince: capped ? bought : null,
     };
   });
 }

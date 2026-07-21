@@ -132,40 +132,80 @@ test('APPROVED detail · a multi-type connected account is called "Mixed holding
   expect(screen.getByText('Cash in the account')).toBeOnTheScreen();
 });
 
-// ── R5: Look ahead (/what-if) gate diagnoses what's ACTUALLY missing (founder's device case) ────
-describe('R5 · Look ahead empty states say the true blocker', () => {
+// ── R5→R6 FINAL: "What if I save more?" — sliders make the screen self-sufficient ───────────────
+describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, info dots', () => {
   const WhatIfScreen = require('../WhatIfScreen').default;
 
-  test('founder case: accounts CONNECTED but age unknown → plan questions, NOT "add accounts"; no dead dial', () => {
+  test('founder case: accounts connected, age unknown → sliders appear and the payoff computes at once (no detour)', () => {
     useStore.setState({
-      onboardingProfile: {},                                  // no birth year → plan basics missing
+      onboardingProfile: {},                                  // no birth year — the slider covers it
       onboardingComplete: true,
       assetAccounts: [{ asset_id: 'st-1', label: 'E*Trade Individual Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08, source: 'connected' }],
     } as any);
     render(<WhatIfScreen />);
-    expect(screen.getByText(/Your accounts are in — now the plan needs its basics/)).toBeOnTheScreen();
-    expect(screen.getByText('Answer the plan questions ›')).toBeOnTheScreen();
-    expect(screen.queryByText(/Add your accounts/)).toBeNull();          // never blames the wrong thing
-    expect(screen.queryByText(/IF YOU ADD MORE EACH MONTH/)).toBeNull(); // the dial hides when it can't compute
+    expect(screen.getByText('What if I save more?')).toBeOnTheScreen();
+    expect(screen.getByText('ABOUT YOU — SAVED TO YOUR PLAN')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Your age')).toBeOnTheScreen();
+    expect(screen.getByLabelText('Retire at')).toBeOnTheScreen();
+    expect(screen.getByText('IF YOU SAVE MORE EACH MONTH')).toBeOnTheScreen();   // dial alive immediately
+    expect(screen.getByText(/more by \d+ — an estimate/)).toBeOnTheScreen();     // payoff computed (default age 45)
+    expect(screen.queryByText(/Answer the plan questions/)).toBeNull();          // the detour is gone
   });
 
-  test('truly no accounts → connect-or-add wording that matches where the button goes', () => {
-    useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
-    render(<WhatIfScreen />);
-    expect(screen.getByText(/Connect or add your accounts first/)).toBeOnTheScreen();
-    expect(screen.getByText('Connect or add an account ›')).toBeOnTheScreen();
-  });
-
-  test('with accounts AND plan basics the dial and the payoff render', () => {
+  test('slider settle SAVES to the canonical fields — birthYear + the Plan hub\'s retireAge (no duplicates)', () => {
     useStore.setState({
-      onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 45), baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', targetRetirementAge: '67', horizonAge: '92', monthlySpending: '4000' },
+      onboardingProfile: {}, onboardingComplete: true,
+      assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
+    } as any);
+    render(<WhatIfScreen />);
+    fireEvent(screen.getByLabelText('Your age'), 'onAccessibilityAction', { nativeEvent: { actionName: 'increment' } });
+    fireEvent(screen.getByLabelText('Retire at'), 'onAccessibilityAction', { nativeEvent: { actionName: 'decrement' } });
+    const s = useStore.getState() as any;
+    expect(s.onboardingProfile.birthYear).toBe(String(new Date().getFullYear() - 46));   // 45 + 1
+    expect(s.retirementAssumptions.retireAge).toBe(66);                                  // 67 − 1
+  });
+
+  test('info dots on the delta AND Projected nest egg open the how-we-estimate text', () => {
+    useStore.setState({
+      onboardingProfile: { birthYear: String(new Date().getFullYear() - 45), monthlySpending: '4000' },
       onboardingComplete: true,
       assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
     } as any);
     render(<WhatIfScreen />);
-    expect(screen.getByText('IF YOU ADD MORE EACH MONTH')).toBeOnTheScreen();
-    expect(screen.getByText(/more by \d+ — an estimate/)).toBeOnTheScreen();
+    expect(screen.getAllByLabelText('What is How we estimate this?').length).toBe(2);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/earmarked for retirement/);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/estimate, not a promise/);
   });
+
+  test('truly no accounts → connect-or-add wording; sliders wait (nothing to grow yet)', () => {
+    useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
+    render(<WhatIfScreen />);
+    expect(screen.getByText(/Connect or add your accounts first/)).toBeOnTheScreen();
+    expect(screen.getByText('Connect or add an account ›')).toBeOnTheScreen();
+    expect(screen.queryByText('ABOUT YOU — SAVED TO YOUR PLAN')).toBeNull();
+  });
+});
+
+// ── APPROVED invest-v3 FINAL: returns capped at YOUR purchase date ──────────────────────────────
+test('capped returns · the LCTX case: security up over 1Y, but YOUR row shows the loss since purchase — market compared over the same dates', () => {
+  const { buildPerformance } = require('../../domain/performance');
+  const now = new Date('2026-07-19T12:00:00Z');
+  const series = (pts: [string, number][]) => ({ ticker: 'X', points: pts.map(([date, close]) => ({ date, close })) });
+  const priceOf = (t: string) =>
+    t === 'LCTX' ? series([['2025-07-19', 1.0], ['2026-03-03', 2.0], ['2026-07-18', 1.4]])
+    : t === 'VTI' ? series([['2025-07-19', 100], ['2026-07-18', 112]])
+    : series([['2025-07-19', 500], ['2026-03-03', 520], ['2026-07-18', 546]]);   // SPY
+  const rows = buildPerformance([
+    { position_id: 'p1', ticker: 'LCTX', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 2.0, purchase_date: '2026-03-03' }] },
+    { position_id: 'p2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'l2', shares: 10, cost_per_share: 90, purchase_date: '2024-01-05' }] },
+  ] as any, priceOf, '1Y', now);
+  const lctx = rows.find((r: any) => r.position.ticker === 'LCTX')!;
+  const vti = rows.find((r: any) => r.position.ticker === 'VTI')!;
+  expect(lctx.cappedSince).toBe('2026-03-03');
+  expect(lctx.periodReturn).toBeCloseTo(-0.3, 2);            // YOUR money: (1400−2000)/2000 — not the security's +40%
+  expect(lctx.benchReturn).toBeCloseTo(546 / 520 - 1, 3);    // market over the SAME dates (since Mar 3)
+  expect(vti.cappedSince).toBeNull();                        // held all year → full-period return
+  expect(vti.periodReturn).toBeCloseTo(0.12, 2);
 });
 
 test('R3-1 · ingest: a scrambled account "number" produces NO mask; real digits produce one', () => {

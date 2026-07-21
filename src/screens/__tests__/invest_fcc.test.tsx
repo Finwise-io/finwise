@@ -46,20 +46,20 @@ beforeEach(() => {
   } as any);
 });
 
-test('the hero (founder mock): value first, the period gain, the NAMED honest comparison + points', () => {
+test('the hero (invest-v3 FINAL, 2026-07-19): YOUR RETURN leads with the gain in $ and %, the NAMED honest comparison + points', () => {
   render(<PerformanceScreen />);
-  expect(screen.getByText('PORTFOLIO VALUE')).toBeOnTheScreen();
-  expect(screen.getByText(/▲ \+\$[\d,]+ \(\+[\d.]+%\)/)).toBeOnTheScreen();   // gain in $ and %, arrow + sign
-  expect(screen.getByText(/past year/)).toBeOnTheScreen();                       // the period in words
+  expect(screen.getByText(/YOUR RETURN \(PAST YEAR\)/)).toBeOnTheScreen();       // renamed — it's what happened to YOUR money
+  expect(screen.getByLabelText('What is Your return?')).toBeOnTheScreen();       // the ⓘ explains the purchase cap
+  expect(screen.getByText(/▲ up \$[\d,]+/)).toBeOnTheScreen();                   // gain in $, word + arrow
   expect(screen.getByText('HONEST COMPARISON')).toBeOnTheScreen();
-  expect(screen.getByText(/vs the stock market:/)).toBeOnTheScreen();
+  expect(screen.getByText(/stock market/)).toBeOnTheScreen();
   expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
 });
 
-test('the period chips switch the WHOLE story: 3M relabels the gain phrase', () => {
+test('the period chips switch the WHOLE story: 3M relabels the hero kicker', () => {
   render(<PerformanceScreen />);
   fireEvent.press(screen.getByText('3M'));
-  expect(screen.getByText(/past 3 months/)).toBeOnTheScreen();
+  expect(screen.getByText(/YOUR RETURN \(PAST 3 MONTHS\)/)).toBeOnTheScreen();
 });
 
 test('winners: top mode is 🏆 Leader + ⚠ Laggard; by-account groups under account names', () => {

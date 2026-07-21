@@ -12,6 +12,8 @@ import { simulate, projectNestEgg } from '../domain/retirement';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { maskedMoney } from '../components/useMoney';
+import { PlanSlider } from '../components/PlanSlider';
+import { InfoDot } from '../components/UI';
 
 const STEP = 100;
 
@@ -27,12 +29,36 @@ export default function WhatIfScreen() {
     return Number.isFinite(n) && n > 0 ? Math.round(n / STEP) * STEP : 500;
   });
 
+  // APPROVED lookahead-v3 FINAL (2026-07-19): the two plan basics live ON this screen as sliders
+  // and SAVE to the one plan — age → onboardingProfile.birthYear, retire-at → the Plan hub's own
+  // retirementAssumptions.retireAge. No duplicate fields (detailed design v1.2).
+  const thisYear = new Date().getFullYear();
+  const [age, setAge] = useState<number>(() => {
+    const a = op.birthYear ? thisYear - Number(op.birthYear) : NaN;
+    return Number.isFinite(a) && a >= 18 && a <= 95 ? a : 45;
+  });
+  const [retireAt, setRetireAt] = useState<number>(() => {
+    const r = Number(A.retireAge ?? op.targetRetirementAge);
+    return Number.isFinite(r) && r > 0 ? Math.max(r, age + 1) : Math.max(67, age + 1);
+  });
+  const saveAge = (v: number) => {
+    store.setOnboardingProfile?.({ ...op, birthYear: String(thisYear - v) });
+    if (retireAt <= v) { setRetireAt(v + 1); store.setRetirementAssumptions?.({ retireAge: v + 1 }); }
+  };
+  const saveRetireAt = (v: number) => store.setRetirementAssumptions?.({ retireAge: Math.max(v, age + 1) });
+
   const { accounts } = useMemo(
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
     [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
+  // the sliders' values drive the math LIVE (the same values they save)
   const inputs = useMemo(
-    () => willItLastInputs({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
-    [op, accounts, A, store.inflationRate, store.employmentStatus]);
+    () => willItLastInputs({
+      op: { ...op, birthYear: String(thisYear - age) },
+      accounts,
+      assumptions: { ...A, retireAge: Math.max(retireAt, age + 1) },
+      inflationRate: store.inflationRate, employmentStatus: store.employmentStatus,
+    }),
+    [op, accounts, A, age, retireAt, store.inflationRate, store.employmentStatus]);
 
   const result = useMemo(() => {
     if (!inputs || inputs.start_balance <= 0) return null;
@@ -46,23 +72,22 @@ export default function WhatIfScreen() {
     };
   }, [inputs, addMonthly]);
 
-  // BUILD-43 FEEDBACK (2026-07-19): the old gate showed a live dial that computed nothing, blamed
-  // "accounts" even when accounts existed, and its button's words didn't match where it went.
-  // Diagnose PRECISELY what's missing and route to exactly that fix.
+  // v3 FINAL: the sliders supply age and retire-at, so the "plan basics" empty state is GONE.
+  // Remaining gates: no accounts (nothing to grow) and no retirement earmarks.
   const hasAccounts = (accounts ?? []).some((a: any) => (a.balance || 0) > 0);
   const missing = result != null ? null
     : !hasAccounts ? 'accounts' as const
-    : !inputs ? 'plan' as const           // willItLastInputs is null only when your age is unknown
     : 'earmarks' as const;                // accounts exist but none are earmarked for retirement
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.banner}>Trying it out — this changes nothing; every figure is an estimate.</Text>
+      <Text style={s.h1}>What if I save more?</Text>
+      <Text style={s.banner}>Trying it out changes nothing — every figure is an estimate.</Text>
 
       {/* the dial only renders when it can actually compute something (a dead control confuses) */}
       {result != null && !result.retired && (
         <View style={s.card}>
-          <Text style={s.cardHdr}>IF YOU ADD MORE EACH MONTH</Text>
+          <Text style={s.cardHdr}>IF YOU SAVE MORE EACH MONTH</Text>
           <View style={s.stepperRow}>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => Math.max(0, n - STEP))}
               accessibilityLabel="Lower the extra monthly amount by $100">
@@ -77,17 +102,23 @@ export default function WhatIfScreen() {
         </View>
       )}
 
+      {/* ABOUT YOU — the two plan basics, asked where they're needed, saved to the ONE plan */}
+      {hasAccounts && (
+        <View style={s.card}>
+          <Text style={s.cardHdr}>ABOUT YOU — SAVED TO YOUR PLAN</Text>
+          <PlanSlider label="Your age" value={age} min={25} max={80}
+            onChange={setAge} onSettle={saveAge} />
+          <PlanSlider label="Retire at" value={Math.max(retireAt, age + 1)} min={Math.max(50, age + 1)} max={75}
+            onChange={setRetireAt} onSettle={saveRetireAt} />
+          <Text style={s.savedNote}>✓ Saved — Home, Plan and this screen all use these same answers.</Text>
+        </View>
+      )}
+
       {missing === 'accounts' ? (
         <View style={s.card}>
           <Text style={s.note}>Connect or add your accounts first — then this screen can show what an extra monthly amount would do. No guessed numbers.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/connect')}
             accessibilityLabel="Connect or add an account"><Text style={s.emptyLinkT}>Connect or add an account ›</Text></TouchableOpacity>
-        </View>
-      ) : missing === 'plan' ? (
-        <View style={s.card}>
-          <Text style={s.note}>Your accounts are in — now the plan needs its basics (your age, retirement age and income). Answer 3 quick questions in Plan and this screen comes alive.</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
-            accessibilityLabel="Answer the plan questions — opens the Plan tab"><Text style={s.emptyLinkT}>Answer the plan questions ›</Text></TouchableOpacity>
         </View>
       ) : missing === 'earmarks' ? (
         <View style={s.card}>
@@ -106,8 +137,18 @@ export default function WhatIfScreen() {
           accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${maskedMoney(result.before.egg)} becomes ${maskedMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
           <Text style={s.cardHdr}>AT {result.retireAge} (ESTIMATES)</Text>
           {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
-          <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}<Text style={s.deltaSub}>  more by {result.retireAge} — an estimate</Text></Text>
-          <Row label="Projected nest egg" value={`${maskedMoney(result.before.egg)} → ${maskedMoney(result.after.egg)}`} />
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
+            <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}</Text>
+            <InfoDot term="nestEggMath" />
+            <Text style={s.deltaSub}>more by {result.retireAge} — an estimate</Text>
+          </View>
+          <View style={s.row}>
+            <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+              <Text style={s.rowL}>Projected nest egg</Text>
+              <InfoDot term="nestEggMath" />
+            </View>
+            <Text style={s.rowV}>{`${maskedMoney(result.before.egg)} → ${maskedMoney(result.after.egg)}`}</Text>
+          </View>
           <Row label="Will my money last?" value={`${result.before.chance}% → ${result.after.chance}%`} />
           <Text style={s.note}>Same plan, same market assumptions — only the monthly amount moved. Changing what you put in happens at your employer or brokerage; we just show the math.</Text>
         </View>
@@ -127,6 +168,8 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const s = StyleSheet.create({
+  h1: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  savedNote: { fontSize: 11.5, fontWeight: '600', color: Colors.primaryDark, marginTop: 10 },
   emptyLink: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
   emptyLinkT: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
