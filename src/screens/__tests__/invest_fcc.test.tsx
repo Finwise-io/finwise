@@ -4,6 +4,7 @@
 // into ONE grouped list with value-as-of stamps and stale flags; the plan chip shows adopted saving.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
+import { GLOSSARY } from '../../domain/glossary';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
 
@@ -52,11 +53,18 @@ test('the hero (invest-v3/v4 FINAL, 2026-07-19): YOUR RETURN leads with the gain
   expect(screen.getByLabelText('What is Your return?')).toBeOnTheScreen();       // the ⓘ explains the purchase cap
   expect(screen.getByText(/▲ up \$[\d,]+/)).toBeOnTheScreen();                   // gain in $, word + arrow
   expect(screen.getByText('HONEST COMPARISON')).toBeOnTheScreen();
-  // approved "all three" (2026-07-19): the blend's true name + the dividends truth + weights
+  // approved "all three" + v7 FINAL (2026-07-19): true name, ONE footnote dot, weights, table headers
   expect(screen.getByText(/vs the market, matched to your mix/)).toBeOnTheScreen();
-  expect(screen.getByText(/price changes only — dividends not included/)).toBeOnTheScreen();
-  expect(screen.getByLabelText('What is Price returns?')).toBeOnTheScreen();
+  expect(screen.getByText('How these numbers work')).toBeOnTheScreen();
+  expect(screen.getByLabelText('What is How these numbers work?')).toBeOnTheScreen();
+  expect(GLOSSARY.howReturnsWork.body).toMatch(/counted from the day you bought/);
+  expect(GLOSSARY.howReturnsWork.body).toMatch(/same dates/);
+  expect(GLOSSARY.howReturnsWork.body).toMatch(/Dividends and interest aren't included yet/);
   expect(screen.getAllByText(/^\d+%$/).length).toBeGreaterThan(0);               // portfolio weights in the list
+  expect(screen.getAllByText('HOLDING').length).toBe(2);                         // winners table + holdings list headers
+  expect(screen.getByText('CHANGE')).toBeOnTheScreen();
+  expect(screen.getAllByText('RETURN').length).toBe(2);
+  expect(screen.getByText('WEIGHT')).toBeOnTheScreen();
   expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
 });
 
@@ -66,10 +74,10 @@ test('the period chips switch the WHOLE story: 3M relabels the hero kicker', () 
   expect(screen.getByText(/YOUR RETURN \(PAST 3 MONTHS\)/)).toBeOnTheScreen();
 });
 
-test('winners: top mode is 🏆 Leader + ⚠ Laggard; by-account groups under account names', () => {
+test('winners: top mode words Leader + Laggard (v7 table — no emoji); by-account groups under account names', () => {
   render(<PerformanceScreen />);
-  expect(screen.getByText(/🏆 Leader:/)).toBeOnTheScreen();
-  expect(screen.getByText(/⚠ Laggard:/)).toBeOnTheScreen();
+  expect(screen.getByText(/Leader: /)).toBeOnTheScreen();
+  expect(screen.getByText(/Laggard: /)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('View by account'));
   expect(screen.getByText('Brokerage')).toBeOnTheScreen();                        // the account header
 });

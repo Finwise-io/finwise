@@ -200,13 +200,13 @@ export default function PerformanceScreen() {
                 </View>
               )}
               {portBeat != null && <Text style={[styles.glanceLine, { fontWeight: '800' }]}>★ You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
-              {anyCapped && <Text style={styles.freshInHero}>some holdings counted since purchase — marked below</Text>}
-              {/* approved "all three": the dividends truth, said where the numbers are */}
-              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-                <Text style={styles.freshInHero}>price changes only — dividends not included</Text>
-                <InfoDot term="priceReturn" />
+              {/* v7 FINAL: ONE plain footnote — the dot holds the full founder-approved explanation
+                  (purchase-capping, same-dates mix-matched market, dividends excluded) */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                <Text style={styles.freshInHero}>How these numbers work</Text>
+                <InfoDot term="howReturnsWork" />
+                {freshLine && <Text style={styles.freshInHero}> · {freshLine}</Text>}
               </View>
-              {freshLine && <Text style={styles.freshInHero}>🕐 {freshLine}</Text>}
             </View>
             {trend.length > 1 && <TrendChartAuto data={trend} />}
             {trend.length > 1 && (
@@ -233,6 +233,12 @@ export default function PerformanceScreen() {
           {ranked.length > 0 && (
             <View style={styles.card}>
               <Text style={styles.cardTitle}>Winners & laggards ({period})</Text>
+              {/* v7 FINAL (founder-approved table): header row, split $/% columns, arrow inside CHANGE */}
+              <View style={styles.wlHead}>
+                <Text style={[styles.wlHeadT, { flex: 1 }]}>HOLDING</Text>
+                <Text style={[styles.wlHeadT, styles.wlChange]}>CHANGE</Text>
+                <Text style={[styles.wlHeadT, styles.wlPct]}>RETURN</Text>
+              </View>
               {(listMode === 'account'
                 ? [...owned].sort((a, b) => a.accountId.localeCompare(b.accountId))
                     .map((o) => ranked.find((x) => x.r.position.position_id === o.p.position_id))
@@ -242,7 +248,7 @@ export default function PerformanceScreen() {
                 const o = owned.find((x) => x.p.position_id === r.position.position_id)!;
                 const acct = accounts.find((a) => a.asset_id === o.accountId);
                 const prevAcct = idx > 0 ? owned.find((x) => x.p.position_id === arr[idx - 1].r.position.position_id)?.accountId : null;
-                const roleTag = listMode === 'top' ? (gain >= 0 ? '🏆 Leader:' : '⚠ Laggard:') : null;
+                const roleWord = listMode === 'top' ? (gain >= 0 ? 'Leader' : 'Laggard') : null;
                 return (
                   <View key={r.position.position_id}>
                     {listMode === 'account' && o.accountId !== prevAcct && (
@@ -250,16 +256,13 @@ export default function PerformanceScreen() {
                     )}
                     <TouchableOpacity accessibilityRole="button" style={styles.wlRow}
                       onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
-                      accessibilityLabel={`${roleTag ? roleTag.replace(':', '').replace(/[🏆⚠] /u, '') + ' ' : ''}${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
-                      {roleTag
-                        ? <Text numberOfLines={1} style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{roleTag}</Text>
-                        : <Text numberOfLines={1} style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>}
+                      accessibilityLabel={`${roleWord ? roleWord + ' ' : ''}${r.position.label || r.position.ticker}${r.cappedSince ? `, ${sinceWord(r.cappedSince)}` : ''}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
                       <View style={{ flex: 1, minWidth: 0 }}>
-                        <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
+                        <Text style={styles.wlTicker} numberOfLines={1}>{roleWord ? `${roleWord}: ` : ''}{r.position.ticker}</Text>
                         {r.cappedSince && <Text style={styles.wlSince}>{sinceWord(r.cappedSince)}</Text>}
                       </View>
-                      <Text style={[styles.wlGain, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
-                      <Text style={styles.wlPct}>{pct(r.periodReturn)}</Text>
+                      <Text numberOfLines={1} style={[styles.wlChange, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ +' : '▼ −'}{maskedMoney(Math.abs(Math.round(gain)))}</Text>
+                      <Text numberOfLines={1} style={[styles.wlPct, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{pct(r.periodReturn)}</Text>
                     </TouchableOpacity>
                   </View>
                 );
@@ -313,6 +316,16 @@ export default function PerformanceScreen() {
             return (
               <View key={kind} style={styles.card}>
                 <Text style={styles.groupHdr}>{label}   {maskedMoney(Math.round(total as number))}</Text>
+                {kind === 'eq' && (
+                  /* v7 FINAL: the column header sits under the first asset class, labeling the list once */
+                  <View style={styles.wlHead}>
+                    <Text style={[styles.wlHeadT, { flex: 1 }]}>HOLDING</Text>
+                    <Text style={[styles.wlHeadT, styles.invWeight]}>WEIGHT</Text>
+                    <Text style={[styles.wlHeadT, styles.invVal, { fontWeight: '800' }]}>VALUE</Text>
+                    <Text style={[styles.wlHeadT, styles.invRet]}>RETURN</Text>
+                    <Text style={styles.invChev}> </Text>
+                  </View>
+                )}
                 {shown.map((it: any, idx: number) => {
                   if (kind === 'eq') {
                     const o = owned.find((x) => x.p.position_id === it.position.position_id)!;
@@ -789,10 +802,11 @@ const styles = StyleSheet.create({
   glanceLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
   wlAcctHdr: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: 8, marginBottom: 2 },
   wlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 42 },
-  wlArrow: { width: 80, fontSize: 12.5, fontWeight: '800' },
+  wlHead: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingTop: 4, paddingBottom: 2 },
+  wlHeadT: { fontSize: 10.5, fontWeight: '800', letterSpacing: 0.4, color: Colors.textTertiary },
+  wlChange: { minWidth: 96, textAlign: 'right', fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
   wlTicker: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   wlSince: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
-  wlGain: { minWidth: 86, textAlign: 'right', fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
   wlPct: { width: 62, fontSize: 13, color: Colors.textSecondary, textAlign: 'right', fontVariant: ['tabular-nums'] },
   concCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   concTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, lineHeight: 19 },
