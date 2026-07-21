@@ -1,0 +1,129 @@
+<title>MoneyKeel — Cash flow: first-day setup asked in place (for approval)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 8px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .qrow{margin-top:12px;}
+  .qlbl{font-size:15px; color:#1A1A18;}
+  .qsub{font-size:11.5px; color:#76766F; margin-top:1px;}
+  .input{border:1.5px solid rgba(0,0,0,.2); border-radius:12px; padding:12px 14px; font-size:20px; font-weight:800;
+    font-variant-numeric:tabular-nums; margin-top:6px; color:#1A1A18; background:#F6F7F5;}
+  .input.placeholder{color:#9E9E99; font-weight:600;}
+  .btn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin-top:14px;}
+  .savedNote{font-size:11.5px; color:#0F6E56; margin-top:10px; font-weight:600;}
+  .note{font-size:12.5px; color:#6B6B66; line-height:1.5; margin-top:8px;}
+  .heroNum{font-size:34px; font-weight:800; color:#006300; font-variant-numeric:tabular-nums; margin-top:4px;}
+  .heroSub{font-size:13px; color:#6B6B66; font-weight:700;}
+  .rrow{display:flex; justify-content:space-between; padding:7px 0; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums;}
+  .rrow:first-of-type{border-top:none;}
+  .pace{height:8px; border-radius:4px; background:#EEEEE9; margin-top:12px; position:relative; overflow:hidden;}
+  .paceF{position:absolute; left:0; top:0; bottom:0; width:38%; background:#178F6B;}
+  .paceT{font-size:12.5px; color:#6B6B66; margin-top:6px;}
+  .bars{display:flex; gap:6px; align-items:flex-end; height:64px; margin-top:12px;}
+  .bar{flex:1; background:#9FE1CB; border-radius:3px 3px 0 0;}
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; background:#FFFFFF; border-top:1px solid rgba(0,0,0,.10); margin-top:8px;}
+  .tab{font-size:10.5px; font-weight:700; color:#6B6B66; text-align:center;}
+  .tab.on{color:#0F6E56; border-bottom:2.5px solid #0F6E56; padding-bottom:2px;}
+  .fab{position:absolute; right:14px; bottom:66px; background:#178F6B; color:#fff; font-size:14px; font-weight:800;
+    border-radius:22px; padding:12px 16px; box-shadow:0 4px 12px rgba(0,0,0,.25);}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:360px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock · Cash flow first-day setup · NOT BUILT — for your approval</div>
+  <h1>Cash flow — never a page of zeros; it asks for what it needs</h1>
+  <p class="lede">Your finding: everything shows $0 with no way to add income or spending. Same fix pattern you set on
+  "What if I save more?": <b>the screen asks in place</b>. Two questions replace the zero-hero; answers save to the
+  <b>same canonical plan fields</b> Home, Budget and Plan already read (no duplicates). The moment they're in, the
+  real screen appears — right phone.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>First day (replaces the $0 wall)</h2>
+      <div class="phone"><div class="screen" style="position:relative">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Cash flow</span></div>
+          <div class="card">
+            <span class="pin">1</span>
+            <div class="kicker">SET UP YOUR MONTH — 2 QUESTIONS</div>
+            <div class="qrow">
+              <div class="qlbl">What lands in your account each month?</div>
+              <div class="qsub">your take-home pay, after tax — a close guess is fine</div>
+              <div class="input placeholder">$ 6,200</div>
+            </div>
+            <div class="qrow">
+              <div class="qlbl">About what goes out in a typical month?</div>
+              <div class="qsub">rent or mortgage, food, bills — everything, roughly</div>
+              <div class="input placeholder">$ 4,500</div>
+            </div>
+            <div class="btn">Show my cash flow</div>
+            <div class="savedNote">✓ Saved to your plan — Home, Budget and Plan use these same answers. Refine anytime.</div>
+          </div>
+          <div class="card">
+            <div class="kicker">THIS MONTH'S SPENDING</div>
+            <div class="note" style="margin-top:6px">Log your first expense with ＋ Expense below — the pace bar and month detail build from real entries.</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Invest</span><span class="tab on">Cash flow</span><span class="tab">Plan</span></div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>The moment both answers are in</h2>
+      <div class="phone"><div class="screen" style="position:relative">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="head"><span class="t">Cash flow</span></div>
+          <div class="card">
+            <div class="kicker">THIS MONTH</div>
+            <div class="heroNum">$1,700</div>
+            <div class="heroSub">Planned surplus</div>
+            <div class="rrow"><span>In (take-home)</span><span>$6,200</span></div>
+            <div class="rrow"><span>Out (bills)</span><span>$4,500</span></div>
+            <div class="rrow" style="font-weight:800"><span>= Planned surplus</span><span style="color:#006300">$1,700</span></div>
+            <div class="pace"><div class="paceF"></div></div>
+            <div class="paceT">Spent $1,690 of $4,500 planned · 38% spent, 61% of the month gone ›</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR MONTHS</div>
+            <div class="bars"><div class="bar" style="height:55%"></div><div class="bar" style="height:60%"></div><div class="bar" style="height:48%"></div><div class="bar" style="height:66%"></div><div class="bar" style="height:58%"></div><div class="bar" style="height:70%"></div></div>
+            <div class="note">dated month bars — tap any month for its detail</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+          <div class="tabbar"><span class="tab">Home</span><span class="tab">Net worth</span><span class="tab">Invest</span><span class="tab">Cash flow</span><span class="tab on" style="border:none"></span></div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>Two questions, canonical fields:</b> take-home → the plan's income field (as take-home, no tax guessing), typical month → the plan's spending field — the SAME fields onboarding writes and Home's SAFE-TO-SPEND, Budget and Plan read. Answering here lights up all of them at once.</div></li>
+        <li><span class="dot">2</span><div><b>＋ Expense stays</b> — real entries refine the "out" number over time; the stated answer is the starting plan, exactly how the budget engine already works.</div></li>
+        <li><span class="dot">3</span><div><b>No zeros anywhere:</b> until answered, no $0 hero, no 0% pace — honest words instead.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>
