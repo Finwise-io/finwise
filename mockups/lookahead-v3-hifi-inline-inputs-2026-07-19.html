@@ -1,0 +1,121 @@
+<title>MoneyKeel — Look ahead v3: everything on one screen (for approval)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .back{font-size:16px; font-weight:700; color:#178F6B; padding:4px 2px;}
+  .h1{font-size:22px; font-weight:800; margin-top:2px;}
+  .banner{font-size:13px; color:#0F6E56; background:#E1F5EE; border-radius:10px; padding:8px 12px; margin:8px 0; font-weight:700;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66; display:flex; align-items:center; gap:6px;}
+  .idot{width:16px;height:16px;border-radius:50%;border:1.4px solid #76766F;color:#76766F;font-size:10px;font-weight:800;
+    display:inline-flex;align-items:center;justify-content:center; flex:none;}
+  .dialrow{display:flex; align-items:center; justify-content:center; gap:18px; margin-top:10px;}
+  .step{width:44px; height:44px; border-radius:22px; border:1.5px solid #178F6B; color:#0F6E56; font-size:22px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;}
+  .dial{font-size:30px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .sliderRow{margin-top:14px;}
+  .sliderTop{display:flex; justify-content:space-between; align-items:baseline; font-size:15px;}
+  .sliderVal{font-size:20px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .track{position:relative; height:6px; background:#EEEEE9; border-radius:3px; margin:12px 2px 4px;}
+  .fill{position:absolute; left:0; top:0; bottom:0; background:#178F6B; border-radius:3px;}
+  .thumb{position:absolute; top:-11px; width:28px; height:28px; border-radius:14px; background:#178F6B;
+    box-shadow:0 1px 5px rgba(0,0,0,.3); border:3px solid #fff;}
+  .range{display:flex; justify-content:space-between; font-size:11px; color:#76766F;}
+  .savedNote{font-size:11.5px; color:#0F6E56; margin-top:10px; font-weight:600;}
+  .deltaHero{font-size:26px; font-weight:800; color:#0F6E56; font-variant-numeric:tabular-nums; margin:2px 0 8px; display:flex; align-items:center; gap:8px;}
+  .deltaSub{font-size:12px; color:#6B6B66; font-weight:600;}
+  .rrow{display:flex; justify-content:space-between; align-items:center; padding:8px 0; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums; gap:6px;}
+  .rrow .lbl{display:flex; align-items:center; gap:6px;}
+  .note{font-size:12.5px; color:#6B6B66; line-height:1.5; margin-top:10px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:0; padding:0; max-width:380px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+  .glossbox{background:rgba(127,127,127,.08); border:1px solid var(--line); border-radius:10px; padding:12px 14px; font-size:12.5px; line-height:1.55; color:var(--ink2); margin-top:14px; max-width:380px;}
+  .glossbox b{color:var(--ink);}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock v3 (supersedes v2) · Look ahead — everything on ONE screen · for your approval</div>
+  <h1>Look ahead — answer it where you ask it</h1>
+  <p class="lede"><b>Your direction, designed:</b> the two plan basics the math needs (your age, when you'd retire) live ON
+  this screen as sliders — adjust, and the payoff recomputes live; the values save to your one plan (the same fields
+  Home and Plan read — no duplicates, design doc updated to v1.2). Both ⓘ dots you asked for are in. No more
+  Home → Sharpen → … detour: the screen asks for exactly what it needs, right where it needs it.</p>
+
+  <div class="row">
+    <div>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Invest</div>
+          <div class="h1">What if I save more?</div>
+          <div class="banner">Trying it out changes nothing — every figure is an estimate.</div>
+
+          <div class="card">
+            <div class="kicker">IF YOU SAVE MORE EACH MONTH</div>
+            <div class="dialrow"><span class="step">−</span><span class="dial">+$750/mo</span><span class="step">＋</span></div>
+          </div>
+
+          <div class="card">
+            <span class="pin">1</span>
+            <div class="kicker">ABOUT YOU — SAVED TO YOUR PLAN</div>
+            <div class="sliderRow">
+              <div class="sliderTop"><span>Your age</span><span class="sliderVal">45</span></div>
+              <div class="track"><div class="fill" style="width:36%"></div><div class="thumb" style="left:34%"></div></div>
+              <div class="range"><span>25</span><span>80</span></div>
+            </div>
+            <div class="sliderRow">
+              <div class="sliderTop"><span>Retire at</span><span class="sliderVal">67</span></div>
+              <div class="track"><div class="fill" style="width:68%"></div><div class="thumb" style="left:66%"></div></div>
+              <div class="range"><span>50</span><span>75</span></div>
+            </div>
+            <div class="savedNote">✓ Saved — Home, Plan and this screen all use these same answers.</div>
+          </div>
+
+          <div class="card">
+            <span class="pin">2</span>
+            <div class="kicker">AT 67 (ESTIMATES)</div>
+            <div class="deltaHero">+$243,000 <span class="idot">i</span><span class="deltaSub">more by 67 — an estimate</span></div>
+            <div class="rrow"><span class="lbl">Projected nest egg <span class="idot">i</span></span><span>$1.31M → $1.55M</span></div>
+            <div class="rrow"><span class="lbl">Will my money last?</span><span>84% → 89%</span></div>
+            <div class="note">Same plan, same market assumptions — only the monthly amount moved. Changing what you put in happens at your employer or brokerage; we just show the math.</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>Sliders, saved once, used everywhere.</b> Age writes your birth year; "Retire at" writes the SAME plan field the Plan tab edits — one source of truth, zero duplicate fields (documented in detailed design v1.2). Prefilled when known; big 44pt thumbs; values in 20pt.</div></li>
+        <li><span class="dot">2</span><div><b>Both ⓘ dots you asked for.</b> On the $243,000 delta AND on "Projected nest egg" — text below. The payoff recomputes live as any slider or the dial moves.</div></li>
+        <li><span class="dot">3</span><div><b>Friction gone:</b> the "answer the plan questions elsewhere" empty state disappears for this case — the questions ARE the screen. Only the no-accounts state remains ("Connect or add an account ›").</div></li>
+      </ul>
+      <div class="glossbox">
+        <b>ⓘ on $243,000 / Projected nest egg — the explanation (tap either):</b><br><br>
+        "<b>How we estimate this:</b> we take the accounts you've earmarked for retirement, grow them each year until
+        your retirement age at your mix's market yardstick (stock-heavy money at the stock market's rate, bonds at the
+        bond market's), and add each year's savings with the growth it has time to earn. The +$243,000 is simply the
+        difference this extra monthly amount makes by then. You can change the growth basis, inflation and every input
+        in Plan. An estimate, not a promise."
+      </div>
+    </div>
+  </div>
+</div>
