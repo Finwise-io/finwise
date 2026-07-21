@@ -29,7 +29,12 @@ const DEBT_TYPES: { value: DebtEntry['type']; label: string; icon: string }[] = 
   { value: 'other',         label: 'Other',         icon: '📄' },
 ];
 
-export default function BudgetScreen() {
+// v1.3 CASH FLOW SURFACE (founder-approved 2026-07-19): this screen's battle-tested tab bodies now
+// ALSO render EMBEDDED inside the consolidated Cash flow surface (its Spending/Debts tabs and the
+// plan editor). `embedded` hides this screen's own tab selector; a provided `monthOffset` makes the
+// surface's ONE month switcher steer the Activity body (its own arrows hide). Standalone rendering
+// still works (the /budget route redirects, but tests and deep links keep functioning).
+export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp, onMonthOffset }: { embedded?: boolean; initialTab?: 'Activity' | 'Budget' | 'Debts' | 'Import'; monthOffset?: number; onMonthOffset?: (n: number) => void } = {}) {
   const router = useRouter();
   const {
     incomes, expenses, deleteIncome, deleteExpense, importFromCSV,
@@ -57,7 +62,7 @@ export default function BudgetScreen() {
   const allCategories = useAllCategories(customCategories || []);
   const { monthIncome, monthSpend } = useMonthlyStats();
   const categorySpend = useCategorySpend();
-  const [tab, setTab] = useState<Tab>('Activity');
+  const [tab, setTab] = useState<Tab>(initialTab ?? 'Activity');
   const [filter, setFilter] = useState<'All' | 'Income' | 'Expenses'>('All');
   const [importing, setImporting] = useState(false);
   const [limitsVisible, setLimitsVisible] = useState(false);
@@ -96,7 +101,12 @@ export default function BudgetScreen() {
   const [payDebt, setPayDebt] = useState<any | null>(null);
   const [payAmt, setPayAmt] = useState('');
   // Activity: month browse, search, add/edit sheet, delete-with-undo
-  const [monthOffset, setMonthOffset] = useState(0);
+  const [monthOffsetInternal, setMonthOffsetInternal] = useState(0);
+  const monthOffset = moProp ?? monthOffsetInternal;
+  const setMonthOffset = (f: number | ((m: number) => number)) => {
+    const n = typeof f === 'function' ? (f as (m: number) => number)(monthOffset) : f;
+    if (onMonthOffset) onMonthOffset(n); else setMonthOffsetInternal(n);
+  };
   const [search, setSearch] = useState('');
   const [txnSheet, setTxnSheet] = useState<{ open: boolean; editing?: any }>({ open: false });
   const [deleted, setDeleted] = useState<{ kind: 'income' | 'expense'; entry: any } | null>(null);
@@ -352,19 +362,23 @@ export default function BudgetScreen() {
 
   return (
     <View style={styles.root}>
-      <SegmentedControl
-        options={['Activity', 'Budget', 'Debts']}
-        selected={tab === 'Import' ? 'Activity' : tab}
-        onSelect={(v) => setTab(v as Tab)}
-      />
+      {!embedded && (
+        <SegmentedControl
+          options={['Activity', 'Budget', 'Debts']}
+          selected={tab === 'Import' ? 'Activity' : tab}
+          onSelect={(v) => setTab(v as Tab)}
+        />
+      )}
 
       {/* ── Activity tab — the ledger: browse, search, add/edit, delete-with-undo ─── */}
       {tab === 'Activity' && (
         <>
           <View style={styles.monthBar}>
+            {moProp == null && (<>
             <TouchableOpacity onPress={() => setMonthOffset((m) => m - 1)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={styles.monthArrow}>‹</Text></TouchableOpacity>
             <Text style={styles.monthLabel}>{selMonthLabel}</Text>
             <TouchableOpacity disabled={isCurrentMonth} onPress={() => setMonthOffset((m) => Math.min(0, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}><Text style={[styles.monthArrow, isCurrentMonth && { opacity: 0.25 }]}>›</Text></TouchableOpacity>
+            </>)}
             <View style={{ flex: 1 }} />
             {(recurringIncomes.length + recurringExpenses.length) > 0 && <TouchableOpacity onPress={() => setRecurringMgr(true)}><Text style={styles.sectionLink}>↻ Recurring</Text></TouchableOpacity>}
             <TouchableOpacity onPress={() => setTab('Import')}><Text style={styles.sectionLink}>⤓ Import</Text></TouchableOpacity>

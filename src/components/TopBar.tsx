@@ -19,7 +19,6 @@ type Mod = { e: string; t: string; route?: string };
 // in a compact footer — that's their only entry point, so they must stay reachable.
 const MORE_IN: { tab: FccTab; items: Mod[] }[] = [
   { tab: 'cashflow', items: [
-    { e: '🪣', t: 'Budget', route: '/(tabs)/budget' },
     { e: '💵', t: 'Income', route: '/income-manager' },
     { e: '💸', t: 'Expenses', route: '/expense' },
     { e: '🗓️', t: 'Bill calendar', route: '/bill-calendar' },

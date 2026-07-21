@@ -5,7 +5,7 @@
 //             future-paycheck PROJECTION card (same F5 engine, projection mode, estimate-labeled)
 // Every by-month number is an F2/F5 cell — this screen computes NOTHING of its own.
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -25,6 +25,8 @@ import { PaycheckCard } from '../components/PaycheckCard';
 import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { maskedMoney } from '../components/useMoney';
+import { IncomeSetupSheet } from '../components/IncomeSetupSheet';
+import BudgetScreen from './BudgetScreen';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -55,21 +57,96 @@ export default function CashFlowScreen() {
 
   const header = `${MONTHS_LONG[now.getMonth()]} ${now.getFullYear()}`;
 
+  // ── v1.3 CASH FLOW SURFACE (FINAL mock approved 2026-07-19): four tabs, one month switcher ──
+  const [surfTab, setSurfTab] = useState<'This month' | 'Income' | 'Spending' | 'Debts'>('This month');
+  const [surfOffset, setSurfOffset] = useState(0);           // 0 = current · negative past · positive future
+  const [incomeSheet, setIncomeSheet] = useState(false);
+  const selDate = new Date(now.getFullYear(), now.getMonth() + surfOffset, 1);
+  const selYm = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}`;
+  const selLabel = selDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+    + (surfOffset < 0 ? ' — final' : surfOffset > 0 ? ' — planned' : '');
+  // the income question is ANSWERED when any source exists (the first-open gate)
+  const incomeReady = !!(op?.baseSalary || (Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length) || op?.seAmount || retirementIncomeMonthly(op) > 0);
+
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+      automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
       <View style={styles.headRow}>
         <Text style={styles.h1}>Cash flow</Text>
         <Text style={styles.headDate}>{header}</Text>
       </View>
 
-      {lens === 'retired' ? (
-        <RetiredMain year={year} accounts={accounts} bva={bva} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
+      {/* the ONE month switcher — steers every tab (approved §C) */}
+      <View style={styles.switchRow}>
+        <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset((m) => m - 1)} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityLabel="Previous month"><Text style={styles.switchArrow}>‹</Text></TouchableOpacity>
+        <Text style={styles.switchLabel}>{selLabel}</Text>
+        <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset((m) => Math.min(11, m + 1))} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}
+          accessibilityLabel="Next month"><Text style={styles.switchArrow}>›</Text></TouchableOpacity>
+        {surfOffset !== 0 && (
+          <TouchableOpacity accessibilityRole="button" onPress={() => setSurfOffset(0)} accessibilityLabel="Back to the current month">
+            <Text style={styles.switchToday}>today ›</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+
+      {/* the four tabs (approved: This month · Income · Spending · Debts) */}
+      <View style={styles.subTabs}>
+        {(['This month', 'Income', 'Spending', 'Debts'] as const).map((t) => (
+          <TouchableOpacity key={t} accessibilityRole="button" style={[styles.subTab, surfTab === t && styles.subTabOn]}
+            onPress={() => setSurfTab(t)} accessibilityLabel={`${t} tab${surfTab === t ? ', selected' : ''}`}>
+            <Text style={[styles.subTabT, surfTab === t && styles.subTabTOn]}>{t}</Text>
+          </TouchableOpacity>
+        ))}
+      </View>
+
+      {surfTab === 'This month' && (!incomeReady && lens !== 'retired' ? (
+        /* FIRST OPEN (approved): no zeros — the two setup doors */
+        <View style={styles.card}>
+          <Text style={styles.cardHdr}>SET UP YOUR MONTH — 2 STEPS</Text>
+          <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => setIncomeSheet(true)}
+            accessibilityLabel="Step 1: set up your income — steady or varies, ten seconds">
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>1 · Your income</Text><Text style={styles.doorSub}>steady or varies — 10 seconds</Text></View>
+            <Text style={styles.link}>Set up ›</Text>
+          </TouchableOpacity>
+          <SpendingQuestion op={op} store={store} />
+          <Text style={styles.note}>✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real.</Text>
+        </View>
+      ) : surfOffset === 0 ? (
+        lens === 'retired' ? (
+          <RetiredMain year={year} accounts={accounts} bva={bva} onWhyOrder={() => { setWhyOrder(true); (useStore.getState() as any).setTransitionCheck?.('drawOrder', true); }} />
+        ) : (
+          <>
+            <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
+            <PlanSummaryCard op={op} bva={bva} />
+          </>
+        )
       ) : (
-        <WorkingMain grid={grid} bva={bva} op={op} liabilities={liabilities} store={store} />
+        <OtherMonthCard offset={surfOffset} ym={selYm} label={selLabel} grid={grid} store={store} onSpending={() => setSurfTab('Spending')} />
+      ))}
+
+      {surfTab === 'Income' && (
+        <IncomeTab op={op} store={store} ym={selYm} onSetup={() => setIncomeSheet(true)} />
       )}
 
-      {/* BY MONTH — the dated 12 cells; tap a month for its detail */}
+      {surfTab === 'Spending' && (
+        <>
+          <BigTicketRadar grid={grid} offset={surfOffset} expenses={expenses} ym={selYm} />
+          <View style={styles.embedWrap}>
+            <BudgetScreen embedded initialTab="Activity" monthOffset={Math.min(0, surfOffset)} onMonthOffset={setSurfOffset} />
+          </View>
+        </>
+      )}
+
+      {surfTab === 'Debts' && (
+        <View style={styles.embedWrap}>
+          <BudgetScreen embedded initialTab="Debts" />
+        </View>
+      )}
+
+      {surfTab === 'This month' && (incomeReady || lens === 'retired') && surfOffset === 0 && (<>
+      {/* BY MONTH — the dated 12 cells; tap a month for its detail (also a quick-jump for the switcher) */}
       <View style={styles.card}>
         <Text style={styles.cardHdr}>BY MONTH · {grid.cells[0]?.label} – {grid.cells[11]?.label}</Text>
         <MonthBars lens={lens} year={year} grid={grid} onOpen={(slot) => router.push(`/month-detail?slot=${slot}` as any)} />
@@ -88,15 +165,176 @@ export default function CashFlowScreen() {
           : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
         <Text style={styles.link}>Lives in your Plan ›</Text>
       </TouchableOpacity>
+      </>)}
     </ScrollView>
 
     {/* '+ Expense' (M4): same corner, same label as Home — one habit, one spot */}
     <ExpenseFab onPress={() => setSheet(true)} />
+    <IncomeSetupSheet visible={incomeSheet} onClose={() => setIncomeSheet(false)} />
     <QuickAddExpense visible={sheet} onClose={() => setSheet(false)} customCats={customCats}
       isCurrentMonth baseDate={now} monthLabel={header} />
 
     {/* draw-order 'Why?' — the plain-English text already written in withdrawalOrder */}
     <DrawOrderWhy visible={whyOrder} onClose={() => setWhyOrder(false)} accounts={accounts} op={op} />
+    </View>
+  );
+}
+
+
+// ── v1.3 surface pieces (FINAL mock, approved 2026-07-19) ───────────────────────
+
+/** First-open step 2: the spending question, answered in place → canonical monthlySpending. */
+function SpendingQuestion({ op, store }: { op: any; store: any }) {
+  const [v, setV] = useState('');
+  const save = () => { if (parseFloat(v) > 0) store.setOnboardingProfile?.({ ...(op ?? {}), monthlySpending: v }); };
+  return (
+    <View style={styles.door}>
+      <View style={{ flex: 1 }}>
+        <Text style={styles.doorT}>2 · About what goes out monthly?</Text>
+        <Text style={styles.doorSub}>rent, food, bills — roughly</Text>
+      </View>
+      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+        <Text style={styles.doorT}>$</Text>
+        <TextInput style={styles.doorInput} keyboardType="decimal-pad" value={v} onChangeText={setV} onEndEditing={save}
+          placeholder="—" placeholderTextColor={Colors.textTertiary} accessibilityLabel="Typical monthly outgo" />
+      </View>
+    </View>
+  );
+}
+
+/** THIS MONTH extras: the category plan absorbed from the old Budget tab — summary + editor. */
+function PlanSummaryCard({ op, bva }: { op: any; bva: any }) {
+  const [open, setOpen] = useState(false);
+  // the ONE budget engine's buckets, in plain words (fixed / once-in-a-while / everyday)
+  const BUCKET_WORDS: Record<string, string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday spending' };
+  const top: { label: string; amount: number }[] = (bva?.buckets ?? [])
+    .map((b: any) => ({ label: BUCKET_WORDS[b.key] ?? b.key, amount: Math.round(b.planned || 0) }))
+    .filter((b: any) => b.amount > 0);
+  const rest = 0;
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardHdr}>YOUR PLAN BY CATEGORY</Text>
+      {top.length === 0 && <Text style={styles.note}>No category limits yet — the plan starts from your stated monthly outgo.</Text>}
+      {top.map((c) => <Row key={c.label} label={c.label} value={maskedMoney(c.amount)} />)}
+
+      <TouchableOpacity accessibilityRole="button" onPress={() => setOpen(true)} accessibilityLabel="Edit the plan — category limits with the live leftover math">
+        <Text style={styles.link}>Edit the plan ›</Text>
+      </TouchableOpacity>
+      <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+          <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
+            <Text style={styles.h1}>Your monthly plan</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done editing the plan" onPress={() => setOpen(false)}>
+              <Text style={styles.link}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <BudgetScreen embedded initialTab="Budget" />
+        </KeyboardAvoidingView>
+      </Modal>
+    </View>
+  );
+}
+
+/** A PAST month (frozen actuals) or a FUTURE month (the plan, labeled) — approved §C. */
+function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset: number; ym: string; label: string; grid: any; store: any; onSpending: () => void }) {
+  if (offset > 0) {
+    const cell = grid.cells[offset];
+    if (!cell) return <View style={styles.card}><Text style={styles.note}>Beyond the 12-month window — see All bills &amp; the calendar for later items.</Text></View>;
+    const bigBills = (cell.billItems ?? []).filter((b: any) => (b.amount ?? 0) >= 500);
+    return (
+      <View style={styles.card}>
+        <Text style={styles.cardHdr}>{label.toUpperCase()} — THE PLAN (AN ESTIMATE)</Text>
+        <Row label="Expected in" value={maskedMoney(Math.round(cell.inflow))} />
+        <Row label={bigBills.length ? `Planned out · incl. ${bigBills[0].label}` : 'Planned out'} value={maskedMoney(Math.round(cell.outflow))} dim />
+        <Row label="= Planned surplus" value={maskedMoney(Math.round(cell.net))} strong color={cell.net >= 0 ? Colors.gainText : Colors.red} />
+        {cell.net < 0 && <Text style={styles.note}>A tight month you can see coming — the bill calendar feeds this.</Text>}
+        <Text style={styles.note}>Every figure is planned — an estimate, never dressed as fact.</Text>
+      </View>
+    );
+  }
+  // past: the frozen snapshot when it exists, else the ledger's sums for that month
+  const snap = (store.monthlySnapshots ?? {})[ym];
+  const incomes = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym)).reduce((t: number, i: any) => t + (Number(i.amount) || 0), 0);
+  const spent = (store.expenses ?? []).filter((e: any) => String(e.date ?? '').startsWith(ym)).reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
+  const inn = snap ? Math.round(snap.income_net ?? incomes) : Math.round(incomes);
+  const out = snap ? Math.round((snap.spending ?? 0) + (snap.debt_paid ?? 0)) : Math.round(spent);
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardHdr}>{label.toUpperCase()} — WHAT ACTUALLY HAPPENED</Text>
+      <Row label="In (received)" value={maskedMoney(inn)} />
+      <Row label="Out (spent + debt)" value={maskedMoney(out)} dim />
+      <Row label="= Surplus" value={maskedMoney(inn - out)} strong color={inn - out >= 0 ? Colors.gainText : Colors.red} />
+      {!snap && inn === 0 && out === 0 && <Text style={styles.note}>Nothing recorded for this month — it predates your tracking.</Text>}
+      <TouchableOpacity accessibilityRole="button" onPress={onSpending} accessibilityLabel="See that month's transactions on the Spending tab">
+        <Text style={styles.link}>That month's transactions ›</Text>
+      </TouchableOpacity>
+      <Text style={styles.note}>Frozen — past months never change under you.</Text>
+    </View>
+  );
+}
+
+/** INCOME tab: sources + the steady/varies pop-up door + received-this-month + the Teller door. */
+function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string; onSetup: () => void }) {
+  const varies = Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length > 0;
+  const guaranteed = retirementIncomeMonthly(op);
+  const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
+  const sources: { label: string; sub: string; amount: string }[] = [];
+  if (op?.baseSalary) sources.push({ label: varies ? 'Salary — varies' : 'Salary — steady', sub: varies ? 'by-month table · tap Set up to adjust' : 'take-home · monthly', amount: maskedMoney(Math.round(Number(op.baseSalary) || 0)) });
+  if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: maskedMoney(Math.round(Number(op.seAmount) || 0)) });
+  if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${maskedMoney(Math.round(guaranteed))}/mo` });
+  return (
+    <>
+      <View style={styles.card}>
+        <Text style={styles.cardHdr}>YOUR SOURCES</Text>
+        {sources.length === 0 && <Text style={styles.note}>No income set up yet.</Text>}
+        {sources.map((sc) => (
+          <View key={sc.label} style={styles.row}>
+            <View style={{ flex: 1 }}><Text style={styles.rowL}>{sc.label}</Text><Text style={styles.doorSub}>{sc.sub}</Text></View>
+            <Text style={styles.rowV}>{sc.amount}</Text>
+          </View>
+        ))}
+        <TouchableOpacity accessibilityRole="button" onPress={onSetup} accessibilityLabel="Add or set up income — steady or varies">
+          <Text style={styles.link}>＋ Add or set up income ›</Text>
+        </TouchableOpacity>
+        <Text style={styles.note}>Opens the steady-or-varies question. Rich editors (equity comp, rental) live in the income manager.</Text>
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.cardHdr}>RECEIVED · {ym}</Text>
+        {received.length === 0 && <Text style={styles.note}>Nothing logged for this month yet.</Text>}
+        {received.slice(0, 6).map((i: any) => (
+          <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${maskedMoney(Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
+        ))}
+      </View>
+      <View style={styles.card}>
+        <Text style={styles.cardHdr}>COMING SOON</Text>
+        <View style={styles.door}>
+          <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank</Text><Text style={styles.doorSub}>paychecks appear on their own</Text></View>
+          <Text style={styles.soonPill}>SOON</Text>
+        </View>
+      </View>
+    </>
+  );
+}
+
+/** SPENDING tab header: the big-ticket radar — dated bills due + one-offs far above the usual. */
+function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: number; expenses: any[]; ym: string }) {
+  const cell = offset >= 0 ? grid.cells[offset] : null;
+  const bills = (cell?.billItems ?? []).filter((b: any) => (b.amount ?? 0) >= 500).slice(0, 3);
+  const monthExp = (expenses ?? []).filter((e: any) => String(e.date ?? '').startsWith(ym));
+  const byCat: Record<string, number[]> = {};
+  (expenses ?? []).forEach((e: any) => { const k = e.category ?? '?'; (byCat[k] = byCat[k] ?? []).push(Number(e.amount) || 0); });
+  const usual = (cat: string) => { const v = byCat[cat] ?? []; return v.length ? v.reduce((t, x) => t + x, 0) / v.length : 0; };
+  const oneOffs = monthExp.filter((e: any) => (Number(e.amount) || 0) >= Math.max(500, 3 * usual(e.category))).slice(0, 3);
+  if (bills.length === 0 && oneOffs.length === 0) return null;
+  return (
+    <View style={styles.card}>
+      <Text style={styles.cardHdr}>BIG-TICKET RADAR</Text>
+      {bills.map((b: any, i: number) => (
+        <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={maskedMoney(Math.round(b.amount))} color={Colors.amber} />
+      ))}
+      {oneOffs.map((e: any) => (
+        <Row key={e.id} label={`${String(e.date).slice(5)} · ${e.store || e.category} · well above your usual ${e.category}`} value={maskedMoney(Math.round(Number(e.amount) || 0))} />
+      ))}
     </View>
   );
 }
@@ -326,6 +564,21 @@ function Row({ label, value, dim, strong, color }: { label: string; value: strin
 
 const styles = StyleSheet.create({
   content: { padding: Spacing.base, paddingBottom: 110 },
+  switchRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 14, marginBottom: 8, minHeight: 44 },
+  switchArrow: { fontSize: 20, fontWeight: '800', color: Colors.primary, paddingHorizontal: 6 },
+  switchLabel: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  switchToday: { fontSize: 12.5, fontWeight: '700', color: Colors.primary },
+  subTabs: { flexDirection: 'row', gap: 6, marginBottom: 10 },
+  subTab: { minHeight: 40, justifyContent: 'center', paddingHorizontal: 12, borderRadius: 16, borderWidth: 1.5, borderColor: Colors.border },
+  subTabOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  subTabT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
+  subTabTOn: { color: Colors.primaryDark, fontWeight: '800' },
+  door: { minHeight: 52, flexDirection: 'row', alignItems: 'center', gap: 8, paddingHorizontal: 12, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, marginTop: 8 },
+  doorT: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  doorSub: { fontSize: 11.5, color: Colors.textTertiary },
+  doorInput: { minWidth: 84, borderBottomWidth: 1.5, borderColor: Colors.borderStrong, fontSize: 17, fontWeight: '800', color: Colors.textPrimary, paddingVertical: 4, fontVariant: ['tabular-nums'] },
+  soonPill: { fontSize: 10.5, fontWeight: '800', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: 9, paddingHorizontal: 8, paddingVertical: 3, overflow: 'hidden' },
+  embedWrap: { minHeight: 420, marginHorizontal: -Spacing.base },
   headRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: Spacing.sm },
   h1: { fontSize: Typography.sizes.xxl, fontWeight: '800', color: Colors.textPrimary },
   headDate: { fontSize: Typography.sizes.sm, fontWeight: '700', color: Colors.textSecondary },
