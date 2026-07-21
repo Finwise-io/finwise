@@ -235,9 +235,9 @@ export default function PerformanceScreen() {
               <Text style={styles.cardTitle}>Winners & laggards ({period})</Text>
               {/* v7 FINAL (founder-approved table): header row, split $/% columns, arrow inside CHANGE */}
               <View style={styles.wlHead}>
-                <Text style={[styles.wlHeadT, { flex: 1 }]}>HOLDING</Text>
-                <Text style={[styles.wlHeadT, styles.wlChange]}>CHANGE</Text>
-                <Text style={[styles.wlHeadT, styles.wlPct]}>RETURN</Text>
+                <Text numberOfLines={1} style={[{ flex: 1 }, styles.wlHeadT]}>HOLDING</Text>
+                <Text numberOfLines={1} style={[styles.wlChange, styles.wlHeadT]}>CHANGE</Text>
+                <Text numberOfLines={1} style={[styles.wlPct, styles.wlHeadT]}>RETURN</Text>
               </View>
               {(listMode === 'account'
                 ? [...owned].sort((a, b) => a.accountId.localeCompare(b.accountId))
@@ -319,10 +319,10 @@ export default function PerformanceScreen() {
                 {kind === 'eq' && (
                   /* v7 FINAL: the column header sits under the first asset class, labeling the list once */
                   <View style={styles.wlHead}>
-                    <Text style={[styles.wlHeadT, { flex: 1 }]}>HOLDING</Text>
-                    <Text style={[styles.wlHeadT, styles.invWeight]}>WEIGHT</Text>
-                    <Text style={[styles.wlHeadT, styles.invVal, { fontWeight: '800' }]}>VALUE</Text>
-                    <Text style={[styles.wlHeadT, styles.invRet]}>RETURN</Text>
+                    <Text numberOfLines={1} style={[{ flex: 1 }, styles.wlHeadT]}>HOLDING</Text>
+                    <Text numberOfLines={1} style={[styles.invWeight, styles.wlHeadT]}>WEIGHT</Text>
+                    <Text numberOfLines={1} style={[styles.invVal, styles.wlHeadT]}>VALUE</Text>
+                    <Text numberOfLines={1} style={[styles.invRet, styles.wlHeadT]}>RETURN</Text>
                     <Text style={styles.invChev}> </Text>
                   </View>
                 )}

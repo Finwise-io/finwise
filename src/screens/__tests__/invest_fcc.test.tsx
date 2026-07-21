@@ -65,6 +65,12 @@ test('the hero (invest-v3/v4 FINAL, 2026-07-19): YOUR RETURN leads with the gain
   expect(screen.getByText('CHANGE')).toBeOnTheScreen();
   expect(screen.getAllByText('RETURN').length).toBe(2);
   expect(screen.getByText('WEIGHT')).toBeOnTheScreen();
+  // BUILD-44 FIX: every header cell wears the SAME header type (10.5pt) — the column styles supply
+  // width/alignment only, so "RETURN" can never wrap its last letter again
+  for (const el of [...screen.getAllByText('HOLDING'), screen.getByText('CHANGE'), ...screen.getAllByText('RETURN'), screen.getByText('WEIGHT')]) {
+    expect(el).toHaveStyle({ fontSize: 10.5 });
+    expect(el.props.numberOfLines).toBe(1);
+  }
   expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
 });
 
