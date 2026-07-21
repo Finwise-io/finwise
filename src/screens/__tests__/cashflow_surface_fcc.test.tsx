@@ -93,14 +93,34 @@ test('income pop-up VARIES rolling frame: same canonical slots, months labeled a
   expect((useStore.getState() as any).onboardingProfile.salaryByMonth).toHaveLength(12);
 });
 
-test('Spending tab: the proven Activity body embeds (a logged expense is visible) + no Budget in the menu', () => {
-  useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
+test('Spending tab (approved mock): month header, rows with source chips, categories vs plan, both door links', () => {
+  // bucket plans come from the budget fields (spendCats / b_*) — give the fixture a real plan
+  useStore.setState({ onboardingProfile: { ...WORKER, b_fixed: '1800', b_flexible: '900' }, onboardingComplete: true } as any);
   (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: new Date().toISOString().slice(0, 10), notes: '' });
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Spending tab'));
+  expect(screen.getByText(/· \$86 SPENT/)).toBeOnTheScreen();                  // the month header with the sum
   expect(screen.getByText(/Whole Foods/)).toBeOnTheScreen();
+  expect(screen.getByText('by hand')).toBeOnTheScreen();                       // the Teller-ready source chip
+  expect(screen.getByText('BY CATEGORY VS PLAN')).toBeOnTheScreen();
+  expect(screen.getByText('All transactions · search ›')).toBeOnTheScreen();
+  expect(screen.getByText('Import a statement ›')).toBeOnTheScreen();
+  // the all-transactions door opens the PROVEN browse/search body
+  fireEvent.press(screen.getByLabelText('All transactions — browse, search, edit'));
+  expect(screen.getByText('All transactions')).toBeOnTheScreen();
   const { MENU_ITEMS } = jest.requireActual('../../components/TopBar');
   if (MENU_ITEMS) expect(JSON.stringify(MENU_ITEMS)).not.toMatch('/budget');
+});
+
+test('Spending tab day one: the three doors (connect SOON · import · by hand), never an empty list', () => {
+  useStore.setState({ onboardingProfile: WORKER, onboardingComplete: true } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText('Spending tab'));
+  expect(screen.getByText('GET YOUR SPENDING IN')).toBeOnTheScreen();
+  expect(screen.getByText('Connect your bank or card')).toBeOnTheScreen();
+  expect(screen.getByText('SOON')).toBeOnTheScreen();
+  expect(screen.getByText('Import a statement')).toBeOnTheScreen();
+  expect(screen.getByText('Add by hand')).toBeOnTheScreen();
 });
 
 test('month switcher: back = frozen actuals; forward = "planned — an estimate" from the dated grid', () => {

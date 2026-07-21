@@ -131,12 +131,7 @@ export default function CashFlowScreen() {
       )}
 
       {surfTab === 'Spending' && (
-        <>
-          <BigTicketRadar grid={grid} offset={surfOffset} expenses={expenses} ym={selYm} />
-          <View style={styles.embedWrap}>
-            <BudgetScreen embedded initialTab="Activity" monthOffset={Math.min(0, surfOffset)} onMonthOffset={setSurfOffset} />
-          </View>
-        </>
+        <SpendingTab grid={grid} offset={surfOffset} expenses={expenses} ym={selYm} bva={bva} monthWord={selDate.toLocaleDateString('en-US', { month: 'long' })} />
       )}
 
       {surfTab === 'Debts' && (
@@ -312,6 +307,107 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
           <Text style={styles.soonPill}>SOON</Text>
         </View>
       </View>
+    </>
+  );
+}
+
+
+/** SPENDING tab — the APPROVED mock's presentation (row 40 conformance): big-ticket radar,
+ *  the month's recent rows with source chips, categories vs plan, and the two linked doors —
+ *  All transactions (the proven browse/search/edit body) and Import a statement. Day one shows
+ *  the three honest doors instead of an empty list. */
+function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any; offset: number; expenses: any[]; ym: string; bva: any; monthWord: string }) {
+  const [allTxns, setAllTxns] = useState(false);
+  const [importing, setImporting] = useState(false);
+  const monthExp = (expenses ?? []).filter((e: any) => String(e.date ?? '').startsWith(ym))
+    .sort((a: any, b: any) => String(b.date).localeCompare(String(a.date)));
+  const spent = monthExp.reduce((t: number, e: any) => t + (Number(e.amount) || 0), 0);
+  const BUCKET_WORDS: Record<string, string> = { fixed: 'Bills & fixed', nonmonthly: 'Once in a while', flexible: 'Everyday spending' };
+  return (
+    <>
+      <BigTicketRadar grid={grid} offset={offset} expenses={expenses} ym={ym} />
+
+      {(expenses ?? []).length === 0 ? (
+        /* day one — the three doors (approved §A), never an empty list */
+        <View style={styles.card}>
+          <Text style={styles.cardHdr}>GET YOUR SPENDING IN</Text>
+          <View style={styles.door}>
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank or card</Text><Text style={styles.doorSub}>every transaction, automatically</Text></View>
+            <Text style={styles.soonPill}>SOON</Text>
+          </View>
+          <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => setImporting(true)}
+            accessibilityLabel="Import a statement — a CSV from your bank">
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>Import a statement</Text><Text style={styles.doorSub}>a CSV from your bank — takes a minute</Text></View>
+            <Text style={styles.link}>›</Text>
+          </TouchableOpacity>
+          <View style={styles.door}>
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>Add by hand</Text><Text style={styles.doorSub}>the ＋ Expense button, any time</Text></View>
+          </View>
+          <Text style={styles.note}>Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source).</Text>
+        </View>
+      ) : (
+        <View style={styles.card}>
+          <Text style={styles.cardHdr}>{monthWord.toUpperCase()} · {maskedMoney(Math.round(spent))} SPENT</Text>
+          {monthExp.length === 0 && <Text style={styles.note}>Nothing logged for this month.</Text>}
+          {monthExp.slice(0, 6).map((e: any) => (
+            <View key={e.id} style={styles.row}>
+              <View style={{ flex: 1, minWidth: 0 }}>
+                <Text style={styles.rowL} numberOfLines={1}>{String(e.date).slice(5)} · {e.store || e.category}</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                  <Text style={styles.doorSub}>{e.category}</Text>
+                  <Text style={styles.srcChip}>{e.source === 'import' ? 'imported' : 'by hand'}</Text>
+                </View>
+              </View>
+              <Text style={styles.rowV}>{maskedMoney(Math.round(Number(e.amount) || 0))}</Text>
+            </View>
+          ))}
+          <View style={{ flexDirection: 'row', gap: 18 }}>
+            <TouchableOpacity accessibilityRole="button" onPress={() => setAllTxns(true)}
+              accessibilityLabel="All transactions — browse, search, edit">
+              <Text style={styles.link}>All transactions · search ›</Text>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" onPress={() => setImporting(true)}
+              accessibilityLabel="Import a statement">
+              <Text style={styles.link}>Import a statement ›</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
+
+      {(bva?.buckets ?? []).some((b: any) => (b.planned || 0) > 0) && (
+        <View style={styles.card}>
+          <Text style={styles.cardHdr}>BY CATEGORY VS PLAN</Text>
+          {(bva.buckets as any[]).filter((b) => (b.planned || 0) > 0).map((b) => (
+            <Row key={b.key} label={BUCKET_WORDS[b.key] ?? b.key}
+              value={`${maskedMoney(Math.round(b.spent || 0))} of ${maskedMoney(Math.round(b.planned || 0))}`}
+              color={(b.spent || 0) > (b.planned || 0) ? Colors.amber : undefined} />
+          ))}
+        </View>
+      )}
+
+      {/* the linked doors — the PROVEN bodies, presented full-screen */}
+      <Modal visible={allTxns} animationType="slide" onRequestClose={() => setAllTxns(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+          <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
+            <Text style={styles.h1}>All transactions</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done with transactions" onPress={() => setAllTxns(false)}>
+              <Text style={styles.link}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <BudgetScreen embedded initialTab="Activity" />
+        </KeyboardAvoidingView>
+      </Modal>
+      <Modal visible={importing} animationType="slide" onRequestClose={() => setImporting(false)}>
+        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
+          <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
+            <Text style={styles.h1}>Import a statement</Text>
+            <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done importing" onPress={() => setImporting(false)}>
+              <Text style={styles.link}>Done</Text>
+            </TouchableOpacity>
+          </View>
+          <BudgetScreen embedded initialTab="Import" />
+        </KeyboardAvoidingView>
+      </Modal>
     </>
   );
 }
@@ -577,6 +673,7 @@ const styles = StyleSheet.create({
   doorT: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   doorSub: { fontSize: 11.5, color: Colors.textTertiary },
   doorInput: { minWidth: 84, borderBottomWidth: 1.5, borderColor: Colors.borderStrong, fontSize: 17, fontWeight: '800', color: Colors.textPrimary, paddingVertical: 4, fontVariant: ['tabular-nums'] },
+  srcChip: { fontSize: 10.5, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 1, overflow: 'hidden' },
   soonPill: { fontSize: 10.5, fontWeight: '800', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: 9, paddingHorizontal: 8, paddingVertical: 3, overflow: 'hidden' },
   embedWrap: { minHeight: 420, marginHorizontal: -Spacing.base },
   headRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'space-between', marginBottom: Spacing.sm },
