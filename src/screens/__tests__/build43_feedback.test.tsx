@@ -173,7 +173,10 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     } as any);
     render(<WhatIfScreen />);
     expect(screen.getAllByLabelText('What is How we estimate this?').length).toBe(2);
-    expect(GLOSSARY.nestEggMath.body).toMatch(/earmarked for retirement/);
+    // founder's approved wording (2026-07-19), near-verbatim
+    expect(GLOSSARY.nestEggMath.body).toMatch(/earmarked retirement accounts/);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/tailored to your specific asset mix/);
+    expect(GLOSSARY.nestEggMath.body).toMatch(/incremental wealth/);
     expect(GLOSSARY.nestEggMath.body).toMatch(/estimate, not a promise/);
   });
 

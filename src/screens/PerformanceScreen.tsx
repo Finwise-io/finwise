@@ -240,8 +240,8 @@ export default function PerformanceScreen() {
                       onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
                       accessibilityLabel={`${roleTag ? roleTag.replace(':', '').replace(/[🏆⚠] /u, '') + ' ' : ''}${r.position.label || r.position.ticker}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
                       {roleTag
-                        ? <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{roleTag}</Text>
-                        : <Text style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>}
+                        ? <Text numberOfLines={1} style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{roleTag}</Text>
+                        : <Text numberOfLines={1} style={[styles.wlArrow, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>{gain >= 0 ? '▲ up' : '▼ down'}</Text>}
                       <View style={{ flex: 1, minWidth: 0 }}>
                         <Text style={styles.wlTicker} numberOfLines={1}>{r.position.ticker}</Text>
                         {r.cappedSince && <Text style={styles.wlSince}>{sinceWord(r.cappedSince)}</Text>}
@@ -318,7 +318,7 @@ export default function PerformanceScreen() {
                           </View>
                         )}
                         <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
-                        {it.periodReturn != null && <Text style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
+                        {it.periodReturn != null && <Text numberOfLines={1} style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
                         <Text style={styles.invChev}>›</Text>
                       </TouchableOpacity>
                     );
@@ -774,10 +774,10 @@ const styles = StyleSheet.create({
   glanceLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
   wlAcctHdr: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: 8, marginBottom: 2 },
   wlRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 42 },
-  wlArrow: { width: 68, fontSize: 12.5, fontWeight: '800' },
+  wlArrow: { width: 80, fontSize: 12.5, fontWeight: '800' },
   wlTicker: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   wlSince: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
-  wlGain: { fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  wlGain: { minWidth: 86, textAlign: 'right', fontSize: 14, fontWeight: '700', fontVariant: ['tabular-nums'] },
   wlPct: { width: 62, fontSize: 13, color: Colors.textSecondary, textAlign: 'right', fontVariant: ['tabular-nums'] },
   concCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   concTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, lineHeight: 19 },
@@ -796,7 +796,7 @@ const styles = StyleSheet.create({
   invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
   invName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  invVal: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  invVal: { minWidth: 78, textAlign: 'right', fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   invRet: { fontSize: 12.5, fontWeight: '700', width: 84, textAlign: 'right' },
   invStamp: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   invChev: { fontSize: 17, color: Colors.textTertiary },
