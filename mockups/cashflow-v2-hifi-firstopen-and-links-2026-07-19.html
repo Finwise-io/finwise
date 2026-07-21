@@ -1,0 +1,270 @@
+<title>MoneyKeel — Cash flow surface: first-open states + every linked screen (for approval)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1700px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  h2.sec{font-size:19px; font-weight:800; margin:40px 0 4px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:880px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:24px; flex-wrap:wrap; margin-top:20px; align-items:flex-start;}
+  .col h3{font-size:14px; font-weight:800; margin:0 0 8px;}
+  .phone{width:330px; background:#0c0d0c; border-radius:46px; padding:8px; box-shadow:0 18px 40px rgba(10,25,18,.25);}
+  .screen{background:#F6F7F5; border-radius:39px; overflow:hidden; color:#1A1A18; position:relative; min-height:600px;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:11px 24px 2px; font-size:12px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:4px; vertical-align:middle;}
+  .content{padding:6px 13px 0;}
+  .t{font-size:18px; font-weight:800; padding:4px 2px 6px; display:block;}
+  .back{font-size:14px; font-weight:700; color:#178F6B; padding:2px 2px;}
+  .subtabs{display:flex; gap:5px; padding-bottom:7px;}
+  .stab{font-size:11.5px; font-weight:700; color:#6B6B66; border:1.5px solid rgba(0,0,0,.10); border-radius:14px; padding:5px 9px;}
+  .stab.on{color:#0F6E56; border-color:#178F6B; background:#E1F5EE; font-weight:800;}
+  .card{background:#FFFFFF; border-radius:13px; padding:11px 13px; margin-bottom:7px; position:relative;}
+  .kicker{font-size:10px; font-weight:800; letter-spacing:.05em; color:#6B6B66;}
+  .rrow{display:flex; justify-content:space-between; align-items:center; padding:6px 0; border-top:1px solid rgba(0,0,0,.09); font-size:13.5px; font-variant-numeric:tabular-nums; gap:6px;}
+  .rrow:first-of-type{border-top:none;}
+  .rrow .sub{display:block; font-size:10.5px; color:#76766F; font-weight:400;}
+  .door{min-height:48px; display:flex; align-items:center; justify-content:space-between; padding:0 12px; border:1.5px solid rgba(0,0,0,.12); border-radius:11px; font-size:14px; font-weight:700; margin-top:7px;}
+  .door .d{display:block; font-size:10.5px; color:#76766F; font-weight:500;}
+  .soon{font-size:9.5px; font-weight:800; color:#0F6E56; background:#E1F5EE; border-radius:8px; padding:2px 6px;}
+  .input{border:1.5px solid rgba(0,0,0,.2); border-radius:10px; padding:10px 12px; font-size:17px; font-weight:800; font-variant-numeric:tabular-nums; margin-top:6px; background:#F6F7F5;}
+  .input.ph{color:#9E9E99; font-weight:600;}
+  .btn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:14px; font-weight:800; border-radius:12px; padding:12px; margin-top:10px;}
+  .note{font-size:11px; color:#6B6B66; line-height:1.45; margin-top:6px;}
+  .link{font-size:13.5px; font-weight:700; color:#178F6B; margin-top:5px;}
+  .gain{color:#006300; font-weight:700;}
+  .red{color:#A32D2D; font-weight:700;}
+  .amber{color:#854F0B; font-weight:700;}
+  .chipset{display:flex; gap:6px; flex-wrap:wrap; margin-top:7px;}
+  .chip{font-size:12px; font-weight:700; border:1.5px solid rgba(0,0,0,.12); border-radius:13px; padding:5px 10px; color:#6B6B66;}
+  .chip.on{border-color:#178F6B; background:#E1F5EE; color:#0F6E56; font-weight:800;}
+  .grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:6px; margin-top:8px;}
+  .cat{border:1.5px solid rgba(0,0,0,.10); border-radius:10px; padding:9px 4px; text-align:center; font-size:11.5px; font-weight:600;}
+  .cat.on{border-color:#178F6B; background:#E1F5EE; font-weight:800; color:#0F6E56;}
+  .srcchip{font-size:9.5px; font-weight:700; color:#0F6E56; background:#E1F5EE; border-radius:8px; padding:1.5px 6px;}
+  .srcchip.gray{color:#6B6B66; background:#EEEEE9;}
+  .search{display:flex; align-items:center; gap:8px; border:1.5px solid rgba(0,0,0,.15); border-radius:11px; padding:9px 12px; font-size:13.5px; color:#9E9E99; margin-bottom:7px;}
+  .scrim{position:absolute; inset:0; background:rgba(10,15,12,.45); border-radius:39px;}
+  .sheet{position:absolute; left:0; right:0; bottom:0; background:#FFFFFF; border-radius:20px 20px 39px 39px; padding:12px 15px 28px;}
+  .grab{width:40px; height:4px; border-radius:2px; background:#D8D8D2; margin:0 auto 10px;}
+  .sheetT{font-size:16px; font-weight:800; display:flex; justify-content:space-between;}
+  .x{color:#6B6B66; font-weight:800;}
+  .fab{position:absolute; right:11px; bottom:16px; background:#178F6B; color:#fff; font-size:12px; font-weight:800; border-radius:18px; padding:10px 13px; box-shadow:0 4px 10px rgba(0,0,0,.25);}
+  .math{font-size:12px; color:#6B6B66; padding:8px 0; border-bottom:1px solid rgba(0,0,0,.1); margin-bottom:4px; font-variant-numeric:tabular-nums;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · Cash flow surface v2 · first-open states + all linked screens · Teller-ready · for your approval</div>
+  <h1>"Cash flow" (recommended name) — day one, and every door it opens</h1>
+  <p class="lede"><b>Naming:</b> agreed — "Money" is everything. Recommendation: <b>Cash flow</b> — it's already the tab-bar
+  name (no ripple through nav, menu, or approved docs), it honestly covers money in AND out (Budget would misname the
+  income and debt tabs), and it's the term this audience uses. The redundancy is solved by renaming the first TAB to
+  <b>This month</b>: Cash flow → This month · Income · Spending · Debts. (If you prefer "Budget" as the screen name,
+  everything else stands — one word to change.) <b>Teller-readiness</b> is drawn in throughout: connect-your-bank doors
+  with honest "coming soon", source chips on every transaction (bank · imported · by hand), and copy that promises
+  automatic import without pretending it exists today.</p>
+
+  <h2 class="sec">A · First open — no data, no zeros, a door for everything</h2>
+  <div class="row">
+    <div class="col"><h3>This month · day one</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <span class="t">Cash flow</span>
+          <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">SET UP YOUR MONTH — 2 STEPS</div>
+            <div class="door"><span>1 · Your income<span class="d">steady or varies — 10 seconds</span></span><span class="link">Set up ›</span></div>
+            <div class="door"><span>2 · About what goes out monthly?<span class="d">rent, food, bills — roughly</span></span><span class="link">$ —</span></div>
+            <div class="note">✓ Answers save to your plan — Home, Plan and this screen use the same numbers. No zeros shown until they're real.</div>
+          </div>
+          <div class="card">
+            <div class="kicker">YOUR MONTHS</div>
+            <div class="note" style="margin-top:4px">Month bars build as your months do — the first one starts today.</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Income · day one</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <span class="t">Cash flow</span>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab on">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">YOUR SOURCES</div>
+            <div class="door"><span>＋ Set up your income<span class="d">salary, self-employment, rental, equity comp</span></span><span class="link">›</span></div>
+            <div class="note">Opens the steady-or-varies question. Social Security and pension for retirees live here too.</div>
+          </div>
+          <div class="card">
+            <div class="kicker">COMING SOON</div>
+            <div class="door"><span>Connect your bank<span class="d">paychecks appear on their own</span></span><span class="soon">SOON</span></div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Spending · day one (3 doors)</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <span class="t">Cash flow</span>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Spending</span><span class="stab">Debts</span></div>
+          <div class="card">
+            <div class="kicker">GET YOUR SPENDING IN</div>
+            <div class="door"><span>Connect your bank or card<span class="d">every transaction, automatically</span></span><span class="soon">SOON</span></div>
+            <div class="door"><span>Import a statement<span class="d">a CSV from your bank — takes a minute</span></span><span class="link">›</span></div>
+            <div class="door"><span>Add by hand<span class="d">the ＋ Expense button, any time</span></span><span class="link">›</span></div>
+            <div class="note">Everything you add now stays — when your bank connects, nothing is doubled (each entry keeps its source).</div>
+          </div>
+          <div class="fab">＋ Expense</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Debts · day one</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <span class="t">Cash flow</span>
+          <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab on">Debts</span></div>
+          <div class="card">
+            <div class="kicker">YOUR DEBTS</div>
+            <div class="note" style="margin-top:4px">No debts tracked — if that's true, it's all yours. 🎉</div>
+            <div class="door"><span>＋ Add a debt<span class="d">card, loan, mortgage — balance and rate</span></span><span class="link">›</span></div>
+            <div class="note">Connected credit cards will appear here on their own once your bank links.</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+
+  <h2 class="sec">B · The linked screens — every door, drawn</h2>
+  <div class="row">
+    <div class="col"><h3>＋ Expense (approved 7/16 — unchanged)</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content" style="opacity:.35"><span class="t">Cash flow</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Add an expense <span class="x">✕</span></div>
+          <div class="input ph" style="text-align:center; font-size:24px">$ 6.50</div>
+          <div class="kicker" style="margin-top:8px">EVERYDAY</div>
+          <div class="grid3"><span class="cat on">✓ Dining</span><span class="cat">Groceries</span><span class="cat">Transport</span></div>
+          <div class="kicker" style="margin-top:8px">ONCE IN A WHILE</div>
+          <div class="grid3"><span class="cat">Travel</span><span class="cat">Health</span><span class="cat">Gifts</span></div>
+          <div class="kicker" style="margin-top:8px">BILLS &amp; FIXED</div>
+          <div class="grid3"><span class="cat">Housing</span><span class="cat">Utilities</span><span class="cat">More ›</span></div>
+          <div class="btn">Add $6.50</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Edit my plan</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content" style="opacity:.35"><span class="t">Cash flow</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Your monthly plan <span class="x">✕</span></div>
+          <div class="math">In $6,200 − Plan $4,500 − Debt $310 = <b class="gain">$1,390 left over</b> · updates live as you edit</div>
+          <div class="rrow"><span>Housing</span><span class="input" style="margin:0; width:92px; text-align:right; padding:6px 10px; font-size:14px">1,800</span></div>
+          <div class="rrow"><span>Food</span><span class="input" style="margin:0; width:92px; text-align:right; padding:6px 10px; font-size:14px">900</span></div>
+          <div class="rrow"><span>Dining</span><span class="input" style="margin:0; width:92px; text-align:right; padding:6px 10px; font-size:14px">300</span></div>
+          <div class="rrow"><span>Transport</span><span class="input" style="margin:0; width:92px; text-align:right; padding:6px 10px; font-size:14px">400</span></div>
+          <div class="link">＋ Add a category</div>
+          <div class="btn">Save plan</div>
+          <div class="note">Keyboard never covers a field — every input screen is now guarded by a test.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Set up income (approved today)</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content" style="opacity:.35"><span class="t">Cash flow</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Your income <span class="x">✕</span></div>
+          <div class="note" style="margin-top:2px">How steady is it?</div>
+          <div class="door" style="border-color:#178F6B; background:#E1F5EE; color:#0F6E56">✓ Same every month</div>
+          <div class="door">It varies month to month</div>
+          <div class="note" style="margin-top:8px">What lands in your account each month?</div>
+          <div class="input ph">$ 6,200</div>
+          <div class="btn">Save my income</div>
+          <div class="note">The full steady/varies design is the income-popup mock you approved — this is it, living in the Income tab.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>All transactions + search</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Spending</div>
+          <span class="t">All transactions</span>
+          <div class="search">🔍 Search by name, category, amount…</div>
+          <div class="chipset"><span class="chip on">July</span><span class="chip">June</span><span class="chip">May</span><span class="chip">2026 ▾</span></div>
+          <div class="card">
+            <div class="kicker">JULY 18</div>
+            <div class="rrow"><span>Whole Foods<span class="sub">Food · <span class="srcchip gray">by hand</span></span></span><span>$86.00</span></div>
+            <div class="kicker" style="margin-top:6px">JULY 16</div>
+            <div class="rrow"><span>Shell<span class="sub">Transport · <span class="srcchip gray">imported</span></span></span><span>$52.00</span></div>
+            <div class="rrow"><span>Paycheck<span class="sub">Income · <span class="srcchip">bank</span> — arrives with Teller</span></span><span class="gain">+$3,100</span></div>
+          </div>
+          <div class="note">Every entry carries its source — bank (automatic, soon), imported, or by hand — so connecting your bank later never doubles a thing. Swipe a row to edit or delete (with undo).</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Import a statement</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Spending</div>
+          <span class="t">Import a statement</span>
+          <div class="card">
+            <div class="kicker">WHICH ACCOUNT IS THIS FROM?</div>
+            <div class="chipset"><span class="chip on">Chase checking</span><span class="chip">Visa card</span><span class="chip">Other…</span></div>
+          </div>
+          <div class="card">
+            <div class="kicker">REVIEW WHAT WE READ · 42 TRANSACTIONS</div>
+            <div class="rrow"><span>Jul 12 · NETFLIX.COM<span class="sub">Subscriptions — tap to change</span></span><span>$15.99</span></div>
+            <div class="rrow"><span>Jul 10 · COSTCO WHSE<span class="sub">Groceries</span></span><span>$214.30</span></div>
+            <div class="rrow"><span>Jul 8 · DELTA AIR<span class="sub amber">⚑ big ticket — 3× your usual travel</span></span><span>$1,240.00</span></div>
+            <div class="note">Re-importing next month never doubles a row — same no-duplicates gate as account imports.</div>
+          </div>
+          <div class="btn">Import 42 transactions</div>
+          <div class="note">When your bank connects (soon), this becomes automatic — everything imported stays.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col"><h3>Log a payment (debt)</h3>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:14px;height:8px"></i><i style="width:12px;height:8px"></i><i style="width:19px;height:9px;border-radius:2px"></i></span></div>
+        <div class="content" style="opacity:.35"><span class="t">Cash flow</span></div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Log a payment <span class="x">✕</span></div>
+          <div class="note" style="margin-top:2px">Which debt?</div>
+          <div class="chipset"><span class="chip on">Visa card</span><span class="chip">Car loan</span></div>
+          <div class="note" style="margin-top:8px">How much?</div>
+          <div class="input ph">$ 250</div>
+          <div class="chipset"><span class="chip on">Today</span><span class="chip">Pick a date</span></div>
+          <div class="btn">Log payment</div>
+          <div class="note">One entry does it all: the Visa balance drops $250 AND this month's "Out" includes it — never counted twice.</div>
+        </div>
+      </div></div>
+    </div>
+  </div>
+</div>
