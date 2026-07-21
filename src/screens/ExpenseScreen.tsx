@@ -232,7 +232,7 @@ export default function ExpenseScreen() {
 
         {/* ── ADD/EDIT TAB ─────────────────────────────────────── */}
         {tab === 'add' && (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             {editId && (
               <View style={styles.editBanner}>
                 <Text style={styles.editBannerText}>✏️ Editing entry — save to update</Text>
@@ -344,7 +344,7 @@ export default function ExpenseScreen() {
 
         {/* ── RECURRING TAB ─────────────────────────────────────── */}
         {tab === 'recurring' && (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
 
             {/* Existing recurring expenses */}
             {(recurringExpenses as RecurringExpense[]).length > 0 && (

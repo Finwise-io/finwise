@@ -258,7 +258,7 @@ export default function SettingsScreen() {
   }
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
 
       {/* Profile */}
       <Card style={styles.profileCard}>
@@ -600,7 +600,7 @@ export default function SettingsScreen() {
                 : <Text style={styles.modalSave}>Send</Text>}
             </TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.md, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
 
             <Text style={styles.inputLabel}>What kind of feedback?</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

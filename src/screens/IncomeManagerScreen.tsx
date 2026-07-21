@@ -59,7 +59,7 @@ export default function IncomeManagerScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>YOUR INCOME</Text>
 
       <View style={styles.summary}>
@@ -145,7 +145,7 @@ export default function IncomeManagerScreen() {
             <Text style={styles.richTitle}>{rich === 'equity' ? 'Equity comp' : 'Rental income'}</Text>
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Done editing" onPress={() => setRich(null)}><Text style={styles.richDone}>Done</Text></TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
             {rich === 'equity' && <RsuEditor ctx={editorCtx} />}
             {rich === 'rental' && <RentalEditor ctx={editorCtx} />}
             <View style={{ height: 40 }} />

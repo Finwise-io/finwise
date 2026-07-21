@@ -55,7 +55,7 @@ export default function LookBackScreen() {
 
   return (
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={s.pastOnly}>Facts about the PAST only</Text>
       <Text style={s.h1}>What if I'd moved money {WINDOWS.find((w) => w.m === months)?.label}?</Text>
 

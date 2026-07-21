@@ -87,7 +87,7 @@ export default function RothScreen() {
   // STATES (r41): no pre-tax accounts → three plain sentences and the road in; never a fake dial
   if (preTax <= 0) {
     return (
-      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.h1}>Roth conversion</Text>
         <View style={s.card}>
           <Text style={s.line}>A Roth conversion moves money from a pre-tax retirement account (401(k), traditional IRA) into a Roth account. You pay income tax on the amount now. After that, it grows tax-free and skips the required withdrawals that start at {RMD_START_AGE}.</Text>
@@ -101,7 +101,7 @@ export default function RothScreen() {
   }
 
   return (
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>Roth conversion</Text>
       <Text style={s.sub}>Pay some tax now, in a low-tax year, so more of later life is tax-free. Estimates — you decide.</Text>
 

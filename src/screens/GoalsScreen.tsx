@@ -64,7 +64,7 @@ export default function GoalsScreen() {
   const soonerMonths = Math.max(0, planMin.months - plan.months);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Plan</Text>
 
       {/* WHAT YOU CAN SAVE */}
@@ -317,7 +317,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
           <Text style={styles.sheetT}>{goal ? 'Edit goal' : 'New goal'}</Text>
           <View style={styles.iconWrap}>{GOAL_ICONS.map((ic) => (
             <TouchableOpacity key={ic} style={[styles.iconChip, icon === ic && styles.iconChipOn]} onPress={() => setIcon(ic)}><Text style={{ fontSize: 20 }}>{ic}</Text></TouchableOpacity>

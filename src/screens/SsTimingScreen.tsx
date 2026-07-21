@@ -84,7 +84,7 @@ export default function SsTimingScreen() {
   if (receiving) {
     // Already receiving benefits: never ask for a statement amount or show claim windows.
     return (
-      <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content}>
         <Text style={styles.tagline}>We lay it out. You decide.</Text>
         <View style={styles.card}>
           <Text style={styles.receiveHead}>You receive {maskedMoney(num(op.ri_ss))}/mo ✓</Text>
@@ -101,7 +101,7 @@ export default function SsTimingScreen() {
   return (
     // M2 keyboard GATE: the statement input must never hide the compare table or its own Save path.
     <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
       <Text style={styles.tagline}>We lay it out. You decide.</Text>
 
       {/* statement amount — the one number everything is computed from */}

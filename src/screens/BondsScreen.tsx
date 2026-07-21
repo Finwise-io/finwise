@@ -37,7 +37,7 @@ export default function BondsScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text><InfoDot term="bonds" /></View>
 
       {bonds.length === 0 ? (
@@ -167,7 +167,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
           <Text style={styles.sheetT}>{bond ? 'Edit bond' : 'Add a bond'}</Text>
           <Text style={styles.fieldL}>Name / issuer</Text>
           <TextInput style={styles.input} value={label} onChangeText={setLabel} placeholder="e.g. US Treasury 2030, Apple Corp 4.5%" placeholderTextColor={Colors.textTertiary} />

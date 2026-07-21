@@ -29,7 +29,7 @@ export default function ConnectFlowScreen() {
   // The sandbox path below stays for dev/tests — same doors, same consent, same merge gate.
   if (snaptradeConfigured()) {
     return (
-      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.h1}>Connect an account</Text>
         <Text style={s.sub}>Read-only: we can look, never touch your money.</Text>
         <SnapTradeConnect reconnectId={params.reconnect ? String(params.reconnect) : undefined} />
@@ -100,7 +100,7 @@ export default function ConnectFlowScreen() {
   // ── step: pick the institution ──
   if (step === 'institution') {
     return (
-      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.h1}>Connect an account</Text>
         <Text style={s.sub}>Read-only: we can look, never touch your money.</Text>
         {provider ? (
@@ -134,7 +134,7 @@ export default function ConnectFlowScreen() {
   // ── step: the honest consent ──
   if (step === 'consent') {
     return (
-      <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <TouchableOpacity accessibilityRole="button" onPress={() => setStep('institution')} accessibilityLabel="Back to the institution list">
           <Text style={s.back}>‹ Back</Text>
         </TouchableOpacity>
@@ -160,7 +160,7 @@ export default function ConnectFlowScreen() {
 
   // ── step: accounts found + the merge gate ──
   return (
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>Found at {institution}</Text>
       <Text style={s.sub}>Pick what to track. Anything that looks like an account you already have becomes an update, not a twin.</Text>
       <View style={s.card}>

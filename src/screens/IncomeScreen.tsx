@@ -215,7 +215,7 @@ export default function IncomeScreen() {
 
         {/* ── RECURRING TAB ────────────────────────────────────── */}
         {tab === 'recurring' && (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
                 Set up recurring income (salary, rent, freelance) and it will auto-log each time it's due — no manual entry needed.
@@ -299,7 +299,7 @@ export default function IncomeScreen() {
 
         {/* ── ADD/EDIT TAB ─────────────────────────────────────── */}
         {tab === 'add' && (
-          <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
             {editId && (
               <View style={styles.editBanner}>
                 <Text style={styles.editBannerText}>✏️ Editing existing entry — save to update</Text>

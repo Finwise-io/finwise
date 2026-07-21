@@ -161,7 +161,7 @@ export default function ImportHoldingsScreen() {
   // ── Preview state ──────────────────────────────────────────────
   if (result) {
     return (
-      <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.h1}>Review your holdings</Text>
         <Text style={styles.sub}>
           Found <Text style={styles.bold}>{result.holdings.length}</Text> holding{result.holdings.length === 1 ? '' : 's'}
@@ -249,7 +249,7 @@ export default function ImportHoldingsScreen() {
 
   // ── Intro state ────────────────────────────────────────────────
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content}>
       <Text style={styles.emoji}>📄</Text>
       <Text style={styles.h1}>Import your holdings</Text>
       <Text style={styles.sub}>

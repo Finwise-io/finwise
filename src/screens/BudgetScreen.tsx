@@ -487,7 +487,7 @@ export default function BudgetScreen() {
 
       {/* ── Budget tab ───────────────────────────────────────────── */}
       {tab === 'Budget' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
           {/* YOUR MONTHLY PLAN — Income − Expenses − Debt = Left over */}
           <Card>
@@ -625,7 +625,7 @@ export default function BudgetScreen() {
               <Text style={styles.modalSave}>Save</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <Text style={styles.limitLabel}>Name</Text>
             <TextInput
               style={[styles.limitInput, { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary }]}
@@ -664,7 +664,7 @@ export default function BudgetScreen() {
 
       {/* ── Debts tab ────────────────────────────────────────────── */}
       {tab === 'Debts' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
 
           {/* SUMMARY */}
           <Card>
@@ -778,7 +778,7 @@ export default function BudgetScreen() {
               <Text style={styles.modalSave}>Save</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <Text style={styles.limitLabel}>Debt type</Text>
             <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
               {DEBT_TYPES.map(t => (
@@ -839,7 +839,7 @@ export default function BudgetScreen() {
 
       {/* ── Import tab ───────────────────────────────────────────── */}
       {tab === 'Import' && (
-        <ScrollView style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <TouchableOpacity onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
           <Card style={{ alignItems: 'center', padding: Spacing.xl }}>
             <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📂</Text>
@@ -889,7 +889,7 @@ export default function BudgetScreen() {
             <Text style={styles.modalTitle}>Log payment</Text>
             <TouchableOpacity onPress={logPayment}><Text style={styles.modalSave}>Log</Text></TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
             <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>{payDebt?.label} · {money(Math.round(payDebt?.remaining_balance || 0))} balance</Text>
             <View style={styles.limitRow}>
               <Text style={styles.limitLabel}>Amount</Text>
@@ -916,7 +916,7 @@ export default function BudgetScreen() {
               <Text style={styles.modalSave}>Save</Text>
             </TouchableOpacity>
           </View>
-          <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
+          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
             <TipCard color="green">
               <Text style={{ fontSize: Typography.sizes.sm, color: Colors.primaryDeep, lineHeight: 20 }}>
                 Set a monthly limit per category — tap the $ to switch it to a % of your take-home pay. Leave blank for no limit. These limits are your expense plan everywhere in the app.
@@ -969,7 +969,7 @@ export default function BudgetScreen() {
           <Text style={styles.modalTitle}>Recurring</Text>
           <TouchableOpacity onPress={() => setRecurringMgr(false)}><Text style={styles.modalSave}>Done</Text></TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
+        <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <Text style={[styles.budgetCardSub, { marginBottom: 4 }]}>These auto-add each month. “Stop” keeps past entries but generates no more.</Text>
           {(recurringExpenses.length + recurringIncomes.length) === 0 ? (
             <Text style={styles.emptySub}>Nothing recurring yet. Flip “Repeats monthly” when you add a transaction.</Text>
@@ -1064,7 +1064,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
           <Text style={styles.modalTitle}>{editing ? 'Edit' : 'Add'} {kind === 'income' ? 'income' : 'expense'}</Text>
           <TouchableOpacity onPress={save} disabled={amt <= 0}><Text style={[styles.modalSave, amt <= 0 && { opacity: 0.4 }]}>Save</Text></TouchableOpacity>
         </View>
-        <ScrollView contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
+        <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }} keyboardShouldPersistTaps="handled">
           {!editing && (
             <View style={{ marginBottom: 4 }}>
               <SegmentedControl options={['Expense', 'Income']} selected={kind === 'income' ? 'Income' : 'Expense'} onSelect={(v) => setKind(v === 'Income' ? 'income' : 'expense')} />

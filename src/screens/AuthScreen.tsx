@@ -259,7 +259,7 @@ export default function AuthScreen() {
         </View>
       </Modal>
 
-      <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
+      <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
 
         {/* Logo */}
         <View style={styles.logoWrap}>

@@ -82,7 +82,7 @@ export default function ItemizeScreen() {
   };
 
   return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
+    <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
       <View style={styles.head}>
         <Text style={styles.h1}>Itemize {inst}</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => router.back()}><Text style={styles.close}>✕</Text></TouchableOpacity>

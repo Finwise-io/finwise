@@ -111,7 +111,7 @@ export default function AccountDetailScreen() {
   const shown = showAll ? txns : txns.slice(0, 8);
 
   return (
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       {/* header: name + source + freshness — same source language everywhere */}
       <Text style={s.h1}>{accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}</Text>
       <View style={s.chipRow}>

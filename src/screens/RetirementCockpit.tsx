@@ -261,7 +261,7 @@ export default function RetirementCockpit() {
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
     return (
-      <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <View style={styles.topbar}>
           <TouchableOpacity onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
           <Text style={styles.sandboxTag}>SANDBOX</Text>
@@ -431,7 +431,7 @@ export default function RetirementCockpit() {
 
   // ───────────────── SCREEN 1 — WHERE YOU STAND ─────────────────
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
 
       {/* RETIRED: input-first — WHAT YOU HAVE (nest egg + legacy) then ONE verdict; NON-RETIRED: the two target cards */}
@@ -905,7 +905,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
         <View style={styles.grab} />
         <Text style={styles.sheetT}>What counts toward retirement?</Text>
         <Text style={styles.sheetS}>Some money is for other goals. Set how much of each account funds retirement — the rest stays free for things like a home or college.</Text>
-        <ScrollView style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 380 }} keyboardShouldPersistTaps="handled">
           {assets.map((a) => {
             const isProp = a.tax_bucket === 'PROPERTY';
             const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
@@ -1008,7 +1008,7 @@ function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null
         <View style={styles.grab} />
         <Text style={styles.sheetT}>What is {account?.institution?.trim() || account?.label}?</Text>
         <Text style={styles.sheetS}>Pick the type so we can use the right historical benchmark return for it.</Text>
-        <ScrollView style={{ maxHeight: 400 }}>
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 400 }}>
           {ASSET_SECTIONS.map((sec) => (
             <View key={sec}>
               <Text style={styles.kindSec}>{sec.toUpperCase()}</Text>

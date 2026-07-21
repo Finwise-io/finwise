@@ -34,7 +34,7 @@ export default function OtherInvestmentsScreen() {
   const [addOpen, setAddOpen] = useState(false);
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text><InfoDot term="alternatives" /></View>
 
       {alts.length === 0 ? (
@@ -114,7 +114,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
           <Text style={styles.sheetT}>{item ? 'Edit investment' : 'Add an investment'}</Text>
           <Text style={styles.fieldL}>Type</Text>
           <View style={styles.chips}>{ALT_KINDS.map((k) => (

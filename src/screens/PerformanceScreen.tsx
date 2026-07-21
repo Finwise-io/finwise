@@ -143,7 +143,7 @@ export default function PerformanceScreen() {
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
         <Text style={styles.investTitle}>Invest</Text>
@@ -490,7 +490,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
       <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
           <Text style={styles.sheetT}>{isNew ? 'Add a holding' : 'Edit holding'}</Text>
 
           <Text style={styles.fieldL}>Ticker</Text>
@@ -668,7 +668,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
       <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Close" onPress={onClose} />
       <View style={styles.sheet}>
         <View style={styles.grab} />
-        <ScrollView keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
+        <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '92%' }}>
           <Text style={styles.sheetT}>Record a transaction</Text>
           <View style={[styles.kindWrap, { marginTop: 8 }]}>
             {TXN_TYPES.map((t) => (
@@ -763,7 +763,7 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
         <View style={styles.grab} />
         <Text style={styles.sheetT}>Activity</Text>
         <Text style={styles.sheetS}>Every transaction you've recorded — your full history.</Text>
-        <ScrollView style={{ maxHeight: 460 }}>
+        <ScrollView automaticallyAdjustKeyboardInsets style={{ maxHeight: 460 }}>
           {transactions.length === 0 && <Text style={styles.hEmpty}>No transactions yet.</Text>}
           {transactions.map((t) => {
             const eff = cashEffect(t);

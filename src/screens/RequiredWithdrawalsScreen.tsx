@@ -98,7 +98,7 @@ export default function RequiredWithdrawalsScreen() {
   );
 
   return (
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>Required withdrawals</Text>
       <Text style={s.sub}>Logistics only — when in the year you take it is your call.</Text>
 

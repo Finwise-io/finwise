@@ -39,7 +39,7 @@ export default function TaxOrganizerScreen() {
   };
 
   return (
-    <ScrollView style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.h1}>Tax organizer · {year}</Text>
       <Text style={styles.sub}>A summary to hand your accountant — income, accounts, and the documents to gather. Not a tax return.</Text>
 
