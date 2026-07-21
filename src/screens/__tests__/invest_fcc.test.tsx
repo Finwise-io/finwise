@@ -100,6 +100,19 @@ test('the concentration callout is a quantified fact when one holding is 25%+ (N
   expect(screen.getByText(/% of your invested money is in one stock \(NVDA\)/)).toBeOnTheScreen();
 });
 
+test('B44 fix: a LONG alternative label (a dated option) shrinks — value-as-of chip and amount keep their columns', () => {
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'opt1', label: 'QQQ $600 put · exp Dec 31 2026', kind: 'options', tax_bucket: 'TAXABLE', asset_class: 'alternatives', balance: 1408, value_as_of: '2026-07-01' }],
+    priceCache: {},
+  } as any);
+  render(<PerformanceScreen />);
+  const label = screen.getByText('QQQ $600 put · exp Dec 31 2026');
+  expect(label.props.numberOfLines).toBe(1);                       // truncates, never wraps or spills
+  expect(label).toHaveStyle({ flexShrink: 1 });                    // the label yields; columns never overlap
+  expect(screen.getAllByText('$1,408').length).toBeGreaterThan(0);  // the amount renders in its own column
+  expect(screen.getByText(/Value as of 2026-07/)).toBeOnTheScreen();
+});
+
 test('bonds and alternatives fold into the grouped list with value-as-of stamps and stale flags', () => {
   render(<PerformanceScreen />);
   expect(screen.getByText(/YOUR INVESTMENTS/)).toBeOnTheScreen();

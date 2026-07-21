@@ -334,16 +334,18 @@ export default function PerformanceScreen() {
                         onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
                         accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
                         <View style={{ flex: 1, minWidth: 0 }}>
-                          <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
+                          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                            <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.position.ticker}</Text>
+                            {it.price != null && (
+                              <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
+                                <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
+                              </View>
+                            )}
+                          </View>
                           {it.cappedSince && <Text style={styles.wlSince}>{sinceWord(it.cappedSince)}</Text>}
                         </View>
                         {/* approved "all three": the weight — investors think in % of portfolio */}
                         {investTotalAll > 0 && <Text style={styles.invWeight}>{Math.round((it.marketValue / investTotalAll) * 100)}%</Text>}
-                        {it.price != null && (
-                          <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
-                            <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
-                          </View>
-                        )}
                         <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
                         {it.periodReturn != null && <Text numberOfLines={1} style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
                         <Text style={styles.invChev}>›</Text>
@@ -355,8 +357,8 @@ export default function PerformanceScreen() {
                     <TouchableOpacity accessibilityRole="button" key={it.asset_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                       onPress={() => router.push(`/account-detail?id=${it.asset_id}` as any)}
                       accessibilityLabel={`${it.label}, ${maskedMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
-                      <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-                        <Text style={styles.invName} numberOfLines={1}>{it.label}</Text>
+                      <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
+                        <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.label}</Text>
                         {fresh && (
                           <View style={[styles.freshChip, fresh.stale && styles.freshChipStale]}>
                             <Text style={[styles.freshChipTxt, fresh.stale && { color: Colors.amber }]}>{fresh.stale ? `⏱ ${fresh.monthsOld} mo old` : `Value as of ${fresh.asOf.slice(0, 7)}`}</Text>
@@ -824,7 +826,7 @@ const styles = StyleSheet.create({
   freshChipTxt: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
   invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
-  invName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
+  invName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },   // matches invVal — one row, one size
   invVal: { minWidth: 78, textAlign: 'right', fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   invWeight: { width: 40, textAlign: 'right', fontSize: 12, color: Colors.textTertiary, fontVariant: ['tabular-nums'] },
   invRet: { fontSize: 12.5, fontWeight: '700', width: 84, textAlign: 'right' },

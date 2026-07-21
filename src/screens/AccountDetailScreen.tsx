@@ -295,7 +295,11 @@ function AltDetail({ account }: { account: AssetAccount }) {
     <View style={s.card}>
       <Text style={s.cardHdr2}>ABOUT THIS HOLDING</Text>
       <FactRow label="Type" value={kind?.label ?? 'Alternative'} />
-      <FactRow label="Typical yearly return for this type" value={`~${(ret * 100).toFixed(1)}% · estimate from history`} />
+      {/* B44 (founder): a "typical yearly return" exists for gold/crypto (approved wireframe) but
+          NOT for an option — a contract has no historical asset-class return. Say the truth instead. */}
+      {account.kind === 'options'
+        ? <Text style={s.optNote}>Options are contracts — no "typical yearly return" exists for them. Their value moves with the underlying price, time to expiry and volatility.</Text>
+        : <FactRow label="Typical yearly return for this type" value={`~${(ret * 100).toFixed(1)}% · estimate from history`} />}
       <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/look-back')}
         accessibilityLabel="Look back: what if this had been in the stock market?">
         <Text style={s.linkTxt}>Look back: what if this had been in the stock market? ›</Text>
@@ -518,8 +522,8 @@ const s = StyleSheet.create({
   cardHdr2: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   estTag: { fontSize: 11.5, fontWeight: '800', color: Colors.amber, letterSpacing: 0.3, marginBottom: 4 },
   factRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5, gap: 10 },
-  factL: { fontSize: 13, color: Colors.textSecondary, flexShrink: 0 },
-  factV: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
+  factL: { fontSize: 14, color: Colors.textSecondary, flexShrink: 0 },
+  factV: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1, textAlign: 'right' },
   bondLine: { fontSize: 13, color: Colors.textPrimary, lineHeight: 20, marginTop: 4 },
   bondNote: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 6 },
   linkTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 8 },

@@ -8,7 +8,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, maskedMoney2 } from '../components/useMoney';
 import { realizedFromLedger } from '../domain/performance/realized';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
@@ -113,13 +113,13 @@ export default function HoldingDetailScreen() {
           </>
         ) : (
           <>
-            <Text style={s.big}>{maskedMoney(Math.round(value))}</Text>
+            <Text style={s.big}>{maskedMoney2(value)}</Text>
             {gain != null && (
               <Text style={[s.gainLine, { color: gain >= 0 ? Colors.gainText : Colors.red }]}>
-                {gain >= 0 ? '▲ Up +' : '▼ Down −'}{maskedMoney(Math.abs(Math.round(gain)))}{roi != null ? ` (${pct(roi)})` : ''} since purchase
+                {gain >= 0 ? '▲ Up +' : '▼ Down −'}{maskedMoney2(Math.abs(gain))}{roi != null ? ` (${pct(roi)})` : ''} since purchase
               </Text>
             )}
-            <Text style={s.metaLine}>{shares} share{shares === 1 ? '' : 's'} · average cost {maskedMoney(Math.round(avgCost(position)))}</Text>
+            <Text style={s.metaLine}>{shares} share{shares === 1 ? '' : 's'} · average cost {maskedMoney2(avgCost(position))}</Text>
             {hasPrice ? (
               <Text style={[s.metaLine, fresh.stale && s.warn]}>Price {money(row.price as number)} · {fresh.stale ? `prices may be out of date (${fresh.label})` : `updated ${fresh.label}`}</Text>
             ) : (
@@ -155,7 +155,7 @@ export default function HoldingDetailScreen() {
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             accessibilityLabel={`${l.shares} shares at ${maskedMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
-            <Text style={s.lotShares}>{l.shares} share{l.shares === 1 ? '' : 's'} at {maskedMoney(l.cost_per_share)}</Text>
+            <Text style={s.lotShares}>{l.shares} share{l.shares === 1 ? '' : 's'} at {maskedMoney2(l.cost_per_share)}</Text>
             <Text style={s.lotDate}>{dateWords(l.purchase_date)}</Text>
           </TouchableOpacity>
         ))}
@@ -170,8 +170,8 @@ export default function HoldingDetailScreen() {
             <InfoDot term="capitalGains" />
           </View>
           <Text style={s.estimate}>Estimate, not tax advice</Text>
-          <Text style={s.line}>Held over a year: {cg.longGain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(cg.longGain)))} — taxed at the lower rate</Text>
-          <Text style={s.line}>Held under a year: {cg.shortGain >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(cg.shortGain)))}</Text>
+          <Text style={s.line}>Held over a year: {cg.longGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.longGain))} — taxed at the lower rate</Text>
+          <Text style={s.line}>Held under a year: {cg.shortGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.shortGain))}</Text>
           {tax != null && tax > 0 && <Text style={[s.line, { fontWeight: '800' }]}>Estimated tax: ~{maskedMoney(Math.round(tax))}</Text>}
         </View>
       )}
@@ -181,8 +181,8 @@ export default function HoldingDetailScreen() {
         <View style={s.card}>
           <Text style={s.kicker}>REALIZED FROM SALES</Text>
           <Text style={s.line}>
-            {realized.realizedAllTime >= 0 ? '+' : '−'}{maskedMoney(Math.abs(Math.round(realized.realizedAllTime)))} all time
-            {` · ${realized.realizedThisYear >= 0 ? '+' : '−'}${maskedMoney(Math.abs(Math.round(realized.realizedThisYear)))} this year`}
+            {realized.realizedAllTime >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(realized.realizedAllTime))} all time
+            {` · ${realized.realizedThisYear >= 0 ? '+' : '−'}${maskedMoney2(Math.abs(realized.realizedThisYear))} this year`}
           </Text>
           <Text style={s.noteLine}>From your recorded buys and sells (oldest shares sold first).{realized.sellsWithoutBasis > 0 ? ` ${realized.sellsWithoutBasis} sale${realized.sellsWithoutBasis === 1 ? '' : 's'} had no recorded purchase, so its gain isn't counted.` : ''}</Text>
         </View>
@@ -192,7 +192,7 @@ export default function HoldingDetailScreen() {
       {dividends.allTime > 0 && (
         <View style={s.card}>
           <Text style={s.kicker}>DIVIDENDS RECEIVED</Text>
-          <Text style={s.line}>{maskedMoney(Math.round(dividends.thisYear))} this year · {maskedMoney(Math.round(dividends.allTime))} all time</Text>
+          <Text style={s.line}>{maskedMoney2(dividends.thisYear)} this year · {maskedMoney2(dividends.allTime)} all time</Text>
         </View>
       )}
 

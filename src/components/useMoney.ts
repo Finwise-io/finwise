@@ -3,7 +3,7 @@
 // Use this for user-facing BALANCE figures you want hidden in public; leave pure money() for non-sensitive
 // labels (axes, deltas in tests, etc.).
 import { useStore } from '../store/useStore';
-import { money } from '../domain/_shared/num';
+import { money2, money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 
 export const BALANCE_MASK = '••••';
@@ -21,6 +21,8 @@ export function useMoney() {
  *  pattern every FCC screen uses — a hideBalances flip re-renders them, so reading getState() here
  *  is reactive in practice). The fcc_agreement mask walk enforces zero '$' under hide. */
 export const maskedMoney = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
+// cents-precise sibling (B44 founder finding: holding-detail showed integers where cents matter)
+export const maskedMoney2 = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money2(n));
 
 /** Mask the dollar figures INSIDE a template sentence (insight bodies, engine copy) while keeping
  *  the words — '8 times your usual' stays readable, the balances become ••••. */
