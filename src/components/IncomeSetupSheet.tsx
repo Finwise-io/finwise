@@ -21,6 +21,23 @@ export function IncomeSetupSheet({ visible, onClose }: { visible: boolean; onClo
       ? op.salaryByMonth.map((v: any) => String(v ?? ''))
       : Array(12).fill(''));
   const [editMonth, setEditMonth] = useState<number | null>(null);
+  // BUILD-44 FIX (founder, 2026-07-19): months carried no YEAR and only a rolling frame was
+  // implied. The table is CALENDAR-indexed (Jan→Dec, a pattern that repeats each year) — so the
+  // person picks their entry FRAME: this calendar year, or the next 12 months from today. Both
+  // write the SAME canonical slots; only the order and the year labels change.
+  const [frame, setFrame] = useState<'calendar' | 'rolling'>('calendar');
+  const nowD = new Date();
+  const thisYear = nowD.getFullYear();
+  const startMonth = nowD.getMonth();
+  const yr2 = (y: number) => `’${String(y).slice(2)}`;
+  // the grid's display order: calendar = slots 0..11 this year; rolling = current month forward
+  const order: { slot: number; label: string; long: string }[] = frame === 'calendar'
+    ? MONTHS.map((m, i) => ({ slot: i, label: `${m.toUpperCase()} ${yr2(thisYear)}`, long: `${m} ${thisYear}` }))
+    : Array.from({ length: 12 }, (_, k) => {
+        const slot = (startMonth + k) % 12;
+        const y = thisYear + (startMonth + k >= 12 ? 1 : 0);
+        return { slot, label: `${MONTHS[slot].toUpperCase()} ${yr2(y)}`, long: `${MONTHS[slot]} ${y}` };
+      });
 
   const applyTypical = (v: string) => {
     setAmount(v);
@@ -64,27 +81,39 @@ export function IncomeSetupSheet({ visible, onClose }: { visible: boolean; onClo
 
             {mode === 'varies' && (
               <>
+                <Text style={s.q}>Which 12 months are you entering?</Text>
+                <View style={s.frameRow}>
+                  <TouchableOpacity accessibilityRole="button" style={[s.frameChip, frame === 'calendar' && s.frameChipOn]}
+                    onPress={() => setFrame('calendar')} accessibilityLabel={`Calendar year ${thisYear}`}>
+                    <Text style={[s.frameT, frame === 'calendar' && s.frameTOn]}>{frame === 'calendar' ? '✓ ' : ''}Calendar year {thisYear}</Text>
+                  </TouchableOpacity>
+                  <TouchableOpacity accessibilityRole="button" style={[s.frameChip, frame === 'rolling' && s.frameChipOn]}
+                    onPress={() => setFrame('rolling')} accessibilityLabel="The next 12 months from today">
+                    <Text style={[s.frameT, frame === 'rolling' && s.frameTOn]}>{frame === 'rolling' ? '✓ ' : ''}Next 12 months</Text>
+                  </TouchableOpacity>
+                </View>
                 <Text style={s.q}>Adjust the months that differ <Text style={s.qsub}>(tap a month)</Text></Text>
                 <View style={s.grid}>
-                  {MONTHS.map((label, i) => {
-                    const val = months[i] === '' ? amount : months[i];
-                    const differs = months[i] !== '' && months[i] !== amount;
+                  {order.map(({ slot, label, long }) => {
+                    const val = months[slot] === '' ? amount : months[slot];
+                    const differs = months[slot] !== '' && months[slot] !== amount;
                     return (
                       <TouchableOpacity key={label} accessibilityRole="button" style={[s.mo, differs && s.moHot]}
-                        onPress={() => setEditMonth(i)} accessibilityLabel={`${label}: ${val || 0} dollars. Tap to adjust.`}>
-                        <Text style={s.moM}>{label.toUpperCase()}</Text>
+                        onPress={() => setEditMonth(slot)} accessibilityLabel={`${long}: ${val || 0} dollars. Tap to adjust.`}>
+                        <Text style={s.moM}>{label}</Text>
                         <Text style={s.moV}>{val ? Math.round(num(val)).toLocaleString() : '—'}</Text>
                       </TouchableOpacity>
                     );
                   })}
                 </View>
+                <Text style={s.qsub}>This yearly pattern repeats — adjust it any time.</Text>
                 {editMonth != null && (
                   <View style={s.moEdit}>
-                    <Text style={s.qsub}>{MONTHS[editMonth]} amount</Text>
+                    <Text style={s.qsub}>{(order.find((o) => o.slot === editMonth) ?? { long: MONTHS[editMonth] }).long} amount</Text>
                     <TextInput style={s.input} keyboardType="decimal-pad" autoFocus
                       value={months[editMonth] === '' ? amount : months[editMonth]}
                       onChangeText={(v) => setMonths((m) => m.map((x, j) => (j === editMonth ? v : x)))}
-                      accessibilityLabel={`${MONTHS[editMonth]} take-home amount`} />
+                      accessibilityLabel={`${(order.find((o) => o.slot === editMonth) ?? { long: MONTHS[editMonth] }).long} take-home amount`} />
                     <TouchableOpacity accessibilityRole="button" onPress={() => setEditMonth(null)} accessibilityLabel="Done with this month">
                       <Text style={s.done}>Done ›</Text>
                     </TouchableOpacity>
@@ -119,6 +148,11 @@ const s = StyleSheet.create({
   optT: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   optTOn: { fontWeight: '800', color: Colors.primaryDark },
   input: { borderWidth: 1.5, borderColor: Colors.borderStrong, borderRadius: Radii.md, padding: 12, fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 8, backgroundColor: Colors.bgSecondary, fontVariant: ['tabular-nums'] },
+  frameRow: { flexDirection: 'row', gap: 8, marginTop: 8 },
+  frameChip: { flex: 1, minHeight: 44, justifyContent: 'center', alignItems: 'center', borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md },
+  frameChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  frameT: { fontSize: 13.5, fontWeight: '700', color: Colors.textSecondary },
+  frameTOn: { color: Colors.primaryDark, fontWeight: '800' },
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 10 },
   mo: { width: '22.7%', borderWidth: 1.5, borderColor: Colors.border, borderRadius: 10, paddingVertical: 7, alignItems: 'center' },
   moHot: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },

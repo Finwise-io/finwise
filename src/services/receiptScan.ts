@@ -24,21 +24,34 @@ export async function pickReceipt(source: 'camera' | 'library'): Promise<string 
   return r.canceled ? null : (r.assets?.[0]?.uri ?? null);
 }
 
-/** Heuristic parse of receipt text → total amount + merchant. */
+/** Heuristic parse of receipt text → total amount + merchant.
+ *  BUILD-44 FIX (founder receipt test, 2026-07-19): the old fallback took the LARGEST number on
+ *  the receipt — which is usually the CASH TENDERED line ($100 handed over), not the bill. Rules:
+ *  1. amounts on payment-mechanics lines (cash/tendered/change/card/…) are NEVER candidates;
+ *  2. the LAST explicit total-style line wins (totals print at the bottom; grand total beats a
+ *     mid-receipt total); 3. else subtotal; 4. else the largest amount on a NON-payment line. */
 export function parseReceipt(text: string): { amount?: number; merchant?: string } {
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const merchant = lines.find((l) => /[A-Za-z]{3,}/.test(l));   // first word-y line ≈ store name
   const amtRe = /(\d{1,3}(?:,\d{3})*\.\d{2})/;
   const toNum = (s: string) => parseFloat(s.replace(/,/g, ''));
+  const PAYMENT = /\b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b/i;
+  const TOTAL = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|total)\b/i;
+  const SUB = /\bsub\s*-?\s*total\b/i;
   let amount: number | undefined;
-  // prefer a line that says "total" (but not "subtotal")
-  const totalLine = lines.find((l) => /\btotal\b/i.test(l) && !/sub-?total/i.test(l) && amtRe.test(l));
-  if (totalLine) amount = toNum(totalLine.match(amtRe)![1]);
-  if (amount == null) {                                          // else the largest money figure
-    const all = lines.flatMap((l) => (l.match(new RegExp(amtRe, 'g')) ?? []).map(toNum));
-    if (all.length) amount = Math.max(...all);
+  let subtotal: number | undefined;
+  let largestSafe: number | undefined;
+  for (const l of lines) {
+    if (PAYMENT.test(l)) continue;                             // cash / change / card lines never count
+    const m = l.match(amtRe);
+    if (!m) continue;
+    const v = toNum(m[1]);
+    if (!(v > 0 && v < 10000)) continue;
+    if (TOTAL.test(l) && !SUB.test(l)) amount = v;             // last explicit total wins
+    else if (SUB.test(l)) subtotal = v;
+    if (largestSafe == null || v > largestSafe) largestSafe = v;
   }
-  return { amount, merchant };
+  return { amount: amount ?? subtotal ?? largestSafe, merchant };
 }
 
 export async function ocrReceipt(uri: string): Promise<{ amount?: number; merchant?: string; raw: string }> {

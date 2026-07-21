@@ -56,19 +56,41 @@ test('income pop-up STEADY saves the canonical fields (baseSalary · takehome ·
   expect(op.salaryFreq).toBe('monthly');
 });
 
-test('income pop-up VARIES writes the canonical by-month table (salaryByMonth)', () => {
+test('income pop-up VARIES: months carry their YEAR, the frame is chosen (calendar/rolling), canonical slots written', () => {
+  const yr = new Date().getFullYear();
   useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
   fireEvent.press(screen.getByLabelText('It varies month to month'));
+  // BUILD-44 FIX: the frame question + real month-and-year labels
+  expect(screen.getByLabelText(`Calendar year ${yr}`)).toBeOnTheScreen();
+  expect(screen.getByLabelText('The next 12 months from today')).toBeOnTheScreen();
   fireEvent.changeText(screen.getByLabelText('Monthly take-home amount'), '5000');
-  fireEvent.press(screen.getByLabelText(/Dec: .*Tap to adjust/));
-  fireEvent.changeText(screen.getByLabelText('Dec take-home amount'), '9000');
+  fireEvent.press(screen.getByLabelText(new RegExp(`Dec ${yr}: .*Tap to adjust`)));
+  fireEvent.changeText(screen.getByLabelText(`Dec ${yr} take-home amount`), '9000');
   fireEvent.press(screen.getByLabelText('Save my income'));
   const op = (useStore.getState() as any).onboardingProfile;
   expect(op.salaryByMonth).toHaveLength(12);
-  expect(op.salaryByMonth[11]).toBe('9000');
+  expect(op.salaryByMonth[11]).toBe('9000');       // December slot — calendar-indexed, unambiguous
   expect(op.salaryByMonth[0]).toBe('5000');
+});
+
+test('income pop-up VARIES rolling frame: same canonical slots, months labeled across the year boundary', () => {
+  const yr = new Date().getFullYear();
+  const start = new Date().getMonth();
+  useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
+  fireEvent.press(screen.getByLabelText('It varies month to month'));
+  fireEvent.press(screen.getByLabelText('The next 12 months from today'));
+  fireEvent.changeText(screen.getByLabelText('Monthly take-home amount'), '4000');
+  // the LAST chip in rolling order is (start+11)%12 — if the window crosses New Year it wears NEXT year's label
+  const lastSlot = (start + 11) % 12;
+  const lastYear = start + 11 >= 12 ? yr + 1 : yr;
+  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  expect(screen.getByLabelText(new RegExp(`${MONTHS[lastSlot]} ${lastYear}: .*Tap to adjust`))).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('Save my income'));
+  expect((useStore.getState() as any).onboardingProfile.salaryByMonth).toHaveLength(12);
 });
 
 test('Spending tab: the proven Activity body embeds (a logged expense is visible) + no Budget in the menu', () => {

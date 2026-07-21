@@ -64,24 +64,38 @@ export async function parseReceiptWithOCR(imageUri: string): Promise<ParsedRecei
  * Parses raw OCR text from a receipt into structured data.
  * Handles common receipt formats from US grocery, gas, restaurant receipts.
  */
-function parseReceiptText(text: string): ParsedReceipt {
+export function parseReceiptText(text: string): ParsedReceipt {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
   // ── Total amount ────────────────────────────────────────────────
-  // Look for patterns like "TOTAL $45.67", "Total: 45.67", "AMOUNT DUE 45.67"
-  const totalPatterns = [
-    /(?:total|amount due|amount|grand total|subtotal)[:\s]*\$?\s*([\d]+\.[\d]{2})/i,
-    /\$\s*([\d]+\.[\d]{2})\s*$/m,
-    /([\d]+\.[\d]{2})\s*(?:total|usd)?$/im,
-  ];
+  // BUILD-44 FIX (founder receipt test, 2026-07-19): the old "largest number wins" rule captured
+  // the CASH TENDERED line ($100 handed over) instead of the total ($56.47) — cash given is
+  // usually bigger than the bill. Correct reading order, line by line:
+  //   1. NEVER read amounts from payment-mechanics lines (cash / tendered / change / card …).
+  //   2. Prefer an explicit TOTAL / AMOUNT DUE / BALANCE DUE line — the LAST one on the receipt
+  //      (totals print at the bottom; "grand total" beats a mid-receipt "total").
+  //   3. Else fall back to SUBTOTAL, else the largest amount on a non-payment line.
+  const PAYMENT_LINE = /\b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b/i;
+  const TOTAL_LINE = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|total)\b/i;
+  const SUBTOTAL_LINE = /\bsub\s*-?\s*total\b/i;
+  const AMOUNT = /\$?\s*([\d,]+\.[\d]{2})\b/;
+  const amountOn = (l: string): number | null => {
+    const m = l.match(AMOUNT);
+    const v = m ? parseFloat(m[1].replace(/,/g, '')) : NaN;
+    return Number.isFinite(v) && v > 0 && v < 10000 ? v : null;
+  };
   let amount = 0;
-  for (const pattern of totalPatterns) {
-    const match = text.match(pattern);
-    if (match) {
-      const candidate = parseFloat(match[1]);
-      if (candidate > amount && candidate < 10000) amount = candidate;
-    }
+  let subtotal = 0;
+  let largestSafe = 0;
+  for (const l of lines) {
+    if (PAYMENT_LINE.test(l)) continue;                      // rule 1: cash/change/card lines are radioactive
+    const v = amountOn(l);
+    if (v == null) continue;
+    if (TOTAL_LINE.test(l) && !SUBTOTAL_LINE.test(l)) amount = v;   // rule 2: last explicit total wins
+    else if (SUBTOTAL_LINE.test(l)) subtotal = v;
+    if (v > largestSafe) largestSafe = v;
   }
+  if (amount === 0) amount = subtotal || largestSafe;        // rule 3: honest fallbacks
 
   // ── Store name ───────────────────────────────────────────────────
   // Usually first non-address line, before city/state/zip
