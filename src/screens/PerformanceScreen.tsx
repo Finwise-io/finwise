@@ -191,9 +191,21 @@ export default function PerformanceScreen() {
             </Text>
             <View style={styles.honestBlock}>
               <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
-              {benchPort != null && <Text style={styles.glanceLine}>{anyCapped ? 'Stock market, same dates:' : 'vs the stock market:'}  {pct(benchPort)}</Text>}
+              {benchPort != null && (
+                /* approved "all three" (2026-07-19): the blend deserves its true name — each holding
+                   against its own yardstick (bonds vs the bond index), value-weighted */
+                <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+                  <Text style={styles.glanceLine}>{anyCapped ? 'vs the market, same dates + your mix:' : 'vs the market, matched to your mix:'}  {pct(benchPort)}</Text>
+                  <InfoDot term="benchmark" />
+                </View>
+              )}
               {portBeat != null && <Text style={[styles.glanceLine, { fontWeight: '800' }]}>★ You're {portBeat >= 0 ? 'ahead' : 'behind'} by {Math.abs(portBeat * 100).toFixed(1)} points</Text>}
               {anyCapped && <Text style={styles.freshInHero}>some holdings counted since purchase — marked below</Text>}
+              {/* approved "all three": the dividends truth, said where the numbers are */}
+              <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+                <Text style={styles.freshInHero}>price changes only — dividends not included</Text>
+                <InfoDot term="priceReturn" />
+              </View>
               {freshLine && <Text style={styles.freshInHero}>🕐 {freshLine}</Text>}
             </View>
             {trend.length > 1 && <TrendChartAuto data={trend} />}
@@ -312,6 +324,8 @@ export default function PerformanceScreen() {
                           <Text style={styles.invName} numberOfLines={1}>{it.position.ticker}</Text>
                           {it.cappedSince && <Text style={styles.wlSince}>{sinceWord(it.cappedSince)}</Text>}
                         </View>
+                        {/* approved "all three": the weight — investors think in % of portfolio */}
+                        {investTotalAll > 0 && <Text style={styles.invWeight}>{Math.round((it.marketValue / investTotalAll) * 100)}%</Text>}
                         {it.price != null && (
                           <View style={[styles.freshChip, priceFreshness(store.pricesFetchedAt, Date.now()).stale && styles.freshChipStale]}>
                             <Text style={[styles.freshChipTxt, priceFreshness(store.pricesFetchedAt, Date.now()).stale && { color: Colors.amber }]}>{priceFreshness(store.pricesFetchedAt, Date.now()).stale ? 'Prices old' : 'Live'}</Text>
@@ -336,6 +350,7 @@ export default function PerformanceScreen() {
                           </View>
                         )}
                       </View>
+                      {investTotalAll > 0 && <Text style={styles.invWeight}>{Math.round(((it.balance || 0) / investTotalAll) * 100)}%</Text>}
                       <Text style={styles.invVal}>{maskedMoney(Math.round(it.balance || 0))}</Text>
                       <Text style={styles.invChev}>›</Text>
                     </TouchableOpacity>
@@ -797,6 +812,7 @@ const styles = StyleSheet.create({
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
   invName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   invVal: { minWidth: 78, textAlign: 'right', fontSize: 14, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  invWeight: { width: 40, textAlign: 'right', fontSize: 12, color: Colors.textTertiary, fontVariant: ['tabular-nums'] },
   invRet: { fontSize: 12.5, fontWeight: '700', width: 84, textAlign: 'right' },
   invStamp: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   invChev: { fontSize: 17, color: Colors.textTertiary },

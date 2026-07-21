@@ -46,13 +46,17 @@ beforeEach(() => {
   } as any);
 });
 
-test('the hero (invest-v3 FINAL, 2026-07-19): YOUR RETURN leads with the gain in $ and %, the NAMED honest comparison + points', () => {
+test('the hero (invest-v3/v4 FINAL, 2026-07-19): YOUR RETURN leads with the gain in $ and %, the NAMED honest comparison + points', () => {
   render(<PerformanceScreen />);
   expect(screen.getByText(/YOUR RETURN \(PAST YEAR\)/)).toBeOnTheScreen();       // renamed — it's what happened to YOUR money
   expect(screen.getByLabelText('What is Your return?')).toBeOnTheScreen();       // the ⓘ explains the purchase cap
   expect(screen.getByText(/▲ up \$[\d,]+/)).toBeOnTheScreen();                   // gain in $, word + arrow
   expect(screen.getByText('HONEST COMPARISON')).toBeOnTheScreen();
-  expect(screen.getByText(/stock market/)).toBeOnTheScreen();
+  // approved "all three" (2026-07-19): the blend's true name + the dividends truth + weights
+  expect(screen.getByText(/vs the market, matched to your mix/)).toBeOnTheScreen();
+  expect(screen.getByText(/price changes only — dividends not included/)).toBeOnTheScreen();
+  expect(screen.getByLabelText('What is Price returns?')).toBeOnTheScreen();
+  expect(screen.getAllByText(/^\d+%$/).length).toBeGreaterThan(0);               // portfolio weights in the list
   expect(screen.getByText(/★ You're (ahead|behind) by .* points/)).toBeOnTheScreen();
 });
 
