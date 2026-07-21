@@ -1,0 +1,108 @@
+<title>MoneyKeel — Look ahead v2 — precise empty states (fixed per founder finding)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .back{font-size:16px; font-weight:700; color:#178F6B; padding:4px 2px;}
+  .h1{font-size:22px; font-weight:800; margin-top:2px;}
+  .banner{font-size:13px; color:#6B6B66; background:#EEEEE9; border-radius:10px; padding:8px 12px; margin:8px 0;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .dialrow{display:flex; align-items:center; justify-content:center; gap:18px; margin-top:10px;}
+  .step{width:44px; height:44px; border-radius:22px; border:1.5px solid #178F6B; color:#0F6E56; font-size:22px; font-weight:800;
+    display:flex; align-items:center; justify-content:center;}
+  .dial{font-size:30px; font-weight:800; font-variant-numeric:tabular-nums;}
+  .deltaHero{font-size:24px; font-weight:800; color:#0F6E56; font-variant-numeric:tabular-nums; margin:2px 0 8px;}
+  .deltaSub{font-size:12px; color:#6B6B66; font-weight:600;}
+  .rrow{display:flex; justify-content:space-between; padding:8px 0; border-top:1px solid rgba(0,0,0,.10); font-size:15px; font-variant-numeric:tabular-nums;}
+  .note{font-size:12.5px; color:#6B6B66; line-height:1.5; margin-top:10px;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .pin{position:absolute; top:-8px; right:-7px; width:19px; height:19px; border-radius:50%; background:var(--accent);
+    color:#fff; font-size:11px; font-weight:800; display:flex; align-items:center; justify-content:center; z-index:5;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:360px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+  .q{background:#FAEEDA; border:1px solid rgba(133,79,11,.25); border-radius:10px; padding:10px 12px; font-size:13px; color:#854F0B; margin-top:14px; max-width:360px; line-height:1.5;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · hi-fi mock v2 (supersedes v1) · Look ahead · empty states FIXED per your finding — builds in Build 44</div>
+  <h1>Look ahead — "what would saving more actually do?"</h1>
+  <p class="lede"><b>Objective:</b> answer the one question every saver asks — <i>"if I put away a bit more each month,
+  what does it buy me?"</i> — with your real numbers, clearly labeled an estimate, changing nothing. It turns an abstract
+  urge ("I should save more") into two concrete outcomes: dollars by retirement age, and the will-it-last odds. Look
+  <i>back</i> is its sibling for the past ("what would that move have done?" — facts); Look <i>ahead</i> is the future
+  ("what could this move do?" — estimate).</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>With your plan &amp; accounts</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Invest</div>
+          <div class="h1">What if I add more?</div>
+          <div class="banner">Trying it out — this changes nothing; every figure is an estimate.</div>
+          <div class="card">
+            <div class="kicker">IF YOU ADD MORE EACH MONTH</div>
+            <div class="dialrow"><span class="step">−</span><span class="dial">+$750/mo</span><span class="step">＋</span></div>
+          </div>
+          <div class="card">
+            <span class="pin">1</span>
+            <div class="kicker">AT 67 (ESTIMATES)</div>
+            <div class="deltaHero">+$243,000<span class="deltaSub">  more by 67 — an estimate</span></div>
+            <div class="rrow"><span>Projected nest egg</span><span>$1.31M → $1.55M</span></div>
+            <div class="rrow"><span>Will my money last?</span><span>84% → 89%</span></div>
+            <div class="note">Same plan, same market assumptions — only the monthly amount moved. Changing what you put in happens at your employer or brokerage; we just show the math.</div>
+          </div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Your case — accounts in, plan basics missing (FIXED)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content">
+          <div class="back">‹ Invest</div>
+          <div class="h1">What if I add more?</div>
+          <div class="banner">Trying it out — this changes nothing; every figure is an estimate.</div>
+          <div class="card">
+            <div class="note" style="margin-top:0"><b>Your accounts are in</b> — now the plan needs its basics (your age, retirement age and income). Answer 3 quick questions in Plan and this screen comes alive.</div>
+            <div class="link">Answer the plan questions ›</div>
+          </div>
+          <div class="card">
+            <div class="note" style="margin-top:0"><b>If instead no accounts existed:</b> "Connect or add your accounts first — then this screen can show what an extra monthly amount would do. No guessed numbers."</div>
+            <div class="link">Connect or add an account ›</div>
+          </div>
+          <div class="card">
+            <div class="note" style="margin-top:0"><b>The dial is GONE in every empty state</b> — a control that computes nothing only confuses. It appears only when the payoff card can.</div>
+          </div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>The payoff in one number:</b> the DELTA leads (+$243,000 by 67), then the two before→after rows. Word "estimate" everywhere a projection appears.</div></li>
+      </ul>
+      <div class="q"><b>Your call — 3 wireframe items the built screen doesn't have:</b> the approved wireframe also showed
+      (a) a growth-rate pick [5% · 6% · 7%], (b) a bad-to-good markets range ($1.2M–$1.9M), and (c) a "Use this plan"
+      adopt button. As built: it uses your Plan's assumptions (one fewer dial), shows no range, and adoption lives in
+      the Plan tab. Add any/all to match the wireframe, or bless the simpler version?</div>
+    </div>
+  </div>
+</div>

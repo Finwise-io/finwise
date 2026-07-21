@@ -46,38 +46,62 @@ export default function WhatIfScreen() {
     };
   }, [inputs, addMonthly]);
 
+  // BUILD-43 FEEDBACK (2026-07-19): the old gate showed a live dial that computed nothing, blamed
+  // "accounts" even when accounts existed, and its button's words didn't match where it went.
+  // Diagnose PRECISELY what's missing and route to exactly that fix.
+  const hasAccounts = (accounts ?? []).some((a: any) => (a.balance || 0) > 0);
+  const missing = result != null ? null
+    : !hasAccounts ? 'accounts' as const
+    : !inputs ? 'plan' as const           // willItLastInputs is null only when your age is unknown
+    : 'earmarks' as const;                // accounts exist but none are earmarked for retirement
+
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.banner}>Trying it out — this changes nothing; every figure is an estimate.</Text>
 
-      <View style={s.card}>
-        <Text style={s.cardHdr}>IF YOU ADD MORE EACH MONTH</Text>
-        <View style={s.stepperRow}>
-          <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => Math.max(0, n - STEP))}
-            accessibilityLabel="Lower the extra monthly amount by $100">
-            <Text style={s.stepTxt}>−</Text>
-          </TouchableOpacity>
-          <Text style={s.dial}>+{maskedMoney(addMonthly)}/mo</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => n + STEP)}
-            accessibilityLabel="Raise the extra monthly amount by $100">
-            <Text style={s.stepTxt}>＋</Text>
-          </TouchableOpacity>
-        </View>
-      </View>
-
-      {result == null ? (
+      {/* the dial only renders when it can actually compute something (a dead control confuses) */}
+      {result != null && !result.retired && (
         <View style={s.card}>
-          <Text style={s.note}>Add your accounts and plan basics first — then this screen can show what an extra monthly amount would do. No guessed numbers.</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/analytics')}
-            accessibilityLabel="Add accounts — opens the Net worth tab"><Text style={s.emptyLinkT}>Add accounts ›</Text></TouchableOpacity>
+          <Text style={s.cardHdr}>IF YOU ADD MORE EACH MONTH</Text>
+          <View style={s.stepperRow}>
+            <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => Math.max(0, n - STEP))}
+              accessibilityLabel="Lower the extra monthly amount by $100">
+              <Text style={s.stepTxt}>−</Text>
+            </TouchableOpacity>
+            <Text style={s.dial}>+{maskedMoney(addMonthly)}/mo</Text>
+            <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => n + STEP)}
+              accessibilityLabel="Raise the extra monthly amount by $100">
+              <Text style={s.stepTxt}>＋</Text>
+            </TouchableOpacity>
+          </View>
         </View>
-      ) : result.retired ? (
+      )}
+
+      {missing === 'accounts' ? (
+        <View style={s.card}>
+          <Text style={s.note}>Connect or add your accounts first — then this screen can show what an extra monthly amount would do. No guessed numbers.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/connect')}
+            accessibilityLabel="Connect or add an account"><Text style={s.emptyLinkT}>Connect or add an account ›</Text></TouchableOpacity>
+        </View>
+      ) : missing === 'plan' ? (
+        <View style={s.card}>
+          <Text style={s.note}>Your accounts are in — now the plan needs its basics (your age, retirement age and income). Answer 3 quick questions in Plan and this screen comes alive.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
+            accessibilityLabel="Answer the plan questions — opens the Plan tab"><Text style={s.emptyLinkT}>Answer the plan questions ›</Text></TouchableOpacity>
+        </View>
+      ) : missing === 'earmarks' ? (
+        <View style={s.card}>
+          <Text style={s.note}>Your accounts are in, but none of them is earmarked for retirement yet — open an account and set how much of it counts toward retirement.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/analytics')}
+            accessibilityLabel="Open Net worth to pick an account"><Text style={s.emptyLinkT}>Open your accounts ›</Text></TouchableOpacity>
+        </View>
+      ) : result?.retired ? (
         <View style={s.card}>
           <Text style={s.note}>You're already drawing down, so monthly contributions aren't the lever — the Plan tab's scenarios (spending, claim timing) are where your choices live.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.emptyLink} onPress={() => router.push('/(tabs)/plan')}
             accessibilityLabel="Open the Plan tab"><Text style={s.emptyLinkT}>Open the Plan tab ›</Text></TouchableOpacity>
         </View>
-      ) : (
+      ) : result != null && !result.retired ? (
         <View style={s.card} accessible
           accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${maskedMoney(result.before.egg)} becomes ${maskedMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
           <Text style={s.cardHdr}>AT {result.retireAge} (ESTIMATES)</Text>
@@ -87,7 +111,7 @@ export default function WhatIfScreen() {
           <Row label="Will my money last?" value={`${result.before.chance}% → ${result.after.chance}%`} />
           <Text style={s.note}>Same plan, same market assumptions — only the monthly amount moved. Changing what you put in happens at your employer or brokerage; we just show the math.</Text>
         </View>
-      )}
+      ) : null}
       <View style={{ height: 32 }} />
     </ScrollView>
   );

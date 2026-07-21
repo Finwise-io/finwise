@@ -132,6 +132,42 @@ test('APPROVED detail · a multi-type connected account is called "Mixed holding
   expect(screen.getByText('Cash in the account')).toBeOnTheScreen();
 });
 
+// ── R5: Look ahead (/what-if) gate diagnoses what's ACTUALLY missing (founder's device case) ────
+describe('R5 · Look ahead empty states say the true blocker', () => {
+  const WhatIfScreen = require('../WhatIfScreen').default;
+
+  test('founder case: accounts CONNECTED but age unknown → plan questions, NOT "add accounts"; no dead dial', () => {
+    useStore.setState({
+      onboardingProfile: {},                                  // no birth year → plan basics missing
+      onboardingComplete: true,
+      assetAccounts: [{ asset_id: 'st-1', label: 'E*Trade Individual Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08, source: 'connected' }],
+    } as any);
+    render(<WhatIfScreen />);
+    expect(screen.getByText(/Your accounts are in — now the plan needs its basics/)).toBeOnTheScreen();
+    expect(screen.getByText('Answer the plan questions ›')).toBeOnTheScreen();
+    expect(screen.queryByText(/Add your accounts/)).toBeNull();          // never blames the wrong thing
+    expect(screen.queryByText(/IF YOU ADD MORE EACH MONTH/)).toBeNull(); // the dial hides when it can't compute
+  });
+
+  test('truly no accounts → connect-or-add wording that matches where the button goes', () => {
+    useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
+    render(<WhatIfScreen />);
+    expect(screen.getByText(/Connect or add your accounts first/)).toBeOnTheScreen();
+    expect(screen.getByText('Connect or add an account ›')).toBeOnTheScreen();
+  });
+
+  test('with accounts AND plan basics the dial and the payoff render', () => {
+    useStore.setState({
+      onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 45), baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', targetRetirementAge: '67', horizonAge: '92', monthlySpending: '4000' },
+      onboardingComplete: true,
+      assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
+    } as any);
+    render(<WhatIfScreen />);
+    expect(screen.getByText('IF YOU ADD MORE EACH MONTH')).toBeOnTheScreen();
+    expect(screen.getByText(/more by \d+ — an estimate/)).toBeOnTheScreen();
+  });
+});
+
 test('R3-1 · ingest: a scrambled account "number" produces NO mask; real digits produce one', () => {
   const { ingestSync } = require('../../services/sync/ingest');
   const mk = (id: string, number: string) => ({ account: {
