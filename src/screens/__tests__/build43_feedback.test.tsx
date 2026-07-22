@@ -240,3 +240,19 @@ test('R2-approved-v4 · a single class auto-expands so the only account is never
   render(<NetWorthScreen />);
   expect(screen.getByText('Checking')).toBeOnTheScreen();
 });
+
+// ── B45 · fresh-install entry (founder finding): the old questionnaire was everyone's first screen ──
+test('B45 · the app entry routes to the AUTH GATE — never directly into the old questionnaire', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const entry = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app', 'index.tsx'), 'utf8');
+  expect(entry).toMatch(/Redirect href="\/auth"/);
+  expect(entry).not.toMatch(/href="\/onboarding"/);
+});
+
+test('B45 · the guard then routes a NEW authenticated user to the approved first-run, a done user Home', () => {
+  const { nextRoute } = require('../../navigation/routeGuard');
+  expect(nextRoute({ user: { uid: 'u1' }, onboardingComplete: false, onboardingPaused: false, segment: 'auth' } as any)).toBe('/first-run');
+  expect(nextRoute({ user: { uid: 'u1' }, onboardingComplete: true, onboardingPaused: false, segment: 'auth' } as any)).toBe('/(tabs)/home');
+  expect(nextRoute({ user: null, onboardingComplete: false, onboardingPaused: false, segment: 'onboarding' } as any)).toBe('/auth');
+});
