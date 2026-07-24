@@ -2,7 +2,7 @@
 // keeps only MODES — hide-balances eye + settings gear. The net-worth chip is REMOVED (it duplicated
 // Home's line and the Net worth tab). Rendered as the shared header for all bottom-tab screens.
 import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView } from 'react-native';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Alert, ScrollView, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
@@ -73,7 +73,9 @@ export default function TopBar() {
         <Ionicons name="grid" size={16} color={Colors.textSecondary} />
         <Text style={s.menuTxt}>Menu</Text>
       </TouchableOpacity>
-      <Text style={s.brand} accessibilityRole="header">MoneyKeel</Text>
+      {/* B45 founder finding: flat green TEXT didn't match the designed logo — the wordmark is the
+          logo art itself now (Money teal · Keel navy), same asset as sign-in and first-run. */}
+      <Image source={require('../../assets/brand/wordmark.png')} style={s.brandImg} resizeMode="contain" accessibilityRole="header" accessibilityLabel="MoneyKeel" />
       <View style={s.right}>
         <TouchableOpacity
           onPress={() => store.toggleHideBalances?.()}
@@ -165,7 +167,7 @@ const s = StyleSheet.create({
   right: { flexDirection: 'row', alignItems: 'center', gap: 8 },
   eyeBtn: { height: 38, width: 38, borderRadius: 19, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', borderWidth: 1, borderColor: Colors.border },
   menuTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  brand: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark, letterSpacing: 0.3 },
+  brandImg: { width: 84, height: 17 },
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   grip: { width: 38, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },

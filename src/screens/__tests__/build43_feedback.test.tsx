@@ -256,3 +256,42 @@ test('B45 · the guard then routes a NEW authenticated user to the approved firs
   expect(nextRoute({ user: { uid: 'u1' }, onboardingComplete: true, onboardingPaused: false, segment: 'auth' } as any)).toBe('/(tabs)/home');
   expect(nextRoute({ user: null, onboardingComplete: false, onboardingPaused: false, segment: 'onboarding' } as any)).toBe('/auth');
 });
+
+// ── B45 founder findings (2026-07-24) — workbook rows 46-50 ─────────────────────────────────────
+
+test('B45: a young history labels the span HONESTLY — "since Jul 19", never "up $0 this year"', () => {
+  freshWorker();
+  const past = new Date(Date.now() - 5 * 86400e3);
+  const key = past.toISOString().slice(0, 10);
+  const expected = `since ${new Date(`${key}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'a1', label: 'Savings', kind: 'savings', tax_bucket: 'TAXABLE', balance: 5000, target_return: 0 }],
+    nwDaily: { [key]: 4000, [new Date().toISOString().slice(0, 10)]: 5000 },   // launch captures today on device
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(new RegExp(`up \\$1,000 ${expected}`))).toBeOnTheScreen();
+  expect(screen.queryByText(/this year/)).toBeNull();
+});
+
+test('B45: an unchanged young history reads "no change since …", never "up $0"', () => {
+  freshWorker();
+  const key = new Date(Date.now() - 5 * 86400e3).toISOString().slice(0, 10);
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'a1', label: 'Savings', kind: 'savings', tax_bucket: 'TAXABLE', balance: 5000, target_return: 0 }],
+    nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/no change since /)).toBeOnTheScreen();
+  expect(screen.queryByText(/up \$0/)).toBeNull();     // the founder's exact complaint ("up $0 this year")
+  expect(screen.queryByText(/this year/)).toBeNull();
+});
+
+test('B45: a generic "Imported holdings" account with ONE security is named by its ticker (E*TRADE LCTX)', () => {
+  const { accountDisplayNames } = require('../../domain/assets');
+  const names = accountDisplayNames([
+    { asset_id: 'imp1', label: 'Imported holdings', institution: 'E*TRADE', positions: [{ ticker: 'LCTX', lots: [] }] },
+    { asset_id: 'imp2', label: 'Imported holdings', institution: 'E*TRADE', positions: [{ ticker: 'AAPL', lots: [] }, { ticker: 'MSFT', lots: [] }] },
+  ]);
+  expect(names.get('imp1')).toBe('E*TRADE LCTX');                 // one security → wears its name
+  expect(names.get('imp2')).toBe('E*TRADE Imported holdings');    // several → the honest generic
+});

@@ -21,7 +21,8 @@ beforeEach(() => {
 test('answering the stage question sets the lens for the whole app (the one resolver field)', () => {
   render(<FirstRunScreen />);
   // STEP 1 (B46): the value intro with the read-only promise comes first
-  expect(screen.getByText('MoneyKeel: Your finance command center.')).toBeOnTheScreen();
+  expect(screen.getByText('Your finance command center.')).toBeOnTheScreen();   // brand is the wordmark ART above (B45)
+  expect(screen.getByLabelText('MoneyKeel').props.source).toEqual(require('../../../assets/brand/wordmark.png'));
   expect(screen.getByText(/never move your money/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Continue'));
   fireEvent.press(screen.getByLabelText('Retired, or nearly'));
@@ -63,7 +64,7 @@ test('the consequence sentence renders before the buttons (the a11y spec)', () =
 test('the Settings revisit skips the intro and shows the questions directly, titled Your setup', () => {
   useStore.setState({ onboardingComplete: true } as any);
   render(<FirstRunScreen />);
-  expect(screen.queryByText('MoneyKeel: Your finance command center.')).toBeNull();
+  expect(screen.queryByText('Your finance command center.')).toBeNull();
   expect(screen.getByText('Your setup')).toBeOnTheScreen();
 });
 

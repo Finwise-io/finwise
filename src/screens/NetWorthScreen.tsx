@@ -354,6 +354,17 @@ export default function NetWorthScreen() {
     const jan = `${new Date().getFullYear()}-01`;
     const janPoint = series.find((pt) => pt.month >= jan && pt.month !== series[series.length - 1]?.month);
     const changeThisYear = janPoint ? nw.net_worth - janPoint.nw : null;
+    // B45 founder finding ("up $0 this year"): the label must tell the truth about the SPAN. A young
+    // history's baseline isn't January — it's the first snapshot ("since Jul 19") — and an unchanged
+    // value reads "no change", never "up $0".
+    const sinceLabel = !janPoint ? '' : janPoint.month.slice(5, 7) === '01' && janPoint.month.length === 7
+      ? 'this year'
+      : `since ${janPoint.month.length === 7
+          ? new Date(`${janPoint.month}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short' })
+          : new Date(`${janPoint.month}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    const deltaText = changeThisYear == null ? null
+      : Math.round(changeThisYear) === 0 ? `no change ${sinceLabel}`
+      : `${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} ${sinceLabel}`;
     // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
@@ -363,7 +374,7 @@ export default function NetWorthScreen() {
         <View style={styles.glanceCard} accessible
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
-            : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${changeThisYear != null ? `, ${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} this year` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
+            : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
           <Text style={styles.glanceKickerNW}>YOUR NET WORTH</Text>
           <Text style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
@@ -371,9 +382,13 @@ export default function NetWorthScreen() {
           {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
               honest first-day line instead of a bare number when history hasn't built yet */}
           {changeThisYear != null ? (
-            <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
-              {changeThisYear >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.round(Math.abs(changeThisYear)))} this year
-            </Text>
+            Math.round(changeThisYear) === 0 ? (
+              <Text style={styles.glanceDelta}>{deltaText}</Text>
+            ) : (
+              <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
+                {changeThisYear >= 0 ? '▲' : '▼'} {deltaText}
+              </Text>
+            )
           ) : (
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}

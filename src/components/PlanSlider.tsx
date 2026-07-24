@@ -2,7 +2,7 @@
 // build; this works everywhere today). Big 28pt thumb on a 44pt-tall touch strip, live value,
 // range words at the ends. Accessibility: adjustable role with increment/decrement actions.
 // Approved in lookahead-v3 FINAL (2026-07-19).
-import React, { useRef, useState } from 'react';
+import React, { useRef } from 'react';
 import { View, Text, StyleSheet, PanResponder } from 'react-native';
 import { Colors } from '../utils/theme';
 
@@ -11,19 +11,27 @@ export function PlanSlider({ label, value, min, max, onChange, onSettle }: {
   onChange: (v: number) => void;           // live, while dragging
   onSettle?: (v: number) => void;          // finger up — the moment we SAVE
 }) {
-  const [trackW, setTrackW] = useState(1);
+  // B45 founder finding ("touch it and it jumps to max"): PanResponder.create runs ONCE, so its
+  // callbacks must never close over render-time values — the first version froze trackW at its
+  // placeholder (1), making every touch compute x/1 → past max → clamped to max. Everything the
+  // handlers need lives in refs that every render refreshes.
+  const trackW = useRef(1);
   const valueRef = useRef(value);
   valueRef.current = value;
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v)));
-  const fromX = (x: number) => clamp(min + (x / Math.max(1, trackW)) * (max - min));
+  const fromX = (x: number) => clamp(min + (x / Math.max(1, trackW.current)) * (max - min));
+  const api = useRef({ fromX, onChange, onSettle });
+  api.current = { fromX, onChange, onSettle };
 
   const pan = useRef(PanResponder.create({
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (e) => onChange(fromX(e.nativeEvent.locationX)),
-    onPanResponderMove: (e) => onChange(fromX(e.nativeEvent.locationX)),
-    onPanResponderRelease: () => onSettle?.(valueRef.current),
-    onPanResponderTerminate: () => onSettle?.(valueRef.current),
+    // never let a parent ScrollView steal the drag mid-gesture ("you cannot slide it")
+    onPanResponderTerminationRequest: () => false,
+    onPanResponderGrant: (e) => api.current.onChange(api.current.fromX(e.nativeEvent.locationX)),
+    onPanResponderMove: (e) => api.current.onChange(api.current.fromX(e.nativeEvent.locationX)),
+    onPanResponderRelease: () => api.current.onSettle?.(valueRef.current),
+    onPanResponderTerminate: () => api.current.onSettle?.(valueRef.current),
   })).current;
 
   const pct = ((value - min) / (max - min)) * 100;
@@ -42,7 +50,7 @@ export function PlanSlider({ label, value, min, max, onChange, onSettle }: {
         <Text style={s.lbl}>{label}</Text>
         <Text style={s.val}>{value}</Text>
       </View>
-      <View style={s.strip} onLayout={(e) => setTrackW(e.nativeEvent.layout.width)} {...pan.panHandlers}>
+      <View style={s.strip} testID="plan-slider-strip" onLayout={(e) => { trackW.current = e.nativeEvent.layout.width; }} {...pan.panHandlers}>
         <View style={s.track}>
           <View style={[s.fill, { width: `${pct}%` }]} />
         </View>

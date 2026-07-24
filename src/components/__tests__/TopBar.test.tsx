@@ -23,9 +23,11 @@ describe('TopBar', () => {
     expect(screen.queryByText('$60,000')).toBeNull();
   });
 
-  test('the brand wordmark shows MoneyKeel', () => {
+  test('the brand wordmark is the designed logo ART, never typed text (B45 founder finding)', () => {
     render(<TopBar />);
-    expect(screen.getByText('MoneyKeel')).toBeOnTheScreen();
+    const wm = screen.getByLabelText('MoneyKeel');
+    expect(wm.props.source).toEqual(require('../../../assets/brand/wordmark.png'));
+    expect(screen.queryByText('MoneyKeel')).toBeNull();
   });
 
   test('the settings gear opens Settings from every tab', () => {

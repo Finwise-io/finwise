@@ -135,7 +135,13 @@ export default function AuthScreen() {
 
       } else if (mode === 'login') {
         // Firebase verifies the password server-side; a bad email/password throws (handled in catch).
-        const res = await loginUser(trimEmail, password);
+        // B45 founder finding: when a sign-in has to BUILD the account's encryption envelope (an
+        // account with no envelope yet), the slow key-wrapping ran with no feedback — ~30 silent
+        // seconds on the welcome screen, then the code popped up. Same honest treatment as signup
+        // now: surface the code + "Securing…" state BEFORE the slow work, via onCode.
+        const onLoginCode = (code: string) => { setPendingRecoveryCode(code); setSecuringAccount(true); };
+        const res = await loginUser(trimEmail, password, onLoginCode);
+        setSecuringAccount(false);
         setUser({
           uid: res.user.uid,
           email: trimEmail,
@@ -264,8 +270,11 @@ export default function AuthScreen() {
         {/* Logo */}
         <View style={styles.logoWrap}>
           {/* the approved K-mark — the same brand asset first-run uses, never the old emoji circle */}
-          <Image source={require('../../assets/brand/mark.png')} style={styles.logoMark} accessibilityLabel="MoneyKeel" />
-          <Text style={styles.appName}>MoneyKeel</Text>
+          <Image source={require('../../assets/brand/mark.png')} style={styles.logoMark} accessible={false} />
+          {/* B45 founder finding: the name was TYPED (black here, green in the top bar) and neither
+              matched the designed logo. No screen types the name anymore — this is the logo art
+              itself (Money teal · Keel navy, the logo's own typeface), cut from the approved file. */}
+          <Image source={require('../../assets/brand/wordmark.png')} style={styles.wordmark} resizeMode="contain" accessibilityLabel="MoneyKeel" />
           <Text style={styles.tagline}>Your finance command center</Text>
         </View>
 
@@ -426,7 +435,7 @@ const styles = StyleSheet.create({
   restoreFresh: { color: Colors.textTertiary, fontWeight: '600', fontSize: Typography.sizes.sm },
   logoWrap: { alignItems: 'center', marginBottom: Spacing.xl },
   logoMark: { width: 84, height: 84, marginBottom: Spacing.sm },
-  appName: { fontSize: Typography.sizes.xxl, fontWeight: '700', color: Colors.textPrimary },
+  wordmark: { width: 150, height: 30, marginTop: 2 },
   tagline: { fontSize: Typography.sizes.base, color: Colors.textSecondary, marginTop: 2 },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.xl, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.xl },
   cardTitle: { fontSize: Typography.sizes.xl, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },

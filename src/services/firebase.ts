@@ -110,7 +110,7 @@ export function currentUserEmail(): string | null {
 // Returns the user plus the unlock status:
 //  • needsRecovery=true → the password can't open the data (it was reset); prompt for the recovery code.
 //  • recoveryCode set    → a legacy account had no envelope; we created one — show the code to save.
-export async function loginUser(email: string, password: string): Promise<{ user: any; needsRecovery: boolean; recoveryCode?: string }> {
+export async function loginUser(email: string, password: string, onCodeReady?: (code: string) => void): Promise<{ user: any; needsRecovery: boolean; recoveryCode?: string }> {
   const cred = await signInWithEmailAndPassword(auth, email, password);
   const uid = cred.user.uid;
   const snap = await getDoc(doc(db, 'users', uid));
@@ -124,10 +124,16 @@ export async function loginUser(email: string, password: string): Promise<{ user
   }
 
   // No envelope yet (account predates encryption) → set one up now and surface the recovery code.
+  // Surface it IMMEDIATELY (same pattern as registerUser): the PBKDF2 wrapping below is deliberately
+  // slow, and without this the user sat ~30 silent seconds before the code appeared (B45 finding).
   const dek = generateDataKey();
   const recoveryCode = generateRecoveryCode();
-  await setDoc(doc(db, 'users', uid), { keyEnvelope: makeEnvelope(dek, uid, password, recoveryCode) }, { merge: true });
+  onCodeReady?.(recoveryCode);
   await cacheDataKey(dek);
+  // Let the recovery-code sheet PAINT its "Securing…" spinner before the synchronous key-wrapping
+  // freezes the JS thread (same paint-yield registerUser needs).
+  await new Promise((r) => setTimeout(r, 0));
+  await setDoc(doc(db, 'users', uid), { keyEnvelope: makeEnvelope(dek, uid, password, recoveryCode) }, { merge: true });
   return { user: cred.user, needsRecovery: false, recoveryCode };
 }
 

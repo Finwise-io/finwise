@@ -282,8 +282,16 @@ export function investableAssets(accounts: AssetAccount[]): number {
  *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
  *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
  *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
-export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'>): string {
-  const label = (a.label ?? '').trim();
+export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'> & { positions?: unknown[] }): string {
+  let label = (a.label ?? '').trim();
+  // B45 founder finding: an older import kept the generic "Imported holdings" label while newer
+  // single-security imports are named by their ticker (so rows read "E*TRADE LCTX" like
+  // "E*TRADE VMFXX"). Heal old data at display time: a generic-labeled account holding exactly
+  // ONE security wears that security's name. Every screen inherits — this is the one naming helper.
+  const pos = ((a as any).positions ?? []) as any[];
+  if (/^imported holdings?$/i.test(label) && pos.length === 1 && (pos[0]?.ticker || pos[0]?.label)) {
+    label = String(pos[0].ticker || pos[0].label).trim();
+  }
   const inst = (a.institution ?? '').trim();
   const norm = (s: string) => s.toLowerCase().replace(/[^a-z0-9]/g, '');
   const base = inst && !norm(label).includes(norm(inst)) ? `${inst} ${label}` : label || inst;
@@ -294,7 +302,7 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
 /** Display names for a whole LIST of accounts. Masks exist only when they are real digits (build-43
  *  finding: E*TRADE relays a scrambled identifier, not the account number) — so identical twins get
  *  a stable " · 1 / · 2" ordinal instead (ordered by asset_id, so the numbering never shuffles). */
-export function accountDisplayNames(accounts: Pick<AssetAccount, 'asset_id' | 'label' | 'institution' | 'mask'>[]): Map<string, string> {
+export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | 'label' | 'institution' | 'mask'> & { positions?: unknown[] })[]): Map<string, string> {
   const base = new Map(accounts.map((a) => [a.asset_id, accountDisplayName(a)]));
   const counts = new Map<string, number>();
   for (const n of base.values()) counts.set(n, (counts.get(n) ?? 0) + 1);

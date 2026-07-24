@@ -53,8 +53,11 @@ export default function FirstRunScreen() {
   if (step === 'intro') {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-        <Image source={require('../../assets/brand/mark.png')} style={s.introMark} accessibilityLabel="MoneyKeel" />
-        <Text style={s.introH1} accessibilityRole="header">MoneyKeel: Your finance command center.</Text>
+        <Image source={require('../../assets/brand/mark.png')} style={s.introMark} accessible={false} />
+        {/* B45 founder finding: the name was typed in black here — no screen types the name; this is
+            the designed logo art (Money teal · Keel navy), the same asset sign-in and the top bar use. */}
+        <Image source={require('../../assets/brand/wordmark.png')} style={s.introWordmark} resizeMode="contain" accessibilityLabel="MoneyKeel" />
+        <Text style={s.introH1} accessibilityRole="header">Your finance command center.</Text>
         <View style={s.introCard}>
           {([
             ['Map your whole money picture', 'every account, debt, and dollar in one live view.'],
@@ -145,6 +148,7 @@ const s = StyleSheet.create({
   skipTxt: { fontSize: 14, fontWeight: '700', color: Colors.textSecondary },
   introCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   introMark: { width: 92, height: 92, alignSelf: 'center', marginBottom: Spacing.sm },
+  introWordmark: { width: 170, height: 34, alignSelf: 'center', marginBottom: Spacing.sm },
   introH1: { fontSize: 26, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', lineHeight: 33, marginBottom: Spacing.md },
   introRow: { flexDirection: 'row', alignItems: 'flex-start', gap: 10, paddingVertical: 7 },
   introCheck: { width: 22, height: 22, borderRadius: 11, backgroundColor: Colors.primary, alignItems: 'center', justifyContent: 'center', marginTop: 2 },
