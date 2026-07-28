@@ -60,6 +60,13 @@ the founder had approved all of it. Never again.
 - Feedback workbooks: `docs/FCC-core-55-70/build43-feedback-v1-2026-07-19.xlsx` pattern — founder
   rows + verified root cause + fix citation + mock link + status.
 
+## SAME-DAY CHANGELOG — standing order (2026-07-28, founder-adopted after the July-24 audit)
+- EVERY founder approval (design change, copy, decision) gets a dated row in the Changelog tab of
+  `docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-…xlsx` THE SAME DAY, alongside the mock.
+  Columns: Date | Sheet | Change | Why | Approved by. The design doc is the source of truth;
+  approvals must never live only in chat, code comments, or feedback workbooks.
+  Root cause this fixes: the July-24 audit found dozens of July approvals with only 4 changelog rows.
+
 ## Workflow
 - Branch `taxonomy-v1.0.7`. Commit per logical change; push when asked. Keep `docs/finwise-bug-ledger.md` current.
 - Device truth: ML Kit has no arm64-sim slice → verify on a real TestFlight build, not the iOS Simulator.
