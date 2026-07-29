@@ -60,6 +60,18 @@ the founder had approved all of it. Never again.
 - Feedback workbooks: `docs/FCC-core-55-70/build43-feedback-v1-2026-07-19.xlsx` pattern — founder
   rows + verified root cause + fix citation + mock link + status.
 
+## FULL-SURFACE DONE — standing order (2026-07-29, after the column-on-one-tab miss)
+- The scope of a request = the WHOLE object the founder names, never the part I happen to be
+  working in: a file = EVERY tab; the app = every screen and data state; a bug = its whole class;
+  "status" = every workstream. Prior breaches of this class: keyboard fix screen-by-screen
+  (5 recurrences), the 'deferred' scope cut (2026-07-15), build-status column on 1 of 6 tabs (2026-07-28).
+- Before reporting done: re-read the request, enumerate the full surface, then walk the deliverable
+  exactly as the founder will open it (open the file fresh and look at every tab; run the flow in
+  the founder's actual data state).
+- Every "done" report must carry a COVERAGE LINE — "did X on N of N <units>", with the units named.
+  A done-claim without a coverage line is invalid. "Suite green" is never evidence of completeness:
+  tests verify what was built, they cannot see what was never built.
+
 ## SAME-DAY CHANGELOG — standing order (2026-07-28, founder-adopted after the July-24 audit)
 - EVERY founder approval (design change, copy, decision) gets a dated row in the Changelog tab of
   `docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-…xlsx` THE SAME DAY, alongside the mock.
