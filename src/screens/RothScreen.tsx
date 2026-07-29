@@ -10,7 +10,7 @@ import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { taxOwedFor } from '../domain/income/tax';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../domain/income';
@@ -120,7 +120,7 @@ export default function RothScreen() {
         <View style={s.chipRow}>
           {[10000, 25000, 50000].filter((v) => v <= preTax).map((v) => (
             <TouchableOpacity accessibilityRole="button" key={v} style={s.chip} onPress={() => setAmount(String(v))}
-              accessibilityLabel={`Set ${maskedMoney(v)}`}>
+              accessibilityLabel={`Set ${spokenMoney(v)}`}>
               <Text style={s.chipTxt}>{maskedMoney(v)}</Text>
             </TouchableOpacity>
           ))}
@@ -164,7 +164,7 @@ export default function RothScreen() {
           )}
 
           <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => setSheetOpen(true)}
-            accessibilityLabel={`Use this plan: convert ${maskedMoney(amt)} this year`}>
+            accessibilityLabel={`Use this plan: convert ${spokenMoney(amt)} this year`}>
             <Text style={s.primaryTxt}>Use this plan</Text>
           </TouchableOpacity>
           <Text style={s.note}>Nothing moves by itself — you'd do the conversion with your brokerage; this records the numbers.</Text>

@@ -15,8 +15,10 @@ export interface InsightInput {
   hasEarnedIncome: boolean;                         // has W-2 wages this year (401(k) needs earned income)
   retireChance: number | null;                      // Monte-Carlo % the plan lasts
   cashDragPct: number;                              // % of investable assets sitting in cash
+  cashAmount?: number;                              // the same cash in DOLLARS (dollar-first wording, walk row 9)
   topAccountPct: number;                            // largest single investment ACCOUNT as % of investable
-  topHolding?: { ticker: string; pct: number } | null; // largest single HOLDING at 25%+ (topHoldingConcentration — same rule Invest main shows)
+  topAccountAmount?: number;                        // that account's DOLLARS (dollar-first wording, walk row 9)
+  topHolding?: { ticker: string; pct: number; value?: number } | null; // largest single HOLDING at 25%+ (topHoldingConcentration — same rule Invest main shows)
   planNext?: string | null;                         // the FIRST missing plan-completeness item (specific beats percent — founder 2026-07-15)
   planPct: number;                                  // "sharpen your plan" completeness
   beatBy: number | null;                            // portfolio vs benchmark (decimal pts)
@@ -64,11 +66,13 @@ const RULES: Rule[] = [
   (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `You can still contribute ${money0(i.k401Remaining)} this year — tax-advantaged.`, route: '/contribution-room' } : null,
   (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
   // FCC: routes to the designed idle-cash landing (the fact + where it sits + comparison math) — no more dead-end.
-  (i) => i.cashDragPct > 30 ? { id: 'cash-drag', priority: 2, icon: '💵', title: 'A lot is sitting in cash', body: `${Math.round(i.cashDragPct)}% of your investable money is in cash earning little — see what it could earn.`, route: '/idle-cash' } : null,
+  // walk row 9 (home-v2 mock, audit Home·NW #1): dollars FIRST — the dollar is the persuasion device
+  (i) => i.cashDragPct > 30 ? { id: 'cash-drag', priority: 2, icon: '💵', title: 'A lot is sitting in cash', body: `${i.cashAmount != null ? `${money0(i.cashAmount)} (${Math.round(i.cashDragPct)}%) of your investable money sits` : `${Math.round(i.cashDragPct)}% of your investable money is`} in cash earning little — see what it could earn.`, route: '/idle-cash' } : null,
   // FCC: HOLDING-level concentration — the same 25%+ fact Invest main shows, surfaced as an insight.
-  (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one stock', body: `${i.topHolding.pct}% of your invested money is in one stock (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
+  (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one stock', body: `${i.topHolding.value != null ? `${money0(i.topHolding.value)} (${i.topHolding.pct}%) of your invested money rides` : `${i.topHolding.pct}% of your invested money is`} on one stock (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
   // B-45: this measures the largest ACCOUNT, not a single ticker — word it honestly.
-  (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${Math.round(i.topAccountPct)}% of your invested money is in a single account — add the holdings inside it and spread across accounts to lower risk.`, route: '/performance' } : null,
+  // walk row 9: a FACT, not an instruction (the audit flagged the old imperative wording)
+  (i) => i.topAccountPct > 40 ? { id: 'concentration', priority: 2, icon: '🎯', title: 'Concentrated in one account', body: `${i.topAccountAmount != null ? `${money0(i.topAccountAmount)} (${Math.round(i.topAccountPct)}%) of your invested money sits` : `${Math.round(i.topAccountPct)}% of your invested money is`} in a single account — spreading across accounts lowers risk.`, route: '/performance' } : null,
   // B-52: this is contributions/gross — name it "investing" so it doesn't collide with the budget's
   // "savings rate" (take-home not spent), which is a different number.
   (i) => (i.investRate != null && i.investRate < 0.1) ? { id: 'invest-rate', priority: 2, icon: '📈', title: 'Nudge up your investing', body: `You're investing about ${pctTxt(i.investRate)} of your gross income toward retirement — even +1% compounds over time.`, route: '/(tabs)/goals' } : null,

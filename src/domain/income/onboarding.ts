@@ -89,6 +89,26 @@ export function equityCashFlow(op: OnboardingProfile | null): { year: number; am
   return [...byYear.entries()].sort((x, y) => x[0] - y[0]).map(([year, amount]) => ({ year, amount }));
 }
 
+/** Vest-month weights (Jan→Dec, summing to 1) from the equity grant rows — THE one placement rule.
+ *  Walk row 6 (audit PRD #4): every surface that spreads equity across the year reads this, so the
+ *  cash-flow grid, the tax vector and the income engine's year view land vests in the SAME months
+ *  (no more December lump on one screen and March/September on another). Null = no dated grants. */
+export function equityVestWeights(op: OnboardingProfile | null): number[] | null {
+  const a = op ?? {};
+  const type = a.equityType ?? 'rsu';
+  const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
+  const weights = new Array(12).fill(0);
+  let totalV = 0;
+  for (const r of rows) {
+    const v = equityRowValue(r, type, a.optStrike, a.optMarket);
+    if (v <= 0) continue;
+    const m = String(r?.date ?? '').match(/\d{4}-(\d{1,2})/);
+    const idx = m ? Math.min(11, Math.max(0, +m[1] - 1)) : 11;
+    weights[idx] += v; totalV += v;
+  }
+  return totalV > 0 ? weights.map((w) => w / totalV) : null;
+}
+
 /** Annual equity-comp run-rate: total scheduled value spread over the years it vests across
  *  (a level annual figure for the income estimate). Falls back to legacy single shares/price. */
 export function rsuAnnual(op: OnboardingProfile | null): number {
@@ -242,7 +262,11 @@ export function incomeFromOnboarding(uid: UserId, op: OnboardingProfile | null):
   // anyone with $0 gap months (e.g. 6-on/6-off), and disagreed with totalGrossAnnual elsewhere.
   add('Base salary', 'W2_JOB', salaryAnnual(op) / 12, 'MONTHLY', { employer_match_amount: employerMatchMonthly(op) });
   add('Bonus', 'W2_JOB', toNum(a.bonusAnnual), 'ANNUAL', { landing_month: Math.min(12, Math.max(1, toNum(a.bonusMonth) || 12)) });
-  add('Equity comp', 'W2_JOB', rsuAnnual(op), 'ANNUAL');  // RSUs + options, summed across grants
+  // Walk row 6 (audit PRD #4): the equity source lands in its VEST months (the same shared weights
+  // the cash-flow grid uses), not a default December lump. No dated grants → legacy December stays.
+  const vestW = equityVestWeights(op);
+  add('Equity comp', 'W2_JOB', rsuAnnual(op), 'ANNUAL',
+      vestW ? { landing_months: vestW.map((share, i) => ({ month: i + 1, share })).filter((x) => x.share > 0) } : {});
   add('Signing bonus', 'W2_JOB', toNum(a.signingOnetime), 'ONETIME', { landing_month: 1 });
 
   for (const r of rentalList(op)) sources.push({
@@ -341,19 +365,8 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
   const ex = extraIncome(op);
   const retIncMonthly = currentRetirementIncomeMonthly(op);
   const eqAnnual = rsuAnnual(op);
-  const equityByMonth = new Array(12).fill(0);
-  const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
-  const type = a.equityType ?? 'rsu';
-  const weights = new Array(12).fill(0);
-  let totalV = 0;
-  for (const r of rows) {
-    const v = equityRowValue(r, type, a.optStrike, a.optMarket);
-    if (v <= 0) continue;
-    const m = String(r?.date ?? '').match(/\d{4}-(\d{1,2})/);
-    const idx = m ? Math.min(11, Math.max(0, +m[1] - 1)) : 11;
-    weights[idx] += v; totalV += v;
-  }
-  if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
+  const vestW = equityVestWeights(op);
+  const equityByMonth = vestW ? vestW.map((w) => eqAnnual * w) : new Array(12).fill(0);
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));
   const otherIdx = otherIncomeMonth(op) - 1;
   return new Array(12).fill(0).map((_, i) => {
@@ -397,21 +410,10 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   const c401kM = toNum(a.c_401k);
   const rates = monthlyTaxRates(op, now);   // PRD F2#11 — per-month withholding, one shared vector
 
-  // distribute the level annual equity by the months its vests land on
-  const equityByMonth = new Array(12).fill(0);
-  const rows = Array.isArray(a.rsuGrants) ? a.rsuGrants : [];
-  const type = a.equityType ?? 'rsu';
-  const weights = new Array(12).fill(0);
-  let totalV = 0;
-  for (const r of rows) {
-    const v = equityRowValue(r, type, a.optStrike, a.optMarket);
-    if (v <= 0) continue;
-    const m = String(r?.date ?? '').match(/\d{4}-(\d{1,2})/);
-    const idx = m ? Math.min(11, Math.max(0, +m[1] - 1)) : 11;
-    weights[idx] += v; totalV += v;
-  }
+  // distribute the level annual equity by the months its vests land on — the ONE placement rule
   const eqAnnual = rsuAnnual(op);
-  if (totalV > 0) for (let i = 0; i < 12; i++) equityByMonth[i] = eqAnnual * (weights[i] / totalV);
+  const vestW = equityVestWeights(op);
+  const equityByMonth = vestW ? vestW.map((w) => eqAnnual * w) : new Array(12).fill(0);
 
   const ex = extraIncome(op);
   const retIncMonthly = currentRetirementIncomeMonthly(op);

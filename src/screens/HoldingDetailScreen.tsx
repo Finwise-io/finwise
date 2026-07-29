@@ -8,7 +8,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { maskedMoney, maskedMoney2 } from '../components/useMoney';
+import { maskedMoney, maskedMoney2, spokenMoney } from '../components/useMoney';
 import { realizedFromLedger } from '../domain/performance/realized';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
@@ -154,7 +154,7 @@ export default function HoldingDetailScreen() {
         <Text style={s.kicker}>WHAT YOU BOUGHT</Text>
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
-            accessibilityLabel={`${l.shares} shares at ${maskedMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
+            accessibilityLabel={`${l.shares} shares at ${spokenMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
             <Text style={s.lotShares}>{l.shares} share{l.shares === 1 ? '' : 's'} at {maskedMoney2(l.cost_per_share)}</Text>
             <Text style={s.lotDate}>{dateWords(l.purchase_date)}</Text>
           </TouchableOpacity>

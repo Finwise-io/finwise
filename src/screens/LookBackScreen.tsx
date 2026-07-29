@@ -10,7 +10,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { lookBack } from '../domain/performance/lookBack';
 import { BENCHMARK_TICKER, type PriceSeries } from '../domain/performance';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 
 const WINDOWS = [{ m: 12, label: '12 months ago' }, { m: 24, label: '2 years ago' }, { m: 36, label: '3 years ago' }] as const;
 
@@ -83,7 +83,7 @@ export default function LookBackScreen() {
 
       {result ? (
         <View style={s.card} accessible
-          accessibilityLabel={`What actually happened: left in ${from} it became ${maskedMoney(result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${maskedMoney(result.moved.endValue)}, ${result.moved.pct} percent. Difference ${maskedMoney(Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
+          accessibilityLabel={`What actually happened: left in ${from} it became ${spokenMoney(result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${spokenMoney(result.moved.endValue)}, ${result.moved.pct} percent. Difference ${spokenMoney(Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
           <Text style={s.cardHdr}>WHAT ACTUALLY HAPPENED</Text>
           <Text style={s.legLine}>
             Left in {from} it became <Text style={s.strong}>{maskedMoney(result.stayed.endValue)}</Text>

@@ -111,6 +111,11 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
     case 'BUY':
       return map(accounts, t.account_id, (a) => addLot(bumpCash(a, -((t.shares || 0) * (t.price || 0))), t, t.shares || 0, t.price || 0));
     case 'SELL':
+      // Walk row 4 (audit Home·NW #20): a VALUE sale — no shares, just an amount — is how bonds and
+      // alternatives sell. The ledger is the one writer: the account's value drops by the sale
+      // amount (clamped at zero), and the row IS the audit trail the balance-patch never left.
+      if (!((t.shares || 0) > 0) && (t.amount || 0) > 0)
+        return map(accounts, t.account_id, (a) => ({ ...a, balance: round2(Math.max(0, (a.balance || 0) - (t.amount || 0))) }));
       // can't sell more than you own — clamp so cash isn't over-credited
       return map(accounts, t.account_id, (a) => {
         const pos = findPos(a, t);
@@ -205,7 +210,7 @@ export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
 /** Signed cash effect on the primary account (for display). */
 export function cashEffect(t: Transaction): number {
   switch (t.type) {
-    case 'DEPOSIT': case 'SELL': return (t.type === 'SELL' ? (t.shares || 0) * (t.price || 0) : (t.amount || 0));
+    case 'DEPOSIT': case 'SELL': return (t.type === 'SELL' ? ((t.shares || 0) * (t.price || 0) || (t.amount || 0)) : (t.amount || 0));
     case 'DIVIDEND': case 'INTEREST': case 'COUPON': return t.reinvested ? 0 : (t.amount || 0);
     case 'WITHDRAWAL': case 'FEE': return -(t.amount || 0);
     case 'BUY': return -((t.shares || 0) * (t.price || 0));

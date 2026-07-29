@@ -7,7 +7,7 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
-import { InfoDot } from './UI';
+import { InfoDot, EstimateTag } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
 
 export function PaycheckCard() {
@@ -34,7 +34,7 @@ export function PaycheckCard() {
       ) : (
         <>
           <Text style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
-          <Text style={styles.est}>estimate</Text>
+          <EstimateTag />
         </>
       )}
 
@@ -62,13 +62,13 @@ export function PaycheckCard() {
         </View>
       )}
 
-      <Text style={styles.year}>This year {maskedMoney(year.thisYear)} <Text style={styles.yearNote}>— varies month to month</Text></Text>
+      <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <Text style={styles.yearNote}>— varies month to month</Text></Text>
       {year.drawRateFlag === 'high' && (
         <Text style={styles.flag}>Heads-up: this draw is on the high side of the usual 4%-a-year guideline.</Text>
       )}
 
       <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/paycheck-months')}>
-        <Text style={styles.monthsLink}>See all 12 months →</Text>
+        <Text style={styles.monthsLink}>See {new Date().toLocaleDateString('en-US', { month: 'long' })}'s paycheck →</Text>
       </TouchableOpacity>
 
       <Modal visible={whySafe} transparent animationType="fade" onRequestClose={() => setWhySafe(false)}>

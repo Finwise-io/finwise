@@ -15,6 +15,7 @@ import { resolveNetWorthRows } from '../domain/snapshot';
 import { ageFromProfile } from '../utils/persona';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
 import { maskedMoney } from '../components/useMoney';
+import { TRYING_IT_OUT } from '../components/UI';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const CLAIM_AGES = [62, FULL_RETIREMENT_AGE, 70] as const;
@@ -118,7 +119,7 @@ export default function SsTimingScreen() {
       </View>
 
       {usingExample && <Text style={styles.exampleBanner}>Showing example numbers (a {maskedMoney(exampleStmt)}/mo statement) — type yours above to see your own.</Text>}
-      {!usingExample && <Text style={styles.sandboxBanner}>Trying it out — this won't change your plan until you tap Use this plan.</Text>}
+      {!usingExample && <Text style={styles.sandboxBanner}>{TRYING_IT_OUT}</Text>}
 
       {/* three-way compare */}
       <View style={styles.card}>

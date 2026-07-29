@@ -3,6 +3,7 @@
 // Home's strip, Cash flow's strip and every decision screen read THIS — never a screen-local copy.
 // The derivation mirrors RetirementCockpit's committed-plan inputs exactly (pinned by tests).
 import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
+import { ssBenefitAtClaimAge } from './ssTiming';
 import { retirementEarmarkedValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
 import { taxBucketSplit } from '../decumulation';
 import { effectiveRateOnGrossFor } from '../income/tax';
@@ -64,8 +65,10 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const retireDefault = num(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
-  const ssIncome = ssEligibleEffective ? (A.ssMonthly ?? guaranteedDefault) : 0;
   const claimAge = A.ssClaimAge ?? 67;
+  // ssMonthly is the age-67 STATEMENT amount; the odds must use the check the chosen claim age
+  // actually pays — the same number the SS screen's own compare showed (claim-62 ⇒ ~70% of it).
+  const ssIncome = ssEligibleEffective ? (A.ssMonthly != null ? ssBenefitAtClaimAge(A.ssMonthly, claimAge) : guaranteedDefault) : 0;
 
   const planRetireAge = A.retireAge ?? retireDefault;
   const planSave = A.contribMonthly ?? contribDefault;

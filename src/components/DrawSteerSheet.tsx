@@ -10,7 +10,7 @@ import React, { useMemo, useState } from 'react';
 import { Modal, View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { maskedMoney } from './useMoney';
+import { maskedMoney, spokenMoney } from './useMoney';
 import { InfoDot } from './UI';
 import {
   taxBucketSplit, withdrawalOrder, drawOrderOutcome, rmdAtAge,
@@ -99,7 +99,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
           {/* pinned required-withdrawal step (r48) — law, not preference */}
           {age >= RMD_START_AGE && split.preTax > 0 && (
             <View style={[s.row, s.pinnedRow]} accessible
-              accessibilityLabel={`Required withdrawal, first: ${maskedMoney(Math.round(rmdAtAge(split.preTax, age)))}. The law makes you take this from pre-tax accounts whether you need it or not. This step cannot move.`}>
+              accessibilityLabel={`Required withdrawal, first: ${spokenMoney(Math.round(rmdAtAge(split.preTax, age)))}. The law makes you take this from pre-tax accounts whether you need it or not. This step cannot move.`}>
               <Text style={s.rowNum}>⚖</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.rowLabel}>Required withdrawal — first</Text>
@@ -115,7 +115,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
             const empty = bal <= 0;
             return (
               <View key={b} style={[s.row, empty && { opacity: 0.5 }]} accessible
-                accessibilityLabel={`${BUCKET_LABEL[b]}, ${empty ? 'nothing here yet' : maskedMoney(Math.round(bal))}, ${i + 1} of ${order.length}.`}>
+                accessibilityLabel={`${BUCKET_LABEL[b]}, ${empty ? 'nothing here yet' : spokenMoney(Math.round(bal))}, ${i + 1} of ${order.length}.`}>
                 <Text style={s.rowNum}>{i + 1}</Text>
                 <View style={{ flex: 1 }}>
                   <Text style={s.rowLabel}>{BUCKET_LABEL[b]}</Text>

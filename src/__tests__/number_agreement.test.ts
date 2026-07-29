@@ -23,3 +23,12 @@ test('B-70: one investable selector — investableValue is gone; screens use inv
     expect(screen(f)).not.toMatch(/investableValue/);
   }
 });
+
+test('walk row 5: ONE market-average formula — no screen re-derives the value-weighted bench return inline', () => {
+  // Home and Invest both say "the market: up X%"; both must call portfolioBenchReturn (domain/performance).
+  for (const f of ['HomeScreen.tsx', 'PerformanceScreen.tsx']) {
+    const src = screen(f);
+    expect(src).toMatch(/portfolioBenchReturn\(/);
+    expect(src).not.toMatch(/benchReturn != null && r\.marketValue > 0/);   // the old inline copy
+  }
+});

@@ -67,13 +67,13 @@ export default function BondsScreen() {
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{money(annualCoupon(bi))}/yr coupon</Text>
                   <Text style={styles.metric}>yield {pct(currentYield(bi))}</Text>
-                  <Text style={styles.metric}>YTM {pct(approxYTM(bi))}</Text>
+                  <Text style={styles.metric}>Yield to maturity: {pct(approxYTM(bi))}</Text>
                 </View>
               </TouchableOpacity>
             );
           })}
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a bond" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => setAddOpen(true)}><Text style={styles.addLink}>＋ Add a bond</Text></TouchableOpacity>
-          <Text style={styles.foot}>Coupons are paid as cash and counted as investment income. Value is what you enter (held at cost/quote — no live bond pricing). YTM is an estimate.</Text>
+          <Text style={styles.foot}>Coupons are paid as cash and counted as investment income. Value is what you enter (held at cost/quote — no live bond pricing). Yield to maturity is an estimate.</Text>
         </>
       )}
 
@@ -125,6 +125,9 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   }, [open]);
   // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
   // sale closes the position; a partial sale lowers its value and scales the face/par proportionally.
+  // Walk row 4 (audit Home·NW #20): the sale goes through the LEDGER — a SELL row appears in the
+  // account's Activity exactly like stock sales, instead of a silent balance patch with no trail.
+  const recordTransaction = useStore((s: any) => s.recordTransaction);
   const r2 = (n: number) => Math.round(n * 100) / 100;
   const applySale = () => {
     const sold = num(sellAmt); if (sold <= 0) return;
@@ -135,15 +138,17 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
       full ? 'Close this bond?' : 'Record a sale?',
       full
         ? `Marks the whole position (${money(cur)}) as sold and removes it from your holdings.`
-        : `Lowers ${label.trim() || 'this bond'} from ${money(cur)} to ${money(cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face.`,
+        : `Lowers ${label.trim() || 'this bond'} from ${money(cur)} to ${money(cur - sold)} (face value adjusts proportionally). Coupons are paid on the remaining face — and the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Close position' : 'Record sale', onPress: () => {
           if (full) { onDelete?.(); return; }
           const newVal = r2(cur - sold);
+          // the ledger row lowers the value (the one writer); onSave carries only the non-balance fields
+          if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: new Date().toISOString().slice(0, 10), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
             coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
-            face_value: r2(num(face) * (newVal / cur)), balance: newVal });
+            face_value: r2(num(face) * (newVal / cur)), ...(bond ? {} : { balance: newVal }) });
         } },
       ],
     );

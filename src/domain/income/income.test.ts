@@ -303,3 +303,35 @@ describe('future retirement income must not leak into CURRENT income', () => {
     expect(totalGrossAnnual(legacy)).toBe(42000);
   });
 });
+
+// Build-46 walk row 6 (audit PRD #4): $24,000/yr vesting in March + September must land $12,000 in
+// Mar and $12,000 in Sep on EVERY surface — the income engine's year view used to park it all in
+// December while the cash-flow grid placed it right, so a vesting user saw two different years.
+describe('equity vesting months agree across the engine (walk row 6)', () => {
+  const yr = new Date().getFullYear();
+  const op: any = {
+    equityType: 'rsu',
+    rsuGrants: [
+      { date: `${yr}-03-15`, shares: 100, price: 120 },   // $12,000 in March
+      { date: `${yr}-09-15`, shares: 100, price: 120 },   // $12,000 in September
+    ],
+  };
+
+  test('the income-state grid lands the vests in Mar and Sep — December carries nothing', () => {
+    const { incomeFromOnboarding, buildIncomeState } = require('./index');
+    const doc = incomeFromOnboarding('u1', op);
+    const st = buildIncomeState('u1', doc.sources, doc.tax);
+    const grossByM = st.monthly_cash_flow_grid.map((c: any) => c.gross);
+    expect(grossByM[2]).toBeCloseTo(12000, 0);   // March
+    expect(grossByM[8]).toBeCloseTo(12000, 0);   // September
+    expect(grossByM[11]).toBe(0);                // December — no phantom lump
+  });
+
+  test('…and matches the cash-flow grid month for month (one shared placement rule)', () => {
+    const { incomeMonthlyGrid, incomeFromOnboarding, buildIncomeState } = require('./index');
+    const grid = incomeMonthlyGrid(op, 'gross');
+    const doc = incomeFromOnboarding('u1', op);
+    const st = buildIncomeState('u1', doc.sources, doc.tax);
+    for (let i = 0; i < 12; i++) expect(st.monthly_cash_flow_grid[i].gross).toBeCloseTo(grid[i].amount, 0);
+  });
+});

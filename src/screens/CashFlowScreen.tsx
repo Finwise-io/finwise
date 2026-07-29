@@ -24,9 +24,10 @@ import { ageFromProfile } from '../utils/persona';
 import { PaycheckCard } from '../components/PaycheckCard';
 import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
 import { useCashflowModel } from '../hooks/useCashflowModel';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { IncomeSetupSheet } from '../components/IncomeSetupSheet';
 import BudgetScreen from './BudgetScreen';
+import { EstimateTag } from '../components/UI';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -156,7 +157,7 @@ export default function CashFlowScreen() {
         accessibilityLabel={wil.chance != null ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
         <Text style={styles.cardHdr}>WILL MY MONEY LAST?</Text>
         {wil.chance != null
-          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <Text style={styles.wilEst}>estimate</Text></Text>
+          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <EstimateTag /></Text>
           : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
         <Text style={styles.link}>Lives in your Plan ›</Text>
       </TouchableOpacity>
@@ -453,7 +454,7 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
       <PaycheckCard />
       {safePool > 0 && (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/month-detail?slot=0' as any)}
-          accessibilityLabel={`Spending pace: ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(safePool)} safe to spend — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+          accessibilityLabel={`Spending pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} safe to spend — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
           <View style={styles.paceTrack}>
             <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
             <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
@@ -527,7 +528,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
             <Text style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
-              accessibilityLabel={`${free >= 0 ? '' : 'minus '}${maskedMoney(Math.abs(free))} ${committed > 0 ? 'free to spend after your plan' : 'planned surplus'} this month`}>
+              accessibilityLabel={`${free >= 0 ? '' : 'minus '}${spokenMoney(Math.abs(free))} ${committed > 0 ? 'free to spend after your plan' : 'planned surplus'} this month`}>
               {free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}
             </Text>
             <Text style={styles.heroSub}>{committed > 0 ? 'Free to spend after your plan' : 'Planned surplus'}</Text>
@@ -548,7 +549,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           const spentPct = bva.planned_total > 0 ? Math.round((bva.spent_total / bva.planned_total) * 100) : 0;
           return (
             <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/month-detail?slot=0' as any)}
-              accessibilityLabel={`Spending pace: ${maskedMoney(Math.round(bva.spent_total))} of ${maskedMoney(Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+              accessibilityLabel={`Spending pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(Math.round(bva.planned_total))} planned — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
               <View style={styles.paceTrack}>
                 <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
                 <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
@@ -562,7 +563,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
 
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
-          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${maskedMoney(projection.monthly)} a month.`}>
+          accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>
           <Text style={styles.cardHdr}>YOUR FUTURE PAYCHECK</Text>
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
           <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>

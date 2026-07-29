@@ -12,7 +12,7 @@ import { currencySymbol } from '../domain/_shared/money';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount } from '../domain/assets';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 
 const TAX_WORDS: Record<string, string> = {
@@ -123,7 +123,7 @@ export default function AccountDetailScreen() {
       </View>
 
       <View style={s.card} accessible
-        accessibilityLabel={`Balance ${maskedMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
+        accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
         {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
             what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
@@ -137,7 +137,7 @@ export default function AccountDetailScreen() {
             <Text style={s.optHdr}>WHAT'S INSIDE · BY TYPE</Text>
             {insideRows.map((rw) => (
               <View key={rw.key} style={s.insideRow} accessible
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${maskedMoney(Math.abs(rw.value))}`}>
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}`}>
                 <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
@@ -225,7 +225,7 @@ export default function AccountDetailScreen() {
           const eff = incoming ? (t.amount || 0) : cashEffect(t);
           return (
             <View key={String(t.id)} style={s.txnRow} accessible
-              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${maskedMoney(Math.abs(eff))}`}>
+              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${spokenMoney(Math.abs(eff))}`}>
               <Text style={s.txnDate}>{String(t.date).slice(5)}</Text>
               <Text style={s.txnLabel} numberOfLines={1}>
                 {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
@@ -271,7 +271,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
       </View>
       {sens && (
         <View style={s.card} accessible
-          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${maskedMoney(sens.ratesUp.low)} to ${maskedMoney(sens.ratesUp.high)}. If rates fall one percent, roughly ${maskedMoney(sens.ratesDown.low)} to ${maskedMoney(sens.ratesDown.high)}. Held to maturity, ${maskedMoney(b.face)} comes back if the issuer pays as promised.`}>
+          accessibilityLabel={`Estimate, not a prediction. If interest rates rise one percent, this bond's market value falls to roughly ${spokenMoney(sens.ratesUp.low)} to ${spokenMoney(sens.ratesUp.high)}. If rates fall one percent, roughly ${spokenMoney(sens.ratesDown.low)} to ${spokenMoney(sens.ratesDown.high)}. Held to maturity, ${spokenMoney(b.face)} comes back if the issuer pays as promised.`}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             <InfoDot term="rateSensitivity" />

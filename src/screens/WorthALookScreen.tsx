@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { flagComparisonText, type TxnFlag } from '../domain/transactions/flags';
-import { maskedMoney, maskDollars } from '../components/useMoney';
+import { maskedMoney, maskDollars, spokenMoney } from '../components/useMoney';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 const prettyDate = (d: string) => {
@@ -62,7 +62,7 @@ export default function WorthALookScreen() {
 
       {/* fact block — pure facts from the transaction record, one sentence for screen readers */}
       <Text style={styles.factHead}
-        accessibilityLabel={`${maskedMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
+        accessibilityLabel={`${spokenMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
         {maskedMoney(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
       </Text>
       {/* payee is stored lowercase — show it title-cased, never SHOUTED (audit WL-5) */}

@@ -19,6 +19,8 @@ export interface IncomeSource {
   employer_match_amount?: number;  // employer adds, per period (W2) — gap-fix for the goals waterfall
   landing_month?: number;          // 1-12 — where an ANNUAL/ONETIME item actually lands (the user's
                                    // chosen month); without it the grids disagreed on WHEN (PRD F2 #16)
+  landing_months?: { month: number; share: number }[];   // multi-month ANNUAL lands (equity vesting:
+                                   // Mar 0.5 + Sep 0.5) — shares sum to 1; wins over landing_month
 }
 
 /** Per-user tax handling (spec: tax config flag + manual override). */

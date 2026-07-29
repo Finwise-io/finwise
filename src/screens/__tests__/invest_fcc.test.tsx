@@ -3,7 +3,7 @@
 // rows; the concentration callout is a quantified fact at 25%+; bonds and alternatives are folded
 // into ONE grouped list with value-as-of stamps and stale flags; the plan chip shows adopted saving.
 import React from 'react';
-import { render, screen, fireEvent } from '@testing-library/react-native';
+import { render, screen, fireEvent, within } from '@testing-library/react-native';
 import { GLOSSARY } from '../../domain/glossary';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
@@ -167,4 +167,21 @@ test('PRD F3#16: with a complete ledger the personal return renders, spoken as a
   render(<PerformanceScreen />);
   expect(screen.getByText(/money-weighted return: \+10%\/yr/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/counting when you added money.*an estimate/)).toBeOnTheScreen();
+});
+
+test('Build-46 walk row 2: a holding with NO price shows what you paid — never $0 (audit Invest #2)', () => {
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [pos('p1', 'NVDA', 200, 300), pos('px', 'LCTX', 1000, 1.132)] },   // LCTX: no priceCache entry
+    ],
+  } as any);
+  render(<PerformanceScreen />);
+  // the LCTX row: cost basis (1000 × $1.132 = $1,132), said in words — the detail page's treatment
+  expect(screen.getByText('LCTX')).toBeOnTheScreen();
+  expect(screen.getByText('$1,132')).toBeOnTheScreen();
+  expect(screen.getByText('what you paid')).toBeOnTheScreen();
+  // and its spoken label says so too — and the ROW itself carries no $0 anywhere
+  const row = screen.getByLabelText(/LCTX, \$1,132, no current price, showing what you paid/);
+  expect(within(row).queryByText('$0')).toBeNull();
 });

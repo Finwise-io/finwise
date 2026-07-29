@@ -139,3 +139,18 @@ test('F1 freshness: a connected balance older than 3 days SAYS so on Home', () =
   expect(connectionFreshness(old)!.stale).toBe(true);
   expect(connectionFreshness(new Date().toISOString())!.stale).toBe(false);
 });
+
+// Build-46 walk row 16 (founder decision 2026-07-28): ONE disconnect promise — the user chooses.
+// The consent copy and the Settings disconnect dialog must state the same two paths.
+test('walk row 16: the disconnect promise offers the choice, in the consent AND in Settings', () => {
+  const joined = CONSENT_COPY.join(' ');
+  expect(joined).toMatch(/Disconnect any time in Settings — you choose/);
+  expect(joined).toMatch(/keep your numbers as a by-hand account/);
+  expect(joined).toMatch(/delete the connection’s data/);
+  expect(joined).not.toMatch(/and we delete the connection’s data with it/);   // the old one-sided promise
+  const fs = require('fs'); const path = require('path');
+  const settings = fs.readFileSync(path.join(__dirname, '..', 'SettingsScreen.tsx'), 'utf8');
+  expect(settings).toMatch(/keep your numbers as a by-hand account/);
+  expect(settings).toMatch(/Keep as manual/);        // the two real buttons behind the promise
+  expect(settings).toMatch(/Remove accounts/);
+});

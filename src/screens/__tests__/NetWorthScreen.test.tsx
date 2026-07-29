@@ -191,3 +191,61 @@ describe('debt planned payment clears on blank (P0 orphan field)', () => {
     expect(requiredPayment(d)).toBe(50);
   });
 });
+
+// ── Build-46 walk rows 7 + 8 (v7 FINAL mock, audit Home·NW #15/#13) ──────────────────────────────
+describe('walk row 7: the "Your path ahead" row (v7 FINAL)', () => {
+  test('renders under the glance and routes to the Plan tab; with a computable plan it carries the projection', () => {
+    useStore.setState({
+      onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 55), targetRetirementAge: '67', monthlySpending: '5000', horizonAge: '92' },
+      assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000 }],
+      nwSetupChoice: 'self',
+    } as any);
+    render(<NetWorthScreen />);
+    const row = screen.getByLabelText(/Your path ahead, from your Plan/);
+    expect(row).toBeOnTheScreen();
+    expect(screen.getByText(/on course for/)).toBeOnTheScreen();
+    expect(screen.getByText(/by 67/)).toBeOnTheScreen();
+    expect(screen.getByText(/~\$[\d,]+/)).toBeOnTheScreen();          // the ~ says estimate
+    fireEvent.press(row);
+    expect(router.push).toHaveBeenCalledWith('/(tabs)/plan');
+  });
+
+  test('without a computable plan the row is the plain approved link — never an invented number', () => {
+    useStore.setState({
+      assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 5000 }],
+      nwSetupChoice: 'self',
+    } as any);
+    render(<NetWorthScreen />);
+    expect(screen.getByLabelText(/Your path ahead, from your Plan/)).toBeOnTheScreen();
+    expect(screen.queryByText(/on course for/)).toBeNull();
+  });
+});
+
+describe('walk row 8: the grouping pills (v7 FINAL)', () => {
+  const seedTwoEtrade = () => useStore.setState({
+    assetAccounts: [
+      { asset_id: 'e1', label: 'Individual Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 40000 },
+      { asset_id: 'e2', label: 'Rollover IRA', institution: 'E*TRADE', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 60000 },
+      { asset_id: 'c1', label: 'Everyday checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000 },
+    ],
+    nwSetupChoice: 'self',
+  } as any);
+
+  test('the three pills render; By institution rolls both E*TRADE accounts under ONE header', () => {
+    seedTwoEtrade();
+    render(<NetWorthScreen />);
+    expect(screen.getByText('By class')).toBeOnTheScreen();
+    fireEvent.press(screen.getByText('By institution'));
+    expect(screen.getByLabelText(/E\*TRADE, \$100,000, 2 accounts/)).toBeOnTheScreen();   // one header, summed
+    expect(screen.getByLabelText(/Chase, \$8,000, 1 account\./)).toBeOnTheScreen();
+  });
+
+  test('By type groups by account kind and By class returns to the approved class view', () => {
+    seedTwoEtrade();
+    render(<NetWorthScreen />);
+    fireEvent.press(screen.getByText('By type'));
+    expect(screen.getByLabelText(/Checking, \$8,000, 1 account\./)).toBeOnTheScreen();
+    fireEvent.press(screen.getByText('By class'));
+    expect(screen.getByText('Cash')).toBeOnTheScreen();               // class rows are back
+  });
+});

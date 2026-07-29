@@ -8,13 +8,15 @@ import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
+import { willItLastInputs } from '../domain/retirement/willItLast';
+import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 import { InfoDot } from '../components/UI';
 import { type GlossaryTerm } from '../domain/glossary';
@@ -119,6 +121,17 @@ export default function NetWorthScreen() {
   const [showAllClassRows, setShowAllClassRows] = useState<Record<string, boolean>>({});
   const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});   // v4: per-class expand, default collapsed
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
+  // Walk row 8 (v7 FINAL, audit Home·NW #13): the inventory grouping — class is the approved default
+  const [nwGrouping, setNwGrouping] = useState<'class' | 'institution' | 'type'>('class');
+
+  // Walk row 7 (v7 FINAL + doc, audit Home·NW #15): the Plan's projection for the path-ahead row.
+  // Number only when the plan is computable AND retirement is still ahead — never an invented figure.
+  const pathAhead = useMemo(() => {
+    const inputs = willItLastInputs({ op, accounts: assets, assumptions: store.retirementAssumptions ?? {}, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
+    if (!inputs || inputs.start_balance <= 0 || inputs.retire_age <= inputs.current_age) return null;
+    const egg = Math.round(projectNestEgg(inputs).will_have);
+    return egg > 0 ? { egg, age: inputs.retire_age } : null;
+  }, [op, assets, store.retirementAssumptions, store.inflationRate, store.employmentStatus]);
 
   // FCC: the Account detail screen's Edit button lands here with ?edit=<id> → open the one editor
   const { edit: editParam } = useLocalSearchParams<{ edit?: string }>();
@@ -163,7 +176,7 @@ export default function NetWorthScreen() {
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
-      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${maskedMoney(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
+      <TouchableOpacity key={a.asset_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Open ${title}, ${spokenMoney(a.balance)}`} onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}>
         <Text style={styles.rowIcon}>{assetKind(a.kind)?.icon ?? '💼'}</Text>
         <View style={{ flex: 1 }}>
           <Text style={styles.rowTitle}>{title}</Text>
@@ -273,7 +286,7 @@ export default function NetWorthScreen() {
             {liabilities.map((d, i) => {
               const hot = d.interest_rate_apr > TOXIC_APR;
               return (
-                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${maskedMoney(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
+                <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button" accessibilityLabel={`Edit ${d.label}, ${spokenMoney(d.remaining_balance)}`} onPress={() => setDebtSheet({ open: true, edit: d })}>
                   <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
                   <View style={{ flex: 1 }}>
                     <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -406,14 +419,60 @@ export default function NetWorthScreen() {
           })()}
         </View>
 
+        {/* Walk row 7 (v7 FINAL + doc, Home·NW #15): one calm projection line from the Plan.
+            With a computable plan it carries the number; without one it's the plain approved link. */}
+        <TouchableOpacity accessibilityRole="button" style={styles.pathAhead} onPress={() => router.push('/(tabs)/plan')}
+          accessibilityLabel={pathAhead
+            ? `Your path ahead, from your Plan: on course for about ${maskedMoney(pathAhead.egg)} by ${pathAhead.age}. Opens the Plan tab.`
+            : 'Your path ahead, from your Plan. Opens the Plan tab.'}>
+          <Text style={styles.pathAheadTxt}>
+            Your path ahead (from your Plan){pathAhead ? <Text>: on course for <Text style={styles.pathAheadNum}>~{maskedMoney(pathAhead.egg)}</Text> by {pathAhead.age}</Text> : null} ›
+          </Text>
+        </TouchableOpacity>
+
         {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
         <Text style={styles.ownHdr}>WHAT YOU OWN   {maskedMoney(Math.round(totalAssets))}</Text>
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
+          {/* Walk row 8 (v7 FINAL): By institution / By type — whole accounts roll up under one
+              header (two E*TRADE entries become one E*TRADE group); class view keeps the approved
+              expand/collapse with per-class portions. */}
+          {nwGrouping !== 'class' && (() => {
+            const keyOf = (a: AssetAccount) => nwGrouping === 'institution'
+              ? (a.institution?.trim() || 'No institution')
+              : (assetKind(a.kind)?.label ?? 'Other');
+            const groups = new Map<string, { total: number; members: AssetAccount[] }>();
+            for (const a of assets) {
+              const k = keyOf(a);
+              const g = groups.get(k) ?? { total: 0, members: [] };
+              g.total += a.balance || 0; g.members.push(a);
+              groups.set(k, g);
+            }
+            return [...groups.entries()].sort((x, y) => y[1].total - x[1].total).map(([label, g], i) => (
+              <View key={label} style={i > 0 ? styles.divider : undefined}>
+                <View style={styles.row} accessible
+                  accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${g.members.length} account${g.members.length === 1 ? '' : 's'}.`}>
+                  <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{label}</Text></View>
+                  <Text style={styles.rowVal}>{maskedMoney(Math.round(g.total))}</Text>
+                </View>
+                {g.members.map((a) => (
+                  <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
+                    onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
+                    accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                    <View style={{ flex: 1 }}>
+                      <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
+                    </View>
+                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
+                    <Text style={styles.acctChev}>›</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            ));
+          })()}
           {/* v4 mock APPROVED 2026-07-19: class rows expand/collapse (default collapsed, caret ▸/▾
               word+motion never color alone); a lone class auto-expands — hiding the only account
               behind a tap would obscure, not glance. */}
-          {classRows.map((r, i) => {
+          {nwGrouping === 'class' && classRows.map((r, i) => {
             // APPROVED v6: connected accounts appear under EACH class they hold, with just that
             // slice; whole accounts appear once under their class. Larger slices first.
             const members = assets
@@ -430,7 +489,7 @@ export default function NetWorthScreen() {
               <View key={r.key} style={i > 0 ? styles.divider : undefined}>
                 <TouchableOpacity style={styles.row} accessibilityRole="button"
                   onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
-                  accessibilityLabel={`${r.label}, ${maskedMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+                  accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
                   <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
                   <View style={[styles.dot, { backgroundColor: r.color }]} />
                   <View style={{ flex: 1 }}>
@@ -442,7 +501,7 @@ export default function NetWorthScreen() {
                 {shownMembers.map(({ a, portion, split }) => (
                   <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
                     onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                    accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${maskedMoney(Math.round(portion))}. Opens its page.`}>
+                    accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                       {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
@@ -468,7 +527,7 @@ export default function NetWorthScreen() {
           {liabilities.length === 0 && <Text style={styles.empty}>No debts — it's all yours.</Text>}
           {liabilities.map((d, i) => (
             <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
-              accessibilityLabel={`${d.label}, you owe ${maskedMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
+              accessibilityLabel={`${d.label}, you owe ${spokenMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
               <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
               <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -487,10 +546,21 @@ export default function NetWorthScreen() {
           <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {maskedMoney(Math.round(nw.net_worth))}</Text>
         </Text>
 
+        {/* Walk row 8 (v7 FINAL): the grouping pills — the approved mock places them here */}
+        <View style={styles.groupPills}>
+          {([['class', 'By class'], ['institution', 'By institution'], ['type', 'By type']] as const).map(([key, label]) => (
+            <TouchableOpacity key={key} accessibilityRole="button"
+              accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
+              style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
+              onPress={() => setNwGrouping(key)}>
+              <Text style={[styles.groupPillTxt, nwGrouping === key && styles.groupPillTxtOn]}>{label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
 
         {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
         <TouchableOpacity accessibilityRole="button" style={styles.cfGlance} onPress={() => router.push('/(tabs)/cashflow')}
-          accessibilityLabel={`This month's cash flow: in ${maskedMoney(Math.round(cfCell?.inflow ?? 0))}, out ${maskedMoney(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
+          accessibilityLabel={`This month's cash flow: in ${spokenMoney(Math.round(cfCell?.inflow ?? 0))}, out ${spokenMoney(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>This month's cash flow</Text>
             <Text style={styles.rowSub}>In {maskedMoney(Math.round(cfCell?.inflow ?? 0))} · Out {maskedMoney(Math.round(cfCell?.outflow ?? 0))}</Text>
@@ -758,21 +828,31 @@ const styles = StyleSheet.create({
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
   glanceKickerNW: { fontSize: 12, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
-  acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 40 },
+  acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 44 },
   classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },
   acctRowLabel: { fontSize: 14, color: Colors.textPrimary },
   acctRowSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
   acctRowVal: { fontSize: 14, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
   acctChev: { fontSize: 15, color: Colors.textTertiary },
-  acctMore: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 6 },
+  acctMore: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 13, minHeight: 44 },
   glanceVal: { fontSize: 36, fontWeight: '800', color: Colors.textPrimary },
   glanceDelta: { fontSize: 13, fontWeight: '800', marginTop: 4 },
-  glanceLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 32 },
+  glanceLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 44, paddingTop: 12 },
   ownHdr: { fontSize: 12, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   chev: { fontSize: 18, color: Colors.textTertiary, marginLeft: 6 },
   expandBtn: { minHeight: 46, justifyContent: 'center', alignItems: 'center', marginTop: Spacing.sm },
   expandTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   cfGlance: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
+  // walk row 7: the calm projection line (v7 FINAL position — right under the glance card)
+  pathAhead: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12, marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
+  pathAheadTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
+  pathAheadNum: { fontWeight: '800' },
+  // walk row 8: the grouping pills (44pt targets — the tap-target rule applies to new controls)
+  groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
+  groupPill: { borderWidth: 1, borderColor: Colors.border, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
+  groupPillOn: { backgroundColor: Colors.textPrimary, borderColor: Colors.textPrimary },
+  groupPillTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
+  groupPillTxtOn: { color: Colors.cardBg },
   addConnect: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   addConnectTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },

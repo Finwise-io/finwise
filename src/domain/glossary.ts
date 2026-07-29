@@ -33,7 +33,7 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   investable:   { title: 'Investable assets', body: 'Cash plus investments plus retirement accounts. Excludes your home and personal property (cars, valuables).' },
   earmarked:    { title: 'Earmarked', body: 'The share of an account you’ve set aside for retirement. Cash and property default to 0%; investment accounts to 100%.' },
   unclassified: { title: 'Unclassified', body: 'An account whose holdings we don’t know yet — counted in your total, but not shown as stocks/bonds until you set the mix.' },
-  rmd:          { title: 'RMD', body: 'Required Minimum Distribution — the amount the IRS requires you to withdraw from pre-tax retirement accounts each year starting at age 73.' },
+  rmd:          { title: 'Required withdrawals (RMD)', body: 'Required Minimum Distribution — the amount the IRS requires you to withdraw from pre-tax retirement accounts each year starting at age 73.' },
   emergencyFund:{ title: 'Emergency fund', body: 'Cash set aside for the unexpected — a common target is 3–6 months of your essential spending.' },
   savingsRate:  { title: 'Savings rate', body: 'The share of your take-home pay you set aside each month. Around 20% is a healthy benchmark.' },
   cash:         { title: 'Cash', body: 'Money in checking, savings, or money-market accounts. Safe and available any time, but earns little.' },

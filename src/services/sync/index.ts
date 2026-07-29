@@ -81,5 +81,7 @@ export const CONSENT_COPY = [
   // Founder ask 2026-07-19 (seen on a live E*TRADE connect): the broker's own consent page may
   // describe its data-sharing program broadly, including trading. Say the truth where the worry is.
   'Your brokerage’s page may mention trading access — MoneyKeel registers every connection read-only, and this app has no trading commands at all.',
-  'You can disconnect any time in Settings, and we delete the connection’s data with it.',
+  // Walk row 16 (founder decision 2026-07-28, audit Home·NW #17): ONE promise everywhere — the
+  // user CHOOSES on disconnect. This sentence must match Settings' actual disconnect choices.
+  'Disconnect any time in Settings — you choose: keep your numbers as a by-hand account, or delete the connection’s data.',
 ] as const;

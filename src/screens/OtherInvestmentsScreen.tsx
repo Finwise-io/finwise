@@ -92,18 +92,22 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
   const valid = label.trim().length > 0 && num(value) > 0;
   // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
   // Record a full sale (closes it) or a partial sale (lowers the value). Mark-to-market = edit "Current value".
+  // Walk row 4 (audit Home·NW #20): partial sales write a SELL ledger row — the account's Activity
+  // shows where the money went, same as stock sales; no more silent balance patches.
+  const recordTransaction = useStore((s: any) => s.recordTransaction);
   const applySale = () => {
     const sold = num(sellAmt); const cur = num(value); if (sold <= 0 || cur <= 0) return;
     const full = sold >= cur - 0.005;
     Alert.alert(
       full ? 'Close this investment?' : 'Record a sale?',
       full ? `Marks all ${money(cur)} as sold and removes it from your holdings.`
-           : `Lowers ${label.trim() || 'this investment'} from ${money(cur)} to ${money(cur - sold)}.`,
+           : `Lowers ${label.trim() || 'this investment'} from ${money(cur)} to ${money(cur - sold)} — the sale shows in this account's activity.`,
       [
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Close position' : 'Record sale', onPress: () => {
-          if (full) onDelete?.();
-          else onSave({ kind, label: label.trim(), institution: inst.trim(), balance: Math.round((cur - sold) * 100) / 100, tax_bucket: bucket });
+          if (full) { onDelete?.(); return; }
+          if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: new Date().toISOString().slice(0, 10), note: 'Sale' });
+          onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
         } },
       ],
     );

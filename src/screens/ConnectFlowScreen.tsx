@@ -13,7 +13,7 @@ import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Activi
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { activeSyncProvider, CONSENT_COPY, type FoundAccount } from '../services/sync';
 import { snaptradeConfigured } from '../services/sync/snaptradeClient';
 import SnapTradeConnect from './SnapTradeConnect';
@@ -171,7 +171,7 @@ export default function ConnectFlowScreen() {
             <View key={f.external_id} style={i > 0 ? s.divider : undefined}>
               <TouchableOpacity accessibilityRole="checkbox" style={s.foundRow} accessibilityState={{ checked: on }}
                 onPress={() => setPicked({ ...picked, [f.external_id]: !on })}
-                accessibilityLabel={`${f.name}${f.mask ? `, ending ${f.mask.replace(/•/g, '')}` : ''}, ${maskedMoney(Math.round(f.balance))}. ${on ? 'Will be tracked.' : 'Not tracked.'}`}>
+                accessibilityLabel={`${f.name}${f.mask ? `, ending ${f.mask.replace(/•/g, '')}` : ''}, ${spokenMoney(Math.round(f.balance))}. ${on ? 'Will be tracked.' : 'Not tracked.'}`}>
                 <View style={[s.checkBadge, on && s.checkBadgeOn]}>{on ? <Text style={s.checkTick}>✓</Text> : null}</View>
                 <View style={{ flex: 1 }}>
                   <Text style={s.foundName}>{f.name} {f.mask ?? ''}</Text>

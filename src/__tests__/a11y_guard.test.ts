@@ -37,3 +37,44 @@ test('no file exceeds its unlabeled-control baseline (ratchet down only)', () =>
   }
   expect(regressions).toEqual([]);
 });
+
+// Build-46 walk row 13 (audit UX #5): the audit-measured small targets were raised to 44pt on the
+// named surfaces; this ratchet keeps ANY sub-44 minHeight from creeping back into them.
+test('walk row 13: no sub-44 minHeight on the fixed tap-target surfaces (ratchet)', () => {
+  const fixed = ['screens/NetWorthScreen.tsx', 'components/MoneySheets.tsx'];
+  const offenders: string[] = [];
+  for (const rel of fixed) {
+    const src = fs.readFileSync(path.join(root, rel), 'utf8');
+    const hits = src.match(/minHeight:\s*(?:[0-3]?\d)\b(?!\d)/g) ?? [];
+    for (const h of hits) offenders.push(`${rel}: ${h} — the 44pt tap-target rule (fingers miss smaller)`);
+  }
+  expect(offenders).toEqual([]);
+});
+
+// Build-46 walk row 15 (audit Home·NW #8): spoken labels say "hidden", never the dot characters.
+// accessibilityLabel/Hint templates must use the spoken* forms (useMoney.ts) — the visual maskers
+// (maskedMoney / maskDollars) may not appear inside them. Class closed with a ratchet, not a sweep.
+test('walk row 15: no visual masker inside an accessibility label/hint (spoken forms only)', () => {
+  const files = [...walk(path.join(root, 'screens')), ...walk(path.join(root, 'components'))]
+    .filter((f) => !f.includes('__tests__'));
+  const span = /accessibility(?:Label|Hint)=\{`(?:[^`\\]|\\.|\$\{(?:[^{}]|\{[^{}]*\})*\})*`\}|accessibility(?:Label|Hint)=\{(?:maskedMoney2?|maskDollars)\(/gs;
+  const offenders: string[] = [];
+  for (const f of files) {
+    const src = fs.readFileSync(f, 'utf8');
+    for (const m of src.matchAll(span)) {
+      if (/maskedMoney2?\(|maskDollars\(/.test(m[0])) offenders.push(`${path.relative(root, f)}: ${m[0].slice(0, 90)}…`);
+    }
+  }
+  expect(offenders).toEqual([]);
+});
+
+// …and the spoken form itself keeps its contract: the WORD hidden when balances are hidden.
+test('walk row 15: spokenMoney says "hidden" under the eye, real dollars otherwise', () => {
+  const { useStore } = require('../store/useStore');
+  const { spokenMoney, spokenDollars } = require('../components/useMoney');
+  useStore.setState({ hideBalances: true } as any);
+  expect(spokenMoney(1234)).toBe('hidden');
+  expect(spokenDollars('You can still contribute $9,200 this year')).toBe('You can still contribute hidden this year');
+  useStore.setState({ hideBalances: false } as any);
+  expect(spokenMoney(1234)).toBe('$1,234');
+});

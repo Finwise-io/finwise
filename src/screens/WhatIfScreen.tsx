@@ -11,9 +11,9 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { simulate, projectNestEgg } from '../domain/retirement';
 import { willItLastInputs } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { PlanSlider } from '../components/PlanSlider';
-import { InfoDot } from '../components/UI';
+import { InfoDot, TRYING_IT_OUT } from '../components/UI';
 
 const STEP = 100;
 
@@ -82,7 +82,7 @@ export default function WhatIfScreen() {
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>What if I save more?</Text>
-      <Text style={s.banner}>Trying it out changes nothing — every figure is an estimate.</Text>
+      <Text style={s.banner}>{TRYING_IT_OUT}</Text>
 
       {/* the dial only renders when it can actually compute something (a dead control confuses) */}
       {result != null && !result.retired && (
@@ -134,7 +134,7 @@ export default function WhatIfScreen() {
         </View>
       ) : result != null && !result.retired ? (
         <View style={s.card} accessible
-          accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${maskedMoney(result.before.egg)} becomes ${maskedMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
+          accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${spokenMoney(result.before.egg)} becomes ${spokenMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
           <Text style={s.cardHdr}>AT {result.retireAge} (ESTIMATES)</Text>
           {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>

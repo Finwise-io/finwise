@@ -13,7 +13,7 @@ import { k401Headroom, IRS_LIMITS } from '../domain/income/limits';
 import { TOXIC_APR } from '../domain/debt';
 import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
-import { maskDollars } from '../components/useMoney';
+import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
 import { requiredMonthly } from '../domain/goals';
@@ -95,7 +95,9 @@ export function useInsights(limit?: number): Insight[] {
       hasEarnedIncome: salaryAnnual(op) > 0,
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
       cashDragPct: investable > 0 ? (cash / investable) * 100 : 0,
+      cashAmount: cash,                                   // walk row 9: dollar-first wording
       topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
+      topAccountAmount: topAccount,                       // walk row 9: dollar-first wording
       topHolding,
       planPct: plan.pct,
       planNext: plan.checks.find((c: any) => !c.done)?.label ?? null,
@@ -146,7 +148,7 @@ export default function InsightsScreen() {
         <View key={t}>
           <Text style={styles.groupHdr}>{THEME_META[t].icon}  {THEME_META[t].label.toUpperCase()}</Text>
           {insights.filter((i) => i.theme === t).map((i) => (
-            <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={maskDollars(i.title)} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
+            <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={spokenDollars(i.title)} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
               <Text style={styles.icon}>{i.icon}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={styles.title}>{maskDollars(i.title)}</Text>
@@ -156,7 +158,7 @@ export default function InsightsScreen() {
                   its own explicit resolution flow instead */}
               {i.id !== 'worth-a-look' && (
                 <TouchableOpacity accessibilityRole="button" style={styles.hideBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                  accessibilityLabel={`Hide the ${maskDollars(i.title)} card for a while`}
+                  accessibilityLabel={`Hide the ${spokenDollars(i.title)} card for a while`}
                   onPress={() => {
                     const until = (days: number) => new Date(Date.now() + days * 86400000).toISOString();
                     Alert.alert('Hide this card?', 'It comes back on its own — or sooner if the numbers change a lot.', [
@@ -181,8 +183,10 @@ export default function InsightsScreen() {
           <View style={styles.sheet} onStartShouldSetResponder={() => true}>
             <View style={styles.grip} />
             {open && (<>
-              <Text style={styles.sheetTitle}>{open.icon}  {open.title}</Text>
-              <Text style={styles.sheetBody}>{open.body}</Text>
+              {/* Walk row 3 (audit PRD #6): the pop-up masks like every other surface —
+                  the card was masked but this sheet leaked the plain dollars. */}
+              <Text style={styles.sheetTitle}>{open.icon}  {maskDollars(open.title)}</Text>
+              <Text style={styles.sheetBody}>{maskDollars(open.body)}</Text>
               {open.details && open.details.length > 0 && (
                 <View style={styles.detailBox}>
                   <Text style={styles.detailHdr}>Where this comes from</Text>

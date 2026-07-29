@@ -18,7 +18,7 @@ import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
-import { buildPerformance, portfolioPeriodReturn, periodDollarDelta, type Position } from '../domain/performance';
+import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
 import { buildDebtState, requiredPayment } from '../domain/debt';
@@ -28,7 +28,7 @@ import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
 import { makeMonthlySnapshot, readHistory } from '../domain/history';
 import { useInsights } from './InsightsScreen';
-import { maskedMoney, maskDollars } from '../components/useMoney';
+import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -148,11 +148,7 @@ export default function HomeScreen() {
   const priceOf = (t: string) => priceCache[t.trim().toUpperCase()];
   const perfRows = useMemo(() => buildPerformance(positions, priceOf, '1M'), [positions, priceCache]);
   const youReturn = portfolioPeriodReturn(perfRows);            // 1-month, matches Invest's 1M figure
-  const marketReturn = useMemo(() => {
-    const usable = perfRows.filter((r) => r.benchReturn != null && r.marketValue > 0);
-    const tot = usable.reduce((t, r) => t + r.marketValue, 0);
-    return tot > 0 ? usable.reduce((t, r) => t + (r.benchReturn as number) * r.marketValue, 0) / tot : null;
-  }, [perfRows]);
+  const marketReturn = useMemo(() => portfolioBenchReturn(perfRows), [perfRows]);   // the ONE shared formula (walk row 5)
   const freshness = positions.length > 0 ? priceFreshness(store.pricesFetchedAt, Date.now()) : null;
 
   // ── will-it-last strip: the ONE selector's number (same seeded run as the Plan hub) ──
@@ -257,7 +253,7 @@ export default function HomeScreen() {
         ) : (
           <TouchableOpacity accessibilityRole="button" style={styles.heroCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/invest')}
            
-            accessibilityLabel={`Your investments: ${maskedMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
+            accessibilityLabel={`Your investments: ${spokenMoney(investTotal)}${youReturn != null ? `, ${youReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(youReturn * 1000) / 10)} percent this month` : ''}${freshness ? `, prices updated ${freshness.label}` : ''}`}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.heroKicker}>YOUR INVESTMENTS</Text>
               <InfoDot term="investments" />
@@ -339,7 +335,7 @@ export default function HomeScreen() {
         {/* NET WORTH — one quiet line, taps to its one home */}
         <TouchableOpacity accessibilityRole="button" style={styles.nwLine} activeOpacity={0.7} onPress={() => router.push('/(tabs)/analytics')}
          
-          accessibilityLabel={`Net worth ${maskedMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
+          accessibilityLabel={`Net worth ${spokenMoney(netWorth)}${nwDir ? `, ${nwDir} since last month` : ''}. Opens the Net worth tab.`}>
           <Text style={styles.nwLabel}>Net worth</Text>
           <InfoDot term="netWorth" />
           <Text style={styles.nwValue}>{maskedMoney(netWorth)}</Text>
@@ -355,7 +351,7 @@ export default function HomeScreen() {
             <TouchableOpacity accessibilityRole="button" key={ins.id} style={[styles.needRow, i > 0 && styles.divider]} activeOpacity={0.7}
               onPress={() => ins.route && router.push(ins.route as any)}
              
-              accessibilityLabel={`${i + 1}. ${maskDollars(ins.title)}. ${maskDollars(ins.body)}`}>
+              accessibilityLabel={`${i + 1}. ${spokenDollars(ins.title)}. ${spokenDollars(ins.body)}`}>
               <Text style={[styles.needRank, i === 0 && styles.needRankTop]}>{i + 1}{i === 0 ? '◆' : '·'}</Text>
               <View style={{ flex: 1 }}>
                 {/* engine sentences carry dollar figures — mask them, keep the words (the walk test) */}
@@ -417,7 +413,7 @@ export default function HomeScreen() {
           const left = thisMonthNet - bva.spent_total;
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
-              accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${maskedMoney(Math.round(thisMonthNet))}, spent so far ${maskedMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `${maskedMoney(Math.round(left))} left, bills may still be coming` : `${maskedMoney(Math.round(-left))} over`}. Opens the Cash flow tab.`}>
+              accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${spokenMoney(Math.round(thisMonthNet))}, spent so far ${spokenMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `${spokenMoney(Math.round(left))} left, bills may still be coming` : `${spokenMoney(Math.round(-left))} over`}. Opens the Cash flow tab.`}>
               <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
               <View style={styles.paceRow}>
                 <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>

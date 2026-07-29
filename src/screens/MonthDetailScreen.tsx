@@ -9,7 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
 import { useCashflowModel } from '../hooks/useCashflowModel';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 const day = (d?: number) => (d ? ` · ${ord(d)}` : '');
@@ -57,7 +57,7 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${maskedMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
         <Text style={styles.cardHdr}>{retired ? 'SAFE TO SPEND' : 'LEFT OVER'}{isCurrent ? ' · AS OF TODAY' : ''}</Text>
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}

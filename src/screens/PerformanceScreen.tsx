@@ -13,17 +13,17 @@ import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
 import { valueFreshness } from '../domain/assets';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
-  buildPerformance, portfolioPeriodReturn, benchmarkTicker, totalShares, costBasis,
+  buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, benchmarkTicker, totalShares, costBasis,
   attribution, allocation, portfolioTrend, capGains, capGainsTax, topHoldingConcentration,
   PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { userCapGainsRates } from '../domain/income';
 import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EstimateTag } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -68,11 +68,7 @@ export default function PerformanceScreen() {
   const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   const anyCapped = rows.some((r) => r.cappedSince != null);
   const portReturn = portfolioPeriodReturn(rows);
-  const benchPort = (() => {
-    const usable = rows.filter((r) => r.benchReturn != null && r.marketValue > 0);
-    const tot = usable.reduce((t, r) => t + r.marketValue, 0);
-    return tot > 0 ? usable.reduce((t, r) => t + (r.benchReturn as number) * r.marketValue, 0) / tot : null;
-  })();
+  const benchPort = portfolioBenchReturn(rows);   // the ONE shared formula Home uses too (walk row 5)
   const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
@@ -178,7 +174,7 @@ export default function PerformanceScreen() {
           {/* PORTFOLIO VALUE hero (founder mock 2026-07-15): the level first, the period gain
               second, then the NAMED honest comparison + the freshness clock — one card, one story */}
           {rows.length > 0 && <View style={styles.card} accessible
-            accessibilityLabel={`Portfolio value ${maskedMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${maskedMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${PERIOD_PHRASE[period]}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
+            accessibilityLabel={`Portfolio value ${spokenMoney(investTotalAll)}. ${portReturn == null ? 'Not enough price history yet for this period.' : `${periodDollar >= 0 ? 'Up' : 'Down'} ${spokenMoney(Math.abs(Math.round(periodDollar)))}, ${pct(portReturn)}, ${PERIOD_PHRASE[period]}.`}${benchPort != null ? ` Honest comparison — stock market ${pct(benchPort)}.` : ''}${portBeat != null ? ` You're ${portBeat >= 0 ? 'ahead' : 'behind'} by ${Math.abs(portBeat * 100).toFixed(1)} points.` : ''}`}>
             {/* APPROVED invest-v3 FINAL (2026-07-19): the RETURN leads and is named YOURS — every
                 row it rolls up counts from the later of the period start or the day you bought */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
@@ -256,7 +252,7 @@ export default function PerformanceScreen() {
                     )}
                     <TouchableOpacity accessibilityRole="button" style={styles.wlRow}
                       onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}
-                      accessibilityLabel={`${roleWord ? roleWord + ' ' : ''}${r.position.label || r.position.ticker}${r.cappedSince ? `, ${sinceWord(r.cappedSince)}` : ''}, ${gain >= 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
+                      accessibilityLabel={`${roleWord ? roleWord + ' ' : ''}${r.position.label || r.position.ticker}${r.cappedSince ? `, ${sinceWord(r.cappedSince)}` : ''}, ${gain >= 0 ? 'up' : 'down'} ${spokenMoney(Math.abs(Math.round(gain)))}, ${pct(r.periodReturn)}. Opens its page.`}>
                       <View style={{ flex: 1, minWidth: 0 }}>
                         <Text style={styles.wlTicker} numberOfLines={1}>{roleWord ? `${roleWord}: ` : ''}{r.position.ticker}</Text>
                         {r.cappedSince && <Text style={styles.wlSince}>{sinceWord(r.cappedSince)}</Text>}
@@ -291,7 +287,7 @@ export default function PerformanceScreen() {
           {/* the two honest what-ifs — forward (estimate) and backward (facts) */}
           <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/what-if')}
             accessibilityLabel="Look ahead: what saving more could do. An estimate.">
-            <Text style={styles.entryTitle}>LOOK AHEAD: what saving more could do <Text style={styles.entryTag}>estimate</Text> ›</Text>
+            <Text style={styles.entryTitle}>LOOK AHEAD: what saving more could do <EstimateTag /> ›</Text>
           </TouchableOpacity>
           <TouchableOpacity accessibilityRole="button" style={styles.entryCard} onPress={() => router.push('/look-back')}
             accessibilityLabel="Look back: what a past move would have done. Facts about the past.">
@@ -329,10 +325,14 @@ export default function PerformanceScreen() {
                 {shown.map((it: any, idx: number) => {
                   if (kind === 'eq') {
                     const o = owned.find((x) => x.p.position_id === it.position.position_id)!;
+                    // Walk row 2 (audit Invest #2): no price must never read as $0 — show what
+                    // you paid, said in words, the same honest treatment the detail page uses.
+                    const unpriced = it.price == null;
+                    const shownVal = unpriced ? it.costBasis : it.marketValue;
                     return (
                       <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                         onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
-                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${maskedMoney(Math.round(it.marketValue))}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
+                        accessibilityLabel={`${it.position.label || it.position.ticker}, ${spokenMoney(Math.round(shownVal))}${unpriced ? ', no current price, showing what you paid' : ''}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                             <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.position.ticker}</Text>
@@ -342,11 +342,13 @@ export default function PerformanceScreen() {
                               </View>
                             )}
                           </View>
+                          {unpriced && <Text style={styles.wlSince}>what you paid</Text>}
                           {it.cappedSince && <Text style={styles.wlSince}>{sinceWord(it.cappedSince)}</Text>}
                         </View>
-                        {/* approved "all three": the weight — investors think in % of portfolio */}
-                        {investTotalAll > 0 && <Text style={styles.invWeight}>{Math.round((it.marketValue / investTotalAll) * 100)}%</Text>}
-                        <Text style={styles.invVal}>{maskedMoney(Math.round(it.marketValue))}</Text>
+                        {/* approved "all three": the weight — investors think in % of portfolio.
+                            An unpriced holding gets NO weight: 0% would be a wrong number. */}
+                        {investTotalAll > 0 && !unpriced && <Text style={styles.invWeight}>{Math.round((it.marketValue / investTotalAll) * 100)}%</Text>}
+                        <Text style={styles.invVal}>{maskedMoney(Math.round(shownVal))}</Text>
                         {it.periodReturn != null && <Text numberOfLines={1} style={[styles.invRet, { color: it.periodReturn >= 0 ? Colors.gainText : Colors.red }]}>{it.periodReturn >= 0 ? 'up ' : 'down '}{pct(it.periodReturn)}</Text>}
                         <Text style={styles.invChev}>›</Text>
                       </TouchableOpacity>
@@ -356,7 +358,7 @@ export default function PerformanceScreen() {
                   return (
                     <TouchableOpacity accessibilityRole="button" key={it.asset_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
                       onPress={() => router.push(`/account-detail?id=${it.asset_id}` as any)}
-                      accessibilityLabel={`${it.label}, ${maskedMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
+                      accessibilityLabel={`${it.label}, ${spokenMoney(Math.round(it.balance || 0))}${fresh ? `, value as of ${fresh.asOf}${fresh.stale ? `, ${fresh.monthsOld} months old` : ''}` : ''}. Opens its page.`}>
                       <View style={{ flex: 1, minWidth: 0, flexDirection: 'row', alignItems: 'center', gap: 6 }}>
                         <Text style={[styles.invName, { flexShrink: 1, minWidth: 0 }]} numberOfLines={1}>{it.label}</Text>
                         {fresh && (

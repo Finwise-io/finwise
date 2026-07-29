@@ -10,6 +10,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { maskedMoney } from '../components/useMoney';
+import { EstimateTag } from '../components/UI';
 
 export default function WillItLastScreen() {
   const router = useRouter();
@@ -59,7 +60,7 @@ export default function WillItLastScreen() {
       <View style={s.card} accessible
         accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.word}, ${wil.chance} percent, an estimate${wil.band ? `. In the worst futures ${wil.band.low} percent, in the best ${wil.band.high} percent` : ''}.`}>
         <Text style={s.kicker}>WILL MY MONEY LAST? — TO {wil.horizonAge}</Text>
-        <Text style={s.headline}>{wil.word} — {wil.chance}% <Text style={s.est}>estimate</Text></Text>
+        <Text style={s.headline}>{wil.word} — {wil.chance}% <EstimateTag /></Text>
         {wil.band && <Text style={s.bandTxt}>range {wil.band.low}–{wil.band.high}% across bad-to-good markets</Text>}
       </View>
 

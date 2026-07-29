@@ -16,6 +16,7 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
+import { ssBenefitAtClaimAge } from '../domain/retirement/ssTiming';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, RMD_START_AGE } from '../domain/decumulation';
@@ -84,8 +85,10 @@ export default function RetirementCockpit() {
   const retireDefault = num(op.targetRetirementAge) || (store.employmentStatus === 'retired' ? age : 65);
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
-  const ssIncome = ssEligibleEffective ? (A.ssMonthly ?? ssDefault) : 0;
   const claimAge = A.ssClaimAge ?? 67;
+  // Same rule as willItLastInputs: ssMonthly is the age-67 statement; the plan pays the
+  // claim-age-adjusted check (agreement-pinned so the cockpit can never drift from the hub).
+  const ssIncome = ssEligibleEffective ? (A.ssMonthly != null ? ssBenefitAtClaimAge(A.ssMonthly, claimAge) : ssDefault) : 0;
 
   // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
   const planRetireAge = A.retireAge ?? retireDefault;

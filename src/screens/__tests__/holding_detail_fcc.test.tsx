@@ -155,7 +155,9 @@ test('engine: holding-concentration insight fires from the SAME shared rule the 
   expect(top.pct).toBeGreaterThanOrEqual(25);
   const ins = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: top } as any);
   const hit = ins.find((i) => i.id === 'holding-concentration')!;
-  expect(hit.body).toContain(`${top.pct}% of your invested money is in one stock (NVDA)`);
+  // walk row 9 (home-v2): dollar-first — the value leads, the percent follows in parentheses
+  expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct}%\\) of your invested money rides on one stock \\(NVDA\\)`));
+  expect(hit.body).toContain(top.value.toLocaleString());
   expect(hit.theme).toBe('protect');
 });
 

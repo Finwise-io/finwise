@@ -76,7 +76,7 @@ export default function SettingsScreen() {
   function handleDisconnect(c: { id: string; brokerage: string }) {
     Alert.alert(
       `Disconnect ${c.brokerage}?`,
-      'The link is removed and its data deleted from the connection service. Your accounts here can stay as manual entries (frozen at today\'s numbers) or be removed.',
+      'You choose: keep your numbers as a by-hand account (frozen at today\'s numbers), or delete the connection\'s data. Either way the link itself is removed from the connection service.',
       [
         { text: 'Cancel', style: 'cancel' },
         { text: 'Keep as manual', onPress: async () => {

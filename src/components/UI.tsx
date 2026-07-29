@@ -271,3 +271,13 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium, color: Colors.textPrimary, marginBottom: 6, textAlign: 'center' },
   emptySub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
 });
+
+/** Walk row 12 (audit UX #10): THE estimate tag — one word, one look, wherever a figure is an
+ *  estimate. Screens must render this instead of a local styled "estimate" text. */
+export const ESTIMATE_TAG_STYLE = { fontSize: 12, fontWeight: '600' as const, color: Colors.textTertiary };
+export function EstimateTag() {
+  return <Text style={ESTIMATE_TAG_STYLE}>estimate</Text>;
+}
+
+/** Walk row 12 (audit UX #13): THE trying-it-out sentence — one wording on every scenario surface. */
+export const TRYING_IT_OUT = 'Trying it out — nothing changes until you tap Use this plan.';

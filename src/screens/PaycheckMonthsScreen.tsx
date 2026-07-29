@@ -8,7 +8,7 @@ import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-nati
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { useCashflowModel } from '../hooks/useCashflowModel';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 
 export default function PaycheckMonthsScreen() {
   const [openSlot, setOpenSlot] = useState<number>(0);
@@ -30,7 +30,7 @@ export default function PaycheckMonthsScreen() {
         return (
           <View key={m.label} style={styles.monthCard}>
             <TouchableOpacity accessibilityRole="button"
-              accessibilityLabel={`${m.label}: safe to spend ${maskedMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
+              accessibilityLabel={`${m.label}: safe to spend ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
               style={styles.monthRow} onPress={() => setOpenSlot(open ? -1 : s)}>
               <Text style={styles.monthLabel}>{m.label}</Text>
               {dip && <Text style={styles.dipWord}>bill month</Text>}

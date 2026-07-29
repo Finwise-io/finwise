@@ -9,7 +9,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, RMD_START_AGE } from '../domain/decumulation';
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
@@ -118,7 +118,7 @@ export default function RequiredWithdrawalsScreen() {
         <>
           {/* this year (r45): required · taken · still, one ledger */}
           <View style={s.card} accessible
-            accessibilityLabel={`This year: required ${maskedMoney(Math.round(required))}, taken so far ${maskedMoney(Math.round(taken))}, still to take ${maskedMoney(Math.round(still))} by December 31`}>
+            accessibilityLabel={`This year: required ${spokenMoney(Math.round(required))}, taken so far ${spokenMoney(Math.round(taken))}, still to take ${spokenMoney(Math.round(still))} by December 31`}>
             <Text style={s.kicker}>THIS YEAR ({nowYear})</Text>
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
@@ -164,7 +164,7 @@ export default function RequiredWithdrawalsScreen() {
           <Text style={s.kicker}>YEAR BY YEAR (ESTIMATES)</Text>
           {schedule.slice(0, 8).map((r) => (
             <View key={r.year} style={s.schedRow} accessible
-              accessibilityLabel={`${r.year}, age ${r.age}: about ${maskedMoney(Math.round(r.amount))}${r.isCurrent ? ', this year' : ''}`}>
+              accessibilityLabel={`${r.year}, age ${r.age}: about ${spokenMoney(Math.round(r.amount))}${r.isCurrent ? ', this year' : ''}`}>
               <Text style={[s.schedYear, r.isCurrent && s.strong]}>{r.year} · {r.age}</Text>
               <Text style={[s.schedAmt, r.isCurrent && s.strong]}>{r.isCurrent ? '' : '~'}{maskedMoney(Math.round(r.amount))}</Text>
             </View>
@@ -180,7 +180,7 @@ export default function RequiredWithdrawalsScreen() {
           {preTaxAccts.map((a: any) => (
             <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={s.acctRow}
               onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-              accessibilityLabel={`${a.label}, ${maskedMoney(Math.round(a.balance || 0))}, marked pre-tax. Opens its page to edit.`}>
+              accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.balance || 0))}, marked pre-tax. Opens its page to edit.`}>
               <Text style={s.acctLabel} numberOfLines={1}>{a.institution?.trim() || a.label}</Text>
               <Text style={s.acctBal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
               <Text style={s.chev}>›</Text>

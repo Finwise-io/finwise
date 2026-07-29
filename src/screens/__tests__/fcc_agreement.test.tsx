@@ -14,6 +14,9 @@ import { useStore } from '../../store/useStore';
 import { money } from '../../domain/_shared/num';
 import { investmentsTotal } from '../../domain/assets';
 import { resolveNetWorthRows } from '../../domain/snapshot';
+import { willItLastInputs, selectWillItLast } from '../../domain/retirement/willItLast';
+import { ssBenefitAtClaimAge } from '../../domain/retirement/ssTiming';
+import { simulate } from '../../domain/retirement';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn() }),
@@ -97,6 +100,47 @@ describe('pin 2 — will-it-last: one selector, three surfaces, one percent', ()
     const cash = pctOn(<CashFlowScreen />);
     expect(plan).toBe(home);
     expect(cash).toBe(home);
+  });
+});
+
+describe('pin 2b — SS adoption feeds the claim-age-adjusted check into the odds (Build-46 walk row 1)', () => {
+  // The July-24 audit's top finding: adopting claim-62 stored the raw age-67 statement in
+  // ssMonthly and the hub simulated with the FULL check — quietly higher odds than the SS
+  // screen's own compare showed for the same choice. One number everywhere, or nothing.
+  test('adopt claim-62 with a $2,600 statement → the simulation gets $1,820 (70%), not $2,600', () => {
+    seed(WORKER);
+    const s = useStore.getState() as any;
+    const { accounts } = resolveNetWorthRows('local', s.onboardingProfile, false, s.assetAccounts, []);
+    const adopted = { ssEligible: true, ssMonthly: 2600, ssClaimAge: 62, guaranteedMonthly: ssBenefitAtClaimAge(2600, 62) };
+    const inputs = willItLastInputs({ op: s.onboardingProfile, accounts, assumptions: adopted })!;
+    expect(inputs.guaranteed_monthly_income).toBe(1820);
+    expect(inputs.guaranteed_monthly_income).toBe(ssBenefitAtClaimAge(2600, 62));
+    expect(inputs.guaranteed_start_age).toBe(62);
+  });
+
+  test('claim at 67 still pays the statement exactly (factor 1.0 — non-adopters unchanged)', () => {
+    seed(WORKER);
+    const s = useStore.getState() as any;
+    const { accounts } = resolveNetWorthRows('local', s.onboardingProfile, false, s.assetAccounts, []);
+    const inputs = willItLastInputs({ op: s.onboardingProfile, accounts, assumptions: { ssEligible: true, ssMonthly: 2600, ssClaimAge: 67 } })!;
+    expect(inputs.guaranteed_monthly_income).toBe(2600);
+  });
+
+  test("the SS screen's claim-62 row odds = the hub's post-adoption odds (the screens now agree)", () => {
+    seed(WORKER);
+    const s = useStore.getState() as any;
+    const { accounts } = resolveNetWorthRows('local', s.onboardingProfile, false, s.assetAccounts, []);
+    const args = { op: s.onboardingProfile, accounts, assumptions: {} as any };
+    const base = willItLastInputs(args)!;
+    // exactly how SsTimingScreen builds a compare row for claim age 62
+    const ssRowChance = simulate({
+      ...base,
+      guaranteed_monthly_income: ssBenefitAtClaimAge(2600, 62),
+      guaranteed_start_age: 62,
+      horizon_age: Math.max(base.retire_age + 1, 92),
+    }).chance_of_success;
+    const hub = selectWillItLast({ ...args, assumptions: { ssEligible: true, ssMonthly: 2600, ssClaimAge: 62, guaranteedMonthly: ssBenefitAtClaimAge(2600, 62) } });
+    expect(hub.chance).toBe(ssRowChance);
   });
 });
 

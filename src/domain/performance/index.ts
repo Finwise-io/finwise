@@ -202,12 +202,12 @@ export function buildPerformance(
 /** The holding-concentration FACT (Invest main + the insights engine share this one rule):
  *  the largest single holding as a % of invested money, reported only at 25%+ with 2+ holdings —
  *  below that it isn't a fact worth a card. Never advice, just the number and the ticker. */
-export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: string; pct: number } | null {
+export function topHoldingConcentration(rows: PerformanceRow[]): { ticker: string; pct: number; value: number } | null {
   const invested = rows.reduce((t, r) => t + r.marketValue, 0);
   if (invested <= 0 || rows.length < 2) return null;
   const top = rows.reduce((m, r) => (r.marketValue > m.marketValue ? r : m), rows[0]);
   const pct = Math.round((top.marketValue / invested) * 100);
-  return pct >= 25 ? { ticker: top.position.ticker, pct } : null;
+  return pct >= 25 ? { ticker: top.position.ticker, pct, value: Math.round(top.marketValue) } : null;
 }
 
 /** Per-holding contribution to the portfolio's period return = weight × the holding's return (pts).
@@ -267,6 +267,16 @@ export function portfolioPeriodReturn(rows: PerformanceRow[]): number | null {
   const total = usable.reduce((t, r) => t + r.marketValue, 0);
   if (total <= 0) return null;
   return Math.round((usable.reduce((t, r) => t + (r.periodReturn as number) * r.marketValue, 0) / total) * 1e4) / 1e4;
+}
+
+/** Value-weighted benchmark ("the market, matched to your mix") return across holdings that have
+ *  one (decimal), or null. Walk row 5 (audit Strategy #5): Home and Invest both say "the market:
+ *  up X%" — this is the ONE formula behind both, so an edit can never make them disagree. */
+export function portfolioBenchReturn(rows: PerformanceRow[]): number | null {
+  const usable = rows.filter((r) => r.benchReturn != null && r.marketValue > 0);
+  const total = usable.reduce((t, r) => t + r.marketValue, 0);
+  if (total <= 0) return null;
+  return usable.reduce((t, r) => t + (r.benchReturn as number) * r.marketValue, 0) / total;
 }
 
 /** The DOLLAR change implied by a period return on today's total — the approved Home hero shows

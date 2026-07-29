@@ -9,7 +9,7 @@ import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { buildDatedGrid } from '../domain/grid';
 import { upcomingBills } from '../domain/cashflow';
 import { cashTotal } from '../domain/assets';   // canonical cash — equals Net worth's figure for the same accounts
@@ -142,7 +142,7 @@ export default function BillCalendarScreen() {
           return (
             <TouchableOpacity accessibilityRole="button" key={`${c.label}${c.year}`} style={styles.mRow}
               onPress={() => router.push(`/month-detail?slot=${slot}` as any)}
-              accessibilityLabel={`${c.label} ${c.year}: in ${maskedMoney(Math.round(c.inflow))}, out ${maskedMoney(Math.round(c.outflow))}, ending balance ${maskedMoney(Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
+              accessibilityLabel={`${c.label} ${c.year}: in ${spokenMoney(Math.round(c.inflow))}, out ${spokenMoney(Math.round(c.outflow))}, ending balance ${spokenMoney(Math.round(c.runningBalance))}${neg ? ' — short' : ''}. Opens the month's detail.`}>
               <Text style={[styles.mLabel, { flex: 1 }]}>{c.label}{neg ? ' !' : ''}</Text>
               <Text style={[styles.mNum, styles.numCell, { color: Colors.primary }]}>{c.inflow > 0 ? '+' + maskedMoney(Math.round(c.inflow)) : '—'}</Text>
               <Text style={[styles.mNum, styles.numCell]}>{c.outflow > 0 ? '−' + maskedMoney(Math.round(c.outflow)) : '—'}</Text>
@@ -159,7 +159,7 @@ export default function BillCalendarScreen() {
           <Text style={styles.cardTitle}>Coming up</Text>
           {bills.map((b) => (
             <TouchableOpacity accessibilityRole="button" key={b.id} style={styles.billRow} onPress={() => editBill(b.label)}
-              accessibilityLabel={`${b.label}, ${maskedMoney(b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${maskedMoney(b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${maskedMoney(b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
+              accessibilityLabel={`${b.label}, ${spokenMoney(b.amount)} due ${fmtDate(b.dueDate)}. ${b.shortfall > 0 ? `Short ${spokenMoney(b.shortfall)} — set it aside by ${fmtDate(b.needByDate)}, from savings or a backup.` : `Covered: about ${spokenMoney(b.availableByNeed)} there by ${fmtDate(b.needByDate)}.`} Opens the editor.`}>
               <Text style={styles.billName}>{b.label} · {maskedMoney(b.amount)} due {fmtDate(b.dueDate)}</Text>
               {b.shortfall > 0 ? (
                 <Text style={styles.billShort}>Short {maskedMoney(b.shortfall)} — set it aside by {fmtDate(b.needByDate)}, from savings or a backup.</Text>
@@ -170,7 +170,7 @@ export default function BillCalendarScreen() {
           ))}
           {deferredDebts.map((d: any) => (
             <View key={d.debt_id} style={styles.billRow} accessible
-              accessibilityLabel={`${d.label}: first payment ${fmtDate(d.first_payment_date)}, ${maskedMoney(requiredPayment(d))} a month. No payments before then.`}>
+              accessibilityLabel={`${d.label}: first payment ${fmtDate(d.first_payment_date)}, ${spokenMoney(requiredPayment(d))} a month. No payments before then.`}>
               <Text style={styles.billName}>{d.label} — first payment {fmtDate(d.first_payment_date)}, {maskedMoney(requiredPayment(d))}/month</Text>
               <Text style={styles.billShort}>Visible now; the Out column starts counting it in its real first month.</Text>
             </View>

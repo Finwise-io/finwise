@@ -49,7 +49,11 @@ function grossByMonth(s: IncomeSource): number[] {
     case 'WEEKLY':  for (let i = 0; i < 12; i++) m[i] += amt * 52 / 12; break;
     case 'BIWEEKLY':for (let i = 0; i < 12; i++) m[i] += amt * 26 / 12; break;
     case 'QUARTERLY': [2, 5, 8, 11].forEach((i) => (m[i] += amt)); break;  // Mar/Jun/Sep/Dec
-    case 'ANNUAL':  m[Math.min(12, Math.max(1, s.landing_month ?? 12)) - 1] += amt; break;   // the user's month (default Dec)
+    case 'ANNUAL':
+      // multi-month lands (equity vesting) win: the amount splits by the vest-month shares —
+      // walk row 6: no more parking the whole year's vests in December on this view
+      if (s.landing_months?.length) { for (const lm of s.landing_months) m[Math.min(12, Math.max(1, lm.month)) - 1] += amt * lm.share; break; }
+      m[Math.min(12, Math.max(1, s.landing_month ?? 12)) - 1] += amt; break;   // the user's month (default Dec)
     case 'ONETIME': m[Math.min(12, Math.max(1, s.landing_month ?? 1)) - 1] += amt; break;    // the user's month (default Jan)
   }
   return m;

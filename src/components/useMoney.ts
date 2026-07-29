@@ -28,3 +28,11 @@ export const maskedMoney2 = (n: number) => (useStore.getState().hideBalances ? B
  *  the words — '8 times your usual' stays readable, the balances become ••••. */
 export const maskDollars = (text: string, hidden?: boolean) =>
   (hidden ?? useStore.getState().hideBalances) ? text.replace(/\$\s?[\d,]+(\.\d+)?/g, BALANCE_MASK) : text;
+
+/** SPOKEN (accessibility) forms — walk row 15 (audit Home·NW #8): a screen reader must say the word
+ *  "hidden", never read the dot characters. accessibilityLabel templates use THESE, not the visual
+ *  maskers above (a guard test enforces it). Visual output is unchanged. */
+export const spokenMoney = (n: number) => (useStore.getState().hideBalances ? 'hidden' : money(n));
+export const spokenMoney2 = (n: number) => (useStore.getState().hideBalances ? 'hidden' : money2(n));
+export const spokenDollars = (text: string) =>
+  useStore.getState().hideBalances ? text.replace(/\$\s?[\d,]+(\.\d+)?/g, 'hidden') : text;

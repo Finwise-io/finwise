@@ -706,7 +706,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   onSelect={(v) => setPayoffMethod(v === 'Avalanche' ? 'avalanche' : 'snowball')}
                 />
               </View>
-              <Text style={styles.planNote}>{payoffMethod === 'avalanche' ? 'Highest APR first — saves the most interest.' : 'Smallest balance first — quick wins for momentum.'}</Text>
+              <Text style={styles.planNote}>{payoffMethod === 'avalanche' ? 'Highest interest rate first — saves the most interest.' : 'Smallest balance first — quick wins for momentum.'}</Text>
               <View style={[styles.limitRow, { marginTop: Spacing.sm }]}>
                 <Text style={styles.limitLabel}>Extra / month</Text>
                 <View style={styles.limitInputWrap}>
@@ -730,7 +730,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             <Card>
               <View style={styles.empty}>
                 <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>🦸</Text>
-                <Text style={styles.emptyTitle}>No debts tracked</Text>
+                <Text style={styles.emptyTitle}>No debts tracked — if that's true, it's all yours. 🎉</Text>
                 <Text style={styles.emptySub}>Add any loans or credit cards to plan your payoff.</Text>
               </View>
             </Card>
@@ -750,7 +750,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                           <Text style={[styles.catAmt, { color: Colors.red }]}>{money(Math.round(d.remaining_balance || 0))}</Text>
                         </View>
                         <Text style={styles.catLimit}>
-                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% APR · {money(Math.round(requiredPayment(d)))}/mo min · ~{money(Math.round(monthlyInterest))}/mo interest{pm ? ` · clear in ${pm} mo` : ''}
+                          {((d.interest_rate_apr || 0) * 100).toFixed(2)}% yearly interest (APR) · {money(Math.round(requiredPayment(d)))}/mo min · ~{money(Math.round(monthlyInterest))}/mo interest{pm ? ` · clear in ${pm} mo` : ''}
                         </Text>
                         {(() => {
                           const dd = d.due_day; if (!dd) return null;

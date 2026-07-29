@@ -40,6 +40,20 @@ describe('transaction engine — applyTransaction', () => {
     expect(accs[0].cash_balance).toBe(1200);
   });
 
+
+  test('walk row 4: a VALUE sale (no shares) lowers the account balance — how bonds/alts sell', () => {
+    let accs = [acct('CD', { balance: 10000 })];
+    accs = applyTransaction(accs, txn({ type: 'SELL', account_id: 'CD', amount: 4000 }));
+    expect(accs[0].balance).toBe(6000);
+    // clamps at zero — a typo can never drive the value negative
+    accs = applyTransaction(accs, txn({ type: 'SELL', account_id: 'CD', amount: 99999 }));
+    expect(accs[0].balance).toBe(0);
+    // and the row DISPLAYS the sale amount (a $0 activity row would be a wrong number)
+    expect(cashEffect(txn({ type: 'SELL', amount: 4000 }))).toBe(4000);
+    // a share-based SELL still displays shares × price, untouched
+    expect(cashEffect(txn({ type: 'SELL', shares: 10, price: 200 }))).toBe(2000);
+  });
+
   test('TRANSFER moves cash between accounts', () => {
     let accs = [acct('A', { cash_balance: 5000 }), acct('B', { cash_balance: 0 })];
     accs = applyTransaction(accs, txn({ type: 'TRANSFER', account_id: 'A', counter_account_id: 'B', amount: 2000 }));

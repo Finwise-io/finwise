@@ -14,7 +14,8 @@ import { monthlySavings } from '../domain/savings';
 import { requiredMonthly } from '../domain/goals';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
-import { maskedMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { TRYING_IT_OUT } from '../components/UI';
 
 const STEP = 100;
 
@@ -89,7 +90,7 @@ export default function MultiGoalScreen() {
 
   return (
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.banner}>Trying it out — nothing changes until you tap Use this plan.</Text>
+      <Text style={s.banner}>{TRYING_IT_OUT}</Text>
 
       {/* goal dials */}
       <Text style={s.section}>TRY THESE TOGETHER</Text>
@@ -105,7 +106,7 @@ export default function MultiGoalScreen() {
           <View key={d.id} style={[s.dialRow, i > 0 && s.divider]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Switch value={d.on} onValueChange={(v) => setDial(d.id, { on: v })} trackColor={{ true: Colors.primary }}
-                accessibilityLabel={`${d.label} at ${maskedMoney(d.monthlyAmount)} a month`} />
+                accessibilityLabel={`${d.label} at ${spokenMoney(d.monthlyAmount)} a month`} />
               <Text style={s.dialLabel}>{d.label}</Text>
               <Text style={s.dialAmt}>{maskedMoney(d.monthlyAmount)}/mo</Text>
             </View>
@@ -126,7 +127,7 @@ export default function MultiGoalScreen() {
           <View style={[s.dialRow, dials.length > 0 && s.divider]}>
             <View style={{ flexDirection: 'row', alignItems: 'center' }}>
               <Switch value={extraDebt > 0} onValueChange={(v) => setExtraDebt(v ? 300 : 0)} trackColor={{ true: Colors.primary }}
-                accessibilityLabel={`Extra on debt at ${maskedMoney(extraDebt)} a month`} />
+                accessibilityLabel={`Extra on debt at ${spokenMoney(extraDebt)} a month`} />
               <Text style={s.dialLabel}>Extra on debt</Text>
               <Text style={s.dialAmt}>{maskedMoney(extraDebt)}/mo</Text>
             </View>
@@ -159,7 +160,7 @@ export default function MultiGoalScreen() {
 
       {/* verdict — against the canonical capacity (your regular bills are already counted) */}
       <View style={s.card} accessible
-        accessibilityLabel={`Can you do it all? ${weighed.covered ? `Covered, with ${maskedMoney(weighed.spare)} a month to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))} a month`}`}>
+        accessibilityLabel={`Can you do it all? ${weighed.covered ? `Covered, with ${spokenMoney(weighed.spare)} a month to spare` : `Short ${spokenMoney(Math.abs(weighed.spare))} a month`}`}>
         <Text style={s.cardHdr}>CAN YOU DO IT ALL?</Text>
         <Text style={s.hint}>Your regular bills, including the mortgage, are already counted.</Text>
         <Text style={[s.verdict, { color: weighed.covered ? Colors.primary : Colors.red }]}>
@@ -204,7 +205,7 @@ export default function MultiGoalScreen() {
                 setDial(h.dialId, { monthlyAmount: h.trimmedAmount });
                 setRetirementMonthly((r) => r + Math.max(0, freed));
               }}
-              accessibilityLabel={`${h.label} at ${maskedMoney(h.trimmedAmount)} instead: ${h.chance != null ? `chance ${h.chance} percent` : ''}. Tap to apply. Your call.`}>
+              accessibilityLabel={`${h.label} at ${spokenMoney(h.trimmedAmount)} instead: ${h.chance != null ? `chance ${h.chance} percent` : ''}. Tap to apply. Your call.`}>
               <Text style={s.hintTxt}>
                 {h.label} at {maskedMoney(h.trimmedAmount)} instead:{h.retireAge != null ? ` retire ${h.retireAge},` : ''} chance {h.chance ?? '—'}%. <Text style={s.hintCta}>Apply ›</Text>
               </Text>
