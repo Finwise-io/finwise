@@ -87,3 +87,23 @@ describe('What if I add more?', () => {
     expect(screen.getByText(/No guessed numbers/)).toBeOnTheScreen();
   });
 });
+
+// B46 founder finding ("slider still not moving"): the screen's ScrollView must stand down while
+// a finger is on a slider — its native pan recognizer was cancelling the drag on device.
+test('the ScrollView disables scrolling during a slider drag and re-enables on release', () => {
+  const { ScrollView } = require('react-native');
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: '1980', monthlySpending: '4000' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 200000 }],
+  } as any);
+  const utils = render(<WhatIfScreen />);
+  const scroll = () => utils.UNSAFE_getAllByType(ScrollView)[0].props.scrollEnabled;
+  expect(scroll()).toBe(true);
+  const { act } = require('@testing-library/react-native');
+  const strip = utils.getAllByTestId('plan-slider-strip')[0];
+  fireEvent(strip, 'layout', { nativeEvent: { layout: { width: 300, height: 44, x: 0, y: 0 } } });
+  act(() => { strip.props.onResponderGrant({ nativeEvent: { locationX: 150, pageX: 250 }, touchHistory: { touchBank: [], mostRecentTimeStamp: 1 } }); });
+  expect(scroll()).toBe(false);                        // finger down → no scrolling
+  act(() => { strip.props.onResponderRelease({ nativeEvent: {}, touchHistory: { touchBank: [], mostRecentTimeStamp: 2 } }); });
+  expect(scroll()).toBe(true);                         // finger up → scrolling back
+});

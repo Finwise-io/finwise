@@ -37,6 +37,7 @@ export default function WhatIfScreen() {
     const a = op.birthYear ? thisYear - Number(op.birthYear) : NaN;
     return Number.isFinite(a) && a >= 18 && a <= 95 ? a : 45;
   });
+  const [sliding, setSliding] = useState(false);   // a finger is on a slider → the ScrollView stands down
   const [retireAt, setRetireAt] = useState<number>(() => {
     const r = Number(A.retireAge ?? op.targetRetirementAge);
     return Number.isFinite(r) && r > 0 ? Math.max(r, age + 1) : Math.max(67, age + 1);
@@ -80,7 +81,9 @@ export default function WhatIfScreen() {
     : 'earmarks' as const;                // accounts exist but none are earmarked for retirement
 
   return (
-    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
+    // B46 finding: the ScrollView must stand down while a finger drags a slider — its native pan
+    // recognizer was cancelling the drag no matter what the slider requested (device-only).
+    <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false} scrollEnabled={!sliding}>
       <Text style={s.h1}>What if I save more?</Text>
       <Text style={s.banner}>{TRYING_IT_OUT}</Text>
 
@@ -107,9 +110,9 @@ export default function WhatIfScreen() {
         <View style={s.card}>
           <Text style={s.cardHdr}>ABOUT YOU — SAVED TO YOUR PLAN</Text>
           <PlanSlider label="Your age" value={age} min={25} max={80}
-            onChange={setAge} onSettle={saveAge} />
+            onChange={setAge} onSettle={saveAge} onDraggingChange={setSliding} />
           <PlanSlider label="Retire at" value={Math.max(retireAt, age + 1)} min={Math.max(50, age + 1)} max={75}
-            onChange={setRetireAt} onSettle={saveRetireAt} />
+            onChange={setRetireAt} onSettle={saveRetireAt} onDraggingChange={setSliding} />
           <Text style={s.savedNote}>✓ Saved — Home, Plan and this screen all use these same answers.</Text>
         </View>
       )}

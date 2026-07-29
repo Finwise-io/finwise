@@ -6,32 +6,53 @@ import React, { useRef } from 'react';
 import { View, Text, StyleSheet, PanResponder } from 'react-native';
 import { Colors } from '../utils/theme';
 
-export function PlanSlider({ label, value, min, max, onChange, onSettle }: {
+export function PlanSlider({ label, value, min, max, onChange, onSettle, onDraggingChange }: {
   label: string; value: number; min: number; max: number;
   onChange: (v: number) => void;           // live, while dragging
   onSettle?: (v: number) => void;          // finger up — the moment we SAVE
+  onDraggingChange?: (dragging: boolean) => void;   // parent disables its ScrollView during the drag
 }) {
   // B45 founder finding ("touch it and it jumps to max"): PanResponder.create runs ONCE, so its
-  // callbacks must never close over render-time values — the first version froze trackW at its
-  // placeholder (1), making every touch compute x/1 → past max → clamped to max. Everything the
-  // handlers need lives in refs that every render refreshes.
+  // callbacks must never close over render-time values — everything the handlers need lives in
+  // refs that every render refreshes.
+  //
+  // B46 founder finding ("slider still not moving" ON DEVICE, tests green): two causes the
+  // simulated-touch tests can never see, fixed together:
+  //  1. The parent ScrollView's NATIVE pan recognizer cancels the JS drag after a few points of
+  //     movement — onPanResponderTerminationRequest:false only refuses JS-side requests; iOS
+  //     cancels the touch stream natively. Fix: the parent turns its scrolling OFF for the
+  //     duration of the drag (onDraggingChange), and we claim the touch in the CAPTURE phase.
+  //  2. nativeEvent.locationX mid-drag is relative to whatever view is under the finger — it goes
+  //     stale the moment the thumb drifts off the strip. Fix: record the strip's absolute page-X
+  //     at grant (pageX − locationX) and drive every move from nativeEvent.pageX − stripPageX;
+  //     pageX is page-absolute regardless of target, so it stays correct wherever the finger wanders.
   const trackW = useRef(1);
+  const stripPageX = useRef(0);
   const valueRef = useRef(value);
   valueRef.current = value;
   const clamp = (v: number) => Math.min(max, Math.max(min, Math.round(v)));
   const fromX = (x: number) => clamp(min + (x / Math.max(1, trackW.current)) * (max - min));
-  const api = useRef({ fromX, onChange, onSettle });
-  api.current = { fromX, onChange, onSettle };
+  const api = useRef({ fromX, onChange, onSettle, onDraggingChange });
+  api.current = { fromX, onChange, onSettle, onDraggingChange };
 
   const pan = useRef(PanResponder.create({
+    // claim at CAPTURE so no child or sibling recognizer sees the touch first
+    onStartShouldSetPanResponderCapture: () => true,
     onStartShouldSetPanResponder: () => true,
     onMoveShouldSetPanResponder: () => true,
     // never let a parent ScrollView steal the drag mid-gesture ("you cannot slide it")
     onPanResponderTerminationRequest: () => false,
-    onPanResponderGrant: (e) => api.current.onChange(api.current.fromX(e.nativeEvent.locationX)),
-    onPanResponderMove: (e) => api.current.onChange(api.current.fromX(e.nativeEvent.locationX)),
-    onPanResponderRelease: () => api.current.onSettle?.(valueRef.current),
-    onPanResponderTerminate: () => api.current.onSettle?.(valueRef.current),
+    // Android: keep native components (the ScrollView) from taking over while we respond
+    onShouldBlockNativeResponder: () => true,
+    onPanResponderGrant: (e) => {
+      // locationX is trustworthy AT GRANT (the touch starts on the strip); anchor absolute math
+      stripPageX.current = e.nativeEvent.pageX - e.nativeEvent.locationX;
+      api.current.onDraggingChange?.(true);
+      api.current.onChange(api.current.fromX(e.nativeEvent.locationX));
+    },
+    onPanResponderMove: (e) => api.current.onChange(api.current.fromX(e.nativeEvent.pageX - stripPageX.current)),
+    onPanResponderRelease: () => { api.current.onDraggingChange?.(false); api.current.onSettle?.(valueRef.current); },
+    onPanResponderTerminate: () => { api.current.onDraggingChange?.(false); api.current.onSettle?.(valueRef.current); },
   })).current;
 
   const pct = ((value - min) / (max - min)) * 100;
