@@ -12,7 +12,7 @@ import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
 import { actualDebtPayment } from '../domain/debt';
-import { retirementIncomeMonthly } from '../domain/income';
+import { retirementIncomeMonthly, salaryGrossByMonth, monthlyTaxRates } from '../domain/income';
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { simulate } from '../domain/retirement';
 import { selectWillItLast, willItLastInputs, chanceWord } from '../domain/retirement/willItLast';
@@ -274,7 +274,25 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
   const guaranteed = retirementIncomeMonthly(op);
   const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
   const sources: { label: string; sub: string; amount: string }[] = [];
-  if (op?.baseSalary) sources.push({ label: varies ? 'Salary — varies' : 'Salary — steady', sub: varies ? 'by-month table · tap Set up to adjust' : 'take-home · monthly', amount: maskedMoney(Math.round(Number(op.baseSalary) || 0)) });
+  // B46 finding 8 ("steady $5,000" vs In $8,600): this row must tell the TRUTH about what's stored —
+  // the old code hardcoded 'take-home · monthly' and printed the raw per-period entry, so a salary
+  // saved as gross/biweekly showed a number nothing else on the screen could reconcile with. The sub
+  // now names the entered form and bridges to the SAME monthly take-home the In line uses.
+  if (op?.baseSalary) {
+    const mIdx = new Date().getMonth();
+    const monthlyNet = Math.round(salaryGrossByMonth(op)[mIdx] * (1 - monthlyTaxRates(op)[mIdx]));
+    const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', semimonthly: 'twice a month', annual: 'yearly' };
+    const unit = FREQ_WORD[String(op.salaryFreq ?? 'monthly')] ?? 'monthly';
+    const basis = op.salaryMode === 'takehome' ? 'take-home' : 'before tax';
+    const plainMonthlyTakehome = op.salaryMode === 'takehome' && (op.salaryFreq ?? 'monthly') === 'monthly';
+    sources.push({
+      label: varies ? 'Salary — varies' : 'Salary — steady',
+      sub: varies ? 'by-month table · tap Set up to adjust'
+        : plainMonthlyTakehome ? 'take-home · monthly'
+        : `${basis} · ${unit} · ≈ ${maskedMoney(monthlyNet)}/mo take-home`,
+      amount: maskedMoney(Math.round(Number(op.baseSalary) || 0)),
+    });
+  }
   if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: maskedMoney(Math.round(Number(op.seAmount) || 0)) });
   if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${maskedMoney(Math.round(guaranteed))}/mo` });
   return (

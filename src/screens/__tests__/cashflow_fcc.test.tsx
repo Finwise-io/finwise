@@ -156,3 +156,20 @@ test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
   expect(Number.isFinite(inn) && Number.isFinite(out) && Number.isFinite(sur)).toBe(true);
   expect(sur).toBe(inn - out);   // the equals sign is earned
 });
+
+// B46 finding 8: the Income tab's Salary row must describe what is actually STORED and bridge to
+// the same monthly take-home the This-month card's In line uses — a gross/biweekly salary was
+// showing as "take-home · monthly" with the raw per-period number ("steady $5,000" vs In $8,600).
+test('a gross biweekly salary is described truthfully and reconciles with the In line', () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '5000', salaryMode: 'gross', salaryFreq: 'biweekly' },
+  } as any);
+  const { salaryGrossByMonth, monthlyTaxRates } = require('../../domain/income');
+  const op = (useStore.getState() as any).onboardingProfile;
+  const m = new Date().getMonth();
+  const expectedNet = Math.round(salaryGrossByMonth(op)[m] * (1 - monthlyTaxRates(op)[m]));
+  render(<CashFlowScreen />);
+  fireEvent.press(screen.getByText('Income'));
+  expect(screen.getByText(new RegExp(`before tax · every 2 weeks · ≈ \\$${expectedNet.toLocaleString().replace(',', ',')}/mo take-home`))).toBeOnTheScreen();
+  expect(screen.queryByText('take-home · monthly')).toBeNull();   // the old hardcoded lie
+});
