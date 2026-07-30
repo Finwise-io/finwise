@@ -8,14 +8,15 @@ import { BondEditor } from '../BondsScreen';
 
 test('opening the date picker commits the default maturity, so Save works without spinning', () => {
   const onSave = jest.fn();
-  const { getByText, getByPlaceholderText } = render(
+  const { getByText, getAllByText, getByPlaceholderText } = render(
     <BondEditor bond={null} open onClose={() => {}} onSave={onSave} />,
   );
   fireEvent.changeText(getByPlaceholderText(/US Treasury 2030/), 'US Treasury 2035');
   fireEvent.changeText(getByPlaceholderText('10000'), '10000');
   fireEvent.changeText(getByPlaceholderText('4.5'), '4');
 
-  fireEvent.press(getByText('Tap to pick a date'));   // open the picker — no spin
+  // the editor now has TWO date fields (maturity + value-as-of, walk row 4) — maturity renders first
+  fireEvent.press(getAllByText('Tap to pick a date')[0]);   // open the picker — no spin
   fireEvent.press(getByText('Add bond'));
 
   expect(onSave).toHaveBeenCalledTimes(1);
