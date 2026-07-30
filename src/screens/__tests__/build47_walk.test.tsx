@@ -191,3 +191,21 @@ test('rows 22-25: finding fixes hold at the source', () => {
   expect(im).toMatch(/＋ Add an income source/);
   expect(im).toMatch(/Stock vesting \(equity comp\)/);
 });
+
+// ── Palette adoption (mock #2, founder YES 2026-07-30): the validated set is pinned exactly ──
+test('the validated colorblind-safe palette is adopted, fixed order, same class everywhere', () => {
+  const { ChartPalette, ClassMarkColors } = require('../../utils/theme');
+  expect([...ChartPalette]).toEqual(['#2a78d6', '#1baf7a', '#eda100', '#4a3aa7', '#eb6834', '#e87ba4', '#898781']);
+  expect(ClassMarkColors).toEqual({
+    stocks_etf: '#2a78d6', cash: '#1baf7a', real_estate: '#eda100', bonds: '#4a3aa7',
+    alternatives: '#eb6834', personal_property: '#e87ba4', mixed: '#898781',
+  });
+  // both screens read the ONE map (source pin — same class can never wear two colors again)
+  const fs = require('fs'); const path = require('path');
+  const nw = fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8');
+  expect(nw).toMatch(/Object\.entries\(ClassMarkColors\)/);
+  // the second consumer today is Account detail's WHAT'S-INSIDE section (Invest's grouped list
+  // carries no class dots in the approved v7 build — colors-only change, per the mock's own rule)
+  const ad = fs.readFileSync(path.join(__dirname, '..', 'AccountDetailScreen.tsx'), 'utf8');
+  expect(ad).toMatch(/ClassMarkColors/);
+});

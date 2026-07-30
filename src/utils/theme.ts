@@ -37,7 +37,7 @@ export const Colors = {
   chartOut: '#EB6834',   // money out — orange
   gainText: '#006300',   // dark green for gain TEXT (mid-greens are for marks, not body text)
   cardBg: '#FFFFFF',
-  successGreen: '#5DCAA5',   // MARKS only (bars, dots) — never text (2:1 on white; use gainText)
+  successGreen: '#0ca30c',   // MARKS only (bars, dots) — the validated 'good' step (adopted 2026-07-30); text stays gainText
 
   // section-identity accents (design audit 2026-07-16: no raw hexes on screens)
   purple: '#7A5AA7',
@@ -47,12 +47,13 @@ export const Colors = {
   onDeepTint: '#BEE7D8',
 };
 
-// Shared category/allocation chart palette (design audit 2026-07-16: hoisted from
-// PerformanceScreen + NetWorthScreen so both screens color classes identically).
-export const ChartPalette = ['#178F6B', '#7A5AA7', '#185FA5', '#EBB23A', '#A9745B', '#5BA98F', '#C2607E'] as const;
+// VALIDATED palettes ADOPTED (founder YES 2026-07-30, chart-palettes-v2 mock — UX doc, Color tab):
+// the colorblind-validated FIXED-ORDER allocation set (worst adjacent ΔE 21.6, target ≥12).
+// Same class = same color on every screen; order is part of the validation — never shuffle.
+export const ChartPalette = ['#2a78d6', '#1baf7a', '#eda100', '#4a3aa7', '#eb6834', '#e87ba4', '#898781'] as const;
 export const ClassMarkColors: Record<string, string> = {
-  cash: '#178F6B', stocks_etf: '#7A5AA7', bonds: '#185FA5', alternatives: '#C77DBB',
-  real_estate: '#EBB23A', personal_property: '#9E9E9E', mixed: '#B0846A',
+  stocks_etf: '#2a78d6', cash: '#1baf7a', real_estate: '#eda100', bonds: '#4a3aa7',
+  alternatives: '#eb6834', personal_property: '#e87ba4', mixed: '#898781',
 };
 
 // The will-it-last gauge ramp, bad → good (design audit 2026-07-16: tokenized from HomeScreen).
