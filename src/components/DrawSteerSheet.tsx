@@ -19,6 +19,7 @@ import {
 import { plannedMonthlySpend } from '../domain/budget';
 import { currentRetirementIncomeMonthly } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const BUCKET_LABEL: Record<DrawBucket, string> = {
   cash: 'Cash', taxable: 'Taxable / brokerage', preTax: 'Pre-tax (401k / IRA)', roth: 'Roth',
@@ -85,7 +86,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
   const whySteps = useMemo(() => withdrawalOrder(split, age, order), [split, age, order]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.scrim} activeOpacity={1} onPress={onClose} />
       <View style={s.sheet}>
         <ScrollView showsVerticalScrollIndicator={false}>

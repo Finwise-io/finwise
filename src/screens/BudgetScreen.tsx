@@ -17,6 +17,7 @@ import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debt
 import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 type Tab = 'Activity' | 'Budget' | 'Debts' | 'Import';
 
@@ -628,7 +629,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       )}
 
       {/* Custom category modal */}
-      <Modal visible={catFormVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={catFormVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setCatFormVisible(false)}>
@@ -781,7 +782,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       )}
 
       {/* ── Debt form modal ───────────────────────────────────────── */}
-      <Modal visible={debtFormVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={debtFormVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setDebtFormVisible(false)}>
@@ -896,7 +897,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
 
       {/* ── Limits modal ─────────────────────────────────────────── */}
       {/* ── Log-payment modal ─────────────────────────────────────── */}
-      <Modal visible={!!payDebt} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={!!payDebt} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setPayDebt(null)}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>
@@ -919,7 +920,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         </KeyboardAvoidingView>
       </Modal>
 
-      <Modal visible={limitsVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={limitsVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity onPress={() => setLimitsVisible(false)}>
@@ -977,7 +978,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         onDelete={(entry) => { setTxnSheet({ open: false }); deleteEntry(entry.kind, entry); }} />
 
       {/* ── Recurring manager ─────────────────────────────────────── */}
-      <Modal visible={recurringMgr} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={recurringMgr} animationType={modalAnimation()} presentationStyle="pageSheet">
         <View style={styles.modalHeader}>
           <View style={{ width: 50 }} />
           <Text style={styles.modalTitle}>Recurring</Text>
@@ -1071,7 +1072,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
   };
 
   return (
-    <Modal visible={state.open} animationType="slide" presentationStyle="pageSheet">
+    <Modal visible={state.open} animationType={modalAnimation()} presentationStyle="pageSheet">
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
         <View style={styles.modalHeader}>
           <TouchableOpacity onPress={onClose}><Text style={styles.modalCancel}>Cancel</Text></TouchableOpacity>

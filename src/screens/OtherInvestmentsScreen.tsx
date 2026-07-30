@@ -10,6 +10,7 @@ import { money } from '../domain/_shared/num';
 import { InfoDot } from '../components/UI';
 import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isAlternative, alternativesSummary, ALT_KINDS } from '../domain/alternatives';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const ALT_HINT: Record<string, string> = {
@@ -115,7 +116,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
     );
   };
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>

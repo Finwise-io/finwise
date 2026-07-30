@@ -140,3 +140,31 @@ test('row 18: when the holding-level concentration fires, the account-level card
   } as any);
   expect(solo.some((i: any) => i.id === 'concentration')).toBe(true);
 });
+
+// ── Group D: accessibility rows 20-21 ──
+test('row 20: every sliding sheet honors Reduce Motion — no literal slide remains, and the helper flips', () => {
+  const fs = require('fs'); const path = require('path'); const glob = (d: string) => fs.readdirSync(path.join(__dirname, '..', '..', d)).filter((f: string) => f.endsWith('.tsx')).map((f: string) => `${d}/${f}`);
+  for (const rel of [...glob('screens'), ...glob('components')]) {
+    if (rel.includes('__tests__')) continue;
+    const src = fs.readFileSync(path.join(__dirname, '..', '..', rel), 'utf8');
+    expect({ rel, hasLiteral: /animationType="slide"/.test(src) }).toEqual({ rel, hasLiteral: false });
+  }
+  const { modalAnimation, __setReducedMotionForTesting } = require('../../hooks/reducedMotion');
+  __setReducedMotionForTesting(false);
+  expect(modalAnimation()).toBe('slide');
+  __setReducedMotionForTesting(true);
+  expect(modalAnimation()).toBe('none');
+  __setReducedMotionForTesting(false);
+});
+
+test('row 21: the shared money component speaks its label — masked dots are spoken as "hidden"', () => {
+  const { HeroAmount } = require('../../components/HeroAmount');
+  const r1 = render(<HeroAmount>{'••••'}</HeroAmount>);
+  expect(r1.getByLabelText('hidden')).toBeTruthy();
+  r1.unmount();
+  const r2 = render(<HeroAmount>{'$1,234'}</HeroAmount>);
+  expect(r2.getByLabelText('$1,234')).toBeTruthy();
+  r2.unmount();
+  const r3 = render(<HeroAmount accessibilityLabel="net worth hidden">{'••••'}</HeroAmount>);
+  expect(r3.getByLabelText('net worth hidden')).toBeTruthy();   // an explicit label always wins
+});

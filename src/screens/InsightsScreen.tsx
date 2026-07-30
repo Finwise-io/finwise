@@ -20,6 +20,7 @@ import { requiredMonthly } from '../domain/goals';
 import { monthlySavings } from '../domain/savings';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { money } from '../domain/_shared/num';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (d: number) => `${(d * 100).toFixed(1)}%`;
@@ -183,7 +184,7 @@ export default function InsightsScreen() {
       <View style={{ height: 40 }} />
 
       {/* provenance drill-down */}
-      <Modal visible={!!open} transparent animationType="slide" onRequestClose={() => setOpen(null)}>
+      <Modal visible={!!open} transparent animationType={modalAnimation()} onRequestClose={() => setOpen(null)}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close details" style={styles.backdrop} activeOpacity={1} onPress={() => setOpen(null)}>
           <View style={styles.sheet} onStartShouldSetResponder={() => true}>
             <View style={styles.grip} />

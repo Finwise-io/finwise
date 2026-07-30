@@ -13,6 +13,7 @@ import { totalGrossAnnual } from '../domain/income';
 import { spendBuckets, nonMonthlyBasis, actualMonthFlow, allocatableThisMonth } from '../domain/budget';
 import { currencySymbol } from '../domain/_shared/money';
 import { surplusByMonth } from '../domain/savings';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -269,7 +270,7 @@ export default function GoalsScreen() {
         onDelete={edit ? () => { store.deleteGoal(edit.id); setEdit(null); } : undefined} />
 
       {/* Allocate this month's surplus to a goal → fundGoals records it (flips the goal On track) */}
-      <Modal visible={alloc != null} transparent animationType="slide" onRequestClose={() => setAlloc(null)}>
+      <Modal visible={alloc != null} transparent animationType={modalAnimation()} onRequestClose={() => setAlloc(null)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Dismiss" onPress={() => setAlloc(null)} />
           <View style={styles.sheet}>
@@ -312,7 +313,7 @@ function GoalEditor({ goal, open, onClose, onSave, onDelete }: {
     ? Math.max(1, (num(tYear) - now.getFullYear()) * 12 + (num(tMonth) - (now.getMonth() + 1))) : 0;
   const reqMonthly = monthsUntil > 0 ? Math.max(0, (num(target) - num(saved)) / monthsUntil) : 0;
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>

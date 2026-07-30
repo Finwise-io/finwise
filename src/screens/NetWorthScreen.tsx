@@ -22,6 +22,7 @@ import { InfoDot } from '../components/UI';
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -596,7 +597,7 @@ export default function NetWorthScreen() {
       <DebtSheet state={debtSheet} onClose={() => setDebtSheet({ open: false })} />
 
       {/* add-or-connect: three honest paths — manual and file import stay first-class forever */}
-      <Modal visible={addChooser} transparent animationType="slide" onRequestClose={() => setAddChooser(false)}>
+      <Modal visible={addChooser} transparent animationType={modalAnimation()} onRequestClose={() => setAddChooser(false)}>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
           <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
             <View style={styles.chooserGrip} />

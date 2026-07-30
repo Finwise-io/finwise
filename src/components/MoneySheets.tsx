@@ -12,6 +12,7 @@ import { BUDGET_CATEGORIES, categoryBucketFor } from '../constants/categories';
 import { assetKind } from '../domain/assets';
 import { requiredPayment } from '../domain/debt';
 import { pickReceipt, ocrReceipt, ocrAvailable } from '../services/receiptScan';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const BUCKET_TITLE: Record<string, string> = { fixed: 'Fixed', nonmonthly: 'Non-monthly', flexible: 'Flexible' };
 const iso = (d: Date) => d.toISOString().slice(0, 10);
@@ -116,7 +117,7 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
   ]);
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity accessibilityRole="button" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
@@ -200,7 +201,7 @@ export function DebtPaySheet({ state, onClose }: { state: { open: boolean; debt?
   };
 
   return (
-    <Modal visible={state.open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={state.open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity accessibilityRole="button" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={sh.card} onStartShouldSetResponder={() => true}>
@@ -260,7 +261,7 @@ export function AllocateSavings({ state, onClose }: { state: { open: boolean; ym
   const skip = () => { if (state.ym) store.skipAllocPrompt?.(state.ym); onClose(); };
 
   return (
-    <Modal visible={state.open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={state.open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity accessibilityRole="button" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>
@@ -368,7 +369,7 @@ export function IncomeSheet({ visible, onClose, op, isCurrentMonth, baseDate, mo
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity accessibilityRole="button" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
         <ScrollView style={{ maxHeight: '88%' }} keyboardShouldPersistTaps="handled" onStartShouldSetResponder={() => true}>

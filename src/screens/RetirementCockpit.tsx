@@ -25,6 +25,7 @@ import { marginalBracket } from '../domain/income/tax';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot } from '../components/UI';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -390,7 +391,7 @@ export default function RetirementCockpit() {
         )}
 
         {/* PRD F11#13 — the side-by-side: dials AND outcomes, both re-run on today's balances */}
-        <Modal visible={!!comparePair} transparent animationType="slide" onRequestClose={() => setPicked([])}>
+        <Modal visible={!!comparePair} transparent animationType={modalAnimation()} onRequestClose={() => setPicked([])}>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close the comparison" style={styles.cmpScrim} activeOpacity={1} onPress={() => setPicked([])} />
           {comparePair && (() => {
             const [A, B] = comparePair;
@@ -900,7 +901,7 @@ export function EarmarkSheet({ open, onClose, assets, nestEgg, onSet, onDone }: 
   open: boolean; onClose: () => void; assets: AssetAccount[]; nestEgg: number; onSet: (id: string, pct: number | null) => void; onDone: () => void;
 }) {
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       {/* #20: lift the sheet above the keyboard so the % field + Done button aren't hidden behind it */}
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.kav} pointerEvents="box-none">
@@ -948,7 +949,7 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
   const [claim, setClaim] = useState<number>(A.ssClaimAge ?? 67);
   useEffect(() => { if (open) { setEligible(A.ssEligible ?? (ssDefault > 0)); setAmt(String(A.ssMonthly ?? Math.round(ssDefault) ?? '')); setClaim(A.ssClaimAge ?? 67); } }, [open]);
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
@@ -1004,7 +1005,7 @@ function SaveScenario({ open, onClose, defaultName, onSave }: { open: boolean; o
 // ───────────────────────── Asset-type picker (categorize a holding) ─────────────────────────
 function KindPicker({ account, onClose, onPick }: { account: AssetAccount | null; onClose: () => void; onPick: (kind: string, bucket: any) => void }) {
   return (
-    <Modal visible={account != null} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={account != null} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>

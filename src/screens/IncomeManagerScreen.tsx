@@ -11,6 +11,7 @@ import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
 import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the rich grants/rentals editors
 import type { StepCtx } from '../onboarding/modules';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -139,7 +140,7 @@ export default function IncomeManagerScreen() {
         onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: new Date().toISOString().slice(0, 10) }); setAddOpen(false); }} />
 
       {/* Equity comp + Rental — reuse the rich onboarding editors (grants / multiple properties), live-backed */}
-      <Modal visible={rich != null} transparent animationType="slide" onRequestClose={() => setRich(null)}>
+      <Modal visible={rich != null} transparent animationType={modalAnimation()} onRequestClose={() => setRich(null)}>
         <View style={styles.richWrap}>
           <View style={styles.richBar}>
             <Text style={styles.richTitle}>{rich === 'equity' ? 'Equity comp' : 'Rental income'}</Text>
@@ -166,7 +167,7 @@ function SelfEmploymentEditor({ open, op, onClose, onSave }: { open: boolean; op
   React.useEffect(() => { if (open) { setAmt(op.seAmount ? String(op.seAmount) : ''); setFreq(op.seFreq === 'monthly' ? 'monthly' : 'annual'); } }, [open]);
   const annual = num(amt) * (freq === 'monthly' ? 12 : 1);
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
         <TouchableOpacity style={styles.scrim} activeOpacity={1} accessibilityRole="button" accessibilityLabel="Dismiss" onPress={onClose} />
         <View style={styles.sheet}>
@@ -204,7 +205,7 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
   React.useEffect(() => { if (open) { setAmt(op.baseSalary ? String(op.baseSalary) : ''); setFreq(op.salaryFreq ?? 'annual'); setMode(op.salaryMode === 'takehome' ? 'takehome' : 'gross'); } }, [open]);
   const annual = num(amt) * (SALARY_PERIODS[freq] ?? 1);
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
@@ -237,7 +238,7 @@ function AmountEditor({ open, title, value, onClose, onSave }: { open: boolean; 
   const [v, setV] = useState('');
   React.useEffect(() => { if (open) setV(value ? String(value) : ''); }, [open]);
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
@@ -256,7 +257,7 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
   const [amount, setAmount] = useState('');
   React.useEffect(() => { if (open) { setSource(''); setAmount(''); } }, [open]);
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>

@@ -13,6 +13,7 @@ import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, RMD_START_AGE } from '../domain/decumulation';
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -191,7 +192,7 @@ export default function RequiredWithdrawalsScreen() {
       )}
 
       {/* mark-as-taken (r46): writes a REAL ledger entry — history and balances stay honest */}
-      <Modal visible={markOpen} transparent animationType="slide" onRequestClose={() => setMarkOpen(false)}>
+      <Modal visible={markOpen} transparent animationType={modalAnimation()} onRequestClose={() => setMarkOpen(false)}>
         <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={s.scrim} activeOpacity={1} onPress={() => setMarkOpen(false)} />
           <View style={s.sheet}>

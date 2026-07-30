@@ -29,6 +29,7 @@ import BudgetScreen from './BudgetScreen';
 import { HeroAmount } from '../components/HeroAmount';
 import { EstimateTag } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -218,7 +219,7 @@ function PlanSummaryCard({ op, bva }: { op: any; bva: any }) {
       <TouchableOpacity accessibilityRole="button" onPress={() => setOpen(true)} accessibilityLabel="Edit the plan — category limits with the live leftover math">
         <Text style={styles.link}>Edit the plan ›</Text>
       </TouchableOpacity>
-      <Modal visible={open} animationType="slide" onRequestClose={() => setOpen(false)}>
+      <Modal visible={open} animationType={modalAnimation()} onRequestClose={() => setOpen(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>Your monthly plan</Text>
@@ -407,7 +408,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
       )}
 
       {/* the linked doors — the PROVEN bodies, presented full-screen */}
-      <Modal visible={allTxns} animationType="slide" onRequestClose={() => setAllTxns(false)}>
+      <Modal visible={allTxns} animationType={modalAnimation()} onRequestClose={() => setAllTxns(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>All transactions</Text>
@@ -418,7 +419,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
           <BudgetScreen embedded initialTab="Activity" />
         </KeyboardAvoidingView>
       </Modal>
-      <Modal visible={importing} animationType="slide" onRequestClose={() => setImporting(false)}>
+      <Modal visible={importing} animationType={modalAnimation()} onRequestClose={() => setImporting(false)}>
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={{ flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: 54 }}>
           <View style={[styles.headRow, { paddingHorizontal: Spacing.base }]}>
             <Text style={styles.h1}>Import a statement</Text>

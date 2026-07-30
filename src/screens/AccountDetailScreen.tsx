@@ -14,6 +14,7 @@ import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondR
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const TAX_WORDS: Record<string, string> = {
   taxable: 'taxable',
@@ -405,7 +406,7 @@ function RecordActivitySheet({ account, action, onClose }: { account: AssetAccou
     : `+${maskedMoney(amt)} into ${account.label}`;
 
   return (
-    <Modal visible={action != null} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={action != null} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
@@ -463,7 +464,7 @@ function UpdateValueSheet({ account, visible, onClose }: { account: AssetAccount
     onClose();
   };
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === 'ios' ? 'padding' : 'height'}>
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without saving" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.sheet} onStartShouldSetResponder={() => true}>

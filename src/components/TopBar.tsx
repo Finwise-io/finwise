@@ -10,6 +10,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing } from '../utils/theme';
 import { resolveLens, tabOrder, type FccTab } from '../domain/profile/lens';
 import { TAB_META } from '../constants/tabs';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 type Mod = { e: string; t: string; route?: string };
 // Menu = a MIRROR of the tab bar (founder UX review 2026-07-16: "hard to link menu to button
@@ -99,7 +100,7 @@ export default function TopBar() {
         </TouchableOpacity>
       </View>
 
-      <Modal visible={menu} transparent animationType="slide" onRequestClose={() => setMenu(false)}>
+      <Modal visible={menu} transparent animationType={modalAnimation()} onRequestClose={() => setMenu(false)}>
         <TouchableOpacity style={s.backdrop} activeOpacity={1} onPress={() => setMenu(false)} accessibilityRole="button" accessibilityLabel="Close menu">
           <View style={s.sheet} onStartShouldSetResponder={() => true}>
             <View style={s.grip} />

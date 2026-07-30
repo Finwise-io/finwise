@@ -7,6 +7,7 @@
 import React from 'react';
 import { Modal, View, Text, ScrollView, TouchableOpacity, KeyboardAvoidingView, Platform, StyleSheet } from 'react-native';
 import { Colors, Radii, Spacing } from '../utils/theme';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 export function KeyboardAwareSheet({ open, onClose, title, children }: {
   open: boolean; onClose: () => void; title: string; children: React.ReactNode;
@@ -21,7 +22,7 @@ export function KeyboardAwareSheet({ open, onClose, title, children }: {
     </TouchableOpacity>
   );
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       {ios ? inner : (
         <KeyboardAvoidingView style={{ flex: 1 }} behavior="height">{inner}</KeyboardAvoidingView>
       )}

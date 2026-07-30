@@ -7,6 +7,7 @@ import React, { useState } from 'react';
 import { Modal, View, Text, TextInput, TouchableOpacity, StyleSheet, ScrollView, Platform, KeyboardAvoidingView } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Radii, Spacing } from '../utils/theme';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const num = (v: string) => { const n = parseFloat(String(v).replace(/[^0-9.]/g, '')); return Number.isFinite(n) ? n : 0; };
@@ -55,7 +56,7 @@ export function IncomeSetupSheet({ visible, onClose }: { visible: boolean; onClo
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? undefined : 'height'} style={s.scrim}>
         <View style={s.sheet}>
           <View style={s.grab} />

@@ -6,6 +6,7 @@ import React from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 export interface PlanChange { label: string; from: string; to: string }
 
@@ -26,7 +27,7 @@ export function UseThisPlanSheet({ visible, onClose, title, changes, patch, adop
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={visible} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close without changing anything" style={s.backdrop} activeOpacity={1} onPress={onClose}>
         <View style={s.card} onStartShouldSetResponder={() => true}>
           <View style={s.handle} />

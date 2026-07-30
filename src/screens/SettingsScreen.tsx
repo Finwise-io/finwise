@@ -11,6 +11,7 @@ import { RecoveryCodeModal } from '../components/RecoveryCodeModal';
 import { FONT_SCALES } from '../utils/fontScale';
 import Constants from 'expo-constants';
 import { sendTestReport } from '../services/crashReporter';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const PRIVACY_URL = 'https://finwise-io.github.io/finwise/privacy';
 const TERMS_URL   = 'https://finwise-io.github.io/finwise/terms';
@@ -587,7 +588,7 @@ export default function SettingsScreen() {
       </Card>
 
       {/* Feedback modal */}
-      <Modal visible={feedbackVisible} animationType="slide" presentationStyle="pageSheet">
+      <Modal visible={feedbackVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
           <View style={styles.modalHeader}>
             <TouchableOpacity accessibilityRole="button" onPress={() => setFeedbackVisible(false)}>

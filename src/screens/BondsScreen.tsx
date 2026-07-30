@@ -10,6 +10,7 @@ import { InfoDot } from '../components/UI';
 import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
+import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // ISO date helpers (local components, no TZ shift) for the maturity date picker
@@ -170,7 +171,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date
   });
   return (
-    <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
+    <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
       <TouchableOpacity style={styles.scrim} activeOpacity={1} onPress={onClose} />
       <View style={styles.sheet}>
