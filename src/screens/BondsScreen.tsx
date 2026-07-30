@@ -7,6 +7,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { InfoDot } from '../components/UI';
+import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
 
@@ -114,6 +115,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
   const [maturity, setMaturity] = useState('');
   const [showPicker, setShowPicker] = useState(false);
   const [value, setValue] = useState('');
+  const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   const [institution, setInstitution] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   const [sellAmt, setSellAmt] = useState('');
@@ -121,7 +123,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     if (!open) return;
     setLabel(bond?.label ?? ''); setFace(bond?.face_value ? String(bond.face_value) : '');
     setCoupon(bond?.coupon_rate ? String(bond.coupon_rate * 100) : ''); setMaturity(bond?.maturity_date ?? '');
-    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt('');
+    setValue(bond ? String(bond.balance ?? '') : ''); setBucket(bond?.tax_bucket ?? 'TAXABLE'); setInstitution(bond?.institution ?? ''); setSellAmt(''); setValueAsOf(bond?.value_as_of ?? '');
   }, [open]);
   // You can sell a bond on the secondary market before maturity. Record a full or partial sale: a full
   // sale closes the position; a partial sale lowers its value and scales the face/par proportionally.
@@ -165,6 +167,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
     label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
     face_value: num(face), coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
     balance: num(value) > 0 ? num(value) : num(face),   // default value to face if blank
+    value_as_of: valueAsOf || fmtISO(new Date()),       // walk row 4: every manual value carries its date
   });
   return (
     <Modal visible={open} transparent animationType="slide" onRequestClose={onClose}>
@@ -207,6 +210,8 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           )}
           <Text style={styles.fieldL}>Current value (blank = face value)</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="what it's worth now" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Value as of</Text>
+          <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           {valid && num(face) > 0 && <Text style={styles.note}>~{money(num(face) * (num(coupon) / 100))}/yr in coupon income.</Text>}
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{ACCT_TYPES.map((t) => (

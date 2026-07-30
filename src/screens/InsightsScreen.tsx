@@ -15,7 +15,7 @@ import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
 import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
-import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
+import { taxBucketSplit, rmdAtAge, RMD_START_AGE, rmdTakenThisYear } from '../domain/decumulation';
 import { requiredMonthly } from '../domain/goals';
 import { monthlySavings } from '../domain/savings';
 import { usePlanCompleteness } from './SharpenPlanScreen';
@@ -69,7 +69,12 @@ export function useInsights(limit?: number): Insight[] {
     } : null;
     // Required withdrawal (age 73+, pre-tax balance) — same figure Plan shows (rmdAtAge).
     const preTax = taxBucketSplit(accounts).preTax;
-    const rmdDue = age >= RMD_START_AGE && preTax > 0 ? { amount: rmdAtAge(preTax, age) } : null;
+    // Build-47 walk row 3 (audit PRD #8): the card reads the SAME taken-vs-due check the
+    // Required-withdrawals screen uses — once you've taken it, the card goes quiet.
+    const preTaxIds = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').map((a: any) => a.asset_id);
+    const rmdTaken = rmdTakenThisYear(store.transactions ?? [], preTaxIds);
+    const rmdRemaining = Math.max(0, rmdAtAge(preTax, age) - rmdTaken);
+    const rmdDue = age >= RMD_START_AGE && preTax > 0 && rmdRemaining > 0 ? { amount: rmdRemaining } : null;
     // Social Security claim window: open from 62 to 70, no adopted timing, no SS income captured.
     const A = store.retirementAssumptions ?? {};
     const ssWindow = age >= 62 && age < 70 && A.ssClaimAge == null && num(op.ri_ss) === 0;

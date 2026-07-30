@@ -23,7 +23,7 @@ function RoomCard({ icon, title, limit, used, knownUsed, catchUp, how, note }: {
       <View style={s.head}>
         <Text style={s.icon}>{icon}</Text>
         <Text style={s.title}>{title}</Text>
-        <Text style={s.room}>{money(room)} left</Text>
+        <Text style={s.room}>{knownUsed ? `${money(room)} left` : `up to ${money(limit)}`}</Text>
       </View>
       <ProgressBar pct={Math.round(pct)} color={room > 0 ? Colors.primary : Colors.successGreen} height={7} />
       <Text style={s.line}>
@@ -71,8 +71,10 @@ export default function ContributionRoomScreen() {
         note="Traditional + Roth IRA share one combined limit. Income limits may reduce how much is deductible / Roth-eligible."
         how="open or add to an IRA at any brokerage before the tax-filing deadline." />
 
+      {/* Build-47 walk row 1: the header must not claim "$X left" when contributions aren't
+          tracked — "up to $X" + the honest note below say exactly what we know. */}
       <RoomCard icon="🩺" title="HSA (Health Savings Account)" limit={hsaLimit} used={0} knownUsed={false} catchUp={age != null && age >= 55}
-        note="Only if you're on a high-deductible health plan. Self-only limit shown; family is higher."
+        note="Only if you're on a high-deductible health plan. We don't track your HSA contributions yet, so this shows the full-year cap — self-only limit; family plans cap higher."
         how="contribute via payroll or directly to your HSA provider." />
 
       <Disclaimer />

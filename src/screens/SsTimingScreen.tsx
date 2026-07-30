@@ -48,7 +48,12 @@ export default function SsTimingScreen() {
   // Past 70 the credit stops — every standard age has 'passed', so the honest option is claim NOW
   // at the age-70 amount (the factor clamps at 124%). Never a dead end, never a choice that no
   // longer exists (edge-case audit E1).
-  const claimAges: number[] = age != null && age > 70 ? [age] : [...CLAIM_AGES];
+  // Build-47 walk row 2 (audit Design ICP #22): past FULL retirement age the standard table went
+  // dead too — a 68-year-old saw 62 and 67 greyed "passed" with only 70 live. Re-center the compare
+  // on claim NOW (their current age) vs waiting to 70 — the same approved table, honest rows.
+  const claimAges: number[] = age != null && age > FULL_RETIREMENT_AGE
+    ? (age >= 70 ? [age] : [age, 70])
+    : [...CLAIM_AGES];
 
   // three seeded runs — the SAME engine and inputs the hub uses, patched per claim age
   const rows = useMemo(() => claimAges.map((claimAge) => {
@@ -133,7 +138,7 @@ export default function SsTimingScreen() {
             accessible accessibilityLabel={r.passed
               ? `Claiming at ${r.claimAge} has passed — you can no longer claim at ${r.claimAge}`
               : `Claiming at ${r.claimAge} pays ${maskedMoney(r.monthly)} a month, about ${maskedMoney(r.lifetime)} in total by age ${liveTo}${usingExample ? ', example numbers' : ''}`}>
-            <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{age != null && age > 70 && r.claimAge === age ? ' (now)' : ''}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
+            <Text style={[styles.td, { flex: 1 }, r.passed && styles.passed]}>at {r.claimAge}{age != null && age > FULL_RETIREMENT_AGE && r.claimAge === age ? ' (now)' : ''}{adopted === r.claimAge ? '  ✓ your plan' : ''}{r.passed ? '  (passed)' : ''}</Text>
             <Text style={[styles.td, styles.tdMonthly, styles.tRight, { width: 104 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.monthly)}</Text>
             <Text style={[styles.td, styles.tRight, { width: 110 }, r.passed && styles.passed, usingExample && styles.example]}>{maskedMoney(r.lifetime)}</Text>
           </View>

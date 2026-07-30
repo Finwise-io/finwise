@@ -71,6 +71,9 @@ export default function AccountDetailScreen() {
   };
   const tickers = (account.positions ?? []).map((p) => holdingWord(p as any)).filter(Boolean);
   const fresh = valueFreshness(account);
+  // Build-47 walk row 5 (audit Design ICP #29): a hand-entered value with NO date shows the
+  // approved one-line nudge instead of silence — the quiet data-quality hole, closed.
+  const undated = !account.source && !account.value_as_of && !(account.positions?.length) && (account.balance || 0) > 0;
 
   // APPROVED account-detail mock (2026-07-19): connected accounts show WHAT'S INSIDE · BY TYPE —
   // every holding with a readable name, class dot and value; the cash sleeve; each option row.
@@ -152,6 +155,24 @@ export default function AccountDetailScreen() {
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
         ) : null}
       </View>
+
+      {/* walk row 5: an UNDATED hand-entered value gets the same gentle nudge — silence hid it */}
+      {undated && (
+        <View style={s.staleCard}>
+          <Text style={s.staleTxt}>⏱ Value date unknown — confirm it once and we can tell you when it goes stale.</Text>
+          <View style={{ flexDirection: 'row', gap: 8, marginTop: 8 }}>
+            <TouchableOpacity accessibilityRole="button" style={s.staleBtn}
+              onPress={() => store.updateAsset?.(account.asset_id, { value_as_of: iso(new Date()) })}
+              accessibilityLabel="This value is current — stamp it today">
+              <Text style={s.staleBtnTxt}>It's current</Text>
+            </TouchableOpacity>
+            <TouchableOpacity accessibilityRole="button" style={s.staleBtn} onPress={() => setValueSheet(true)}
+              accessibilityLabel="Update the value">
+              <Text style={s.staleBtnTxt}>Update it</Text>
+            </TouchableOpacity>
+          </View>
+        </View>
+      )}
 
       {/* stale hand-entered value — the gentle 6-month nudge (never red, never a zero) */}
       {fresh?.stale && (

@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useStore } from '../store/useStore';
+import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { InfoDot } from '../components/UI';
@@ -85,9 +86,10 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
   const [value, setValue] = useState('');
   const [bucket, setBucket] = useState<TaxBucket>('TAXABLE');
   const [sellAmt, setSellAmt] = useState('');
+  const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt('');
+    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
   // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
@@ -131,6 +133,8 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} value={inst} onChangeText={setInst} placeholder="e.g. Coinbase, Chase — optional" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Current value</Text>
           <TextInput style={styles.input} keyboardType="decimal-pad" value={value} onChangeText={setValue} placeholder="0" placeholderTextColor={Colors.textTertiary} />
+          <Text style={styles.fieldL}>Value as of</Text>
+          <DateField value={valueAsOf} onChange={setValueAsOf} label="value as of" style={styles.input} />
           <Text style={styles.fieldL}>Account</Text>
           <View style={styles.chips}>{BUCKETS.map((b) => (
             <TouchableOpacity key={b.bucket} style={[styles.chip, bucket === b.bucket && styles.chipOn]} onPress={() => setBucket(b.bucket)}><Text style={[styles.chipT, bucket === b.bucket && styles.chipTOn]}>{b.label}</Text></TouchableOpacity>
@@ -150,7 +154,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket })}>
+            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket, value_as_of: valueAsOf || new Date().toISOString().slice(0, 10) })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}
