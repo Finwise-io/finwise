@@ -128,3 +128,31 @@ describe('PIN 2 — this-year is the exact sum of the 12 cells (never ×12)', ()
     expect(Math.abs(year.thisYear - year.thisMonth.netSafeToSpend * 12)).toBeGreaterThan(1000);  // NOT ×12
   });
 });
+
+// B46 finding 7: the THIS MONTH card's arithmetic must hold by construction — the surplus row IS
+// In − Out from the same month cell, never a second engine's figure (monthlySavings disagreed by
+// $572 on the founder's device: "In 8,600 − Out 0 = 9,172. How?").
+test('THIS MONTH: In − Out = Planned surplus, to the dollar, always', () => {
+  useStore.setState({
+    onboardingProfile: {
+      status: 'employed', incomeSources: ['employment'],
+      baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly',
+      monthlySpending: '3000',   // makes plan-level "capacity" differ from the dated cell on purpose
+      invAnnual: '6000',         // investment income widens the two engines' gap further
+    },
+  } as any);
+  render(<CashFlowScreen />);
+  const num = (label: RegExp) => {
+    const row = screen.getByText(label).parent?.parent;
+    const texts: string[] = [];
+    const walk = (n: any) => { if (n == null) return; if (typeof n === 'string') { texts.push(n); return; } (n.children ?? []).forEach(walk); };
+    walk(row);
+    const m = texts.join(' ').match(/\$([\d,]+)/g);
+    return m ? Number(m[m.length - 1].replace(/[$,]/g, '')) : NaN;
+  };
+  const inn = num(/^In \(take-home\)$/);
+  const out = num(/^Out \(bills/);
+  const sur = num(/^= Planned surplus$|^Free to spend after your plan$/);   // the ROW label (the hero sub duplicates the words)
+  expect(Number.isFinite(inn) && Number.isFinite(out) && Number.isFinite(sur)).toBe(true);
+  expect(sur).toBe(inn - out);   // the equals sign is earned
+});

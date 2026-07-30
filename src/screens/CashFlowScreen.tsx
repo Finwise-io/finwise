@@ -11,7 +11,6 @@ import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
-import { monthlySavings } from '../domain/savings';
 import { actualDebtPayment } from '../domain/debt';
 import { retirementIncomeMonthly } from '../domain/income';
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
@@ -490,7 +489,11 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   const cell = grid.cells[0];
   const inflow = cell?.inflow ?? 0;
   const outflow = cell?.outflow ?? 0;
-  const surplus = Math.round(monthlySavings(op, liabilities));
+  // B46 finding 7 (founder: "In 8,600 − Out 0 = surplus 9,172. How?"): the card's "=" must be true
+  // BY CONSTRUCTION — surplus is In − Out from the SAME month cell. The old code read a second
+  // engine (monthlySavings, the plan-level capacity concept) whose basis can legitimately differ;
+  // printing it behind an equals sign made the app contradict itself on one card.
+  const surplus = Math.round(inflow - outflow);
   const debtMo = Math.round(actualDebtPayment(liabilities));
   const A = store.retirementAssumptions ?? {};
 
