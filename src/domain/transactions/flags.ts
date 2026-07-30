@@ -5,7 +5,7 @@
 // the watch runs on connected-account transactions only (t.source === 'connected').
 import type { Transaction } from './index';
 
-export type FlagReason = 'unusually_large' | 'first_time_payee' | 'odd_pattern';
+export type FlagReason = 'unusually_large' | 'first_time_payee' | 'odd_pattern' | 'possible_duplicate';
 export type FlagStatus = 'open' | 'was_me' | 'flagged';
 
 export interface TxnFlag {
@@ -73,7 +73,30 @@ export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): 
   const flags: TxnFlag[] = [];
   const flaggedIds = new Set<string>();
 
-  // Only connected-account money-out is ever reviewed (never interrogate a hand-typed number).
+  // Build-47 walk row 19 (audit PRD #9), rule (0): POSSIBLE DUPLICATE — same account, same
+  // amount to the cent, same payee, within 2 days. This one DOES cover hand-typed entries:
+  // typing the same expense twice is exactly where manual entry goes wrong. The newer row
+  // gets the flag; the size/payee rules below stay connected-only (the deliberate stance:
+  // never interrogate the size of a number the user typed themselves).
+  const dupCandidates = newOnes.filter((t) => isMoneyOut(t) && (t.amount ?? 0) > 0);
+  for (const t of dupCandidates) {
+    if (flaggedIds.has(String(t.id))) continue;
+    const acct = String(t.account_id);
+    const twin = history.find((h) => String(h.account_id) === acct && isMoneyOut(h) && h.id !== t.id
+      && Math.abs((h.amount ?? 0) - (t.amount ?? 0)) < 0.005
+      && normPayee(h.note) === normPayee(t.note)
+      && daysBetween(h.date, t.date) <= 2);
+    if (twin) {
+      flags.push({
+        flag_id: makeId(), transaction_ids: [String(t.id)], account_id: acct,
+        reason: 'possible_duplicate', comparison: twin.amount ?? null,
+        amount: t.amount as number, payee: normPayee(t.note) || null, date: t.date, status: 'open', created_at: nowIso,
+      });
+      flaggedIds.add(String(t.id));
+    }
+  }
+
+  // Only connected-account money-out is ever reviewed for SIZE/PAYEE (never interrogate a hand-typed number).
   const candidates = newOnes.filter((t) => t.source === 'connected' && isMoneyOut(t) && (t.amount ?? 0) > 0);
 
   for (const t of candidates) {
@@ -153,5 +176,6 @@ export function flagComparisonText(f: TxnFlag): string {
     return `This account is new to us, so we look twice at anything over $${LARGE_COLD_START.toLocaleString()}.`;
   }
   if (f.reason === 'first_time_payee') return `First time we've seen this payee on this account.`;
+  if (f.reason === 'possible_duplicate') return `Looks like the same charge twice — same amount, same place, within two days. If one was typed by mistake, delete it; if both are real, mark it settled.`;
   return `${f.transaction_ids.length} withdrawals from this account in one day, $${Math.round(f.amount).toLocaleString()} together.`;
 }

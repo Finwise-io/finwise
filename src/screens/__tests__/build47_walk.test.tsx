@@ -97,3 +97,46 @@ test('rows 6-11: the consolidations hold at the source', () => {
     expect(read(f)).toMatch(/<HeroAmount/);
   }
 });
+
+// ── Group C: conformance rows 12-19 ──
+test('rows 12-19: conformance pins', () => {
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', '..', rel), 'utf8');
+  // row 12: the hidden-balances banner is ONE component mounted on all five tabs
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/PerformanceScreen.tsx', 'screens/CashFlowScreen.tsx', 'screens/PlanHubScreen.tsx']) {
+    expect(read(f)).toMatch(/<HiddenBalancesBanner \/>/);
+  }
+  // row 13: pull-to-refresh on Home + Net worth (prices AND connected sync)
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx']) {
+    expect(read(f)).toMatch(/RefreshControl refreshing=\{refreshing\} onRefresh=\{onPull\}/);
+    expect(read(f)).toMatch(/runSnapTradeSync\(\{ force: true \}\)/);
+  }
+  // row 14: the approved door lines, word for word
+  expect(read('screens/HomeScreen.tsx')).toMatch(/Takes about 2 minutes\. Read-only/);
+  expect(read('screens/HomeScreen.tsx')).toMatch(/Add it by hand — your home, savings/);
+  // row 15: Roth banner + save-scenario + the dated hub action item
+  expect(read('screens/RothScreen.tsx')).toMatch(/\{TRYING_IT_OUT\}/);
+  expect(read('screens/RothScreen.tsx')).toMatch(/saveRetirementScenario/);
+  expect(read('screens/PlanHubScreen.tsx')).toMatch(/convert \$\{maskedMoney\(Number\(A\.rothConversionThisYear\)\)\} before Dec 31/);
+  // row 16: holding detail mirrors the chosen period
+  expect(read('screens/PerformanceScreen.tsx')).toMatch(/&period=\$\{period\}/);
+  expect(read('screens/HoldingDetailScreen.tsx')).toMatch(/params\.period/);
+  // row 17: the concentration callout is a button that scrolls to the list
+  expect(read('screens/PerformanceScreen.tsx')).toMatch(/onPress=\{\(\) => \{ if \(invListY\.current > 0\) scrollRef\.current\?\.scrollTo/);
+});
+
+test('row 18: when the holding-level concentration fires, the account-level card yields', () => {
+  const { buildInsights } = require('../../domain/insights');
+  const both = buildInsights({
+    cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
+    cashDragPct: 10, topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2,
+    topHolding: { ticker: 'NVDA', pct: 42, value: 42000 },
+  } as any);
+  expect(both.some((i: any) => i.id === 'holding-concentration')).toBe(true);
+  expect(both.some((i: any) => i.id === 'concentration')).toBe(false);
+  const solo = buildInsights({
+    cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
+    cashDragPct: 10, topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: null,
+  } as any);
+  expect(solo.some((i: any) => i.id === 'concentration')).toBe(true);
+});

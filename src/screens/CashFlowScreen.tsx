@@ -28,6 +28,7 @@ import { IncomeSetupSheet } from '../components/IncomeSetupSheet';
 import BudgetScreen from './BudgetScreen';
 import { HeroAmount } from '../components/HeroAmount';
 import { EstimateTag } from '../components/UI';
+import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -73,6 +74,7 @@ export default function CashFlowScreen() {
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
     <ScrollView style={{ flex: 1 }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
       automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled">
+        <HiddenBalancesBanner />
       <View style={styles.headRow}>
         <Text style={styles.h1}>Cash flow</Text>
         <Text style={styles.headDate}>{header}</Text>

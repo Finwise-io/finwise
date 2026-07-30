@@ -5,7 +5,7 @@
 // will-it-last strip (reads the one selector's number — Home displays, it never re-derives).
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -30,12 +30,23 @@ import { makeMonthlySnapshot, readHistory } from '../domain/history';
 import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
+import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
 export default function HomeScreen() {
   const router = useRouter();
   const store = useStore() as any;
+
+  // Build-47 walk row 13 (audit Home·NW #12): pull down = refresh prices AND connected accounts.
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onPull = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const { runSnapTradeSync } = require('../services/sync/snaptradeSync');
+      await Promise.allSettled([store.refreshPrices?.(), runSnapTradeSync({ force: true })]);
+    } finally { setRefreshing(false); }
+  }, []);
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
   const name = (store.user?.name || op?.name || 'there').split(' ')[0];
@@ -195,9 +206,9 @@ export default function HomeScreen() {
         {/* connect: a real door into the flow — the flow itself says honestly whether live
             bank linking is switched on yet (never a dead button, never a hidden feature) */}
         <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/connect' as any)}
-          accessibilityLabel="Connect your first account. Read-only: we can look, never touch your money.">
+          accessibilityLabel="Connect your first account. Takes about 2 minutes. Read-only: we can look, never touch your money.">
           <Text style={styles.doorTitle}>Connect your first account ›</Text>
-          <Text style={styles.doorSub}>Read-only: we can look, never touch your money.</Text>
+          <Text style={styles.doorSub}>Takes about 2 minutes. Read-only: we can look, never touch your money.</Text>
         </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/import-holdings')}
@@ -209,7 +220,7 @@ export default function HomeScreen() {
         <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/(tabs)/analytics')}
           accessibilityLabel="Add something by hand — your home, or an account with no login">
           <Text style={styles.doorTitle}>Add something by hand ›</Text>
-          <Text style={styles.doorSub}>Your home, savings, or an account with no login.</Text>
+          <Text style={styles.doorSub}>Add it by hand — your home, savings, or an account with no login.</Text>
         </TouchableOpacity>
 
         {!draft && (
@@ -235,7 +246,8 @@ export default function HomeScreen() {
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
         <View style={styles.headRow}>
           <View style={{ flex: 1 }}>
             <Text style={styles.sub}>Good {greeting()}</Text>
@@ -243,9 +255,7 @@ export default function HomeScreen() {
           </View>
         </View>
 
-        {store.hideBalances && (
-          <Text style={styles.hiddenBanner}>Balances hidden — tap the eye to show</Text>
-        )}
+        <HiddenBalancesBanner />
 
         {/* HERO — lens-driven */}
         {lens === 'retired' ? (

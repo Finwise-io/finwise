@@ -16,6 +16,7 @@ import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { Disclaimer } from '../components/Disclaimer';
 import { maskedMoney } from '../components/useMoney';
+import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 
 // saved-scenario dates read like the rest of the app — never raw ISO (audit PH-3)
 const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
@@ -62,6 +63,7 @@ export default function PlanHubScreen() {
 
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <HiddenBalancesBanner />
       <Text style={styles.h1}>Plan</Text>
       <Text style={styles.tagline}>We lay it out. You decide.</Text>
 
@@ -98,7 +100,11 @@ export default function PlanHubScreen() {
         <DecisionRow title="Claim Social Security" sub={ssChip ?? 'when to start the check — laid out in your dollars'} onPress={() => router.push('/ss-timing')} />
         <DecisionRow divider title="Required withdrawals" sub={age != null && age >= RMD_START_AGE ? 'they apply to you now' : `they start at ${RMD_START_AGE}`} onPress={() => router.push('/required-withdrawals')} />
         <DecisionRow divider title="Afford it all?" sub="home · college · parents · debt — together" onPress={() => router.push('/multi-goal')} />
-        <DecisionRow divider title="Move money into a Roth" sub="pay some tax now, in a low-tax year" onPress={() => router.push('/roth')} />
+        <DecisionRow divider title="Move money into a Roth"
+          sub={Number(A?.rothConversionThisYear) > 0
+            ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
+            : 'pay some tax now, in a low-tax year'}
+          onPress={() => router.push('/roth')} />
       </View>
 
       {/* Your monthly income (retired lens): guaranteed income findable from Plan too */}

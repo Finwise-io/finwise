@@ -29,7 +29,9 @@ const dateWords = (iso: string) => {
 
 export default function HoldingDetailScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ account?: string; position?: string }>();
+  const params = useLocalSearchParams<{ account?: string; position?: string; period?: string }>();
+  // walk row 16 (audit Design ICP #6): the page opens on the period you had selected on Invest
+  const period = (['1M', '3M', '6M', 'YTD', '1Y', '3Y'] as const).includes(params.period as any) ? (params.period as any) : '1Y';
   const store = useStore() as any;
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const account = accounts.find((a) => a.asset_id === String(params.account));
@@ -43,8 +45,8 @@ export default function HoldingDetailScreen() {
 
   // r24: the SAME row the Invest main list computes for this holding — one helper, one number
   const row: PerformanceRow | null = useMemo(
-    () => (position ? buildPerformance([position], priceOf, '1Y')[0] : null),
-    [position, priceCache],
+    () => (position ? buildPerformance([position], priceOf, period)[0] : null),
+    [position, priceCache, period],
   );
 
   if (!account || !position || !row) {

@@ -118,3 +118,24 @@ describe('hard guarantees', () => {
     expect(flags).toHaveLength(0);
   });
 });
+
+// Build-47 walk row 19 (audit PRD #9): duplicate detection — and it covers HAND-TYPED entries
+// (typing the same expense twice is the classic manual error); size/payee rules stay connected-only.
+describe('possible_duplicate (walk row 19)', () => {
+  const mk = (over: any) => ({ id: over.id, type: 'WITHDRAWAL', account_id: 'a1', amount: 84.2, date: '2026-07-28', note: 'Acme Market', ...over });
+  test('a manual twin within 2 days gets flagged; the flag names the duplicate rule', () => {
+    const flags = reviewTransactions([mk({ id: 't2', date: '2026-07-29' }) as any],
+      { history: [mk({ id: 't1' }) as any], makeId: () => 'f1' });
+    expect(flags).toHaveLength(1);
+    expect(flags[0].reason).toBe('possible_duplicate');
+    expect(flagComparisonText(flags[0])).toMatch(/same charge twice/);
+  });
+  test('different amounts or payees never trip it', () => {
+    expect(reviewTransactions([mk({ id: 't2', amount: 85.0 }) as any], { history: [mk({ id: 't1' }) as any] })).toHaveLength(0);
+    expect(reviewTransactions([mk({ id: 't2', note: 'Other Shop' }) as any], { history: [mk({ id: 't1' }) as any] })).toHaveLength(0);
+  });
+  test('hand-typed size is still never interrogated (manual large stays unflagged)', () => {
+    const flags = reviewTransactions([mk({ id: 't9', amount: 9000, note: 'Tuition' }) as any], { history: [] });
+    expect(flags).toHaveLength(0);
+  });
+});

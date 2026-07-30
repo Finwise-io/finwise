@@ -87,8 +87,11 @@ const RULES: Rule[] = [
 
 /** Ranked insights (highest priority first). `limit` caps the result (default all). */
 export function buildInsights(input: InsightInput, limit?: number): Insight[] {
-  const out = RULES.map((r) => r(input)).filter((x): x is RawInsight => x != null)
+  let out = RULES.map((r) => r(input)).filter((x): x is RawInsight => x != null)
     .sort((a, b) => a.priority - b.priority)
     .map((i) => ({ ...i, theme: THEME_BY_ID[i.id] ?? 'optimize' as InsightTheme }));
+  // Build-47 walk row 18 (audit Design ICP #28): the two concentration cards never fire together —
+  // when the holding-level fact exists it is the more specific one; the account-level card yields.
+  if (out.some((i) => i.id === 'holding-concentration')) out = out.filter((i) => i.id !== 'concentration');
   return limit != null ? out.slice(0, limit) : out;
 }

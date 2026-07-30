@@ -1,7 +1,7 @@
 // Net Worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl } from 'react-native';
 import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
@@ -21,6 +21,7 @@ import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Them
 import { InfoDot } from '../components/UI';
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
+import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -99,6 +100,16 @@ const WIZ_HINT: Record<string, string> = {
 export default function NetWorthScreen() {
   const router = useRouter();
   const store = useStore() as any;
+
+  // Build-47 walk row 13 (audit Home·NW #12): pull down = refresh prices AND connected accounts.
+  const [refreshing, setRefreshing] = React.useState(false);
+  const onPull = React.useCallback(async () => {
+    setRefreshing(true);
+    try {
+      const { runSnapTradeSync } = require('../services/sync/snaptradeSync');
+      await Promise.allSettled([store.refreshPrices?.(), runSnapTradeSync({ force: true })]);
+    } finally { setRefreshing(false); }
+  }, []);
   useEffect(() => { store.maybeRefreshPrices?.(); }, []);   // keep balances live with the market
   const op = store.onboardingProfile;
   const uid = store.user?.uid ?? 'local';
@@ -380,7 +391,9 @@ export default function NetWorthScreen() {
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
     body = (
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
+        <HiddenBalancesBanner />
         {/* GLANCE: the one number + its year change + the 12-month trend */}
         <View style={styles.glanceCard} accessible
           accessibilityLabel={store.hideBalances

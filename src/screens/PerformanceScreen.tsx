@@ -26,6 +26,7 @@ import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/mone
 import { InfoDot, EstimateTag } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HeroAmount } from '../components/HeroAmount';
+import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -40,6 +41,9 @@ export default function PerformanceScreen() {
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const priceCache = store.priceCache ?? {};
   const [period, setPeriod] = useState<Period>('1Y');
+  // walk row 17: the concentration callout scrolls to the holdings list (reach-through, wired at last)
+  const scrollRef = React.useRef<ScrollView>(null);
+  const invListY = React.useRef(0);
   const [loading, setLoading] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
@@ -140,7 +144,8 @@ export default function PerformanceScreen() {
   useEffect(() => { if (positions.length) refresh(); }, [positions.length]);   // fetch on open / when holdings change
 
   return (
-    <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+    <ScrollView ref={scrollRef} automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <HiddenBalancesBanner />
       {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
         <Text style={styles.investTitle}>Invest</Text>
@@ -279,10 +284,11 @@ export default function PerformanceScreen() {
 
           {/* concentration — a quantified fact, shown only when real (25%+ in one holding) */}
           {concentration && (
-            <View style={styles.concCard} accessible
-              accessibilityLabel={`${concentration.pct} percent of your invested money is in one stock, ${concentration.ticker}.`}>
-              <Text style={styles.concTxt}>⚑ {concentration.pct}% of your invested money is in one stock ({concentration.ticker})</Text>
-            </View>
+            <TouchableOpacity style={styles.concCard} accessibilityRole="button"
+              onPress={() => { if (invListY.current > 0) scrollRef.current?.scrollTo({ y: invListY.current, animated: true }); }}
+              accessibilityLabel={`${concentration.pct} percent of your invested money is in one stock, ${concentration.ticker}. Shows it in your list.`}>
+              <Text style={styles.concTxt}>⚑ {concentration.pct}% of your invested money is in one stock ({concentration.ticker}) ›</Text>
+            </TouchableOpacity>
           )}
 
           {/* the two honest what-ifs — forward (estimate) and backward (facts) */}
@@ -301,7 +307,7 @@ export default function PerformanceScreen() {
           )}
 
           {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
-          <Text style={styles.groupHdrTop}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
+          <Text style={styles.groupHdrTop} onLayout={(e) => { invListY.current = e.nativeEvent.layout.y; }}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
           {([['Stocks / ETFs', equitiesTotal, 'eq'], ['Bonds', bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
             if (kind === 'eq' && rows.length === 0) return null;
             if (kind === 'bond' && bondAccts.length === 0) return null;
@@ -332,7 +338,7 @@ export default function PerformanceScreen() {
                     const shownVal = unpriced ? it.costBasis : it.marketValue;
                     return (
                       <TouchableOpacity accessibilityRole="button" key={it.position.position_id} style={[styles.invRow, idx > 0 && styles.invDivider]}
-                        onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}` as any)}
+                        onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${it.position.position_id}&period=${period}` as any)}
                         accessibilityLabel={`${it.position.label || it.position.ticker}, ${spokenMoney(Math.round(shownVal))}${unpriced ? ', no current price, showing what you paid' : ''}${it.periodReturn != null ? `, ${it.periodReturn >= 0 ? 'up' : 'down'} ${pct(it.periodReturn)}` : ''}${it.price != null ? (priceFreshness(store.pricesFetchedAt, Date.now()).stale ? ', price may be out of date' : ', live price') : ''}. Opens its page.`}>
                         <View style={{ flex: 1, minWidth: 0 }}>
                           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>

@@ -18,6 +18,7 @@ import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
+import { TRYING_IT_OUT } from '../components/UI';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -104,6 +105,17 @@ export default function RothScreen() {
     <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.h1}>Roth conversion</Text>
       <Text style={s.sub}>Pay some tax now, in a low-tax year, so more of later life is tax-free. Estimates — you decide.</Text>
+      {/* walk row 15a: the SAME trying-it-out sentence every scenario surface wears */}
+      {!adopted && <Text style={s.tryBanner}>{TRYING_IT_OUT}</Text>}
+
+      {/* walk row 15b: save the try-out like every other decision screen */}
+      {amt > 0 && !adopted && (
+        <TouchableOpacity accessibilityRole="button" style={s.saveScenarioLink}
+          accessibilityLabel={`Save this scenario: convert ${maskedMoney(amt)}`}
+          onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: Math.round(amt * rate) } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
+          <Text style={s.saveScenarioTxt}>Save this scenario — compare it later on the Plan hub ›</Text>
+        </TouchableOpacity>
+      )}
 
       {adopted && (
         <View style={[s.card, s.adoptedCard]}>
@@ -185,6 +197,9 @@ export default function RothScreen() {
 }
 
 const s = StyleSheet.create({
+  saveScenarioLink: { minHeight: 44, justifyContent: 'center', marginBottom: Spacing.sm },
+  saveScenarioTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
+  tryBanner: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
