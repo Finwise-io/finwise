@@ -9,7 +9,7 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
-import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount } from '../domain/assets';
+import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
@@ -57,7 +57,8 @@ export default function AccountDetailScreen() {
 
   const cls = assetClassOf(account);
   const source = account.source ?? 'manual';
-  const sourceChip = source === 'connected' ? 'Connected · read-only' : source === 'imported' ? `Imported · ${String(account.last_synced ?? '').slice(0, 10) || '—'}` : 'Manual';
+  // walk row 8: the ONE source sentence (detail keeps its read-only clarifier for connected)
+  const sourceChip = source === 'connected' ? `${sourceWording(account).split(' · ')[0]} · read-only` : sourceWording(account);
   const updatedLine = source === 'connected' && account.last_synced
     ? `Updated ${new Date(account.last_synced).toLocaleString(undefined, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })}`
     : account.value_as_of ? `Value as of ${account.value_as_of}` : null;

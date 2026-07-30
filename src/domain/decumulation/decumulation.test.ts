@@ -58,3 +58,20 @@ describe('decumulation', () => {
     expect(rmdDivisor(81)).toBeGreaterThan(rmdDivisor(85));   // divisor shrinks with age
   });
 });
+
+// Build-47 walk row 9 (audit Strategy #10): ONE growth convention — the RMD schedule's growth is
+// exactly the shared one-year step, and that step iterated equals the projections' closed form.
+describe('rmdSchedule grows by the shared step (walk row 9)', () => {
+  const { growOneYear } = require('../retirement');
+  const { rmdSchedule, rmdAtAge } = require('./index');
+  test('year-over-year balances follow growOneYear exactly (no schedule-only clamp)', () => {
+    const rows = rmdSchedule(500000, 75, 0.15, 3);   // 15% would have hit the old 12% clamp
+    const afterY1 = growOneYear(500000 - rmdAtAge(500000, 75), 0.15);
+    expect(rows[1].projectedPreTax).toBe(Math.round(afterY1));
+  });
+  test('the closed-form compounding used by projections = the step iterated', () => {
+    let bal = 1000;
+    for (let i = 0; i < 7; i++) bal = growOneYear(bal, 0.06);
+    expect(bal).toBeCloseTo(1000 * Math.pow(1.06, 7), 8);
+  });
+});

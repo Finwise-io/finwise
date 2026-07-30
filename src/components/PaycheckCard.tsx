@@ -9,6 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { InfoDot, EstimateTag } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
+import { HeroAmount } from './HeroAmount';
 
 export function PaycheckCard() {
   const router = useRouter();
@@ -28,12 +29,12 @@ export function PaycheckCard() {
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
         <>
-          <Text style={styles.hero}>− {maskedMoney(Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></Text>
+          <HeroAmount style={styles.hero}>− {maskedMoney(Math.abs(m.netSafeToSpend))} <Text style={styles.unit}>short this month</Text></HeroAmount>
           <Text style={styles.est}>estimate · {m.bills[0]?.label ?? 'a big bill'} lands this month</Text>
         </>
       ) : (
         <>
-          <Text style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></Text>
+          <HeroAmount style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></HeroAmount>
           <EstimateTag />
         </>
       )}

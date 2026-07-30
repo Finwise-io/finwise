@@ -12,7 +12,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
-import { taxOwedFor } from '../domain/income/tax';
+import { rothConversionCost } from '../domain/planning';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
 import { selectWillItLast } from '../domain/retirement/willItLast';
@@ -43,7 +43,7 @@ export default function RothScreen() {
   const estRate = useMemo(() => {
     if (amt <= 0) return null;
     const status = filingStatusOf(op), state = stateRateOf(op);
-    const cost = taxOwedFor(gross + amt, status, state) - taxOwedFor(gross, status, state);
+    const cost = rothConversionCost(gross, amt, status, state);   // walk row 6: the ONE helper
     return Math.max(0, Math.round((cost / amt) * 100) / 100);
   }, [gross, amt]);
   const [rateOverride, setRateOverride] = useState<string>('');

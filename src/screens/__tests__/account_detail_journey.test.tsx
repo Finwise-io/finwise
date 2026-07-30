@@ -26,10 +26,10 @@ beforeEach(() => {
   useStore.setState({ assetAccounts: [CHECKING, SAVINGS, HOME_VALUE] } as any);
 });
 
-test('shows the balance, class in plain words, and the Manual source chip', () => {
+test('shows the balance, class in plain words, and the by-hand source sentence (walk row 8: one wording)', () => {
   render(<AccountDetailScreen />);
   expect(screen.getByText('Chase Checking')).toBeOnTheScreen();
-  expect(screen.getByText('Manual')).toBeOnTheScreen();
+  expect(screen.getByText('By hand · you update it')).toBeOnTheScreen();
   expect(screen.getByText('$12,000')).toBeOnTheScreen();
   expect(screen.getByText(/Cash · taxable/)).toBeOnTheScreen();
 });

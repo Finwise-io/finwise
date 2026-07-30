@@ -15,19 +15,20 @@ export function takeHomeMonthly(op: OnboardingProfile | null): number {
   return round2(grid.reduce((t, m) => t + m.amount, 0) / 12);
 }
 
-/** Monthly savings (the FLOW) = take-home − planned spend − debt payments. Excludes debt payoff (a
- *  product decision) and 401(k) (already out of take-home). Can be negative if overspending. */
-export function monthlySavings(op: OnboardingProfile | null, debts: Debt[] = []): number {
-  return round2(takeHomeMonthly(op) - plannedMonthlySpend(op) - actualDebtPayment(debts));
-}
-
 /** Planned SURPLUS, month by month, AFTER debt (the canonical word, per the 2026-06-23 decision).
- *  = the income-vs-spend grid (savingsByMonth) minus the constant monthly debt service. Its 12-month
- *  average reconciles with monthlySavings(), so the Cash-Flow detail screen and the Home/Budget surplus
- *  can never disagree. "Planned" because it's projected from the plan; Home shows the "Actual" version. */
+ *  = the income-vs-spend grid (savingsByMonth) minus the constant monthly debt service.
+ *  THE one capacity engine (Build-47 walk row 7): everything else derives from this. */
 export function surplusByMonth(op: OnboardingProfile | null, debts: Debt[] = []): { label: string; amount: number }[] {
   const debt = actualDebtPayment(debts);
   return savingsByMonth(op).map((m) => ({ label: m.label, amount: round2(m.amount - debt) }));
+}
+
+/** Monthly savings (the FLOW) — Build-47 walk row 7: DERIVED as the 12-month average of
+ *  surplusByMonth, so the flat figure and the by-month figures can never drift apart (they used
+ *  to be two parallel formulas that merely CLAIMED to reconcile). Can be negative if overspending. */
+export function monthlySavings(op: OnboardingProfile | null, debts: Debt[] = []): number {
+  const months = surplusByMonth(op, debts);
+  return round2(months.reduce((t, m) => t + m.amount, 0) / 12);
 }
 
 /** Cash savings rate (%) = monthly savings ÷ take-home. The everyday "are you living below your means". */

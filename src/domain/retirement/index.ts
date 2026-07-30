@@ -224,6 +224,15 @@ export function buildRetirementState(uid: UserId, inp: RetirementInputs): Retire
 // Assumes the average return every year (no market swings). Pairs with simulate() for the
 // confidence read. Models Social Security starting at its claim age, with inflation on both
 // spending and benefits, so an early retiree's pre-claim "gap years" are counted correctly.
+/** THE one-year growth step (Build-47 walk row 9, audit Strategy #10): every deterministic
+ *  projection grows money through this. The RMD schedule used its own inline compounding WITH a
+ *  schedule-only 12% clamp — a quiet divergence from the nest-egg projection's convention. The
+ *  closed-form projections (compound interest via Math.pow) are mathematically THIS step iterated;
+ *  an agreement test pins that equivalence. */
+export function growOneYear(balance: number, rate: number): number {
+  return balance * (1 + (rate || 0));
+}
+
 export interface NestEggProjection {
   will_have: number;   // nest egg you'll have AT retirement (current pot grown + contributions)
   will_need: number;   // nest egg you'll need at retirement to fund the plan to the horizon

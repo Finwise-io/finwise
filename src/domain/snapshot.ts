@@ -7,7 +7,7 @@ import { toNum } from './_shared/num';
 
 import { profileFromOnboarding, toReadModel, ProfileReadModel } from './profile';
 import { incomeFromOnboarding, buildIncomeState, IncomeState, retirementIncomeMonthly } from './income';
-import { assetsFromOnboarding, buildAssetsState, monthlyContributionsFromOnboarding, retirementEarmarkedValue, AssetsState, AssetAccount } from './assets';
+import { assetsFromOnboarding, buildAssetsState, monthlyContributionsFromOnboarding, retirementEarmarkedValue, AssetsState, AssetAccount, blendedReturn } from './assets';
 import { debtsFromOnboarding, buildDebtState, DebtState, Debt } from './debt';
 import { buildNetWorth, NetWorthState } from './networth';
 import { budgetFromOnboarding, buildBudgetState, savingsByMonth, BudgetState } from './budget';
@@ -90,7 +90,9 @@ export function buildSnapshot(
     retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
     guaranteed_monthly_income: guaranteedMonthly,
     inflation: (econ.inflationRate || 2.4) / 100,
-    mean_return: assets.average_target_return || 0.07,
+    // walk row 10 (audit PRD #5): the ONE expected-return figure — the same blendedReturn the
+    // cockpit and will-it-last read; the snapshot's own average_target_return stays display-only.
+    mean_return: blendedReturn(acctRows) || 0.07,
     vol_return: 0.12,
     paths: 500,
   });

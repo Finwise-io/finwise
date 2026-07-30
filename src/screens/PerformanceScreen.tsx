@@ -25,6 +25,7 @@ import { userCapGainsRates } from '../domain/income';
 import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
+import { HeroAmount } from '../components/HeroAmount';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -181,10 +182,10 @@ export default function PerformanceScreen() {
               <Text style={styles.glanceKicker}>YOUR RETURN ({PERIOD_PHRASE[period].toUpperCase()})</Text>
               <InfoDot term="yourReturn" />
             </View>
-            <Text style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
+            <HeroAmount style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
               <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
               <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
-            </Text>
+            </HeroAmount>
             <View style={styles.honestBlock}>
               <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
               {benchPort != null && (

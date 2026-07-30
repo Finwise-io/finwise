@@ -26,6 +26,7 @@ import { useCashflowModel } from '../hooks/useCashflowModel';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { IncomeSetupSheet } from '../components/IncomeSetupSheet';
 import BudgetScreen from './BudgetScreen';
+import { HeroAmount } from '../components/HeroAmount';
 import { EstimateTag } from '../components/UI';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -548,10 +549,10 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
         <Text style={styles.cardHdr}>THIS MONTH</Text>
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
-            <Text style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
+            <HeroAmount style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
               accessibilityLabel={`${free >= 0 ? '' : 'minus '}${spokenMoney(Math.abs(free))} ${committed > 0 ? 'free to spend after your plan' : 'planned surplus'} this month`}>
               {free >= 0 ? '+' : '−'}{maskedMoney(Math.abs(free))}
-            </Text>
+            </HeroAmount>
             <Text style={styles.heroSub}>{committed > 0 ? 'Free to spend after your plan' : 'Planned surplus'}</Text>
           </>
         ); })()}

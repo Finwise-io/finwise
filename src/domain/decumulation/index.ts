@@ -143,13 +143,15 @@ export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number
   if (preTaxNow <= 0) return rows;
   const startAge = Math.max(RMD_START_AGE, ageNow);
   let bal = preTaxNow;
-  const r = Math.max(0, Math.min(0.12, expReturn || 0));
-  for (let age = ageNow; age < startAge; age++) bal *= 1 + r;          // grow to the start year
+  // walk row 9: the SAME growth step every projection uses — no schedule-only clamp, no inline math
+  const { growOneYear } = require('../retirement');
+  const r = Math.max(0, expReturn || 0);
+  for (let age = ageNow; age < startAge; age++) bal = growOneYear(bal, r);   // grow to the start year
   for (let i = 0; i < years; i++) {
     const age = startAge + i;
     const amount = rmdAtAge(bal, age);
     rows.push({ age, year: nowYear + (age - ageNow), projectedPreTax: Math.round(bal), divisor: rmdDivisor(age), amount, isCurrent: age === ageNow });
-    bal = Math.max(0, (bal - amount) * (1 + r));
+    bal = Math.max(0, growOneYear(bal - amount, r));
   }
   return rows;
 }

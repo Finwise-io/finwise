@@ -1,4 +1,4 @@
-import { educationPlan, lifeInsuranceNeed, rothConversion, taxOrganizer } from './index';
+import { educationPlan, lifeInsuranceNeed, rothConversionCost, taxOrganizer } from './index';
 import type { OnboardingProfile } from '../onboardingProfile';
 
 describe('tax organizer', () => {
@@ -41,25 +41,8 @@ describe('tax organizer', () => {
   });
 });
 
-describe('Roth conversion (fill a bracket)', () => {
-  test('converts up to the bracket ceiling and prices the tax', () => {
-    // low-income retiree: $20k other income, wants to fill the 12% bracket
-    const r = rothConversion({ preTaxBalance: 500000, otherIncome: 20000, fillToRate: 0.12 });
-    expect(r.roomToConvert).toBeGreaterThan(0);
-    expect(r.taxCost).toBeGreaterThan(0);
-    expect(r.effectiveRate).toBeLessThanOrEqual(0.12);   // stays within the target bracket
-    expect(r.bracketTopGross).toBeGreaterThan(20000);
-  });
-  test('no room if income already past the bracket', () => {
-    const r = rothConversion({ preTaxBalance: 500000, otherIncome: 200000, fillToRate: 0.12 });
-    expect(r.roomToConvert).toBe(0);
-    expect(r.taxCost).toBe(0);
-  });
-  test('limited by the pre-tax balance you actually have', () => {
-    const r = rothConversion({ preTaxBalance: 5000, otherIncome: 20000, fillToRate: 0.22 });
-    expect(r.roomToConvert).toBe(5000);
-  });
-});
+// (the bracket-fill rothConversion helper was retired in Build-47 walk row 6 — zero product callers;
+// the ONE Roth tax figure is rothConversionCost, pinned below)
 
 describe('life-insurance need', () => {
   test('DIME-style: income replacement + debts + goals + final, minus what you have', () => {
@@ -93,5 +76,16 @@ describe('529 / education savings planner', () => {
   test('starting now (0 years) → the whole gap is due immediately', () => {
     const p = educationPlan({ currentAnnualCost: 20000, yearsUntilStart: 0, yearsOfSchool: 1, currentSavings: 0, returnRate: 0.06, costInflation: 0.05 });
     expect(p.monthlyNeeded).toBeCloseTo(20000, 0);
+  });
+});
+
+describe('rothConversionCost — the ONE Roth tax figure (Build-47 walk row 6)', () => {
+  const { taxOwedFor } = require('../income/tax');
+  test('equals the progressive taxOwedFor difference, filing-status and state aware', () => {
+    expect(rothConversionCost(90000, 30000, 'single', 0)).toBeCloseTo(taxOwedFor(120000, 'single', 0) - taxOwedFor(90000, 'single', 0), 2);
+    expect(rothConversionCost(90000, 30000, 'married', 0.05)).toBeCloseTo(taxOwedFor(120000, 'married', 0.05) - taxOwedFor(90000, 'married', 0.05), 2);
+  });
+  test('zero conversion costs zero', () => {
+    expect(rothConversionCost(90000, 0, 'single', 0)).toBe(0);
   });
 });

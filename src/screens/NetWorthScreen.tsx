@@ -11,7 +11,7 @@ import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints } from '../domain/history';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -20,6 +20,7 @@ import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 import { InfoDot } from '../components/UI';
 import { type GlossaryTerm } from '../domain/glossary';
+import { HeroAmount } from '../components/HeroAmount';
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -169,10 +170,7 @@ export default function NetWorthScreen() {
     const ch = a.change_month === curYm ? (a.change_amount ?? 0) : 0;
     const up = ch > 0;
     // FCC: every row says where its number comes from and how fresh it is
-    const stamp = a.source === 'connected'
-      ? `Connected · ${a.last_synced ? String(a.last_synced).slice(0, 10) : 'linked'}`
-      : a.source === 'imported' ? `Imported · ${a.last_synced ? String(a.last_synced).slice(0, 10) : ''}`
-      : 'Manual · you update it';
+    const stamp = sourceWording(a);   // walk row 8: the ONE source sentence
     sub = sub ? `${sub} · ${stamp}` : stamp;
     // FCC: a row opens the account's DETAIL page; Edit still reaches this screen's sheet via ?edit=
     return (
@@ -389,9 +387,9 @@ export default function NetWorthScreen() {
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
           <Text style={styles.glanceKickerNW}>YOUR NET WORTH</Text>
-          <Text style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+          <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
-          </Text>
+          </HeroAmount>
           {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
               honest first-day line instead of a bare number when history hasn't built yet */}
           {changeThisYear != null ? (

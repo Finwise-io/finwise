@@ -500,3 +500,13 @@ export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.
 export async function getAssetsState(uid: UserId) {
   const d = await loadAssets(uid); return d ? buildAssetsState(uid, d.accounts ?? []) : null;
 }
+
+/** THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by
+ *  every screen that names where an account's numbers come from. The on-row chip LOOK is a separate
+ *  founder-gated mock (audit item 10) — this is the words, so they can never drift again. */
+export function sourceWording(a: AssetAccount): string {
+  const day = a.last_synced ? String(a.last_synced).slice(0, 10) : '';
+  if (a.source === 'connected') return `Connected · ${day || 'linked'}`;
+  if (a.source === 'imported') return `Imported · ${day || '—'}`;
+  return 'By hand · you update it';
+}

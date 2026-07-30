@@ -73,3 +73,27 @@ test('row 4: the bond and alternatives editors both carry the Value-as-of field'
   expect(alt).toMatch(/Value as of/);
   expect(alt).toMatch(/value_as_of: valueAsOf/);
 });
+
+// ── Group B: one-helper consolidations (rows 6-11) — source pins so the forks can't regrow ──
+test('rows 6-11: the consolidations hold at the source', () => {
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', '..', rel), 'utf8');
+  // row 6: Roth screen uses THE helper; the retired bracket-fill helper is gone
+  expect(read('screens/RothScreen.tsx')).toMatch(/rothConversionCost\(/);
+  expect(read('domain/planning/index.ts')).not.toMatch(/export function rothConversion\(/);
+  // row 7: the flat capacity figure DERIVES from the by-month engine
+  expect(read('domain/savings/index.ts')).toMatch(/const months = surplusByMonth\(op, debts\)/);
+  // row 8: one source-wording helper; the inline variants are gone
+  expect(read('domain/assets/index.ts')).toMatch(/export function sourceWording/);
+  expect(read('screens/NetWorthScreen.tsx')).not.toMatch(/Manual · you update it/);
+  expect(read('screens/AccountDetailScreen.tsx')).toMatch(/sourceWording\(account\)/);
+  // row 9: the RMD schedule grows by the shared step, clamp gone
+  expect(read('domain/decumulation/index.ts')).toMatch(/growOneYear\(bal/);
+  expect(read('domain/decumulation/index.ts')).not.toMatch(/Math\.min\(0\.12, expReturn/);
+  // row 10: the snapshot simulation reads the canonical blended return
+  expect(read('domain/snapshot.ts')).toMatch(/mean_return: blendedReturn\(acctRows\)/);
+  // row 11: the five money heroes render through HeroAmount
+  for (const f of ['screens/NetWorthScreen.tsx', 'screens/PerformanceScreen.tsx', 'screens/CashFlowScreen.tsx', 'components/PaycheckCard.tsx']) {
+    expect(read(f)).toMatch(/<HeroAmount/);
+  }
+});

@@ -43,11 +43,13 @@ describe('surplus = take-home − spending − debt (canonical, after debt)', ()
 // ── cross-screen guards: the four surfaces speak ONE vocabulary, sourced from the canonical selectors ──
 const screen = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', 'screens', f), 'utf8');
 
-test('CashFlow shows AFTER-debt surplus from canonical selectors, labeled "Planned surplus"', () => {
-  // FCC: the by-month view moved to the F2 dated grid (useCashflowModel) — the surplus SCALAR
-  // stays the canonical after-debt monthlySavings, and the before-debt grid stays banned.
+test('CashFlow THIS-MONTH surplus = In − Out from the SAME month cell (B46 finding 7)', () => {
+  // The card's equals sign must be TRUE BY CONSTRUCTION: surplus derives from the very cell the
+  // In/Out rows display — never a second engine (monthlySavings measured a related-but-different
+  // concept and disagreed by $572 on the founder's device).
   const s = screen('CashFlowScreen.tsx');
-  expect(s).toMatch(/monthlySavings\(/);
+  expect(s).toMatch(/const surplus = Math\.round\(inflow - outflow\)/);
+  expect(s).not.toMatch(/monthlySavings\(/);        // the second engine stays out of this screen
   expect(s).toMatch(/Planned surplus/);
   expect(s).toMatch(/useCashflowModel/);           // by-month = the ONE dated grid
   expect(s).not.toMatch(/savingsByMonth\(op\)/);   // the old before-debt grid must be gone

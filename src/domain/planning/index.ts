@@ -77,29 +77,13 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
 // In a low-income year (e.g. early retirement, before Social Security / RMDs), move pre-tax
 // 401(k)/IRA money to Roth, paying tax now at a low rate so it grows tax-free and dodges future RMDs.
 // The classic move: convert just enough to "fill up" a target tax bracket without spilling into the next.
-export interface RothInput {
-  preTaxBalance: number;    // Traditional 401(k)/IRA you could convert
-  otherIncome: number;      // this year's other taxable income (gross), before the conversion
-  fillToRate: number;       // the marginal bracket you're willing to pay up to (e.g. 0.12, 0.22, 0.24)
-}
-export interface RothPlan {
-  roomToConvert: number;    // how much you can convert staying within the target bracket
-  taxCost: number;          // federal tax on that conversion
-  effectiveRate: number;    // taxCost / roomToConvert
-  bracketTopGross: number;  // the gross-income level that fills the bracket
-}
-export function rothConversion(inp: RothInput): RothPlan {
-  const target = TAX_BRACKETS.find(([, r]) => r === inp.fillToRate) ?? TAX_BRACKETS[1];
-  const ceilingTaxable = target[0];                       // upper bound of that bracket (taxable terms)
-  const currentTI = taxableIncome(Math.max(0, inp.otherIncome));
-  const room = Math.max(0, Math.min(Math.max(0, inp.preTaxBalance), ceilingTaxable - currentTI));
-  const taxCost = taxOwed(inp.otherIncome + room) - taxOwed(inp.otherIncome);
-  return {
-    roomToConvert: round2(room),
-    taxCost: round2(taxCost),
-    effectiveRate: room > 0 ? Math.round((taxCost / room) * 1000) / 1000 : 0,
-    bracketTopGross: ceilingTaxable + STANDARD_DEDUCTION,
-  };
+/** THE Roth-conversion tax figure (Build-47 walk row 6): the cost of converting `amount` this
+ *  year on top of `gross` income — progressive, filing-status + state aware, the SAME taxOwedFor
+ *  every other tax figure uses. The old bracket-fill rothConversion helper (flat federal math,
+ *  zero product callers) is retired — one concept, one helper. */
+export function rothConversionCost(gross: number, amount: number, status: import('../income/tax').FilingStatus, stateRate: number): number {
+  const { taxOwedFor } = require('../income/tax');
+  return round2(taxOwedFor(gross + amount, status, stateRate) - taxOwedFor(gross, status, stateRate));
 }
 
 // ───────────────────────── 529 / education savings ─────────────────────────
