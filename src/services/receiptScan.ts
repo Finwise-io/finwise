@@ -36,22 +36,41 @@ export function parseReceipt(text: string): { amount?: number; merchant?: string
   const amtRe = /(\d{1,3}(?:,\d{3})*\.\d{2})/;
   const toNum = (s: string) => parseFloat(s.replace(/,/g, ''));
   const PAYMENT = /\b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b/i;
-  const TOTAL = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|total)\b/i;
+  // B46 finding 10 (founder's ACME receipt): supermarket receipts print the true total as
+  // "**** BALANCE"; a bare "Total" also appears INSIDE the savings section ("Total 4.00" of
+  // coupons) as a decoy; and when OCR mangles the keywords, the old largest-number fallback
+  // grabbed the item's LIST price. Three rules: STRONG totals (balance/amount-due class) beat
+  // bare "total"; once a savings/points section starts, bare "total" stops counting; and an
+  // amount that ECHOES a payment line (you paid exactly $4.99) beats "largest number".
+  const STRONG = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance)\b/i;
+  const WEAK = /\btotal\b/i;
   const SUB = /\bsub\s*-?\s*total\b/i;
-  let amount: number | undefined;
+  const SAVINGS_HDR = /\b(your\s+savings|total\s+savings|savings\s+value|your\s+points|rewards?|cash\s*off|coupons?)\b/i;
+  const NEGATIVE = /-\s*\$?\s*\d/;
+  let strong: number | undefined;
+  let weak: number | undefined;
   let subtotal: number | undefined;
   let largestSafe: number | undefined;
+  const safeAmounts: number[] = [];
+  const payAmounts: number[] = [];
+  let inSavings = false;
   for (const l of lines) {
-    if (PAYMENT.test(l)) continue;                             // cash / change / card lines never count
     const m = l.match(amtRe);
-    if (!m) continue;
-    const v = toNum(m[1]);
-    if (!(v > 0 && v < 10000)) continue;
-    if (TOTAL.test(l) && !SUB.test(l)) amount = v;             // last explicit total wins
+    const v = m ? toNum(m[1]) : NaN;
+    if (SAVINGS_HDR.test(l)) inSavings = true;
+    if (PAYMENT.test(l)) {                                     // cash / change / card lines never count…
+      if (v > 0 && v < 10000) payAmounts.push(v);              // …but what was PAID validates candidates
+      continue;
+    }
+    if (!(v > 0 && v < 10000) || NEGATIVE.test(l)) continue;   // discounts/credits are not charges
+    if (STRONG.test(l) && !SUB.test(l)) strong = v;            // last strong total wins
+    else if (WEAK.test(l) && !SUB.test(l)) { if (!inSavings) weak = v; }   // savings-section "Total" is a decoy
     else if (SUB.test(l)) subtotal = v;
+    safeAmounts.push(v);
     if (largestSafe == null || v > largestSafe) largestSafe = v;
   }
-  return { amount: amount ?? subtotal ?? largestSafe, merchant };
+  const paymentEcho = safeAmounts.find((v) => payAmounts.includes(v));
+  return { amount: strong ?? weak ?? paymentEcho ?? subtotal ?? largestSafe, merchant };
 }
 
 export async function ocrReceipt(uri: string): Promise<{ amount?: number; merchant?: string; raw: string }> {

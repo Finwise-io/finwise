@@ -76,26 +76,44 @@ export function parseReceiptText(text: string): ParsedReceipt {
   //      (totals print at the bottom; "grand total" beats a mid-receipt "total").
   //   3. Else fall back to SUBTOTAL, else the largest amount on a non-payment line.
   const PAYMENT_LINE = /\b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b/i;
-  const TOTAL_LINE = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|total)\b/i;
+  // B46 finding 10 (founder's ACME receipt) — same rules as receiptScan.parseReceipt, always in BOTH
+  // parsers: STRONG totals (**** BALANCE / amount due) beat bare "total"; a bare "Total" printed
+  // inside the savings/points section is a coupon decoy, never the bill; negative lines (discounts)
+  // are not charges; and an amount echoing a payment line beats the largest-number fallback.
+  const STRONG_TOTAL = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance)\b/i;
+  const WEAK_TOTAL = /\btotal\b/i;
   const SUBTOTAL_LINE = /\bsub\s*-?\s*total\b/i;
+  const SAVINGS_HDR = /\b(your\s+savings|total\s+savings|savings\s+value|your\s+points|rewards?|cash\s*off|coupons?)\b/i;
+  const NEGATIVE_LINE = /-\s*\$?\s*\d/;
   const AMOUNT = /\$?\s*([\d,]+\.[\d]{2})\b/;
   const amountOn = (l: string): number | null => {
     const m = l.match(AMOUNT);
     const v = m ? parseFloat(m[1].replace(/,/g, '')) : NaN;
     return Number.isFinite(v) && v > 0 && v < 10000 ? v : null;
   };
-  let amount = 0;
+  let strongT = 0;
+  let weakT = 0;
   let subtotal = 0;
   let largestSafe = 0;
+  const safeAmounts: number[] = [];
+  const payAmounts: number[] = [];
+  let inSavings = false;
   for (const l of lines) {
-    if (PAYMENT_LINE.test(l)) continue;                      // rule 1: cash/change/card lines are radioactive
     const v = amountOn(l);
-    if (v == null) continue;
-    if (TOTAL_LINE.test(l) && !SUBTOTAL_LINE.test(l)) amount = v;   // rule 2: last explicit total wins
+    if (SAVINGS_HDR.test(l)) inSavings = true;
+    if (PAYMENT_LINE.test(l)) {                              // rule 1: cash/change/card lines are radioactive…
+      if (v != null) payAmounts.push(v);                     // …but what was PAID validates candidates
+      continue;
+    }
+    if (v == null || NEGATIVE_LINE.test(l)) continue;        // discounts/credits are not charges
+    if (STRONG_TOTAL.test(l) && !SUBTOTAL_LINE.test(l)) strongT = v;
+    else if (WEAK_TOTAL.test(l) && !SUBTOTAL_LINE.test(l)) { if (!inSavings) weakT = v; }
     else if (SUBTOTAL_LINE.test(l)) subtotal = v;
+    safeAmounts.push(v);
     if (v > largestSafe) largestSafe = v;
   }
-  if (amount === 0) amount = subtotal || largestSafe;        // rule 3: honest fallbacks
+  const paymentEcho = safeAmounts.find((v) => payAmounts.includes(v)) ?? 0;
+  const amount = strongT || weakT || paymentEcho || subtotal || largestSafe;
 
   // ── Store name ───────────────────────────────────────────────────
   // Usually first non-address line, before city/state/zip
