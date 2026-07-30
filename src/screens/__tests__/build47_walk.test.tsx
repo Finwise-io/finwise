@@ -168,3 +168,26 @@ test('row 21: the shared money component speaks its label — masked dots are sp
   const r3 = render(<HeroAmount accessibilityLabel="net worth hidden">{'••••'}</HeroAmount>);
   expect(r3.getByLabelText('net worth hidden')).toBeTruthy();   // an explicit label always wins
 });
+
+// ── Group E: the founder's finding rows 22-25 ──
+test('rows 22-25: finding fixes hold at the source', () => {
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', '..', rel), 'utf8');
+  // row 22: the transaction picker uses THE shared naming; local account naming is banned
+  expect(read('screens/PerformanceScreen.tsx')).toMatch(/const displayNames = accountDisplayNames\(accounts\)/);
+  expect(read('screens/PerformanceScreen.tsx')).not.toMatch(/assetKind\(a\.kind\)\?\.label \?\? a\.asset_id\.slice\(-4\)/);
+  // row 23: Remove confirms first and names the money leaving — both accounts and debts
+  const nw = read('screens/NetWorthScreen.tsx');
+  expect(nw).toMatch(/Remove \$\{editing\.label\}\?/);
+  expect(nw).toMatch(/leaves your net worth/);
+  expect(nw).toMatch(/debt comes off your list/);
+  // row 24: plain-English note + the working door to Income
+  const cf = read('screens/CashFlowScreen.tsx');
+  expect(cf).toMatch(/Asks whether your pay is the same every month or varies\./);
+  expect(cf).toMatch(/Open Income ›/);
+  expect(cf).not.toMatch(/Rich editors \(equity comp, rental\) live in the income manager/);
+  // row 25: every income source can be ADDED
+  const im = read('screens/IncomeManagerScreen.tsx');
+  expect(im).toMatch(/＋ Add an income source/);
+  expect(im).toMatch(/Stock vesting \(equity comp\)/);
+});

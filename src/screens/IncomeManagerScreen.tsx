@@ -93,6 +93,21 @@ export default function IncomeManagerScreen() {
             </TouchableOpacity>
           </View>
         )}
+        {/* Build-47 walk row 25 (B46 finding 9b): every source can be ADDED here — the editors used
+            to open only from rows that exist once the amount is already above zero. */}
+        <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
+          accessibilityLabel="Add an income source — bonus, stock vesting, rental, or self-employment"
+          onPress={() => {
+            Alert.alert('Add an income source', 'Each opens its own editor.', [
+              { text: 'Bonus', onPress: () => setEditKey('bonusAnnual') },
+              { text: 'Stock vesting (equity comp)', onPress: () => setRich('equity') },
+              { text: 'Rental property', onPress: () => setRich('rental') },
+              { text: 'Self-employment', onPress: () => setSelfOpen(true) },
+              { text: 'Cancel', style: 'cancel' },
+            ]);
+          }}>
+          <Text style={styles.addLink}>＋ Add an income source ›</Text>
+        </TouchableOpacity>
       </View>
 
       {/* INVESTMENT INCOME (from the ledger) */}

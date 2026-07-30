@@ -274,6 +274,7 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
 
 /** INCOME tab: sources + the steady/varies pop-up door + received-this-month + the Teller door. */
 function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string; onSetup: () => void }) {
+  const router = useRouter();
   const varies = Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length > 0;
   const guaranteed = retirementIncomeMonthly(op);
   const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
@@ -313,7 +314,12 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
         <TouchableOpacity accessibilityRole="button" onPress={onSetup} accessibilityLabel="Add or set up income — steady or varies">
           <Text style={styles.link}>＋ Add or set up income ›</Text>
         </TouchableOpacity>
-        <Text style={styles.note}>Opens the steady-or-varies question. Rich editors (equity comp, rental) live in the income manager.</Text>
+        {/* Build-47 walk row 24 (B46 finding 9a): plain words, and the pointer is a DOOR */}
+        <Text style={styles.note}>Asks whether your pay is the same every month or varies.</Text>
+        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/income-manager' as any)}
+          accessibilityLabel="Pay from stock vesting or a rental? They have their own screen — open Income">
+          <Text style={styles.link}>Pay from stock vesting or a rental? Open Income ›</Text>
+        </TouchableOpacity>
       </View>
       <View style={styles.card}>
         <Text style={styles.cardHdr}>RECEIVED · {ym}</Text>

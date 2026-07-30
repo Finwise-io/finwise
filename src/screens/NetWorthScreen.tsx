@@ -1,7 +1,7 @@
 // Net Worth = Assets − Debts. Also the capture surface: every bucket is a section you fill in
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl, Alert } from 'react-native';
 import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
@@ -709,7 +709,18 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     }
     store.addAsset?.(patch); onClose();
   };
-  const remove = () => { if (editing) store.deleteAsset?.(editing.asset_id); onClose(); };
+  // Build-47 walk row 23 (B46 finding 5): Remove asks first and names the money leaving.
+  const remove = () => {
+    if (!editing) { onClose(); return; }
+    Alert.alert(
+      `Remove ${editing.label}?`,
+      `Its ${money(Math.round(editing.balance || 0))} leaves your net worth. This can't be undone.`,
+      [
+        { text: 'Keep it', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => { store.deleteAsset?.(editing.asset_id); onClose(); } },
+      ],
+    );
+  };
   const TITLES: Record<AddStep, string> = { pick: 'Add to net worth', cash: 'Cash & equivalents', stocks: 'Stocks / ETFs', bonds: 'Bonds', alts: 'Alternatives', realestate: 'Real estate', property: 'Personal property', retirement: 'Retirement account', brokerage: 'Brokerage account', quick: 'Quick add', edit: 'Edit account' };
   const Chips = ({ ids }: { ids: string[] }) => (
     <View style={sh.chips}>{ids.map((id) => (
@@ -807,7 +818,18 @@ function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; 
     if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
     onClose();
   };
-  const remove = () => { if (editing) store.deleteLiability?.(editing.debt_id); onClose(); };
+  // walk row 23: same confirm rule for debts — a deleted debt RAISES net worth silently otherwise.
+  const remove = () => {
+    if (!editing) { onClose(); return; }
+    Alert.alert(
+      `Remove ${editing.label}?`,
+      `Its ${money(Math.round(editing.remaining_balance || 0))} debt comes off your list. This can't be undone.`,
+      [
+        { text: 'Keep it', style: 'cancel' },
+        { text: 'Remove', style: 'destructive', onPress: () => { store.deleteLiability?.(editing.debt_id); onClose(); } },
+      ],
+    );
+  };
 
   return (
     <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit debt' : 'Add debt'}>

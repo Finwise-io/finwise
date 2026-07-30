@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
@@ -665,14 +665,12 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
     else if (isTransfer) onSave({ ...base, counter_account_id: counterId, amount: num(amount) });
     else onSave({ ...base, ticker: ticker.trim().toUpperCase(), reinvested: reinvest, ...(reinvest ? { shares: num(shares), price: num(price) } : { amount: num(amount) }) });
   };
-  // B-43: when two accounts share a name, disambiguate the chip with the asset kind (or a last-4 of
-  // its id) so the user can tell them apart instead of seeing identical chips.
-  const baseName = (a: AssetAccount) => a.institution?.trim() || a.label;
-  const acctName = (a: AssetAccount) => {
-    const base = baseName(a);
-    if (accounts.filter((x) => baseName(x) === base).length <= 1) return base;
-    return `${base} · ${assetKind(a.kind)?.label ?? a.asset_id.slice(-4)}`;
-  };
+  // Build-47 walk row 22 (B46 finding 4): the picker uses THE shared account naming — real holding
+  // names and stable "· 1 / · 2" twins, same as Net worth. The old local rule (institution, then
+  // kind on collision) rendered three imported cash accounts as three identical "E*Trade savings"
+  // chips. One name system, everywhere; a source pin bans local account naming here.
+  const displayNames = accountDisplayNames(accounts);
+  const acctName = (a: AssetAccount) => displayNames.get(a.asset_id) ?? (a.institution?.trim() || a.label);
 
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
