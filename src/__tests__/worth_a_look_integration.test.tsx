@@ -59,7 +59,9 @@ describe('store wiring', () => {
     useStore.getState().resolveTxnFlag(flag.flag_id, 'was_me');
     expect(useStore.getState().knownPayees['chk']).toContain('apex solutions');
     record();   // same payee again
-    expect(useStore.getState().txnFlags.filter((f) => f.status === 'open')).toHaveLength(0);
+    // the payee memory holds — first_time_payee never re-fires. (The walk-row-19 duplicate rule MAY
+    // fire here — same payee, same amount, two days apart is exactly its job — so we assert per reason.)
+    expect(useStore.getState().txnFlags.filter((f) => f.status === 'open' && f.reason === 'first_time_payee')).toHaveLength(0);
   });
 });
 

@@ -111,7 +111,7 @@ export default function RothScreen() {
       {/* walk row 15b: save the try-out like every other decision screen */}
       {amt > 0 && !adopted && (
         <TouchableOpacity accessibilityRole="button" style={s.saveScenarioLink}
-          accessibilityLabel={`Save this scenario: convert ${maskedMoney(amt)}`}
+          accessibilityLabel={`Save this scenario: convert ${spokenMoney(amt)}`}
           onPress={() => { store.saveRetirementScenario?.(`Roth: convert ${maskedMoney(amt)}`, { rothConversionThisYear: amt, rothConversionTax: Math.round(amt * rate) } as any, Number(A.retireAge) || 0, after?.chance ?? before.chance ?? 0); }}>
           <Text style={s.saveScenarioTxt}>Save this scenario — compare it later on the Plan hub ›</Text>
         </TouchableOpacity>

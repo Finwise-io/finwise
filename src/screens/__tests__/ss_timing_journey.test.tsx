@@ -77,7 +77,10 @@ test('already receiving: never asked for a statement, sent to Monthly income ins
 test('claim ages already passed grey out — a choice that no longer exists is never live', () => {
   useStore.setState({ onboardingProfile: { ...PRE_RETIREE, birthYear: String(new Date().getFullYear() - 68) } } as any);
   render(<SsTimingScreen />);
-  expect(screen.getByText(/at 62.*passed/)).toBeOnTheScreen();
+  // Build-47 walk row 2: past full retirement age the table RE-CENTERS — claim NOW vs 70,
+    // never a dead list of greyed 'passed' rows (a 68-year-old's real choices).
+    expect(screen.getByText(/at 68 \(now\)/)).toBeOnTheScreen();
+    expect(screen.queryByText(/at 62/)).toBeNull();
   expect(screen.queryByLabelText('Use claim at 62 as my plan')).toBeNull();
   expect(screen.getByLabelText('Use claim at 70 as my plan')).toBeOnTheScreen();
 });

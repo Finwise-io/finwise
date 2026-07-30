@@ -170,6 +170,7 @@ test('a gross biweekly salary is described truthfully and reconciles with the In
   const expectedNet = Math.round(salaryGrossByMonth(op)[m] * (1 - monthlyTaxRates(op)[m]));
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByText('Income'));
-  expect(screen.getByText(new RegExp(`before tax · every 2 weeks · ≈ \\$${expectedNet.toLocaleString().replace(',', ',')}/mo take-home`))).toBeOnTheScreen();
+  const bridge = 'before tax · every 2 weeks · ≈ ' + '$' + expectedNet.toLocaleString() + '/mo take-home';
+  expect(screen.getByText(bridge)).toBeOnTheScreen();
   expect(screen.queryByText('take-home · monthly')).toBeNull();   // the old hardcoded lie
 });
