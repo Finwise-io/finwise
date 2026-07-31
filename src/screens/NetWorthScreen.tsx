@@ -533,7 +533,7 @@ export default function NetWorthScreen() {
                 </TouchableOpacity>
                 {shownMembers.map(({ a, portion, split }) => (
                   <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
-                    onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
+                    onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
                     accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>

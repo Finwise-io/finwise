@@ -31,7 +31,10 @@ const ACTION_LABEL: Record<ActionType, string> = {
 
 export default function AccountDetailScreen() {
   const router = useRouter();
-  const { id } = useLocalSearchParams<{ id?: string }>();
+  const { id, class: classParam } = useLocalSearchParams<{ id?: string; class?: string }>();
+  // B47 finding 7 (APPROVED): arriving from a class slice = the class-only view; the whole
+  // account is one labeled tap away (clearing the param).
+  const classView = classParam && ['stocks_etf', 'bonds', 'cash', 'alternatives'].includes(String(classParam)) ? String(classParam) : null;
   const store = useStore() as any;
   const account: AssetAccount | undefined = (store.assetAccounts ?? []).find((a: AssetAccount) => String(a.asset_id) === String(id));
   const [action, setAction] = useState<ActionType | null>(null);
@@ -90,14 +93,14 @@ export default function AccountDetailScreen() {
         key: p.position_id ?? p.ticker,
         name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${sh.toLocaleString()} share${sh === 1 ? '' : 's'}` : holdingWord(p),
         sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
-        color: ClassMarkColors[cls2], value,
+        color: ClassMarkColors[cls2], value, cls: cls2,
       };
     }),
-    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in the account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number }] : []),
+    ...(((account as any).cash_balance ?? 0) !== 0 ? [{ key: '__cash', name: 'Cash in the account', sub: undefined as string | undefined, color: ClassMarkColors.cash, value: (account as any).cash_balance as number, cls: 'cash' }] : []),
     ...(((account.option_holdings ?? []) as any[]).map((o) => ({
       key: o.label, name: o.label,
       sub: `option — ${Math.abs(o.contracts)} contract${Math.abs(o.contracts) === 1 ? '' : 's'}${o.contracts < 0 ? ', short' : ''}`,
-      color: ClassMarkColors.alternatives, value: o.value as number,
+      color: ClassMarkColors.alternatives, value: o.value as number, cls: 'alternatives',
     }))),
   ].sort((x, y) => Math.abs(y.value) - Math.abs(x.value));
 
@@ -127,6 +130,33 @@ export default function AccountDetailScreen() {
         {updatedLine && <Text style={s.updated}>{updatedLine}</Text>}
       </View>
 
+      {/* B47 finding 7 (APPROVED): the class-only view — the slice you tapped is the question */}
+      {classView && breakdown ? (
+        <View style={s.card}>
+          <Text style={s.optHdr}>{ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT</Text>
+          <Text style={s.balance}>{maskedMoney(Math.round((breakdown as any)[classView] || 0))}</Text>
+          <Text style={s.classLine}>part of {account.label} · {maskedMoney(account.balance || 0)} total</Text>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="See the whole account"
+            style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.setParams({ class: undefined } as any)}>
+            <Text style={s.linkTxt}>See the whole account ›</Text>
+          </TouchableOpacity>
+          <View style={s.optBlock}>
+            <Text style={s.optHdr}>THE HOLDINGS · {ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY</Text>
+            {insideRows.filter((rw: any) => rw.cls === classView).map((rw) => (
+              <View key={rw.key} style={s.insideRow} accessible
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}`}>
+                <View style={[s.insideDot, { backgroundColor: rw.color }]} />
+                <View style={{ flex: 1 }}>
+                  <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
+                  {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+                </View>
+                <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
+              </View>
+            ))}
+            <Text style={s.optNote}>These sum to the {maskedMoney(Math.round((breakdown as any)[classView] || 0))} above. Everything else lives on the whole-account page — one tap up.</Text>
+          </View>
+        </View>
+      ) : (
       <View style={s.card} accessible
         accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
@@ -157,6 +187,7 @@ export default function AccountDetailScreen() {
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
         ) : null}
       </View>
+      )}
 
       {/* MATURED BOND (mock approved 2026-07-31): a dated banner with the three real outcomes —
           the money must not sit labeled as a growing bond after its maturity date */}

@@ -397,3 +397,28 @@ test('B47 finding 8: activity prices show cents; the button and the sheet share 
   expect(hd).toMatch(/>Activity<\/Text>/);
   expect(hd).not.toMatch(/>History<\/Text>/);
 });
+
+// B47 finding 7 (APPROVED): the class slice lands on the class-only view; whole account one tap away.
+test('B47 finding 7: arriving with ?class= renders the class-only view with the summed holdings', () => {
+  useStore.setState({
+    assetAccounts: [{
+      asset_id: 'vg1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 150000, source: 'connected', last_synced: new Date().toISOString(), cash_balance: 18000,
+      positions: [
+        { position_id: 'p1', ticker: 'VTI', label: 'Vanguard Total Market', kind: 'stocks_etf', last_price: 250, lots: [{ lot_id: 'l1', shares: 400, cost_per_share: 200, purchase_date: '2024-01-02' }] },
+        { position_id: 'p2', ticker: 'CUSIP9', label: 'KEYBANK NA 4.00% CD', kind: 'fixed_income', asset_class: 'bond', last_price: 100, lots: [{ lot_id: 'l2', shares: 320, cost_per_share: 100, purchase_date: '2024-01-02' }] },
+      ],
+    }],
+  } as any);
+  mockParams = { id: 'vg1', class: 'stocks_etf' };
+  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  expect(screen.getByText(/IN THIS ACCOUNT/)).toBeOnTheScreen();
+  expect(screen.getByText(/part of Vanguard Brokerage/)).toBeOnTheScreen();
+  expect(screen.getByText('See the whole account ›')).toBeOnTheScreen();
+  expect(screen.getByText(/VTI · 400 shares/)).toBeOnTheScreen();          // the stocks row (ticker naming)
+  expect(screen.queryByText(/CUSIP9/)).toBeNull();                          // the CD stays out of the stocks view
+  // and the NW slice passes the class for split accounts
+  const fs = require('fs'); const path = require('path');
+  expect(fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8')).toMatch(/&class=\$\{r\.key\}/);
+});
