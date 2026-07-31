@@ -6,7 +6,7 @@ import Svg, { Path, Line } from 'react-native-svg';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
-import { money } from '../domain/_shared/num';
+import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -819,7 +819,8 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
           {transactions.length === 0 && <Text style={styles.hEmpty}>No transactions yet.</Text>}
           {transactions.map((t) => {
             const eff = cashEffect(t);
-            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${money(t.price)}` : ''}` : acctName(t.account_id);
+            // B47 finding 8: a PRICE is cents-precise — $250.10, never $250 (the B44 precision rule, applied here too)
+            const detail = t.ticker ? `${t.ticker}${t.shares ? ` · ${t.shares} sh` : ''}${t.price ? ` @ ${money2(t.price)}` : ''}` : acctName(t.account_id);
             return (
               <View key={t.id} style={styles.hRow}>
                 <View style={{ flex: 1 }}>

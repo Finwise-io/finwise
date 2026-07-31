@@ -387,3 +387,13 @@ test('B47 finding 4: the delete path leaves quietly (leaving-guard before the no
   expect(src.indexOf('if (leaving) return null;')).toBeLessThan(src.indexOf("This holding isn't here any more"));
   expect(src).toMatch(/setLeaving\(true\); store\.deletePosition/);
 });
+
+// B47 finding 8: prices in the activity sheet are cents-precise, and the button matches the sheet.
+test('B47 finding 8: activity prices show cents; the button and the sheet share one word', () => {
+  const fs = require('fs'); const path = require('path');
+  const perf = fs.readFileSync(path.join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8');
+  expect(perf).toMatch(/@ \$\{money2\(t\.price\)\}/);
+  const hd = fs.readFileSync(path.join(__dirname, '..', 'HoldingDetailScreen.tsx'), 'utf8');
+  expect(hd).toMatch(/>Activity<\/Text>/);
+  expect(hd).not.toMatch(/>History<\/Text>/);
+});

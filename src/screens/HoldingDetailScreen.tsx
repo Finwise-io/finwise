@@ -216,8 +216,8 @@ export default function HoldingDetailScreen() {
         <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setTxnOpen(true)} accessibilityLabel={`Record a buy or sell for ${ticker}`}>
           <Text style={s.btnTxt}>Record buy/sell</Text>
         </TouchableOpacity>
-        <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setHistoryOpen(true)} accessibilityLabel={`See ${ticker}'s transaction history`}>
-          <Text style={s.btnTxt}>History</Text>
+        <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setHistoryOpen(true)} accessibilityLabel={`See ${ticker}'s activity`}>
+          <Text style={s.btnTxt}>Activity</Text>
         </TouchableOpacity>
         <TouchableOpacity accessibilityRole="button" style={s.btn} onPress={() => setEditOpen(true)} accessibilityLabel="Edit this holding">
           <Text style={s.btnTxt}>Edit holding</Text>
