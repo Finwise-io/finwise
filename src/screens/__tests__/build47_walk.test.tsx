@@ -331,3 +331,26 @@ test('router: bond/alt type chips leave the ticker sheet for their own editors; 
   expect(src).toMatch(/<AltEditor item=\{null\} open=\{altAddKind != null\} presetKind/);
   expect(src).toMatch(/Bonds & alternatives — recorded on their own pages/);
 });
+
+// ── Loading & offline (verdict 2026-07-31): banner approved; grey bars REPLACED by the hydration
+// hold — the founder's "is that right?" was right: device-local numbers load in a blink, so the
+// honest treatment is holding the screen, never fake structure.
+test("couldn't-refresh: the banner shows the honest as-of time and clears on success", () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly' },
+    priceRefreshFailed: true, pricesFetchedAt: '2026-07-28T21:14:00Z',
+  } as any);
+  const HomeScreen = require('../HomeScreen').default;
+  const r1 = render(<HomeScreen />);
+  expect(screen.getByText(/📡 Couldn't refresh — showing your numbers from Jul 28/)).toBeOnTheScreen();
+  r1.unmount();
+  useStore.setState({ priceRefreshFailed: false } as any);
+  render(<HomeScreen />);
+  expect(screen.queryByText(/Couldn't refresh/)).toBeNull();
+});
+
+test('the hydration hold exists at the root — no screen renders before the store is ready', () => {
+  const fs = require('fs'); const path = require('path');
+  const layout = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app', '_layout.tsx'), 'utf8');
+  expect(layout).toMatch(/if \(!isReady\) return <View style=\{\{ flex: 1, backgroundColor: Colors\.bgSecondary \}\} \/>;/);
+});
