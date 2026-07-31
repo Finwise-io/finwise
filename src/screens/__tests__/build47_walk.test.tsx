@@ -181,10 +181,9 @@ test('rows 22-25: finding fixes hold at the source', () => {
   expect(nw).toMatch(/Remove \$\{editing\.label\}\?/);
   expect(nw).toMatch(/leaves your net worth/);
   expect(nw).toMatch(/debt comes off your list/);
-  // row 24: plain-English note + the working door to Income
+  // row 24 → SUPERSEDED by B47 finding 10 (founder): ONE add entry, no explanations at all
   const cf = read('screens/CashFlowScreen.tsx');
-  expect(cf).toMatch(/Asks whether your pay is the same every month or varies\./);
-  expect(cf).toMatch(/Open Income ›/);
+  expect(cf).toMatch(/＋ Add income ›/);
   expect(cf).not.toMatch(/Rich editors \(equity comp, rental\) live in the income manager/);
   // row 25: every income source can be ADDED
   const im = read('screens/IncomeManagerScreen.tsx');
@@ -421,4 +420,18 @@ test('B47 finding 7: arriving with ?class= renders the class-only view with the 
   // and the NW slice passes the class for split accounts
   const fs = require('fs'); const path = require('path');
   expect(fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8')).toMatch(/&class=\$\{r\.key\}/);
+});
+
+// B47 finding 10: ONE add-income entry on the Cash-flow Income tab — no meta-explanations, the
+// chooser's labels carry the meaning; vesting/rental/self deep-link into their editors.
+test('B47 finding 10: one Add income entry, zero explanatory sentences, deep-linked chooser', () => {
+  const fs = require('fs'); const path = require('path');
+  const cf = fs.readFileSync(path.join(__dirname, '..', 'CashFlowScreen.tsx'), 'utf8');
+  expect(cf).toMatch(/＋ Add income ›/);
+  expect(cf).not.toMatch(/＋ Add or set up income/);
+  expect(cf).not.toMatch(/Asks whether your pay is the same every month or varies/);
+  expect(cf).not.toMatch(/Pay from stock vesting or a rental\? Open Income/);
+  expect(cf).toMatch(/income-manager\?open=equity/);
+  const im = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
+  expect(im).toMatch(/openParam === 'equity'\) setRich\('equity'\)/);
 });

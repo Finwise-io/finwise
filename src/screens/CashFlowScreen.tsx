@@ -5,7 +5,7 @@
 //             future-paycheck PROJECTION card (same F5 engine, projection mode, estimate-labeled)
 // Every by-month number is an F2/F5 cell — this screen computes NOTHING of its own.
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
@@ -312,14 +312,20 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
             <Text style={styles.rowV}>{sc.amount}</Text>
           </View>
         ))}
-        <TouchableOpacity accessibilityRole="button" onPress={onSetup} accessibilityLabel="Add or set up income — steady or varies">
-          <Text style={styles.link}>＋ Add or set up income ›</Text>
-        </TouchableOpacity>
-        {/* Build-47 walk row 24 (B46 finding 9a): plain words, and the pointer is a DOOR */}
-        <Text style={styles.note}>Asks whether your pay is the same every month or varies.</Text>
-        <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/income-manager' as any)}
-          accessibilityLabel="Pay from stock vesting or a rental? They have their own screen — open Income">
-          <Text style={styles.link}>Pay from stock vesting or a rental? Open Income ›</Text>
+        {/* B47 finding 10: ONE add entry, zero explanation — the chooser's labels carry the meaning.
+            (Superseded the two-door + two-sentence layout the founder rightly called out.) */}
+        <TouchableOpacity accessibilityRole="button" style={{ minHeight: 44, justifyContent: 'center' }}
+          accessibilityLabel="Add income"
+          onPress={() => {
+            Alert.alert('Add income', undefined, [
+              { text: 'Salary / take-home', onPress: onSetup },
+              { text: 'Stock vesting (equity)', onPress: () => router.push('/income-manager?open=equity' as any) },
+              { text: 'Rental property', onPress: () => router.push('/income-manager?open=rental' as any) },
+              { text: 'Self-employment', onPress: () => router.push('/income-manager?open=self' as any) },
+              { text: 'Cancel', style: 'cancel' },
+            ]);
+          }}>
+          <Text style={styles.link}>＋ Add income ›</Text>
         </TouchableOpacity>
       </View>
       <View style={styles.card}>

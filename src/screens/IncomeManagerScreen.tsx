@@ -12,6 +12,7 @@ import { interestIncomeAnnual } from '../domain/bonds';
 import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the rich grants/rentals editors
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { useLocalSearchParams, router } from 'expo-router';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -29,7 +30,15 @@ export default function IncomeManagerScreen() {
   const transactions = store.transactions ?? [];
   const [baseOpen, setBaseOpen] = useState(false);
   const [editKey, setEditKey] = useState<null | 'bonusAnnual' | 'signingOnetime'>(null);
-  const [rich, setRich] = useState<null | 'equity' | 'rental'>(null);   // reuse onboarding RsuEditor/RentalEditor
+  const [rich, setRich] = useState<null | 'equity' | 'rental'>(null);
+  // B47 finding 10: the Cash-flow chooser deep-links straight into the right editor
+  const { open: openParam } = useLocalSearchParams() as { open?: string };
+  React.useEffect(() => {
+    if (openParam === 'equity') setRich('equity');
+    else if (openParam === 'rental') setRich('rental');
+    else if (openParam === 'self') setSelfOpen(true);
+    if (openParam) router.setParams({ open: undefined } as any);
+  }, [openParam]);   // reuse onboarding RsuEditor/RentalEditor
   const [selfOpen, setSelfOpen] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   // Shim the onboarding StepCtx onto the live profile so the reused editors read/write op fields directly.
