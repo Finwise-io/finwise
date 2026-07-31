@@ -1,0 +1,71 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Debt editor by repayment shape (proposal v1)</title><style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1240px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:820px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .phonecap{font-size:13px; font-weight:800; margin:10px 4px 0; color:var(--ink2); text-align:center;}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head{display:flex; justify-content:space-between; align-items:center; padding:6px 4px 10px;}
+  .head .t{font-size:20px; font-weight:800;}
+  .head .icons{display:flex; gap:14px; font-size:17px; color:#6B6B66;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px; position:relative;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .hero{font-size:38px; font-weight:800; font-variant-numeric:tabular-nums; text-align:center; margin-top:4px; letter-spacing:-.5px;}
+  .delta{font-size:15px; text-align:center; margin-top:2px; color:#6B6B66;}
+  .stamp{font-size:11.5px; color:#76766F; text-align:center; margin-top:4px;}
+  .link{font-size:15px; font-weight:700; color:#178F6B; margin-top:8px;}
+  .crow{display:flex; align-items:center; gap:8px; padding:12px 2px; border-top:1px solid rgba(0,0,0,.10);
+    font-size:15px; font-weight:700; font-variant-numeric:tabular-nums; min-height:44px;}
+  .crow:first-of-type{border-top:none;}
+  .crow .amt{margin-left:auto;}
+  .cdot{width:10px; height:10px; border-radius:50%; flex:none;}
+  .caret{font-size:13px; color:#76766F; width:14px;}
+  .acct{display:flex; align-items:center; gap:8px; padding:7px 2px 7px 32px; font-size:14px; font-variant-numeric:tabular-nums;}
+  .acct .nm{color:#585d59; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .acct .part{display:block; font-size:11.5px; color:#76766F;}
+  .acct .amt{margin-left:auto; font-weight:600;}
+  .acct .go{color:#76766F;}
+  .empty{font-size:13.5px; color:#76766F; padding:10px 2px;}
+  .math{font-size:12px; color:#6B6B66; text-align:center; padding:10px 0 2px; border-top:1px solid rgba(0,0,0,.10); margin-top:4px;}
+  .chips{display:flex; gap:8px; justify-content:center; padding:10px 0 2px;}
+  .chip{font-size:13px; font-weight:700; border:1px solid rgba(0,0,0,.14); border-radius:999px; padding:9px 14px; color:#1A1A18; background:#fff;}
+  .chip.on{background:#1A1A18; color:#fff; border-color:#1A1A18;}
+  .btn{background:#178F6B; color:#fff; text-align:center; font-weight:800; font-size:15px; border-radius:14px; padding:14px; margin:10px 0;}
+  .tabbar{display:flex; justify-content:space-around; padding:12px 6px 26px; border-top:1px solid rgba(0,0,0,.10); background:#fff; margin:8px -16px 0;}
+  .tab{font-size:11px; font-weight:700; color:#6B6B66;}
+  .tab.on{color:#178F6B;}
+  .legend{list-style:none; margin:8px 0 0; padding:0; max-width:430px; font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  .legend li{display:flex; gap:10px; margin-bottom:14px;}
+  .legend b{color:var(--ink);}
+  .dot{flex:none; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .pin{position:absolute; top:-8px; right:-8px; width:22px; height:22px; border-radius:50%; background:var(--accent); color:#fff; font-size:12px; font-weight:800; display:flex; align-items:center; justify-content:center;}
+  .banner{display:flex; gap:8px; align-items:flex-start; background:#FAEEDA; border-radius:12px; padding:10px 12px; font-size:13px; font-weight:600; color:#854F0B; margin-bottom:8px;}
+  .banner.calm{background:#E6F1FB; color:#185FA5;}
+  .srcchip{display:inline-flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; border-radius:999px; padding:2px 8px; margin-top:2px;}
+  .skel{background:#EEEEE9; border-radius:6px; height:14px; margin:6px auto;}
+  .sw{display:inline-block; width:15px; height:15px; border-radius:4px; vertical-align:-3px; margin-right:7px;}
+  table.pal{border-collapse:collapse; font-size:13.5px; background:#fff; border-radius:14px; overflow:hidden; min-width:390px;}
+  table.pal th{background:#1B2A4A; color:#fff; text-align:left; padding:9px 12px; font-size:12px;}
+  table.pal td{padding:9px 12px; border-top:1px solid rgba(0,0,0,.08); font-variant-numeric:tabular-nums;}
+
+  .field{font-size:11px; font-weight:800; color:#6B6B66; margin-top:10px;}
+  .inp{border:1px solid rgba(0,0,0,.14); border-radius:10px; padding:11px 12px; font-size:15px; color:#1A1A18; background:#fff; margin-top:4px;}
+  .inp .mut{color:#76766F;}
+  .seg{display:flex; gap:6px; margin-top:6px;}
+  .segopt{flex:1; text-align:center; font-size:12px; font-weight:700; border:1px solid rgba(0,0,0,.14); border-radius:10px; padding:9px 4px; background:#fff;}
+  .segopt.on{background:#1A1A18; color:#fff; border-color:#1A1A18;}
+  .derived{font-size:11.5px; color:#0F6E56; margin-top:4px; font-weight:600;}
+  .sheetgrab{width:40px; height:4px; border-radius:2px; background:rgba(0,0,0,.18); margin:6px auto 8px;}
+  .sheetbox{background:#F6F7F5; border-top-left-radius:22px; border-top-right-radius:22px; padding:6px 14px 16px; border-top:1px solid rgba(0,0,0,.08); margin:20px -16px 0;}
+</style></head><body><div class="wrap"><div class="eyebrow">MoneyKeel · Cash flow · Debts · PROPOSAL v1 — your B47 finding 11</div><h1>One debt editor, shaped by how the debt is repaid</h1><p class="lede">Your two questions answered by design: mortgages get the real monthly payment and an end date; a loan due in full gets an amount and a date — and lands on the calendar, not in a mislabeled minimum.</p><div class="row"><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="head"><span class="t">Cash flow · Debts</span><span class="icons">👁 ☰</span></div><div class="card" style="opacity:.4"><div class="kicker">YOUR DEBTS</div></div><div class="sheetbox"><div class="sheetgrab"></div><div style="font-size:18px; font-weight:800">Add a debt — Mortgage</div><div class="field">HOW IS IT REPAID?</div><div class="seg"><span class="segopt on">Monthly payments</span><span class="segopt">Card / revolving</span><span class="segopt">Due in full</span></div><div class="field">BALANCE REMAINING</div><div class="inp">$412,000</div><div class="field">INTEREST RATE</div><div class="inp">6.25%</div><div class="field">MONTHLY PAYMENT (WHAT YOU ACTUALLY PAY)</div><div class="inp">$2,850</div><div class="derived">✓ paid off by March 2047 — computed from your balance, rate and payment</div><div class="field">OR: PAID OFF BY (ENTER EITHER — THE OTHER IS COMPUTED)</div><div class="inp"><span class="mut">Mar 2047</span></div><div class="field">DUE DAY (OPTIONAL)</div><div class="inp"><span class="mut">1st</span></div><div class="btn" style="margin-top:12px">Add mortgage</div></div></div></div></div><div class="phonecap">INSTALLMENT (mortgage / auto / personal-with-payments): the ACTUAL payment + paid-off-by — enter either, the other is computed</div></div><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="head"><span class="t">Cash flow · Debts</span><span class="icons">👁 ☰</span></div><div class="card" style="opacity:.4"><div class="kicker">YOUR DEBTS</div></div><div class="sheetbox"><div class="sheetgrab"></div><div style="font-size:18px; font-weight:800">Add a debt — Credit card</div><div class="field">HOW IS IT REPAID?</div><div class="seg"><span class="segopt">Monthly payments</span><span class="segopt on">Card / revolving</span><span class="segopt">Due in full</span></div><div class="field">BALANCE</div><div class="inp">$6,000</div><div class="field">INTEREST RATE</div><div class="inp">22.99%</div><div class="field">MINIMUM PAYMENT / MO</div><div class="inp">$180</div><div class="field">YOU PAY / MO (≥ MINIMUM)</div><div class="inp">$400</div><div class="derived">✓ clear in 17 months at $400/mo</div><div class="field">DUE DAY (OPTIONAL)</div><div class="inp"><span class="mut">15th</span></div><div class="btn" style="margin-top:12px">Add card</div></div></div></div></div><div class="phonecap">REVOLVING (cards): today's min + you-pay fields — unchanged, they fit cards</div></div><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="head"><span class="t">Cash flow · Debts</span><span class="icons">👁 ☰</span></div><div class="card" style="opacity:.4"><div class="kicker">YOUR DEBTS</div></div><div class="sheetbox"><div class="sheetgrab"></div><div style="font-size:18px; font-weight:800">Add a debt — Personal loan</div><div class="field">HOW IS IT REPAID?</div><div class="seg"><span class="segopt">Monthly payments</span><span class="segopt">Card / revolving</span><span class="segopt on">Due in full</span></div><div class="field">AMOUNT DUE</div><div class="inp">$15,000</div><div class="field">DUE DATE</div><div class="inp">Dec 31, 2026</div><div class="field">INTEREST RATE (OPTIONAL)</div><div class="inp"><span class="mut">0%</span></div><div class="derived">✓ lands as a dated big-ticket in Cash flow (December) and on the bill calendar — 5 months of warning, not a surprise</div><div class="btn" style="margin-top:12px">Add loan</div></div></div></div></div><div class="phonecap">DUE IN FULL (your 5-months-from-now loan): amount + date — today the app cannot represent this at all</div></div></div><div class="row"><ul class="legend"><li><span class="dot">1</span><div><b>Your finding, verified:</b> the Cash-flow Debts editor asks only min payment + due day; the Net-worth editor asks more (min AND you-pay) — two editors drifted apart, and NEITHER captures a payoff end date or a due-in-full loan. A 5-month balloon loan is unrepresentable today — the closest fit (a monthly minimum) misstates reality.</div></li><li><span class="dot">2</span><div><b>The fix:</b> ONE debt editor, shaped by how the debt is repaid. Installments get the real payment + end date (either entered, the other computed — one source of truth). Cards keep today's fields. Due-in-full gets amount + date and flows into Cash flow's big-ticket radar and the bill calendar for that month.</div></li><li><span class="dot">3</span><div><b>Ripples handled in the build:</b> payoff projections, DTI, the plan's debt line and the month grid all read the same one model.</div></li></ul></div></div></body></html>
