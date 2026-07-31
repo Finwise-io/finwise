@@ -377,3 +377,13 @@ test('B47 finding 2: the editor modal has a real bottom Done (the top link was i
   expect(src).toMatch(/Your changes save as you type — Done just closes\./);
   expect(src).toMatch(/minHeight: 48/);
 });
+
+// B47 finding 4: deleting a holding must exit silently — the deletion worked but the not-found
+// screen flashed as an "error" during the back transition.
+test('B47 finding 4: the delete path leaves quietly (leaving-guard before the not-found branch)', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'HoldingDetailScreen.tsx'), 'utf8');
+  expect(src).toMatch(/if \(leaving\) return null;/);
+  expect(src.indexOf('if (leaving) return null;')).toBeLessThan(src.indexOf("This holding isn't here any more"));
+  expect(src).toMatch(/setLeaving\(true\); store\.deletePosition/);
+});

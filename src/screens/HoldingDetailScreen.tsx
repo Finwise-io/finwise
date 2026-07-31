@@ -37,6 +37,7 @@ export default function HoldingDetailScreen() {
   const account = accounts.find((a) => a.asset_id === String(params.account));
   const position: Position | undefined = (account?.positions ?? []).find((p: Position) => p.position_id === String(params.position));
   const [editOpen, setEditOpen] = useState(false);
+  const [leaving, setLeaving] = useState(false);   // B47 finding 4: silent exit after delete
   const [txnOpen, setTxnOpen] = useState(false);
   const [historyOpen, setHistoryOpen] = useState(false);
 
@@ -49,6 +50,9 @@ export default function HoldingDetailScreen() {
     [position, priceCache, period],
   );
 
+  // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen
+  // flashed as an "error" while the (correct) deletion exited. Leaving = render nothing, quietly.
+  if (leaving) return null;
   if (!account || !position || !row) {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content}>
@@ -228,7 +232,7 @@ export default function HoldingDetailScreen() {
           else store.updatePosition(accountId, p.position_id, p);
           setEditOpen(false);
         }}
-        onDelete={() => { store.deletePosition(account.asset_id, position.position_id); setEditOpen(false); router.back(); }}
+        onDelete={() => { setEditOpen(false); setLeaving(true); store.deletePosition(account.asset_id, position.position_id); router.back(); }}
       />
       <TransactionSheet open={txnOpen} accounts={accounts} prefill={{ accountId: account.asset_id, ticker }}
         onClose={() => setTxnOpen(false)}
