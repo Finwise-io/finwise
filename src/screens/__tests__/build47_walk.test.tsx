@@ -354,3 +354,26 @@ test('the hydration hold exists at the root — no screen renders before the sto
   const layout = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app', '_layout.tsx'), 'utf8');
   expect(layout).toMatch(/if \(!isReady\) return <View style=\{\{ flex: 1, backgroundColor: Colors\.bgSecondary \}\} \/>;/);
 });
+
+// ── Build 47 walk findings 1-2 (2026-07-31): equity symbol field + a real bottom Done ──
+test('B47 finding 1: the equity editor captures the stock symbol and seeds new rows from a live price', () => {
+  useStore.setState({ priceCache: { NVDA: { ticker: 'NVDA', points: [{ date: '2026-07-30', close: 423 }] } } } as any);
+  const { RsuEditor } = require('../../onboarding/modules');
+  const answers: Record<string, any> = { equityType: 'rsu', equityTicker: 'NVDA' };
+  const ctx = { answers, setAnswer: (k: string, v: any) => { answers[k] = v; } };
+  const { getByLabelText, getAllByPlaceholderText } = render(<RsuEditor ctx={ctx as any} />);
+  expect(getByLabelText('Company stock symbol')).toBeTruthy();
+  // typing shares into a fresh row seeds its price from the live NVDA close
+  const { fireEvent } = require('@testing-library/react-native');
+  fireEvent.changeText(getAllByPlaceholderText('100')[0], '50');
+  expect(answers.rsuGrants[0].price).toBe('423');
+  expect(answers.rsuGrants[0].shares).toBe('50');
+});
+
+test('B47 finding 2: the editor modal has a real bottom Done (the top link was invisible from a long form)', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
+  expect(src).toMatch(/richDoneBtn/);
+  expect(src).toMatch(/Your changes save as you type — Done just closes\./);
+  expect(src).toMatch(/minHeight: 48/);
+});

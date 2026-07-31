@@ -164,6 +164,13 @@ export default function IncomeManagerScreen() {
           <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.lg }} keyboardShouldPersistTaps="handled">
             {rich === 'equity' && <RsuEditor ctx={editorCtx} />}
             {rich === 'rental' && <RentalEditor ctx={editorCtx} />}
+            {/* B47 finding 2: the only Done was small text in the top bar — invisible from the
+                bottom of a long form. The primary action lives where the work ends. */}
+            <TouchableOpacity accessibilityRole="button" style={styles.richDoneBtn} onPress={() => setRich(null)}
+              accessibilityLabel="Done — your changes save as you type">
+              <Text style={styles.richDoneBtnTxt}>Done</Text>
+            </TouchableOpacity>
+            <Text style={styles.richDoneNote}>Your changes save as you type — Done just closes.</Text>
             <View style={{ height: 40 }} />
           </ScrollView>
         </View>
@@ -314,6 +321,9 @@ const styles = StyleSheet.create({
   richBar: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: Spacing.lg, paddingVertical: 14, borderBottomWidth: 1, borderBottomColor: Colors.border, backgroundColor: '#fff' },
   richTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   richDone: { fontSize: 16, fontWeight: '700', color: Colors.primary },
+  richDoneBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
+  richDoneBtnTxt: { fontSize: 16, fontWeight: '800', color: Colors.white },
+  richDoneNote: { fontSize: 11.5, color: Colors.textTertiary, textAlign: 'center', marginTop: 6 },
   sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
   sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },

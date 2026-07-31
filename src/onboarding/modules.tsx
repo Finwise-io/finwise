@@ -1250,10 +1250,26 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
 
   React.useEffect(() => { if (a.equityType == null) ctx.setAnswer('equityType', 'rsu'); }, []);
 
+  // B47 finding 1: the award has a SYMBOL — capture it, and let a known live price seed new rows
+  const ticker = String(a.equityTicker ?? '').trim().toUpperCase();
+  const livePrice = React.useMemo(() => {
+    if (!ticker) return null;
+    try {
+      const { useStore } = require('../store/useStore');
+      const series = (useStore.getState().priceCache ?? {})[ticker];
+      const pts = series?.points ?? [];
+      return pts.length ? pts[pts.length - 1].close : null;
+    } catch { return null; }
+  }, [ticker, rows.length]);
+
   const setCell = (i: number, key: string, val: string) => {
     const next = rows.slice();
     while (next.length <= i) next.push({});
     next[i] = { ...next[i], [key]: val };
+    // seed a fresh RSU row's price from the live symbol price — editable, never forced
+    if (!isOpt && livePrice != null && key !== 'price' && (next[i].price == null || next[i].price === '')) {
+      next[i] = { ...next[i], price: String(livePrice) };
+    }
     ctx.setAnswer('rsuGrants', next);
   };
   const removeRow = (i: number) => ctx.setAnswer('rsuGrants', rows.filter((_, idx) => idx !== i));
@@ -1279,6 +1295,16 @@ export function RsuEditor({ ctx }: { ctx: StepCtx }) {
       <Text style={s.note2}>{isOpt
         ? 'Value = (market − strike) × number of options. Each option = 1 share — enter your grant count, NOT 100-share trading contracts.'
         : 'Value = shares × price per share'}</Text>
+      {/* B47 finding 1: no place to enter the stock/option symbol — now there is */}
+      <Text style={s.label}>Company stock symbol (optional)</Text>
+      <TextInput style={s.input} autoCapitalize="characters" autoCorrect={false} placeholder="e.g. AAPL"
+        placeholderTextColor={Colors.textTertiary} value={a.equityTicker ?? ''}
+        onChangeText={(t) => ctx.setAnswer('equityTicker', t)} accessibilityLabel="Company stock symbol" />
+      {ticker.length > 0 && (
+        <Text style={s.note2}>{livePrice != null
+          ? `${ticker}: ${currencySymbol()}${livePrice} (live) — new rows start at it, edit freely`
+          : `${ticker} saved — live re-marking of your grants arrives with the price provider`}</Text>
+      )}
       {isOpt && (
         <View style={{ flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm }}>
           <View style={{ flex: 1 }}>
