@@ -4,7 +4,7 @@
 // the ONE transactions engine (recordTransaction) — balances update by the same tested rules
 // everywhere, and hand-recorded rows are never questioned by the F10 watch (no source field).
 import React, { useMemo, useState } from 'react';
-import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
@@ -157,6 +157,26 @@ export default function AccountDetailScreen() {
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
         ) : null}
       </View>
+
+      {/* MATURED BOND (mock approved 2026-07-31): a dated banner with the three real outcomes —
+          the money must not sit labeled as a growing bond after its maturity date */}
+      {cls === 'bonds' && account.maturity_date && account.maturity_date <= iso(new Date()) && (account.balance || 0) > 0 && (
+        <View style={s.maturedCard}>
+          <Text style={s.maturedTitle}>⏰ This bond matured {new Date(`${account.maturity_date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
+          <Text style={s.maturedBody}>The money isn't growing here anymore — record what happened so your numbers stay true.</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.maturedBtn}
+            accessibilityLabel="Record what happened to this matured bond"
+            onPress={() => {
+              Alert.alert('What happened?', 'Pick the one that matches reality.', [
+                { text: 'Paid out to my bank', onPress: () => { store.recordTransaction?.({ type: 'SELL', account_id: account.asset_id, amount: account.balance || 0, date: iso(new Date()), note: 'Matured — paid out' }); } },
+                { text: 'Rolled into a new bond/CD', onPress: () => router.push('/bonds' as any) },
+                { text: 'Still waiting', style: 'cancel' },
+              ]);
+            }}>
+            <Text style={s.maturedBtnTxt}>Record what happened ›</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* walk row 5: an UNDATED hand-entered value gets the same gentle nudge — silence hid it */}
       {undated && (
@@ -509,6 +529,11 @@ const s = StyleSheet.create({
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   optVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
+  maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },
+  maturedTitle: { fontSize: 14, fontWeight: '800', color: Colors.amber },
+  maturedBody: { fontSize: 12.5, color: Colors.amber, marginTop: 3, lineHeight: 17 },
+  maturedBtn: { backgroundColor: Colors.amber, borderRadius: Radii.md, paddingVertical: 11, paddingHorizontal: 14, alignSelf: 'flex-start', marginTop: 8, minHeight: 44, justifyContent: 'center' },
+  maturedBtnTxt: { fontSize: 13.5, fontWeight: '800', color: Colors.white },
   staleCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   staleTxt: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
   staleBtn: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },

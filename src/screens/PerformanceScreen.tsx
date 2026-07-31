@@ -8,7 +8,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
-import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames } from '../domain/assets';
+import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { isBond } from '../domain/bonds';
 import { isAlternative } from '../domain/alternatives';
@@ -28,12 +28,16 @@ import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { BondEditor } from './BondsScreen';
+import { AltEditor } from './OtherInvestmentsScreen';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
 // A holding's TYPE = its instrument class (sets the benchmark) — not an account type (401k/IRA/529/brokerage).
 const ACCOUNT_TYPE_IDS = ['brokerage', '401k', 'trad_ira', 'roth_ira', 'hsa', 'college_529', 'checking', 'savings', 'home', 'vehicle'];
 const KIND_OPTIONS = ASSET_KINDS.filter((k) => k.section === 'Investments' && !ACCOUNT_TYPE_IDS.includes(k.id));
+// types that route to their own editors instead of the ticker form (B46 findings 3+6)
+const ALT_ROUTE_KINDS = ['options', 'crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities'];
 
 export default function PerformanceScreen() {
   const router = useRouter();
@@ -45,6 +49,9 @@ export default function PerformanceScreen() {
   // walk row 17: the concentration callout scrolls to the holdings list (reach-through, wired at last)
   const scrollRef = React.useRef<ScrollView>(null);
   const invListY = React.useRef(0);
+  // B46 findings 3+6 router: the non-ticker types open their OWN editors (separate fields)
+  const [bondAddOpen, setBondAddOpen] = React.useState(false);
+  const [altAddKind, setAltAddKind] = React.useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [addOpen, setAddOpen] = useState(false);
   const [edit, setEdit] = useState<{ accountId: string; position: Position } | null>(null);
@@ -412,6 +419,7 @@ export default function PerformanceScreen() {
         open={addOpen || edit != null}
         accounts={accounts}
         existing={edit}
+        onRoute={(k) => { setAddOpen(false); setEdit(null); if (k === 'bond') setBondAddOpen(true); else setAltAddKind(k); }}
         onClose={() => { setAddOpen(false); setEdit(null); }}
         onSave={(accountId, position, isNew) => {
           if (isNew) {
@@ -432,6 +440,10 @@ export default function PerformanceScreen() {
       />
       <TransactionSheet open={txnOpen} accounts={accounts} onClose={() => setTxnOpen(false)}
         onSave={(t) => { store.recordTransaction(t); setTxnOpen(false); setTimeout(refresh, 50); }} />
+      <BondEditor bond={null} open={bondAddOpen} onClose={() => setBondAddOpen(false)}
+        onSave={(fields) => { store.addAsset({ kind: 'fixed_income', target_return: fields.coupon_rate ?? 0.04, ...fields }); setBondAddOpen(false); }} />
+      <AltEditor item={null} open={altAddKind != null} presetKind={altAddKind ?? undefined} onClose={() => setAltAddKind(null)}
+        onSave={(fields) => { store.addAsset({ target_return: benchmarkReturn(fields.kind), ...fields }); setAltAddKind(null); }} />
       <HistorySheet open={historyOpen} transactions={store.transactions ?? []} accounts={accounts}
         onClose={() => setHistoryOpen(false)} onDelete={(id) => {
           if (!store.deleteTransaction(id)) Alert.alert(
@@ -443,9 +455,10 @@ export default function PerformanceScreen() {
 }
 
 // ───────────────────────── Add / edit holding (ticker + lots) ─────────────────────────
-export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete }: {
+export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDelete, onRoute }: {
   open: boolean; accounts: AssetAccount[]; existing: { accountId: string; position: Position } | null;
   onClose: () => void; onSave: (accountId: string, position: Position, isNew: boolean) => void; onDelete?: () => void;
+  onRoute?: (kind: 'bond' | string) => void;   // B46 findings 3+6: non-ticker types open their own editors
 }) {
   const isNew = existing == null;
   const investAccts = accounts.filter(accountAllowsTicker);   // only security-eligible accounts (excludes cash/property/529)
@@ -532,7 +545,14 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
           <Text style={styles.fieldL}>Type (sets the benchmark — {benchmarkTicker(kind)})</Text>
           <View style={styles.kindWrap}>
             {KIND_OPTIONS.map((k) => (
-              <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`} onPress={() => setKind(k.id)}>
+              <TouchableOpacity key={k.id} style={[styles.kindChip, kind === k.id && styles.kindChipOn]} accessibilityRole="button" accessibilityLabel={`Type: ${k.label}`}
+                onPress={() => {
+                  // B46 findings 3+6 (router, approved 2026-07-31): non-ticker types open their OWN
+                  // form — separate fields, correct class. Only ticker types stay on this sheet.
+                  if (k.id === 'fixed_income') { onRoute?.('bond'); return; }
+                  if (ALT_ROUTE_KINDS.includes(k.id)) { onRoute?.(k.id); return; }
+                  setKind(k.id);
+                }}>
                 <Text style={[styles.kindChipT, kind === k.id && styles.kindChipTOn]}>{k.label}</Text>
               </TouchableOpacity>
             ))}
@@ -620,6 +640,7 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   open: boolean; accounts: AssetAccount[]; onClose: () => void; onSave: (t: Omit<Transaction, 'id' | 'created_at'>) => void;
   prefill?: { accountId?: string; ticker?: string };
 }) {
+  const router = useRouter();
   const eligible = accounts.filter(accountAllowsTicker);
   // Cash actions (deposit/withdraw/transfer) on the Stocks screen apply to your EQUITY accounts + plain
   // cash accounts — never bond or alternative accounts (those aren't traded here).
@@ -696,6 +717,27 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
               </TouchableOpacity>
             ))}
           </View>
+          {/* B46 finding 6 (router, approved): bonds & alternatives record on their OWN pages —
+              labeled doors with their real names, so no one stands here with a CD and no path */}
+          {(() => {
+            const ba = accounts.filter((a) => assetClassOf(a) === 'bonds' || assetClassOf(a) === 'alternatives');
+            if (ba.length === 0) return null;
+            const names = accountDisplayNames(accounts);
+            return (
+              <>
+                <Text style={styles.fieldL}>Bonds & alternatives — recorded on their own pages</Text>
+                {ba.slice(0, 6).map((a) => (
+                  <TouchableOpacity key={a.asset_id} accessibilityRole="button" style={styles.baDoor}
+                    onPress={() => { onClose(); router.push((assetClassOf(a) === 'bonds' ? '/bonds' : '/other-investments') as any); }}
+                    accessibilityLabel={`${names.get(a.asset_id) ?? a.label}: record a sale, payout or value update on its page`}>
+                    <Text style={styles.baDoorTxt}>{assetClassOf(a) === 'bonds' ? '📜' : '🪙'} {names.get(a.asset_id) ?? a.label}</Text>
+                    <Text style={styles.baDoorGo}>record a sale / update ›</Text>
+                  </TouchableOpacity>
+                ))}
+              </>
+            );
+          })()}
+
 
           {isTransfer && (
             <>
@@ -832,6 +874,9 @@ const styles = StyleSheet.create({
   freshChip: { borderWidth: 1, borderColor: Colors.border, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   freshChipStale: { borderColor: Colors.amberMid, backgroundColor: Colors.amberLight },
   freshChipTxt: { fontSize: 11.5, fontWeight: '700', color: Colors.textSecondary },
+  baDoor: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingHorizontal: 12, minHeight: 44, marginTop: 6 },
+  baDoorTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.textPrimary, flexShrink: 1 },
+  baDoorGo: { fontSize: 12, fontWeight: '700', color: Colors.primary },
   invRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 9, minHeight: 44 },
   invDivider: { borderTopWidth: 1, borderTopColor: Colors.border },
   invName: { fontSize: 14, fontWeight: '600', color: Colors.textPrimary },   // matches invVal — one row, one size

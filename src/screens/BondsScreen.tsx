@@ -11,6 +11,7 @@ import { DateField } from '../components/DateField';
 import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { DotJoined } from '../components/SepDot';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // ISO date helpers (local components, no TZ shift) for the maturity date picker
@@ -65,7 +66,7 @@ export default function BondsScreen() {
             return (
               <TouchableOpacity key={a.asset_id} accessibilityRole="button" accessibilityLabel={`${a.institution?.trim() || a.label}, ${money(a.balance || 0)}, matures ${humanDate(bi.maturity)}`} style={styles.card} onPress={() => setEdit(a)}>
                 <View style={styles.bondHead}><Text style={styles.bondName} numberOfLines={1}>{a.institution?.trim() || a.label}</Text><Text style={styles.bondVal}>{money(a.balance || 0)}</Text></View>
-                <Text style={styles.bondSub} numberOfLines={2}>face {money(bi.face)} · {(bi.couponRate * 100).toFixed(2)}% coupon · matures {humanDate(bi.maturity)}{yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}</Text>
+                <DotJoined style={styles.bondSub} numberOfLines={2} parts={[`face ${money(bi.face)}`, `${(bi.couponRate * 100).toFixed(2)}% coupon`, `matures ${humanDate(bi.maturity)}${yrs > 0 ? ` (${yrs.toFixed(1)}y)` : ' (matured)'}`]} />
                 <View style={styles.bondMetrics}>
                   <Text style={styles.metric}>{money(annualCoupon(bi))}/yr coupon</Text>
                   <Text style={styles.metric}>yield {pct(currentYield(bi))}</Text>

@@ -135,7 +135,8 @@ test('F1 freshness: a connected balance older than 3 days SAYS so on Home', () =
     assetAccounts: [{ asset_id: 'c1', label: 'Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, source: 'connected', last_synced: old }],
   } as any);
   render(<HomeScreen />);
-  expect(screen.getByText(/Balances from Chase are 9 days old/)).toBeOnTheScreen();
+    // approved mock #4 + founder change: the WORKING lens carries the in-hero stamp now
+    expect(screen.getByText(/⏱ Chase part as of .* — 9 days old · pull to refresh/)).toBeOnTheScreen();
   expect(connectionFreshness(old)!.stale).toBe(true);
   expect(connectionFreshness(new Date().toISOString())!.stale).toBe(false);
 });

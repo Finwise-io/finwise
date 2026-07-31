@@ -24,6 +24,8 @@ import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { DotJoined } from '../components/SepDot';
+import { SourceChip } from '../components/SourceChip';
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -428,9 +430,8 @@ export default function NetWorthScreen() {
             if (!st) return null;
             const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
             return (
-              <Text style={[styles.glanceDelta, { color: Colors.amber }]}>
-                ⏱ {st.a.institution ?? st.a.label} part as of {asOf} — {st.f!.daysOld} days old · pull to refresh
-              </Text>
+              <DotJoined style={[styles.glanceDelta, { color: Colors.amber }]}
+                parts={[`⏱ ${st.a.institution ?? st.a.label} part as of ${asOf} — ${st.f!.daysOld} days old`, 'pull to refresh']} />
             );
           })()}
           {series.length >= 2 && (() => {
@@ -452,9 +453,13 @@ export default function NetWorthScreen() {
           accessibilityLabel={pathAhead
             ? `Your path ahead, from your Plan: on course for about ${maskedMoney(pathAhead.egg)} by ${pathAhead.age}. Opens the Plan tab.`
             : 'Your path ahead, from your Plan. Opens the Plan tab.'}>
-          <Text style={styles.pathAheadTxt}>
-            Your path ahead (from your Plan){pathAhead ? <Text>: on course for <Text style={styles.pathAheadNum}>~{maskedMoney(pathAhead.egg)}</Text> by {pathAhead.age}</Text> : null} ›
-          </Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
+            <Text style={styles.pathAheadTxt}>
+              Your path ahead (from your Plan){pathAhead ? <Text>: on course for <Text style={styles.pathAheadNum}>~{maskedMoney(pathAhead.egg)}</Text> by {pathAhead.age}</Text> : null} ›
+            </Text>
+            {/* founder 2026-07-31: say HOW — the ⓘ opens your approved nest-egg explanation */}
+            {pathAhead && <InfoDot term="nestEggMath" />}
+          </View>
         </TouchableOpacity>
 
         {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
@@ -488,6 +493,7 @@ export default function NetWorthScreen() {
                     accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
+                      <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
                     </View>
                     <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
                     <Text style={styles.acctChev}>›</Text>
@@ -532,6 +538,8 @@ export default function NetWorthScreen() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
                       {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
+                      {/* mock #3 APPROVED: provenance at a glance, one chip per account row */}
+                      <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
                     </View>
                     <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
                     <Text style={styles.acctChev}>›</Text>
@@ -584,6 +592,29 @@ export default function NetWorthScreen() {
             </TouchableOpacity>
           ))}
         </View>
+
+        {/* EMERGENCY CUSHION (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
+            card, word + icon always; no spending captured → a door, never a made-up number */}
+        {monthlySpend > 0 && runwayMonths != null ? (
+          <View style={styles.card}>
+            <Text style={styles.kickerSm}>EMERGENCY CUSHION</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+              <Text style={styles.cushionMonths}>{(Math.round(runwayMonths * 10) / 10).toFixed(1)} months</Text>
+              <Text style={[styles.cushionWord, { color: runwayMonths < 3 ? Colors.amber : Colors.gainText }]}>
+                {runwayMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
+              </Text>
+            </View>
+            <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/mo essentials</Text>
+            <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
+          </View>
+        ) : cashOnHand > 0 ? (
+          <TouchableOpacity accessibilityRole="button" style={styles.card} onPress={() => router.push('/(tabs)/cashflow')}
+            accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
+            <Text style={styles.kickerSm}>EMERGENCY CUSHION</Text>
+            <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
+            <Text style={styles.link}>Answer one question in Cash flow ›</Text>
+          </TouchableOpacity>
+        ) : null}
 
         {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
         <TouchableOpacity accessibilityRole="button" style={styles.cfGlance} onPress={() => router.push('/(tabs)/cashflow')}
@@ -893,6 +924,12 @@ const styles = StyleSheet.create({
   expandTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   cfGlance: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   // walk row 7: the calm projection line (v7 FINAL position — right under the glance card)
+  kickerSm: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, color: Colors.textSecondary },
+  cushionMonths: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  cushionWord: { fontSize: 13, fontWeight: '800' },
+  cushionMath: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 2 },
+  cushionNote: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 4 },
+  link: { fontSize: 14, fontWeight: '700', color: Colors.primary, marginTop: 8, minHeight: 44, paddingTop: 12 },
   pathAhead: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12, marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
   pathAheadTxt: { fontSize: 13.5, fontWeight: '700', color: Colors.primary },
   pathAheadNum: { fontWeight: '800' },

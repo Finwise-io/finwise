@@ -43,6 +43,10 @@ export const Colors = {
   purple: '#7A5AA7',
   gold: '#EBB23A',
 
+  // separator dots — the designed glyph, one step darker than surrounding gray text
+  // (founder pick C, 2026-07-31: darker beats lighter for 55-70 eyes)
+  sepDot: '#3A3A36',
+
   // light text tint on dark (primaryDeep) hero cards
   onDeepTint: '#BEE7D8',
 };

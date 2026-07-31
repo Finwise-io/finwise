@@ -31,6 +31,7 @@ import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
+import { DotJoined } from '../components/SepDot';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -288,7 +289,7 @@ export default function HomeScreen() {
             )}
             {youReturn != null && marketReturn != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <Text style={styles.heroVs}>you {signedPct(youReturn)} · market {signedPct(marketReturn)} · {youReturn >= marketReturn ? 'ahead' : 'behind'} by {pctTxt(Math.abs(youReturn - marketReturn))}</Text>
+                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTxt(Math.abs(youReturn - marketReturn))}`]} />
                 <InfoDot term="benchmark" />
               </View>
             )}
@@ -308,9 +309,8 @@ export default function HomeScreen() {
               if (!st) return null;
               const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
               return (
-                <Text style={[styles.freshness, { color: Colors.amber }]}>
-                  ⏱ {st.a.institution ?? st.a.label} part as of {asOf} — {st.f.daysOld} days old · pull to refresh
-                </Text>
+                <DotJoined style={[styles.freshness, { color: Colors.amber }]}
+                  parts={[`⏱ ${st.a.institution ?? st.a.label} part as of ${asOf} — ${st.f.daysOld} days old`, 'pull to refresh']} />
               );
             })()}
             <Text style={styles.heroLink}>See your growth ›</Text>

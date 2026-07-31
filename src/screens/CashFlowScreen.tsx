@@ -30,6 +30,7 @@ import { HeroAmount } from '../components/HeroAmount';
 import { EstimateTag } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { DotJoined } from '../components/SepDot';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -278,7 +279,7 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
   const varies = Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length > 0;
   const guaranteed = retirementIncomeMonthly(op);
   const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
-  const sources: { label: string; sub: string; amount: string }[] = [];
+  const sources: { label: string; sub: string | string[]; amount: string }[] = [];
   // B46 finding 8 ("steady $5,000" vs In $8,600): this row must tell the TRUTH about what's stored —
   // the old code hardcoded 'take-home · monthly' and printed the raw per-period entry, so a salary
   // saved as gross/biweekly showed a number nothing else on the screen could reconcile with. The sub
@@ -294,7 +295,7 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
       label: varies ? 'Salary — varies' : 'Salary — steady',
       sub: varies ? 'by-month table · tap Set up to adjust'
         : plainMonthlyTakehome ? 'take-home · monthly'
-        : `${basis} · ${unit} · ≈ ${maskedMoney(monthlyNet)}/mo take-home`,
+        : [basis, unit, `≈ ${maskedMoney(monthlyNet)}/mo take-home`],
       amount: maskedMoney(Math.round(Number(op.baseSalary) || 0)),
     });
   }
@@ -307,7 +308,7 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
         {sources.length === 0 && <Text style={styles.note}>No income set up yet.</Text>}
         {sources.map((sc) => (
           <View key={sc.label} style={styles.row}>
-            <View style={{ flex: 1 }}><Text style={styles.rowL}>{sc.label}</Text><Text style={styles.doorSub}>{sc.sub}</Text></View>
+            <View style={{ flex: 1 }}><Text style={styles.rowL}>{sc.label}</Text>{Array.isArray(sc.sub) ? <DotJoined style={styles.doorSub} parts={sc.sub} /> : <Text style={styles.doorSub}>{sc.sub}</Text>}</View>
             <Text style={styles.rowV}>{sc.amount}</Text>
           </View>
         ))}

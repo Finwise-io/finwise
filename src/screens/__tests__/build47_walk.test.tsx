@@ -231,3 +231,103 @@ test('a 3-day-old connection stamps the Home hero and the Net worth hero; fresh 
   render(<HomeScreen />);
   expect(screen.queryByText(/pull to refresh/)).toBeNull();
 });
+
+// ── Separator dots (founder pick C — darker, 2026-07-31) + source chips (mock #3 approved) ──
+test('separator dots render the dark designed glyph on the marquee lines', () => {
+  const { SEP_DOT_COLOR } = require('../../components/SepDot');
+  expect(SEP_DOT_COLOR).toBe('#3A3A36');
+  const fs = require('fs'); const path = require('path');
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/CashFlowScreen.tsx', 'screens/BondsScreen.tsx']) {
+    expect(fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8')).toMatch(/DotJoined/);
+  }
+});
+
+test('source chips: connected/imported/by-hand pills on NW account rows; paused goes amber', () => {
+  const { SourceChip } = require('../../components/SourceChip');
+  const r1 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'connected', last_synced: new Date().toISOString() } as any} />);
+  expect(r1.getByText(/🔗 Connected · updated/)).toBeTruthy();
+  r1.unmount();
+  const r2 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'imported', last_synced: '2026-06-12T00:00:00Z' } as any} />);
+  expect(r2.getByText('📄 Imported · 2026-06-12')).toBeTruthy();
+  r2.unmount();
+  const r3 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1 } as any} />);
+  expect(r3.getByText('✍️ By hand · you update it')).toBeTruthy();
+  r3.unmount();
+  const r4 = render(<SourceChip paused account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'connected' } as any} />);
+  expect(r4.getByText('⏸ Connection paused · reconnect ›')).toBeTruthy();
+  r4.unmount();
+  // and the NW rows actually render it
+  // a lone class auto-expands, so the member row (and its chip) is visible without a tap
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'h1', label: 'HYSA at Marcus', kind: 'savings', tax_bucket: 'CASH', balance: 8000, source: 'connected', last_synced: new Date().toISOString() },
+    ],
+    nwSetupChoice: 'self',
+  } as any);
+  const NetWorthScreen = require('../NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  expect(screen.getAllByText(/🔗 Connected · updated/).length).toBeGreaterThan(0);
+});
+
+// ── Mock approvals built 2026-07-31: cushion · matured banner · router · path-ahead "how" ──
+test('cushion card: months + word on the real engine numbers; the door when spending is unknown', () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], monthlySpending: '4200' },
+    assetAccounts: [{ asset_id: 'chk', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 56130 }],
+    nwSetupChoice: 'self',
+  } as any);
+  const NetWorthScreen = require('../NetWorthScreen').default;
+  const r1 = render(<NetWorthScreen />);
+  expect(screen.getByText('13.4 months')).toBeOnTheScreen();       // 56130 ÷ 4200 = 13.36 → 13.4
+  expect(screen.getByText('Comfortable ✓')).toBeOnTheScreen();
+  expect(screen.getByText(/\$56,130 cash ÷ \$4,200\/mo essentials/)).toBeOnTheScreen();
+  r1.unmount();
+  useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'] } } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('Answer one question in Cash flow ›')).toBeOnTheScreen();
+});
+
+test('path-ahead row carries the how ⓘ (your approved nest-egg explanation)', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(yr - 55), targetRetirementAge: '67', monthlySpending: '5000', horizonAge: '92' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000 }],
+    nwSetupChoice: 'self',
+  } as any);
+  const NetWorthScreen = require('../NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/on course for/)).toBeOnTheScreen();
+  expect(screen.getByLabelText('What is How we estimate this?')).toBeOnTheScreen();
+});
+
+test('matured bond: the dated banner with the three outcomes; paid-out writes the ledger row', () => {
+  const past = '2026-06-30';
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'cd1', label: 'Chase CD 4.0%', kind: 'fixed_income', tax_bucket: 'TAXABLE', balance: 10000, face_value: 10000, coupon_rate: 0.04, maturity_date: past, asset_class: 'bonds' }],
+  } as any);
+  mockParams = { id: 'cd1' };
+  const { Alert } = require('react-native');
+  jest.spyOn(Alert, 'alert').mockImplementation((_t: any, _m: any, btns: any) => {
+    (btns ?? []).find((b: any) => b.text === 'Paid out to my bank')?.onPress?.();
+  });
+  const { fireEvent } = require('@testing-library/react-native');
+  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  expect(screen.getByText(/⏰ This bond matured Jun 30/)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText('Record what happened to this matured bond'));
+  const st = useStore.getState() as any;
+  const sell = (st.transactions ?? []).find((t: any) => t.type === 'SELL' && t.account_id === 'cd1');
+  expect(sell?.amount).toBe(10000);
+  expect(st.assetAccounts.find((a: any) => a.asset_id === 'cd1').balance).toBe(0);
+  (Alert.alert as jest.Mock).mockRestore();
+});
+
+test('router: bond/alt type chips leave the ticker sheet for their own editors; Record gains the doors', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'PerformanceScreen.tsx'), 'utf8');
+  expect(src).toMatch(/if \(k\.id === 'fixed_income'\) \{ onRoute\?\.\('bond'\); return; \}/);
+  expect(src).toMatch(/ALT_ROUTE_KINDS\.includes\(k\.id\)/);
+  expect(src).toMatch(/<BondEditor bond=\{null\} open=\{bondAddOpen\}/);
+  expect(src).toMatch(/<AltEditor item=\{null\} open=\{altAddKind != null\} presetKind/);
+  expect(src).toMatch(/Bonds & alternatives — recorded on their own pages/);
+});

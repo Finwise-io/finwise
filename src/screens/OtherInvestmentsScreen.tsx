@@ -78,8 +78,8 @@ export default function OtherInvestmentsScreen() {
   );
 }
 
-function AltEditor({ item, open, onClose, onSave, onDelete }: {
-  item: AssetAccount | null; open: boolean; onClose: () => void; onSave: (f: Partial<AssetAccount>) => void; onDelete?: () => void;
+export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }: {
+  item: AssetAccount | null; open: boolean; onClose: () => void; onSave: (f: Partial<AssetAccount>) => void; onDelete?: () => void; presetKind?: string;
 }) {
   const [kind, setKind] = useState<string>('crypto');
   const [label, setLabel] = useState('');
@@ -90,7 +90,7 @@ function AltEditor({ item, open, onClose, onSave, onDelete }: {
   const [valueAsOf, setValueAsOf] = useState('');   // walk row 4: the stamp lives everywhere a manual value does
   React.useEffect(() => {
     if (!open) return;
-    setKind(item?.kind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
+    setKind(item?.kind ?? presetKind ?? 'crypto'); setLabel(item?.label ?? ''); setInst(item?.institution ?? ''); setValue(item ? String(item.balance ?? '') : ''); setBucket(item?.tax_bucket ?? 'TAXABLE'); setSellAmt(''); setValueAsOf(item?.value_as_of ?? '');
   }, [open]);
   const valid = label.trim().length > 0 && num(value) > 0;
   // Alternatives are sellable too (e.g. an American option before expiration, crypto, a fund stake).
