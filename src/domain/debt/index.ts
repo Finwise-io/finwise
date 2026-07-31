@@ -19,16 +19,30 @@ export interface Debt {
   due_day?: number;                // day of month the payment is due (1–31)
   first_payment_date?: string;     // 'YYYY-MM-DD' — payments START here (deferred/future-start loans);
                                    // absent = already paying. Interest accrues from now either way (F2).
-  // #17 / Term #9 — payment shape (drives DTI bucket + installment-vs-revolving handling):
-  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans)
+  // #17 / Term #9 / B47 finding 11 — payment shape (drives DTI bucket + how cash flow shows it):
+  payoff_date?: string;            // 'YYYY-MM-DD' final payoff / loan maturity (term loans);
+                                   // for due_in_full this IS the due date of the lump sum
   payment_frequency?: 'monthly' | 'annual';     // default monthly
-  payment_type?: 'installment' | 'revolving';   // fixed loan payment vs revolving minimum (cards); defaults by debt_type
+  payment_type?: 'installment' | 'revolving' | 'due_in_full';   // fixed loan payment vs revolving
+                                   // minimum (cards) vs one lump sum on a date; defaults by debt_type
   origin?: 'onboarding';           // seeded from onboarding answers; re-seeding replaces ONLY these
                                    // rows (absent = user-created, never touched by seeding/restart)
 }
 
-/** The payment reserved/required each month for a debt (planned payment, else the minimum). */
+/** B47 finding 11 — a debt's repayment SHAPE. Cards/lines revolve (a minimum that floats with the
+ *  balance); everything else is an installment loan (a real fixed payment + an end date) unless the
+ *  user says it's due in full on a date. One function so every editor defaults the same way. */
+export function defaultPaymentType(t: DebtType): NonNullable<Debt['payment_type']> {
+  return t === 'CREDIT_CARD' || t === 'HELOC' ? 'revolving' : 'installment';
+}
+export function paymentShape(d: Debt): NonNullable<Debt['payment_type']> {
+  return d.payment_type ?? defaultPaymentType(d.debt_type);
+}
+
+/** The payment reserved/required each month for a debt (planned payment, else the minimum).
+ *  Due-in-full debts have NO monthly payment — they are a dated lump, not a monthly outflow. */
 export function requiredPayment(d: Debt): number {
+  if (paymentShape(d) === 'due_in_full') return 0;
   return Math.max(d.minimum_monthly_payment, d.monthly_payment ?? 0) || d.minimum_monthly_payment;
 }
 /** Total monthly debt obligation across all debts (override-aware). */
@@ -39,7 +53,7 @@ export function totalDebtMonthly(debts: Debt[]): number {
 // Term #9 — TWO clearly-named monthly-debt numbers (they're different concepts, not a bug to pick one):
 /** Σ MINIMUM required payments — the contractual obligation. Use for DEBT-TO-INCOME (DTI). */
 export function minimumDebtService(debts: Debt[]): number {
-  return round2((debts ?? []).reduce((t, d) => t + (d.minimum_monthly_payment || 0), 0));
+  return round2((debts ?? []).reduce((t, d) => t + (paymentShape(d) === 'due_in_full' ? 0 : d.minimum_monthly_payment || 0), 0));
 }
 /** Σ ACTUAL payments (override ≥ minimum) — what actually leaves your account. Use for CASH FLOW. */
 export function actualDebtPayment(debts: Debt[]): number {
@@ -67,6 +81,26 @@ export function loanPayment(principal: number, aprPct: number, termYears: number
   const monthly = r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -n)) : principal / n;
   const totalPaid = monthly * n;
   return { monthly: round2(monthly), totalInterest: round2(totalPaid - principal), totalPaid: round2(totalPaid) };
+}
+
+// ── B47 finding 11: the installment two-way math — enter the payment OR the end date, the app
+// computes the other. Both use Debt's DECIMAL rate (0.0625 = 6.25%), unlike loanPayment's percent.
+/** Months to clear `principal` paying `payment`/month at decimal APR. null = never (payment ≤ interest). */
+export function monthsToClear(principal: number, aprDecimal: number, payment: number): number | null {
+  if (principal <= 0) return 0;
+  if (payment <= 0) return null;
+  const r = aprDecimal / 12;
+  if (r <= 0) return Math.ceil(principal / payment);
+  if (payment <= principal * r) return null;                       // covers interest only — never clears
+  return Math.ceil(Math.log(payment / (payment - principal * r)) / Math.log(1 + r));
+}
+/** Monthly payment that clears `principal` in `months` at decimal APR (amortization).
+ *  Rounded UP to the next cent — the stated payment must actually meet the stated date. */
+export function paymentToClearBy(principal: number, aprDecimal: number, months: number): number {
+  if (principal <= 0 || months <= 0) return 0;
+  const r = aprDecimal / 12;
+  const monthly = r > 0 ? (principal * r) / (1 - Math.pow(1 + r, -months)) : principal / months;
+  return Math.ceil(monthly * 100) / 100;
 }
 
 // ── Credit health — utilization (balance ÷ limit) + score band ──
@@ -104,7 +138,17 @@ export interface PayoffResult {
 /** Simulate paying off debts with a constant monthly budget (sum of minimums + extra), rolling each
  *  cleared debt's freed-up payment into the next per the chosen method. */
 export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMethod = 'avalanche', now: Date = new Date()): PayoffResult {
-  const live = (debts ?? []).filter((d) => d.remaining_balance > 0)
+  // B47 finding 11 — due-in-full debts are NOT part of the monthly-budget simulation (a $15k lump
+  // isn't paid from the monthly debt budget; it's a dated big-ticket the cash-flow grid schedules).
+  // They still count toward "debt-free by": cleared in their due month, interest accrued until then.
+  const lumps = (debts ?? []).filter((d) => d.remaining_balance > 0 && paymentShape(d) === 'due_in_full')
+    .map((d) => {
+      const m = d.payoff_date?.match(/^(\d{4})-(\d{2})/);
+      const dueMonth = m ? Math.max(1, (+m[1] * 12 + (+m[2] - 1)) - (now.getFullYear() * 12 + now.getMonth())) : 1;
+      const interest = d.remaining_balance * (Math.pow(1 + d.interest_rate_apr / 12, dueMonth) - 1);
+      return { debt_id: d.debt_id, label: d.label, payoffMonth: dueMonth, interestPaid: round2(interest) };
+    });
+  const live = (debts ?? []).filter((d) => d.remaining_balance > 0 && paymentShape(d) !== 'due_in_full')
     .map((d) => {
       // deferred loans (first_payment_date in the future): interest accrues from now, but no
       // payment leaves until that month (founder review F2 #17 — a loan due in 3 years is real)
@@ -112,7 +156,9 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
       const startAfter = fm ? Math.max(0, (+fm[1] * 12 + (+fm[2] - 1)) - (now.getFullYear() * 12 + now.getMonth())) : 0;
       return { id: d.debt_id, label: d.label, bal: d.remaining_balance, apr: d.interest_rate_apr, min: d.minimum_monthly_payment, interest: 0, payoffMonth: 0, startAfter };
     });
-  if (!live.length) return { months: 0, totalInterest: 0, neverPaysOff: false, order: [] };
+  const lumpMonths = lumps.reduce((m, l) => Math.max(m, l.payoffMonth), 0);
+  const lumpInterest = round2(lumps.reduce((t, l) => t + l.interestPaid, 0));
+  if (!live.length) return { months: lumpMonths, totalInterest: lumpInterest, neverPaysOff: false, order: lumps.sort((a, b) => a.payoffMonth - b.payoffMonth) };
   // budget grows as deferred debts come due (their minimum joins when payments start)
   const budgetAt = (month: number) => live.concat(cleared).reduce((t, d) => t + (month > d.startAfter ? d.min : 0), 0) + Math.max(0, extraMonthly);
   const cleared: typeof live = [];
@@ -129,10 +175,11 @@ export function payoffPlan(debts: Debt[], extraMonthly: number, method: PayoffMe
   const neverPaysOff = live.length > 0;
   const all = [...cleared, ...live];
   return {
-    months: neverPaysOff ? 600 : month,
-    totalInterest: round2(all.reduce((t, d) => t + d.interest, 0)),
+    months: neverPaysOff ? 600 : Math.max(month, lumpMonths),
+    totalInterest: round2(all.reduce((t, d) => t + d.interest, 0) + lumpInterest),
     neverPaysOff,
-    order: cleared.sort((a, b) => a.payoffMonth - b.payoffMonth).map((d) => ({ debt_id: d.id, label: d.label, payoffMonth: d.payoffMonth, interestPaid: round2(d.interest) })),
+    order: cleared.map((d) => ({ debt_id: d.id, label: d.label, payoffMonth: d.payoffMonth, interestPaid: round2(d.interest) }))
+      .concat(lumps).sort((a, b) => a.payoffMonth - b.payoffMonth),
   };
 }
 

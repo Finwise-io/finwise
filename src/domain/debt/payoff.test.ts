@@ -70,3 +70,27 @@ describe('debt payoff', () => {
     expect(r.neverPaysOff).toBe(true);
   });
 });
+
+// B47 finding 11 — due-in-full debts in the payoff plan: cleared in their due month (paid from
+// savings as a dated lump), never simulated inside the monthly debt budget.
+describe('B47 finding 11 — payoffPlan with a due-in-full lump', () => {
+  const NOW = new Date('2026-07-15T12:00:00');
+  const lump: Debt = { debt_id: 'l1', label: 'Family loan', debt_type: 'PERSONAL', payment_type: 'due_in_full', remaining_balance: 15000, interest_rate_apr: 0, minimum_monthly_payment: 0, payoff_date: '2026-12-31' } as Debt;
+  const card: Debt = { debt_id: 'c1', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 2000, interest_rate_apr: 0.20, minimum_monthly_payment: 1000 } as Debt;
+  test('lump alone: debt-free in its due month, no "never pays off" scare', () => {
+    const r = payoffPlan([lump], 0, 'avalanche', NOW);
+    expect(r.neverPaysOff).toBe(false);
+    expect(r.months).toBe(5);                                    // July → December
+    expect(r.order[0]).toMatchObject({ debt_id: 'l1', payoffMonth: 5, interestPaid: 0 });
+  });
+  test('lump + card: card clears on its own budget; debt-free month is the LATER of the two', () => {
+    const r = payoffPlan([lump, card], 0, 'avalanche', NOW);
+    expect(r.neverPaysOff).toBe(false);
+    expect(r.months).toBe(5);                                    // card clears in ~3, lump in 5
+    expect(r.order.map((o) => o.debt_id)).toEqual(['c1', 'l1']);
+  });
+  test('a lump with interest accrues it to the due date', () => {
+    const r = payoffPlan([{ ...lump, interest_rate_apr: 0.12 } as Debt], 0, 'avalanche', NOW);
+    expect(r.totalInterest).toBeCloseTo(15000 * (Math.pow(1.01, 5) - 1), 0);
+  });
+});

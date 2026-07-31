@@ -177,10 +177,11 @@ test('rows 22-25: finding fixes hold at the source', () => {
   expect(read('screens/PerformanceScreen.tsx')).toMatch(/const displayNames = accountDisplayNames\(accounts\)/);
   expect(read('screens/PerformanceScreen.tsx')).not.toMatch(/assetKind\(a\.kind\)\?\.label \?\? a\.asset_id\.slice\(-4\)/);
   // row 23: Remove confirms first and names the money leaving — both accounts and debts
+  // (the debt half moved into the shared DebtEditorSheet with B47 finding 11 — same behavior)
   const nw = read('screens/NetWorthScreen.tsx');
   expect(nw).toMatch(/Remove \$\{editing\.label\}\?/);
   expect(nw).toMatch(/leaves your net worth/);
-  expect(nw).toMatch(/debt comes off your list/);
+  expect(read('components/DebtEditorSheet.tsx')).toMatch(/debt comes off your list/);
   // row 24 → SUPERSEDED by B47 finding 10 (founder): ONE add entry, no explanations at all
   const cf = read('screens/CashFlowScreen.tsx');
   expect(cf).toMatch(/＋ Add income ›/);
@@ -434,4 +435,89 @@ test('B47 finding 10: one Add income entry, zero explanatory sentences, deep-lin
   expect(cf).toMatch(/income-manager\?open=equity/);
   const im = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
   expect(im).toMatch(/openParam === 'equity'\) setRich\('equity'\)/);
+});
+
+// ── B47 finding 11 (founder "approved.", 2026-07-31): ONE debt editor, shaped by repayment ──
+// mock debt-editor-v1-2026-07-31: installment = real payment ↔ paid-off-by (either computed);
+// cards keep min + you-pay; due-in-full = amount + date, landing as a dated big-ticket.
+describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
+
+  test('Net worth AND Cash flow both mount the SAME DebtEditorSheet — the drifted forms are gone', () => {
+    for (const f of ['screens/NetWorthScreen.tsx', 'screens/BudgetScreen.tsx']) {
+      expect(src(f)).toMatch(/<DebtEditorSheet state=\{debtSheet\}/);
+    }
+    // neither screen keeps a private debt form (fields must not drift again)
+    expect(src('screens/NetWorthScreen.tsx')).not.toMatch(/function DebtSheet/);
+    expect(src('screens/BudgetScreen.tsx')).not.toMatch(/Min payment \(\$\)/);
+  });
+
+  test('the editor asks "How is it repaid?" with all three shapes', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
+    expect(screen.getByText('How is it repaid?')).toBeOnTheScreen();
+    for (const s of ['Monthly payments', 'Card / revolving', 'Due in full']) {
+      expect(screen.getByText(s)).toBeOnTheScreen();
+    }
+    // picking Mortgage flips the default shape to installment → the two-way fields appear
+    fireEvent.press(screen.getByLabelText('Mortgage'));
+    expect(screen.getByText('Monthly payment (what you pay)')).toBeOnTheScreen();
+    expect(screen.getByText('Or: paid off by')).toBeOnTheScreen();
+    expect(screen.queryByText('Min payment /mo')).toBeNull();    // no fake "minimum" on a mortgage
+  });
+
+  test('installment: entering the payment computes the paid-off-by date (and saves BOTH)', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
+    fireEvent.press(screen.getByLabelText('Mortgage'));
+    fireEvent.changeText(screen.getByPlaceholderText('0'), '412000');
+    fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6.25');
+    fireEvent.changeText(screen.getByPlaceholderText('$0'), '2850');
+    expect(screen.getByText(/paid off by .* — computed from your balance, rate and payment/)).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('Add debt'));
+    const d = (useStore.getState() as any).liabilities.find((x: any) => x.debt_type === 'MORTGAGE');
+    expect(d.payment_type).toBe('installment');
+    expect(d.monthly_payment).toBe(2850);
+    expect(d.minimum_monthly_payment).toBe(2850);                // the real payment IS the obligation
+    expect(d.payoff_date).toMatch(/^20(4[5-9])-/);               // ~21 years out
+  });
+
+  test('a payment that only covers interest warns "never pays off" instead of lying', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
+    fireEvent.press(screen.getByLabelText('Mortgage'));
+    fireEvent.changeText(screen.getByPlaceholderText('0'), '100000');
+    fireEvent.changeText(screen.getByPlaceholderText('6.5'), '6');
+    fireEvent.changeText(screen.getByPlaceholderText('$0'), '400');
+    expect(screen.getByText(/doesn't cover the interest — this never pays off/)).toBeOnTheScreen();
+  });
+
+  test('due in full: amount + date save with NO monthly payment; the save button gates on the date', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);
+    fireEvent.press(screen.getByLabelText('Personal loan'));
+    fireEvent.press(screen.getByText('Due in full'));
+    fireEvent.changeText(screen.getByPlaceholderText('0'), '15000');
+    fireEvent.press(screen.getByLabelText('Add debt'));          // no date yet → must NOT save
+    expect((useStore.getState() as any).liabilities.filter((x: any) => x.debt_type === 'PERSONAL')).toHaveLength(0);
+    fireEvent.changeText(screen.getByPlaceholderText('12/2026'), '12/2026');
+    expect(screen.getByText(/big-ticket in December 2026's cash flow and on the bill calendar/)).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('Add debt'));
+    const d = (useStore.getState() as any).liabilities.find((x: any) => x.debt_type === 'PERSONAL');
+    expect(d.payment_type).toBe('due_in_full');
+    expect(d.minimum_monthly_payment).toBe(0);                   // a lump is not a monthly bill
+    expect(d.payoff_date).toBe('2026-12-01');
+  });
+
+  test('cards keep the familiar fields — min payment AND you-pay', () => {
+    const { DebtEditorSheet } = require('../../components/DebtEditorSheet');
+    render(<DebtEditorSheet state={{ open: true }} onClose={() => {}} />);   // default kind = card
+    expect(screen.getByText('Min payment /mo')).toBeOnTheScreen();
+    expect(screen.getByText('You pay /mo')).toBeOnTheScreen();
+  });
 });

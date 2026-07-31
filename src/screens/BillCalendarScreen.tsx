@@ -13,7 +13,7 @@ import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { buildDatedGrid } from '../domain/grid';
 import { upcomingBills } from '../domain/cashflow';
 import { cashTotal } from '../domain/assets';   // canonical cash — equals Net worth's figure for the same accounts
-import { requiredPayment } from '../domain/debt';
+import { requiredPayment, paymentShape } from '../domain/debt';
 
 const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 const fmtDate = (iso: string) => { const [y, m, d] = String(iso).split('-').map(Number); return `${MO[m - 1]} ${d}, ${y}`; };
@@ -50,6 +50,9 @@ export default function BillCalendarScreen() {
     const now = new Date();
     return (+m[1] * 12 + (+m[2] - 1)) > (now.getFullYear() * 12 + now.getMonth());
   }), [liabilities]);
+  // B47 finding 11 — loans due IN FULL on a date: always visible here, whole balance + due date
+  const dueInFullDebts = useMemo(() => liabilities.filter((d: any) =>
+    paymentShape(d) === 'due_in_full' && (d.remaining_balance || 0) > 0 && d.payoff_date), [liabilities]);
   const critical = (Array.isArray(op.spendCats) ? op.spendCats : []).filter((c: any) => (c.tier ?? 'flex') === 'critical' && num(c.amount) > 0);
 
   // ── add / edit a dated bill (r41): writes a non-monthly spending category, year supported ──
@@ -167,6 +170,13 @@ export default function BillCalendarScreen() {
                 <Text style={styles.billOk}>✓ Covered — about {maskedMoney(b.availableByNeed)} there by {fmtDate(b.needByDate)}.</Text>
               )}
             </TouchableOpacity>
+          ))}
+          {dueInFullDebts.map((d: any) => (
+            <View key={d.debt_id} style={styles.billRow} accessible
+              accessibilityLabel={`${d.label}: ${spokenMoney(d.remaining_balance)} due in full ${fmtDate(d.payoff_date)}. No monthly payment — plan for the lump sum.`}>
+              <Text style={styles.billName}>{d.label} — {maskedMoney(d.remaining_balance)} due in full {fmtDate(d.payoff_date)}</Text>
+              <Text style={styles.billShort}>One lump payment, not a monthly bill — it's in that month's Out column.</Text>
+            </View>
           ))}
           {deferredDebts.map((d: any) => (
             <View key={d.debt_id} style={styles.billRow} accessible

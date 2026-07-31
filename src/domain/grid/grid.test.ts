@@ -137,3 +137,23 @@ describe('payoffPlan honors first_payment_date (deferred loans)', () => {
     expect(cardRow.payoffMonth).toBe(solo.months);   // the waiting loan neither steals nor delays the card
   });
 });
+
+// B47 finding 11 — a loan due IN FULL is ONE dated big-ticket in its month, never a monthly row.
+describe('B47 finding 11 — due-in-full debts in the dated grid', () => {
+  const lump: Debt = { debt_id: 'l1', label: 'Family loan', debt_type: 'PERSONAL', payment_type: 'due_in_full', remaining_balance: 15000, interest_rate_apr: 0, minimum_monthly_payment: 0, payoff_date: '2026-12-31' } as Debt;
+  test('the whole balance lands once, in the due month, carrying the due day', () => {
+    const g = buildDatedGrid(employed, { now: NOW, liabilities: [lump] });
+    const rows = g.cells.map((c) => c.billItems.filter((b) => b.label.includes('Family loan')));
+    const hits = rows.flat();
+    expect(hits).toHaveLength(1);                                // ONCE — not 12 monthly rows
+    expect(hits[0]).toMatchObject({ amount: 15000, kind: 'debt', day: 31, critical: true });
+    const dec = g.cells.findIndex((c) => c.calendarMonth === 12 && c.year === 2026);
+    expect(rows[dec]).toHaveLength(1);                           // and in December specifically
+  });
+  test('due beyond the 12-month window → surfaces under "Later", never silently dropped', () => {
+    const far = { ...lump, payoff_date: '2028-03-01' } as Debt;
+    const g = buildDatedGrid(employed, { now: NOW, liabilities: [far] });
+    expect(g.cells.flatMap((c) => c.billItems).some((b) => b.label.includes('Family loan'))).toBe(false);
+    expect(g.later.some((l) => l.label.includes('Family loan') && l.amount === 15000 && l.year === 2028)).toBe(true);
+  });
+});

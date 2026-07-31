@@ -15,7 +15,7 @@ import {
 } from '../income';
 import { spendByMonth } from '../budget';
 import { equityByMonth } from '../cashflow';
-import { requiredPayment, type Debt } from '../debt';
+import { requiredPayment, paymentShape, type Debt } from '../debt';
 
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
@@ -190,6 +190,18 @@ export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions =
   }
   // debt payments: monthly on due_day, starting at first_payment_date, ending at payoff_date
   for (const d of (opts.liabilities ?? [])) {
+    // B47 finding 11 — due-in-full debts are ONE dated lump (the whole balance) in their due month,
+    // never a monthly row; beyond the window they surface under "Later" instead of vanishing
+    if (paymentShape(d) === 'due_in_full') {
+      if (!(d.remaining_balance > 0)) continue;
+      const m = d.payoff_date?.match(/^(\d{4})-(\d{2})-?(\d{2})?/);
+      if (!m) continue;                        // undated lump: the editor requires a date, but stay safe
+      const s = (+m[1] * 12 + (+m[2] - 1)) - nowIdx;
+      const item: GridBillItem = { label: `${d.label} — due in full`, amount: d.remaining_balance, day: m[3] ? +m[3] : undefined, kind: 'debt', critical: true };
+      if (s >= 0 && s <= 11) bills[s].push(item);
+      else if (s > 11) later.push({ label: `${d.label} — due in full`, amount: d.remaining_balance, month: +m[2], year: +m[1] });
+      continue;
+    }
     const pay = requiredPayment(d); if (pay <= 0) continue;
     const startIdx = d.first_payment_date ? (() => { const m = d.first_payment_date.match(/^(\d{4})-(\d{2})/); return m ? (+m[1] * 12 + (+m[2] - 1)) - nowIdx : 0; })() : 0;
     const endIdx = d.payoff_date ? (() => { const m = d.payoff_date.match(/^(\d{4})-(\d{2})/); return m ? (+m[1] * 12 + (+m[2] - 1)) - nowIdx : 11; })() : 11;

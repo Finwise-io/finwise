@@ -13,7 +13,7 @@ import { trendPoints } from '../domain/history';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording } from '../domain/assets';
-import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
+import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
 import { willItLastInputs } from '../domain/retirement/willItLast';
@@ -26,6 +26,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { SourceChip } from '../components/SourceChip';
+import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -640,7 +641,7 @@ export default function NetWorthScreen() {
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
       {body}
       <AssetSheet state={assetSheet} onClose={() => setAssetSheet({ open: false })} />
-      <DebtSheet state={debtSheet} onClose={() => setDebtSheet({ open: false })} />
+      <DebtEditorSheet state={debtSheet} onClose={() => setDebtSheet({ open: false })} />
 
       {/* add-or-connect: three honest paths — manual and file import stay first-class forever */}
       <Modal visible={addChooser} transparent animationType={modalAnimation()} onRequestClose={() => setAddChooser(false)}>
@@ -834,70 +835,6 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove account" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
         </>
       )}
-    </KeyboardAwareSheet>
-  );
-}
-
-// ── debt add/edit sheet ───────────────────────────────────────────────────────
-function DebtSheet({ state, onClose }: { state: { open: boolean; edit?: Debt }; onClose: () => void }) {
-  const store = useStore() as any;
-  const editing = state.edit;
-  const [kind, setKind] = useState<DebtType>('CREDIT_CARD'); const [inst, setInst] = useState('');
-  const [bal, setBal] = useState(''); const [apr, setApr] = useState(''); const [pay, setPay] = useState('');
-  const [due, setDue] = useState(''); const [monthly, setMonthly] = useState('');
-
-  useEffect(() => {
-    if (!state.open) return;
-    setKind((editing?.debt_type as DebtType) ?? 'CREDIT_CARD'); setInst(editing?.institution ?? '');
-    setBal(editing ? String(editing.remaining_balance) : ''); setApr(editing ? String(editing.interest_rate_apr * 100) : '');
-    setPay(editing ? String(editing.minimum_monthly_payment) : '');
-    setDue(editing?.due_day ? String(editing.due_day) : ''); setMonthly(editing?.monthly_payment ? String(editing.monthly_payment) : '');
-  }, [state.open]);
-
-  const amt = num(bal);
-  const ready = amt > 0;
-  const save = () => {
-    if (!ready) return;
-    const label = inst.trim() || debtKind(kind)?.label || 'Debt';
-    const dd = Math.min(31, Math.max(0, Math.round(num(due)))) || undefined;
-    const patch = { label, institution: inst.trim(), debt_type: kind, remaining_balance: amt, interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd };
-    if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
-    onClose();
-  };
-  // walk row 23: same confirm rule for debts — a deleted debt RAISES net worth silently otherwise.
-  const remove = () => {
-    if (!editing) { onClose(); return; }
-    Alert.alert(
-      `Remove ${editing.label}?`,
-      `Its ${money(Math.round(editing.remaining_balance || 0))} debt comes off your list. This can't be undone.`,
-      [
-        { text: 'Keep it', style: 'cancel' },
-        { text: 'Remove', style: 'destructive', onPress: () => { store.deleteLiability?.(editing.debt_id); onClose(); } },
-      ],
-    );
-  };
-
-  return (
-    <KeyboardAwareSheet open={state.open} onClose={onClose} title={editing ? 'Edit debt' : 'Add debt'}>
-      <View style={sh.chips}>
-        {DEBT_KINDS.map((ko) => (
-          <TouchableOpacity key={ko.id} style={[sh.chip, kind === ko.id && sh.chipOn]} accessibilityRole="button" accessibilityState={{ selected: kind === ko.id }} accessibilityLabel={ko.label} onPress={() => setKind(ko.id)}>
-            <Text style={sh.chipTxt}>{ko.icon} {ko.label}</Text>
-          </TouchableOpacity>
-        ))}
-      </View>
-      <TextInput style={sh.input} placeholder="Lender / name (e.g. Chase Sapphire)" placeholderTextColor={Colors.textTertiary} value={inst} onChangeText={setInst} />
-      <View style={sh.amtRow}><Text style={sh.amtPre}>{currencySymbol()}</Text><TextInput style={sh.amtIn} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary} value={bal} onChangeText={setBal} /></View>
-      <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-        <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="6.5" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
-        <View style={{ flex: 1 }}><Text style={sh.lbl}>Due day</Text><TextInput style={sh.input} keyboardType="number-pad" placeholder="1–31" placeholderTextColor={Colors.textTertiary} value={due} onChangeText={setDue} /></View>
-      </View>
-      <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
-        <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
-        <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
-      </View>
-      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} debt</Text></TouchableOpacity>
-      {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );
 }

@@ -56,3 +56,50 @@ describe('loanPayment rate-unit guard (P0)', () => {
     expect(loanPayment(10000, 7, 10).monthly).toBeCloseTo(116.11, 1);
   });
 });
+
+// B47 finding 11 — repayment shapes: the installment two-way math + due-in-full behavior.
+import { defaultPaymentType, paymentShape, monthsToClear, paymentToClearBy } from './index';
+
+describe('B47 finding 11 — repayment shape defaults', () => {
+  test('cards and HELOCs revolve; mortgages/auto/personal are installments', () => {
+    expect(defaultPaymentType('CREDIT_CARD')).toBe('revolving');
+    expect(defaultPaymentType('HELOC')).toBe('revolving');
+    expect(defaultPaymentType('MORTGAGE')).toBe('installment');
+    expect(defaultPaymentType('PERSONAL')).toBe('installment');
+  });
+  test('an explicit payment_type on the debt wins over the default', () => {
+    const d = { debt_type: 'PERSONAL', payment_type: 'due_in_full' } as Debt;
+    expect(paymentShape(d)).toBe('due_in_full');
+  });
+});
+
+describe('B47 finding 11 — enter either the payment or the end date, the other is computed', () => {
+  test('round-trip: the payment for N months clears in exactly N months', () => {
+    const pmt = paymentToClearBy(412000, 0.0625, 240);           // 20-yr mortgage
+    expect(monthsToClear(412000, 0.0625, pmt)).toBe(240);
+  });
+  test('mortgage sanity: $412k at 6.25% paying $2,850/mo clears in ~21 years', () => {
+    const months = monthsToClear(412000, 0.0625, 2850)!;
+    expect(months).toBeGreaterThan(240); expect(months).toBeLessThan(276);
+  });
+  test('a payment that only covers interest NEVER pays off (null, not a huge number)', () => {
+    expect(monthsToClear(100000, 0.06, 500)).toBeNull();         // interest alone is $500/mo
+  });
+  test('zero-rate loans divide evenly', () => {
+    expect(monthsToClear(12000, 0, 1000)).toBe(12);
+    expect(paymentToClearBy(12000, 0, 12)).toBe(1000);
+  });
+});
+
+describe('B47 finding 11 — due-in-full debts have NO monthly obligation', () => {
+  const lump = { debt_id: 'l1', label: 'Family loan', debt_type: 'PERSONAL', payment_type: 'due_in_full', remaining_balance: 15000, interest_rate_apr: 0, minimum_monthly_payment: 0, payoff_date: '2026-12-31' } as Debt;
+  const card = { debt_id: 'c1', label: 'Card', debt_type: 'CREDIT_CARD', remaining_balance: 6000, interest_rate_apr: 0.22, minimum_monthly_payment: 180 } as Debt;
+  test('DTI (minimum service) and cash-flow (actual payment) both exclude the lump', () => {
+    expect(minimumDebtService([lump, card])).toBe(180);
+    expect(actualDebtPayment([lump, card])).toBe(180);
+  });
+  test('but the BALANCE still counts against net worth', () => {
+    const st = buildDebtState('u1' as any, [lump, card]);
+    expect(st.total_debt_balance).toBe(21000);
+  });
+});

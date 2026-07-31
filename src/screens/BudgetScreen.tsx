@@ -13,7 +13,8 @@ import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTI
 import { budgetVsActual, plannedMonthlySpend, categoryMonthly } from '../domain/budget';
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid } from '../domain/income';
-import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod } from '../domain/debt';
+import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod, type Debt } from '../domain/debt';
+import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
 import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
@@ -87,15 +88,8 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     setCatFormVisible(false);
   }
 
-  // Debt form state
-  const [debtFormVisible, setDebtFormVisible] = useState(false);
-  const [editDebtId, setEditDebtId] = useState<string | null>(null);
-  const [debtName, setDebtName] = useState('');
-  const [debtType, setDebtType] = useState<DebtEntry['type']>('credit_card');
-  const [debtBalance, setDebtBalance] = useState('');
-  const [debtRate, setDebtRate] = useState('');
-  const [debtMinPayment, setDebtMinPayment] = useState('');
-  const [debtDueDay, setDebtDueDay] = useState('');
+  // Debt editor — the ONE shared sheet (B47 finding 11); the old drifted Modal form is gone
+  const [debtSheet, setDebtSheet] = useState<{ open: boolean; edit?: Debt }>({ open: false });
   // payoff plan + log-payment
   const [payoffMethod, setPayoffMethod] = useState<PayoffMethod>('avalanche');
   const [extraPay, setExtraPay] = useState('');
@@ -117,48 +111,6 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   React.useEffect(() => { applyRecurringIncomes?.(); applyRecurringExpenses?.(); }, []);
 
   const totalDebt = debtsView.reduce((s: number, d: DebtEntry) => s + d.balance, 0);
-
-  function openAddDebt() {
-    setEditDebtId(null);
-    setDebtName(''); setDebtBalance(''); setDebtRate(''); setDebtMinPayment(''); setDebtDueDay('');
-    setDebtType('credit_card');
-    setDebtFormVisible(true);
-  }
-
-  function openEditDebt(d: DebtEntry, dueDay?: number) {
-    setEditDebtId(d.id);
-    setDebtName(d.name);
-    setDebtType(d.type);
-    setDebtBalance(String(d.balance));
-    setDebtRate(String(d.interestRate));
-    setDebtMinPayment(String(d.minimumPayment));
-    setDebtDueDay(dueDay ? String(dueDay) : '');
-    setDebtFormVisible(true);
-  }
-
-  function saveDebt() {
-    const balance = parseFloat(debtBalance);
-    if (!debtName.trim() || !balance || balance <= 0) {
-      Alert.alert('Missing info', 'Enter a name and balance.');
-      return;
-    }
-    const entry = {
-      name: debtName.trim(),
-      type: debtType,
-      balance,
-      interestRate: parseFloat(debtRate) || 0,
-      minimumPayment: parseFloat(debtMinPayment) || 0,
-      date: new Date().toISOString(),
-    };
-    const due = parseInt(debtDueDay, 10);
-    const payload = { ...toDebt(entry), due_day: (due >= 1 && due <= 31) ? due : undefined };
-    if (editDebtId) {
-      updateLiability(editDebtId, payload);
-    } else {
-      addLiability(payload);
-    }
-    setDebtFormVisible(false);
-  }
 
   function handleDeleteDebt(id: string) {
     Alert.alert('Delete debt', 'Remove this debt entry?', [
@@ -742,7 +694,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               const pm = payoffMonthFor(d.debt_id);
               return (
                 <Card key={d.debt_id} style={styles.catCard}>
-                  <TouchableOpacity onPress={() => openEditDebt(toEntry(d), d.due_day)} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
+                  <TouchableOpacity onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
                     <View style={styles.catRow}>
                       <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 18 }}>{dk?.icon || '📄'}</Text></View>
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
@@ -772,7 +724,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             })
           )}
 
-          <TouchableOpacity style={styles.setLimitsBtn} onPress={openAddDebt} activeOpacity={0.8}>
+          <TouchableOpacity style={styles.setLimitsBtn} onPress={() => setDebtSheet({ open: true })} activeOpacity={0.8}>
             <Text style={styles.setLimitsBtnText}>+ Add debt account</Text>
           </TouchableOpacity>
           <Text style={{ fontSize: Typography.sizes.xs, color: Colors.textTertiary, textAlign: 'center' }}>
@@ -781,76 +733,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         </ScrollView>
       )}
 
-      {/* ── Debt form modal ───────────────────────────────────────── */}
-      <Modal visible={debtFormVisible} animationType={modalAnimation()} presentationStyle="pageSheet">
-        <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={{ flex: 1 }}>
-          <View style={styles.modalHeader}>
-            <TouchableOpacity onPress={() => setDebtFormVisible(false)}>
-              <Text style={styles.modalCancel}>Cancel</Text>
-            </TouchableOpacity>
-            <Text style={styles.modalTitle}>{editDebtId ? 'Edit debt' : 'Add debt'}</Text>
-            <TouchableOpacity onPress={saveDebt}>
-              <Text style={styles.modalSave}>Save</Text>
-            </TouchableOpacity>
-          </View>
-          <ScrollView automaticallyAdjustKeyboardInsets contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm, paddingBottom: 48 }}>
-            <Text style={styles.limitLabel}>Debt type</Text>
-            <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: 8 }}>
-              {DEBT_TYPES.map(t => (
-                <TouchableOpacity key={t.value}
-                  style={[styles.filterBtn, debtType === t.value && styles.filterBtnOn]}
-                  onPress={() => setDebtType(t.value)}>
-                  <Text style={[styles.filterText, debtType === t.value && styles.filterTextOn]}>
-                    {t.icon} {t.label}
-                  </Text>
-                </TouchableOpacity>
-              ))}
-            </View>
-            <View style={styles.limitRow}>
-              <Text style={styles.limitLabel}>Name</Text>
-              <View style={[styles.limitInputWrap, { flex: 1, minWidth: 0 }]}>
-                <TextInput
-                  style={[styles.limitInput, { flex: 1 }]}
-                  value={debtName} onChangeText={setDebtName}
-                  placeholder="e.g. Chase Sapphire"
-                  placeholderTextColor={Colors.textTertiary}
-                />
-              </View>
-            </View>
-            <View style={styles.limitRow}>
-              <Text style={styles.limitLabel}>Balance ($)</Text>
-              <View style={styles.limitInputWrap}>
-                <Text style={styles.limitDollar}>$</Text>
-                <TextInput style={styles.limitInput} value={debtBalance} onChangeText={setDebtBalance}
-                  keyboardType="decimal-pad" placeholder="5000" placeholderTextColor={Colors.textTertiary} />
-              </View>
-            </View>
-            <View style={styles.limitRow}>
-              <Text style={styles.limitLabel}>Interest rate (%)</Text>
-              <View style={styles.limitInputWrap}>
-                <TextInput style={styles.limitInput} value={debtRate} onChangeText={setDebtRate}
-                  keyboardType="decimal-pad" placeholder="19.99" placeholderTextColor={Colors.textTertiary} />
-                <Text style={styles.limitDollar}>%</Text>
-              </View>
-            </View>
-            <View style={styles.limitRow}>
-              <Text style={styles.limitLabel}>Min payment ($)</Text>
-              <View style={styles.limitInputWrap}>
-                <Text style={styles.limitDollar}>$</Text>
-                <TextInput style={styles.limitInput} value={debtMinPayment} onChangeText={setDebtMinPayment}
-                  keyboardType="decimal-pad" placeholder="25" placeholderTextColor={Colors.textTertiary} />
-              </View>
-            </View>
-            <View style={styles.limitRow}>
-              <Text style={styles.limitLabel}>Due day (1–31, optional)</Text>
-              <View style={styles.limitInputWrap}>
-                <TextInput style={styles.limitInput} value={debtDueDay} onChangeText={setDebtDueDay}
-                  keyboardType="number-pad" placeholder="15" placeholderTextColor={Colors.textTertiary} />
-              </View>
-            </View>
-          </ScrollView>
-        </KeyboardAvoidingView>
-      </Modal>
+      <DebtEditorSheet state={debtSheet} onClose={() => setDebtSheet({ open: false })} />
 
       {/* ── Import tab ───────────────────────────────────────────── */}
       {tab === 'Import' && (
