@@ -161,3 +161,19 @@ describe('netCashSleeve — money-market never counted twice', () => {
     expect(netCashSleeve(99.5, [mmf, vti])).toBe(0);    // sub-dollar rounding dust clamps to zero
   });
 });
+
+// B47 finding 5 (founder's Vanguard walk): a brokered CD without the 'bnd' type code was landing
+// under Stocks/ETFs. Fixed-income SHAPES map to bonds — by code or by description.
+describe('CD/fixed-income position classification (B47 finding 5)', () => {
+  const pos = (over: any) => ({ units: 1, price: 100, symbol: { id: 'x', raw_symbol: over.raw ?? 'CUSIP123', description: over.desc, type: { code: over.code ?? '' } }, ...over.extra });
+  test('a CD by description maps to bonds even with no type code', () => {
+    expect(mapPosition(pos({ desc: 'KEYBANK NA 4.00% CD 06/15/27' }) as any)!.assetClass).toBe('bonds');
+    expect(mapPosition(pos({ desc: 'CERTIFICATE OF DEPOSIT 4.5%' }) as any)!.assetClass).toBe('bonds');
+    expect(mapPosition(pos({ desc: 'US TREASURY BILL DUE 09/2026' }) as any)!.assetClass).toBe('bonds');
+    expect(mapPosition(pos({ desc: 'GOLDMAN SACHS BK 4.50% DUE 2027' }) as any)!.assetClass).toBe('bonds');
+  });
+  test('ordinary stocks and funds stay equities — CDL-like tickers are not fooled', () => {
+    expect(mapPosition(pos({ raw: 'VTI', desc: 'VANGUARD TOTAL STOCK MARKET ETF', code: 'et' }) as any)!.assetClass).toBe('stocks_etf');
+    expect(mapPosition(pos({ raw: 'MCD', desc: "MCDONALD'S CORP", code: 'cs' }) as any)!.assetClass).toBe('stocks_etf');
+  });
+});

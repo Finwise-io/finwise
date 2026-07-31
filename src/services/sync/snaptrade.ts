@@ -115,9 +115,17 @@ export function mapPosition(p: StPosition): MappedPosition | null {
   if (!sym || shares === 0) return null;
   const code = (sym.type?.code ?? '').toLowerCase();
   const tick = (sym.raw_symbol || sym.symbol || '').toUpperCase();
+  // B47 finding 5 (Vanguard): brokered CDs arrive WITHOUT the 'bnd' type code and fell through to
+  // equities — a CD under Stocks/ETFs. Fixed-income shapes are recognized by description too:
+  // CDs, Treasuries/T-bills, and coupon-with-maturity patterns land in Bonds & CDs (the same
+  // bucket the founder's E*TRADE CDs always used).
+  const desc = (sym.description ?? '').toUpperCase();
+  const looksFixedIncome = code === 'cd'
+    || /\bCD\b|CERTIFICATE OF DEP|TREASURY|T[- ]BILL/.test(desc)
+    || /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/.test(desc);
   const assetClass: MappedAssetClass =
     p.cash_equivalent || MONEY_MARKET_TICKERS.has(tick) ? 'cash'
-    : code === 'bnd' ? 'bonds'
+    : code === 'bnd' || looksFixedIncome ? 'bonds'
     : code === 'crypto' ? 'alternatives'
     : 'stocks_etf';                                     // cs/et/oef/cef/adr and unknown → equities
   const lots = (p.tax_lots ?? [])
