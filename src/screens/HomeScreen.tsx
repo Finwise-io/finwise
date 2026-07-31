@@ -258,6 +258,16 @@ export default function HomeScreen() {
 
         <HiddenBalancesBanner />
 
+        {/* OFFLINE/COULDN'T-REFRESH (mock approved 2026-07-31 — banner only; the screen stays as
+            agreed): the saved numbers keep showing with their honest as-of time. */}
+        {store.priceRefreshFailed && (
+          <Text style={styles.offlineBanner}>
+            📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
+              ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+              : 'your last session'}.
+          </Text>
+        )}
+
         {/* HERO — lens-driven */}
         {lens === 'retired' ? (
           <PaycheckCard />
@@ -490,6 +500,7 @@ const styles = StyleSheet.create({
   milestoneLine: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, marginBottom: Spacing.sm, minHeight: 44, justifyContent: 'center' },
   milestoneTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   milestoneDismiss: { color: Colors.textTertiary, fontWeight: '800' },
+  offlineBanner: { fontSize: 13, fontWeight: '600', color: Colors.blue, backgroundColor: Colors.blueLight, borderRadius: Radii.md, paddingVertical: 8, paddingHorizontal: 12, marginBottom: Spacing.sm, overflow: 'hidden' },
   hiddenBanner: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary, borderRadius: Radii.md, paddingVertical: 6, paddingHorizontal: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   coin: { fontSize: 44, textAlign: 'center', marginBottom: 10 },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.lg, minHeight: 50, justifyContent: 'center' },

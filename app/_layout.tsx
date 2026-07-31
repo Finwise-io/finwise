@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Stack, useRouter, useSegments } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
-import { TouchableOpacity, Text } from 'react-native';
+import { TouchableOpacity, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { useStore } from '../src/store/useStore';
@@ -154,6 +154,12 @@ export default function RootLayout() {
   }, [user, segments, isReady, onboardingComplete, onboardingPaused]);
 
   const backBtn = (onPress: () => void) => ({ headerLeft: () => <BackButton onPress={onPress} /> });
+
+  // Loading state (founder question 2026-07-31: "grey bars — is that right?" — no): our numbers
+  // live on the device, so hydration is a sub-second blink. The honest treatment is to HOLD the
+  // screen for that blink — no skeleton bars, no $0 flash, and no flash of the first-run doors
+  // for a user whose data simply hasn't decrypted yet.
+  if (!isReady) return <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }} />;
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>

@@ -247,7 +247,8 @@ type AppState = {
   lastRetireChance: number | null;                // last Monte-Carlo success % the cockpit computed (so Insights can show the retire-offtrack card without re-running the sim)
   benchmarkReturns: Record<string, number>;       // asset-kind → expected annual return (decimal); overrides ASSET_KINDS defaults
   priceCache: Record<string, PriceSeries>;        // ticker (UPPERCASE) → daily close series (for performance + live value)
-  pricesFetchedAt: string | null;                 // ISO of last successful market-data refresh
+  pricesFetchedAt: string | null;
+  priceRefreshFailed: boolean;                 // last refresh got nothing back (offline/blocked) — Home says so                 // ISO of last successful market-data refresh
   transactions: Transaction[];                    // append-only ledger (newest first) — audit/history
   snaptradeSeenKeys: Record<string, true>;        // SnapTrade activity dedupe registry (composite keys)
   snaptradeConnections: { id: string; brokerage: string; disabled: boolean }[];  // last-known connections meta
@@ -473,7 +474,7 @@ export const useStore = create<AppState>()(
       lastRetireChance: null,
       benchmarkReturns: {},
       priceCache: {},
-      pricesFetchedAt: null,
+      pricesFetchedAt: null, priceRefreshFailed: false,
       transactions: [],
       snaptradeSeenKeys: {},
       snaptradeConnections: [],
@@ -701,9 +702,12 @@ export const useStore = create<AppState>()(
         accts.forEach((a) => (a.positions ?? []).forEach((p) => { tickers.push(p.ticker); tickers.push(benchmarkTicker(p.kind)); }));
         if (!tickers.length) return;
         const fetched = await fetchPriceSeries(tickers);
-        if (!Object.keys(fetched).length) return;            // offline/blocked → keep cache
+        if (!Object.keys(fetched).length) {                  // offline/blocked → keep cache, SAY so (mock approved 2026-07-31)
+          set({ priceRefreshFailed: true });
+          return;
+        }
         const cache = { ...get().priceCache, ...fetched };
-        set({ priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: recomputeBalances(get().assetAccounts, cache) });
+        set({ priceRefreshFailed: false, priceCache: cache, pricesFetchedAt: new Date().toISOString(), assetAccounts: recomputeBalances(get().assetAccounts, cache) });
       },
       maybeRefreshPrices: async () => {
         const s = get();
