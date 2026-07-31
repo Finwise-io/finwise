@@ -297,6 +297,22 @@ export default function HomeScreen() {
             {freshness
               ? <Text style={[styles.freshness, freshness.stale && { color: Colors.amber }]}>{freshness.stale ? '⚠ prices may be out of date — ' : 'prices '}updated {freshness.label}</Text>
               : <Text style={styles.freshness}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>}
+            {/* Approved 2026-07-31-era mock #4 + founder change (left-justified, in the box): when a
+                connection goes 3+ days quiet, the number it feeds says so right here. */}
+            {(() => {
+              const st = (store.assetAccounts ?? [])
+                .filter((a: any) => a.source === 'connected')
+                .map((a: any) => ({ a, f: connectionFreshness(a.last_synced) }))
+                .filter((x: any) => x.f?.stale)
+                .sort((x: any, y: any) => y.f.daysOld - x.f.daysOld)[0];
+              if (!st) return null;
+              const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+              return (
+                <Text style={[styles.freshness, { color: Colors.amber }]}>
+                  ⏱ {st.a.institution ?? st.a.label} part as of {asOf} — {st.f.daysOld} days old · pull to refresh
+                </Text>
+              );
+            })()}
             <Text style={styles.heroLink}>See your growth ›</Text>
           </TouchableOpacity>
         )}
@@ -316,8 +332,8 @@ export default function HomeScreen() {
           );
         })()}
 
-        {/* STALE CONNECTION — a connected balance older than 3 days must SAY so (F1 freshness) */}
-        {(() => {
+        {/* STALE CONNECTION — retired lens only: the working hero now carries the in-box stamp */}
+        {lens === 'retired' && (() => {
           const stale = (store.assetAccounts ?? [])
             .filter((a: any) => a.source === 'connected')
             .map((a: any) => ({ a, f: connectionFreshness(a.last_synced) }))

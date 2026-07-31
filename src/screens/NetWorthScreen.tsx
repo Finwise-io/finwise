@@ -10,6 +10,7 @@ import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints } from '../domain/history';
+import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording } from '../domain/assets';
 import { buildDebtState, DEBT_KINDS, debtKind, TOXIC_APR, Debt, DebtType } from '../domain/debt';
@@ -418,6 +419,20 @@ export default function NetWorthScreen() {
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
           <Text style={styles.glanceDelta}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
+          {(() => {
+            const st = assets
+              .filter((a) => a.source === 'connected')
+              .map((a) => ({ a, f: connectionFreshness(a.last_synced) }))
+              .filter((x) => x.f?.stale)
+              .sort((x, y) => (y.f!.daysOld - x.f!.daysOld))[0];
+            if (!st) return null;
+            const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
+            return (
+              <Text style={[styles.glanceDelta, { color: Colors.amber }]}>
+                ⏱ {st.a.institution ?? st.a.label} part as of {asOf} — {st.f!.daysOld} days old · pull to refresh
+              </Text>
+            );
+          })()}
           {series.length >= 2 && (() => {
             const vals = series.map((pt) => pt.nw);
             const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
