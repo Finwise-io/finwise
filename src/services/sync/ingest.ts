@@ -92,10 +92,26 @@ export function ingestSync(
       kind: prior?.wrapper_confirmed ? prior.kind : guess.kind,
       tax_bucket: prior?.wrapper_confirmed ? prior.tax_bucket : guess.tax_bucket,
       target_return: prior?.target_return ?? 0.08,   // benchmark default for a brokerage; refined by class later
-      // THE AUTHORITY RULE: balance = the broker's own total (includes options + money market)
-      balance: (st.balance?.total?.currency == null || st.balance?.total?.currency === 'USD')
-        ? (st.balance?.total?.amount ?? prior?.balance ?? 0)
-        : (prior?.balance ?? 0),   // non-USD total: keep what we had rather than mislabel it as dollars
+      // THE AUTHORITY RULE: balance = the broker's own total (includes options + money market).
+      // B47 finding 3 (Vanguard): some brokers report NO usable total while the positions carry the
+      // real value — a $132k account must never read $0. When the reported total is missing or zero
+      // but the account demonstrably holds value, derive the balance from holdings (live marks,
+      // cost basis when unpriced — the same honest fallback pricing uses) + options + the cash sleeve.
+      balance: (() => {
+        const usd = st.balance?.total?.currency == null || st.balance?.total?.currency === 'USD';
+        if (!usd) return prior?.balance ?? 0;   // non-USD: marks are non-USD too — never derive "dollars"
+        const reported = st.balance?.total?.amount ?? null;
+        if (reported != null && reported > 0) return reported;               // the broker's word stands
+        const derived = positions.reduce((t, pos) => {
+          const sh = (pos.lots ?? []).reduce((x: number, l: any) => x + (l.shares || 0), 0);
+          const basis = (pos.lots ?? []).reduce((x: number, l: any) => x + (l.shares || 0) * (l.cost_per_share || 0), 0);
+          return t + (pos.last_price != null ? sh * pos.last_price : basis);
+        }, 0)
+          + optionRows.reduce((t, o) => t + (o.value || 0), 0)
+          + (netCashSleeve(p.balancesCash, mapped) || 0);
+        if (derived > 0) return Math.round(derived * 100) / 100;
+        return reported ?? prior?.balance ?? 0;                              // genuinely empty stays honest
+      })(),
       cash_balance: netCashSleeve(p.balancesCash, mapped),
       positions: p.positions != null ? positions : prior?.positions,   // provided-but-empty = sold out (stale rows would lie)
       option_holdings: optionRows.length ? optionRows.map((o) => ({ label: o.label, contracts: o.contracts, value: o.value, cost_basis: o.costBasis })) : undefined,

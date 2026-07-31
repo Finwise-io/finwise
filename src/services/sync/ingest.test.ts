@@ -161,3 +161,34 @@ describe('audit fixes', () => {
     expect(res.sellsCounted).toBe(1);
   });
 });
+
+// B47 finding 3 (founder's Vanguard connection): the broker reported NO usable total while the
+// positions carried $132k — the account read $0 on the detail hero and in the by-institution sums.
+// The authority rule gains the honesty fallback: derive from holdings when the total is absent/zero.
+describe('missing broker total (Vanguard class)', () => {
+  test('total absent + positions present → balance derives from marks + sleeve (never $0)', () => {
+    const r = ingestSync([], {}, [payload({
+      account: acct({ id: 'acc-vg', institution_name: 'Vanguard', name: 'Vanguard Brokerage', balance: { total: null } }),
+    })], NOW);
+    const a = r.accounts.find((x) => x.asset_id === stAssetId('acc-vg'))!;
+    // VTI 100 × $250 = 25,000 · + sleeve 1,000 (1200 − 200 SPAXX) + SPAXX 200 in cash math = derived
+    expect(a.balance).toBeGreaterThan(0);
+    expect(a.balance).toBeCloseTo(25000 + 1000, 0);
+  });
+  test('total reported as ZERO with real positions → derived wins (a $132k account never reads $0)', () => {
+    const r = ingestSync([], {}, [payload({
+      account: acct({ id: 'acc-vg0', balance: { total: { amount: 0, currency: 'USD' } } }),
+    })], NOW);
+    const a = r.accounts.find((x) => x.asset_id === stAssetId('acc-vg0'))!;
+    expect(a.balance).toBeGreaterThan(0);
+  });
+  test('a genuinely empty account stays honestly zero; a real broker total still stands', () => {
+    const r = ingestSync([], {}, [payload({
+      account: acct({ id: 'acc-empty', balance: { total: { amount: 0, currency: 'USD' } } }),
+      positions: [], balancesCash: 0,
+    })], NOW);
+    expect(r.accounts.find((x) => x.asset_id === stAssetId('acc-empty'))!.balance).toBe(0);
+    const r2 = ingestSync([], {}, [payload()], NOW);
+    expect(r2.accounts[0].balance).toBe(50000);   // authority unchanged when the broker speaks
+  });
+});
