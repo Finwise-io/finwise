@@ -12,7 +12,7 @@ import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints } from '../domain/history';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -473,7 +473,8 @@ export default function NetWorthScreen() {
           {nwGrouping !== 'class' && (() => {
             const keyOf = (a: AssetAccount) => nwGrouping === 'institution'
               ? (a.institution?.trim() || 'No institution')
-              : (assetKind(a.kind)?.label ?? 'Other');
+              // finding 14: ALL cash-bucket kinds merge under the one honest group label
+              : isCashKind(a.kind) ? CASH_GROUP_LABEL : (assetKind(a.kind)?.label ?? 'Other');
             const groups = new Map<string, { total: number; members: AssetAccount[] }>();
             for (const a of assets) {
               const k = keyOf(a);

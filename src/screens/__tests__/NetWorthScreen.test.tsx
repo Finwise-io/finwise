@@ -241,10 +241,12 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
   });
 
   test('By type groups by account kind and By class returns to the approved class view', () => {
+    // SUPERSEDED by B47 finding 14 (founder, 2026-08-01): cash-bucket kinds no longer stand as
+    // separate "Checking"/"Savings" headers — they merge under the accountant's honest term.
     seedTwoEtrade();
     render(<NetWorthScreen />);
     fireEvent.press(screen.getByText('By type'));
-    expect(screen.getByLabelText(/Checking, \$8,000, 1 account\./)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Cash and cash equivalents, \$8,000, 1 account\./)).toBeOnTheScreen();
     fireEvent.press(screen.getByText('By class'));
     expect(screen.getByText('Cash')).toBeOnTheScreen();               // class rows are back
   });

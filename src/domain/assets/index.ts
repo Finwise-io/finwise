@@ -152,6 +152,11 @@ export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: Tax
   { id: 'vehicle', label: 'Vehicle', icon: '🚗', bucket: 'PROPERTY', section: 'Property', ret: -0.05 },
 ];
 export const ASSET_SECTIONS = ['Cash', 'Investments', 'Retirement', 'Property'] as const;
+// B47 finding 14 (founder, 2026-08-01): in BY-TYPE groupings, cash-bucket accounts (checking,
+// savings, money market, CDs…) roll up under the accountant's honest term — never "Savings"
+// covering a sweep account that actually holds CDs + money market + cash.
+export const CASH_GROUP_LABEL = 'Cash and cash equivalents';
+export const isCashKind = (kind?: string) => assetKind(kind)?.bucket === 'CASH';
 export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id === id); }
 
 // ── Derivation layer for the two-axis model (Term #1) ─────────────────────────

@@ -590,3 +590,26 @@ describe('B47 finding 13 — the coasting box reads as one honest sentence', () 
     expect(screen.getByText(/alone gets there by \d+/)).toBeOnTheScreen();
   });
 });
+
+// ── B47 finding 14 (founder, 2026-08-01): "by type, cash and cash equivalents is called Savings" ──
+test('finding 14: Net worth By-type rolls every cash-bucket account under "Cash and cash equivalents"', () => {
+  const { fireEvent } = require('@testing-library/react-native');
+  useStore.setState({
+    hideBalances: false,
+    assetAccounts: [
+      { asset_id: 's1', label: 'E*TRADE Savings', institution: 'E*TRADE', kind: 'savings', tax_bucket: 'CASH', balance: 20000 },
+      { asset_id: 'c1', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 3000 },
+      { asset_id: 'cd1', label: 'Key Bank CD', institution: 'E*TRADE', kind: 'cd', tax_bucket: 'CASH', balance: 10000 },
+      { asset_id: 'b1', label: 'Brokerage', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50000 },
+    ],
+  } as any);
+  const NetWorthScreen = require('../NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByText('By type'));
+  // ONE merged group carrying the accountant's term, with the summed total
+  expect(screen.getByText('Cash and cash equivalents')).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Cash and cash equivalents, \$33,000, 3 accounts/)).toBeOnTheScreen();
+  // no "Savings" / "Checking" / "CD" group headers — the kinds merged (row names still show)
+  expect(screen.queryByLabelText(/^Savings, \$/)).toBeNull();
+  expect(screen.queryByLabelText(/^Checking, \$/)).toBeNull();
+});
