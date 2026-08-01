@@ -23,6 +23,9 @@ export function useMoney() {
 export const maskedMoney = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money(n));
 // cents-precise sibling (B44 founder finding: holding-detail showed integers where cents matter)
 export const maskedMoney2 = (n: number) => (useStore.getState().hideBalances ? BALANCE_MASK : money2(n));
+/** Sub-$2 prices (a thin-priced holding's $1.132 average cost) keep 3 decimals — masked like all money. */
+export const maskedPrice3 = (n: number) =>
+  useStore.getState().hideBalances ? BALANCE_MASK : n > 0 && n < 2 ? `$${(Math.round(n * 1000) / 1000).toFixed(3)}` : money2(n);   // money-mask-ok: this IS a masked formatter (hidden-gated first)
 
 /** Mask the dollar figures INSIDE a template sentence (insight bodies, engine copy) while keeping
  *  the words — '8 times your usual' stays readable, the balances become ••••. */

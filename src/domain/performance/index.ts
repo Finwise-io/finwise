@@ -78,7 +78,7 @@ export function totalROI(p: Position, price: number | null | undefined): number 
 }
 
 // ---- period returns from a price series (price return of the security itself) ----
-function startDateFor(period: Period, now: Date): Date {
+export function startDateFor(period: Period, now: Date): Date {
   const d = new Date(now);
   switch (period) {
     case '1M': d.setMonth(d.getMonth() - 1); break;

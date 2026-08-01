@@ -31,7 +31,9 @@ describe('cashflow / bill calendar', () => {
       monthlySpending: '0',
       spendCats: [{ id: 'rent', tier: 'critical', bucket: 'fixed', amount: '500', unit: 'dollar' }], // $500/mo rent
     };
-    const cf = cashflowYear(op, 0);
+    // pinned clock like the test above — run FROM January (on a real Aug 1 the aid month IS month 1
+    // and no short window exists; this flaked the day the calendar rolled to August)
+    const cf = cashflowYear(op, 0, JAN);
     expect(cf.shortMonths.length).toBeGreaterThan(0);   // negative before Aug aid arrives
     expect(cf.lowestBalance).toBeLessThan(0);
   });

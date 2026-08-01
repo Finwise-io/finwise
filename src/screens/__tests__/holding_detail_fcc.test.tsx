@@ -51,37 +51,48 @@ beforeEach(() => {
   } as any);
 });
 
-test('header: name, account, value/gain/shares/avg — the SAME numbers as the Invest list row', () => {
+// finding 6 (approved mock v2, founder 'approved.' 2026-07-31): price at the top, graph with the
+// Invest period chips, then the position as a TABLE — same numbers as the Invest list row.
+test('hero: current price on top, then the position table — the SAME numbers as the Invest list row', () => {
   render(<HoldingDetailScreen />);
   const st = useStore.getState() as any;
   const row = buildPerformance([NVDA_POS as any], (t: string) => st.priceCache[t], '1Y')[0];
   expect(screen.getByText('NVIDIA (NVDA)')).toBeOnTheScreen();
   expect(screen.getByText('in Fidelity')).toBeOnTheScreen();
-  const { money2 } = require('../../domain/_shared/num');
+  const { money, money2 } = require('../../domain/_shared/num');
+  expect(screen.getByText(/CURRENT PRICE/)).toBeOnTheScreen();
+  expect(screen.getByText(money(row.price))).toBeOnTheScreen();          // the price IS the hero
+  expect(screen.getByText('Current value')).toBeOnTheScreen();
   expect(screen.getByText(money2(row.marketValue))).toBeOnTheScreen();   // B44: cents-precise
-  expect(screen.getByText(/360 shares · average cost/)).toBeOnTheScreen();
-  expect(screen.getByText(/▲ Up \+\$/)).toBeOnTheScreen();               // the word, never color alone
-  expect(screen.getByText(/Price \$728 · updated/)).toBeOnTheScreen();   // money() whole-dollar + freshness
+  expect(screen.getByText('Change since purchase')).toBeOnTheScreen();
+  expect(screen.getByText(/▲ \+\$/)).toBeOnTheScreen();                  // the word/arrow, never color alone
+  expect(screen.getByText('Quantity')).toBeOnTheScreen();
+  expect(screen.getByText('360 shares')).toBeOnTheScreen();
+  expect(screen.getByText('Price paid (average)')).toBeOnTheScreen();
+  // the period chips moved onto this page (they drive the graph + compare window)
+  for (const pd of ['1M', '3M', '6M', 'YTD', '1Y', '3Y']) expect(screen.getByText(pd)).toBeOnTheScreen();
 });
 
-test("vs-the-market card: holding vs SAME-period market and the points gap with ahead/behind WORD", () => {
+test("vs-the-market card: table rows, same-dates window words, ahead/behind in WORDS", () => {
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('VS THE STOCK MARKET (1 yr)')).toBeOnTheScreen();
-  expect(screen.getByText(/NVDA up \+.*market \+/)).toBeOnTheScreen();
-  expect(screen.getByText(/(Ahead|Behind) by [\d.]+ points/)).toBeOnTheScreen();
+  expect(screen.getByText('VS THE STOCK MARKET · SAME DATES')).toBeOnTheScreen();
+  expect(screen.getByText(/Your return/)).toBeOnTheScreen();
+  expect(screen.getByText('The market, same dates')).toBeOnTheScreen();
+  expect(screen.getByText(/(ahead|behind) by [\d.]+ points/)).toBeOnTheScreen();
+  expect(screen.getByText('price changes only — dividends not included')).toBeOnTheScreen();
 });
 
 test('the tax card: long + short gains SUM to the header gain, labeled an estimate', () => {
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('Estimate, not tax advice')).toBeOnTheScreen();
   const st = useStore.getState() as any;
   const row = buildPerformance([NVDA_POS as any], (t: string) => st.priceCache[t], '1Y')[0];
   const { capGains } = require('../../domain/performance');
   const cg = capGains(NVDA_POS, row.price);
   expect(Math.round(cg.longGain + cg.shortGain)).toBe(Math.round(row.gain));   // the identity the card relies on
-  expect(screen.getByText(/Held over a year: \+\$/)).toBeOnTheScreen();
-  expect(screen.getByText(/Held under a year: \+\$/)).toBeOnTheScreen();
-  expect(screen.getByText(/Estimated tax: ~\$/)).toBeOnTheScreen();
+  expect(screen.getByText('Gain — long-term (held over 1 yr)')).toBeOnTheScreen();
+  expect(screen.getByText('Gain — short-term (under 1 yr)')).toBeOnTheScreen();
+  expect(screen.getByText(/~ Tax at your own rate \(\d+%\)/)).toBeOnTheScreen();
+  expect(screen.getByText('an estimate from your filing status — not advice')).toBeOnTheScreen();
 });
 
 test('lots list shows each purchase with its date words (the cost-basis story)', () => {
@@ -96,25 +107,46 @@ test('look back opens PRE-FILLED with this holding (ticker + current value)', ()
   expect(mockPushes.find((r) => r.startsWith('/look-back?from=NVDA&amount='))).toBeTruthy();
 });
 
-test('dividends roll-up: this year + all time from the one ledger', () => {
-  const year = new Date().getFullYear();
+test('dividends & realized: one card — trailing 12 months from the one ledger, zeros said plainly', () => {
+  const recent = new Date(Date.now() - 30 * 86400e3).toISOString().slice(0, 10);
+  const old = new Date(Date.now() - 400 * 86400e3).toISOString().slice(0, 10);
   useStore.setState({
     transactions: [
-      { id: 't1', type: 'DIVIDEND', ticker: 'NVDA', amount: 310, date: `${year}-03-01`, account_id: 'brk' },
-      { id: 't2', type: 'DIVIDEND', ticker: 'NVDA', amount: 930, date: `${year - 1}-06-01`, account_id: 'brk' },
-      { id: 't3', type: 'DIVIDEND', ticker: 'VTI', amount: 99, date: `${year}-02-01`, account_id: 'brk' },
+      { id: 't1', type: 'DIVIDEND', ticker: 'NVDA', amount: 310, date: recent, account_id: 'brk' },
+      { id: 't2', type: 'DIVIDEND', ticker: 'NVDA', amount: 930, date: old, account_id: 'brk' },     // outside 12 mo
+      { id: 't3', type: 'DIVIDEND', ticker: 'VTI', amount: 99, date: recent, account_id: 'brk' },    // other ticker
     ],
   } as any);
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('$310.00 this year · $1,240.00 all time')).toBeOnTheScreen();
+  expect(screen.getByText('DIVIDENDS & REALIZED')).toBeOnTheScreen();
+  expect(screen.getByText('Dividends received (12 mo)')).toBeOnTheScreen();
+  expect(screen.getByText('$310.00')).toBeOnTheScreen();
+  expect(screen.getByText(/\$0\.00 — nothing sold/)).toBeOnTheScreen();   // the zero is a sentence, not a hidden card
 });
 
-test('no price for the ticker: shows what you paid, hides the market comparison AND look-back', () => {
+test('no price for the ticker: honest basis hero, comparison/tax/look-back all absent — nothing invented', () => {
   useStore.setState({ priceCache: {} } as any);
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('no current price — showing what you paid')).toBeOnTheScreen();
-  expect(screen.queryByText(/VS THE STOCK MARKET \(1 yr\)/)).toBeNull();
+  expect(screen.getByText('NO LIVE PRICE — SHOWING WHAT YOU PAID')).toBeOnTheScreen();
+  expect(screen.getByText('⏱ live pricing arrives with the price provider')).toBeOnTheScreen();
+  expect(screen.getByText('Quantity')).toBeOnTheScreen();
+  expect(screen.queryByText(/VS THE STOCK MARKET · SAME DATES/)).toBeNull();
+  expect(screen.queryByText('IF YOU SOLD TODAY')).toBeNull();
   expect(screen.queryByLabelText(/Look back/)).toBeNull();
+});
+
+test('sub-$2 average cost keeps 3 decimals (the LCTX case) — and still masks when hidden', () => {
+  useStore.setState({
+    priceCache: {},
+    assetAccounts: [{ asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+      positions: [{ position_id: 'p1', ticker: 'LCTX', label: 'Lineage Inc', kind: 'stocks_etf', lots: [{ lot_id: 'l1', shares: 1000, cost_per_share: 1.132, purchase_date: '2024-05-01' }] }] }],
+  } as any);
+  const r = render(<HoldingDetailScreen />);
+  expect(screen.getByText('$1.132')).toBeOnTheScreen();
+  r.unmount();
+  useStore.setState({ hideBalances: true } as any);
+  render(<HoldingDetailScreen />);
+  expect(screen.queryByText('$1.132')).toBeNull();          // mask rule holds for the 3-decimal path
 });
 
 test("all lots sold: 'Position closed' with $0 — correct here, and history is kept", () => {
@@ -171,7 +203,7 @@ test('realized gains from sales show honestly, with the FIFO note', () => {
     ],
   } as any);
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('REALIZED FROM SALES')).toBeOnTheScreen();
+  expect(screen.getByText('Realized from sales')).toBeOnTheScreen();
   expect(screen.getByText(/\+\$2,000\.00 all time/)).toBeOnTheScreen();   // 40 × (200 − 150), cents-precise
   expect(screen.getByText(/oldest shares sold first/)).toBeOnTheScreen();
 });
