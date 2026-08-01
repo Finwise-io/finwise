@@ -1,0 +1,145 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Plan hub — mock v2 (spectrum + paycheck alignment)</title><style>
+  *{margin:0;padding:0;box-sizing:border-box;-webkit-font-smoothing:antialiased}
+  body{font-family:-apple-system,'SF Pro Text','Segoe UI',Roboto,sans-serif;background:#ECEEEA;padding:28px 20px 60px;color:#1A1A18}
+  .wrap{max-width:1500px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:1.2px;color:#0F6E56;text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:6px 0 4px}
+  .lede{font-size:14.5px;color:#6B6B66;max-width:880px;line-height:1.5;margin-bottom:26px}
+  .row{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:34px;align-items:flex-start}
+  .phone{width:340px;background:#000;border-radius:44px;padding:9px;box-shadow:0 18px 44px rgba(0,0,0,.28)}
+  .screen{background:#F6F7F5;border-radius:36px;overflow:hidden;position:relative}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:12px 22px 4px;font-size:13px;font-weight:700}
+  .sb{display:flex;gap:5px}.sb i{display:inline-block;background:#1A1A18;border-radius:2px;height:10px;width:16px}
+  .content{padding:8px 16px 0}
+  .h1{font-size:24px;font-weight:800}
+  .tagline{font-size:13px;color:#6B6B66;margin:1px 0 10px}
+  .card{background:#fff;border-radius:16px;padding:14px;margin-bottom:10px;box-shadow:0 1px 2px rgba(0,0,0,.05)}
+  .kick{font-size:11px;font-weight:800;letter-spacing:.6px;color:#6B6B66;margin-bottom:5px}
+  .verdictRow{display:flex;align-items:baseline;gap:7px}
+  .word{font-size:26px;font-weight:800;color:#0F6E56}
+  .pctT{font-size:18px;font-weight:800;color:#1A1A18}
+  .band{font-size:11.5px;color:#76766F;margin-top:2px}
+  .ifline{font-size:13px;color:#1A1A18;line-height:1.45;margin-top:7px}
+  .ifline b{font-weight:800}
+  .drv{font-size:12.5px;font-weight:700;color:#178F6B;margin-top:8px}
+  .nextCard{background:#FAEEDA;border:1.5px solid #FAC775;border-radius:16px;padding:13px 14px;margin-bottom:10px}
+  .nextK{font-size:11px;font-weight:800;letter-spacing:.6px;color:#854F0B;margin-bottom:4px}
+  .nextT{font-size:14.5px;font-weight:800;color:#1A1A18;line-height:1.35}
+  .nextS{font-size:12px;color:#6B6B66;margin-top:3px;line-height:1.4}
+  .nextGo{font-size:12.5px;font-weight:800;color:#854F0B;margin-top:7px}
+  .sec{font-size:11.5px;font-weight:800;letter-spacing:.6px;color:#76766F;margin:12px 2px 6px}
+  .dRow{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid rgba(0,0,0,.07);gap:8px}
+  .dRow:last-child{border-bottom:none}
+  .dT{font-size:14px;font-weight:700;color:#1A1A18}
+  .dS{font-size:11.5px;color:#6B6B66;margin-top:2px;line-height:1.35}
+  .chev{color:#76766F;font-size:15px}
+  .chip{display:inline-block;font-size:10.5px;font-weight:800;background:#E1F5EE;color:#0F6E56;border-radius:9px;padding:2px 7px;margin-left:5px;vertical-align:1px}
+  .chipAmber{background:#FAEEDA;color:#854F0B}
+  .done{color:#0F6E56;font-weight:800}
+  .rowLine{display:flex;justify-content:space-between;align-items:center;padding:7px 0;font-size:13px}
+  .rl{color:#6B6B66}.rv{font-weight:700;font-variant-numeric:tabular-nums}
+  .tot{border-top:1px solid rgba(0,0,0,.10);margin-top:3px;padding-top:8px}
+  .sandbox{background:#fff;border:1.5px dashed rgba(0,0,0,.20);border-radius:16px;padding:13px 14px;margin-bottom:10px}
+  .sandT{font-size:14px;font-weight:800;color:#178F6B}
+  .sandS{font-size:11.5px;color:#6B6B66;margin-top:3px}
+  .scen{font-size:13px;font-weight:700;padding:8px 0;border-bottom:1px solid rgba(0,0,0,.07)}
+  .scenS{font-size:11.5px;color:#6B6B66;font-weight:400}
+  .meter{font-size:12.5px;color:#6B6B66}
+  .meterBar{height:6px;border-radius:3px;background:#ECEEEA;margin-top:6px;overflow:hidden}
+  .meterFill{height:6px;background:#178F6B;border-radius:3px}
+  .invite{font-size:14px;line-height:1.5;color:#1A1A18;margin-top:4px}
+  .cta{display:block;text-align:center;background:#178F6B;color:#fff;font-size:14.5px;font-weight:800;border-radius:12px;padding:13px;margin-top:11px}
+  .tiny{font-size:10.5px;color:#76766F;margin:2px 2px 10px;line-height:1.4}
+  .tabbar{display:flex;border-top:1px solid rgba(0,0,0,.10);background:#fff;padding:9px 4px 20px;margin:6px -16px 0}
+  .tab{flex:1;text-align:center;font-size:9.5px;font-weight:700;color:#76766F}
+  .tab.on{color:#178F6B}
+  .tab span{display:block;font-size:16px;margin-bottom:1px}
+  .phonecap{max-width:340px;font-size:12.5px;color:#6B6B66;line-height:1.5;margin-top:10px;padding:0 4px}
+  .phonecap b{color:#1A1A18}
+  .legend{list-style:none;background:#fff;border-radius:16px;padding:18px 20px;max-width:960px}
+  .legend li{display:flex;gap:12px;font-size:13.5px;line-height:1.55;color:#1A1A18;padding:7px 0}
+  .dot{flex:none;width:22px;height:22px;border-radius:11px;background:#178F6B;color:#fff;font-size:12px;font-weight:800;display:flex;align-items:center;justify-content:center;margin-top:1px}
+
+  .gauge{display:flex;align-items:center;gap:12px;margin:2px 0 6px}
+  .propChip{display:inline-block;font-size:10px;font-weight:800;background:#FAEEDA;color:#854F0B;border-radius:9px;padding:2px 7px;margin-left:5px;vertical-align:1px}
+</style></head><body><div class="wrap"><div class="eyebrow">MoneyKeel · Plan tab · PROPOSAL v2 (supersedes v1 — your 6 feedback items) — to the approved brief (2026-08-01)</div><h1>The Plan tab — one verdict, one next decision, per lens</h1><p class="lede">Four full phones: the working lens and the retired lens, each in the rich state and the honest first-day state. Built to the brief you approved: the verdict carries its “if” clause, one dated next-decision card, a decision list ranked differently per lens, and a fenced sandbox.</p><div class="row"><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px"></i><i style="width:15px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="h1">Plan</div><div class="tagline">We lay it out. You decide.</div>
+<div class="card"><div class="kick">WILL MY MONEY LAST? — TO 92</div>
+ <div class="gauge"><div style="position:relative"><svg width="104" height="62" viewBox="0 0 104 62"><path d="M 8 56 A 44 44 0 0 1 17.4 29.2" stroke="#E4655F" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 21.2 24.4 A 44 44 0 0 1 44.6 8.6" stroke="#EDA33B" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 50.6 7.2 A 44 44 0 0 1 74.9 12.9" stroke="#E8D24C" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 80.1 16.4 A 44 44 0 0 1 93.9 39.1" stroke="#9BCB63" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 95.6 44.9 A 44 44 0 0 1 96 56" stroke="#3DA982" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><line x1="52" y1="56" x2="81.8" y2="39.6" stroke="#1A1A18" stroke-width="3" stroke-linecap="round"/><circle cx="52" cy="56" r="4" fill="#1A1A18"/></svg></div><div><div class="verdictRow"><span class="word">Likely</span><span class="pctT">— 84%</span></div></div></div>
+ <div class="band">range 71–95% · estimate</div>
+ <div class="ifline">…<b>if you retire at 67</b>, keep saving <b>$1,200/mo</b>, and spend <b>$4,500/mo in retirement (your planned spending — you set it)</b>. Change any of those below.</div>
+ <div class="drv">What drives this? ›</div></div>
+<div class="nextCard"><div class="nextK">NEXT DECISION · A REAL DATE</div>
+ <div class="nextT">Your Social Security claim window opens Mar 2027 (age 62)</div>
+ <div class="nextS">No deadline — each year you wait raises the check ~6–8%. See it in your own dollars.</div>
+ <div class="nextGo">Lay out 62 vs 67 vs 70 ›</div></div>
+<div class="sec">YOUR OTHER DECISIONS — RANKED FOR YOU</div>
+<div class="card">
+ <div class="dRow"><div><div class="dT">Retire when?</div><div class="dS">your plan: 67 · try 65 or 69 and watch the 84% move</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Afford it all?</div><div class="dS">college help · the mortgage · keep saving — together</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Move money into a Roth</div><div class="dS">the window before required withdrawals begin at 73</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Big one-time costs <span class="propChip">PROPOSED — YOUR CALL</span></div><div class="dS">a roof, a car, a wedding: name the year and amount — the odds account for it</div></div><span class="chev">›</span></div>
+</div>
+<div class="sandbox"><div class="sandT">Try what-ifs — a sandbox ›</div><div class="sandS">Sliders for retire age, saving, spending. Nothing changes until you tap “Use as my plan”.</div></div>
+<div class="sec">SAVED SCENARIOS (1)</div>
+<div class="card"><div class="scen">Retire at 66 — 79% when saved <span class="scenS">· Jul 12, 2026</span></div>
+ <div class="rowLine" style="padding-top:10px"><span class="meter">Sharpen your plan — 7 of 9 answered</span><span class="rv" style="color:#178F6B">›</span></div>
+ <div class="meterBar"><div class="meterFill" style="width:78%"></div></div></div>
+<div class="tiny">Estimates from ~400 market simulations of your own numbers — not advice.</div><div class="tabbar"><span class="tab"><span>🏠</span>Home</span><span class="tab"><span>💎</span>Net worth</span><span class="tab"><span>📈</span>Invest</span><span class="tab"><span>💵</span>Cash flow</span><span class="tab on"><span>🧭</span>Plan</span></div></div></div></div><div class="phonecap"><b>WORKING · rich.</b> The verdict carries its <b>“if” clause</b> — 84% of a NAMED plan, not a floating number. ONE amber next-decision card with a real date; the rest ranked below it. Sandbox fenced with a dashed border.</div></div><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px"></i><i style="width:15px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="h1">Plan</div><div class="tagline">We lay it out. You decide.</div>
+<div class="card"><div class="kick">IS MY MONEY LASTING? — TO 92</div>
+ <div class="gauge"><div style="position:relative"><svg width="104" height="62" viewBox="0 0 104 62"><path d="M 8 56 A 44 44 0 0 1 17.4 29.2" stroke="#E4655F" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 21.2 24.4 A 44 44 0 0 1 44.6 8.6" stroke="#EDA33B" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 50.6 7.2 A 44 44 0 0 1 74.9 12.9" stroke="#E8D24C" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 80.1 16.4 A 44 44 0 0 1 93.9 39.1" stroke="#9BCB63" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 95.6 44.9 A 44 44 0 0 1 96 56" stroke="#3DA982" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><line x1="52" y1="56" x2="83.6" y2="43.5" stroke="#1A1A18" stroke-width="3" stroke-linecap="round"/><circle cx="52" cy="56" r="4" fill="#1A1A18"/></svg></div><div><div class="verdictRow"><span class="word">Holding</span><span class="pctT">— 88%</span></div></div></div>
+ <div class="band">range 78–96% · estimate</div>
+ <div class="ifline">Your <b>$4,500/mo spending</b> is covered to 92 at today's pace — a <b>3.8%/yr</b> withdrawal, within the safe range.</div>
+ <div class="drv">What drives this? ›</div></div>
+<div class="nextCard"><div class="nextK">NEXT DECISION · DUE DEC 31</div>
+ <div class="nextT">Required withdrawal: $11,200 — not yet taken</div>
+ <div class="nextS">The government requires it from your pre-tax accounts this year. Take it, then mark it taken.</div>
+ <div class="nextGo">See the amount &amp; mark it taken ›</div></div>
+<div class="sec">WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK</div>
+<div class="card">
+ <div class="rowLine"><span class="rl">Social Security</span><span class="rv">$2,600</span></div>
+ <div class="rowLine"><span class="rl">Pension</span><span class="rv">$1,600</span></div>
+ <div class="rowLine"><span class="rl" style="font-weight:800;color:#1A1A18">= Guaranteed</span><span class="rv">$4,200</span></div>
+ <div class="rowLine"><span class="rl">+ Safe draw from savings ⓘ</span><span class="rv">$600</span></div>
+ <div class="rowLine tot"><span class="rl" style="font-weight:800;color:#1A1A18">Your paycheck</span><span class="rv">$4,800/mo</span></div>
+ <div style="font-size:11.5px;color:#0F6E56;font-weight:600;margin-top:6px">✓ covers your $4,500/mo spending — you are using $300 of the $600 safe draw</div>
+ <div style="font-size:10.5px;color:#76766F;margin-top:4px">The same paycheck as Home&rsquo;s card — one engine, one set of numbers.</div>
+</div>
+<div class="sec">YOUR OTHER DECISIONS — RANKED FOR YOU</div>
+<div class="card">
+ <div class="dRow"><div><div class="dT">Can I spend more?</div><div class="dS">an extra $500/mo would take you to 81% (−7 points) — see the trade before deciding</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Withdrawal order</div><div class="dS">which account pays first — taxes differ</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Claim Social Security <span class="chip">claimed at 67 ✓</span></div><div class="dS">settled — shown so you know it's handled</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Roth &amp; legacy</div><div class="dS">conversions in low-tax years · what passes on</div></div><span class="chev">›</span></div>
+ <div class="dRow"><div><div class="dT">Big one-time costs <span class="propChip">PROPOSED — YOUR CALL</span></div><div class="dS">a new roof in 2028, a family wedding: name it — the odds account for it</div></div><span class="chev">›</span></div>
+</div>
+<div class="sandbox"><div class="sandT">Try what-ifs — a sandbox ›</div><div class="sandS">Sliders for spending and plan-to age. Nothing changes until you tap “Use as my plan”.</div></div>
+<div class="tiny">Estimates from ~400 market simulations of your own numbers — not advice.</div><div class="tabbar"><span class="tab"><span>🏠</span>Home</span><span class="tab"><span>💎</span>Net worth</span><span class="tab"><span>📈</span>Invest</span><span class="tab"><span>💵</span>Cash flow</span><span class="tab on"><span>🧭</span>Plan</span></div></div></div></div><div class="phonecap"><b>RETIRED · rich.</b> Same engine, different frame: <b>“Is my money lasting?”</b> in the spending voice. The month's income adds up on-screen (2,600+1,600+300 = 4,500 ✓). Next decision is the DATED required withdrawal; claimed Social Security shows as settled ✓ — no dead doors.</div></div></div><div class="row"><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px"></i><i style="width:15px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="h1">Plan</div><div class="tagline">We lay it out. You decide.</div>
+<div class="card"><div class="kick">WILL MY MONEY LAST?</div>
+ <div class="gauge"><div style="position:relative"><svg width="104" height="62" viewBox="0 0 104 62"><path d="M 8 56 A 44 44 0 0 1 17.4 29.2" stroke="#E4655F" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 21.2 24.4 A 44 44 0 0 1 44.6 8.6" stroke="#EDA33B" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 50.6 7.2 A 44 44 0 0 1 74.9 12.9" stroke="#E8D24C" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 80.1 16.4 A 44 44 0 0 1 93.9 39.1" stroke="#9BCB63" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 95.6 44.9 A 44 44 0 0 1 96 56" stroke="#3DA982" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/></svg><div style="position:absolute;left:40px;top:30px;font-size:15px">🔒</div></div><div style="font-size:12px;color:#76766F"><b style="color:#1A1A18">Sample: 84%</b> — not your number.<br>Your real needle appears here.</div></div>
+ <div class="invite">Answer three quick questions — <b>your age, what you spend, what you have</b> — and we'll show your honest odds of retiring on your terms. No guessed numbers, ever.</div>
+ <span class="cta">Start with your plan ›</span></div>
+<div class="sec">WHAT THIS TAB WILL DO</div>
+<div class="card">
+ <div class="dRow"><div><div class="dT">Your odds, in one word</div><div class="dS">with the plan it depends on, spelled out</div></div></div>
+ <div class="dRow"><div><div class="dT">The next decision, flagged</div><div class="dS">Social Security timing, Roth windows — dated when real</div></div></div>
+ <div class="dRow"><div><div class="dT">A safe sandbox</div><div class="dS">try retiring earlier — nothing changes until you adopt it</div></div></div>
+</div>
+<div class="tiny">No percent is shown until it's yours — we never fake a number.</div><div class="tabbar"><span class="tab"><span>🏠</span>Home</span><span class="tab"><span>💎</span>Net worth</span><span class="tab"><span>📈</span>Invest</span><span class="tab"><span>💵</span>Cash flow</span><span class="tab on"><span>🧭</span>Plan</span></div></div></div></div><div class="phonecap"><b>WORKING · first day.</b> No fake 84%. The three-questions door (approved states row), then an honest preview of what the tab becomes. Nothing interactive pretends to be ready.</div></div><div><div class="phone"><div class="screen"><div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px"></i><i style="width:15px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div><div class="content"><div class="h1">Plan</div><div class="tagline">We lay it out. You decide.</div>
+<div class="card"><div class="kick">IS MY MONEY LASTING?</div>
+ <div class="gauge"><div style="position:relative"><svg width="104" height="62" viewBox="0 0 104 62"><path d="M 8 56 A 44 44 0 0 1 17.4 29.2" stroke="#E4655F" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 21.2 24.4 A 44 44 0 0 1 44.6 8.6" stroke="#EDA33B" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 50.6 7.2 A 44 44 0 0 1 74.9 12.9" stroke="#E8D24C" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 80.1 16.4 A 44 44 0 0 1 93.9 39.1" stroke="#9BCB63" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/><path d="M 95.6 44.9 A 44 44 0 0 1 96 56" stroke="#3DA982" stroke-width="9" stroke-linecap="round" fill="none" opacity=".9"/></svg><div style="position:absolute;left:40px;top:30px;font-size:15px">🔒</div></div><div style="font-size:12px;color:#76766F"><b style="color:#1A1A18">Sample: 88%</b> — not your number.<br>Your real needle appears here.</div></div>
+ <div class="invite">Answer three quick questions — <b>your age, what you spend each month, what you have</b> — and we'll show how long your money lasts at your pace. No guessed numbers, ever.</div>
+ <span class="cta">Start with your plan ›</span></div>
+<div class="sec">WHAT THIS TAB WILL DO</div>
+<div class="card">
+ <div class="dRow"><div><div class="dT">Your pace, checked</div><div class="dS">is this month's spending safe for the long run?</div></div></div>
+ <div class="dRow"><div><div class="dT">Deadlines, watched</div><div class="dS">required withdrawals flagged with their real due dates</div></div></div>
+ <div class="dRow"><div><div class="dT">Your income, mapped</div><div class="dS">Social Security · pension · from savings — one table</div></div></div>
+</div>
+<div class="tiny">No percent is shown until it's yours — we never fake a number.</div><div class="tabbar"><span class="tab"><span>🏠</span>Home</span><span class="tab"><span>💎</span>Net worth</span><span class="tab"><span>📈</span>Invest</span><span class="tab"><span>💵</span>Cash flow</span><span class="tab on"><span>🧭</span>Plan</span></div></div></div></div><div class="phonecap"><b>RETIRED · first day.</b> Same door, retiree voice: pace, deadlines, income — the three worries named in their words.</div></div></div>
+<div class="row"><ul class="legend">
+ <li><span class="dot">1</span><div><b>The brief, delivered:</b> one verdict with its “if” clause (84% OF WHAT is finally on-screen) · ONE flagged next decision, dated when a real date exists · a ranked decision list that is DIFFERENT per lens · the sandbox visibly fenced. Working asks “will it last?”; retired asks “is it lasting?” — two different pages, not one page plus a row.</div></li>
+ <li><span class="dot">2</span><div><b>Everything approved is carried:</b> the will-it-last number stays the ONE number (Home strip and Insights read the same value), saved scenarios keep their saved chance and date, “Sharpen your plan 7 of 9”, back-to-previous-plan (appears only after an adoption), estimate honesty and “What drives this?” provenance. Say the word to drop anything instead.</div></li>
+ <li><span class="dot">3</span><div><b>Numbers add up:</b> retiree paycheck 2,600 + 1,600 = 4,200 guaranteed + 600 safe draw = $4,800, covering the $4,500 spending with $300 of the draw used · +$500/mo spending → 88% − 7 = 81% · worker verdict names retire 67 / $1,200 / $4,500 and the decision rows echo the same plan.</div></li>
+ <li><span class="dot">5</span><div><b>v2 changes (your six items):</b> spectrum gauge on every verdict (locked sample on first day, the same honest pattern Home uses) &middot; retiree section retitled &ldquo;Where your income comes from&rdquo; and aligned word-for-word with the Home paycheck engine (= Guaranteed, + Safe draw) &middot; &ldquo;Can I spend more?&rdquo; replaces &ldquo;Spend more, safely?&rdquo; &middot; the worker&rsquo;s $4,500 is labeled what it is: planned spending, not a paycheck or safe-draw number &middot; &ldquo;Try what-ifs&rdquo; keeps no apostrophe (plural, not possessive) &middot; a PROPOSED &ldquo;Big one-time costs&rdquo; decision row on both lenses — approve or strike it.</div></li>
+ <li><span class="dot">4</span><div><b>Settled ≠ hidden:</b> a claimed Social Security shows as “claimed at 67 ✓” instead of vanishing or sitting as a dead door — you know it's handled.</div></li>
+</ul></div></div></body></html>
