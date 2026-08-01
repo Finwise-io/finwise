@@ -6,7 +6,7 @@
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, PanResponder, KeyboardAvoidingView, Platform, type LayoutChangeEvent } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, KeyboardAvoidingView, Platform, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -26,6 +26,7 @@ import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12: the one drag engine
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
@@ -48,6 +49,7 @@ export default function RetirementCockpit() {
   ).accounts;
 
   const [screen, setScreen] = useState<'current' | 'scenario'>('current');
+  const [sliding, setSliding] = useState(false);           // B47 finding 12: page scroll stands down mid-drag
   const [showDetails, setShowDetails] = useState(false);   // Simple: reveal the Advisor detail cards inline
   const [earmarkOpen, setEarmarkOpen] = useState(false);
   const [ssOpen, setSsOpen] = useState(false);
@@ -265,7 +267,8 @@ export default function RetirementCockpit() {
   // ───────────────── SCREEN 2 — SCENARIO ─────────────────
   if (screen === 'scenario') {
     return (
-      <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <SlidingCtx.Provider value={setSliding}>
+      <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false} scrollEnabled={!sliding}>
         <View style={styles.topbar}>
           <TouchableOpacity onPress={() => setScreen('current')}><Text style={styles.back}>‹ Where you stand</Text></TouchableOpacity>
           <Text style={styles.sandboxTag}>SANDBOX</Text>
@@ -430,6 +433,7 @@ export default function RetirementCockpit() {
         <SaveScenario open={saveOpen} onClose={() => setSaveOpen(false)} defaultName={scRetired ? `Spend ${moneyCompact(spendMo, 'M')}` : `Retire ${rAge}`}
           onSave={(name) => { store.saveRetirementScenario(name, { retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, horizonAge: horizonSand }, scRetired ? age : rAge, scChance ?? 0); setSaveOpen(false); }} />
       </ScrollView>
+      </SlidingCtx.Provider>
     );
   }
 
@@ -509,11 +513,16 @@ export default function RetirementCockpit() {
       ) : (
         <>
           <View style={styles.heroRow}>
+            {/* B47 finding 13: the old stack read "IF YOU NEVER SAVE AGAIN / Keep saving / on
+                today's $162K" — three fragments that contradict each other. Each state is now one
+                honest sentence: coasting works (earliest age) or it doesn't (not even by 80). */}
             <View style={[styles.heroCardG, { marginRight: 5 }]}>
               <Text style={styles.heroK}>IF YOU NEVER SAVE AGAIN</Text>
               <Text style={styles.heroBig}>{retireAtAge ? `Retire ${retireAtAge}` : 'Keep saving'}</Text>
-              <Text style={styles.heroSub}>on today's {big(nestEgg)}</Text>
-              <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
+              <Text style={styles.heroSub}>{retireAtAge
+                ? `today's ${big(nestEgg)} alone gets there by ${retireAtAge}`
+                : `today's ${big(nestEgg)} alone doesn't get there — even by 80`}</Text>
+              <Text style={styles.heroRoi}>growing at {(planGrowth * 100).toFixed(1)}%/yr</Text>
             </View>
             <View style={[styles.heroCardG, { marginLeft: 5 }]}>
               <Text style={styles.heroK}>AT YOUR TARGET, {Math.round(planRetireAge)}</Text>
@@ -827,29 +836,33 @@ function ProjectionChart({ data, width }: { data: { year: number; age: number; b
 }
 
 // ───────────────────────── Slider ─────────────────────────
-function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary, markers }: {
-  value: number; min: number; max: number; step?: number; onChange: (v: number) => void; onComplete?: () => void; color?: string; markers?: { value: number; label: string }[];
+// B47 finding 12 ("the sliders not working" on device): this was a second private copy of the
+// drag code the What-if slider already shipped broken once — no capture claim, host ScrollView
+// stealing the gesture, no scroll stand-down. It now rides the ONE shared engine (sliderGesture)
+// and reports drags through SlidingCtx so the scenario page stops scrolling under the finger.
+const SlidingCtx = React.createContext<(dragging: boolean) => void>(() => {});
+function Slider({ value, min, max, step = 1, onChange, onComplete, color = Colors.primary, markers, a11yLabel }: {
+  value: number; min: number; max: number; step?: number; onChange: (v: number) => void; onComplete?: () => void; color?: string; markers?: { value: number; label: string }[]; a11yLabel?: string;
 }) {
-  const cfg = useRef<any>({}); cfg.current = { min, max, step, onChange, onComplete };
-  const xRef = useRef(0), wRef = useRef(0), viewRef = useRef<View>(null);
-  const measure = () => viewRef.current?.measureInWindow((x, _y, w) => { xRef.current = x; wRef.current = w; });
-  const setFromX = (px: number) => {
-    const c = cfg.current; const w = wRef.current; if (!w) return;
-    let p = clamp((px - xRef.current) / w, 0, 1);
-    let v = c.min + p * (c.max - c.min); v = Math.round(v / c.step) * c.step;
-    c.onChange(clamp(v, c.min, c.max));
-  };
-  const pan = useRef(PanResponder.create({
-    onStartShouldSetPanResponder: () => true,
-    onMoveShouldSetPanResponder: () => true,
-    onPanResponderGrant: (e) => setFromX(e.nativeEvent.pageX),
-    onPanResponderMove: (e) => setFromX(e.nativeEvent.pageX),
-    onPanResponderRelease: () => cfg.current.onComplete?.(),
-    onPanResponderTerminate: () => cfg.current.onComplete?.(),
-  })).current;
+  const cfg = useRef<any>({}); cfg.current = { min, max, step, onChange };
+  const setSliding = React.useContext(SlidingCtx);
+  const { panHandlers, setTrackWidth } = useSliderPan({
+    onRatio: (r) => {
+      const c = cfg.current;
+      const v = Math.round((c.min + r * (c.max - c.min)) / c.step) * c.step;
+      c.onChange(clamp(v, c.min, c.max));
+    },
+    onDraggingChange: setSliding,
+    onSettle: () => cfg.current.onComplete?.(),
+  });
   const pct = clamp((value - min) / (max - min || 1), 0, 1) * 100;
+  const nudge = (dir: 1 | -1) => { onChange(clamp(value + dir * step, min, max)); onComplete?.(); };
   return (
-    <View ref={viewRef} onLayout={measure} hitSlop={{ top: 14, bottom: 14 }} {...pan.panHandlers} style={styles.trackHit}>
+    <View onLayout={(e) => setTrackWidth(e.nativeEvent.layout.width)} hitSlop={{ top: 14, bottom: 14 }} {...panHandlers} style={styles.trackHit}
+      accessible accessibilityRole="adjustable" accessibilityLabel={a11yLabel ?? 'Slider'}
+      accessibilityValue={{ min, max, now: value }}
+      accessibilityActions={[{ name: 'increment' }, { name: 'decrement' }]}
+      onAccessibilityAction={(ev) => nudge(ev.nativeEvent.actionName === 'increment' ? 1 : -1)}>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${pct}%`, backgroundColor: color }]} />
         {(markers ?? []).map((m, i) => {
@@ -867,7 +880,7 @@ function SliderRow(p: { label: string; valueLabel: string; fmt?: (v: number) => 
   return (
     <View style={styles.sl}>
       <View style={styles.slTop}><Text style={styles.slL}>{label}</Text><Text style={styles.slV}>{valueLabel}</Text></View>
-      <Slider {...rest} markers={markers} />
+      <Slider {...rest} markers={markers} a11yLabel={label} />
       {markers && markers.length > 0 && <Text style={styles.markerCap}>{markers.map((m) => `▲ ${m.label} ${f(m.value)}`).join('   ')}</Text>}
     </View>
   );

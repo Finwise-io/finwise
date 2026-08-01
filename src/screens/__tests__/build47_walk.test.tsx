@@ -521,3 +521,72 @@ describe('B47 finding 11 — the one repayment-shaped debt editor', () => {
     expect(screen.getByText('You pay /mo')).toBeOnTheScreen();
   });
 });
+
+// ── B47 findings 12+13 (founder device walk, 2026-07-31): scenario sliders + the coasting box ──
+describe('B47 finding 12 — scenario sliders ride the ONE drag engine', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = (f: string) => fs.readFileSync(path.join(__dirname, '..', '..', f), 'utf8');
+
+  test('PanResponder.create exists in sliderGesture.ts ONLY — no screen or component rolls its own drag', () => {
+    const walk = (dir: string): string[] => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e: any) =>
+      e.isDirectory() ? walk(path.join(dir, e.name)) : [path.join(dir, e.name)]);
+    const offenders = walk(path.join(__dirname, '..', '..'))
+      .filter((f: string) => /\.(ts|tsx)$/.test(f) && !f.includes('__tests__'))
+      .filter((f: string) => fs.readFileSync(f, 'utf8').includes('PanResponder.create'))
+      .filter((f: string) => !f.endsWith('sliderGesture.ts'));
+    expect(offenders).toEqual([]);
+  });
+
+  test('the engine carries every device lesson: capture claim, termination refusal, native block, pageX anchor', () => {
+    const eng = src('components/sliderGesture.ts');
+    expect(eng).toMatch(/onStartShouldSetPanResponderCapture: \(\) => true/);
+    expect(eng).toMatch(/onPanResponderTerminationRequest: \(\) => false/);
+    expect(eng).toMatch(/onShouldBlockNativeResponder: \(\) => true/);
+    expect(eng).toMatch(/pageX - e\.nativeEvent\.locationX/);
+  });
+
+  test('the scenario page stands its scrolling down during a drag (the What-if fix, applied here)', () => {
+    const rc = src('screens/RetirementCockpit.tsx');
+    expect(rc).toMatch(/scrollEnabled=\{!sliding\}/);
+    expect(rc).toMatch(/SlidingCtx\.Provider value=\{setSliding\}/);
+    expect(rc).toMatch(/useSliderPan/);
+    // and What-if keeps its stand-down too — the pair can't drift apart again
+    expect(src('screens/WhatIfScreen.tsx')).toMatch(/scrollEnabled=\{!sliding\}/);
+  });
+
+  test('cockpit sliders are spoken: adjustable role with increment/decrement by step', () => {
+    const rc = src('screens/RetirementCockpit.tsx');
+    expect(rc).toMatch(/accessibilityRole="adjustable"/);
+    expect(rc).toMatch(/accessibilityActions=\{\[\{ name: 'increment' \}, \{ name: 'decrement' \}\]\}/);
+  });
+});
+
+describe('B47 finding 13 — the coasting box reads as one honest sentence', () => {
+  const seedWorker = (balance: number) => useStore.setState({
+    hideBalances: false, onboardingComplete: true,
+    onboardingProfile: {
+      status: 'employed', incomeSources: ['employment'], name: 'Pat',
+      birthYear: String(new Date().getFullYear() - 58),
+      baseSalary: '9000', salaryMode: 'gross', salaryFreq: 'monthly',
+      taxMode: 'manual', manualTaxRate: '20', monthlySpending: '4500',
+      targetRetirementAge: '67', horizonAge: '92',
+    },
+    assetAccounts: [{ asset_id: 'k', label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance }],
+  } as any);
+
+  test('small nest egg: "Keep saving" is explained — the money alone does not get there, even by 80', () => {
+    seedWorker(162000);
+    const RetirementCockpit = require('../RetirementCockpit').default;
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/alone doesn't get there — even by 80/)).toBeOnTheScreen();
+    expect(screen.queryByText(/^on today's/)).toBeNull();        // the old dangling fragment is gone
+  });
+
+  test('big nest egg: coasting works and the sentence names the age it works at', () => {
+    seedWorker(3000000);
+    const RetirementCockpit = require('../RetirementCockpit').default;
+    render(<RetirementCockpit />);
+    expect(screen.getByText(/Retire \d+/)).toBeOnTheScreen();
+    expect(screen.getByText(/alone gets there by \d+/)).toBeOnTheScreen();
+  });
+});
