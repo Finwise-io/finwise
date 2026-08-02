@@ -2,9 +2,10 @@
 // laid out in YOUR dollars. You set how long you expect to live; we never crown a winner. Everything is
 // a sandbox until the Use-this-plan sheet; Back discards silently (nothing was at risk).
 import React, { useMemo, useState } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { requestNotificationPermission, scheduleSsWindowReminder } from '../services/notifications';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
@@ -34,6 +35,7 @@ export default function SsTimingScreen() {
   const [liveTo, setLiveTo] = useState<number>(() => A.horizonAge ?? (num(op.horizonAge) || 90));
   const [adoptFor, setAdoptFor] = useState<number | null>(null);   // claim age pending adoption
   const [whyOpen, setWhyOpen] = useState(false);
+  const [remindSet, setRemindSet] = useState(false);   // r18: the claim-window reminder
 
   const stmt = num(statement);
   const usingExample = stmt <= 0;
@@ -186,6 +188,19 @@ export default function SsTimingScreen() {
 
       {/* window (logistics only) */}
       {window && <Text style={styles.window}>You can claim any time from {window.opens} (age 62) to age 70 — no deadline.</Text>}
+      {window && !remindSet && (
+        <TouchableOpacity accessibilityRole="button" style={styles.remindBtn}
+          accessibilityLabel="Remind me when my claim window opens"
+          onPress={async () => {
+            const ok = await requestNotificationPermission();
+            if (!ok) { Alert.alert('Notifications are off', 'Turn them on in Settings to get the reminder.'); return; }
+            const done = await scheduleSsWindowReminder(window.opensYear, window.opensMonth);
+            setRemindSet(true);
+            Alert.alert(done ? 'Reminder set' : 'Window already open', done ? `We'll nudge you when the window opens — nothing is claimed for you.` : 'Your window is open now — the table above is live.');
+          }}>
+          <Text style={styles.remindTxt}>🔔 Remind me when it opens</Text>
+        </TouchableOpacity>
+      )}
 
       {/* one adoption button per live option */}
       {rows.filter((r) => !r.passed).map((r) => (
@@ -266,6 +281,8 @@ const styles = StyleSheet.create({
   stepBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   stepTxt: { fontSize: 22, fontWeight: '700', color: Colors.primary },
   liveTo: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, minWidth: 90, textAlign: 'center' },
+  remindBtn: { minHeight: 44, justifyContent: 'center', alignSelf: 'flex-start', marginTop: 6 },
+  remindTxt: { fontSize: 13.5, fontWeight: '800', color: Colors.primary },
   window: { fontSize: 13, color: Colors.textSecondary, marginVertical: Spacing.sm, lineHeight: 19 },
   // option CARDS, not a wall of identical filled buttons (audit SS-4) — the ONE filled confirm
   // lives in the Use-this-plan sheet each of these opens

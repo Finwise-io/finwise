@@ -106,3 +106,21 @@ export function addNotificationResponseListener(
     if (screen) onNavigate(screen);
   });
 }
+
+// ── Social Security claim-window reminder (design r18, built pre-48 per founder decision) ──
+/** Fires the month the claim window opens (their 62nd-birthday month), 10:00 on the 1st. */
+export async function scheduleSsWindowReminder(opensYear: number, opensMonth1: number) {
+  const id = 'ss-window-reminder';
+  await Notifications.cancelScheduledNotificationAsync(id);
+  const fireAt = new Date(opensYear, opensMonth1 - 1, 1, 10, 0, 0);
+  if (fireAt.getTime() <= Date.now()) return false;          // window already open — nothing to schedule
+  await Notifications.scheduleNotificationAsync({
+    identifier: id,
+    content: {
+      title: 'Your Social Security claim window is open',
+      body: 'You can claim any time from now to 70 — each year you wait raises the check. The app lays out your options in your own dollars.',
+    },
+    trigger: { date: fireAt } as any,
+  });
+  return true;
+}

@@ -33,9 +33,9 @@ export function ssLifetimeTotal(statementMonthly: number, claimAge: number, live
 }
 
 /** The claim window: the month the person turns 62 → the month they turn 70. */
-export function claimWindow(birthYear: number | null, birthMonth: number | null): { opens: string; closes: string } | null {
+export function claimWindow(birthYear: number | null, birthMonth: number | null): { opens: string; closes: string; opensYear: number; opensMonth: number } | null {
   if (!birthYear) return null;
   const m = birthMonth && birthMonth >= 1 && birthMonth <= 12 ? birthMonth : 1;
   const fmt = (y: number) => `${y}-${String(m).padStart(2, '0')}`;
-  return { opens: fmt(birthYear + EARLIEST_CLAIM_AGE), closes: fmt(birthYear + LATEST_CREDIT_AGE) };
+  return { opens: fmt(birthYear + EARLIEST_CLAIM_AGE), closes: fmt(birthYear + LATEST_CREDIT_AGE), opensYear: birthYear + EARLIEST_CLAIM_AGE, opensMonth: m };
 }
