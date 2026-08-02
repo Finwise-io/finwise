@@ -62,7 +62,11 @@ describe('1 · returning WORKING user upgrades from Build 40', () => {
     expect(screen.getByText('THIS MONTH')).toBeOnTheScreen();
     cf.unmount();
     render(<PlanHubScreen />);
-    expect(screen.getByText('BIG DECISIONS')).toBeOnTheScreen();
+    // mock v9 (approved 2026-08-01): this upgrade user has accounts but no spending answer yet →
+    // the DYNAMIC door counts only what's missing and CREDITS the live $120k (never retyped)
+    expect(screen.getByText('DECISIONS YOU CAN MAKE TODAY')).toBeOnTheScreen();
+    expect(screen.getByText(/What you have — already in: 1 account, \$120,000 counted/)).toBeOnTheScreen();
+    expect(screen.getByText('When can I retire? 🔒')).toBeOnTheScreen();
   });
 });
 
@@ -120,7 +124,7 @@ describe('4 · brand-new user who skips everything (just explore)', () => {
     expect(screen.getByText('Cash flow')).toBeOnTheScreen();           // renders, honest and alive
     cf.unmount();
     render(<PlanHubScreen />);
-    expect(screen.getByText(/Answer three quick questions/)).toBeOnTheScreen();   // invitation, not a guess
+    expect(screen.getByText(/See your real odds — 3 questions|answers? left/)).toBeOnTheScreen();   // v9 dynamic door — invitation, not a guess
   });
 });
 

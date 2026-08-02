@@ -87,7 +87,8 @@ describe('pin 2 — will-it-last: one selector, three surfaces, one percent', ()
     // gather any NN% token on the screen paired with Likely/Uncertain/Unlikely wording
     const joined = texts.join(' ');
     // JSX interpolation splits 'Likely — 84%' into separate text nodes — allow whitespace runs
-    const m = joined.match(/(Likely|Uncertain|Unlikely)\s*—?\s*(\d{1,3})\s*%/);
+    // v9: the hub speaks each lens's words (retired: Holding/Watch closely/Running short) — same number
+    const m = joined.match(/(Likely|Uncertain|Unlikely|Holding|Watch closely|Running short)\s*—?\s*(\d{1,3})\s*%/);
     r.unmount();
     expect(m).toBeTruthy();
     return m![2];
