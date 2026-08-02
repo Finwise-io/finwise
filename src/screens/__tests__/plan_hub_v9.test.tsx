@@ -102,3 +102,10 @@ test('first day retired: income capture leads; spend-more wears the lock', () =>
   expect(screen.getByText('Your income')).toBeOnTheScreen();
   expect(screen.getByText('Can I spend more? 🔒')).toBeOnTheScreen();
 });
+
+test('SAMENESS (pre-48 audit): the hub withdrawal rate comes from the canonical helper on the SAME inputs as the odds', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'PlanHubScreen.tsx'), 'utf8');
+  expect(src).toMatch(/withdrawalPlan\(wil\.inputs\.retire_monthly_spend_today/);   // canonical helper, odds' own inputs
+  expect(src).not.toMatch(/\* 12\) \/ wil\.inputs\.start_balance/);                 // the inline re-derivation is gone
+});

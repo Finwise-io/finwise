@@ -10,7 +10,7 @@ import { money } from '../domain/_shared/num';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveLens } from '../domain/profile/lens';
-import { RMD_START_AGE } from '../domain/decumulation';
+import { RMD_START_AGE, withdrawalPlan } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
@@ -70,8 +70,12 @@ export default function PlanHubScreen() {
   const payMonth = payYear.thisMonth;
   const drawUsed = Math.max(0, planSpend - (payMonth?.guaranteedTotal ?? 0));
   const paycheckTotal = (payMonth?.guaranteedTotal ?? 0) + (payMonth?.safeDraw ?? 0);
-  const drawRate = wil.inputs && wil.inputs.start_balance > 0
-    ? Math.max(0, (planSpend - guaranteedMonthly) * 12) / wil.inputs.start_balance : null;
+  // SAMENESS (pre-48 audit): the rate comes from the CANONICAL withdrawalPlan helper, fed the SAME
+  // inputs the odds above used — claim-age-adjusted guaranteed income and the same nest-egg base.
+  // Never re-derive inline (that exact drift was the July-24 audit's top finding).
+  const wplan = wil.inputs
+    ? withdrawalPlan(wil.inputs.retire_monthly_spend_today || planSpend, wil.inputs.guaranteed_monthly_income || 0, wil.inputs.start_balance || 0)
+    : null;
 
   const deleteScenario = (s: any) => {
     Alert.alert('Delete this scenario?', s.name, [
@@ -115,7 +119,7 @@ export default function PlanHubScreen() {
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
               Your {maskedMoney(planSpend)}/mo spending{wil.chance >= 80 ? ` is covered to ${wil.horizonAge} at today's pace` : ` — ${wil.chance} in 100 paths last to ${wil.horizonAge}`}
-              {drawRate != null ? ` — a ${(drawRate * 100).toFixed(1)}%/yr withdrawal, ${drawRate <= 0.04 ? 'within the safe range' : 'above the usual 4% guideline'}` : ''}.
+              {wplan?.withdrawalRate != null ? ` — a ${(wplan.withdrawalRate * 100).toFixed(1)}%/yr withdrawal, ${wplan.rateBand === 'safe' ? 'within the safe range' : wplan.rateBand === 'moderate' ? 'a bit above the 4% guideline — watch it' : 'above 5% — high risk of running short'}` : ''}.
             </Text>
           ) : (
             <Text style={styles.ifLine}>
