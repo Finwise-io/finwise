@@ -161,7 +161,7 @@ export default function CashFlowScreen() {
         accessibilityLabel={wil.chance != null ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
         <Text style={styles.cardHdr}>WILL MY MONEY LAST?</Text>
         {wil.chance != null
-          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% <EstimateTag /></Text>
+          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}%{wil.band ? ` (range ${wil.band.low}–${wil.band.high}%)` : ''} <EstimateTag /></Text>
           : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
         <Text style={styles.link}>Lives in your Plan ›</Text>
       </TouchableOpacity>

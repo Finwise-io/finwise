@@ -176,8 +176,8 @@ export default function RothScreen() {
           )}
 
           <TouchableOpacity accessibilityRole="button" style={s.primaryBtn} onPress={() => setSheetOpen(true)}
-            accessibilityLabel={`Use this plan: convert ${spokenMoney(amt)} this year`}>
-            <Text style={s.primaryTxt}>Use this plan</Text>
+            accessibilityLabel={`Use as my plan: convert ${spokenMoney(amt)} this year`}>
+            <Text style={s.primaryTxt}>Use as my plan</Text>
           </TouchableOpacity>
           <Text style={s.note}>Nothing moves by itself — you'd do the conversion with your brokerage; this records the numbers.</Text>
         </>

@@ -129,7 +129,7 @@ describe('FLOW 4 · a big decision end to end: claim Social Security, then chang
     const ss = render(<SsTimingScreen />);
     fireEvent.changeText(screen.getByLabelText(/Monthly amount from your Social Security statement/), '2600');
     fireEvent.press(screen.getByLabelText('Use claim at 67 as my plan'));
-    fireEvent.press(screen.getByLabelText('Use this plan: Claim Social Security at 67'));
+    fireEvent.press(screen.getByLabelText('Use as my plan: Plan to claim Social Security at 67'));
     ss.unmount();
 
     const s = useStore.getState() as any;

@@ -74,8 +74,8 @@ test('editable rate: overriding it recomputes the tax bill and says who set it',
 test('ADOPTION (r40 pin): Use this plan writes the patch AND the tax lands in April next year', () => {
   render(<RothScreen />);
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '25000');
-  fireEvent.press(screen.getByLabelText(/Use this plan: convert \$25,000/));
-  fireEvent.press(screen.getByLabelText('Use this plan: Convert $25,000 to Roth this year'));
+  fireEvent.press(screen.getByLabelText(/Use as my plan: convert \$25,000/));
+  fireEvent.press(screen.getByLabelText('Use as my plan: Convert $25,000 to Roth this year'));
   const A = (useStore.getState() as any).retirementAssumptions;
   expect(A.rothConversionThisYear).toBe(25000);
   expect(A.rothConversionTax).toBeGreaterThan(0);

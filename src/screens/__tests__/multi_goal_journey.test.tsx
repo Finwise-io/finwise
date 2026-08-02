@@ -90,7 +90,7 @@ describe('the screen journey', () => {
     fireEvent(screen.getByLabelText(/Help parents at/), 'valueChange', true);   // toggle the goal on
     fireEvent.press(screen.getByLabelText('Use this plan — see exactly what changes first'));
     expect(screen.getByText(/exactly what changes/)).toBeOnTheScreen();          // the F11 sheet
-    fireEvent.press(screen.getByLabelText('Use this plan: Your goals, together'));
+    fireEvent.press(screen.getByLabelText('Use as my plan: Your goals, together'));
 
     const A = (useStore.getState() as any).retirementAssumptions;
     expect(A.commitments).toHaveLength(1);

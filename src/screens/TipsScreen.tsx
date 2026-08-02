@@ -33,7 +33,7 @@ function generateLocalTips(expenses: any[]): any[] {
     tips.push({ title: 'Combine errands', detail: 'Plan errands in one trip to save on gas. Could save $20-40/month.', savingsMin: 20, savingsMax: 40 });
   }
   if (tips.length === 0) {
-    tips.push({ title: 'Build your emergency fund', detail: 'Try to save 3-6 months of expenses as a safety net. Even $50/month adds up.', savingsMin: 50, savingsMax: 100 });
+    tips.push({ title: 'Build your emergency fund', detail: 'A common cushion is 3-6 months of expenses as a safety net. Even $50/month adds up.', savingsMin: 50, savingsMax: 100 });
     tips.push({ title: 'Pay yourself first', detail: 'Set up an automatic transfer to savings on payday before spending anything.', savingsMin: 100, savingsMax: 200 });
   }
   return tips;

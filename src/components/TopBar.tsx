@@ -32,17 +32,16 @@ const MORE_IN: { tab: FccTab; items: Mod[] }[] = [
     { e: '🔁', t: 'Roth conversion', route: '/roth' },
   ] },
 ];
+// Founder decision 2026-08-02: Rewards/Tips/Build-credit tiles left the 55-70 menu (screens kept in
+// code for future age groups); College planner + Estate stay — both serve this audience.
 const TOOLS: Mod[] = [
   { e: '💡', t: 'Insights', route: '/insights' },
   { e: '🧾', t: 'Tax organizer', route: '/tax-organizer' },
   { e: '🛡️', t: 'Insurance check', route: '/insurance' },
-  { e: '💳', t: 'Build credit', route: '/credit' },
   { e: '🎁', t: 'Estate & legacy', route: '/estate' },
 ];
 const FOOTER: Mod[] = [
   { e: '💬', t: 'Send feedback', route: '/(tabs)/settings?openFeedback=1' },
-  { e: '🏅', t: 'Rewards', route: '/(tabs)/rewards' },
-  { e: '📚', t: 'Tips', route: '/(tabs)/tips' },
   { e: '⚙️', t: 'Settings', route: '/(tabs)/settings' },
 ];
 const hit = { top: 10, bottom: 10, left: 10, right: 10 };

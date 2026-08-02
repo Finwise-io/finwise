@@ -280,4 +280,4 @@ export function EstimateTag() {
 }
 
 /** Walk row 12 (audit UX #13): THE trying-it-out sentence — one wording on every scenario surface. */
-export const TRYING_IT_OUT = 'Trying it out — nothing changes until you tap Use this plan.';
+export const TRYING_IT_OUT = 'Trying it out — nothing changes until you tap Use as my plan.';

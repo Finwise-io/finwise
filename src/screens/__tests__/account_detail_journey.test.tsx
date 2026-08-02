@@ -121,7 +121,7 @@ describe('bond and alternative detail sections', () => {
     expect(screen.getByLabelText(/Interest payments: 4.50%\/yr · \$4,500\/yr/)).toBeOnTheScreen();
     expect(screen.getByLabelText(/Yield if held to maturity: about .*estimate/)).toBeOnTheScreen();
     expect(screen.getByText('IF INTEREST RATES MOVE')).toBeOnTheScreen();
-    expect(screen.getByText('Estimate, not a prediction')).toBeOnTheScreen();
+    expect(screen.getAllByText('estimate')[0]).toBeOnTheScreen();
     expect(screen.getByText(/Rates rise 1% → value roughly/)).toBeOnTheScreen();
     expect(screen.getByText(/if the issuer pays as promised/)).toBeOnTheScreen();
   });

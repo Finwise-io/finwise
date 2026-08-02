@@ -80,7 +80,7 @@ test('E2E-39 SS timing: statement → the 62-70 rows with chances → adopt 70 �
   expect(screen.getByLabelText(/Claiming at 62: \d+ percent chance/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Claiming at 70: \d+ percent chance/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Use claim at 70 as my plan'));
-  fireEvent.press(screen.getByLabelText('Use this plan: Claim Social Security at 70'));
+  fireEvent.press(screen.getByLabelText('Use as my plan: Plan to claim Social Security at 70'));
   expect((useStore.getState() as any).retirementAssumptions.ssClaimAge).toBe(70);
   useStore.getState().revertPlan();
   expect(JSON.stringify((useStore.getState() as any).retirementAssumptions)).toBe(before);

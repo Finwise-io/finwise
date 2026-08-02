@@ -116,7 +116,7 @@ test('B44 fix: a LONG alternative label (a dated option) shrinks — value-as-of
 test('bonds and alternatives fold into the grouped list with value-as-of stamps and stale flags', () => {
   render(<PerformanceScreen />);
   expect(screen.getByText(/YOUR INVESTMENTS/)).toBeOnTheScreen();
-  expect(screen.getByText(/Bonds\s+\$95,000/)).toBeOnTheScreen();
+  expect(screen.getByText(/Bonds & CDs\s+\$95,000/)).toBeOnTheScreen();
   expect(screen.getByText(/Value as of 2026-03/)).toBeOnTheScreen();          // fresh: a dated CHIP, no flag
   expect(screen.getByText(/Alternatives\s+\$9,000/)).toBeOnTheScreen();
   expect(screen.getByText(/⏱ \d+ mo old/)).toBeOnTheScreen();                // Nov 2025 gold → the stale chip
@@ -148,7 +148,7 @@ test('a bonds-only user still gets the grouped list, never the add-a-ticker empt
   } as any);
   render(<PerformanceScreen />);
   expect(screen.queryByText(/Add a holding with its ticker/)).toBeNull();
-  expect(screen.getByText(/Bonds\s+\$50,000/)).toBeOnTheScreen();
+  expect(screen.getByText(/Bonds & CDs\s+\$50,000/)).toBeOnTheScreen();
 });
 
 test('PRD F3#16: the money-weighted line shows ONLY when the ledger stands behind it', () => {

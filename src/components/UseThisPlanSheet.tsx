@@ -46,8 +46,8 @@ export function UseThisPlanSheet({ visible, onClose, title, changes, patch, adop
             </View>
           ))}
 
-          <TouchableOpacity accessibilityRole="button" style={s.adoptBtn} onPress={adopt} accessibilityLabel={`Use this plan: ${title}`}>
-            <Text style={s.adoptTxt}>Use this plan</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.adoptBtn} onPress={adopt} accessibilityLabel={`Use as my plan: ${title}`}>
+            <Text style={s.adoptTxt}>Use as my plan</Text>
           </TouchableOpacity>
           <TouchableOpacity accessibilityRole="button" style={s.cancelBtn} onPress={onClose} accessibilityLabel="Not now — keep my current plan">
             <Text style={s.cancelTxt}>Not now — keep my current plan</Text>

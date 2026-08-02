@@ -72,7 +72,7 @@ export default function StressTestScreen() {
               <Text style={[styles.big, { color: tone(r.jobLossRunway) }]}>{r.jobLossRunway.toFixed(1)}</Text>
               <Text style={styles.bigUnit}>months your cash would last</Text>
             </View>
-            <Text style={styles.note}>Covering your {money(ess)}/mo of must-pay bills with no paycheck coming in. Aim for 3–6 months.</Text>
+            <Text style={styles.note}>Covering your {money(ess)}/mo of must-pay bills with no paycheck coming in. 3–6 months of essentials is the range most planners use.</Text>
           </>
         ) : (
           <Text style={styles.note}>Add your monthly must-pay bills (rent, food, utilities) in your spending plan to see how long your cash would last.</Text>
@@ -83,9 +83,9 @@ export default function StressTestScreen() {
       <View style={styles.card}>
         <Text style={styles.cardTitle}>Your emergency fund</Text>
         {r.gapToFund > 0 ? (
-          <Text style={styles.fundTxt}>Aim for at least <Text style={styles.bold}>{money(r.recommendedFund)}</Text> (3 months of essentials). You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> away — set this as a goal and chip at it.</Text>
+          <Text style={styles.fundTxt}>3 months of essentials is <Text style={styles.bold}>{money(r.recommendedFund)}</Text>. You're <Text style={[styles.bold, { color: Colors.amber }]}>{money(r.gapToFund)}</Text> short of it today — a goal can track it, if you want one.</Text>
         ) : (
-          <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong cushion — consider stretching toward 6 months.</Text>
+          <Text style={styles.fundTxt}>✓ You already have at least 3 months of essentials set aside. A strong cushion — some stretch toward 6 months — your call.</Text>
         )}
       </View>
 

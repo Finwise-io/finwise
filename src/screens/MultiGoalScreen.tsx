@@ -221,7 +221,7 @@ export default function MultiGoalScreen() {
       <TouchableOpacity accessibilityRole="button" style={[s.primaryBtn, commitments.length === 0 && { opacity: 0.4 }]}
         disabled={commitments.length === 0} onPress={() => setAdoptOpen(true)}
         accessibilityLabel="Use this plan — see exactly what changes first">
-        <Text style={s.primaryTxt}>Use this plan</Text>
+        <Text style={s.primaryTxt}>Use as my plan</Text>
       </TouchableOpacity>
 
       <UseThisPlanSheet

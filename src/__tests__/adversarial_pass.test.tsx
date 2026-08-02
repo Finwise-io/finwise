@@ -59,8 +59,8 @@ test('SEAM adoption→3 surfaces→revert: the Roth tax appears on the grid AND 
   } as any);
   const roth = render(<RothScreen />);
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '25000');
-  fireEvent.press(screen.getByLabelText(/Use this plan: convert \$25,000/));
-  fireEvent.press(screen.getByLabelText('Use this plan: Convert $25,000 to Roth this year'));
+  fireEvent.press(screen.getByLabelText(/Use as my plan: convert \$25,000/));
+  fireEvent.press(screen.getByLabelText('Use as my plan: Convert $25,000 to Roth this year'));
   roth.unmount();
   const A = (useStore.getState() as any).retirementAssumptions;
   const oneOffs = [{ label: 'Roth conversion tax (from your Plan)', amount: A.rothConversionTax, month: 4, year: new Date().getFullYear() + 1 }];
