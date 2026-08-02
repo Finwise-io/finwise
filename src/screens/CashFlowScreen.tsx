@@ -13,6 +13,7 @@ import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
 import { actualDebtPayment } from '../domain/debt';
 import { retirementIncomeMonthly, salaryGrossByMonth, monthlyTaxRates } from '../domain/income';
+import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // pre-48 A3: canonical source totals
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { simulate } from '../domain/retirement';
 import { selectWillItLast, willItLastInputs, chanceWord } from '../domain/retirement/willItLast';
@@ -300,6 +301,14 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
     });
   }
   if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: maskedMoney(Math.round(Number(op.seAmount) || 0)) });
+  // pre-48 audit A3 (PRD F2#2): every stored source is VISIBLE here — bonus with its month,
+  // equity vesting, rental; invisible income was unexplainable months on the grid
+  const MO = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+  if (Number(op?.bonusAnnual) > 0) sources.push({ label: 'Bonus', sub: op?.bonusMonth ? `lands in ${MO[(Number(op.bonusMonth) - 1 + 12) % 12]} · tap to edit` : 'month not set — tap to set it', amount: `${maskedMoney(Math.round(Number(op.bonusAnnual)))}/yr` });
+  const rsuTotal = rsuAnnual(op);
+  if (rsuTotal > 0) sources.push({ label: 'Stock vesting (equity)', sub: 'vests through the year · tap to edit', amount: `${maskedMoney(Math.round(rsuTotal))}/yr` });
+  const rentalTotal = rentalNetAnnual(op);
+  if (rentalTotal > 0) sources.push({ label: 'Rental property', sub: 'net · tap to edit', amount: `${maskedMoney(Math.round(rentalTotal / 12))}/mo` });
   if (guaranteed > 0) sources.push({ label: 'Social Security · pension', sub: 'guaranteed income', amount: `${maskedMoney(Math.round(guaranteed))}/mo` });
   return (
     <>
@@ -322,6 +331,7 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
               { text: 'Stock vesting (equity)', onPress: () => router.push('/income-manager?open=equity' as any) },
               { text: 'Rental property', onPress: () => router.push('/income-manager?open=rental' as any) },
               { text: 'Self-employment', onPress: () => router.push('/income-manager?open=self' as any) },
+              { text: 'Bonus / one-time', onPress: () => router.push('/income-manager?open=bonus' as any) },
               { text: 'Cancel', style: 'cancel' },
             ]);
           }}>

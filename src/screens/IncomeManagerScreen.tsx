@@ -37,6 +37,7 @@ export default function IncomeManagerScreen() {
     if (openParam === 'equity') setRich('equity');
     else if (openParam === 'rental') setRich('rental');
     else if (openParam === 'self') setSelfOpen(true);
+    else if (openParam === 'bonus') setEditKey('bonusAnnual');
     if (openParam) router.setParams({ open: undefined } as any);
   }, [openParam]);   // reuse onboarding RsuEditor/RentalEditor
   const [selfOpen, setSelfOpen] = useState(false);
