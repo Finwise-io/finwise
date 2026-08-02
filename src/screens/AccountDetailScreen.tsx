@@ -153,7 +153,7 @@ export default function AccountDetailScreen() {
                 <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
               </View>
             ))}
-            <Text style={s.optNote}>These sum to the {maskedMoney(Math.round((breakdown as any)[classView] || 0))} above. Everything else lives on the whole-account page — one tap up.</Text>
+            <Text style={s.optNote}>{insideRows.map((rw: any) => maskedMoney(rw.value)).join(' + ')} = {maskedMoney(Math.round((breakdown as any)[classView] || 0))}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
         </View>
       ) : (
@@ -193,19 +193,19 @@ export default function AccountDetailScreen() {
           the money must not sit labeled as a growing bond after its maturity date */}
       {cls === 'bonds' && account.maturity_date && account.maturity_date <= iso(new Date()) && (account.balance || 0) > 0 && (
         <View style={s.maturedCard}>
-          <Text style={s.maturedTitle}>⏰ This bond matured {new Date(`${account.maturity_date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
+          <Text style={s.maturedTitle}>⏰ This {assetKind(account.kind)?.id === 'cd' ? 'CD' : 'bond'} matured {new Date(`${account.maturity_date}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}.</Text>
           <Text style={s.maturedBody}>The money isn't growing here anymore — record what happened so your numbers stay true.</Text>
-          <TouchableOpacity accessibilityRole="button" style={s.maturedBtn}
-            accessibilityLabel="Record what happened to this matured bond"
-            onPress={() => {
-              Alert.alert('What happened?', 'Pick the one that matches reality.', [
-                { text: 'Paid out to my bank', onPress: () => { store.recordTransaction?.({ type: 'SELL', account_id: account.asset_id, amount: account.balance || 0, date: iso(new Date()), note: 'Matured — paid out' }); } },
-                { text: 'Rolled into a new bond/CD', onPress: () => router.push('/bonds' as any) },
-                { text: 'Still waiting', style: 'cancel' },
-              ]);
-            }}>
-            <Text style={s.maturedBtnTxt}>Record what happened ›</Text>
+          <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
+            accessibilityLabel="Paid out to my bank — records the payout"
+            onPress={() => { store.recordTransaction?.({ type: 'SELL', account_id: account.asset_id, amount: account.balance || 0, date: iso(new Date()), note: 'Matured — paid out' }); }}>
+            <Text style={s.maturedOptTxt}>💵  Paid out to my bank ›</Text>
           </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" style={s.maturedOpt}
+            accessibilityLabel="Rolled into a new bond or CD — opens the bonds page"
+            onPress={() => router.push('/bonds' as any)}>
+            <Text style={s.maturedOptTxt}>🔁  Rolled into a new bond/CD ›</Text>
+          </TouchableOpacity>
+          <Text style={s.maturedWait}>Still waiting? Leave it — this banner stays until you record it.</Text>
         </View>
       )}
 
@@ -563,6 +563,9 @@ const s = StyleSheet.create({
   maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },
   maturedTitle: { fontSize: 14, fontWeight: '800', color: Colors.amber },
   maturedBody: { fontSize: 12.5, color: Colors.amber, marginTop: 3, lineHeight: 17 },
+  maturedOpt: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, paddingVertical: 11, paddingHorizontal: 12, marginTop: 8, minHeight: 44, justifyContent: 'center', borderWidth: 1, borderColor: Colors.amberMid },
+  maturedOptTxt: { fontSize: 14, fontWeight: '800', color: Colors.textPrimary },
+  maturedWait: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 8 },
   maturedBtn: { backgroundColor: Colors.amber, borderRadius: Radii.md, paddingVertical: 11, paddingHorizontal: 14, alignSelf: 'flex-start', marginTop: 8, minHeight: 44, justifyContent: 'center' },
   maturedBtnTxt: { fontSize: 13.5, fontWeight: '800', color: Colors.white },
   staleCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },

@@ -14,9 +14,8 @@ import { RMD_START_AGE, withdrawalPlan } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
-import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot } from '../components/UI';
-import { maskedMoney, spokenMoney } from '../components/useMoney';
+import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
 import { lensChanceWord, planDoor, nextDecision } from '../domain/planning/hub';
@@ -143,11 +142,11 @@ export default function PlanHubScreen() {
             </View>
             <TouchableOpacity accessibilityRole="button" style={styles.doorBtn} onPress={() => router.push('/sharpen')}
               accessibilityLabel={`${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}`}>
-              <Text style={styles.doorBtnTxt}>{door.count < 3 ? `${door.count} answer${door.count === 1 ? '' : 's'} left` : `See your real ${lens === 'retired' ? 'answer' : 'odds'} — 3 questions`} ›</Text>
+              <Text style={styles.doorBtnTxt}>{door.count < 3 ? `${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}` : `See your real ${lens === 'retired' ? 'answer' : 'odds'} — 3 questions`} ›</Text>
             </TouchableOpacity>
-            <Text style={styles.doorSub}>{door.missing.join(' · ')}</Text>
+            <Text style={styles.doorSub}>{door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' · ')}{door.count === 3 ? ". That's all." : ''}</Text>
             {door.credit && (
-              <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
+              <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
             )}
           </View>
           <View style={[styles.nextCard, { opacity: 0.5 }]} accessible
@@ -200,7 +199,7 @@ export default function PlanHubScreen() {
             {lens === 'retired' ? (
               <>
                 <DecisionRow title="Can I spend more?"
-                  sub={spendMore ? `spending 500 a month more would take you to ${spendMore.chance}% (${spendMore.delta >= 0 ? '+' : '−'}${Math.abs(spendMore.delta)} points) — see the trade before deciding` : 'see what spending a bit more does to your odds first'}
+                  sub={spendMore ? maskDollars(`an extra $500/mo would take you to ${spendMore.chance}% (${spendMore.delta >= 0 ? '+' : '−'}${Math.abs(spendMore.delta)} points) — see the trade before deciding`) : 'see what spending a bit more does to your odds first'}
                   onPress={() => router.push('/retirement')} />
                 <DecisionRow divider title="Which account do I draw from first?" sub="the order matters — taxes differ by account" onPress={() => router.push('/(tabs)/cashflow')} />
                 {next?.kind !== 'ss-window' && (
@@ -253,7 +252,7 @@ export default function PlanHubScreen() {
                 <View style={styles.lockRow} accessible accessibilityLabel="Can I spend more? Locked — unlocks with your answers above.">
                   <View style={{ flex: 1 }}>
                     <Text style={styles.rowTitle}>Can I spend more? 🔒</Text>
-                    <Text style={styles.rowSub}>unlocks with your answers above</Text>
+                    <Text style={styles.rowSub}>unlocks with your 3 answers above</Text>
                   </View>
                 </View>
               </>
@@ -266,7 +265,7 @@ export default function PlanHubScreen() {
                   </View>
                 </View>
                 <DecisionRow divider title="Can I afford it?" sub="add a goal — college, the mortgage, helping parents — and see the trade" onPress={() => router.push('/multi-goal')} />
-                <DecisionRow divider title="When should I claim Social Security?" sub="62 vs 67 vs 70 in your dollars — worked example until your statement number goes in" onPress={() => router.push('/ss-timing')} />
+                <DecisionRow divider title="When should I claim Social Security?" sub="62 vs 67 vs 70 in your dollars — set the age your plan counts on. Worked example until your statement number goes in." onPress={() => router.push('/ss-timing')} />
               </>
             )}
           </View>
@@ -309,12 +308,14 @@ export default function PlanHubScreen() {
         accessibilityLabel={`Sharpen your plan, ${plan.doneCount} of ${plan.total} done`}>
         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
           <Text style={[styles.rowTitle, { flex: 1 }]}>Sharpen your plan</Text>
-          <Text style={styles.meterTxt}>{plan.doneCount} of {plan.total} ›</Text>
+          <Text style={styles.meterTxt}>{plan.doneCount} of {plan.total} answered ›</Text>
         </View>
         <View style={styles.meterBar}><View style={[styles.meterFill, { width: `${plan.pct}%` }]} /></View>
       </TouchableOpacity>
 
-      <Disclaimer />
+      {wil.captured && wil.chance != null
+        ? <Text style={styles.tinyFoot}>Estimates from ~400 market simulations of your own numbers — not advice.</Text>
+        : <Text style={styles.tinyFoot}>No percent is shown until it's yours — we never fake a number.</Text>}
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -381,6 +382,7 @@ const styles = StyleSheet.create({
   sandT: { fontSize: 15, fontWeight: '800', color: Colors.primary },
   sandS: { fontSize: 12, color: Colors.textSecondary, marginTop: 3, lineHeight: 17 },
   lockRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10, minHeight: 44, opacity: 0.75 },
+  tinyFoot: { fontSize: 11, color: Colors.textTertiary, marginTop: 2, marginBottom: 4, lineHeight: 15 },
   meterTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
   meterBar: { height: 6, borderRadius: 3, backgroundColor: Colors.bgSecondary, marginTop: 8, overflow: 'hidden' },
   meterFill: { height: 6, borderRadius: 3, backgroundColor: Colors.primary },

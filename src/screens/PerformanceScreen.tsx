@@ -316,7 +316,7 @@ export default function PerformanceScreen() {
 
           {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
           <Text style={styles.groupHdrTop} onLayout={(e) => { invListY.current = e.nativeEvent.layout.y; }}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
-          {([['Stocks / ETFs', equitiesTotal, 'eq'], ['Bonds', bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
+          {([['Stocks / ETFs', equitiesTotal, 'eq'], [ASSET_CLASS_LABEL.bonds, bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
             if (kind === 'eq' && rows.length === 0) return null;
             if (kind === 'bond' && bondAccts.length === 0) return null;
             if (kind === 'alt' && altAccts.length === 0) return null;

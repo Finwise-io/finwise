@@ -200,10 +200,13 @@ test('the validated colorblind-safe palette is adopted, fixed order, same class 
     stocks_etf: '#2a78d6', cash: '#1baf7a', real_estate: '#eda100', bonds: '#4a3aa7',
     alternatives: '#eb6834', personal_property: '#e87ba4', mixed: '#898781',
   });
-  // both screens read the ONE map (source pin — same class can never wear two colors again)
+  // both screens read the ONE map (source pin — same class can never wear two colors again);
+  // pre-48 audit A7: rows order by LIQUIDITY (CLASS_ORDER, Cash first) while colors still come
+  // from the one ClassMarkColors map
   const fs = require('fs'); const path = require('path');
   const nw = fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8');
-  expect(nw).toMatch(/Object\.entries\(ClassMarkColors\)/);
+  expect(nw).toMatch(/CLASS_ORDER: AssetClass\[\] = \['cash', 'bonds', 'stocks_etf'/);
+  expect(nw).toMatch(/\(ClassMarkColors as any\)\[key\]/);
   // the second consumer today is Account detail's WHAT'S-INSIDE section (Invest's grouped list
   // carries no class dots in the approved v7 build — colors-only change, per the mock's own rule)
   const ad = fs.readFileSync(path.join(__dirname, '..', 'AccountDetailScreen.tsx'), 'utf8');
@@ -314,7 +317,8 @@ test('matured bond: the dated banner with the three outcomes; paid-out writes th
   const AccountDetailScreen = require('../AccountDetailScreen').default;
   render(<AccountDetailScreen />);
   expect(screen.getByText(/⏰ This bond matured Jun 30/)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Record what happened to this matured bond'));
+  // pre-48 audit A8: the three outcomes are VISIBLE on the card (approved mock) — no popup detour
+  fireEvent.press(screen.getByLabelText('Paid out to my bank — records the payout'));
   const st = useStore.getState() as any;
   const sell = (st.transactions ?? []).find((t: any) => t.type === 'SELL' && t.account_id === 'cd1');
   expect(sell?.amount).toBe(10000);

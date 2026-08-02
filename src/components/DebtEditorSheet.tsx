@@ -29,10 +29,12 @@ const fmtMonthYear = (iso?: string) => {
   const m = iso?.match(/^(\d{4})-(\d{2})/);
   return m ? `${MONTH_NAMES[+m[2] - 1]} ${m[1]}` : '';
 };
-/** 'MM/YYYY' or 'YYYY-MM' or 'YYYY' → 'YYYY-MM-01' (typed dates stay forgiving). */
+/** 'MM/YYYY', 'MM/DD/YYYY', 'YYYY-MM' or 'YYYY' → ISO (typed dates stay forgiving; days kept). */
 const parseMonthYear = (s: string): string | undefined => {
   const t = s.trim();
-  let m = t.match(/^(\d{1,2})\s*[\/\-.]\s*(\d{4})$/);
+  let m = t.match(/^(\d{1,2})\s*[\/\-.]\s*(\d{1,2})\s*[\/\-.]\s*(\d{4})$/);
+  if (m && +m[1] >= 1 && +m[1] <= 12 && +m[2] >= 1 && +m[2] <= 31) return `${m[3]}-${String(+m[1]).padStart(2, '0')}-${String(+m[2]).padStart(2, '0')}`;
+  m = t.match(/^(\d{1,2})\s*[\/\-.]\s*(\d{4})$/);
   if (m && +m[1] >= 1 && +m[1] <= 12) return `${m[2]}-${String(+m[1]).padStart(2, '0')}-01`;
   m = t.match(/^(\d{4})\s*[\/\-.]\s*(\d{1,2})$/);
   if (m && +m[2] >= 1 && +m[2] <= 12) return `${m[1]}-${String(+m[2]).padStart(2, '0')}-01`;
@@ -59,6 +61,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
   const [shapeTouched, setShapeTouched] = useState(false);   // user override survives kind changes
   const [endBy, setEndBy] = useState('');                    // installment: "paid off by" (MM/YYYY)
   const [dueDate, setDueDate] = useState('');                // due_in_full: the lump's date
+  const [startsOn, setStartsOn] = useState('');              // installment: payments START here (deferred loans)
   const [drives, setDrives] = useState<'payment' | 'date'>('payment');   // which field the user entered last
 
   useEffect(() => {
@@ -71,6 +74,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     setShape(editing?.payment_type ?? defaultPaymentType(k)); setShapeTouched(!!editing?.payment_type);
     const pm = editing?.payoff_date?.match(/^(\d{4})-(\d{2})/);
     setEndBy(pm ? `${pm[2]}/${pm[1]}` : ''); setDueDate(pm ? `${pm[2]}/${pm[1]}` : '');
+    const fp = editing?.first_payment_date?.match(/^(\d{4})-(\d{2})/);
+    setStartsOn(fp ? `${fp[2]}/${fp[1]}` : '');
     setDrives('payment');
   }, [state.open]);
 
@@ -98,7 +103,13 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
     }
   }
 
+  // revolving: the approved mock's "✓ clear in 17 months at $400/mo" line (you-pay, else the minimum)
+  const cardPay = num(monthly) || num(pay);
+  const cardMonths = shape === 'revolving' && amt > 0 && cardPay > 0 ? monthsToClear(amt, aprDec, cardPay) : null;
+
   const dueIso = parseMonthYear(dueDate);
+  const startIso = parseMonthYear(startsOn);
+  const monthsToDue = dueIso ? Math.max(0, monthsFromNow(dueIso, now)) : null;
   const ready = amt > 0 && (shape !== 'due_in_full' || !!dueIso);
 
   const save = () => {
@@ -112,7 +123,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         ? { ...base, minimum_monthly_payment: 0, monthly_payment: undefined, due_day: undefined, payoff_date: dueIso }
         : shape === 'installment'
           // the real payment IS the obligation (there's no separate "minimum" on a mortgage)
-          ? { ...base, minimum_monthly_payment: calcPayment, monthly_payment: calcPayment, due_day: dd, payoff_date: calcPayoffIso }
+          ? { ...base, minimum_monthly_payment: calcPayment, monthly_payment: calcPayment, due_day: dd, payoff_date: calcPayoffIso, first_payment_date: startIso }
           : { ...base, minimum_monthly_payment: num(pay), monthly_payment: monthly.trim() === '' ? undefined : (num(monthly) || num(pay)), due_day: dd, payoff_date: undefined };
     if (editing) store.updateLiability?.(editing.debt_id, patch); else store.addLiability?.(patch);
     onClose();
@@ -157,7 +168,7 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate % (optional)</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="0%" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
         </View>
         {amt > 0 && dueIso
-          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}'s cash flow and on the bill calendar — a warning, not a surprise</Text>
+          ? <Text style={sh.derived}>✓ lands as a {money(amt)} big-ticket in {fmtMonthYear(dueIso)}'s cash flow and on the bill calendar{monthsToDue != null && monthsToDue > 0 ? ` — ${monthsToDue} month${monthsToDue === 1 ? '' : 's'} of warning` : ''}, not a surprise</Text>
           : <Text style={sh.derivedMuted}>Enter the amount and its due date — no monthly payment to track.</Text>}
       </>) : shape === 'installment' ? (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
@@ -171,6 +182,8 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
         {derivedLine
           ? <Text style={derivedLine.startsWith('⚠') ? sh.derivedWarn : sh.derived}>{derivedLine}</Text>
           : <Text style={sh.derivedMuted}>Enter either one — the other is computed from your balance and rate.</Text>}
+        <Text style={sh.lbl}>Payments start (month/year — only for loans that haven't started yet)</Text>
+        <TextInput style={sh.input} keyboardType="numbers-and-punctuation" placeholder="already paying" placeholderTextColor={Colors.textTertiary} value={startsOn} onChangeText={setStartsOn} />
       </>) : (<>
         <View style={{ flexDirection: 'row', gap: Spacing.sm }}>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Interest rate %</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="19.99" placeholderTextColor={Colors.textTertiary} value={apr} onChangeText={setApr} /></View>
@@ -180,9 +193,14 @@ export function DebtEditorSheet({ state, onClose }: { state: { open: boolean; ed
           <View style={{ flex: 1 }}><Text style={sh.lbl}>Min payment /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary} value={pay} onChangeText={setPay} /></View>
           <View style={{ flex: 1 }}><Text style={sh.lbl}>You pay /mo</Text><TextInput style={sh.input} keyboardType="decimal-pad" placeholder="≥ min" placeholderTextColor={Colors.textTertiary} value={monthly} onChangeText={setMonthly} /></View>
         </View>
+        {cardMonths != null
+          ? <Text style={sh.derived}>✓ clear in {cardMonths} month{cardMonths === 1 ? '' : 's'} at {money(cardPay)}/mo</Text>
+          : cardPay > 0 && amt > 0
+            ? <Text style={sh.derivedWarn}>⚠ {money(cardPay)}/month doesn't cover the interest — this never pays off</Text>
+            : null}
       </>)}
 
-      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} debt</Text></TouchableOpacity>
+      <TouchableOpacity style={[sh.save, !ready && { opacity: 0.4 }]} disabled={!ready} accessibilityRole="button" accessibilityLabel={editing ? 'Save debt' : 'Add debt'} onPress={save}><Text style={sh.saveTxt}>{editing ? 'Save' : 'Add'} {shape === 'revolving' ? 'card' : shape === 'due_in_full' ? 'loan' : (debtKind(kind)?.label.toLowerCase() ?? 'debt')}</Text></TouchableOpacity>
       {editing && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Remove debt" onPress={remove}><Text style={sh.remove}>Remove</Text></TouchableOpacity>}
     </KeyboardAwareSheet>
   );

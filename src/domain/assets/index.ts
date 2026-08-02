@@ -21,7 +21,7 @@ export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'rea
  *  consistency is part of the taxonomy: same concept → same WORD, like same concept → same number. */
 export const ASSET_CLASS_LABEL: Record<AssetClass, string> = {
   cash: 'Cash',
-  bonds: 'Bonds',
+  bonds: 'Bonds & CDs',   // pre-48 audit A7: every approved mock names the class with its CDs
   stocks_etf: 'Stocks / ETFs',
   alternatives: 'Alternatives',
   real_estate: 'Real estate',

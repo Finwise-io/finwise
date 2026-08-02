@@ -36,9 +36,11 @@ const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investment
 // #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
 // Labels come from the canonical ASSET_CLASS_LABEL (single source) — only color lives here.
 // #10: 'mixed' = a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT as stocks.
-const CLASS_META: { key: AssetClass; label: string; color: string }[] = (
-  Object.entries(ClassMarkColors) as [AssetClass, string][]
-).map(([key, color]) => ({ key, label: ASSET_CLASS_LABEL[key], color }));
+// pre-48 audit A7: the approved mocks order classes by LIQUIDITY (Cash first), not by palette order
+const CLASS_ORDER: AssetClass[] = ['cash', 'bonds', 'stocks_etf', 'alternatives', 'real_estate', 'personal_property', 'mixed'];
+const CLASS_META: { key: AssetClass; label: string; color: string }[] =
+  CLASS_ORDER.filter((k) => k in ClassMarkColors)
+    .map((key) => ({ key, label: ASSET_CLASS_LABEL[key], color: (ClassMarkColors as any)[key] }));
 // #10/#14: the asset-class options offered when classifying a wrapper account (what it HOLDS). 'auto'
 // leaves it Unclassified (mixed); the rest set an explicit class so the donut is accurate.
 const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
@@ -631,7 +633,7 @@ export default function NetWorthScreen() {
         {/* ONE button, three honest paths */}
         <TouchableOpacity accessibilityRole="button" style={styles.addConnect} onPress={() => setAddChooser(true)}
           accessibilityLabel="Add or connect an account">
-          <Text style={styles.addConnectTxt}>＋ Add or connect account</Text>
+          <Text style={styles.addConnectTxt}>＋ Add or connect an account</Text>
         </TouchableOpacity>
         <View style={{ height: 40 }} />
       </ScrollView>

@@ -95,9 +95,9 @@ test('the tax card: long + short gains SUM to the header gain, labeled an estima
   expect(screen.getByText('an estimate from your filing status — not advice')).toBeOnTheScreen();
 });
 
-test('lots list shows each purchase with its date words (the cost-basis story)', () => {
+test('lots list: date leads, shares-at-price follows — the approved table grammar (pre-48 audit A6)', () => {
   render(<HoldingDetailScreen />);
-  expect(screen.getByText('200 shares at $410.00')).toBeOnTheScreen();   // plain English + cents (B44)
+  expect(screen.getByText('200 sh @ $410.00')).toBeOnTheScreen();        // cents kept (B44)
   expect(screen.getByText('Jan 12, 2024')).toBeOnTheScreen();
 });
 
