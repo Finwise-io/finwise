@@ -81,7 +81,7 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
   const base: { bucket: keyof BucketSplit; label: string; why: string }[] = [
     { bucket: 'cash', label: 'Cash', why: 'Spend first — it earns the least, so use it before it loses to inflation.' },
     { bucket: 'taxable', label: 'Taxable / brokerage', why: 'Next — lets your tax-advantaged accounts keep compounding (you only owe tax on gains).' },
-    { bucket: 'preTax', label: 'Pre-tax (401k / Traditional IRA)', why: 'Then pre-tax — withdrawals are taxed as income, and RMDs force this from 73 anyway.' },
+    { bucket: 'preTax', label: 'Pre-tax (401k / Traditional IRA)', why: 'Then pre-tax — withdrawals are taxed as income, and required withdrawals force this from 73 anyway.' },
     { bucket: 'roth', label: 'Roth', why: 'Last — tax-free growth and no RMDs, so let it run as long as possible.' },
   ];
   // a saved user preference reorders the buckets (the steer sheet writes it; the RMD pin below

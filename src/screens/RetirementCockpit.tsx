@@ -24,7 +24,7 @@ import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow }
 import { marginalBracket } from '../domain/income/tax';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
-import { InfoDot } from '../components/UI';
+import { InfoDot, TRYING_IT_OUT } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12: the one drag engine
 
@@ -275,7 +275,7 @@ export default function RetirementCockpit() {
         </View>
 
         <Text style={styles.section}>{scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'}</Text>
-        <Text style={styles.note}>This is a what-if sandbox. It won't change your plan until you tap “Use as my plan”.</Text>
+        <Text style={styles.note}>{TRYING_IT_OUT}</Text>
 
         {/* HERO — two-up: today → projected at the horizon (reacts to the sliders) */}
         <View style={[styles.heroCard, { marginTop: 8 }]}>
@@ -506,7 +506,7 @@ export default function RetirementCockpit() {
           {/* Simple: one action to reveal the mechanics */}
           {simple && !showDetails && nestEgg > 0 && (
             <TouchableOpacity style={styles.detailsBtn} onPress={() => setShowDetails(true)}>
-              <Text style={styles.detailsBtnTxt}>See the details — taxes, RMDs, withdrawal order  →</Text>
+              <Text style={styles.detailsBtnTxt}>See the details — taxes, required withdrawals, draw order  →</Text>
             </TouchableOpacity>
           )}
         </>
@@ -578,7 +578,7 @@ export default function RetirementCockpit() {
                     </View>
                   </View>
                 ))}
-                <Text style={styles.tFootMuted}>The amounts above are each bucket's full balance — what you draw from over the years — except the RMD, which is just this year's required minimum (taken out of the pre-tax balance). General guidance, not tax advice; your brackets or Roth conversions may change the order.</Text>
+                <Text style={styles.tFootMuted}>The amounts above are each bucket's full balance — what you draw from over the years — except the required withdrawal (RMD), which is just this year's required minimum (taken out of the pre-tax balance). General guidance, not tax advice; your brackets or Roth conversions may change the order.</Text>
               </>
             )}
           </View>
@@ -592,7 +592,7 @@ export default function RetirementCockpit() {
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> {age >= 65
               ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/yr), and watch IRMAA surcharges if your income is high."
               : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.'}</Text>
-            {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before RMDs/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future RMDs and lifetime tax.</Text>}
+            {inRothWindow && dSplit.preTax > 0 && <Text style={[styles.note, { marginTop: 8 }]}>💡 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Roth conversion window:</Text> you're retired but before required withdrawals/Social Security, so your taxable income may be low. Converting some pre-tax to Roth now (filling the low brackets) can cut future required withdrawals and lifetime tax.</Text>}
           </View>
         </>
       )}

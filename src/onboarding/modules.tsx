@@ -955,7 +955,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card><HeroAmount ctx={ctx} k="currentSavingsPortfolio" label={hasRet ? 'Taxable + cash' : 'Total portfolio'} /></Card>
         {rmd > 0 && <Callout
           text={age >= startAge ? `~${money(rmd)}/yr in required withdrawals at ${age}` : `~${money(rmd)}/yr required once you reach ${startAge}`}
-          sub="Rough RMD if this is mostly pre-tax (Traditional 401(k)/IRA). Roth accounts have no RMD." />}
+          sub="Rough required withdrawal (RMD) if this is mostly pre-tax (Traditional 401(k)/IRA). Roth accounts have no required withdrawal." />}
       </>);
     }
 

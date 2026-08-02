@@ -33,15 +33,14 @@ describe('PaycheckCard', () => {
     expect(screen.getByText('Pension')).toBeOnTheScreen();
     expect(screen.getByText('= Guaranteed')).toBeOnTheScreen();
     expect(screen.getByText('$4,200')).toBeOnTheScreen();                      // 2600 + 1600
-    expect(screen.getByText(/estimate/)).toBeOnTheScreen();
+    expect(screen.getAllByText(/estimate/).length).toBeGreaterThanOrEqual(2);   // pre-48 A9: chip on the hero AND the year figure
     expect(screen.getByText(/This year/)).toBeOnTheScreen();
   });
 
-  it('safe-draw explainer answers "says who?" on tap', () => {
+  it('safe-draw explainer is the ONE glossary InfoDot (pre-48 audit U4 — no bespoke modal)', () => {
     render(<PaycheckCard />);
-    fireEvent.press(screen.getByLabelText('What makes the draw safe?'));
-    expect(screen.getByText(/largest steady monthly draw/)).toBeOnTheScreen();
-    expect(screen.getByText(/An estimate, never a promise/)).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText('What is Safe draw?'));
+    expect(screen.getByText(/steady monthly amount the math says your savings can support/)).toBeOnTheScreen();
   });
 
   it('no guaranteed income → the prompt to add it, never a fake $0 guaranteed line', () => {

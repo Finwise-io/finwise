@@ -7,13 +7,12 @@ import { View, Text, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { useCashflowModel } from '../hooks/useCashflowModel';
-import { InfoDot, EstimateTag } from './UI';
+import { EstimateTag, InfoDot } from './UI';
 import { maskedMoney } from './useMoney';   // every balance masks under hide-balances (the walk test enforces it)
 import { HeroAmount } from './HeroAmount';
 
 export function PaycheckCard() {
   const router = useRouter();
-  const [whySafe, setWhySafe] = useState(false);
   // ONE model invocation app-wide (hero = bar = month detail, by construction)
   const { year } = useCashflowModel();
 
@@ -23,7 +22,7 @@ export function PaycheckCard() {
   return (
     <View style={styles.card} accessibilityLabel={m.netSafeToSpend < 0
       ? `${maskedMoney(Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
-      : `Safe to spend in ${m.label}: ${maskedMoney(m.netSafeToSpend)}`}>
+      : `Safe to spend in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>
       <Text style={styles.kicker}>SAFE TO SPEND — {monthName}</Text>
       {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
@@ -55,38 +54,22 @@ export function PaycheckCard() {
           </View>
           <View style={styles.rowWrap}>
             <Text style={styles.rowLabel}>+ Safe draw from savings</Text>
-            <TouchableOpacity accessibilityRole="button" accessibilityLabel="What makes the draw safe?"
-              onPress={() => setWhySafe(true)} style={styles.infoDot} hitSlop={{ top: 13, bottom: 13, left: 13, right: 13 }}><Text style={styles.infoDotT}>i</Text></TouchableOpacity>
+            <InfoDot term="safeDraw" />
             <Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>
           </View>
           {m.billsTotal > 0 && <Row label={`− Big bills this month (${m.bills.map((b) => b.label).join(', ')})`} value={maskedMoney(m.billsTotal)} />}
         </View>
       )}
 
-      <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <Text style={styles.yearNote}>— varies month to month</Text></Text>
+      <Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <EstimateTag /> <Text style={styles.yearNote}>— varies month to month</Text></Text>
       {year.drawRateFlag === 'high' && (
-        <Text style={styles.flag}>Heads-up: this draw is on the high side of the usual 4%-a-year guideline.</Text>
+        <Text style={styles.flag}>Heads-up: this draw is above what your own numbers support long-term — the pace itself is the risk.</Text>
       )}
 
       <TouchableOpacity accessibilityRole="link" onPress={() => router.push('/paycheck-months')}>
         <Text style={styles.monthsLink}>See {new Date().toLocaleDateString('en-US', { month: 'long' })}'s paycheck →</Text>
       </TouchableOpacity>
 
-      <Modal visible={whySafe} transparent animationType="fade" onRequestClose={() => setWhySafe(false)}>
-        <View style={styles.modalBg}>
-          <View style={styles.modalCard}>
-            <Text style={styles.modalT}>What makes {maskedMoney(m.safeDraw)} “safe”?</Text>
-            <Text style={styles.modalB}>
-              It’s the largest steady monthly draw that keeps your will-my-money-last odds at Likely (80 or
-              better), re-checked whenever your balances move. Spend more each month and the odds fall — you
-              can try it in Plan. An estimate, never a promise.
-            </Text>
-            <TouchableOpacity accessibilityRole="button" style={styles.modalBtn} onPress={() => setWhySafe(false)}>
-              <Text style={styles.modalBtnT}>Got it</Text>
-            </TouchableOpacity>
-          </View>
-        </View>
-      </Modal>
     </View>
   );
 }
@@ -108,14 +91,14 @@ const styles = StyleSheet.create({
   est: { fontSize: 12, color: Colors.textTertiary, marginBottom: Spacing.xs },
   breakdown: { marginTop: 4, marginBottom: Spacing.xs },
   rowWrap: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
-  rowLabel: { flex: 1, fontSize: 14, color: Colors.textSecondary },
-  rowValue: { fontSize: 14, color: Colors.textPrimary },
+  rowLabel: { flex: 1, fontSize: 15, color: Colors.textSecondary },
+  rowValue: { fontSize: 17, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   bold: { fontWeight: '700', color: Colors.textPrimary },
   infoDot: { width: 18, height: 18, borderRadius: 9, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center', marginRight: 6 },
   infoDotT: { fontSize: 11, fontWeight: '700', color: Colors.primaryDark },
   promptBtn: { backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 12, marginVertical: Spacing.xs },
   promptT: { color: Colors.primaryDark, fontWeight: '600', fontSize: 14 },
-  year: { fontSize: 14, color: Colors.textPrimary, fontWeight: '600', marginTop: 4 },
+  year: { fontSize: 17, fontVariant: ['tabular-nums'], color: Colors.textPrimary, fontWeight: '600', marginTop: 4 },
   yearNote: { fontWeight: '400', color: Colors.textSecondary },
   flag: { fontSize: 14, color: Colors.amber, marginTop: 4 },
   monthsLink: { fontSize: 14, fontWeight: '600', color: Colors.primary, marginTop: 8 },

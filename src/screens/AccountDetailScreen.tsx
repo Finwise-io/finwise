@@ -13,7 +13,7 @@ import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetK
 import { bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondRateSensitivity } from '../domain/bonds';
 import { txnLabel, cashEffect, type Transaction } from '../domain/transactions';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { InfoDot } from '../components/UI';
+import { InfoDot, EstimateTag } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
 
 const TAX_WORDS: Record<string, string> = {
@@ -350,7 +350,7 @@ function BondDetail({ account }: { account: AssetAccount }) {
             <Text style={s.cardHdr2}>IF INTEREST RATES MOVE</Text>
             <InfoDot term="rateSensitivity" />
           </View>
-          <Text style={s.estTag}>Estimate, not a prediction</Text>
+          <EstimateTag />
           <Text style={s.bondLine}>Rates rise 1% → value roughly {maskedMoney(sens.ratesUp.low)}–{maskedMoney(sens.ratesUp.high)} (down about {maskedMoney(Math.abs(sens.ratesUp.delta))})</Text>
           <Text style={s.bondLine}>Rates fall 1% → value roughly {maskedMoney(sens.ratesDown.low)}–{maskedMoney(sens.ratesDown.high)}</Text>
           <Text style={s.bondNote}>Held to maturity, {maskedMoney(b.face)} comes back — if the issuer pays as promised.</Text>
