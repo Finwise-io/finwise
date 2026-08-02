@@ -617,3 +617,23 @@ test('finding 14: Net worth By-type rolls every cash-bucket account under "Cash 
   expect(screen.queryByLabelText(/^Savings, \$/)).toBeNull();
   expect(screen.queryByLabelText(/^Checking, \$/)).toBeNull();
 });
+
+// ── Pre-48 audit A3 (PRD F2#2): bonus & one-time income visible and month-editable ──
+test('A3: Cash flow sources list shows the bonus WITH its landing month; the chooser offers Bonus / one-time', () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'flat', flatRate: '25', monthlySpending: '4000', bonusAnnual: '12000', bonusMonth: 3 },
+  } as any);
+  const CashFlowScreen = require('../CashFlowScreen').default;
+  render(<CashFlowScreen />);
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'CashFlowScreen.tsx'), 'utf8');
+  expect(src).toMatch(/Bonus \/ one-time/);                       // the chooser entry exists
+  expect(src).toMatch(/income-manager\?open=bonus/);              // and deep-links to the editor
+});
+
+test('A3: the bonus editor carries the 12 month chips writing bonusMonth (no more onboarding-only)', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'IncomeManagerScreen.tsx'), 'utf8');
+  expect(src).toMatch(/monthKey=\{editKey === 'bonusAnnual' \? 'bonusMonth' : 'otherMonth'\}/);
+  expect(src).toMatch(/Which month does it land\?/);
+});

@@ -160,7 +160,10 @@ export default function IncomeManagerScreen() {
         onSave={(p) => { store.setOnboardingProfile?.({ ...op, ...p }); setBaseOpen(false); }} />
       <AmountEditor open={editKey != null} title={editKey === 'bonusAnnual' ? 'Annual bonus' : 'Signing bonus (one-time)'}
         value={editKey ? num(op[editKey]) : 0} onClose={() => setEditKey(null)}
-        onSave={(v) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey]: String(v) }); setEditKey(null); }} />
+        onSave={(v) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey]: String(v) }); setEditKey(null); }}
+        monthKey={editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth'}
+        month={editKey ? Number(op[editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']) || null : null}
+        onMonth={(m) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']: m }); }} />
       <AddIncome open={addOpen} onClose={() => setAddOpen(false)}
         onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: new Date().toISOString().slice(0, 10) }); setAddOpen(false); }} />
 
@@ -266,9 +269,10 @@ function BasePayEditor({ open, op, onClose, onSave }: { open: boolean; op: any; 
   );
 }
 
-function AmountEditor({ open, title, value, onClose, onSave }: { open: boolean; title: string; value: number; onClose: () => void; onSave: (v: number) => void }) {
+function AmountEditor({ open, title, value, onClose, onSave, monthKey, month, onMonth }: { open: boolean; title: string; value: number; onClose: () => void; onSave: (v: number) => void; monthKey?: string; month?: number | null; onMonth?: (m: number) => void }) {
   const [v, setV] = useState('');
   React.useEffect(() => { if (open) setV(value ? String(value) : ''); }, [open]);
+  const MO = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
   return (
     <Modal visible={open} transparent animationType={modalAnimation()} onRequestClose={onClose}>
       <KeyboardAvoidingView style={{ flex: 1 }} behavior={Platform.OS === "ios" ? "padding" : "height"}>
@@ -277,6 +281,19 @@ function AmountEditor({ open, title, value, onClose, onSave }: { open: boolean; 
         <View style={styles.grab} />
         <Text style={styles.sheetT}>{title}</Text>
         <TextInput style={[styles.input, { marginTop: 12 }]} keyboardType="decimal-pad" value={v} onChangeText={setV} placeholder="0" placeholderTextColor={Colors.textTertiary} autoFocus />
+        {onMonth && (
+          <>
+            <Text style={styles.monthLbl}>Which month does it land? (pre-48 audit A3 — drives the by-month grid)</Text>
+            <View style={styles.monthRow}>
+              {MO.map((mo, i) => (
+                <TouchableOpacity key={mo} accessibilityRole="button" accessibilityState={{ selected: month === i + 1 }} accessibilityLabel={`Lands in ${mo}`}
+                  style={[styles.monthChip, month === i + 1 && styles.monthChipOn]} onPress={() => onMonth(i + 1)}>
+                  <Text style={[styles.monthChipT, month === i + 1 && styles.monthChipTOn]}>{mo}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </>
+        )}
         <TouchableOpacity style={styles.saveBtn} onPress={() => onSave(num(v))}><Text style={styles.saveBtnT}>Save</Text></TouchableOpacity>
       </View>
       </KeyboardAvoidingView>
@@ -344,6 +361,12 @@ const styles = StyleSheet.create({
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
+  monthLbl: { fontSize: 12, color: Colors.textSecondary, marginTop: 12 },
+  monthRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 8 },
+  monthChip: { minHeight: 44, minWidth: 48, alignItems: 'center', justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.cardBg, paddingHorizontal: 8 },
+  monthChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
+  monthChipT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
+  monthChipTOn: { color: Colors.primaryDark },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
   saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
 });
