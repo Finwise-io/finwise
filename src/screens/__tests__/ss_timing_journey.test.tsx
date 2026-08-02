@@ -49,7 +49,7 @@ test('adoption goes through the Use-this-plan sheet: old → new list, then ONE 
 
   fireEvent.press(screen.getByLabelText('Use claim at 67 as my plan'));
   expect(screen.getByText(/exactly what changes/)).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Use this plan: Claim Social Security at 67'));
+  fireEvent.press(screen.getByLabelText('Use this plan: Plan to claim Social Security at 67'));   // v9 grammar: planning, not claiming
 
   const A = useStore.getState().retirementAssumptions;
   expect(A.ssClaimAge).toBe(67);

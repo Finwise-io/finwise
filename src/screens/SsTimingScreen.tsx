@@ -204,7 +204,7 @@ export default function SsTimingScreen() {
       <UseThisPlanSheet
         visible={adoptFor != null}
         onClose={() => setAdoptFor(null)}
-        title={`Claim Social Security at ${adoptFor}`}
+        title={`Plan to claim Social Security at ${adoptFor}`}
         changes={adoptFor != null ? changesFor(adoptFor) : []}
         patch={adoptFor != null ? patchFor(adoptFor) : {}}
         adoptionLabel={`before claiming at ${adoptFor}`}
