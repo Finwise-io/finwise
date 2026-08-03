@@ -286,3 +286,21 @@ widely reported by users but we have not yet held a founder-generated Fidelity f
 importer should be exercised against a real export before we claim Fidelity import "done". Schwab's
 "Cash & Cash Investments" row and all-accounts header rows likewise deserve a real-file check.
 Everything marked live-verified was checked against the founder's actual E*TRADE and Vanguard data.
+
+
+---
+
+## Founder correction (2026-08-04) — the E*TRADE "savings" account never existed
+
+The founder's E*TRADE login holds **two separate brokerage accounts** — no savings account. The
+"savings" typing came from the connection's account-type text, which the app trusted. SnapTrade is
+brokerage-only (it cannot connect bank checking/savings), so any "savings"-typed account arriving
+through it is a brokerage account wearing the wrong label.
+
+**Consequences (to fix in the findings 5–9 batch):**
+1. Rule 3's example changes: the sub-account reality at E*TRADE is *multiple brokerage accounts
+   under one login* — not bank-vs-brokerage splits.
+2. Rule 6 gains a concrete case: an account-type string of "savings" from a brokerage-only
+   connection must be treated as **brokerage**, not savings — labels lose to reality.
+3. The founder's mistyped account should re-type to brokerage on the next sync, which also fixes
+   its wrong "Cash and cash equivalents" grouping under By-type.
