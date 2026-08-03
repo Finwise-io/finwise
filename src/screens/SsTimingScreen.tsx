@@ -44,7 +44,7 @@ export default function SsTimingScreen() {
 
   const { accounts } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
   const baseInputs = useMemo(
-    () => willItLastInputs({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
+    () => willItLastInputs({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
     [op, accounts, A, store.inflationRate, store.employmentStatus]);
 
   // Past 70 the credit stops — every standard age has 'passed', so the honest option is claim NOW

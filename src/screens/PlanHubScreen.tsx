@@ -37,7 +37,7 @@ export default function PlanHubScreen() {
 
   const { accounts } = resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []);
   const wil = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true }),
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true }),
     [op, accounts, A, store.inflationRate, store.employmentStatus],
   );
   // PIN: the hub's number is THE number — cache it so Home's strip and Insights read the same value.
@@ -215,6 +215,9 @@ export default function PlanHubScreen() {
                     ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
                     : 'conversions in low-tax years · and what passes on to family'}
                   onPress={() => router.push('/roth')} />
+                <DecisionRow divider title="What big costs are coming?"
+                  sub={(store.bigCosts ?? []).length > 0 ? `${(store.bigCosts ?? []).length} named — the odds count them` : 'a new roof in 2028, a family wedding: name it — the odds account for it'}
+                  onPress={() => router.push('/big-costs' as any)} />
               </>
             ) : (
               <>
@@ -231,6 +234,9 @@ export default function PlanHubScreen() {
                     ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
                     : `the window before required withdrawals begin at ${RMD_START_AGE}`}
                   onPress={() => router.push('/roth')} />
+                <DecisionRow divider title="What big costs are coming?"
+                  sub={(store.bigCosts ?? []).length > 0 ? `${(store.bigCosts ?? []).length} named — the odds count them` : 'a roof, a car, a wedding: name the year and amount — the odds account for it'}
+                  onPress={() => router.push('/big-costs' as any)} />
               </>
             )}
           </View>

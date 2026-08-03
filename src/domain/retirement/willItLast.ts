@@ -21,6 +21,7 @@ export function chanceWord(chance: number): 'Likely' | 'Uncertain' | 'Unlikely' 
 }
 
 export interface WillItLastArgs {
+  bigCosts?: { amount: number; year: number; label?: string }[];   // store.bigCosts (big one-time costs)
   op: Record<string, any> | null;            // onboarding profile
   accounts: AssetAccount[];                  // resolved rows (resolveNetWorthRows output)
   assumptions: Record<string, any>;          // store.retirementAssumptions (the ONE shared object)
@@ -93,6 +94,9 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     retire_monthly_spend_today: planSpend,
     guaranteed_monthly_income: ssIncome,
     guaranteed_start_age: claimAge,
+    // founder-approved 2026-08-02: named one-time costs move the odds honestly
+    one_off_costs: (a.bigCosts ?? []).map((c: any) => ({ amount: Number(c.amount) || 0, year: Number(c.year) || 0 })).filter((c) => c.amount > 0 && c.year > 0),
+    now_year: new Date().getFullYear(),
     inflation: planInfl,
     mean_return: growthRate,
     vol_return: volOf(growthRate),

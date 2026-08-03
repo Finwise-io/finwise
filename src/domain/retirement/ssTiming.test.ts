@@ -41,10 +41,10 @@ describe('lifetime totals (the design example: statement $2,600, live to 90)', (
 
 describe('claimWindow', () => {
   test('opens the month they turn 62, closes at 70', () => {
-    expect(claimWindow(1964, 9)).toEqual({ opens: '2026-09', closes: '2034-09' });
+    expect(claimWindow(1964, 9)).toEqual({ opens: '2026-09', closes: '2034-09', opensYear: 2026, opensMonth: 9 });
   });
   test('missing birth month defaults to January; missing year → null', () => {
-    expect(claimWindow(1964, null)).toEqual({ opens: '2026-01', closes: '2034-01' });
+    expect(claimWindow(1964, null)).toEqual({ opens: '2026-01', closes: '2034-01', opensYear: 2026, opensMonth: 1 });
     expect(claimWindow(null, 6)).toBeNull();
   });
 });

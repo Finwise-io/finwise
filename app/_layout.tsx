@@ -27,7 +27,7 @@ const SYNC_FIELDS = [
   'expenseTargetPercent', 'savingsDistribution', 'retirementPlan',
   'incomes', 'expenses', 'savings', 'investments', 'goals', 'badges',
   'recurringIncomes', 'recurringExpenses', 'customCategories',
-  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeConnections', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'nwDaily', 'retirementAssumptions', 'retirementScenarios', 'benchmarkReturns', 'estatePlan',
+  'assetAccounts', 'liabilities', 'nwSeeded', 'snaptradeConnections', 'wrapperConfirmQueue', 'nwSetupChoice', 'allocatedByMonth', 'allocPromptSkipped', 'monthlySnapshots', 'nwDaily', 'retirementAssumptions', 'retirementScenarios', 'bigCosts', 'benchmarkReturns', 'estatePlan',
   'currency', 'locale',
   'xp', 'streak', 'lastCheckIn', 'monthlyBudgetTarget', 'hourlyRate',
   'jobRiskLevel', 'emergencyMonths', 'onboardingPaused', 'onboardingProfile',
@@ -200,6 +200,7 @@ export default function RootLayout() {
           <Stack.Screen name="contribution-room" options={{ title: 'Contribution room 💼', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="worth-a-look" options={{ title: 'Worth a look', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="idle-cash" options={{ title: 'Your idle cash', headerShown: true, ...backBtn(() => router.back()) }} />
+          <Stack.Screen name="big-costs" options={{ title: 'What big costs are coming?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="ss-timing" options={{ title: 'When should I claim Social Security?', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="month-detail" options={{ title: 'Month detail', headerShown: true, ...backBtn(() => router.back()) }} />
           <Stack.Screen name="account-detail" options={{ title: 'Account', headerShown: true, ...backBtn(() => router.back()) }} />

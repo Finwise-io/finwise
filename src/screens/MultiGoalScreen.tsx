@@ -43,11 +43,11 @@ export default function MultiGoalScreen() {
     () => resolveNetWorthRows(uid, op, store.nwSeeded ?? false, store.assetAccounts ?? [], store.liabilities ?? []),
     [uid, op, store.nwSeeded, store.assetAccounts, store.liabilities]);
   const baseInputs = useMemo(
-    () => willItLastInputs({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
+    () => willItLastInputs({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
     [op, accounts, A, store.inflationRate, store.employmentStatus]);
   // 'before' = the adopted plan — read from the same selector as the hub, never retyped
   const before = useMemo(
-    () => selectWillItLast({ op, accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
+    () => selectWillItLast({ op, accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus }),
     [op, accounts, A, store.inflationRate, store.employmentStatus]);
 
   // 'before' retire age: the adopted plan's own contribution level through the same walk

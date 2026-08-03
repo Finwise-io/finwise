@@ -76,6 +76,10 @@ export interface RetirementInputs {
   paths?: number;
   seed?: number;
   with_band?: boolean;               // also return the per-year percentile balance band
+  /** Big one-time costs (founder-approved 2026-08-02): today's dollars + the calendar year they
+   *  land. Each is inflated to its year and subtracted once — before AND after retirement. */
+  one_off_costs?: { amount: number; year: number }[];
+  now_year?: number;                 // calendar year of 'today' (callers pass it; deterministic default)
 }
 
 export interface BandPoint { age: number; p10: number; p50: number; p90: number; }
@@ -144,6 +148,15 @@ export function simulate(inp: RetirementInputs) {
   const claimAge = Math.max(inp.guaranteed_start_age ?? inp.retire_age, inp.retire_age); // SS starts here (≥ retirement)
 
   const totalYears = nAcc + nDec;                      // year 0 = today, …, year totalYears = horizon
+  // big one-time costs by sim-year offset, inflated from today's dollars to their year
+  const nowYear = inp.now_year ?? 2026;
+  const oneOffByYear: Record<number, number> = {};
+  for (const c of inp.one_off_costs ?? []) {
+    if (!(c.amount > 0)) continue;
+    const off = c.year - nowYear;
+    if (off < 0 || off > totalYears) continue;         // past or beyond the horizon: not simulated
+    oneOffByYear[off] = (oneOffByYear[off] || 0) + c.amount * Math.pow(1 + inp.inflation, Math.max(0, off));
+  }
   // per-year balance across paths, only when a band is requested (keeps the hot path lean)
   const yearly: number[][] | null = inp.with_band ? Array.from({ length: totalYears + 1 }, () => [] as number[]) : null;
 
@@ -155,6 +168,7 @@ export function simulate(inp: RetirementInputs) {
     const g = inp.contribution_growth ?? 0;
     for (let y = 0; y < nAcc; y++) {
       bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) + inp.annual_contribution * Math.pow(1 + g, y);
+      bal -= oneOffByYear[y + 1] || 0;                 // a roof in 2028 leaves the egg in 2028
       if (yearly) yearly[y + 1].push(Math.max(0, bal));
     }
     atRetire.push(bal);
@@ -169,7 +183,7 @@ export function simulate(inp: RetirementInputs) {
         const guarNow = age >= claimAge ? guar : 0;   // SS only from the claim age
         const net = Math.max(0, spend - guarNow);
         const growth = 1 + normal(rng, inp.mean_return, inp.vol_return);
-        bal = bal * growth - net;
+        bal = bal * growth - net - (oneOffByYear[nAcc + y + 1] || 0);
         if (rmdOn) {
           preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
           if (age >= RMD_START_AGE_SIM && preTaxBal > 0) {

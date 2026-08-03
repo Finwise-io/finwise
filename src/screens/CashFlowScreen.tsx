@@ -557,7 +557,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
     const retireAge = A.retireAge ?? (Number(op?.targetRetirementAge) || 67);
     const futureGuaranteed = retirementIncomeMonthly(op);   // the future SS/pension entries
     if (age == null || age >= retireAge) return null;
-    const inputs = willItLastInputs({ op, accounts: store.assetAccounts ?? [], assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
+    const inputs = willItLastInputs({ op, accounts: store.assetAccounts ?? [], assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus });
     if (!inputs || inputs.start_balance <= 0) return null;
     const projectedEgg = simulate(inputs).projected_at_retirement;
     if (!projectedEgg || projectedEgg <= 0) return null;

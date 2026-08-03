@@ -63,7 +63,7 @@ export default function RothScreen() {
 
   // will-it-last impact (r39): before = the hub's selector untouched; after = the tax cash leaves
   // the nest egg now (the conversion itself just moves money between buckets)
-  const wilArgs = { op, accounts: rows.accounts, assumptions: A, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus };
+  const wilArgs = { op, accounts: rows.accounts, assumptions: A, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus };
   const before = selectWillItLast(wilArgs as any);
   const after = useMemo(() => {
     if (amt <= 0 || !before.captured) return null;

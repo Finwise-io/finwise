@@ -237,6 +237,10 @@ type AppState = {
   nwSeeded: boolean;
   goalsSeeded: boolean;
   nwSetupChoice: 'guided' | 'self' | null;
+  bigCosts: { id: string; label: string; amount: number; year: number }[];   // big one-time costs (founder-approved 2026-08-02)
+  addBigCost: (c: { label: string; amount: number; year: number }) => void;
+  updateBigCost: (id: string, patch: Partial<{ label: string; amount: number; year: number }>) => void;
+  deleteBigCost: (id: string) => void;
   allocatedByMonth: Record<string, number>;     // 'YYYY-MM' → total savings allocated to assets
   allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
@@ -463,6 +467,10 @@ export const useStore = create<AppState>()(
       nwSeeded: false,
       goalsSeeded: false,
       nwSetupChoice: null,
+      bigCosts: [],
+      addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
+      updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
+      deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
       allocatedByMonth: {},
       allocPromptSkipped: {},
       monthlySnapshots: {},
@@ -980,7 +988,11 @@ export const useStore = create<AppState>()(
         incomes: [], expenses: [], savings: [], investments: [],
         recurringIncomes: [], recurringExpenses: [], debts: [],
         assetAccounts: [], liabilities: [], nwSeeded: false, goalsSeeded: false, nwSetupChoice: null,
-        allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {},
+        bigCosts: [],
+      addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
+      updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
+      deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
+      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {},
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],
