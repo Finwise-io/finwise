@@ -654,3 +654,15 @@ test('C4c: the add-expense sheet carries the three-door escape hatch (bill · ac
   expect(src).toMatch(/Adding something else\? A bill · an account · money in ›/);
   expect(src).toMatch(/bill-calendar|add-account|income-manager/);
 });
+
+// ── DESKTOP shell (founder-approved mock shell-home-plan-desktop-v1, 2026-08-03) ──
+test('desktop: the web sidebar exists, reads the ONE TAB_META map, and the phone bar is untouched', () => {
+  const fs = require('fs'); const path = require('path');
+  const side = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'desktop/platform/DesktopSidebar.tsx'), 'utf8');
+  expect(side).toMatch(/TAB_META\[tab\]\.title/);                    // one nav map — no drift possible
+  expect(side).toMatch(/Sign out/);                                  // shared-computer safety in the foot
+  expect(side).toMatch(/Hide balances/);
+  const layout = fs.readFileSync(path.join(__dirname, '..', '..', '..', 'app/(tabs)/_layout.tsx'), 'utf8');
+  expect(layout).toMatch(/Platform\.OS === 'web'/);                  // web-only branch
+  expect(layout).toMatch(/<DesktopSidebar order=\{order\} \/>/);     // lens order carries to desktop
+});

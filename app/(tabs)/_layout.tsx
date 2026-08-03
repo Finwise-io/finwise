@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
-import { View } from 'react-native';
+import { View, Platform } from 'react-native';
+import { DesktopSidebar } from '../../desktop/platform/DesktopSidebar';   // approved desktop shell (web only)
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../src/utils/theme';
 import TopBar from '../../src/components/TopBar';
@@ -23,6 +24,29 @@ export default function TabLayout() {
   // retired = Home · Cash flow · Net worth · Plan · Invest (the paycheck sits next to Home).
   const lens = resolveLens(store.onboardingProfile, store.lensOverride);
   const order = tabOrder(lens);
+
+  // DESKTOP shell (founder-approved mock, 2026-08-03): on web the five surfaces render as the
+  // sidebar; the bottom bar disappears. Same TAB_META map, same lens order — one nav, two faces.
+  if (Platform.OS === 'web') {
+    return (
+      <View style={{ flex: 1, flexDirection: 'row' }}>
+        <DesktopSidebar order={order} />
+        <View style={{ flex: 1 }}>
+          <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}>
+            {order.map((name) => (
+              <Tabs.Screen key={name} name={name} />
+            ))}
+            <Tabs.Screen name="budget" options={{ href: null }} />
+            <Tabs.Screen name="retirement" options={{ href: null }} />
+            <Tabs.Screen name="goals" options={{ href: null }} />
+            <Tabs.Screen name="tips" options={{ href: null }} />
+            <Tabs.Screen name="rewards" options={{ href: null }} />
+            <Tabs.Screen name="settings" options={{ href: null }} />
+          </Tabs>
+        </View>
+      </View>
+    );
+  }
 
   return (
     <Tabs
