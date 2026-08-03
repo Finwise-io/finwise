@@ -18,7 +18,7 @@ config.resolver.sourceExts.push('cjs');
 const defaultResolveRequest = config.resolver.resolveRequest;
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (platform === 'web' && moduleName === 'react-native') {
-    return { type: 'sourceFile', filePath: require.resolve('./src/platform/rnw-plus.js') };
+    return { type: 'sourceFile', filePath: require.resolve('./desktop/platform/rnw-plus.js') };
   }
   return defaultResolveRequest
     ? defaultResolveRequest(context, moduleName, platform)
