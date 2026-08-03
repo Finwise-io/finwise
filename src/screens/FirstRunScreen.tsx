@@ -60,7 +60,7 @@ export default function FirstRunScreen() {
         <Text style={s.introH1} accessibilityRole="header">Your finance command center.</Text>
         <View style={s.introCard}>
           {([
-            ['All your assets and debts in one place', 'accounts (investment, 401k, checking, savings), your home and other property, debts — one live view.'],
+            ['All your assets and debts in one place', 'accounts (investment, 401k, checking, savings), your home and other property, and every debt (mortgage, cards, loans) — one live view.'],
             ['Stay on top of your cash flow', "every dollar in and out — and what's safe to spend."],
             ['See what needs attention', 'specific priorities with real dollar amounts.'],
             ['Honest odds on the big question', 'how long your money will last, told straight.'],
