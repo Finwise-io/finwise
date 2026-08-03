@@ -693,7 +693,9 @@ const WRAPPER_OPTS: { key: AddWrapper; label: string }[] = [
 ];
 const RET_OPTS: { key: AddWrapper; label: string }[] = WRAPPER_OPTS.filter((w) => w.key !== 'taxable');
 const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mgmt'];
-const ALT_OPTS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options'];
+// Founder 2026-08-04: PE/HF out of phase 1 (keep it simple) — the kinds stay in the data model,
+// so anything already saved still renders; only the capture chips are trimmed.
+const ALT_OPTS = ['crypto', 'commodities', 'annuities', 'options'];
 const PROP_OPTS = ['vehicle', 'other_asset'];
 const INSIDE_OPTS: { key: AssetClass | 'mixed'; label: string }[] = [
   { key: 'mixed', label: 'Mixed / not sure' }, { key: 'stocks_etf', label: 'Stocks / ETFs' }, { key: 'bonds', label: 'Bonds' }, { key: 'cash', label: 'Cash' },

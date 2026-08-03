@@ -5,6 +5,10 @@ import { round2 } from '../_shared/num';
 import { benchmarkReturn, type AssetAccount } from '../assets';
 
 export const ALT_KINDS = ['crypto', 'private_equity', 'hedge_funds', 'commodities', 'annuities', 'options', 'other_asset'] as const;
+export type AltKindAll = typeof ALT_KINDS[number];
+// Founder 2026-08-04: PE/HF out of phase 1 (keep it simple). The full list stays as the data
+// model (saved holdings still render + compute); capture UIs offer only this trimmed set.
+export const ALT_KINDS_CAPTURE = ['crypto', 'commodities', 'annuities', 'options', 'other_asset'] as const;
 export type AltKind = typeof ALT_KINDS[number];
 
 /** Is this account an "other investment" — an alternative held at a manual value (not a bond, not cash/property)? */

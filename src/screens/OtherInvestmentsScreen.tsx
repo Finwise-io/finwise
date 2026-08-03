@@ -9,7 +9,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { InfoDot } from '../components/UI';
 import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
-import { isAlternative, alternativesSummary, ALT_KINDS } from '../domain/alternatives';
+import { isAlternative, alternativesSummary, ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
@@ -124,7 +124,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
         <ScrollView automaticallyAdjustKeyboardInsets keyboardShouldPersistTaps="handled" style={{ maxHeight: '90%' }}>
           <Text style={styles.sheetT}>{item ? 'Edit investment' : 'Add an investment'}</Text>
           <Text style={styles.fieldL}>Type</Text>
-          <View style={styles.chips}>{ALT_KINDS.map((k) => (
+          <View style={styles.chips}>{ALT_KINDS_CAPTURE.map((k) => (
             <TouchableOpacity key={k} style={[styles.chip, kind === k && styles.chipOn]} onPress={() => setKind(k)}><Text style={[styles.chipT, kind === k && styles.chipTOn]}>{assetKind(k)?.label ?? 'Other'}</Text></TouchableOpacity>
           ))}</View>
           <Text style={styles.hint}>{ALT_HINT[kind]} ~{(benchmarkReturn(kind) * 100).toFixed(1)}%/yr historical benchmark.</Text>
