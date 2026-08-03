@@ -90,11 +90,27 @@ export function useInsights(limit?: number): Insight[] {
     const hiddenUntil = (store.dismissedInsights ?? {}) as Record<string, string>;
     const nowIso = new Date().toISOString();
     const notDismissed = (i: { id: string }) => i.id === 'worth-a-look' || !hiddenUntil[i.id] || hiddenUntil[i.id] <= nowIso;
+    // r12: the worst dated goal judged at its REAL funding pace this month (never typed promises)
+    const nowYmG = new Date().toISOString().slice(0, 7);
+    const { monthsUntil, monthsToGoal } = require('../domain/goals');
+    const goalOffTrack = (activeGoals as any[])
+      .map((g) => {
+        const due = monthsUntil(g.targetDate, new Date());
+        if (due == null) return null;
+        const funded = g.fundedByMonth?.[nowYmG] ?? 0;
+        const eta = monthsToGoal(g, funded);
+        if (eta == null) return (g.target || 0) > (g.saved || 0) ? { label: g.name ?? g.label ?? 'A goal', monthsBehind: due } : null;
+        return eta > due ? { label: g.name ?? g.label ?? 'A goal', monthsBehind: eta - due } : null;
+      })
+      .filter(Boolean)
+      .sort((a: any, b: any) => b.monthsBehind - a.monthsBehind)[0] ?? null;
+
     const built = buildInsights({
       worthALook,
       rmdDue,
       ssWindow,
       goalsGap,
+      goalOffTrack,
       cashMonths: monthlySpending > 0 ? cash / monthlySpending : null,
       toxicDebt: toxic && toxic.interest_rate_apr > TOXIC_APR ? { label: toxic.label, apr: toxic.interest_rate_apr } : null,
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,

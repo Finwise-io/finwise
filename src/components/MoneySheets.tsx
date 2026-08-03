@@ -3,7 +3,7 @@
 // AllocateSavings (month-end surplus prompt), DebtPaySheet, plus the ExpenseFab floating button.
 import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Alert, KeyboardAvoidingView, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, router } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
@@ -125,6 +125,19 @@ export function QuickAddExpense({ visible, onClose, customCats, isCurrentMonth, 
             <View style={sh.handle} />
             <SheetClose onPress={() => { reset(); onClose(); }} />
             <Text style={sh.title}>Add expense</Text>
+            {/* design r64 (pre-48 audit C4c): the not-an-expense escape hatch — three doors */}
+            <TouchableOpacity accessibilityRole="button" style={sh.elseLink}
+              accessibilityLabel="Add something else — a dated bill, an account, or one-off money in"
+              onPress={() => {
+                Alert.alert('Add something else', 'Where does it belong?', [
+                  { text: 'A dated bill', onPress: () => { reset(); onClose(); router.push('/bill-calendar' as any); } },
+                  { text: 'An account', onPress: () => { reset(); onClose(); router.push('/add-account' as any); } },
+                  { text: 'Money in (one-off income)', onPress: () => { reset(); onClose(); router.push('/income-manager' as any); } },
+                  { text: 'Cancel', style: 'cancel' },
+                ]);
+              }}>
+              <Text style={sh.elseTxt}>Adding something else? A bill · an account · money in ›</Text>
+            </TouchableOpacity>
 
             <TouchableOpacity accessibilityRole="button" style={sh.scanBtn} onPress={onScan} disabled={scanning}>
               <Text style={sh.scanTxt}>{scanning ? 'Scanning…' : receiptUri ? '📎 Receipt attached · rescan' : '📷 Scan a receipt'}</Text>
@@ -462,6 +475,8 @@ const sh = StyleSheet.create({
   tabOn: { backgroundColor: Colors.cardBg },
   tabTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   tabTxtOn: { color: Colors.primary, fontWeight: '700' },
+  elseLink: { minHeight: 44, justifyContent: 'center' },
+  elseTxt: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark },
   scanBtn: { marginTop: Spacing.md, alignSelf: 'center', paddingHorizontal: 16, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.primary, backgroundColor: Colors.primaryLight, minHeight: 44, justifyContent: 'center' },
   scanTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   amtRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'center', marginTop: Spacing.md },

@@ -637,3 +637,20 @@ test('A3: the bonus editor carries the 12 month chips writing bonusMonth (no mor
   expect(src).toMatch(/monthKey=\{editKey === 'bonusAnnual' \? 'bonusMonth' : 'otherMonth'\}/);
   expect(src).toMatch(/Which month does it land\?/);
 });
+
+// ── Pre-48 audit C4: the two approved rows the July triage missed, now built ──
+test('C4a: a dated goal funded below its needed pace fires the months-behind insight, quantified', () => {
+  const { buildInsights } = require('../../domain/insights');
+  const hit = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
+    cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2,
+    goalOffTrack: { label: 'College fund', monthsBehind: 4 } } as any).find((i: any) => i.id === 'goal-offtrack');
+  expect(hit.body).toMatch(/^College fund is about 4 months behind at this month's funding pace/);
+  expect(hit.theme).toBe('protect');
+});
+
+test('C4c: the add-expense sheet carries the three-door escape hatch (bill · account · money in)', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', '..', 'components/MoneySheets.tsx'), 'utf8');
+  expect(src).toMatch(/Adding something else\? A bill · an account · money in ›/);
+  expect(src).toMatch(/bill-calendar|add-account|income-manager/);
+});
