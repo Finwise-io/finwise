@@ -77,6 +77,14 @@ module.exports = {
       ],
     },
   },
+  // DESKTOP Phase 1 (founder 'start building', 2026-08-03): the web target boots the same app in a
+  // browser — scaffolding only; desktop layouts arrive with the mock-gated phases.
+  web: {
+    bundler: 'metro',
+    output: 'single',
+    favicon: './assets/icon.png',
+  },
+
   android: {
     package: 'co.finwise.app',   // match the iOS bundle (co.finwise.app is locked to App Store Connect)
     adaptiveIcon: {

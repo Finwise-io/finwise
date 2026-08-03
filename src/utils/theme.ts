@@ -64,7 +64,7 @@ export const ClassMarkColors: Record<string, string> = {
 export const GaugeRamp = ['#E4655F', '#EDA33B', '#E8D24C', '#9BCB63', '#3DA982'] as const;
 
 export const Typography = {
-  fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' }),
+  fontFamily: Platform.select({ ios: 'System', android: 'sans-serif' , default: 'system-ui' }),
   sizes: {
     xs: 11,
     sm: 13,

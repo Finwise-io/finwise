@@ -12,4 +12,17 @@ const config = getSentryExpoConfig(__dirname);
 config.resolver.unstable_enablePackageExports = false;
 config.resolver.sourceExts.push('cjs');
 
+// DESKTOP Phase 1: on web, 'react-native' resolves to our shim (react-native-web + Alert, which
+// RNW omits — 104 call sites depend on it). Native platforms are untouched. And Firebase must use
+// its BROWSER build on web (the RN-field workaround above is a native-only need).
+const defaultResolveRequest = config.resolver.resolveRequest;
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  if (platform === 'web' && moduleName === 'react-native') {
+    return { type: 'sourceFile', filePath: require.resolve('./src/platform/rnw-plus.js') };
+  }
+  return defaultResolveRequest
+    ? defaultResolveRequest(context, moduleName, platform)
+    : context.resolveRequest(context, moduleName, platform);
+};
+
 module.exports = config;

@@ -44,11 +44,16 @@ import {
 // Fall back to getAuth if auth was already initialized (e.g. Fast Refresh).
 let auth: ReturnType<typeof getAuth>;
 try {
+  // DESKTOP Phase 1: on web the RN persistence helper doesn't exist — use the browser's own
+  // local persistence so sign-in survives a refresh. Native path unchanged.
+  const { Platform } = require('react-native');
   auth = initializeAuth(
     firebaseApp,
-    getReactNativePersistence
-      ? { persistence: getReactNativePersistence(AsyncStorage) as any }
-      : undefined,
+    Platform.OS === 'web'
+      ? { persistence: (FirebaseAuth as any).browserLocalPersistence }
+      : getReactNativePersistence
+        ? { persistence: getReactNativePersistence(AsyncStorage) as any }
+        : undefined,
   );
 } catch {
   auth = getAuth(firebaseApp);

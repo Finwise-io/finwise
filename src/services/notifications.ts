@@ -2,8 +2,10 @@ import * as Notifications from 'expo-notifications';
 import * as Device from 'expo-device';
 import { Platform } from 'react-native';
 
-// Configure how notifications appear when app is in foreground
-Notifications.setNotificationHandler({
+// Configure how notifications appear when app is in foreground.
+// DESKTOP Phase 1: guarded — on web this module-top call can throw at import time; scheduled
+// phone-style reminders wait for the installable app (plan Phase 4).
+if (Platform.OS !== 'web') Notifications.setNotificationHandler({
   handleNotification: async () => ({
     shouldShowBanner: true,
     shouldShowList: true,
