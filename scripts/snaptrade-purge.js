@@ -16,11 +16,12 @@ if (!clientId || !consumerKey) {
 }
 
 async function call(method, path, extraQuery = {}) {
-  const timestamp = String(Math.floor(Date.now() / 1000));
-  const query = { clientId, timestamp, ...extraQuery };
-  const sig = sign(consumerKey, { content: null, path, query });
-  const qs = Object.entries(query).map(([k, v]) => `${k}=${encodeURIComponent(v)}`).join('&');
-  const res = await fetch(`https://api.snaptrade.com${path}?${qs}`, { method, headers: { Signature: sig } });
+  // EXACTLY the relay's recipe (functions/snaptrade.js stFetch): the signature covers the
+  // SORTED, URL-ENCODED QUERY STRING — not a query object.
+  const q = { ...extraQuery, clientId, timestamp: String(Math.floor(Date.now() / 1000)) };
+  const queryString = Object.keys(q).sort().map((k) => `${encodeURIComponent(k)}=${encodeURIComponent(q[k])}`).join('&');
+  const sig = sign(consumerKey, { content: null, path, query: queryString });
+  const res = await fetch(`https://api.snaptrade.com${path}?${queryString}`, { method, headers: { Signature: sig } });
   const text = await res.text();
   let body; try { body = JSON.parse(text); } catch { body = text; }
   return { status: res.status, body };
