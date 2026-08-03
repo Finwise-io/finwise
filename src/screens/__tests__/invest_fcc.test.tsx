@@ -185,3 +185,28 @@ test('Build-46 walk row 2: a holding with NO price shows what you paid — never
   const row = screen.getByLabelText(/LCTX, \$1,132, no current price, showing what you paid/);
   expect(within(row).queryByText('$0')).toBeNull();
 });
+
+// r16 (mock return-breakdown-v1, founder-approved 2026-08-03): the four where-it-came-from lines
+describe('return breakdown — where the return came from', () => {
+  test('with ledger rows in the window: lines render and sum to the period total by construction', () => {
+    const yr = new Date().getFullYear();
+    useStore.setState({
+      transactions: [
+        { id: 'd1', type: 'DIVIDEND', ticker: 'NVDA', amount: 430, date: `${yr}-06-01`, account_id: 'brk' },
+        { id: 'i1', type: 'INTEREST', amount: 120, date: `${yr}-06-15`, account_id: 'brk' },
+      ],
+    } as any);
+    const PerformanceScreen = require('../PerformanceScreen').default;
+    render(<PerformanceScreen />);
+    expect(screen.getByText('Price change (on paper)')).toBeOnTheScreen();
+    expect(screen.getByText('Dividends')).toBeOnTheScreen();
+    expect(screen.getByText('Interest')).toBeOnTheScreen();
+    expect(screen.getByText(/The lines always sum to the total/)).toBeOnTheScreen();
+  });
+  test('sparse honesty: with no realized/dividend/interest rows, no zero-lines are faked', () => {
+    const PerformanceScreen = require('../PerformanceScreen').default;
+    render(<PerformanceScreen />);
+    expect(screen.queryByText('Dividends')).toBeNull();
+    expect(screen.getByText(/All price change so far/)).toBeOnTheScreen();
+  });
+});

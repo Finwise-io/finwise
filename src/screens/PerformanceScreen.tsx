@@ -105,6 +105,21 @@ export default function PerformanceScreen() {
   // capped rows: the dollar is YOUR true gain (value − cost) — same math as unrealized everywhere
   const rowGain = (r: any) => (r.cappedSince ? r.gain : r.periodReturn != null && r.marketValue > 0 ? r.marketValue * (1 - 1 / (1 + r.periodReturn)) : 0);
   const periodDollar = rows.reduce((t, r) => t + rowGain(r), 0);
+  // r16 (mock return-breakdown-v1, founder-approved 2026-08-03): where the return came from —
+  // realized/dividends/interest are LEDGER rows in the window; price change is the on-paper
+  // remainder, so the four lines sum to the period total by construction. Ledger-only, no estimates.
+  const breakdown = useMemo(() => {
+    const { startDateFor } = require('../domain/performance');
+    const { realizedFromLedger } = require('../domain/performance/realized');
+    const startIso = startDateFor(period, new Date()).toISOString().slice(0, 10);
+    const txns = ((store.transactions ?? []) as any[]).filter((t) => String(t.date ?? '') >= startIso);
+    const sum = (type: string) => txns.filter((t) => t.type === type).reduce((t2, x) => t2 + (x.amount || 0), 0);
+    const dividends = Math.round(sum('DIVIDEND'));
+    const interest = Math.round(sum('INTEREST'));
+    const realized = Math.round(realizedFromLedger((store.transactions ?? []).filter((t: any) => String(t.date ?? '') >= startIso), {}).realizedAllTime || 0);
+    const price = Math.round(periodDollar) - realized - dividends - interest;
+    return { price, realized, dividends, interest };
+  }, [store.transactions, period, periodDollar]);
   const ranked = rows.filter((r) => r.periodReturn != null && r.marketValue > 0)
     .map((r) => ({ r, gain: rowGain(r) })).sort((a, b) => b.gain - a.gain);
   const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
@@ -199,6 +214,17 @@ export default function PerformanceScreen() {
               <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
               <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
             </HeroAmount>
+            {(breakdown.realized !== 0 || breakdown.dividends !== 0 || breakdown.interest !== 0) ? (
+              <View style={styles.bdBlock}>
+                <View style={styles.bdRow}><Text style={styles.bdL}>Price change (on paper)</Text><Text style={styles.bdV}>{breakdown.price >= 0 ? '＋' : '−'}{maskedMoney(Math.abs(breakdown.price))}</Text></View>
+                {breakdown.realized !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Realized on sales</Text><Text style={styles.bdV}>{breakdown.realized >= 0 ? '＋' : '−'}{maskedMoney(Math.abs(breakdown.realized))}</Text></View>}
+                {breakdown.dividends !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Dividends</Text><Text style={styles.bdV}>＋{maskedMoney(breakdown.dividends)}</Text></View>}
+                {breakdown.interest !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Interest</Text><Text style={styles.bdV}>＋{maskedMoney(breakdown.interest)}</Text></View>}
+                <Text style={styles.bdNote}>The lines always sum to the total. Ledger rows only; nothing estimated.</Text>
+              </View>
+            ) : (
+              <Text style={styles.bdNote}>All price change so far — sales, dividends and interest lines appear as your ledger earns them.</Text>
+            )}
             <View style={styles.honestBlock}>
               <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
               {benchPort != null && (
@@ -851,6 +877,11 @@ const styles = StyleSheet.create({
   freshInHero: { fontSize: 12, color: Colors.textTertiary, marginTop: 4 },
   glanceKicker: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 4 },
   glanceBig: { fontSize: 24, fontWeight: '800' },
+  bdBlock: { marginTop: 8, borderTopWidth: 1, borderTopColor: Colors.border, paddingTop: 4 },
+  bdRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 5 },
+  bdL: { fontSize: 13.5, color: Colors.textSecondary },
+  bdV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  bdNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 5 },
   glancePct: { fontSize: 17, fontWeight: '700', color: Colors.textSecondary },
   glanceLine: { fontSize: 14, color: Colors.textPrimary, marginTop: 4 },
   wlAcctHdr: { fontSize: 11.5, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.4, marginTop: 8, marginBottom: 2 },
