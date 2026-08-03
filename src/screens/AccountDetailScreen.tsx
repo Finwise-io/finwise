@@ -91,6 +91,7 @@ export default function AccountDetailScreen() {
       const cls2 = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
       return {
         key: p.position_id ?? p.ticker,
+        posId: p.position_id,
         name: cls2 === 'stocks_etf' && sh > 0 ? `${holdingWord(p)} · ${sh.toLocaleString()} share${sh === 1 ? '' : 's'}` : holdingWord(p),
         sub: cls2 === 'bonds' ? 'CDs & Treasuries' : cls2 === 'cash' ? 'counts as cash' : undefined,
         color: ClassMarkColors[cls2], value, cls: cls2,
@@ -143,15 +144,17 @@ export default function AccountDetailScreen() {
           <View style={s.optBlock}>
             <Text style={s.optHdr}>THE HOLDINGS · {ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY</Text>
             {insideRows.filter((rw: any) => rw.cls === classView).map((rw) => (
-              <View key={rw.key} style={s.insideRow} accessible
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}`}>
+              <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
+                accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
+                onPress={() => (rw as any).posId && router.push(`/holding-detail?account=${account.asset_id}&position=${(rw as any).posId}` as any)}
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
                 <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                   {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                 </View>
                 <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
-              </View>
+              </TouchableOpacity>
             ))}
             <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => maskedMoney(rw.value)).join(' + ')} = {maskedMoney(Math.round((breakdown as any)[classView] || 0))}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
@@ -171,15 +174,17 @@ export default function AccountDetailScreen() {
           <View style={s.optBlock}>
             <Text style={s.optHdr}>WHAT'S INSIDE · BY TYPE</Text>
             {insideRows.map((rw) => (
-              <View key={rw.key} style={s.insideRow} accessible
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}`}>
+              <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
+                accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
+                onPress={() => (rw as any).posId && router.push(`/holding-detail?account=${account.asset_id}&position=${(rw as any).posId}` as any)}
+                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
                 <View style={[s.insideDot, { backgroundColor: rw.color }]} />
                 <View style={{ flex: 1 }}>
                   <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
                   {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
                 </View>
                 <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
-              </View>
+              </TouchableOpacity>
             ))}
             <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden.</Text>
           </View>

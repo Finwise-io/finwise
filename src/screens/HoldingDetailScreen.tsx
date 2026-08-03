@@ -142,7 +142,7 @@ export default function HoldingDetailScreen() {
           <Text style={s.back}>‹ Back</Text>
         </TouchableOpacity>
         <TouchableOpacity accessibilityRole="button" onPress={() => setEditOpen(true)} accessibilityLabel="Edit this holding" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-          <Text style={s.back}>✎</Text>
+          <Text style={s.back}>✎ Edit</Text>
         </TouchableOpacity>
       </View>
       <Text style={s.h1}>{name}{name !== ticker ? ` (${ticker})` : ''}</Text>
