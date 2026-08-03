@@ -31,7 +31,9 @@ export default function TabLayout() {
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
         <DesktopSidebar order={order} />
-        <View style={{ flex: 1 }}>
+        <View style={{ flex: 1, alignItems: 'center', backgroundColor: Colors.bgSecondary }}>
+          {/* approved desktop UX rule: content never wider than comfortable reading */}
+          <View style={{ flex: 1, width: '100%', maxWidth: 1160 }}>
           <Tabs screenOptions={{ headerShown: false, tabBarStyle: { display: 'none' } }}>
             {order.map((name) => (
               <Tabs.Screen key={name} name={name} />
@@ -43,6 +45,7 @@ export default function TabLayout() {
             <Tabs.Screen name="rewards" options={{ href: null }} />
             <Tabs.Screen name="settings" options={{ href: null }} />
           </Tabs>
+          </View>
         </View>
       </View>
     );
