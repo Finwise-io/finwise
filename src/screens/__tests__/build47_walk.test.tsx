@@ -666,3 +666,24 @@ test('desktop: the web sidebar exists, reads the ONE TAB_META map, and the phone
   expect(layout).toMatch(/Platform\.OS === 'web'/);                  // web-only branch
   expect(layout).toMatch(/<DesktopSidebar order=\{order\} \/>/);     // lens order carries to desktop
 });
+
+// ── B48 walk finding 2 (founder, 2026-08-03): the class-view addition summed the WHOLE account ──
+test('B48 finding 2: the class-view sum line adds ONLY the viewed class — and the equality holds', () => {
+  useStore.setState({
+    hideBalances: false,
+    assetAccounts: [{
+      asset_id: 'vg', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 35838, source: 'connected', last_synced: new Date().toISOString(), cash_balance: 838,
+      positions: [
+        { position_id: 'p1', ticker: 'VTI', label: 'Vanguard Total Market', kind: 'stocks_etf', last_price: 300, lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] },
+        { position_id: 'p2', ticker: 'CUSIP9', label: 'KEYBANK NA 4.00% CD', kind: 'fixed_income', asset_class: 'bond', last_price: 100, lots: [{ lot_id: 'l2', shares: 50, cost_per_share: 100, purchase_date: '2024-01-02' }] },
+      ],
+    }],
+  } as any);
+  mockParams = { id: 'vg', class: 'bonds' };
+  const AccountDetailScreen = require('../AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  // the bonds slice: ONLY the $5,000 CD in the addition — and it equals the slice total
+  expect(screen.getByText(/\$5,000 = \$5,000\./)).toBeOnTheScreen();
+  expect(screen.queryByText(/\$30,000 \+ /)).toBeNull();               // the stock row stays OUT of the bonds sum
+});

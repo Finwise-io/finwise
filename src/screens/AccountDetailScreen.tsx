@@ -153,7 +153,7 @@ export default function AccountDetailScreen() {
                 <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
               </View>
             ))}
-            <Text style={s.optNote}>{insideRows.map((rw: any) => maskedMoney(rw.value)).join(' + ')} = {maskedMoney(Math.round((breakdown as any)[classView] || 0))}. Everything else lives on the whole-account page — one tap away above.</Text>
+            <Text style={s.optNote}>{insideRows.filter((rw: any) => rw.cls === classView).map((rw: any) => maskedMoney(rw.value)).join(' + ')} = {maskedMoney(Math.round((breakdown as any)[classView] || 0))}. Everything else lives on the whole-account page — one tap away above.</Text>
           </View>
         </View>
       ) : (
