@@ -61,3 +61,10 @@ feature-list.xlsx/csv, data-schematic.md, data-review.md, data-schematics.xlsx, 
 testflight-test-plan.md, qa-results-2026-06-18.md, compliance-audit.xlsx, test-register.xlsx,
 money-agreement-matrix.xlsx, tracker.xlsx, fix-list.md, dedup-audit.md, robustness-assessment.md,
 userlens-qa-2026-06-12.md, asset-taxonomy-analysis.md.
+
+## Desktop (MoneyKeel desktop workstream — started 2026-08-03)
+- `docs/FCC-desktop/MK-desktop-PRD-v1-2026-08-03.xlsx` — master desktop PRD (derived from the app PRD; SAME/DIFFERENT per row)
+- `docs/FCC-desktop/MK-desktop-UX-design-v1-2026-08-03.xlsx` — desktop look-and-feel rules (derived + desktop-new)
+- `docs/FCC-desktop/MK-desktop-audit-v1-2026-08-03.xlsx` — living audit/findings/decisions file
+- `docs/FCC-core-55-70/desktop-plan-v1-2026-08-03.xlsx` — the phased plan + timeline
+- `mockups/desktop/` — desktop mock folder (mock-first)
