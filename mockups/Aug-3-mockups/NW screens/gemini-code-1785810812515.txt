@@ -1,0 +1,41 @@
+┌────────────────────────────────────────────────────────┐
+│  [Menu]                 WealthKeel            [👁️] [⚙️]  │
+├────────────────────────────────────────────────────────┤
+│  YOUR NET WORTH                             Aug 3, 2026│
+│  $395,152.00                                           │
+│  ▲ +$2,110.00 this year                                │
+│                                                        │
+│  Your path ahead (from Plan): On course ~$890k by 92   │
+│                                                        │
+│  [ By Class ]       By Institution        By Type      │
+│ ────────────────────────────────────────────────────── │
+│                                                        │
+│  WHAT YOU OWN                              $813,152    │
+│                                                        │
+│  🟢 Stocks & ETFs                          $348,495    │
+│     └─ Vanguard Brokerage                 $348,495 >   │
+│                                                        │
+│  🔵 Bonds & CDs                              $5,819    │
+│     └─ Vanguard Treasury/CDs                $5,819 >   │
+│                                                        │
+│  💵 Cash & Cash Equivalents                  $8,838    │
+│     ├─ Chase Checking                       $8,000 >   │
+│     └─ Vanguard Sweep                         $838 >   │
+│                                                        │
+│  🏠 Real Estate (Home)                     $450,000    │
+│     └─ Home (Manual entry)                 $450,000 >   │
+│                                                        │
+│ ────────────────────────────────────────────────────── │
+│  WHAT YOU OWE                             -$418,000    │
+│     ├─ Home Mortgage                     -$412,000 >   │
+│     └─ Chase Visa (Pay first)              -$6,000 >   │
+│                                                        │
+│ ────────────────────────────────────────────────────── │
+│  EMERGENCY CUSHION                                     │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ 🛡️ 2.0 Months (Tight)                             │  │
+│  │ $8,838 cash / $4,500 monthly essentials          │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  [ Home ]  [ Net Worth ]  [ Invest ]  [ Cash Flow ]  [ Plan ] │
+└────────────────────────────────────────────────────────┘

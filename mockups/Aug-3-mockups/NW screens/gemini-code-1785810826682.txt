@@ -1,0 +1,31 @@
+┌────────────────────────────────────────────────────────┐
+│  [Menu]                 WealthKeel            [👁️] [⚙️]  │
+├────────────────────────────────────────────────────────┤
+│  INVESTMENT PERFORMANCE                     Aug 3, 2026│
+│  $354,314.00 (Invested Assets)                         │
+│  ▲ +$2,110.00 (+0.53% YTD ROI)                         │
+│                                                        │
+│  ┌──────────────────────────────────────────────────┐  │
+│  │ 📊 YTD RETURN BREAKDOWN                          │  │
+│  │ • 📈 Market Appreciation:     +$260 (+0.07%)     │  │
+│  │ • 💰 Dividends Earned:     +$1,420               │  │
+│  │ • 🏦 Interest Earned:        +$430               │  │
+│  └──────────────────────────────────────────────────┘  │
+│                                                        │
+│  BENCHMARK COMPARISON                                  │
+│  Your Portfolio: +0.53%  |  Target Benchmark: -0.24%   │
+│  🟢 Outperforming by +0.77%                            │
+│                                                        │
+│  YTD YIELD BY CATEGORY                                 │
+│                                                        │
+│  🟢 Stocks & ETFs                          +$1,420 Divs│
+│     └─ Total YTD Return: +2.10%                        │
+│                                                        │
+│  🔵 Bonds & CDs                          +$210 Interest│
+│     └─ Total YTD Return: +4.20%                        │
+│                                                        │
+│  💵 Cash & Equivalents                   +$220 Interest│
+│     └─ Average Yield: 2.50% APY                        │
+│                                                        │
+│  [ Home ]  [ Net Worth ]  [ Invest ]  [ Cash Flow ]  [ Plan ] │
+└────────────────────────────────────────────────────────┘
