@@ -100,3 +100,25 @@ export function nextDecision(args: {
   }
   return null;
 }
+
+// ── the on-course sentence (founder-approved words, 2026-08-04) ──────────────
+// "on course for ~$890,000 by 92" read as "working till 92" — the founder had to ask.
+// The approved shape leads with what each lens acts on: workers get the pot at retirement
+// day FIRST, then survival; retirees have no retirement-day pot, so lasting IS the headline.
+// Null below 80% — "lasting past 92" may only be said when the plan is actually on course.
+export function onCourseSentence(args: {
+  lens: 'retired' | string; chance: number | null;
+  retireAge: number; horizonAge: number;
+  potAtRetire: number | null; leftoverAtHorizon: number | null;
+  money: (n: number) => string;
+}): string | null {
+  const { lens, chance, money } = args;
+  if (chance == null || chance < 80) return null;
+  const near = (n: number) => money(Math.max(1000, Math.round(n / 1000) * 1000));
+  if (lens === 'retired') {
+    if (!(args.leftoverAtHorizon! > 0)) return null;
+    return `on course to last past ${args.horizonAge}, ~${near(args.leftoverAtHorizon!)} to spare`;
+  }
+  if (!(args.potAtRetire! > 0) || !(args.leftoverAtHorizon! > 0)) return null;
+  return `retire at ${args.retireAge} with ~${near(args.potAtRetire!)}, lasting past ${args.horizonAge} with ~${near(args.leftoverAtHorizon!)} to spare`;
+}

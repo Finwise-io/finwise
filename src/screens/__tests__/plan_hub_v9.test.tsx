@@ -109,3 +109,26 @@ test('SAMENESS (pre-48 audit): the hub withdrawal rate comes from the canonical 
   expect(src).toMatch(/withdrawalPlan\(wil\.inputs\.retire_monthly_spend_today/);   // canonical helper, odds' own inputs
   expect(src).not.toMatch(/\* 12\) \/ wil\.inputs\.start_balance/);                 // the inline re-derivation is gone
 });
+
+describe('on-course sentence (founder-approved words, 2026-08-04)', () => {
+  const { onCourseSentence } = require('../../domain/planning/hub');
+  const money = (n: number) => `$${n.toLocaleString('en-US')}`;   // money-mask-ok: test fixture, never rendered — the screen passes maskedMoney
+  const base = { retireAge: 65, horizonAge: 92, potAtRetire: 1_412_300, leftoverAtHorizon: 890_400, money };
+
+  test('working lens leads with the pot at retirement day, then survival', () => {
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 84 }))
+      .toBe('retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare');
+  });
+  test('retired lens: lasting IS the headline (no retirement-day pot exists)', () => {
+    expect(onCourseSentence({ ...base, lens: 'retired', chance: 84 }))
+      .toBe('on course to last past 92, ~$890,000 to spare');
+  });
+  test('below 80% the sentence is refused — "lasting past 92" may not be said off-course', () => {
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 79 })).toBeNull();
+    expect(onCourseSentence({ ...base, lens: 'retired', chance: null })).toBeNull();
+  });
+  test('missing numbers refuse the sentence rather than guess', () => {
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 90, potAtRetire: null })).toBeNull();
+    expect(onCourseSentence({ ...base, lens: 'retired', chance: 90, leftoverAtHorizon: 0 })).toBeNull();
+  });
+});

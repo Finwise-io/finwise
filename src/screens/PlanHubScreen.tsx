@@ -18,7 +18,7 @@ import { InfoDot } from '../components/UI';
 import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
-import { lensChanceWord, planDoor, nextDecision } from '../domain/planning/hub';
+import { lensChanceWord, onCourseSentence, planDoor, nextDecision } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 
@@ -51,6 +51,14 @@ export default function PlanHubScreen() {
   const planRetire = Math.round(Number(A.retireAge ?? op.targetRetirementAge ?? 67));
   const planSave = Number(A.contribMonthly ?? 0);
   const planSpend = Number(A.spendMonthly ?? op.monthlySpending ?? 0);
+  // approved-words numbers (founder 2026-08-04): pot at retirement day + median left at plan-to age
+  const simFull = useMemo(() => (wil.inputs ? simulate({ ...wil.inputs, with_band: true }) : null), [wil.inputs]);
+  const onCourse = onCourseSentence({
+    lens, chance: wil.chance, retireAge: planRetire, horizonAge: wil.horizonAge,
+    potAtRetire: simFull?.projected_at_retirement ?? null,
+    leftoverAtHorizon: simFull?.band?.length ? simFull.band[simFull.band.length - 1].p50 : null,
+    money: maskedMoney,
+  });
   const door = useMemo(() => planDoor(op, accounts), [op, accounts]);
   const preTaxIds = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').map((a: any) => a.asset_id);
   const preTaxBal = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').reduce((t: number, a: any) => t + (a.balance || 0), 0);
@@ -117,13 +125,16 @@ export default function PlanHubScreen() {
           </View>
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
-              Your {maskedMoney(planSpend)}/mo spending{wil.chance >= 80 ? ` is covered to ${wil.horizonAge} at today's pace` : ` — ${wil.chance} in 100 paths last to ${wil.horizonAge}`}
+              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${wil.chance} in 100 paths last to ${wil.horizonAge}`}
               {wplan?.withdrawalRate != null ? ` — a ${(wplan.withdrawalRate * 100).toFixed(1)}%/yr withdrawal, ${wplan.rateBand === 'safe' ? 'within the safe range' : wplan.rateBand === 'moderate' ? 'a bit above the 4% guideline — watch it' : 'above 5% — high risk of running short'}` : ''}.
             </Text>
           ) : (
-            <Text style={styles.ifLine}>
-              …if you retire at {planRetire}{planSave > 0 ? `, keep saving ${maskedMoney(planSave)}/mo` : ''}{planSpend > 0 ? `, and spend ${maskedMoney(planSpend)}/mo in retirement (your planned spending — you set it)` : ''}. Change any of those below.
-            </Text>
+            <>
+              {onCourse && <Text style={styles.ifLine}>You could {onCourse}.</Text>}
+              <Text style={styles.ifLine}>
+                …if you retire at {planRetire}{planSave > 0 ? `, keep saving ${maskedMoney(planSave)}/mo` : ''}{planSpend > 0 ? `, and spend ${maskedMoney(planSpend)}/mo in retirement (your planned spending — you set it)` : ''}. Change any of those below.
+              </Text>
+            </>
           )}
           <Text style={styles.cardLink}>What drives this? ›</Text>
         </TouchableOpacity>
