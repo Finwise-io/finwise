@@ -5,7 +5,7 @@
 // will-it-last strip (reads the one selector's number — Home displays, it never re-derives).
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).
 import React, { useMemo, useState, useEffect } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshControl } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshControl, Platform } from 'react-native';
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -18,6 +18,7 @@ import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
 import { investmentsTotal, buildAssetsState } from '../domain/assets';
+import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
 import { connectionFreshness } from '../services/sync';
@@ -245,29 +246,8 @@ export default function HomeScreen() {
   const prevNw = nwHistory.length ? nwHistory[nwHistory.length - 1].net_worth : null;
   const nwDir = prevNw != null && netWorth !== prevNw ? (netWorth > prevNw ? 'up' : 'down') : null;
 
-  return (
-    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
-      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
-        <View style={styles.headRow}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.sub}>Good {greeting()}</Text>
-            <Text style={styles.h1}>{name}</Text>
-          </View>
-        </View>
-
-        <HiddenBalancesBanner />
-
-        {/* OFFLINE/COULDN'T-REFRESH (mock approved 2026-07-31 — banner only; the screen stays as
-            agreed): the saved numbers keep showing with their honest as-of time. */}
-        {store.priceRefreshFailed && (
-          <Text style={styles.offlineBanner}>
-            📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
-              ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
-              : 'your last session'}.
-          </Text>
-        )}
-
+  // ── section blocks — desktop places the SAME blocks in two columns; phone order unchanged ──
+  const heroBlock = (<>
         {/* HERO — lens-driven */}
         {lens === 'retired' ? (
           <PaycheckCard />
@@ -326,7 +306,8 @@ export default function HomeScreen() {
             <Text style={styles.heroLink}>See your growth ›</Text>
           </TouchableOpacity>
         )}
-
+  </>);
+  const brokenBlock = (<>
         {/* BROKEN CONNECTION — SnapTrade serves cached data silently when a link breaks; the
             disabled flag is the only tell, so it gets a first-class fix line (their launch
             checklist requires exactly this detection + notification) */}
@@ -341,7 +322,8 @@ export default function HomeScreen() {
             </TouchableOpacity>
           );
         })()}
-
+  </>);
+  const staleBlock = (<>
         {/* STALE CONNECTION — retired lens only: the working hero now carries the in-box stamp */}
         {lens === 'retired' && (() => {
           const stale = (store.assetAccounts ?? [])
@@ -357,7 +339,8 @@ export default function HomeScreen() {
             </TouchableOpacity>
           );
         })()}
-
+  </>);
+  const milestoneBlock = (<>
         {/* MILESTONE — one calm line under the hero, once, dismissed on tap (the strategy's
             stated retention moment; design Home STATES). Fact-toned, never repeated. */}
         {milestone != null && (
@@ -367,7 +350,8 @@ export default function HomeScreen() {
             <Text style={styles.milestoneTxt}>Your net worth just crossed {milestoneLabel(milestone)}. <Text style={styles.milestoneDismiss}>✕</Text></Text>
           </TouchableOpacity>
         )}
-
+  </>);
+  const nwLineBlock = (<>
         {/* NET WORTH — one quiet line, taps to its one home */}
         <TouchableOpacity accessibilityRole="button" style={styles.nwLine} activeOpacity={0.7} onPress={() => router.push('/(tabs)/analytics')}
          
@@ -378,7 +362,8 @@ export default function HomeScreen() {
           {nwDir && <Text style={[styles.nwDir, { color: nwDir === 'up' ? Colors.gainText : Colors.red }]}>{nwDir === 'up' ? '▲ up' : '▼ down'}</Text>}
           <Text style={styles.nwArrow}>›</Text>
         </TouchableOpacity>
-
+  </>);
+  const needsBlock = (<>
         {/* WHAT NEEDS YOU — top 3 from the ONE insights engine (same items/order as Insights) */}
         <View style={styles.box}>
           <Text style={styles.boxLabel}>CHIEF OF STAFF — WHAT NEEDS YOU {topInsights.length > 0 ? `(${topInsights.length})` : ''}</Text>
@@ -398,7 +383,8 @@ export default function HomeScreen() {
             </TouchableOpacity>
           ))}
         </View>
-
+  </>);
+  const gaugeBlock = (<>
         {/* WILL MY MONEY LAST? — Home displays the one selector's number; Plan is its home */}
         <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
          
@@ -433,7 +419,8 @@ export default function HomeScreen() {
           )}
           <Text style={styles.heroLink}>{wil.chance != null ? 'See the full picture ›' : 'See your real odds ›'}</Text>
         </TouchableOpacity>
-
+  </>);
+  const cashflowBlock = (<>
         {/* THIS MONTH'S CASH FLOW — the dashboard readout (founder 2026-07-15): income vs spending
             at a glance, the SAME two figures the month math above uses (thisMonthNet / bva) */}
         {(() => {
@@ -472,7 +459,82 @@ export default function HomeScreen() {
             </TouchableOpacity>
           );
         })()}
+  </>);
 
+  // DESKTOP (approved shell mock, Home window, 2026-08-03): glance LEFT (net worth · gauge ·
+  // this month) | chief-of-staff + the investments TABLE RIGHT. Same blocks, zero forked math.
+  if (Platform.OS === 'web') {
+    return (
+      <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+        <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+          refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
+          <View style={styles.headRow}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.sub}>Good {greeting()}</Text>
+              <Text style={styles.h1}>{name}</Text>
+            </View>
+          </View>
+          <HiddenBalancesBanner />
+          {store.priceRefreshFailed && (
+            <Text style={styles.offlineBanner}>
+              📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
+                ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+                : 'your last session'}.
+            </Text>
+          )}
+          {brokenBlock}{staleBlock}{milestoneBlock}
+          <View style={styles.deskCols} testID="home-desktop-columns">
+            <View style={styles.deskCol} testID="home-desktop-left">
+              {lens === 'retired' && heroBlock}
+              {nwLineBlock}
+              {gaugeBlock}
+              {cashflowBlock}
+            </View>
+            <View style={styles.deskCol} testID="home-desktop-right">
+              {needsBlock}
+              {lens !== 'retired' && heroBlock}
+              <DesktopInvestTable accounts={resolvedRows.accounts} showHeader={lens === 'retired'} />
+            </View>
+          </View>
+          <Disclaimer />
+          <View style={{ height: 40 }} />
+        </ScrollView>
+        <AllocateSavings state={allocSheet} onClose={() => setAllocSheet({ open: false })} />
+      </View>
+    );
+  }
+
+  return (
+    <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
+      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
+        <View style={styles.headRow}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.sub}>Good {greeting()}</Text>
+            <Text style={styles.h1}>{name}</Text>
+          </View>
+        </View>
+
+        <HiddenBalancesBanner />
+
+        {/* OFFLINE/COULDN'T-REFRESH (mock approved 2026-07-31 — banner only; the screen stays as
+            agreed): the saved numbers keep showing with their honest as-of time. */}
+        {store.priceRefreshFailed && (
+          <Text style={styles.offlineBanner}>
+            📡 Couldn't refresh — showing your numbers from {store.pricesFetchedAt
+              ? new Date(store.pricesFetchedAt).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + ', ' + new Date(store.pricesFetchedAt).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+              : 'your last session'}.
+          </Text>
+        )}
+
+        {heroBlock}
+        {brokenBlock}
+        {staleBlock}
+        {milestoneBlock}
+        {nwLineBlock}
+        {needsBlock}
+        {gaugeBlock}
+        {cashflowBlock}
         <Disclaimer />
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -488,6 +550,9 @@ const pctTxt = (d: number) => `${(Math.round(d * 1000) / 10).toFixed(1)}%`;
 const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctTxt(Math.abs(d))}`;
 
 const styles = StyleSheet.create({
+  // desktop two-column (approved shell mock: 1fr/1fr, 16 gap)
+  deskCols: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
+  deskCol: { flex: 1, minWidth: 0 },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   // Type sizes on this screen come from the official ladder only (11/13/15/17/20/24/38) —
