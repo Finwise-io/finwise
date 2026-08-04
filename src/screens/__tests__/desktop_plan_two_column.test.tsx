@@ -60,7 +60,7 @@ describe('desktop two-column Plan hub (web only)', () => {
 describe('inline desktop sandbox — one brain with the verdict', () => {
   test('at rest the sandbox shows EXACTLY the plan chance (no drift possible)', () => {
     render(<DesktopPlanSandbox lens="preretired" inputs={INPUTS} planChance={83} />);
-    expect(screen.getByText(/ — 83% · estimate/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Sandbox odds: (Likely|Uncertain|Unlikely), 83 percent/)).toBeOnTheScreen();
     expect(screen.queryByText('Use as my plan')).toBeNull();               // nothing to adopt at rest
     expect(screen.getByText('move a dial — the odds re-run live')).toBeOnTheScreen();
   });
@@ -70,7 +70,7 @@ describe('inline desktop sandbox — one brain with the verdict', () => {
     render(<DesktopPlanSandbox lens="preretired" inputs={INPUTS} planChance={83} />);
     fireEvent.press(screen.getByLabelText('Retire at age down'));
     fireEvent.press(screen.getByLabelText('Retire at age down'));
-    expect(screen.getByText(new RegExp(` — ${real}% · estimate`))).toBeOnTheScreen();
+    expect(screen.getByLabelText(new RegExp(`Sandbox odds: (Likely|Uncertain|Unlikely), ${real} percent`))).toBeOnTheScreen();
     expect(screen.getByText(/retiring at 65 (costs|adds|moves)/)).toBeOnTheScreen();
     expect(screen.getByText('Use as my plan')).toBeOnTheScreen();
   });
