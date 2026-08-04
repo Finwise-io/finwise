@@ -2,7 +2,7 @@
 // will-it-last number, the big decisions waiting on you, and your saved what-ifs. Nothing here
 // changes the plan by itself — every path ends at an explicit adoption step.
 import React, { useEffect, useMemo } from 'react';
-import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -18,6 +18,7 @@ import { InfoDot } from '../components/UI';
 import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
+import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { lensChanceWord, onCourseSentence, planDoor, nextDecision } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
@@ -102,12 +103,8 @@ export default function PlanHubScreen() {
     ]);
   };
 
-  return (
-    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-        <HiddenBalancesBanner />
-      <Text style={styles.h1}>Plan</Text>
-      <Text style={styles.tagline}>We lay it out. You decide.</Text>
-
+  // ── section blocks — desktop places the SAME blocks in two columns; phone order unchanged ──
+  const verdictBlock = (<>
       {/* THE VERDICT — mock v9: spectrum + word + the "if" clause that makes the number theirs */}
       {wil.captured && wil.chance != null ? (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/will-it-last')}
@@ -168,7 +165,8 @@ export default function PlanHubScreen() {
           </View>
         </>
       )}
-
+  </>);
+  const nextBlock = (<>
       {/* THE ONE NEXT DECISION — dated when real, absent when nothing is due */}
       {wil.captured && wil.chance != null && next && (
         <TouchableOpacity accessibilityRole="button" style={styles.nextCard} activeOpacity={0.85} onPress={() => router.push(next.route as any)}
@@ -179,7 +177,8 @@ export default function PlanHubScreen() {
           <Text style={styles.nextCta}>{next.cta}</Text>
         </TouchableOpacity>
       )}
-
+  </>);
+  const paycheckBlock = (<>
       {/* RETIRED: the paycheck — the SAME engine as Home's card, one set of numbers */}
       {lens === 'retired' && wil.captured && wil.chance != null && payMonth && (
         <>
@@ -201,7 +200,8 @@ export default function PlanHubScreen() {
           </TouchableOpacity>
         </>
       )}
-
+  </>);
+  const decisionsBlock = (withDoor: boolean) => (<>
       {/* DECISIONS — every row a complete question, ranked by what's on the mind (mock v9) */}
       {wil.captured && wil.chance != null ? (
         <>
@@ -251,12 +251,14 @@ export default function PlanHubScreen() {
               </>
             )}
           </View>
-          {/* the sandbox — visibly fenced */}
+          {/* the sandbox door (phone; desktop renders the inline sandbox in the right column) */}
+          {withDoor && (
           <TouchableOpacity accessibilityRole="button" style={styles.sandbox} activeOpacity={0.85} onPress={() => router.push('/retirement')}
             accessibilityLabel="Try what-ifs — a sandbox. Nothing changes until you tap Use as my plan.">
             <Text style={styles.sandT}>Try what-ifs — a sandbox ›</Text>
             <Text style={styles.sandS}>{lens === 'retired' ? 'Sliders for spending and plan-to age.' : 'Sliders for retire age, saving, spending.'} Nothing changes until you tap "Use as my plan".</Text>
           </TouchableOpacity>
+          )}
         </>
       ) : (
         <>
@@ -288,7 +290,8 @@ export default function PlanHubScreen() {
           </View>
         </>
       )}
-
+  </>);
+  const scenariosBlock = (<>
       {/* SAVED SCENARIOS */}
       {scenarios.length > 0 && (
         <>
@@ -310,7 +313,8 @@ export default function PlanHubScreen() {
           </View>
         </>
       )}
-
+  </>);
+  const revertBlock = (<>
       {/* Back to previous plan (appears only after an adoption) */}
       {planHistory.length > 0 && (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={confirmRevert}
@@ -319,7 +323,8 @@ export default function PlanHubScreen() {
           <Text style={styles.rowSub}>One tap shows exactly what would switch back — nothing changes without a confirmation.</Text>
         </TouchableOpacity>
       )}
-
+  </>);
+  const meterBlock = (<>
       {/* Sharpen your plan meter */}
       <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/sharpen')}
         accessibilityLabel={`Sharpen your plan, ${plan.doneCount} of ${plan.total} done`}>
@@ -329,10 +334,51 @@ export default function PlanHubScreen() {
         </View>
         <View style={styles.meterBar}><View style={[styles.meterFill, { width: `${plan.pct}%` }]} /></View>
       </TouchableOpacity>
-
+  </>);
+  const footBlock = (<>
       {wil.captured && wil.chance != null
         ? <Text style={styles.tinyFoot}>Estimates from ~400 market simulations of your own numbers — not advice.</Text>
         : <Text style={styles.tinyFoot}>No percent is shown until it's yours — we never fake a number.</Text>}
+  </>);
+
+  // DESKTOP (approved shell mock, 2026-08-03): verdict + next + decisions LEFT (1.15) |
+  // inline sandbox + scenarios + revert + meter RIGHT (0.85). Same blocks, zero forked math.
+  if (Platform.OS === 'web') {
+    return (
+      <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <HiddenBalancesBanner />
+        <Text style={styles.h1}>Plan</Text>
+        <Text style={styles.tagline}>We lay it out. You decide.</Text>
+        <View style={styles.deskCols} testID="plan-desktop-columns">
+          <View style={styles.deskLeft} testID="plan-desktop-left">
+            {verdictBlock}{nextBlock}{paycheckBlock}{decisionsBlock(false)}
+          </View>
+          <View style={styles.deskRight} testID="plan-desktop-right">
+            {wil.captured && wil.chance != null && wil.inputs && (
+              <DesktopPlanSandbox lens={lens} inputs={wil.inputs} planChance={wil.chance} />
+            )}
+            {scenariosBlock}{revertBlock}{meterBlock}
+          </View>
+        </View>
+        {footBlock}
+        <View style={{ height: 40 }} />
+      </ScrollView>
+    );
+  }
+
+  return (
+    <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+        <HiddenBalancesBanner />
+      <Text style={styles.h1}>Plan</Text>
+      <Text style={styles.tagline}>We lay it out. You decide.</Text>
+      {verdictBlock}
+      {nextBlock}
+      {paycheckBlock}
+      {decisionsBlock(true)}
+      {scenariosBlock}
+      {revertBlock}
+      {meterBlock}
+      {footBlock}
       <View style={{ height: 40 }} />
     </ScrollView>
   );
@@ -352,6 +398,10 @@ function DecisionRow({ title, sub, onPress, divider }: { title: string; sub: str
 }
 
 const styles = StyleSheet.create({
+  // desktop two-column (approved shell mock: 1.15fr / .85fr, 16 gap)
+  deskCols: { flexDirection: 'row', alignItems: 'flex-start', gap: 16 },
+  deskLeft: { flex: 1.15, minWidth: 0 },
+  deskRight: { flex: 0.85, minWidth: 0 },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },   // never outweigh the verdict hero (audit PH-2)

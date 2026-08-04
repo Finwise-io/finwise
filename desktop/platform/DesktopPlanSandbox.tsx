@@ -112,7 +112,7 @@ const s = StyleSheet.create({
   dialRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 7 },
   dialLabel: { fontSize: 13.5, color: Colors.textSecondary, flexShrink: 1, paddingRight: 8 },
   dialCtrls: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  step: { width: 44, height: 44, borderRadius: 10, backgroundColor: Colors.surfaceAlt ?? '#F2F1EC', alignItems: 'center', justifyContent: 'center' },
+  step: { width: 44, height: 44, borderRadius: 10, backgroundColor: '#F2F1EC', alignItems: 'center', justifyContent: 'center' },
   stepTxt: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
   dialValue: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, minWidth: 76, textAlign: 'center', fontVariant: ['tabular-nums'] },
   verdictRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 10 },
