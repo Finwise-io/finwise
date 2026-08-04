@@ -713,7 +713,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
 
   useEffect(() => {
     if (!state.open) return;
-    setSub(''); setWrapper('taxable'); setMaturity('');
+    setSub(''); setWrapper('taxable'); setMaturity(editing?.maturity_date ?? '');
     if (editing) {
       setStep('edit'); setInst(editing.institution ?? ''); setBal(String(editing.balance));
       setInside((editing.asset_class as AssetClass) ?? 'mixed');
@@ -756,7 +756,13 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
     } else if (step === 'quick') {
       patch = { ...patch, asset_class: 'mixed', kind: 'brokerage', tax_bucket: 'TAXABLE', label: inst.trim() || 'Account' };   // Unclassified — user sorts it later
     } else if (step === 'edit' && editing) {
-      store.updateAsset?.(editing.asset_id, { institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside });
+      // B48 finding 6: CDs/bonds edit their maturity here too — the date re-sorts the class
+      // (under 1 year = cash equivalent · 1 year or more = bond), same rule as adding one.
+      const showsMaturity = editing.kind === 'cd' || assetClassOf(editing) === 'bonds' || !!editing.maturity_date;
+      store.updateAsset?.(editing.asset_id, {
+        institution: inst.trim(), balance: v, asset_class: inside === 'mixed' ? undefined : inside,
+        ...(showsMaturity && maturity.trim() ? { maturity_date: maturity.trim(), asset_class: maturityClass(maturity.trim()) } : {}),
+      });
       onClose(); return;
     }
     store.addAsset?.(patch); onClose();
@@ -824,6 +830,10 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
             ))}</View>
           </>)}
           {step === 'edit' && (<>
+            {(editing?.kind === 'cd' || (editing && assetClassOf(editing) === 'bonds') || editing?.maturity_date) && (<>
+              <Text style={sh.lbl}>Matures (YYYY-MM — under 1 year counts as cash, longer as a bond)</Text>
+              <TextInput style={sh.input} placeholder="2027-06" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />
+            </>)}
             <Text style={sh.clsLabel}>What's it invested in?</Text>
             <View style={sh.chips}>{INSIDE_OPTS.map((o) => (
               <TouchableOpacity key={o.key} accessibilityRole="button" accessibilityLabel={o.label} style={[sh.chip, inside === o.key && sh.chipOn]} onPress={() => setInside(o.key)}><Text style={sh.chipTxt}>{o.label}</Text></TouchableOpacity>

@@ -687,3 +687,26 @@ test('B48 finding 2: the class-view sum line adds ONLY the viewed class — and 
   expect(screen.getByText(/\$5,000 = \$5,000\./)).toBeOnTheScreen();
   expect(screen.queryByText(/\$30,000 \+ /)).toBeNull();               // the stock row stays OUT of the bonds sum
 });
+
+// ── B48 findings 5-9 batch (schema-first rules, founder-approved 2026-08-04) ──
+test('rule 6: a "savings"-typed account from the brokerage-only pipe maps to BROKERAGE, not savings', () => {
+  const { mapAccountType } = require('../../services/sync/snaptrade');
+  const m = mapAccountType('Premium Savings', undefined);
+  expect(m.kind).toBe('brokerage');
+  expect(m.tax_bucket).toBe('TAXABLE');
+  expect(m.confident).toBe(false);                      // the wrapper question can still fix IRAs
+});
+
+test('rule 1: the import NEVER names an account after a ticker', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'ImportHoldingsScreen.tsx'), 'utf8');
+  expect(src).not.toMatch(/setAccountName\(eq\[0\]\.ticker/);
+  expect(src).toMatch(/NEVER a ticker as an account name/);
+});
+
+test('B48 finding 6: editing a CD exposes its maturity, and the date re-sorts the class', () => {
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8');
+  expect(src).toMatch(/Matures \(YYYY-MM — under 1 year counts as cash, longer as a bond\)/);
+  expect(src).toMatch(/maturity_date: maturity\.trim\(\), asset_class: maturityClass\(maturity\.trim\(\)\)/);
+});

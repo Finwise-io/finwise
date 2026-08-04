@@ -78,9 +78,8 @@ export default function ImportHoldingsScreen() {
       } else {
         setResult(parsed);
         // Default the account name to the security itself when the file is a single equity, so the Net
-        // Worth row reads "LCTX" rather than the generic "Imported holdings".
-        const eq = parsed.holdings.filter((h) => h.assetClass === 'stocks_etf' && h.ticker);
-        if (parsed.holdings.length === 1 && eq.length === 1) setAccountName(eq[0].ticker || eq[0].label || 'Imported holdings');
+        // Rule 1 (founder-approved 2026-08-04): NEVER a ticker as an account name — the generic
+        // name stays; the institution + type give it its real identity.
       }
     } catch (e: any) {
       // Surface a short technical detail so a remaining failure is self-diagnosing (no more blind rounds).

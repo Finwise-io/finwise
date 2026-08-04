@@ -77,7 +77,10 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
   if (has('ira')) return { kind: 'trad_ira', tax_bucket: 'PRE_TAX', confident: true };   // bare 'IRA' → traditional (most common)
   if (has('hsa')) return { kind: 'hsa', tax_bucket: 'PRE_TAX', confident: true };
   if (has('checking')) return { kind: 'checking', tax_bucket: 'CASH', confident: true };
-  if (has('savings')) return { kind: 'savings', tax_bucket: 'CASH', confident: true };
+  // FOUNDER-VERIFIED 2026-08-04 (research v1 correction): SnapTrade is brokerage-only — an account
+  // typed 'savings' through it is a BROKERAGE account wearing the wrong label (E*TRADE does this).
+  // Labels lose to reality (rule 6). Not confident → the wrapper question can still fix IRAs.
+  if (has('savings')) return { kind: 'brokerage', tax_bucket: 'TAXABLE', confident: false };
   if (has('529', 'education')) return { kind: 'college_529', tax_bucket: 'TAXABLE', confident: true };
   if (has('individual', 'joint', 'brokerage', 'margin', 'cash', 'taxable', 'trust'))
     return { kind: 'brokerage', tax_bucket: 'TAXABLE', confident: true };
