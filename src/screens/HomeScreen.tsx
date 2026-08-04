@@ -32,6 +32,7 @@ import { useInsights } from './InsightsScreen';
 import { maskedMoney, maskDollars, spokenDollars, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
+import { SectionBand } from '../components/SectionBand';
 import { DotJoined } from '../components/SepDot';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -232,7 +233,7 @@ export default function HomeScreen() {
           </TouchableOpacity>
         )}
 
-        <Text style={styles.boxLabel}>WHAT YOU'LL SEE HERE</Text>
+        <SectionBand title={"WHAT YOU'LL SEE HERE"} />
         <Text style={styles.promiseLine}>·  Your whole money picture in one place</Text>
         <Text style={styles.promiseLine}>·  What needs your attention — with dollar amounts</Text>
         <Text style={styles.promiseLine}>·  Whether your money will last — as honest odds</Text>
@@ -366,7 +367,7 @@ export default function HomeScreen() {
   const needsBlock = (<>
         {/* WHAT NEEDS YOU — top 3 from the ONE insights engine (same items/order as Insights) */}
         <View style={styles.box}>
-          <Text style={styles.boxLabel}>CHIEF OF STAFF — WHAT NEEDS YOU {topInsights.length > 0 ? `(${topInsights.length})` : ''}</Text>
+          <SectionBand inCard title={`CHIEF OF STAFF — WHAT NEEDS YOU ${topInsights.length > 0 ? `(${topInsights.length})` : ''}`.trim()} />
           {topInsights.length === 0 && <Text style={styles.nothingTxt}>Nothing needs you today — nice.</Text>}
           {topInsights.map((ins, i) => (
             <TouchableOpacity accessibilityRole="button" key={ins.id} style={[styles.needRow, i > 0 && styles.divider]} activeOpacity={0.7}
@@ -391,7 +392,7 @@ export default function HomeScreen() {
           accessibilityLabel={wil.chance != null
             ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`
             : `Will my money last: sample gauge, sample 84 percent odds of lasting to age ${wil.horizonAge}, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.`}>
-          <Text style={styles.boxLabel}>WILL MY MONEY LAST?</Text>
+          <SectionBand inCard title="WILL MY MONEY LAST?" />
           {wil.chance != null ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
               <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% odds of lasting to age {wil.horizonAge} <Text style={styles.wilEst}>— estimate</Text></Text>
@@ -437,7 +438,7 @@ export default function HomeScreen() {
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/cashflow')}
               accessibilityLabel={`This month's cash flow, ${pace.word.replace('✓ ', '')}: income ${spokenMoney(Math.round(thisMonthNet))}, spent so far ${spokenMoney(Math.round(bva.spent_total))}, ${left >= 0 ? `${spokenMoney(Math.round(left))} left, bills may still be coming` : `${spokenMoney(Math.round(-left))} over`}. Opens the Cash flow tab.`}>
-              <Text style={styles.boxLabel}>THIS MONTH'S CASH FLOW</Text>
+              <SectionBand inCard title={"THIS MONTH'S CASH FLOW"} />
               <View style={styles.paceRow}>
                 <Text style={[styles.paceChip, { backgroundColor: pace.bg, color: pace.fg }]}>{pace.word}</Text>
                 <Text style={styles.paceNote}>{pctSpent != null ? `${pctSpent}% spent · ` : ''}day {now.getDate()} of {daysInMonth}</Text>

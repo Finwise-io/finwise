@@ -49,6 +49,11 @@ export const Colors = {
 
   // light text tint on dark (primaryDeep) hero cards
   onDeepTint: '#BEE7D8',
+
+  // banded sections (founder-adopted 2026-08-04, UX design v1.2): title bands use primaryDeep
+  // (white caps text passes the small-text contrast floor; the mid green does not); group
+  // sub-title bands use this light green with primaryDeep text.
+  bandLight: '#DFF2E9',
 };
 
 // VALIDATED palettes ADOPTED (founder YES 2026-07-30, chart-palettes-v2 mock — UX doc, Color tab):

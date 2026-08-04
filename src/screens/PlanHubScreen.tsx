@@ -18,6 +18,7 @@ import { InfoDot } from '../components/UI';
 import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
+import { SectionBand } from '../components/SectionBand';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { lensChanceWord, onCourseSentence, planDoor, nextDecision } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
@@ -109,7 +110,7 @@ export default function PlanHubScreen() {
       {wil.captured && wil.chance != null ? (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/will-it-last')}
           accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${wil.horizonAge}: ${lensChanceWord(lens, wil.chance)}, ${wil.chance} percent, an estimate. Opens what drives this.`}>
-          <Text style={styles.cardKicker}>{lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} — to {wil.horizonAge}</Text>
+          <SectionBand inCard title={`${lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} — to ${wil.horizonAge}`} />
           <View style={styles.gaugeRow}>
             <GaugeArc pct={wil.chance} />
             <View style={{ flex: 1 }}>
@@ -139,7 +140,7 @@ export default function PlanHubScreen() {
         <>
           {/* FIRST DAY — the page previews itself: locked sample gauge + the DYNAMIC door */}
           <View style={styles.card}>
-            <Text style={styles.cardKicker}>{lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'}</Text>
+            <SectionBand inCard title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} />
             <View style={styles.gaugeRow} accessible
               accessibilityLabel={`Sample gauge: ${lens === 'retired' ? 'Holding, 88' : 'Likely, 84'} in 100 — a sample, not your number.`}>
               <GaugeArc locked />
@@ -182,7 +183,7 @@ export default function PlanHubScreen() {
       {/* RETIRED: the paycheck — the SAME engine as Home's card, one set of numbers */}
       {lens === 'retired' && wil.captured && wil.chance != null && payMonth && (
         <>
-          <Text style={styles.section}>WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK</Text>
+          <SectionBand title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
           <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
             accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, safe draw ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
             {(payMonth.guaranteed ?? []).map((g: any, i: number) => (
@@ -205,7 +206,7 @@ export default function PlanHubScreen() {
       {/* DECISIONS — every row a complete question, ranked by what's on the mind (mock v9) */}
       {wil.captured && wil.chance != null ? (
         <>
-          <Text style={styles.section}>YOUR OTHER DECISIONS — RANKED FOR YOU</Text>
+          <SectionBand title="YOUR OTHER DECISIONS — RANKED FOR YOU" />
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>
@@ -262,7 +263,7 @@ export default function PlanHubScreen() {
         </>
       ) : (
         <>
-          <Text style={styles.section}>{lens === 'retired' ? 'START WHERE IT PAYS MOST' : 'DECISIONS YOU CAN MAKE TODAY'}</Text>
+          <SectionBand title={lens === 'retired' ? 'START WHERE IT PAYS MOST' : 'DECISIONS YOU CAN MAKE TODAY'} />
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>
@@ -295,7 +296,7 @@ export default function PlanHubScreen() {
       {/* SAVED SCENARIOS */}
       {scenarios.length > 0 && (
         <>
-          <Text style={styles.section}>SAVED SCENARIOS ({scenarios.length})</Text>
+          <SectionBand title={`SAVED SCENARIOS (${scenarios.length})`} />
           <View style={styles.card}>
             {scenarios.map((s, i) => (
               <View key={s.id} style={[styles.scRow, i > 0 && styles.divider]}>

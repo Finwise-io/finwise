@@ -1,0 +1,32 @@
+// BANDED SECTIONS (founder-adopted 2026-08-04; UX design v1.2, Color + Layout rows): section
+// titles sit on a DEEP-GREEN band in white caps; group sub-titles on the LIGHT-GREEN band in
+// deep-green text. Totals ride the band, right-aligned. White caps on the mid brand green fails
+// the 4.5:1 small-text floor — the deep green is the accessible band color, never primary.
+// `inCard` bleeds the band to the card's edges (cards app-wide use Spacing.md padding + Radii.lg).
+import React from 'react';
+import { View, Text, StyleSheet } from 'react-native';
+import { Colors, Spacing, Radii } from '../utils/theme';
+
+export function SectionBand({ title, value, light, inCard }: {
+  title: string; value?: string; light?: boolean; inCard?: boolean;
+}) {
+  return (
+    <View style={[s.band, light && s.light, inCard && s.inCard]}>
+      <Text style={[s.title, light && s.textLight]} numberOfLines={2}>{title}</Text>
+      {value != null && <Text style={[s.value, light && s.textLight]}>{value}</Text>}
+    </View>
+  );
+}
+
+const s = StyleSheet.create({
+  band: {
+    backgroundColor: Colors.primaryDeep, paddingVertical: 8, paddingHorizontal: Spacing.md,
+    borderTopLeftRadius: Radii.lg, borderTopRightRadius: Radii.lg,
+    flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs,
+  },
+  light: { backgroundColor: Colors.bandLight },
+  inCard: { marginTop: -Spacing.md, marginHorizontal: -Spacing.md },
+  title: { flex: 1, color: Colors.white, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
+  textLight: { color: Colors.primaryDeep },
+  value: { color: Colors.white, fontSize: 12, fontWeight: '800', fontVariant: ['tabular-nums'] },
+});
