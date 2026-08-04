@@ -8,6 +8,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Modal, TextInput, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
@@ -110,7 +111,7 @@ export default function CashFlowScreen() {
       {surfTab === 'This month' && (!incomeReady && lens !== 'retired' ? (
         /* FIRST OPEN (approved): no zeros — the two setup doors */
         <View style={styles.card}>
-          <Text style={styles.cardHdr}>SET UP YOUR MONTH — 2 STEPS</Text>
+          <SectionBand inCard inset={16} title="SET UP YOUR MONTH — 2 STEPS" />
           <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => setIncomeSheet(true)}
             accessibilityLabel="Step 1: set up your income — steady or varies, ten seconds">
             <View style={{ flex: 1 }}><Text style={styles.doorT}>1 · Your income</Text><Text style={styles.doorSub}>steady or varies — 10 seconds</Text></View>
@@ -149,7 +150,7 @@ export default function CashFlowScreen() {
       {surfTab === 'This month' && (incomeReady || lens === 'retired') && surfOffset === 0 && (<>
       {/* BY MONTH — the dated 12 cells; tap a month for its detail (also a quick-jump for the switcher) */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>BY MONTH · {grid.cells[0]?.label} – {grid.cells[11]?.label}</Text>
+        <SectionBand inCard inset={16} title={`BY MONTH · ${grid.cells[0]?.label} – ${grid.cells[11]?.label}`} />
         <MonthBars lens={lens} year={year} grid={grid} onOpen={(slot) => router.push(`/month-detail?slot=${slot}` as any)} />
         <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/bill-calendar')}
           accessibilityLabel="All bills and the calendar">
@@ -160,7 +161,7 @@ export default function CashFlowScreen() {
       {/* will-it-last strip — mirrors Plan, never a second computation */}
       <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
         accessibilityLabel={wil.chance != null ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
-        <Text style={styles.cardHdr}>WILL MY MONEY LAST?</Text>
+        <SectionBand inCard inset={16} title="WILL MY MONEY LAST?" />
         {wil.chance != null
           ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}%{wil.band ? ` (range ${wil.band.low}–${wil.band.high}%)` : ''} <EstimateTag /></Text>
           : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
@@ -214,7 +215,7 @@ function PlanSummaryCard({ op, bva }: { op: any; bva: any }) {
   const rest = 0;
   return (
     <View style={styles.card}>
-      <Text style={styles.cardHdr}>YOUR PLAN BY CATEGORY</Text>
+      <SectionBand inCard inset={16} title="YOUR PLAN BY CATEGORY" />
       {top.length === 0 && <Text style={styles.note}>No category limits yet — the plan starts from your stated monthly outgo.</Text>}
       {top.map((c) => <Row key={c.label} label={c.label} value={maskedMoney(c.amount)} />)}
 
@@ -244,7 +245,7 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
     const bigBills = (cell.billItems ?? []).filter((b: any) => (b.amount ?? 0) >= 500);
     return (
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>{label.toUpperCase()} — THE PLAN (AN ESTIMATE)</Text>
+        <SectionBand inCard inset={16} title={`${label.toUpperCase()} — THE PLAN (AN ESTIMATE)`} />
         <Row label="Expected in" value={maskedMoney(Math.round(cell.inflow))} />
         <Row label={bigBills.length ? `Planned out · incl. ${bigBills[0].label}` : 'Planned out'} value={maskedMoney(Math.round(cell.outflow))} dim />
         <Row label="= Planned surplus" value={maskedMoney(Math.round(cell.net))} strong color={cell.net >= 0 ? Colors.gainText : Colors.red} />
@@ -261,7 +262,7 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
   const out = snap ? Math.round((snap.spending ?? 0) + (snap.debt_paid ?? 0)) : Math.round(spent);
   return (
     <View style={styles.card}>
-      <Text style={styles.cardHdr}>{label.toUpperCase()} — WHAT ACTUALLY HAPPENED</Text>
+      <SectionBand inCard inset={16} title={`${label.toUpperCase()} — WHAT ACTUALLY HAPPENED`} />
       <Row label="In (received)" value={maskedMoney(inn)} />
       <Row label="Out (spent + debt)" value={maskedMoney(out)} dim />
       <Row label="= Surplus" value={maskedMoney(inn - out)} strong color={inn - out >= 0 ? Colors.gainText : Colors.red} />

@@ -7,11 +7,11 @@ import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Radii } from '../utils/theme';
 
-export function SectionBand({ title, value, light, inCard }: {
-  title: string; value?: string; light?: boolean; inCard?: boolean;
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md }: {
+  title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number;
 }) {
   return (
-    <View style={[s.band, light && s.light, inCard && s.inCard]}>
+    <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
       <Text style={[s.title, light && s.textLight]} numberOfLines={2}>{title}</Text>
       {value != null && <Text style={[s.value, light && s.textLight]}>{value}</Text>}
     </View>
@@ -20,12 +20,11 @@ export function SectionBand({ title, value, light, inCard }: {
 
 const s = StyleSheet.create({
   band: {
-    backgroundColor: Colors.primaryDeep, paddingVertical: 8, paddingHorizontal: Spacing.md,
+    alignSelf: 'stretch', backgroundColor: Colors.primaryDeep, paddingVertical: 8, paddingHorizontal: Spacing.md,
     borderTopLeftRadius: Radii.lg, borderTopRightRadius: Radii.lg,
     flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs,
   },
   light: { backgroundColor: Colors.bandLight },
-  inCard: { marginTop: -Spacing.md, marginHorizontal: -Spacing.md },
   title: { flex: 1, color: Colors.white, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
   textLight: { color: Colors.primaryDeep },
   value: { color: Colors.white, fontSize: 12, fontWeight: '800', fontVariant: ['tabular-nums'] },

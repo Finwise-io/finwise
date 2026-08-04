@@ -5,6 +5,7 @@ import { useRouter } from 'expo-router';
 import Svg, { Path, Line } from 'react-native-svg';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -207,7 +208,7 @@ export default function PerformanceScreen() {
             {/* APPROVED invest-v3 FINAL (2026-07-19): the RETURN leads and is named YOURS — every
                 row it rolls up counts from the later of the period start or the day you bought */}
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6 }}>
-              <Text style={styles.glanceKicker}>YOUR RETURN ({PERIOD_PHRASE[period].toUpperCase()})</Text>
+              <SectionBand inCard title={`YOUR RETURN (${PERIOD_PHRASE[period].toUpperCase()})`} />
               <InfoDot term="yourReturn" />
             </View>
             <HeroAmount style={styles.heroValue} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.7}>
@@ -226,7 +227,7 @@ export default function PerformanceScreen() {
               <Text style={styles.bdNote}>All price change so far — sales, dividends and interest lines appear as your ledger earns them.</Text>
             )}
             <View style={styles.honestBlock}>
-              <Text style={styles.honestKicker}>HONEST COMPARISON</Text>
+              <SectionBand inCard title="HONEST COMPARISON" />
               {benchPort != null && (
                 /* approved "all three" (2026-07-19): the blend deserves its true name — each holding
                    against its own yardstick (bonds vs the bond index), value-weighted */
@@ -288,7 +289,7 @@ export default function PerformanceScreen() {
                 return (
                   <View key={r.position.position_id}>
                     {listMode === 'account' && o.accountId !== prevAcct && (
-                      <Text style={styles.wlAcctHdr}>{acct?.institution?.trim() || acct?.label || 'Account'}</Text>
+                      <SectionBand light title={acct?.institution?.trim() || acct?.label || 'Account'} />
                     )}
                     <TouchableOpacity accessibilityRole="button" style={styles.wlRow}
                       onPress={() => router.push(`/holding-detail?account=${o.accountId}&position=${r.position.position_id}` as any)}

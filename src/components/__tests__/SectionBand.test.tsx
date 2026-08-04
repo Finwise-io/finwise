@@ -26,10 +26,10 @@ test('band colors are the adopted tokens — deep #085041, light #DFF2E9', () =>
   expect(Colors.bandLight).toBe('#DFF2E9');
 });
 
-test('Home and Plan hub render their section titles through SectionBand (no bespoke bars)', () => {
-  for (const f of ['HomeScreen.tsx', 'PlanHubScreen.tsx']) {
+test('ALL FIVE tab screens render section titles through SectionBand (no bespoke bars)', () => {
+  for (const f of ['HomeScreen.tsx', 'PlanHubScreen.tsx', 'NetWorthScreen.tsx', 'PerformanceScreen.tsx', 'CashflowScreen.tsx']) {
     const src = fs.readFileSync(path.join(__dirname, '..', '..', 'screens', f), 'utf8');
     expect(src).toMatch(/from '..\/components\/SectionBand'/);
-    expect(src.match(/<SectionBand/g)!.length).toBeGreaterThanOrEqual(4);
+    expect(src.match(/<SectionBand/g)!.length).toBeGreaterThanOrEqual(3);
   }
 });

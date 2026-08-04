@@ -6,6 +6,7 @@ import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
@@ -214,7 +215,7 @@ export default function NetWorthScreen() {
     const total = rows.reduce((t, a) => t + a.balance, 0);
     const head = (
       <View style={styles.secHead}>
-        <Text style={styles.secTitle}>{SECTION_ICON[sec]}  {secLabel(sec).toUpperCase()}{total > 0 ? ` · ${maskedMoney(total)}` : ''}</Text>
+        <SectionBand light title={`${SECTION_ICON[sec]}  ${secLabel(sec).toUpperCase()}`} value={total > 0 ? maskedMoney(total) : undefined} />
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Add to ${secLabel(sec)}`} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setAssetSheet({ open: true, section: sec })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
     );
@@ -292,7 +293,7 @@ export default function NetWorthScreen() {
   const renderDebtSection = () => (
     <View>
       <View style={styles.secHead}>
-        <Text style={styles.secTitle}>💳  DEBTS{dState.total_debt_balance > 0 ? ` · ${maskedMoney(dState.total_debt_balance)}` : ''}</Text>
+        <SectionBand light title="💳  DEBTS" value={dState.total_debt_balance > 0 ? maskedMoney(dState.total_debt_balance) : undefined} />
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add a debt" hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }} onPress={() => setDebtSheet({ open: true })}><Text style={styles.add}>+ Add</Text></TouchableOpacity>
       </View>
       <View style={styles.card}>
@@ -406,7 +407,7 @@ export default function NetWorthScreen() {
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-          <Text style={styles.glanceKickerNW}>YOUR NET WORTH</Text>
+          <SectionBand inCard title="YOUR NET WORTH" />
           <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
           </HeroAmount>
@@ -466,7 +467,7 @@ export default function NetWorthScreen() {
         </TouchableOpacity>
 
         {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
-        <Text style={styles.ownHdr}>WHAT YOU OWN   {maskedMoney(Math.round(totalAssets))}</Text>
+        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} />
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
           {/* Walk row 8 (v7 FINAL): By institution / By type — whole accounts roll up under one
@@ -561,7 +562,7 @@ export default function NetWorthScreen() {
         </View>
 
         {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
-        <Text style={styles.ownHdr}>WHAT YOU OWE{dState.total_debt_balance > 0 ? `   −${maskedMoney(Math.round(dState.total_debt_balance))}` : ''}</Text>
+        <SectionBand title="WHAT YOU OWE" value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
         <View style={styles.card}>
           {liabilities.length === 0 && <Text style={styles.empty}>No debts — it's all yours.</Text>}
           {liabilities.map((d, i) => (
