@@ -707,6 +707,6 @@ test('rule 1: the import NEVER names an account after a ticker', () => {
 test('B48 finding 6: editing a CD exposes its maturity, and the date re-sorts the class', () => {
   const fs = require('fs'); const path = require('path');
   const src = fs.readFileSync(path.join(__dirname, '..', 'NetWorthScreen.tsx'), 'utf8');
-  expect(src).toMatch(/Matures \(YYYY-MM — under 1 year counts as cash, longer as a bond\)/);
+  expect(src).toMatch(/Matures \(YYYY-MM — CDs and dated bonds count under Bonds & CDs\)/);
   expect(src).toMatch(/maturity_date: maturity\.trim\(\), asset_class: maturityClass\(maturity\.trim\(\)\)/);
 });

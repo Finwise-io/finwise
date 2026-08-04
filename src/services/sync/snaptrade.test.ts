@@ -33,10 +33,12 @@ describe('mapPosition — instrument classing + lots', () => {
     expect(m.assetClass).toBe('stocks_etf');
     expect(m.lots).toEqual([{ purchase_date: null, shares: 10, cost_per_share: 200 }]);
   });
-  test("type.code 'bnd' → bonds; 'crypto' → alternatives; cash_equivalent → cash", () => {
+  test("type.code 'bnd' → bonds; 'crypto' → alternatives; cash_equivalent flag no longer means class 'cash' (founder rule 2026-08-04)", () => {
     expect(mapPosition(pos({ symbol: { id: 's', raw_symbol: 'T', type: { code: 'bnd' } } as any }))!.assetClass).toBe('bonds');
     expect(mapPosition(pos({ symbol: { id: 's', raw_symbol: 'BTC', type: { code: 'crypto' } } as any }))!.assetClass).toBe('alternatives');
-    expect(mapPosition(pos({ cash_equivalent: true }))!.assetClass).toBe('cash');
+    const mm = mapPosition(pos({ cash_equivalent: true }))!;
+    expect(mm.assetClass).toBe('stocks_etf');   // a money-market FUND is measured as a fund
+    expect(mm.cashEquivalent).toBe(true);       // …but the sleeve dedupe flag survives (never double-counted)
   });
   test('real broker tax lots pass through as our lots', () => {
     const m = mapPosition(pos({ tax_lots: [{ original_purchase_date: '2023-04-01', quantity: 6, purchased_price: 180 }, { original_purchase_date: '2024-09-09', quantity: 4, purchased_price: 230 }] }))!;
@@ -45,12 +47,12 @@ describe('mapPosition — instrument classing + lots', () => {
   });
 });
 
-test('LIVE-VERIFIED 2026-07-19: an unflagged money-market fund (VMFXX) classes as CASH, not stocks', () => {
+test('FOUNDER RULE 2026-08-04 (supersedes 2026-07-19 mapping): an unflagged money-market fund (VMFXX) is a FUND — stocks class, measured', () => {
   const m = mapPosition({
     symbol: { symbol: { raw_symbol: 'VMFXX', description: 'Vanguard Federal Money Market', type: { code: 'oef' } } },
     units: 50000, price: 1,
   } as any)!;
-  expect(m.assetClass).toBe('cash');
+  expect(m.assetClass).toBe('stocks_etf');
   expect(m.cashEquivalent).toBe(false);   // E*TRADE's flag stays false → the cash SLEEVE math is untouched
 });
 

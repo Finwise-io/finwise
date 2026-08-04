@@ -101,13 +101,14 @@ describe('E*TRADE multi-asset export (#13)', () => {
     expect(r.holdings.length).toBe(5);
     expect(r.holdings.map((h) => h.symbol)).not.toContain('TOTAL');
   });
-  test('CD + money-market + cash line → cash; option → alternatives; stock → equities', () => {
-    expect(byClass('cash').map((h) => h.symbol).sort()).toEqual(['CASH', 'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026', 'VMFXX']);
+  test('FOUNDER RULE 2026-08-04: cash line → cash ONLY; CD → bonds; money-market fund → stocks; option → alternatives', () => {
+    expect(byClass('cash').map((h) => h.symbol)).toEqual(['CASH']);
+    expect(byClass('bonds').map((h) => h.symbol)).toEqual(['KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026']);
     expect(byClass('alternatives').map((h) => h.symbol)).toEqual(["QQQ Dec 31 '26 $600 Put"]);
-    expect(byClass('stocks_etf').map((h) => h.symbol)).toEqual(['LCTX']);
+    expect(byClass('stocks_etf').map((h) => h.symbol).sort()).toEqual(['LCTX', 'VMFXX']);
   });
-  test('captures market value; only the equity gets a tradeable ticker', () => {
-    const cd = r.holdings.find((h) => h.assetClass === 'cash' && h.symbol.includes('CD'))!;
+  test('captures market value; the CD never gets a tradeable ticker', () => {
+    const cd = r.holdings.find((h) => h.assetClass === 'bonds' && h.symbol.includes('CD'))!;
     expect(cd.value).toBeCloseTo(109992.74, 2);
     expect(cd.ticker).toBe('');                               // a CD is not a tradeable ticker
     expect(r.holdings.find((h) => h.symbol === 'LCTX')!.ticker).toBe('LCTX');
@@ -172,8 +173,8 @@ describe('classifyHolding — crypto, commodities, currency (F1 #19)', () => {
   test('currency funds → alternatives', () => {
     expect(classifyHolding('FXE', 'Invesco Currency Shares Euro')).toBe('alternatives');
   });
-  test('existing classes unchanged: money market → cash, treasuries → bonds/cash, options → alternatives', () => {
-    expect(classifyHolding('SPAXX', 'Fidelity Government Money Market')).toBe('cash');
+  test('FOUNDER RULE 2026-08-04: money market → stocks (a dividend-paying fund), treasuries → bonds, options → alternatives', () => {
+    expect(classifyHolding('SPAXX', 'Fidelity Government Money Market')).toBe('stocks_etf');
     expect(classifyHolding('ZZZ', 'US Treasury Note 2030')).toBe('bonds');
     expect(classifyHolding('ZZZ', 'AAPL Jan 2027 Call')).toBe('alternatives');
   });

@@ -1,5 +1,5 @@
 // Term #6: interest income from ALL interest-bearing holdings. Regression for the silent-$0 bug —
-// a bond FUND (no maturity) and a CD (now classed as cash) used to contribute nothing.
+// a bond FUND (no maturity) and a CD (class 'bonds' — founder rule 2026-08-04) used to contribute nothing.
 import { interestIncomeAnnual } from './index';
 import type { AssetAccount } from '../assets';
 
@@ -20,7 +20,7 @@ describe('interestIncomeAnnual', () => {
     expect(interestIncomeAnnual([a({ label: 'BND', kind: 'fixed_income', balance: 50000, target_return: 0 })])).toBe(2100);
   });
 
-  test('CD / money-market interest is kept (cash class with a stated rate)', () => {
+  test('CD interest is kept — balance × its stated rate (CDs are Bonds & CDs, founder rule 2026-08-04)', () => {
     expect(interestIncomeAnnual([
       a({ label: 'KEY BANK CD 3.85%', maturity_date: '2026-08-24', coupon_rate: 0.0385, balance: 109992 }),
     ])).toBeCloseTo(4234.69, 1);

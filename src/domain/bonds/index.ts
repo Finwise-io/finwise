@@ -57,14 +57,15 @@ const DEFAULT_BOND_YIELD = 0.042;   // US Aggregate Bond ~yield; used when a bon
 
 /** Canonical annual INTEREST income across all interest-bearing holdings (Term #6). Fixes the
  *  silent-$0 bug: a bond FUND (asset class 'bonds', no maturity/coupon) now earns value × yield, and
- *  a CD / money-market (asset class 'cash' with a stated rate) keeps contributing its interest — both
+ *  a CD (now class 'bonds', founder rule 2026-08-04) or a rate-stated cash account (HYSA) keeps contributing its interest — both
  *  of which the old isBond-only `couponIncomeAnnual` dropped. Individual bonds: face × coupon. */
 export function interestIncomeAnnual(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).reduce((t, a) => {
     const cls = assetClassOf(a);
     if (cls === 'bonds') {
       const coupon = (a.coupon_rate || 0) * (a.face_value || 0);
-      if (coupon > 0) return t + coupon;                                   // individual bond
+      if (coupon > 0) return t + coupon;                                   // individual bond (face × coupon)
+      if ((a.coupon_rate || 0) > 0) return t + (a.balance || 0) * (a.coupon_rate as number);   // CD / rate-stated bond, no face (founder rule 2026-08-04: CDs are bonds)
       const yld = (a.target_return && a.target_return > 0) ? a.target_return : DEFAULT_BOND_YIELD;
       return t + (a.balance || 0) * yld;                                   // bond fund (no coupon/face)
     }

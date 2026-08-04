@@ -167,7 +167,9 @@ export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id ===
 // deliberately absent — a wrapper holds stocks/bonds/cash, so without explicit holdings we must NOT
 // pretend it's stocks (Term #1, #10). assetClassOf() falls those through to 'mixed' / positions.
 const KIND_TO_CLASS: Record<string, AssetClass> = {
-  checking: 'cash', savings: 'cash', hysa: 'cash', money_market: 'cash', cd: 'cash', cash_mgmt: 'cash',
+  // FOUNDER RULE 2026-08-04: cash = cash ONLY. Money-market funds pay dividends → Stocks/ETFs;
+  // CDs pay interest → Bonds & CDs (any maturity) — else change/return math silently loses their income.
+  checking: 'cash', savings: 'cash', hysa: 'cash', cash_mgmt: 'cash', money_market: 'stocks_etf', cd: 'bonds',
   stocks_etf: 'stocks_etf',
   fixed_income: 'bonds',
   private_equity: 'alternatives', hedge_funds: 'alternatives', commodities: 'alternatives',
@@ -175,24 +177,26 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
   home: 'real_estate', vehicle: 'personal_property',
 };
 
-// Cash-equivalents carry a maturity/rate too (CDs, T-bills, money-market) but are CASH, not bonds —
-// so we must catch them BEFORE the maturity ⇒ bonds rule. Matched by label (the importer also sets
-// asset_class explicitly from the security name/ticker, which always wins).
-const CASH_EQUIV_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?|money[\s-]?market|mmkt|mmf)\b/i;
-export function isCashEquivalentLabel(label?: string): boolean {
-  return CASH_EQUIV_RE.test((label ?? '').trim());
+// FOUNDER RULE 2026-08-04 (supersedes the money-market=cash rule and the 12-month CD split):
+// CASH means cash only — a sweep/settlement balance. Instruments that pay dividends or interest
+// live in the MEASURED buckets, or the change/return math silently loses their income:
+// money-market funds → Stocks / ETFs (funds paying dividends) · CDs / T-bills → Bonds & CDs.
+const SWEEP_RE = /\b(sweep|settlement)\b/i;
+const MONEY_MARKET_RE = /\b(money[\s-]?market|mmkt|mmf)\b/i;
+const CD_TBILL_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?)\b/i;
+export function incomeBearingClassOf(label?: string): AssetClass | null {
+  const t = (label ?? '').trim();
+  if (SWEEP_RE.test(t)) return 'cash';                 // uninvested brokerage cash IS cash
+  if (MONEY_MARKET_RE.test(t)) return 'stocks_etf';
+  if (CD_TBILL_RE.test(t)) return 'bonds';
+  return null;
 }
 
-/** APPROVED ENTRY RULE (build-34 #8): a maturity-bearing instrument (CD, T-bill, short Treasury) is CASH
- *  if it matures within 12 months, else a BOND. Applied ONCE when the account is added and stored as an
- *  explicit `asset_class`, so `assetClassOf` stays time-independent (spec §2: "detected by assetClass,
- *  not maturity"). No maturity (e.g. money-market) → cash. */
-export function maturityClass(maturityDate?: string | null, now: Date = new Date()): 'cash' | 'bonds' {
-  if (!maturityDate) return 'cash';
-  const [y, m] = String(maturityDate).split('-').map(Number);
-  if (!y || !m) return 'cash';
-  const months = (y - now.getFullYear()) * 12 + (m - 1 - now.getMonth());
-  return months >= 12 ? 'bonds' : 'cash';
+/** FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY maturity-dated instrument
+ *  is a BOND — it pays interest, so it must sit in the measured bucket regardless of how soon it
+ *  matures. Stored once as explicit `asset_class`; no maturity → cash (a plain balance). */
+export function maturityClass(maturityDate?: string | null): 'cash' | 'bonds' {
+  return maturityDate && String(maturityDate).trim() ? 'bonds' : 'cash';
 }
 
 /** The "where is it held?" wrapper (taxonomy axis 2) → its account kind + tax bucket. Default = taxable.
@@ -209,11 +213,13 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
   }
 }
 
-/** WHAT the account is (asset class). Explicit `asset_class` wins; CDs/T-bills/money-market ⇒ cash;
- *  a maturity date ⇒ a bond; else derive from `kind`, falling back to the tax bucket. */
+/** WHAT the account is (asset class). Explicit `asset_class` wins; then the income-bearing label
+ *  rule (money-market ⇒ Stocks/ETFs, CD/T-bill ⇒ bonds, sweep ⇒ cash); a maturity date ⇒ a bond;
+ *  else derive from `kind`, falling back to the tax bucket. */
 export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.asset_class) return a.asset_class;
-  if (isCashEquivalentLabel(a.label)) return 'cash';   // CD / T-bill / money-market — NOT a bond
+  const byLabel = incomeBearingClassOf(a.label);
+  if (byLabel) return byLabel;                         // founder rule 2026-08-04: cash = cash only
   if (a.maturity_date) return 'bonds';                 // an individual bond (Treasury / muni / corporate)
   const byKind = a.kind ? KIND_TO_CLASS[a.kind] : undefined;
   if (byKind) return byKind;

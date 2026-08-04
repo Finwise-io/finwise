@@ -107,10 +107,11 @@ export interface MappedPosition {
   cashEquivalent: boolean;
   lots: { purchase_date: string | null; shares: number; cost_per_share: number | null }[];
 }
-// LIVE-VERIFIED 2026-07-19: E*TRADE does NOT flag money-market funds as cash-equivalent (VMFXX came
-// back plain 'oef'), so $50k of cash-like money displayed as stocks. Curated list of the big
-// money-market tickers — they are CASH in the taxonomy ("checking, savings, or money-market").
-const MONEY_MARKET_TICKERS = new Set(['VMFXX', 'VMRXX', 'VUSXX', 'SPAXX', 'FDRXX', 'FZFXX', 'SPRXX', 'SWVXX', 'SNVXX', 'SNSXX', 'SNOXX', 'SGOV']);
+// FOUNDER RULE 2026-08-04 (supersedes the 2026-07-19 money-market=cash mapping): cash = cash ONLY
+// (the sweep/settlement balance). Money-market FUNDS pay dividends → they class as Stocks/ETFs and
+// are measured; T-bill ETFs → bonds. The sleeve dedupe below still keys on the broker's
+// cash_equivalent flag, so nothing double-counts.
+const TBILL_ETF_TICKERS = new Set(['SGOV', 'BIL']);
 
 export function mapPosition(p: StPosition): MappedPosition | null {
   const sym = flatSymbol(p);
@@ -127,10 +128,9 @@ export function mapPosition(p: StPosition): MappedPosition | null {
     || /\bCD\b|CERTIFICATE OF DEP|TREASURY|T[- ]BILL/.test(desc)
     || /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/.test(desc);
   const assetClass: MappedAssetClass =
-    p.cash_equivalent || MONEY_MARKET_TICKERS.has(tick) ? 'cash'
-    : code === 'bnd' || looksFixedIncome ? 'bonds'
+    code === 'bnd' || looksFixedIncome || TBILL_ETF_TICKERS.has(tick) ? 'bonds'
     : code === 'crypto' ? 'alternatives'
-    : 'stocks_etf';                                     // cs/et/oef/cef/adr and unknown → equities
+    : 'stocks_etf';                                     // cs/et/oef/cef/adr, money-market funds, unknown → equities (founder rule: cash = cash only)
   const lots = (p.tax_lots ?? [])
     .filter((l) => (l.quantity ?? 0) > 0)
     .map((l) => ({ purchase_date: l.original_purchase_date ?? null, shares: l.quantity as number, cost_per_share: l.purchased_price ?? null }));

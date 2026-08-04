@@ -736,8 +736,9 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
   const save = () => {
     let patch: Partial<AssetAccount> = { institution: inst.trim(), balance: v };
     if (step === 'cash') {
-      const cls: AssetClass = sub === 'cd' ? maturityClass(maturity || undefined) : 'cash';
-      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'bonds' ? 'TAXABLE' : 'CASH', maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
+      // founder rule 2026-08-04: CDs → Bonds & CDs (any maturity) · money market → Stocks/ETFs · cash = cash only
+      const cls: AssetClass = sub === 'cd' ? 'bonds' : sub === 'money_market' ? 'stocks_etf' : 'cash';
+      patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'cash' ? 'CASH' : 'TAXABLE', maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
     } else if (step === 'stocks' || step === 'bonds') {
       const wa = wrapperAccount(wrapper);
       patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / ETFs' : 'Bonds') };
@@ -831,7 +832,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           </>)}
           {step === 'edit' && (<>
             {(editing?.kind === 'cd' || (editing && assetClassOf(editing) === 'bonds') || editing?.maturity_date) && (<>
-              <Text style={sh.lbl}>Matures (YYYY-MM — under 1 year counts as cash, longer as a bond)</Text>
+              <Text style={sh.lbl}>Matures (YYYY-MM — CDs and dated bonds count under Bonds & CDs)</Text>
               <TextInput style={sh.input} placeholder="2027-06" placeholderTextColor={Colors.textTertiary} value={maturity} onChangeText={setMaturity} />
             </>)}
             <Text style={sh.clsLabel}>What's it invested in?</Text>

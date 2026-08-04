@@ -33,11 +33,11 @@ describe('assetClassOf — WHAT it is', () => {
     expect(assetClassOf(acct({ kind: 'brokerage', asset_class: 'alternatives' }))).toBe('alternatives');
   });
 
-  test('CDs / T-bills / money-market are CASH even with a maturity (the CD-maturity trap)', () => {
-    // From the real E*TRADE export — a CD with a maturity AND a coupon, but it's cash, not a bond.
-    expect(assetClassOf(acct({ label: 'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026', maturity_date: '2026-08-24', coupon_rate: 0.0385 }))).toBe('cash');
-    expect(assetClassOf(acct({ label: '3-Month T-Bill', maturity_date: '2026-09-01' }))).toBe('cash');
-    expect(assetClassOf(acct({ label: 'Vanguard Federal Money Market', kind: 'fixed_income' }))).toBe('cash');
+  test('CDs / T-bills pay interest → Bonds & CDs, any maturity (founder rule 2026-08-04; supersedes the cash-equivalence trap)', () => {
+    // From the real E*TRADE export — a CD with a maturity AND a coupon: it earns interest, so it is MEASURED as a bond.
+    expect(assetClassOf(acct({ label: 'KEY BANK CD CLEVELAND OH CD 3.85% 08/24/2026', maturity_date: '2026-08-24', coupon_rate: 0.0385 }))).toBe('bonds');
+    expect(assetClassOf(acct({ label: '3-Month T-Bill', maturity_date: '2026-09-01' }))).toBe('bonds');       // a T-bill pays interest — measured
+    expect(assetClassOf(acct({ label: 'Vanguard Federal Money Market', kind: 'fixed_income' }))).toBe('stocks_etf');   // a money-market FUND pays dividends — measured
     // A genuine bond (Treasury NOTE / corporate, no CD/bill/MM label) still classifies as bonds.
     expect(assetClassOf(acct({ label: 'US Treasury Note 4% 2032', maturity_date: '2032-05-15' }))).toBe('bonds');
     expect(assetClassOf(acct({ label: 'Apple Inc 3.25% Corp Bond', maturity_date: '2030-02-01' }))).toBe('bonds');

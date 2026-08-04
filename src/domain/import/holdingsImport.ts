@@ -5,7 +5,7 @@
 // DR-5/DR-10: validates at the edge (ticker required, shares > 0, money parsed to Number USD).
 // DR-6: ids are assigned by the caller via newEntityId, never derived from the file.
 
-import { isCashEquivalentLabel, type AssetClass } from '../assets';
+import { incomeBearingClassOf, type AssetClass } from '../assets';
 
 export interface ImportedHolding {
   symbol: string;          // raw identifier from the file (may contain spaces, e.g. an option or CD)
@@ -130,8 +130,10 @@ function cleanTicker(v: string): string | null {
   return t;
 }
 
-// Common money-market fund tickers (trade at $1 NAV) → classified as cash, not equities.
-const MMF_TICKERS = new Set(['VMFXX', 'VMRXX', 'SPAXX', 'SPRXX', 'SWVXX', 'SNVXX', 'FDRXX', 'FZFXX', 'TTTXX', 'SGOV']);
+// FOUNDER RULE 2026-08-04: money-market fund tickers → Stocks/ETFs (they pay dividends — measured);
+// T-bill ETFs → Bonds & CDs. Cash means cash only.
+const MMF_TICKERS = new Set(['VMFXX', 'VMRXX', 'SPAXX', 'SPRXX', 'SWVXX', 'SNVXX', 'FDRXX', 'FZFXX', 'TTTXX']);
+const TBILL_ETF_TICKERS = new Set(['SGOV', 'BIL']);
 // Crypto trusts/ETFs and spot-commodity funds → alternatives, not equities (PRD F1 #19).
 // COIN (Coinbase) is deliberately absent — that's a stock.
 const CRYPTO_TICKERS = new Set(['BTC', 'ETH', 'GBTC', 'ETHE', 'IBIT', 'FBTC', 'BITO', 'ARKB', 'HODL']);
@@ -152,8 +154,9 @@ const DATE_STYLE_OPTION = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\s+[\d.]+\s*[CP]\b/i;
 export function classifyHolding(symbol: string, name = ''): AssetClass {
   const s = `${symbol} ${name}`.trim();
   const sym = symbol.trim().toUpperCase();
-  if (MMF_TICKERS.has(sym)) return 'cash';
-  if (isCashEquivalentLabel(s)) return 'cash';                          // CD / T-bill / money-market
+  if (MMF_TICKERS.has(sym)) return 'stocks_etf';                        // money-market fund = a dividend-paying fund
+  if (TBILL_ETF_TICKERS.has(sym)) return 'bonds';
+  { const byLabel = incomeBearingClassOf(s); if (byLabel && byLabel !== 'cash') return byLabel; }  // CD/T-bill → bonds · MM → stocks
   if (OCC_OPTION.test(sym.replace(/\s+/g, ''))) return 'alternatives'; // options (OCC symbol)
   if (DATE_STYLE_OPTION.test(s)) return 'alternatives';                // options (date-style symbol)
   if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options (named)

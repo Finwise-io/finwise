@@ -36,7 +36,7 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   rmd:          { title: 'Required withdrawals (RMD)', body: 'Required Minimum Distribution — the amount the IRS requires you to withdraw from pre-tax retirement accounts each year starting at age 73.' },
   emergencyFund:{ title: 'Emergency fund', body: 'Cash set aside for the unexpected — a common target is 3–6 months of your essential spending.' },
   savingsRate:  { title: 'Savings rate', body: 'The share of your take-home pay you set aside each month. Around 20% is a healthy benchmark.' },
-  cash:         { title: 'Cash', body: 'Money in checking, savings, or money-market accounts. Safe and available any time, but earns little.' },
+  cash:         { title: 'Cash', body: 'Money in checking, savings, or a brokerage sweep — cash only. Money-market funds and CDs pay dividends or interest, so they count under Stocks / ETFs and Bonds & CDs, where their earnings are measured.' },
   stocks:       { title: 'Stocks & ETFs', body: 'Shares of companies, or funds (ETFs) that bundle many stocks together. Higher long-term growth, with more ups and downs along the way.' },
   bonds:        { title: 'Bonds', body: 'Loans to a government or company that pay you interest (a coupon) and return the face value at maturity. Steadier than stocks; you can also sell them before maturity.' },
   alternatives: { title: 'Alternatives', body: 'Investments outside plain stocks and bonds — crypto, private equity, commodities, options. Often higher risk and harder to value.' },

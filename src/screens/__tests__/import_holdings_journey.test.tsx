@@ -81,14 +81,16 @@ test('import a REAL E*TRADE export → accounts sorted by asset class through th
   fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
   fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 
-  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(5));
+  await waitFor(() => expect(useStore.getState().assetAccounts.length).toBe(4));
   const accts = useStore.getState().assetAccounts as any[];
   const cls = (c: string) => accts.filter((a) => assetClassOf(a) === c);
 
-  // one equity brokerage (LCTX position) + 3 cash (CD, VMFXX, CASH) + 1 alternatives (the option)
+  // FOUNDER RULE 2026-08-04: one equity brokerage (LCTX + the VMFXX money-market fund — measured)
+  // + 1 bonds (the CD) + 1 cash (the CASH line only) + 1 alternatives (the option)
   expect(cls('stocks_etf').length).toBe(1);
-  expect(cls('stocks_etf')[0].positions.map((p: any) => p.ticker)).toEqual(['LCTX']);
-  expect(cls('cash').length).toBe(3);
+  expect(cls('stocks_etf')[0].positions.map((p: any) => p.ticker).sort()).toEqual(['LCTX', 'VMFXX']);
+  expect(cls('bonds').length).toBe(1);
+  expect(cls('cash').length).toBe(1);
   expect(cls('alternatives').length).toBe(1);
   // the option is NOT a fake stock position
   expect(cls('alternatives')[0].positions ?? []).toHaveLength(0);

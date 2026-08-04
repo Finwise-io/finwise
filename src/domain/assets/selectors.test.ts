@@ -12,8 +12,8 @@ const a = (over: Partial<AssetAccount>): AssetAccount => ({
 
 const portfolio: AssetAccount[] = [
   a({ label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 7096 }),
-  a({ label: 'KEY BANK CD 3.85% 08/24/2026', maturity_date: '2026-08-24', balance: 109992 }), // cash (CD)
-  a({ label: 'VMFXX', asset_class: 'cash', balance: 50000 }),                                   // cash (money market)
+  a({ label: 'KEY BANK CD 3.85% 08/24/2026', maturity_date: '2026-08-24', balance: 109992 }), // bonds (CD — founder rule 2026-08-04)
+  a({ label: 'VMFXX', asset_class: 'stocks_etf', balance: 50000 }),                              // stocks (money-market FUND — pays dividends, measured)
   a({ label: 'LCTX', kind: 'stocks_etf', balance: 1167 }),                                      // equities
   a({ label: 'QQQ Put', asset_class: 'alternatives', balance: 1407 }),                          // alternatives (option)
   a({ label: '401k', kind: '401k', tax_bucket: 'PRE_TAX', balance: 200000 }),                   // wrapper, contents unspecified → 'mixed' (#10)
@@ -23,11 +23,11 @@ const portfolio: AssetAccount[] = [
 ];
 
 describe('canonical asset selectors — agreement', () => {
-  test('per-class totals (CD + money-market = cash; an unclassified 401(k) is "mixed", NOT assumed equities #10)', () => {
-    expect(cashTotal(portfolio)).toBe(7096 + 109992 + 50000);     // 167,088
-    expect(equitiesTotal(portfolio)).toBe(1167);                  // ONLY the explicit stock (LCTX) — the 401(k) is not pretended to be stocks
+  test('per-class totals (cash = cash ONLY; CD → bonds, money-market fund → stocks — founder rule 2026-08-04)', () => {
+    expect(cashTotal(portfolio)).toBe(7096);                      // checking only — cash means cash
+    expect(equitiesTotal(portfolio)).toBe(1167 + 50000);          // LCTX + the money-market fund (a dividend-paying fund)
     expect(assetAllocation(portfolio).mixed).toBe(200000);        // the wrapper's unspecified contents land here
-    expect(fixedIncomeTotal(portfolio)).toBe(10000);              // Treasury note (not the CD)
+    expect(fixedIncomeTotal(portfolio)).toBe(10000 + 109992);     // Treasury note + the CD (it pays interest)
     expect(alternativesTotal(portfolio)).toBe(1407);              // the option
     expect(realEstateTotal(portfolio)).toBe(500000);
   });
@@ -36,7 +36,7 @@ describe('canonical asset selectors — agreement', () => {
     expect(investmentsTotal(portfolio)).toBe(
       equitiesTotal(portfolio) + fixedIncomeTotal(portfolio) + alternativesTotal(portfolio) + assetAllocation(portfolio).mixed,
     );
-    expect(investmentsTotal(portfolio)).toBe(1167 + 10000 + 1407 + 200000);   // 212,574
+    expect(investmentsTotal(portfolio)).toBe(51167 + 119992 + 1407 + 200000);   // 372,566 — the CD + money-market fund now measured
   });
 
   test('investable = cash + investments (home + car excluded)', () => {
@@ -71,15 +71,16 @@ describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
     }
   });
 
-  test('each derives asset class "cash" (not "mixed"/investment) and cannot hold tickers', () => {
-    for (const id of CASH_KINDS) {
-      const acct = { asset_id: 'x', label: 'acct', kind: id, tax_bucket: 'CASH', balance: 1000, target_return: 0 } as AssetAccount;
-      expect(assetClassOf(acct)).toBe('cash');
-      expect(accountAllowsTicker(acct)).toBe(false);
-    }
-    // a portfolio of the new cash kinds counts entirely as cash
-    const p = CASH_KINDS.map((id) => ({ asset_id: id, label: id, kind: id, tax_bucket: 'CASH', balance: 1000, target_return: 0 } as AssetAccount));
-    expect(cashTotal(p)).toBe(4000);
+  test('FOUNDER RULE 2026-08-04: hysa/cash-mgmt stay cash; money_market → stocks; cd → bonds; none holds tickers here', () => {
+    const mk = (id: string) => ({ asset_id: 'x', label: 'acct', kind: id, tax_bucket: 'CASH', balance: 1000, target_return: 0 } as AssetAccount);
+    expect(assetClassOf(mk('hysa'))).toBe('cash');
+    expect(assetClassOf(mk('cash_mgmt'))).toBe('cash');
+    expect(assetClassOf(mk('money_market'))).toBe('stocks_etf');   // a dividend-paying fund — measured
+    expect(assetClassOf(mk('cd'))).toBe('bonds');                  // interest-paying — measured
+    for (const id of CASH_KINDS) expect(accountAllowsTicker(mk(id))).toBe(false);   // CASH-bucket accounts never trade tickers
+    // cash total counts ONLY the true-cash kinds now
+    const p = CASH_KINDS.map((id) => mk(id));
+    expect(cashTotal(p)).toBe(2000);
   });
 
   test('the Cash picker now offers 6 types in order (checking, savings, then the four new ones)', () => {
@@ -105,20 +106,16 @@ describe('accountAllowsTicker excludes dedicated bond + alternative accounts', (
   });
 });
 
-// build-34 #8 approved rule: a CD/short instrument maturing < 12 months = cash, ≥ 12 months = bond.
-describe('maturityClass — entry-time cash-vs-bond by maturity', () => {
-  const now = new Date('2026-06-15');
-  test('matures within 12 months → cash', () => {
-    expect(maturityClass('2026-08', now)).toBe('cash');   // ~2 mo (a short CD / T-bill)
-    expect(maturityClass('2027-05', now)).toBe('cash');   // 11 mo
+// FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY dated instrument = a bond —
+// it pays interest, so it sits in the measured bucket no matter how soon it matures.
+describe('maturityClass — any maturity means Bonds & CDs', () => {
+  test('a maturity date → bonds, regardless of how soon', () => {
+    expect(maturityClass('2026-08')).toBe('bonds');   // a 2-month CD is still a CD
+    expect(maturityClass('2030-01')).toBe('bonds');
   });
-  test('matures in 12+ months → bonds', () => {
-    expect(maturityClass('2027-06', now)).toBe('bonds');  // exactly 12 mo
-    expect(maturityClass('2030-01', now)).toBe('bonds');  // a 2-year+ note stays a bond
-  });
-  test('no maturity (money-market, plain cash) → cash', () => {
-    expect(maturityClass(undefined, now)).toBe('cash');
-    expect(maturityClass(null, now)).toBe('cash');
+  test('no maturity (a plain balance) → cash', () => {
+    expect(maturityClass(undefined)).toBe('cash');
+    expect(maturityClass(null)).toBe('cash');
   });
 });
 
