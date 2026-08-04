@@ -76,9 +76,9 @@ export default function HoldingDetailScreen() {
     return (
       <ScrollView style={s.root} contentContainerStyle={s.content}>
         <Text style={s.h1}>This holding isn't here any more</Text>
-        <Text style={s.sub}>It may have been deleted. Your investments live on the Invest tab.</Text>
-        <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.replace('/(tabs)/invest')} accessibilityLabel="Open the Invest tab">
-          <Text style={s.ctaTxt}>Open Invest ›</Text>
+        <Text style={s.sub}>It may have been deleted. Your investments live on the Performance tab.</Text>
+        <TouchableOpacity accessibilityRole="button" style={s.cta} onPress={() => router.replace('/(tabs)/invest')} accessibilityLabel="Open the Performance tab">
+          <Text style={s.ctaTxt}>Open Performance ›</Text>
         </TouchableOpacity>
       </ScrollView>
     );

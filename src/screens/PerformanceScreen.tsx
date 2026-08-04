@@ -171,7 +171,7 @@ export default function PerformanceScreen() {
         <HiddenBalancesBanner />
       {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
-        <Text style={styles.investTitle}>Invest</Text>
+        <Text style={styles.investTitle}>Performance</Text>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>

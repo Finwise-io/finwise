@@ -56,14 +56,14 @@ describe('TopBar', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
     const strip = screen.getAllByLabelText(/^Go to /).map((n) => n.props.accessibilityLabel);
-    expect(strip).toEqual(['Go to Home', 'Go to Cash flow', 'Go to Net worth', 'Go to Plan', 'Go to Invest']);
+    expect(strip).toEqual(['Go to Home', 'Go to Cash flow', 'Go to Net worth', 'Go to Plan', 'Go to Performance']);
   });
 
   test('the working-lens strip matches the working bar order', () => {
     render(<TopBar />);
     fireEvent.press(screen.getByText('Menu'));
     const strip = screen.getAllByLabelText(/^Go to /).map((n) => n.props.accessibilityLabel);
-    expect(strip).toEqual(['Go to Home', 'Go to Net worth', 'Go to Invest', 'Go to Cash flow', 'Go to Plan']);
+    expect(strip).toEqual(['Go to Home', 'Go to Net worth', 'Go to Performance', 'Go to Cash flow', 'Go to Plan']);
   });
 
   test('the five FCC tabs are all reachable from the Menu (Cash flow · Plan · Net worth · Invest)', () => {
@@ -75,7 +75,7 @@ describe('TopBar', () => {
     fireEvent.press(screen.getByText('Plan'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/plan');
     fireEvent.press(screen.getByText('Menu'));
-    fireEvent.press(screen.getByText('Invest'));
+    fireEvent.press(screen.getByText('Performance'));
     expect(router.push).toHaveBeenCalledWith('/(tabs)/invest');
     fireEvent.press(screen.getByText('Menu'));
     fireEvent.press(screen.getByText('Net worth'));

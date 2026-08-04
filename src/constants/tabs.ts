@@ -7,7 +7,7 @@ import type { FccTab } from '../domain/profile/lens';
 export const TAB_META: Record<FccTab, { title: string; icon: string }> = {
   home:      { title: 'Home',      icon: 'home' },
   analytics: { title: 'Net worth', icon: 'diamond' },
-  invest:    { title: 'Invest',    icon: 'stats-chart' },
+  invest:    { title: 'Performance', icon: 'stats-chart' },   // founder 2026-08-04: names how-it's-doing (route key unchanged)
   cashflow:  { title: 'Cash flow', icon: 'cash' },
   plan:      { title: 'Plan',      icon: 'compass' },
 };

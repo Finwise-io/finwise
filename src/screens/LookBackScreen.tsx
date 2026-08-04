@@ -104,7 +104,7 @@ export default function LookBackScreen() {
         <View style={s.card}>
           <Text style={s.note}>
             {amt <= 0 ? 'Enter an amount to look back on.'
-              : `We don't have ${!priceCache[from] || !priceCache[to] ? 'prices for that pairing yet' : 'prices reaching back that far'} — open the Invest tab and refresh prices, or pick a shorter window. We never invent a price.`}
+              : `We don't have ${!priceCache[from] || !priceCache[to] ? 'prices for that pairing yet' : 'prices reaching back that far'} — open the Performance tab and refresh prices, or pick a shorter window. We never invent a price.`}
           </Text>
         </View>
       )}
