@@ -1,6 +1,6 @@
 // PRD F1#15 — the versioned net-worth history: the writer's structural identity, legacy
 // normalization, and the garbage-free sorted reader.
-import { makeMonthlySnapshot, normalizeSnapshot, readHistory, SNAPSHOT_VERSION } from './history';
+import { makeMonthlySnapshot, normalizeSnapshot, readHistory, SNAPSHOT_VERSION, investableChangePct } from './history';
 
 const base = {
   month: '2026-07', gross_assets: 500000, gross_debt: 120000,
@@ -46,4 +46,25 @@ test('readHistory: normalized, garbage-free, sorted by month — mixed legacy an
   const h = readHistory(raw as any);
   expect(h.map((x) => x.month)).toEqual(['2026-04', '2026-05', '2026-07']);
   expect(h.every((x) => x.v === 1)).toBe(true);
+});
+
+// FOUNDER RULE 2026-08-04: the NW change % is measured on cash + investments (property values
+// move only when retyped — a total-NW percent is noise). Never back-guessed: null until history.
+describe('investableChangePct — % on cash + investments only', () => {
+  const inv = { '2026-08-02': 361242, '2026-08-03': 362000 };
+  test('percent = investable move ÷ the baseline invDaily point at/after the since date', () => {
+    expect(investableChangePct(inv, 363152, '2026-08-02')).toBeCloseTo(0.5, 5);   // (363152−361242)/361242
+  });
+  test('daily baseline resolves against a MONTHLY since key too', () => {
+    expect(investableChangePct(inv, 363152, '2026-08')).toBeCloseTo(0.5, 5);
+  });
+  test('no invDaily history yet → null (the percent is never invented)', () => {
+    expect(investableChangePct({}, 363152, '2026-08-02')).toBeNull();
+    expect(investableChangePct(null, 363152, '2026-08-02')).toBeNull();
+    expect(investableChangePct(inv, 363152, null)).toBeNull();
+  });
+  test('a zero/garbage baseline refuses the percent', () => {
+    expect(investableChangePct({ '2026-08-02': 0 }, 363152, '2026-08-02')).toBeNull();
+    expect(investableChangePct({ '2026-08-02': 'x' as any }, 363152, '2026-08-02')).toBeNull();
+  });
 });

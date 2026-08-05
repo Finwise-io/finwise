@@ -110,3 +110,22 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
     .filter((x): x is MonthlySnapshot => x != null)
     .sort((a, b) => (a.month < b.month ? -1 : 1));
 }
+
+/** FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only —
+ *  property values move only when someone retypes them, so a total-net-worth percent is noise.
+ *  Baseline = the earliest invDaily point on/after the change line's own baseline date; the
+ *  percent exists ONLY when that history exists (never back-guessed). Returns % (1dp) or null. */
+export function investableChangePct(
+  invDaily: Record<string, unknown> | null | undefined,
+  currentInvestable: number,
+  sinceKey: string | null | undefined,
+): number | null {
+  if (!sinceKey || !(currentInvestable > 0)) return null;
+  // a daily key compares lexically against either baseline form ('YYYY-MM' or 'YYYY-MM-DD')
+  const baseKey = Object.keys(invDaily ?? {})
+    .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k) && k >= sinceKey)
+    .sort()[0];
+  const base = baseKey != null ? (invDaily as any)[baseKey] : null;
+  if (typeof base !== 'number' || !(base > 0)) return null;
+  return Math.round(((currentInvestable - base) / base) * 1000) / 10;
+}

@@ -10,7 +10,7 @@ import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { trendPoints } from '../domain/history';
+import { trendPoints, investableChangePct } from '../domain/history';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind } from '../domain/assets';
@@ -392,9 +392,14 @@ export default function NetWorthScreen() {
       : `since ${janPoint.month.length === 7
           ? new Date(`${janPoint.month}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short' })
           : new Date(`${janPoint.month}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    // founder rule 2026-08-04: the change PERCENT is measured on cash + investments only —
+    // property moves only when retyped, so a total-NW percent is noise. Appears only once the
+    // invDaily history exists (never back-guessed).
+    const invPct = janPoint ? investableChangePct(store.invDaily, investable, janPoint.month) : null;
+    const pctText = invPct == null || Math.abs(invPct) < 0.05 ? '' : ` · ${invPct > 0 ? '+' : '−'}${Math.abs(invPct).toFixed(1)}% on cash + investments`;
     const deltaText = changeThisYear == null ? null
       : Math.round(changeThisYear) === 0 ? `no change ${sinceLabel}`
-      : `${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} ${sinceLabel}`;
+      : `${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} ${sinceLabel}${pctText}`;
     // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 

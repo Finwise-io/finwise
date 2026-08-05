@@ -245,6 +245,7 @@ type AppState = {
   allocPromptSkipped: Record<string, boolean>;   // months where the user dismissed the allocate prompt
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
   nwDaily: Record<string, number>;               // 'YYYY-MM-DD' → net worth chart point (founder 2026-07-19: graph within days); pruned to DAILY_KEEP
+  invDaily: Record<string, number>;              // 'YYYY-MM-DD' → cash+investments point — the NW change-% denominator (founder rule 2026-08-04)
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   estatePlan: Record<string, boolean>;            // estate checklist: item id → done
   retirementScenarios: RetirementScenario[];      // saved what-if scenarios
@@ -356,7 +357,7 @@ type AppState = {
   fundGoals: (ym: string, items: { goalId: string; amount: number }[]) => void;   // B-71: surplus → goals
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
-  captureDailyNw: (dateKey: string, nw: number) => void;
+  captureDailyNw: (dateKey: string, nw: number, investable?: number) => void;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
   // F11 composer: adoption is the ONE write path a decision screen uses — it snapshots the current
   // plan first so "Back to previous plan" can restore it exactly. History keeps the last 5.
@@ -475,6 +476,7 @@ export const useStore = create<AppState>()(
       allocPromptSkipped: {},
       monthlySnapshots: {},
       nwDaily: {},
+      invDaily: {},
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
@@ -790,7 +792,10 @@ export const useStore = create<AppState>()(
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
       // daily chart point — once per day (last write of the day wins), bounded retention
-      captureDailyNw: (dateKey: string, nw: number) => set((s: any) => ({ nwDaily: pruneDaily({ ...(s.nwDaily ?? {}), [dateKey]: nw }) })),
+      captureDailyNw: (dateKey: string, nw: number, investable?: number) => set((s: any) => ({
+        nwDaily: pruneDaily({ ...(s.nwDaily ?? {}), [dateKey]: nw }),
+        ...(investable != null ? { invDaily: pruneDaily({ ...(s.invDaily ?? {}), [dateKey]: investable }) } : {}),
+      })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
       adoptPlan: (patch, label) => set((s) => ({
         planHistory: [{ snapshot: { ...s.retirementAssumptions }, label, date: new Date().toISOString().slice(0, 10) }, ...s.planHistory].slice(0, 5),
@@ -992,7 +997,7 @@ export const useStore = create<AppState>()(
       addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
-      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {},
+      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {},
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],

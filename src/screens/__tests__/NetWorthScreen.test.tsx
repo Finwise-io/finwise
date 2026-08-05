@@ -251,3 +251,38 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
     expect(screen.getByText('Cash')).toBeOnTheScreen();               // class rows are back
   });
 });
+
+// FOUNDER RULE 2026-08-04: the change % is measured on cash + investments (never total NW —
+// property moves only when retyped). The percent appears ONLY once invDaily history exists.
+test('change line: % on cash + investments, from real history — never total-NW, never invented', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  const past = '2026-01-02';
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Checking', kind: 'checking', tax_bucket: 'CASH', balance: 10000, target_return: 0 },
+      { asset_id: 'a2', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 400000, target_return: 0.07 },
+    ],
+    liabilities: [],
+    nwDaily: { [past]: 390000, [today]: 410000 },
+    invDaily: { [past]: 400000 },                    // baseline cash+investments
+  } as any);
+  render(<NetWorthScreen />);
+  // current investable = 410,000 vs baseline 400,000 → +2.5% — labeled with its denominator
+  expect(screen.getByText(/\+2\.5% on cash \+ investments/)).toBeOnTheScreen();
+});
+
+test('change line: NO percent before the cash+investments history exists', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'a2', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 400000, target_return: 0.07 },
+    ],
+    liabilities: [],
+    nwDaily: { '2026-01-02': 390000, [today]: 400000 },
+    invDaily: {},
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.queryByText(/on cash \+ investments/)).toBeNull();
+});

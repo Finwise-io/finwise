@@ -17,7 +17,7 @@ import { PaycheckCard } from '../components/PaycheckCard';
 import { Disclaimer } from '../components/Disclaimer';
 import { AllocateSavings } from '../components/MoneySheets';
 import { incomeMonthlyGrid, salaryAnnual, currentRetirementIncomeMonthly } from '../domain/income';
-import { investmentsTotal, buildAssetsState } from '../domain/assets';
+import { investmentsTotal, buildAssetsState, investableAssets } from '../domain/assets';
 import { DesktopInvestTable } from '../../desktop/platform/DesktopInvestTable';
 import { buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, periodDollarDelta, type Position } from '../domain/performance';
 import { priceFreshness } from '../services/marketData';
@@ -150,7 +150,8 @@ export default function HomeScreen() {
     }));
     // APPROVED 2026-07-19: one daily net-worth point per open day → the trend graph draws within
     // days of first use (monthly snapshots stay the deep record; this is just a chart point).
-    store.captureDailyNw?.(new Date().toISOString().slice(0, 10), nwv.net_worth);
+    // founder rule 2026-08-04: also capture cash+investments — the change-% denominator
+    store.captureDailyNw?.(new Date().toISOString().slice(0, 10), nwv.net_worth, investableAssets(resolvedRows.accounts));
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──
