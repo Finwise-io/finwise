@@ -6,7 +6,7 @@ the file here is **updated in place** (its dated version history stays in `mocku
 | File | Screen | States drawn | Last updated |
 |---|---|---|---|
 | `networth-FINAL.html` | Net worth (tab) | expanded · all-collapsed · first-day · missing-data banner in place · the $2,110 change sheet · the fix-it sheet | 2026-08-04 (from networth-final-v10) |
-| `performance-FINAL.html` | Performance (tab) + Account Portfolio | rich (chips · summary + graph · all-accounts walk · per-account walks · category earnings) · account portfolio · day-one | 2026-08-04 (from performance-final-v8) |
+| `performance-FINAL.html` | Performance (tab) + Account Portfolio | rich (chips · summary + graph · all-accounts walk · per-account walks · category earnings) · account portfolio · day-one | 2026-08-04 (from performance-final-v9) |
 
 ## What these files already carry (decided + logged in the design doc changelog)
 - **Banded sections** (UX design v1.2): deep-green title bands in white caps with totals riding the
