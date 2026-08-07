@@ -5,7 +5,7 @@ the file here is **updated in place** (its dated version history stays in `mocku
 
 | File | Screen | States drawn | Last updated |
 |---|---|---|---|
-| `networth-FINAL.html` | Net worth (tab) | expanded · all-collapsed · first-day · missing-data banner in place · the $2,110 change sheet · the fix-it sheet | 2026-08-04 (from networth-final-v9) |
+| `networth-FINAL.html` | Net worth (tab) | expanded · all-collapsed · first-day · missing-data banner in place · the $2,110 change sheet · the fix-it sheet | 2026-08-04 (from networth-final-v10) |
 | `performance-FINAL.html` | Performance (tab) | rich · first-day · missing-data | 2026-08-04 (from performance-final-v4) |
 
 ## What these files already carry (decided + logged in the design doc changelog)
@@ -18,7 +18,7 @@ the file here is **updated in place** (its dated version history stays in `mocku
   sum exactly. Net worth's sheet says "net worth" and carries "Debt principal you paid"; Performance
   says "market value". No ＋ signs; − kept. Walk hierarchy: every walk line (including Wealth
   generated) is ONE level sharing one right edge — a plain row, never a green bar; only its three
-  parts indent. Green bars are section HEADINGS only.
+  parts indent. Green bars are section HEADINGS only. The Net-worth change sheet and the Performance walk card are the SAME card design ("HOW $X BECAME $Y" band, same rows, same ending line) — only the wording differs.
 - **Change percent** measured on cash + investments, denominator named on the line.
 - **Classification**: cash = cash only — money-market funds → Stocks/ETFs, CDs/T-bills → Bonds & CDs.
 - **Missing-data honesty**: no standing disclaimers; an inline banner appears ONLY when a promised
