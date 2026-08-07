@@ -142,7 +142,7 @@ function MonthYearCell({ value, onChange, style }: { value?: string; onChange: (
   return (
     <>
       <TouchableOpacity style={style} onPress={() => setOpen(true)}>
-        <Text numberOfLines={1} style={{ fontSize: 14, color: value ? Colors.textPrimary : Colors.textTertiary }}>
+        <Text numberOfLines={1} style={{ fontSize: 15, color: value ? Colors.textPrimary : Colors.textTertiary }}>
           {value ? fmtMonthYear(value) : 'Pick date'}
         </Text>
       </TouchableOpacity>
@@ -1082,10 +1082,10 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         <Card>
           {items.map((it, i) => (
             <View key={i} style={[{ flexDirection: 'row', alignItems: 'flex-start', gap: 12, paddingVertical: 11 }, i < items.length - 1 && { borderBottomWidth: 0.5, borderBottomColor: Colors.border }]}>
-              <Text style={{ fontSize: 22 }}>{it.e}</Text>
+              <Text style={{ fontSize: 24 }}>{it.e}</Text>
               <View style={{ flex: 1 }}>
                 <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.textPrimary }}>{it.t}</Text>
-                <Text style={{ fontSize: 12.5, color: Colors.textSecondary, lineHeight: 17, marginTop: 2 }}>{it.d}</Text>
+                <Text style={{ fontSize: 13, color: Colors.textSecondary, lineHeight: 17, marginTop: 2 }}>{it.d}</Text>
               </View>
             </View>
           ))}
@@ -2280,7 +2280,7 @@ function InvitePartner({ ctx }: { ctx: StepCtx }) {
     <Card>
       {code ? (<>
         <Text style={s.heroLabel}>Their invite code</Text>
-        <Text style={{ fontSize: 32, fontWeight: '800', textAlign: 'center', letterSpacing: 6, color: Colors.textPrimary, paddingVertical: 8 }}>{code}</Text>
+        <Text style={{ fontSize: 30, fontWeight: '800', textAlign: 'center', letterSpacing: 6, color: Colors.textPrimary, paddingVertical: 8 }}>{code}</Text>
         <Text style={[s.hint, { textAlign: 'center' }]}>They enter this on the sign-up screen. Re-share it anytime.</Text>
       </>) : (
         <Text style={s.note}>We'll create a one-time code your partner enters when they sign up — no email needed, share it however you like.</Text>
@@ -2381,21 +2381,21 @@ function GoalsEditor({ ctx }: { ctx: StepCtx }) {
 
 const s = StyleSheet.create({
   head: { alignItems: 'center', marginBottom: Spacing.lg },
-  title: { fontSize: 23, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
-  sub: { fontSize: 14, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
+  title: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  sub: { fontSize: 15, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
   label: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6, marginTop: 4 },
-  hint: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
+  hint: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
   srcCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, borderWidth: 1.5, borderColor: Colors.border },
   srcCardOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   srcIcon: { fontSize: 24 },
   srcTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   srcTitleOn: { color: Colors.primaryDark },
-  srcSub: { fontSize: 11.5, color: Colors.textTertiary, marginTop: 1 },
+  srcSub: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
   srcCheck: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   srcCheckOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  srcCheckMark: { color: '#fff', fontSize: 13, fontWeight: '800' },
+  srcCheckMark: { color: Colors.white, fontSize: 13, fontWeight: '800' },
   cap: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
-  input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 16, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
+  input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 17, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center' },
   note2: { fontSize: 13, color: Colors.textSecondary, marginTop: 4 },
   segRow: { flexDirection: 'row', gap: 6, marginBottom: Spacing.sm },
@@ -2403,20 +2403,20 @@ const s = StyleSheet.create({
   segOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   segTxt: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
   segTxtOn: { color: Colors.primary, fontWeight: '700' },
-  heroLabel: { fontSize: 12, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm, marginBottom: 4 },
+  heroLabel: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.sm, marginBottom: 4 },
   heroInput: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', paddingVertical: Spacing.sm, borderBottomWidth: 2, borderBottomColor: Colors.border, marginBottom: Spacing.sm },
   callout: { flexDirection: 'row', alignItems: 'flex-start', gap: 8, backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   calloutWarn: { backgroundColor: '#FBE9E7' },
   calloutIcon: { fontSize: 15, lineHeight: 20 },
-  calloutTxt: { fontSize: 14, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
+  calloutTxt: { fontSize: 15, fontWeight: '700', color: Colors.primaryDark, lineHeight: 20 },
   calloutTxtWarn: { color: Colors.red },
-  calloutSub: { fontSize: 12, color: Colors.primaryDark, marginTop: 4, opacity: 0.85 },
+  calloutSub: { fontSize: 13, color: Colors.primaryDark, marginTop: 4, opacity: 0.85 },
   chip: { paddingHorizontal: 14, paddingVertical: 9, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.primary, fontWeight: '700' },
   readout: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, paddingVertical: Spacing.md, paddingHorizontal: Spacing.md, borderWidth: 1, borderColor: Colors.border, marginBottom: Spacing.xs },
-  readoutTxt: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary },
+  readoutTxt: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   unitBtn: { paddingHorizontal: 12, height: 44, minWidth: 44, borderRadius: Radii.md, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgSecondary },
   unitBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   unitTxt: { fontSize: 13, fontWeight: '700', color: Colors.textTertiary },
@@ -2425,24 +2425,24 @@ const s = StyleSheet.create({
   choiceOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   choiceTitle: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   choiceTitleOn: { color: Colors.primary },
-  choiceSub: { fontSize: 12, color: Colors.textTertiary, marginTop: 2 },
+  choiceSub: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
   radio: { width: 20, height: 20, borderRadius: 10, borderWidth: 2, borderColor: Colors.border },
   radioOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
   checkBox: { width: 22, height: 22, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   checkBoxOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
-  checkMark: { color: '#fff', fontSize: 14, fontWeight: '900' },
+  checkMark: { color: Colors.white, fontSize: 15, fontWeight: '900' },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.lg },
   stepBtn: { width: 48, height: 48, borderRadius: 24, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   stepBtnT: { fontSize: 24, color: Colors.primary, fontWeight: '700' },
-  stepVal: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary, minWidth: 44, textAlign: 'center' },
+  stepVal: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, minWidth: 44, textAlign: 'center' },
   recapRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  recapLabel: { flex: 1, fontSize: 14, color: Colors.textSecondary, marginRight: 10 },
-  recapVal: { fontSize: 16, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' },
+  recapLabel: { flex: 1, fontSize: 15, color: Colors.textSecondary, marginRight: 10 },
+  recapVal: { fontSize: 17, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right' },
   recapValPlain: { fontSize: 15, fontWeight: '500', color: Colors.textSecondary },
   recapBox: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 10, paddingHorizontal: 12, borderRadius: Radii.md, marginTop: Spacing.sm },
   recapBoxNeutral: { backgroundColor: Colors.bgTertiary },
   recapBoxGreen: { backgroundColor: Colors.primaryLight },
-  recapBoxLabel: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary },
+  recapBoxLabel: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   recapBoxVal: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary },
   divider: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
   barTrack: { height: 8, borderRadius: 4, backgroundColor: Colors.bgTertiary, marginTop: 10, overflow: 'hidden' },
@@ -2451,11 +2451,11 @@ const s = StyleSheet.create({
   addBtnT: { color: Colors.primary, fontWeight: '700' },
   goalRow: { flexDirection: 'row', justifyContent: 'space-between', backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.sm },
   goalLabel: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
-  goalVal: { fontSize: 14, color: Colors.textSecondary },
-  removeX: { fontSize: 16, color: Colors.textTertiary, fontWeight: '700' },
+  goalVal: { fontSize: 15, color: Colors.textSecondary },
+  removeX: { fontSize: 17, color: Colors.textTertiary, fontWeight: '700' },
   schedRow: { flexDirection: 'row', alignItems: 'center', gap: 6, marginTop: 6 },
   schedHeadTxt: { fontSize: 11, fontWeight: '600', color: Colors.textTertiary },
-  schedCell: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 8, paddingVertical: 9, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
+  schedCell: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 8, paddingVertical: 9, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
   modalBg: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'center', padding: Spacing.lg },
   modalCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg },
   monthGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 8 },
@@ -2470,7 +2470,7 @@ const s = StyleSheet.create({
   flowBarFill: { height: 8, borderRadius: 4, backgroundColor: Colors.primary },
   flowAmt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, width: 72, textAlign: 'right' },
   tableRow: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 7, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  tableCell: { flex: 1, fontSize: 14, color: Colors.textSecondary },
+  tableCell: { flex: 1, fontSize: 15, color: Colors.textSecondary },
   heroCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingVertical: Spacing.lg, paddingHorizontal: Spacing.md, marginBottom: Spacing.sm, alignItems: 'center', borderWidth: 1.5, borderColor: Colors.primary },
   heroCardLabel: { fontSize: 13, color: Colors.textSecondary, fontWeight: '600' },
   heroCardValue: { fontSize: 38, fontWeight: '800', color: Colors.primary, marginTop: 2 },
@@ -2480,8 +2480,8 @@ const s = StyleSheet.create({
   bucketTot: { fontSize: 13, fontWeight: '800', color: Colors.primary },
   sumHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: Spacing.sm },
   sumStat: { flex: 1 },
-  sumLabel: { fontSize: 12, color: Colors.textSecondary },
-  sumValue: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  sumLabel: { fontSize: 13, color: Colors.textSecondary },
+  sumValue: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   sumBar: { flexDirection: 'row', height: 14, borderRadius: 7, overflow: 'hidden', backgroundColor: Colors.bgTertiary, marginBottom: Spacing.sm },
   legendWrap: { marginTop: 2 },
   legendRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 3 },
@@ -2495,38 +2495,38 @@ const s = StyleSheet.create({
   colChart: { flexDirection: 'row', alignItems: 'flex-end', height: 134, gap: 2, marginTop: Spacing.sm },
   colItem: { flex: 1, alignItems: 'center', height: '100%', justifyContent: 'flex-end' },
   colBarWrap: { flex: 1, width: '100%', alignItems: 'center', justifyContent: 'flex-end' },
-  colVal: { fontSize: 8, fontWeight: '700', color: Colors.textSecondary, marginBottom: 2 },
+  colVal: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary, marginBottom: 2 },
   colBar: { width: '72%', borderTopLeftRadius: 3, borderTopRightRadius: 3 },
-  colLabel: { fontSize: 9, color: Colors.textTertiary, marginTop: 3 },
+  colLabel: { fontSize: 11, color: Colors.textTertiary, marginTop: 3 },
   stackCol: { width: '72%', borderTopLeftRadius: 3, borderTopRightRadius: 3, overflow: 'hidden' },
   recapGrid: { flexDirection: 'row', flexWrap: 'wrap' },
   recapCell: { width: '50%', paddingVertical: 8 },
-  recapCellLabel: { fontSize: 12, color: Colors.textSecondary },
-  recapCellVal: { fontSize: 19, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
+  recapCellLabel: { fontSize: 13, color: Colors.textSecondary },
+  recapCellVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
   heroRingRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, width: '100%' },
   wfRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5 },
   wfTopline: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 3, paddingTop: 8 },
   wfLabel: { flex: 1, fontSize: 13, color: Colors.textSecondary },
-  wfVal: { fontSize: 14, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right', fontVariant: ['tabular-nums'] },
+  wfVal: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right', fontVariant: ['tabular-nums'] },
   ringPct: { fontSize: 24, fontWeight: '800', color: Colors.primary },
   ringPctSub: { fontSize: 11, color: Colors.textSecondary, marginTop: -2 },
   savingsRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 6, borderBottomWidth: 1, borderBottomColor: Colors.border },
-  savingsMonth: { fontSize: 14, color: Colors.textSecondary },
+  savingsMonth: { fontSize: 15, color: Colors.textSecondary },
   savingsVal: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
-  savingsInput: { width: 110, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 7, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
+  savingsInput: { width: 110, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 7, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
   spendRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 5 },
-  spendName: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  spendName: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   perYr: { fontSize: 11, color: Colors.textTertiary, fontWeight: '600' },
   dueLabel: { fontSize: 11, color: Colors.textTertiary, marginBottom: 2 },
   spendNameInput: { borderBottomWidth: 1, borderBottomColor: Colors.border, paddingVertical: 4 },
-  spendAmt: { width: 78, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 8, fontSize: 14, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
+  spendAmt: { width: 78, backgroundColor: Colors.bgSecondary, borderRadius: Radii.sm, paddingHorizontal: 10, paddingVertical: 8, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right' },
   unitToggle: { width: 34, height: 34, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.bgSecondary },
-  unitToggleTxt: { fontSize: 14, fontWeight: '700', color: Colors.primary },
+  unitToggleTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   addRow: { paddingVertical: 8, marginTop: 2 },
-  addAnother: { fontSize: 14, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
+  addAnother: { fontSize: 15, fontWeight: '700', color: Colors.primary, paddingVertical: 8 },
   cadChip: { paddingHorizontal: 12, paddingVertical: 5, borderRadius: 14, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg },
   cadChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  cadTxt: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary },
+  cadTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   cadTxtOn: { color: Colors.primaryDark },
   cadHint: { fontSize: 11, color: Colors.textTertiary, alignSelf: 'center', flex: 1 },
   salMonthRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingVertical: 5 },

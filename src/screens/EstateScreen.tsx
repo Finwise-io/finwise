@@ -65,9 +65,9 @@ const styles = StyleSheet.create({
   item: { flexDirection: 'row', gap: 12, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: 8, alignItems: 'flex-start' },
   check: { width: 24, height: 24, borderRadius: 12, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', marginTop: 1 },
   checkOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  checkMark: { color: '#fff', fontSize: 14, fontWeight: '900' },
+  checkMark: { color: Colors.white, fontSize: 15, fontWeight: '900' },
   itemTitle: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
   itemTitleOn: { color: Colors.textSecondary, textDecorationLine: 'line-through' },
   itemSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 19 },
-  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
+  foot: { fontSize: 11, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 14 },
 });

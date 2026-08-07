@@ -28,5 +28,5 @@ export function SourceChip({ account, paused }: { account: AssetAccount; paused?
 
 const s = StyleSheet.create({
   chip: { alignSelf: 'flex-start', borderRadius: Radii.pill ?? 999, paddingHorizontal: 8, paddingVertical: 2, marginTop: 3, overflow: 'hidden' },
-  txt: { fontSize: 10.5, fontWeight: '700' },
+  txt: { fontSize: 11, fontWeight: '700' },
 });

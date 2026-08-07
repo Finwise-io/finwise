@@ -60,8 +60,8 @@ const s = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 10, minHeight: 44 },
   divider: { borderTopWidth: 1, borderTopColor: 'rgba(0,0,0,0.06)' },
   dot: { width: 10, height: 10, borderRadius: 5 },
-  rowLabel: { flex: 1, fontSize: 14, color: Colors.textPrimary, minWidth: 0 },
-  rowVal: { fontSize: 14.5, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right', minWidth: 92, fontVariant: ['tabular-nums'] },
+  rowLabel: { flex: 1, fontSize: 15, color: Colors.textPrimary, minWidth: 0 },
+  rowVal: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, textAlign: 'right', minWidth: 92, fontVariant: ['tabular-nums'] },
   chev: { width: 12, textAlign: 'right', color: Colors.textTertiary, fontSize: 13 },
   link: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 8 },
 });

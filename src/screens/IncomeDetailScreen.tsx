@@ -178,11 +178,11 @@ function Row({ label, value, bold, color }: { label: string; value: string; bold
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
-  sub: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.xl },
+  sub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: Spacing.xl },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  section: { fontSize: 12, fontWeight: '700', color: Colors.textTertiary, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: Spacing.sm },
+  section: { fontSize: 13, fontWeight: '700', color: Colors.textTertiary, textTransform: 'uppercase', letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: Spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 },
-  rowLabel: { fontSize: 14, color: Colors.textSecondary },
+  rowLabel: { fontSize: 15, color: Colors.textSecondary },
   rowVal: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   heroK: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.7 },
   heroV: { fontSize: 30, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'], marginBottom: 8 },
@@ -210,7 +210,7 @@ const styles = StyleSheet.create({
   flowAmt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, width: 72, textAlign: 'right' },
   tRow: { flexDirection: 'row', paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: Colors.border },
   tHead: { borderBottomWidth: 1.5 },
-  tHeadTxt: { fontWeight: '700', color: Colors.textTertiary, fontSize: 12, textTransform: 'uppercase' },
-  tCell: { flex: 1, fontSize: 14, color: Colors.textPrimary },
+  tHeadTxt: { fontWeight: '700', color: Colors.textTertiary, fontSize: 13, textTransform: 'uppercase' },
+  tCell: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   tRight: { textAlign: 'right' },
 });

@@ -196,7 +196,7 @@ export default function ExpenseScreen() {
             ) : null}
             ListEmptyComponent={
               <View style={styles.empty}>
-                <Text style={{ fontSize: 40, marginBottom: 12 }}>🧾</Text>
+                <Text style={{ fontSize: 38, marginBottom: 12 }}>🧾</Text>
                 <Text style={styles.emptyTitle}>No expenses yet</Text>
                 <Text style={styles.emptySub}>Tap "Add new" to log your first expense</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => setTab('add')}>
@@ -245,7 +245,7 @@ export default function ExpenseScreen() {
             {/* Scan receipt */}
             {!editId && (
               <TouchableOpacity style={styles.scanBox} onPress={handleScanReceipt} activeOpacity={0.8}>
-                <Text style={{ fontSize: 32 }}>📷</Text>
+                <Text style={{ fontSize: 30 }}>📷</Text>
                 <Text style={styles.scanTitle}>Scan receipt</Text>
                 <Text style={styles.scanHint}>Auto-fill from any receipt photo</Text>
               </TouchableOpacity>
@@ -360,7 +360,7 @@ export default function ExpenseScreen() {
                       <Text style={styles.entryDate}>{r.category} · {money2(r.amount)} · {r.frequency}</Text>
                     </View>
                     <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }}>
-                      <Text style={{ color: Colors.red, fontSize: 18 }}>✕</Text>
+                      <Text style={{ color: Colors.red, fontSize: 17 }}>✕</Text>
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary, marginBottom: 6 },
   emptySub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', marginBottom: 20 },
   emptyBtn: { backgroundColor: Colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: Radii.lg },
-  emptyBtnText: { color: '#fff', fontWeight: '600', fontSize: Typography.sizes.base },
+  emptyBtnText: { color: Colors.white, fontWeight: '600', fontSize: Typography.sizes.base },
   entryRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.sm, gap: Spacing.sm },
   entryIcon: { width: 40, height: 40, borderRadius: 12, alignItems: 'center', justifyContent: 'center' },
   entryLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
@@ -459,7 +459,7 @@ const styles = StyleSheet.create({
   scanHint: { fontSize: Typography.sizes.sm, color: Colors.textSecondary },
   inputLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 8 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },
-  bigInput: { fontSize: 32, fontWeight: '700', textAlign: 'center', paddingVertical: 16, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border },
+  bigInput: { fontSize: 30, fontWeight: '700', textAlign: 'center', paddingVertical: 16, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border },
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   catBtn: { width: '22%', alignItems: 'center', gap: 4, padding: Spacing.sm, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, backgroundColor: Colors.bgSecondary },
   catBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },

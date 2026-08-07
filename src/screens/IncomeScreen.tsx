@@ -176,7 +176,7 @@ export default function IncomeScreen() {
             contentContainerStyle={{ padding: Spacing.base, gap: Spacing.xs, paddingBottom: 40 }}
             ListEmptyComponent={
               <View style={styles.empty}>
-                <Text style={{ fontSize: 40, marginBottom: 12 }}>💵</Text>
+                <Text style={{ fontSize: 38, marginBottom: 12 }}>💵</Text>
                 <Text style={styles.emptyTitle}>No income entries yet</Text>
                 <Text style={styles.emptySub}>Tap "Add new" above to log your first income</Text>
                 <TouchableOpacity style={styles.emptyBtn} onPress={() => setTab('add')}>
@@ -229,7 +229,7 @@ export default function IncomeScreen() {
                 {(recurringIncomes as RecurringIncome[]).map((r) => (
                   <View key={r.id} style={styles.recurRow}>
                     <View style={styles.entryIcon}>
-                      <Text style={{ fontSize: 18 }}>🔄</Text>
+                      <Text style={{ fontSize: 17 }}>🔄</Text>
                     </View>
                     <View style={{ flex: 1 }}>
                       <Text style={styles.entryLabel}>{r.source}</Text>
@@ -243,7 +243,7 @@ export default function IncomeScreen() {
                       </Text>
                     </TouchableOpacity>
                     <TouchableOpacity onPress={() => handleDeleteRecurring(r.id)} style={{ padding: 8 }}>
-                      <Text style={{ fontSize: 16, color: Colors.red }}>✕</Text>
+                      <Text style={{ fontSize: 17, color: Colors.red }}>✕</Text>
                     </TouchableOpacity>
                   </View>
                 ))}
@@ -458,7 +458,7 @@ const styles = StyleSheet.create({
   emptyTitle: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary, marginBottom: 6 },
   emptySub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', marginBottom: 20 },
   emptyBtn: { backgroundColor: Colors.primary, paddingVertical: 12, paddingHorizontal: 24, borderRadius: Radii.lg },
-  emptyBtnText: { color: '#fff', fontWeight: '600', fontSize: Typography.sizes.base },
+  emptyBtnText: { color: Colors.white, fontWeight: '600', fontSize: Typography.sizes.base },
   entryRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, borderWidth: 0.5, borderColor: Colors.border, padding: Spacing.sm, gap: Spacing.sm },
   entryIcon: { width: 40, height: 40, borderRadius: 12, backgroundColor: Colors.primaryLight, alignItems: 'center', justifyContent: 'center' },
   entryLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
@@ -471,11 +471,11 @@ const styles = StyleSheet.create({
   cardTitle: { fontSize: Typography.sizes.md, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.sm },
   inputLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary, marginBottom: 6 },
   input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.md, paddingVertical: 13, fontSize: Typography.sizes.md, color: Colors.textPrimary },
-  bigInput: { fontSize: 32, fontWeight: '700', textAlign: 'center', paddingVertical: 16, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border },
+  bigInput: { fontSize: 30, fontWeight: '700', textAlign: 'center', paddingVertical: 16, color: Colors.textPrimary, backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, borderWidth: 0.5, borderColor: Colors.border },
   freqGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.sm },
   freqBtn: { width: '47%', padding: Spacing.sm, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border, alignItems: 'center', gap: 3 },
   freqBtnOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primaryMid },
-  freqIcon: { fontSize: 22 },
+  freqIcon: { fontSize: 24 },
   freqLabel: { fontSize: Typography.sizes.base, color: Colors.textSecondary, fontWeight: '600', textAlign: 'center' },
   freqLabelOn: { color: Colors.primaryDeep, fontWeight: '700' },
   freqSub: { fontSize: 11, color: Colors.textTertiary, textAlign: 'center' },

@@ -58,11 +58,11 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     padding: Spacing.xl,
   },
-  emoji:       { fontSize: 48, marginBottom: Spacing.md },
+  emoji:       { fontSize: 38, marginBottom: Spacing.md },
   title:       { fontSize: Typography.sizes.lg, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.sm, textAlign: 'center' },
   message:     { fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.lg },
   devBox:      { backgroundColor: Colors.cardBg, borderRadius: Radii.md, padding: Spacing.sm, maxHeight: 200, width: '100%', marginBottom: Spacing.lg },
   devText:     { fontSize: 11, color: Colors.amber, fontFamily: 'monospace' },
   button:      { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.pill },
-  buttonText:  { color: '#fff', fontWeight: '700', fontSize: Typography.sizes.md },
+  buttonText:  { color: Colors.white, fontWeight: '700', fontSize: Typography.sizes.md },
 });

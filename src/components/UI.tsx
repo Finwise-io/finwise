@@ -63,7 +63,7 @@ export function Button({ label, onPress, variant = 'primary', loading, disabled,
       accessibilityState={{ disabled: !!(disabled || loading), busy: !!loading }}
     >
       {loading ? (
-        <ActivityIndicator color={variant === 'primary' ? '#fff' : Colors.primary} />
+        <ActivityIndicator color={variant === 'primary' ? Colors.white : Colors.primary} />
       ) : (
         <Text style={[styles.btnText, textStyle]}>{label}</Text>
       )}
@@ -203,7 +203,7 @@ export function IconCircle({ icon, bg = Colors.primaryLight, size = 40 }: { icon
 export function EmptyState({ icon, title, subtitle }: { icon: string; title: string; subtitle: string }) {
   return (
     <View style={styles.emptyState}>
-      <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>{icon}</Text>
+      <Text style={{ fontSize: 38, marginBottom: Spacing.md }}>{icon}</Text>
       <Text style={styles.emptyTitle}>{title}</Text>
       <Text style={styles.emptySub}>{subtitle}</Text>
     </View>
@@ -215,7 +215,7 @@ const styles = StyleSheet.create({
   infoBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: Spacing.lg },
   infoCard: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.lg, padding: Spacing.lg },
   infoTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
-  infoBody: { fontSize: 14, lineHeight: 20, color: Colors.textSecondary },
+  infoBody: { fontSize: 15, lineHeight: 20, color: Colors.textSecondary },
   infoClose: { alignSelf: 'flex-end', marginTop: Spacing.md, paddingVertical: 6, paddingHorizontal: 14, borderRadius: Radii.md, backgroundColor: Colors.primaryLight },
   infoCloseTxt: { color: Colors.primaryDark, fontWeight: '700' },
   card: {
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
   btnGhost: { backgroundColor: 'transparent' },
   btnDanger: { backgroundColor: Colors.redLight, borderWidth: 0.5, borderColor: Colors.redMid },
   btnText: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.medium },
-  btnTextPrimary: { color: '#fff' },
+  btnTextPrimary: { color: Colors.white },
   btnTextSecondary: { color: Colors.textPrimary },
   btnTextGhost: { color: Colors.primary },
   btnTextDanger: { color: Colors.red },
@@ -274,7 +274,7 @@ const styles = StyleSheet.create({
 
 /** Walk row 12 (audit UX #10): THE estimate tag — one word, one look, wherever a figure is an
  *  estimate. Screens must render this instead of a local styled "estimate" text. */
-export const ESTIMATE_TAG_STYLE = { fontSize: 12, fontWeight: '600' as const, color: Colors.textTertiary };
+export const ESTIMATE_TAG_STYLE = { fontSize: 13, fontWeight: '600' as const, color: Colors.textTertiary };
 export function EstimateTag() {
   return <Text style={ESTIMATE_TAG_STYLE}>estimate</Text>;
 }

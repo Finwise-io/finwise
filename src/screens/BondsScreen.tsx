@@ -190,7 +190,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           <TextInput style={styles.input} keyboardType="decimal-pad" value={coupon} onChangeText={setCoupon} placeholder="4.5" placeholderTextColor={Colors.textTertiary} />
           <Text style={styles.fieldL}>Maturity date</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'} style={styles.input} activeOpacity={0.7} onPress={openPicker}>
-            <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
+            <Text style={{ fontSize: 17, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
           </TouchableOpacity>
           {showPicker && (
             <DateTimePicker
@@ -249,12 +249,12 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 10 },
   empty: { fontSize: 13, color: Colors.textSecondary, lineHeight: 20 },
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 13, alignItems: 'center', marginTop: 14 },
-  addBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  addBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
   addLink: { fontSize: 15, fontWeight: '800', color: Colors.primaryDark, marginTop: 10, borderWidth: 1.5, borderColor: Colors.primary, borderRadius: Radii.lg, paddingVertical: 12, textAlign: 'center', backgroundColor: Colors.primaryLight, overflow: 'hidden' },
-  foot: { fontSize: 11.5, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
+  foot: { fontSize: 11, color: Colors.textTertiary, lineHeight: 14.5, marginTop: 12 },
   summary: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginBottom: 10, alignItems: 'center' },
-  sumVal: { fontSize: 28, fontWeight: '800', color: Colors.textPrimary },
-  sumLab: { fontSize: 12, color: Colors.textTertiary, marginTop: 1 },
+  sumVal: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
+  sumLab: { fontSize: 13, color: Colors.textTertiary, marginTop: 1 },
   sumRow: { flexDirection: 'row', marginTop: 14, alignSelf: 'stretch' },
   sumCell: { flex: 1, alignItems: 'center' },
   // P0 (design audit B-1): stat labels never below the 11pt kicker floor
@@ -263,29 +263,29 @@ const styles = StyleSheet.create({
   bondHead: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   bondName: { flex: 1, fontSize: 15, fontWeight: '800', color: Colors.textPrimary, paddingRight: 8 },
   bondVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
-  bondSub: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 3 },
+  bondSub: { fontSize: 11, color: Colors.textSecondary, marginTop: 3 },
   bondMetrics: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 8 },
-  metric: { fontSize: 12, fontWeight: '700', color: Colors.primary },
+  metric: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   scrim: { position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.3)' } as any,
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: '#fff', borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, backgroundColor: Colors.white, borderTopLeftRadius: 22, borderTopRightRadius: 22, padding: 18, paddingBottom: 28 },
   grab: { width: 38, height: 5, borderRadius: 3, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: 12 },
-  sheetT: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
-  fieldL: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
+  sheetT: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4 },
+  fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 14, marginBottom: 5 },
   fieldHint: { fontSize: 11, color: Colors.textTertiary, lineHeight: 15, marginTop: 4 },
-  input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 16, color: Colors.textPrimary },
-  note: { fontSize: 12, color: Colors.textSecondary, marginTop: 8 },
+  input: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
+  note: { fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
   chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.pill, paddingHorizontal: 12, paddingVertical: 8 },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  chipT: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary },
+  chipT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTOn: { color: Colors.primaryDark },
   sellBox: { marginTop: 18, padding: 12, borderRadius: Radii.md, backgroundColor: Colors.bgSecondary, borderWidth: 1, borderColor: Colors.border },
   sellTitle: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
   sellRow: { flexDirection: 'row', gap: 8, alignItems: 'center', marginTop: 8 },
   sellBtn: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, paddingVertical: 12, paddingHorizontal: 16, alignItems: 'center' },
-  sellBtnT: { color: '#fff', fontSize: 14, fontWeight: '800' },
+  sellBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
   sellAll: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 4, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, alignItems: 'center', marginTop: 18 },
-  saveBtnT: { color: '#fff', fontSize: 15, fontWeight: '800' },
+  saveBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
   deleteLink: { fontSize: 13, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: 14 },
 });

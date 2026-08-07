@@ -21,7 +21,7 @@ export function DateField({ value, onChange, label, style }: {
       <TouchableOpacity accessibilityRole="button" activeOpacity={0.7} style={[df.box, style]}
         accessibilityLabel={value ? `${label ?? 'date'}, ${human(value)}. Tap to change.` : `Pick a ${label ?? 'date'}`}
         onPress={() => { if (!show && !value) onChange(fmtISO(new Date())); setShow((v) => !v); }}>
-        <Text style={{ fontSize: 16, color: value ? Colors.textPrimary : Colors.textTertiary }}>
+        <Text style={{ fontSize: 17, color: value ? Colors.textPrimary : Colors.textTertiary }}>
           {value ? human(value) : 'Tap to pick a date'}
         </Text>
       </TouchableOpacity>

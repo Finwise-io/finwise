@@ -145,7 +145,7 @@ export default function AddAccountScreen() {
           <TouchableOpacity accessibilityRole="button" style={s.input} activeOpacity={0.7}
             accessibilityLabel={maturity ? `Maturity date, ${humanDate(maturity)}. Tap to change.` : 'Pick a maturity date'}
             onPress={() => { if (!showMaturity && !maturity) setMaturity(fmtISO(new Date(new Date().getFullYear() + 10, 0, 1))); setShowMaturity((v) => !v); }}>
-            <Text style={{ fontSize: 16, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
+            <Text style={{ fontSize: 17, color: maturity ? Colors.textPrimary : Colors.textTertiary }}>{maturity ? humanDate(maturity) : 'Tap to pick a date'}</Text>
           </TouchableOpacity>
           {showMaturity && (
             <DateTimePicker value={maturity ? parseISO(maturity) : new Date(new Date().getFullYear() + 10, 0, 1)} mode="date"
@@ -221,7 +221,7 @@ const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg, paddingTop: Spacing.xl },
   backBtn: { alignSelf: 'flex-start', marginBottom: 6 },
-  back: { color: Colors.primary, fontSize: 16, fontWeight: '700' },
+  back: { color: Colors.primary, fontSize: 17, fontWeight: '700' },
   h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary },
   sub: { fontSize: 13, color: Colors.textSecondary, marginTop: 4, lineHeight: 19 },
   q: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, marginTop: Spacing.md, marginBottom: 8 },
@@ -229,11 +229,11 @@ const s = StyleSheet.create({
   chip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 42, justifyContent: 'center', backgroundColor: Colors.cardBg },
   chipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
-  fieldL: { fontSize: 12.5, fontWeight: '700', color: Colors.textSecondary, marginTop: Spacing.md, marginBottom: 5 },
-  input: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 16, color: Colors.textPrimary },
-  asOf: { fontSize: 12.5, color: Colors.textTertiary, marginTop: Spacing.md },
+  fieldL: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: Spacing.md, marginBottom: 5 },
+  input: { backgroundColor: Colors.cardBg, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, padding: 12, fontSize: 17, color: Colors.textPrimary },
+  asOf: { fontSize: 13, color: Colors.textTertiary, marginTop: Spacing.md },
   primaryBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
-  primaryTxt: { color: Colors.white, fontSize: 16, fontWeight: '800' },
+  primaryTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   deleteBtn: { minHeight: 46, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
-  deleteTxt: { fontSize: 14, fontWeight: '700', color: Colors.red },
+  deleteTxt: { fontSize: 15, fontWeight: '700', color: Colors.red },
 });

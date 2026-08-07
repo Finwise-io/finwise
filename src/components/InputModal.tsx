@@ -111,5 +111,5 @@ const styles = StyleSheet.create({
   cancelBtn: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
   confirmBtn: { backgroundColor: Colors.primary },
   cancelText: { fontSize: Typography.sizes.base, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
-  confirmText: { fontSize: Typography.sizes.base, color: '#fff', fontWeight: Typography.weights.medium },
+  confirmText: { fontSize: Typography.sizes.base, color: Colors.white, fontWeight: Typography.weights.medium },
 });

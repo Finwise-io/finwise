@@ -85,7 +85,7 @@ export default function RewardsScreen() {
             <Text style={styles.levelNum}>Level {level.level}</Text>
             <Text style={styles.levelName}>{level.name}</Text>
           </View>
-          <Text style={{ fontSize: 52 }}>
+          <Text style={{ fontSize: 38 }}>
             {level.level <= 2 ? '🌱' : level.level <= 4 ? '🌿' : level.level <= 6 ? '🌳' : level.level <= 8 ? '⭐' : '🏆'}
           </Text>
         </View>
@@ -135,7 +135,7 @@ export default function RewardsScreen() {
               style={styles.badgeCard}
               onPress={() => Alert.alert(badge.icon + ' ' + badge.label, badge.description + '\n\n+50 points earned!')}
             >
-              <Text style={{ fontSize: 32 }}>{badge.icon}</Text>
+              <Text style={{ fontSize: 30 }}>{badge.icon}</Text>
               <Text style={styles.badgeLabel}>{badge.label}</Text>
               <Badge label="Earned" color="green" />
             </TouchableOpacity>
@@ -154,7 +154,7 @@ export default function RewardsScreen() {
                 style={[styles.badgeCard, styles.badgeLocked]}
                 onPress={() => Alert.alert('How to unlock', badge.description)}
               >
-                <Text style={{ fontSize: 32, opacity: 0.3 }}>{badge.icon}</Text>
+                <Text style={{ fontSize: 30, opacity: 0.3 }}>{badge.icon}</Text>
                 <Text style={[styles.badgeLabel, { color: Colors.textTertiary }]}>{badge.label}</Text>
                 <Badge label="Locked" color="gray" />
               </TouchableOpacity>
@@ -178,7 +178,7 @@ export default function RewardsScreen() {
           <View style={styles.iconRow}>
             {GOAL_ICONS.map((ic) => (
               <TouchableOpacity key={ic} style={[styles.iconBtn, goalIcon === ic && styles.iconBtnOn]} onPress={() => setGoalIcon(ic)}>
-                <Text style={{ fontSize: 22 }}>{ic}</Text>
+                <Text style={{ fontSize: 24 }}>{ic}</Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -216,7 +216,7 @@ export default function RewardsScreen() {
         return (
           <Card key={goal.id} style={done ? { borderColor: Colors.primaryMid, borderWidth: 1 } : {}}>
             <View style={styles.goalRow}>
-              <Text style={{ fontSize: 28 }}>{goal.icon}</Text>
+              <Text style={{ fontSize: 30 }}>{goal.icon}</Text>
               <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                 <View style={styles.goalTitleRow}>
                   <Text style={styles.goalName}>{goal.label}</Text>
@@ -255,12 +255,12 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.base, gap: Spacing.sm },
   levelRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
   levelNum: { fontSize: Typography.sizes.sm, color: 'rgba(255,255,255,0.7)', marginBottom: 2 },
-  levelName: { fontSize: Typography.sizes.xl, fontWeight: Typography.weights.bold, color: '#fff' },
+  levelName: { fontSize: Typography.sizes.xl, fontWeight: Typography.weights.bold, color: Colors.white },
   xpLabel: { fontSize: Typography.sizes.sm, color: 'rgba(255,255,255,0.7)', marginBottom: 6 },
   progressTrack: { height: 8, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 8, overflow: 'hidden' },
   progressFill: { height: 8, backgroundColor: Colors.successGreen, borderRadius: 8 },
   streakRow: { marginTop: Spacing.md, paddingTop: Spacing.sm, borderTopWidth: 0.5, borderTopColor: 'rgba(255,255,255,0.2)' },
-  streakText: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: '#fff' },
+  streakText: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.white },
   streakHint: { fontSize: Typography.sizes.sm, color: 'rgba(255,255,255,0.65)', marginTop: 2 },
   xpGuideGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.xs },
   xpGuideItem: {

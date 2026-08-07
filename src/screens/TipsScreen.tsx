@@ -132,7 +132,7 @@ export default function TipsScreen() {
       {/* AI Analysis trigger */}
       {tips.length === 0 ? (
         <Card style={styles.aiCard}>
-          <Text style={{ fontSize: 36, textAlign: 'center', marginBottom: Spacing.sm }}>💡</Text>
+          <Text style={{ fontSize: 38, textAlign: 'center', marginBottom: Spacing.sm }}>💡</Text>
           <Text style={styles.aiTitle}>Get personalized tips</Text>
           <Text style={styles.aiSub}>
             We analyze your spending and find ways to save.
@@ -242,7 +242,7 @@ const styles = StyleSheet.create({
   privacyClaim: { fontSize: Typography.sizes.md, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: Spacing.sm, lineHeight: 22 },   // B-L1: larger than the rest
   aiSummaryText: { fontSize: Typography.sizes.base, color: Colors.primaryDeep, lineHeight: 22 },
   savingsCard: { alignItems: 'center', padding: Spacing.xl },
-  savingsRange: { fontSize: 40, fontWeight: Typography.weights.bold, color: Colors.primary, marginVertical: Spacing.xs },
+  savingsRange: { fontSize: 38, fontWeight: Typography.weights.bold, color: Colors.primary, marginVertical: Spacing.xs },
   savingsNote: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   savingsAnnual: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.primaryDark, marginTop: 4 },
   tipHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.sm },
@@ -251,7 +251,7 @@ const styles = StyleSheet.create({
   tipActions: { flexDirection: 'row', gap: Spacing.sm },
   tipBtn: { flex: 1, borderRadius: Radii.md, alignItems: 'center', minHeight: 44, justifyContent: 'center' },
   tipBtnAccept: { backgroundColor: Colors.primary },
-  tipBtnAcceptText: { fontSize: Typography.sizes.base, color: '#fff', fontWeight: Typography.weights.medium },
+  tipBtnAcceptText: { fontSize: Typography.sizes.base, color: Colors.white, fontWeight: Typography.weights.medium },
   tipBtnSkip: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.border },
   tipBtnSkipText: { fontSize: Typography.sizes.base, color: Colors.textSecondary },
   tipAccepted: { borderColor: Colors.primaryMid, borderWidth: 1 },

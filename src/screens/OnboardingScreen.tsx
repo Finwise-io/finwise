@@ -90,12 +90,12 @@ function ModuleCrumbs({ steps, index }: { steps: string[]; index: number }) {
 }
 
 const crumb = StyleSheet.create({
-  done: { fontSize: 11.5, fontWeight: '700', color: Colors.primary },
-  todo: { fontSize: 11.5, fontWeight: '600', color: Colors.textTertiary },
-  chev: { fontSize: 12, color: Colors.textTertiary },
+  done: { fontSize: 11, fontWeight: '700', color: Colors.primary },
+  todo: { fontSize: 11, fontWeight: '600', color: Colors.textTertiary },
+  chev: { fontSize: 13, color: Colors.textTertiary },
   chevOn: { color: Colors.primary, fontWeight: '800' },
   pill: { backgroundColor: Colors.primaryLight, borderRadius: 10, paddingHorizontal: 9, paddingVertical: 3 },
-  pillTxt: { fontSize: 11.5, fontWeight: '800', color: Colors.primaryDark },
+  pillTxt: { fontSize: 11, fontWeight: '800', color: Colors.primaryDark },
 });
 
 export default function OnboardingScreen() {
@@ -316,25 +316,25 @@ const styles = StyleSheet.create({
   scroll: { padding: Spacing.lg, paddingTop: Spacing.md, paddingBottom: Spacing.xl, backgroundColor: Colors.bgSecondary },
   footer: { flexDirection: 'row', gap: Spacing.sm, alignItems: 'center', paddingHorizontal: Spacing.lg, paddingTop: Spacing.sm, paddingBottom: 28, backgroundColor: Colors.bgSecondary },
   progressBarFixed: { paddingTop: 60, paddingHorizontal: Spacing.lg, paddingBottom: Spacing.sm, backgroundColor: Colors.bgSecondary },
-  progressText: { marginTop: 6, fontSize: 12, color: Colors.textTertiary, textAlign: 'right' },
+  progressText: { marginTop: 6, fontSize: 13, color: Colors.textTertiary, textAlign: 'right' },
   headWrap: { alignItems: 'center', marginBottom: Spacing.lg },
   heading: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
-  sub: { fontSize: 14, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
+  sub: { fontSize: 15, color: Colors.textSecondary, textAlign: 'center', marginTop: 6 },
   groupHeader: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   choice: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm, borderWidth: 2, borderColor: 'transparent' },
   choiceOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   choiceIcon: { fontSize: 24, marginRight: Spacing.md },
-  choiceTitle: { fontSize: 16, fontWeight: '600', color: Colors.textPrimary },
+  choiceTitle: { fontSize: 17, fontWeight: '600', color: Colors.textPrimary },
   choiceTitleOn: { color: Colors.primary },
   choiceSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
   radio: { width: 22, height: 22, borderRadius: 11, borderWidth: 2, borderColor: Colors.border },
   radioOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
   check: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   checkOn: { borderColor: Colors.primary, backgroundColor: Colors.primary },
-  checkMark: { color: '#fff', fontSize: 14, fontWeight: '700' },
+  checkMark: { color: Colors.white, fontSize: 15, fontWeight: '700' },
   inputLabel: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6 },
-  input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 16, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
-  link: { color: Colors.primary, fontWeight: '600', fontSize: 14 },
+  input: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.md, padding: Spacing.md, fontSize: 17, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border },
+  link: { color: Colors.primary, fontWeight: '600', fontSize: 15 },
   note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center' },
   navRow: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.md },
 });

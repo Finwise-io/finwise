@@ -53,7 +53,7 @@ export function ExpenseFab({ onPress }: { onPress: () => void }) {
 }
 const fab = StyleSheet.create({
   btn: { position: 'absolute', right: Spacing.lg, bottom: 24, backgroundColor: Colors.primary, borderRadius: 28, paddingHorizontal: 20, paddingVertical: 14, shadowColor: '#000', shadowOpacity: 0.2, shadowRadius: 8, shadowOffset: { width: 0, height: 3 }, elevation: 5 },
-  txt: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  txt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
 });
 
 // ── quick-add expense sheet (two taps: amount → category → Save; no chooser menu) ─────────────
@@ -476,20 +476,20 @@ const sh = StyleSheet.create({
   tabTxt: { fontSize: 15, fontWeight: '600', color: Colors.textSecondary },
   tabTxtOn: { color: Colors.primary, fontWeight: '700' },
   elseLink: { minHeight: 44, justifyContent: 'center' },
-  elseTxt: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark },
+  elseTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   scanBtn: { marginTop: Spacing.md, alignSelf: 'center', paddingHorizontal: 16, borderRadius: 20, borderWidth: 1.5, borderColor: Colors.primary, backgroundColor: Colors.primaryLight, minHeight: 44, justifyContent: 'center' },
   scanTxt: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   amtRow: { flexDirection: 'row', alignItems: 'baseline', justifyContent: 'center', marginTop: Spacing.md },
   amtPrefix: { fontSize: 30, fontWeight: '800', color: Colors.textSecondary },
-  amtInput: { fontSize: 44, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', paddingHorizontal: 6, paddingVertical: 0, paddingBottom: 2, borderBottomWidth: 2, borderBottomColor: Colors.primary, fontVariant: ['tabular-nums'] },
+  amtInput: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', paddingHorizontal: 6, paddingVertical: 0, paddingBottom: 2, borderBottomWidth: 2, borderBottomColor: Colors.primary, fontVariant: ['tabular-nums'] },
   bucketHint: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.sm },
-  manageLink: { fontSize: 14, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 4, paddingVertical: 12, minHeight: 44 },
+  manageLink: { fontSize: 15, fontWeight: '700', color: Colors.primary, textAlign: 'center', marginTop: 4, paddingVertical: 12, minHeight: 44 },
   // the even choice grid — 3 equal cells per row, packed from the left (no ragged centered rows)
   catHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.7, marginTop: Spacing.md, marginBottom: 6 },
   catGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginTop: 2 },
   catCell: { width: '31.5%', minHeight: 66, borderRadius: 12, borderWidth: 1.5, borderColor: Colors.border, backgroundColor: Colors.cardBg, alignItems: 'center', justifyContent: 'center', paddingVertical: 8, paddingHorizontal: 4 },
   catIcon: { fontSize: 20 },
-  catLabel: { fontSize: 12.5, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', lineHeight: 15, marginTop: 3 },
+  catLabel: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary, textAlign: 'center', lineHeight: 15, marginTop: 3 },
   catLabelOn: { fontWeight: '800', color: Colors.primaryDark },
   closeBtn: { position: 'absolute', top: 14, right: 14, width: 32, height: 32, borderRadius: 16, backgroundColor: Colors.bgTertiary, alignItems: 'center', justifyContent: 'center', zIndex: 2 },
   closeTxt: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary },
@@ -506,7 +506,7 @@ const sh = StyleSheet.create({
   freqTxt: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
   dateNote: { fontSize: 13, color: Colors.textSecondary, marginTop: Spacing.md, textAlign: 'center' },
   save: { backgroundColor: Colors.primary, borderRadius: Radii.lg, alignItems: 'center', marginTop: Spacing.md, minHeight: 50, justifyContent: 'center' },
-  saveTxt: { color: '#fff', fontSize: 17, fontWeight: '800' },
+  saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   remove: { color: Colors.textSecondary, fontWeight: '700', textAlign: 'center', paddingVertical: Spacing.md, fontSize: 15 },
   allocHead: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginTop: 2, marginBottom: Spacing.sm, fontVariant: ['tabular-nums'] },
   allocSectionHdr: { fontSize: 11, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.5, marginTop: Spacing.sm, marginBottom: 2 },
@@ -514,7 +514,7 @@ const sh = StyleSheet.create({
   allocIcon: { fontSize: 20, width: 24, textAlign: 'center' },
   allocName: { fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   // the "$2,400 of $5,000" progress line is load-bearing money — 12.5pt secondary, never 11pt (audit MS-2)
-  allocSub: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 1, fontVariant: ['tabular-nums'] },
+  allocSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 1, fontVariant: ['tabular-nums'] },
   allocInput: { width: 80, backgroundColor: Colors.cardBg, borderRadius: Radii.sm, paddingHorizontal: 8, paddingVertical: 10, fontSize: 15, color: Colors.textPrimary, borderWidth: 1, borderColor: Colors.border, textAlign: 'right', minHeight: 44 },
   unitToggle: { width: 44, height: 44, borderRadius: Radii.sm, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center', backgroundColor: Colors.cardBg },
   unitToggleTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },

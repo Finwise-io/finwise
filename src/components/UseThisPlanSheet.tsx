@@ -63,7 +63,7 @@ const s = StyleSheet.create({
   backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   card: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
-  title: { fontSize: 18, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
   sub: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, marginBottom: Spacing.md, lineHeight: 19 },
   row: { paddingVertical: 10 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
@@ -73,8 +73,8 @@ const s = StyleSheet.create({
   arrow: { fontSize: 15, color: Colors.textSecondary },
   toVal: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },   // the NEW value is the payoff — it leads (audit UP-2)
   adoptBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 48, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
-  adoptTxt: { color: '#fff', fontSize: 16, fontWeight: '800' },
+  adoptTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
   cancelBtn: { minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 6 },
-  cancelTxt: { color: Colors.textSecondary, fontSize: 14, fontWeight: '700' },
-  note: { fontSize: 12, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 },
+  cancelTxt: { color: Colors.textSecondary, fontSize: 15, fontWeight: '700' },
+  note: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: 8 },
 });

@@ -75,7 +75,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const [catFormVisible, setCatFormVisible] = useState(false);
   const [newCatLabel, setNewCatLabel] = useState('');
   const [newCatIcon, setNewCatIcon] = useState('📦');
-  const [newCatBg, setNewCatBg] = useState('#F5F5F5');
+  const [newCatBg, setNewCatBg] = useState(Colors.bgSecondary);
 
   function saveCustomCategory() {
     const label = newCatLabel.trim();
@@ -84,7 +84,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
       Alert.alert('Already exists', 'A category with this name already exists.'); return;
     }
     addCustomCategory({ label, icon: newCatIcon, bg: newCatBg });
-    setNewCatLabel(''); setNewCatIcon('📦'); setNewCatBg('#F5F5F5');
+    setNewCatLabel(''); setNewCatIcon('📦'); setNewCatBg(Colors.bgSecondary);
     setCatFormVisible(false);
   }
 
@@ -386,7 +386,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             ) : null}
             ListEmptyComponent={
               <View style={styles.empty}>
-                <Text style={{ fontSize: 40, marginBottom: Spacing.sm }}>📭</Text>
+                <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>📭</Text>
                 <Text style={styles.emptyTitle}>{search ? 'No matches' : 'Nothing this month'}</Text>
                 <Text style={styles.emptySub}>{search ? 'Try a different search.' : 'Tap ＋ Add to log income or an expense.'}</Text>
               </View>
@@ -396,7 +396,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               if ((item as any).recurring) {
                 return (
                   <TouchableOpacity onPress={() => router.push('/income-manager')} style={styles.txRow} activeOpacity={0.85}>
-                    <View style={[styles.txIcon, { backgroundColor: Colors.primaryLight }]}><Text style={{ fontSize: 18 }}>💵</Text></View>
+                    <View style={[styles.txIcon, { backgroundColor: Colors.primaryLight }]}><Text style={{ fontSize: 17 }}>💵</Text></View>
                     <View style={styles.txMid}>
                       <Text style={styles.txLabel} numberOfLines={1}>{(item as any).source}</Text>
                       <Text style={styles.txSub}>Recurring · {selMonthLabel} · tap to manage</Text>
@@ -423,7 +423,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                     activeOpacity={0.85}
                   >
                     <View style={[styles.txIcon, { backgroundColor: isIncome ? Colors.primaryLight : Colors.bgTertiary }]}>
-                      <Text style={{ fontSize: 18 }}>{isIncome ? '💵' : getCategoryIcon((item as any).category)}</Text>
+                      <Text style={{ fontSize: 17 }}>{isIncome ? '💵' : getCategoryIcon((item as any).category)}</Text>
                     </View>
                     <View style={styles.txMid}>
                       <Text style={styles.txLabel} numberOfLines={1}>{label}</Text>
@@ -489,7 +489,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {planExpenses === 0 && spentTotal === 0 ? (
             <Card>
               <View style={styles.empty}>
-                <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>📊</Text>
+                <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>📊</Text>
                 <Text style={styles.emptyTitle}>No budget yet</Text>
                 <Text style={styles.emptySub}>Tap “Set limits” to plan what you'll spend, by category.</Text>
               </View>
@@ -564,14 +564,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               <Card key={c.label} style={styles.catCard}>
                 <View style={styles.catRow}>
                   <View style={[styles.catIcon, { backgroundColor: c.bg }]}>
-                    <Text style={{ fontSize: 18 }}>{c.icon}</Text>
+                    <Text style={{ fontSize: 17 }}>{c.icon}</Text>
                   </View>
                   <Text style={[styles.catLabel, { flex: 1, marginLeft: Spacing.sm }]}>{c.label}</Text>
                   <TouchableOpacity onPress={() => Alert.alert('Delete category', `Remove "${c.label}"?`, [
                     { text: 'Cancel', style: 'cancel' },
                     { text: 'Delete', style: 'destructive', onPress: () => deleteCustomCategory(c.label) },
                   ])}>
-                    <Text style={{ color: Colors.red, fontSize: 16, padding: 8 }}>✕</Text>
+                    <Text style={{ color: Colors.red, fontSize: 17, padding: 8 }}>✕</Text>
                   </TouchableOpacity>
                 </View>
               </Card>
@@ -607,7 +607,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <TouchableOpacity key={e}
                   style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: newCatIcon === e ? Colors.primaryLight : Colors.bgSecondary, borderWidth: 0.5, borderColor: newCatIcon === e ? Colors.primaryMid : Colors.border }}
                   onPress={() => setNewCatIcon(e)}>
-                  <Text style={{ fontSize: 22 }}>{e}</Text>
+                  <Text style={{ fontSize: 24 }}>{e}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -621,7 +621,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
             </View>
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: Spacing.md, padding: Spacing.md, backgroundColor: Colors.bgSecondary, borderRadius: Radii.lg }}>
               <View style={{ width: 44, height: 44, borderRadius: 12, alignItems: 'center', justifyContent: 'center', backgroundColor: newCatBg }}>
-                <Text style={{ fontSize: 22 }}>{newCatIcon}</Text>
+                <Text style={{ fontSize: 24 }}>{newCatIcon}</Text>
               </View>
               <Text style={{ fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary }}>{newCatLabel || 'Preview'}</Text>
             </View>
@@ -682,7 +682,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
           {activeDebts.length === 0 ? (
             <Card>
               <View style={styles.empty}>
-                <Text style={{ fontSize: 36, marginBottom: Spacing.sm }}>🦸</Text>
+                <Text style={{ fontSize: 38, marginBottom: Spacing.sm }}>🦸</Text>
                 <Text style={styles.emptyTitle}>No debts tracked — if that's true, it's all yours. 🎉</Text>
                 <Text style={styles.emptySub}>Add any loans or credit cards to plan your payoff.</Text>
               </View>
@@ -696,7 +696,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 <Card key={d.debt_id} style={styles.catCard}>
                   <TouchableOpacity onPress={() => setDebtSheet({ open: true, edit: d })} onLongPress={() => handleDeleteDebt(d.debt_id)} activeOpacity={0.8}>
                     <View style={styles.catRow}>
-                      <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 18 }}>{dk?.icon || '📄'}</Text></View>
+                      <View style={[styles.catIcon, { backgroundColor: Colors.redLight }]}><Text style={{ fontSize: 17 }}>{dk?.icon || '📄'}</Text></View>
                       <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                         <View style={styles.catTitleRow}>
                           <Text style={styles.catLabel} numberOfLines={1}>{d.label}{idx === 0 && <Text style={styles.payFirst}>  • pay first</Text>}</Text>
@@ -740,7 +740,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
         <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1 }} contentContainerStyle={{ padding: Spacing.base, gap: Spacing.sm }}>
           <TouchableOpacity onPress={() => setTab('Activity')} style={{ alignSelf: 'flex-start' }}><Text style={styles.sectionLink}>‹ Back to Activity</Text></TouchableOpacity>
           <Card style={{ alignItems: 'center', padding: Spacing.xl }}>
-            <Text style={{ fontSize: 48, marginBottom: Spacing.md }}>📂</Text>
+            <Text style={{ fontSize: 38, marginBottom: Spacing.md }}>📂</Text>
             <Text style={styles.importTitle}>Import from Excel or CSV</Text>
             <Text style={styles.importSub}>
               Upload a spreadsheet of your transactions and we'll import them automatically.
@@ -826,7 +826,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                 {limitCats.filter((c) => c.bucket === bk).map(({ label, icon }) => (
                   <View key={label} style={styles.limitRow}>
                     <View style={[styles.catIcon, { backgroundColor: Colors.bgSecondary }]}>
-                      <Text style={{ fontSize: 18 }}>{icon}</Text>
+                      <Text style={{ fontSize: 17 }}>{icon}</Text>
                     </View>
                     <Text style={styles.limitLabel}>{label}</Text>
                     <View style={styles.limitInputWrap}>
@@ -981,7 +981,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
               <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
                 {cats.map((c) => (
                   <TouchableOpacity key={c.label} style={[styles.txCatChip, category === c.label && styles.txCatChipOn]} onPress={() => setCategory(c.label)}>
-                    <Text style={{ fontSize: 14 }}>{c.icon}</Text>
+                    <Text style={{ fontSize: 15 }}>{c.icon}</Text>
                     <Text style={[styles.txCatChipT, category === c.label && styles.txCatChipTOn]}>{c.label}</Text>
                   </TouchableOpacity>
                 ))}
@@ -1037,21 +1037,21 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary, paddingTop: Spacing.sm },
   // Activity
   monthBar: { flexDirection: 'row', alignItems: 'center', gap: 10, paddingHorizontal: Spacing.base, marginBottom: Spacing.xs },
-  monthArrow: { fontSize: 22, color: Colors.primary, fontWeight: '700', width: 22, textAlign: 'center' },
+  monthArrow: { fontSize: 24, color: Colors.primary, fontWeight: '700', width: 22, textAlign: 'center' },
   monthLabel: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, color: Colors.textPrimary },
   searchWrap: { flexDirection: 'row', alignItems: 'center', gap: 8, marginHorizontal: Spacing.base, marginBottom: Spacing.xs, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, borderWidth: 0.5, borderColor: Colors.border, paddingHorizontal: Spacing.sm, height: 40 },
   searchInput: { flex: 1, fontSize: Typography.sizes.base, color: Colors.textPrimary, paddingVertical: 0 },
   undoBar: { position: 'absolute', left: Spacing.base, right: Spacing.base, bottom: 74, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', backgroundColor: Colors.textPrimary, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12 },
-  undoTxt: { flex: 1, color: '#fff', fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium },
+  undoTxt: { flex: 1, color: Colors.white, fontSize: Typography.sizes.sm, fontWeight: Typography.weights.medium },
   undoAction: { color: Colors.primaryMid, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold, paddingLeft: Spacing.md },
   fab: { position: 'absolute', right: Spacing.base, bottom: 18, backgroundColor: Colors.primary, borderRadius: 24, paddingHorizontal: 20, paddingVertical: 13, shadowColor: '#000', shadowOpacity: 0.18, shadowRadius: 8, shadowOffset: { width: 0, height: 3 } },
-  fabTxt: { color: '#fff', fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold },
+  fabTxt: { color: Colors.white, fontSize: Typography.sizes.base, fontWeight: Typography.weights.bold },
   txCatChip: { flexDirection: 'row', alignItems: 'center', gap: 5, backgroundColor: Colors.bgSecondary, borderRadius: Radii.pill, paddingHorizontal: 13, borderWidth: 1, borderColor: Colors.border, minHeight: 44 },
   txCatChipOn: { backgroundColor: Colors.primaryLight, borderColor: Colors.primary },
   txCatChipT: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.medium },
   txCatChipTOn: { color: Colors.primaryDeep, fontWeight: Typography.weights.bold },
   swipeDel: { backgroundColor: Colors.red, justifyContent: 'center', alignItems: 'center', width: 84, borderTopRightRadius: Radii.lg, borderBottomRightRadius: Radii.lg, marginLeft: -Radii.lg, paddingLeft: Radii.lg },
-  swipeDelTxt: { color: '#fff', fontWeight: Typography.weights.bold, fontSize: Typography.sizes.sm },
+  swipeDelTxt: { color: Colors.white, fontWeight: Typography.weights.bold, fontSize: Typography.sizes.sm },
   dueNote: { fontSize: Typography.sizes.xs, fontWeight: Typography.weights.bold, marginTop: 2 },
 
   // Strip
@@ -1105,7 +1105,7 @@ const styles = StyleSheet.create({
   bucketName: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.bold, color: Colors.textPrimary, letterSpacing: 0.3 },
   bucketTotal: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textSecondary },
   bcatRow: { flexDirection: 'row', alignItems: 'center', gap: 9, paddingVertical: 7 },
-  bcatIcon: { fontSize: 16, width: 22, textAlign: 'center' },
+  bcatIcon: { fontSize: 17, width: 22, textAlign: 'center' },
   bcatLabel: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textPrimary, fontWeight: Typography.weights.medium },
   bcatAmt: { fontSize: Typography.sizes.sm, fontWeight: Typography.weights.semibold, color: Colors.textPrimary },
   bcatLimit: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: Typography.weights.regular },
@@ -1130,7 +1130,7 @@ const styles = StyleSheet.create({
   catLabel: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.medium, color: Colors.textPrimary },
   catAmt: { fontSize: Typography.sizes.base, fontWeight: Typography.weights.semibold },
   catLimit: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, fontWeight: '400' },
-  catOverText: { fontSize: 12, color: Colors.red, marginTop: 1 },
+  catOverText: { fontSize: 13, color: Colors.red, marginTop: 1 },
   noLimitBar: { height: 5, borderRadius: 5, backgroundColor: Colors.bgTertiary, justifyContent: 'center', alignItems: 'center' },
   noLimitText: { fontSize: 11, color: Colors.textTertiary },
   setLimitsBtn: { backgroundColor: Colors.primaryLight, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', borderWidth: 0.5, borderColor: Colors.primaryMid },
@@ -1140,7 +1140,7 @@ const styles = StyleSheet.create({
   importTitle: { fontSize: Typography.sizes.md, fontWeight: Typography.weights.semibold, color: Colors.textPrimary, marginBottom: Spacing.xs },
   importSub: { fontSize: Typography.sizes.base, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22 },
   codeBlock: { backgroundColor: Colors.textPrimary, borderRadius: Radii.md, padding: Spacing.md, marginTop: Spacing.sm, gap: 4 },
-  code: { fontSize: 12, color: Colors.successGreen, fontFamily: 'monospace' },
+  code: { fontSize: 13, color: Colors.successGreen, fontFamily: 'monospace' },
 
   // Limits modal
   modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: Spacing.base, borderBottomWidth: 0.5, borderBottomColor: Colors.border, backgroundColor: Colors.cardBg },

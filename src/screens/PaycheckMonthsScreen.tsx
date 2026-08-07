@@ -80,7 +80,7 @@ function Row({ label, value, bold, muted }: { label: string; value: string; bold
 
 const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
-  h1: { fontSize: 22, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
+  h1: { fontSize: 24, fontWeight: '700', color: Colors.textPrimary, marginBottom: 4 },
   sub: { fontSize: 13, color: Colors.textSecondary, marginBottom: Spacing.md, lineHeight: 18 },
   monthCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.md, marginBottom: 6, overflow: 'hidden' },
   monthRow: { flexDirection: 'row', alignItems: 'center', padding: 14, minHeight: 48 },
@@ -88,12 +88,12 @@ const styles = StyleSheet.create({
   dipWord: { fontSize: 11, color: Colors.amber, fontWeight: '700', marginRight: 8 },
   monthNet: { flex: 1, textAlign: 'right', fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   detail: { paddingHorizontal: 14, paddingBottom: 12, borderTopWidth: 1, borderTopColor: Colors.border },
-  sectionT: { fontSize: 12, fontWeight: '700', color: Colors.textSecondary, marginTop: 10, marginBottom: 2, letterSpacing: 0.4 },
+  sectionT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, marginTop: 10, marginBottom: 2, letterSpacing: 0.4 },
   rowWrap: { flexDirection: 'row', paddingVertical: 5 },
   rowLabel: { flex: 1, fontSize: 15, color: Colors.textSecondary },
   rowValue: { fontSize: 15, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   bold: { fontWeight: '700', color: Colors.textPrimary },
   muted: { fontWeight: '400' },   // de-emphasis by weight, never faint gray on money (audit PM-1)
   line: { fontSize: 13, color: Colors.textTertiary, paddingVertical: 2 },
-  footer: { fontSize: 12, color: Colors.textTertiary, textAlign: 'center', marginTop: Spacing.sm },
+  footer: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: Spacing.sm },
 });

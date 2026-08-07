@@ -74,7 +74,7 @@ export function RecoveryCodeModal({ visible, code, onDone, securing = false }: {
 const s = StyleSheet.create({
   backdrop: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, zIndex: 9999, elevation: 9999, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.lg },
   card: { width: '100%', maxWidth: 400, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.lg, alignItems: 'center' },
-  emoji: { fontSize: 40, marginBottom: Spacing.sm },
+  emoji: { fontSize: 38, marginBottom: Spacing.sm },
   title: { fontSize: Typography.sizes.lg, fontWeight: '800', color: Colors.textPrimary, marginBottom: 4, textAlign: 'center' },
   privacy: { fontSize: 15, fontWeight: '800', color: Colors.primary, marginBottom: Spacing.sm, textAlign: 'center', letterSpacing: 0.3 },   // B-L1: privacy claim emphasized (larger than body)
   bold: { fontWeight: '800', color: Colors.textPrimary },
@@ -88,8 +88,8 @@ const s = StyleSheet.create({
   securingTxt: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textSecondary },
   box: { width: 24, height: 24, borderRadius: 6, borderWidth: 2, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
   boxOn: { backgroundColor: Colors.primary, borderColor: Colors.primary },
-  check: { color: '#fff', fontWeight: '800', fontSize: 14 },
+  check: { color: Colors.white, fontWeight: '800', fontSize: 15 },
   ackTxt: { flex: 1, fontSize: Typography.sizes.sm, color: Colors.textPrimary },
   doneBtn: { backgroundColor: Colors.primary, borderRadius: Radii.pill, paddingVertical: 14, alignSelf: 'stretch', alignItems: 'center', minHeight: 44, justifyContent: 'center' },
-  doneTxt: { color: '#fff', fontWeight: '800', fontSize: Typography.sizes.md },
+  doneTxt: { color: Colors.white, fontWeight: '800', fontSize: Typography.sizes.md },
 });

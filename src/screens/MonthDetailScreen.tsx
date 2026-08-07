@@ -140,6 +140,6 @@ const styles = StyleSheet.create({
   strong: { fontWeight: '800' },
   dividerLine: { height: 1, backgroundColor: Colors.border, marginVertical: 6 },
   empty: { fontSize: 13, color: Colors.textSecondary, paddingVertical: 4 },
-  soFar: { fontSize: 12.5, color: Colors.textSecondary, marginTop: 8 },
-  footer: { fontSize: 12.5, color: Colors.textTertiary, textAlign: 'center', marginTop: 4 },
+  soFar: { fontSize: 13, color: Colors.textSecondary, marginTop: 8 },
+  footer: { fontSize: 13, color: Colors.textTertiary, textAlign: 'center', marginTop: 4 },
 });

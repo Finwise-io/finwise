@@ -171,23 +171,23 @@ function Row({ label, value }: { label: string; value: string }) {
 }
 
 const s = StyleSheet.create({
-  h1: { fontSize: 22, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
-  savedNote: { fontSize: 11.5, fontWeight: '600', color: Colors.primaryDark, marginTop: 10 },
+  h1: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, marginBottom: 8 },
+  savedNote: { fontSize: 11, fontWeight: '600', color: Colors.primaryDark, marginTop: 10 },
   emptyLink: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
   emptyLinkT: { fontSize: 15, fontWeight: '700', color: Colors.primary },
   root: { flex: 1, backgroundColor: Colors.bgSecondary },
   content: { padding: Spacing.lg },
-  banner: { fontSize: 12.5, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
+  banner: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, backgroundColor: Colors.primaryLight, borderRadius: Radii.md, padding: 10, marginBottom: Spacing.sm, overflow: 'hidden' },
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardHdr: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginBottom: 6 },
   stepperRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: Spacing.lg, marginTop: 4 },
   stepBtn: { width: 44, height: 44, borderRadius: 22, backgroundColor: Colors.bgSecondary, borderWidth: 1.5, borderColor: Colors.border, alignItems: 'center', justifyContent: 'center' },
-  stepTxt: { fontSize: 22, fontWeight: '700', color: Colors.primary },
+  stepTxt: { fontSize: 24, fontWeight: '700', color: Colors.primary },
   dial: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, minWidth: 140, textAlign: 'center' },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 6, gap: 10 },
   rowL: { fontSize: 15, color: Colors.textPrimary },
   rowV: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'], flexShrink: 1, textAlign: 'right' },
   deltaHero: { fontSize: 24, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'], marginBottom: 6 },
   deltaSub: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary },
-  note: { fontSize: 12.5, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
+  note: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, marginTop: 8 },
 });

@@ -378,7 +378,7 @@ export default function SettingsScreen() {
                     accessibilityLabel={label}
                     accessibilityState={{ selected: active }}
                     accessibilityHint="Sets up your Home and tab order">
-                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? '#fff' : Colors.textSecondary }}>{label}</Text>
+                    <Text style={{ fontSize: 13, fontWeight: '700', color: active ? Colors.white : Colors.textSecondary }}>{label}</Text>
                   </TouchableOpacity>
                 );
               })}
@@ -388,7 +388,7 @@ export default function SettingsScreen() {
 
         <TouchableOpacity style={[styles.actionRow, { borderBottomWidth: 0 }]} onPress={handleRegenRecovery} disabled={rcBusy}
           accessibilityRole="button" accessibilityLabel="Recovery code" accessibilityHint="Generates a new recovery code to restore data if you forget your password">
-          <Text style={{ fontSize: 22 }}>🔑</Text>
+          <Text style={{ fontSize: 24 }}>🔑</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Recovery code</Text>
             <Text style={styles.actionSub}>Restores your data if you forget your password. Generate a new one anytime.</Text>
@@ -412,7 +412,7 @@ export default function SettingsScreen() {
             <Text style={styles.sectionTitle}>Connected accounts</Text>
             {((useStore.getState() as any).snaptradeConnections ?? []).map((c: any) => (
               <View key={c.id} style={styles.actionRow}>
-                <Text style={{ fontSize: 22 }}>🔗</Text>
+                <Text style={{ fontSize: 24 }}>🔗</Text>
                 <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                   <Text style={styles.actionLabel}>{c.brokerage}</Text>
                   <Text style={styles.actionSub}>{c.disabled ? 'Needs re-linking — tap Fix' : 'Connected · read-only'}</Text>
@@ -437,7 +437,7 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Account</Text>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleRerunOnboarding}>
-          <Text style={{ fontSize: 22 }}>⚙️</Text>
+          <Text style={{ fontSize: 24 }}>⚙️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Re-run setup wizard</Text>
             <Text style={styles.actionSub}>Update your goals and budget settings</Text>
@@ -446,7 +446,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => router.push('/jobsafety')}>
-          <Text style={{ fontSize: 22 }}>🛡</Text>
+          <Text style={{ fontSize: 24 }}>🛡</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Job safety check</Text>
             <Text style={styles.actionSub}>Plan for income gaps</Text>
@@ -455,7 +455,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => router.push('/retirement')}>
-          <Text style={{ fontSize: 22 }}>🏖</Text>
+          <Text style={{ fontSize: 24 }}>🏖</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Retirement planner</Text>
             <Text style={styles.actionSub}>Update your retirement plan</Text>
@@ -472,7 +472,7 @@ export default function SettingsScreen() {
           accessibilityLabel="Delete account"
           accessibilityHint="Permanently deletes your account and all data"
         >
-          <Text style={{ fontSize: 22 }}>🗑️</Text>
+          <Text style={{ fontSize: 24 }}>🗑️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={[styles.actionLabel, { color: Colors.red }]}>Delete account</Text>
             <Text style={styles.actionSub}>Permanently remove your account and all data</Text>
@@ -547,19 +547,19 @@ export default function SettingsScreen() {
         <Text style={styles.sectionTitle}>Legal & Support</Text>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(PRIVACY_URL)}>
-          <Text style={{ fontSize: 22 }}>🔒</Text>
+          <Text style={{ fontSize: 24 }}>🔒</Text>
           <Text style={[styles.actionLabel, { flex: 1, marginLeft: Spacing.sm }]}>Privacy Policy</Text>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(TERMS_URL)}>
-          <Text style={{ fontSize: 22 }}>📄</Text>
+          <Text style={{ fontSize: 24 }}>📄</Text>
           <Text style={[styles.actionLabel, { flex: 1, marginLeft: Spacing.sm }]}>Terms of Service</Text>
           <Text style={styles.arrow}>›</Text>
         </TouchableOpacity>
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(`mailto:${SUPPORT_EMAIL}`)}>
-          <Text style={{ fontSize: 22 }}>✉️</Text>
+          <Text style={{ fontSize: 24 }}>✉️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Contact Support</Text>
             <Text style={styles.actionSub}>{SUPPORT_EMAIL}</Text>
@@ -570,7 +570,7 @@ export default function SettingsScreen() {
         <TouchableOpacity style={styles.actionRow} onPress={handleSendDiagnostic}
           accessibilityRole="button" accessibilityLabel="Send a diagnostic report"
           accessibilityHint="Sends an anonymous diagnostic event to help us fix problems">
-          <Text style={{ fontSize: 22 }}>🩺</Text>
+          <Text style={{ fontSize: 24 }}>🩺</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Send a diagnostic report</Text>
             <Text style={styles.actionSub}>Anonymous — helps us fix problems. No financial data.</Text>
@@ -579,7 +579,7 @@ export default function SettingsScreen() {
         </TouchableOpacity>
 
         <View style={[styles.actionRow, { borderBottomWidth: 0 }]}>
-          <Text style={{ fontSize: 22 }}>ℹ️</Text>
+          <Text style={{ fontSize: 24 }}>ℹ️</Text>
           <View style={{ flex: 1, marginLeft: Spacing.sm }}>
             <Text style={styles.actionLabel}>Version</Text>
             <Text style={styles.actionSub}>{Constants.expoConfig?.version ?? '1.0.0'}</Text>
@@ -684,18 +684,18 @@ const styles = StyleSheet.create({
   content: { padding: Spacing.base, gap: Spacing.sm },
   profileCard: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   avatar: { width: 52, height: 52, borderRadius: 26, backgroundColor: Colors.primaryDark, alignItems: 'center', justifyContent: 'center' },
-  avatarText: { fontSize: 24, fontWeight: '700', color: '#fff' },
+  avatarText: { fontSize: 24, fontWeight: '700', color: Colors.white },
   userName: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary },
   userEmail: { fontSize: Typography.sizes.sm, color: Colors.textSecondary },
   verifyBanner: { backgroundColor: Colors.amberLight, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
-  verifyTxt: { fontSize: 12.5, color: Colors.textPrimary, lineHeight: 17 },
+  verifyTxt: { fontSize: 13, color: Colors.textPrimary, lineHeight: 17 },
   verifyRow: { flexDirection: 'row', gap: 20, marginTop: 8 },
   verifyAction: { fontSize: 13, fontWeight: '800', color: Colors.primary },
   sectionTitle: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.textPrimary, marginBottom: Spacing.sm },
   modeRow: { flexDirection: 'row', gap: 10 },
   modeBtn: { flex: 1, borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 10, alignItems: 'center' },
   modeBtnOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
-  modeT: { fontSize: 14, fontWeight: '800', color: Colors.textSecondary },
+  modeT: { fontSize: 15, fontWeight: '800', color: Colors.textSecondary },
   modeTOn: { color: Colors.primaryDark },
   // P0 (design audit S-1): this line is what TELLS the user what Simple/Advisor means — readable, never 10pt
   modeSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 17 },
@@ -720,7 +720,7 @@ const styles = StyleSheet.create({
   delCancel: { backgroundColor: Colors.bgSecondary, borderWidth: 0.5, borderColor: Colors.borderStrong },
   delCancelTxt: { color: Colors.textPrimary, fontWeight: '700', fontSize: Typography.sizes.md },
   delConfirm: { backgroundColor: Colors.red },
-  delConfirmTxt: { color: '#fff', fontWeight: '700', fontSize: Typography.sizes.md },
+  delConfirmTxt: { color: Colors.white, fontWeight: '700', fontSize: Typography.sizes.md },
   actionLabel: { fontSize: Typography.sizes.base, fontWeight: '500', color: Colors.textPrimary },
   actionSub: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 1 },
   privacyClaim: { fontSize: Typography.sizes.base, fontWeight: '600', color: Colors.textPrimary, marginTop: Spacing.sm, lineHeight: 21 },   // B-L1: larger than the rest — the claim that matters most
@@ -729,7 +729,7 @@ const styles = StyleSheet.create({
   logoutText: { fontSize: Typography.sizes.md, fontWeight: '600', color: Colors.red },
   dangerCard: { borderColor: Colors.redMid, borderWidth: 0.5 },
   dangerBtn: { backgroundColor: Colors.red, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center', marginTop: Spacing.sm },
-  dangerBtnText: { fontSize: Typography.sizes.base, fontWeight: '600', color: '#fff' },
+  dangerBtnText: { fontSize: Typography.sizes.base, fontWeight: '600', color: Colors.white },
   disclaimerCard: { borderColor: Colors.amberMid, borderWidth: 0.5, backgroundColor: Colors.amberLight },
   disclaimerTitle: { fontSize: Typography.sizes.sm, fontWeight: '600', color: Colors.amber, marginBottom: Spacing.xs },
   disclaimerText: { fontSize: Typography.sizes.xs, color: Colors.amber, lineHeight: 18 },

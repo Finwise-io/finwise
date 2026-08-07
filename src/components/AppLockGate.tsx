@@ -70,9 +70,9 @@ export function AppLockGate({ children }: { children: React.ReactNode }) {
 
 const styles = StyleSheet.create({
   overlay: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: Colors.bgSecondary, alignItems: 'center', justifyContent: 'center', padding: Spacing.xl, zIndex: 9999 },
-  emoji: { fontSize: 48, marginBottom: Spacing.md },
+  emoji: { fontSize: 38, marginBottom: Spacing.md },
   title: { fontSize: Typography.sizes.lg, fontWeight: '700', color: Colors.textPrimary, marginBottom: Spacing.sm },
   sub: { fontSize: Typography.sizes.sm, color: Colors.textSecondary, textAlign: 'center', lineHeight: 22, marginBottom: Spacing.lg },
   button: { backgroundColor: Colors.primary, paddingHorizontal: Spacing.xl, paddingVertical: Spacing.md, borderRadius: Radii.pill, minWidth: 160, alignItems: 'center' },
-  buttonText: { color: '#fff', fontWeight: '700', fontSize: Typography.sizes.md },
+  buttonText: { color: Colors.white, fontWeight: '700', fontSize: Typography.sizes.md },
 });
