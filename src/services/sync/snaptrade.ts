@@ -274,3 +274,18 @@ export function netCashSleeve(balancesCash: number | null | undefined, positions
   // only sub-dollar rounding dust clamps to zero
   return net < 0 && net > -1 ? 0 : net;
 }
+
+
+/** FOUNDER RULE 2026-08-04: record how far back the broker's OWN activity feed reaches, so a
+ *  "past year" income figure can label itself honestly. Keeps the earliest date ever seen — a
+ *  later sync returning a shallower page must never shorten the recorded depth. */
+export function mergeHistoryFrom(existing: string | undefined, activityDates: (string | null | undefined)[]): string | undefined {
+  const dates = activityDates
+    .map((d) => (d ? String(d).slice(0, 10) : ''))
+    .filter((d) => /^\d{4}-\d{2}-\d{2}$/.test(d))
+    .sort();
+  const earliestNow = dates[0];
+  if (!earliestNow) return existing;
+  if (!existing) return earliestNow;
+  return earliestNow < existing ? earliestNow : existing;
+}

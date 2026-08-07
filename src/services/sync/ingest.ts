@@ -10,8 +10,7 @@ import type { Transaction } from '../../domain/transactions';
 import { newEntityId } from '../../domain/_shared/ids';
 import {
   mapAccountType, mapPosition, mapOptionHolding, mapActivityType, activityKey, netCashSleeve,
-  type StAccount, type StPosition, type StOptionHolding, type StActivity,
-} from './snaptrade';
+  type StAccount, type StPosition, type StOptionHolding, type StActivity, mergeHistoryFrom } from './snaptrade';
 
 export interface AccountSyncPayload {
   account: StAccount;
@@ -119,6 +118,11 @@ export function ingestSync(
       connection_id: st.brokerage_authorization,
       last_synced: st.sync_status?.holdings?.last_successful_sync ?? nowIso,
       value_as_of: nowIso.slice(0, 10),
+      // FOUNDER RULE 2026-08-04 (fifth ingredient check): remember how far back this broker's own
+      // activity feed reaches, so year-scale income figures can label their real coverage.
+      // Depth only ever deepens — a later shallow page can't shorten it (mergeHistoryFrom).
+      history_from: mergeHistoryFrom(prior?.history_from,
+        (p.activities ?? []).map((act: any) => act.trade_date ?? act.settlement_date ?? null)),
       status: st.status ?? 'open',
     };
 

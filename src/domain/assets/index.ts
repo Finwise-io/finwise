@@ -82,6 +82,11 @@ export interface AssetAccount {
   }[];
   value_as_of?: string;           // 'YYYY-MM-DD' — when a HAND-ENTERED value was last set/confirmed
                                   // (display honesty only; the balance stays the one stored number)
+  // FOUNDER RULE 2026-08-04 (the fifth ingredient check): brokers back-fill DIFFERENT depths of
+  // activity history — one sends a year, the next 90 days. Without knowing the depth, a "past year"
+  // income figure silently understates. Set to the EARLIEST activity date the source has ever
+  // supplied for this account; year-scale income figures label themselves with it.
+  history_from?: string;          // 'YYYY-MM-DD' — earliest activity row this source has provided
 }
 
 /** Manual-value freshness (FCC): how old a hand-entered value is, and whether it needs a nudge.
@@ -520,4 +525,45 @@ export function sourceWording(a: AssetAccount): string {
   if (a.source === 'connected') return `Connected · ${day || 'linked'}`;
   if (a.source === 'imported') return `Imported · ${day || '—'}`;
   return 'By hand · you update it';
+}
+
+
+/** FOUNDER RULE 2026-08-04 — the fifth ingredient check: does this account's shared history actually
+ *  cover the window a figure claims? Returns null when it does (nothing to say), or the honest
+ *  shortfall when it doesn't. `windowStart` is the figure's own start date ('YYYY-MM-DD').
+ *  Hand-entered accounts have no activity feed at all — they report `kind: 'none'`. */
+export interface HistoryCoverage {
+  kind: 'none' | 'partial';
+  from: string | null;            // where the shared history actually begins
+  monthsCovered: number | null;   // how much of the claimed window is really covered
+  sentence: string;               // the one plain sentence a screen shows
+}
+export function historyCoverage(
+  a: AssetAccount,
+  windowStart: string,
+  now: Date = new Date(),
+): HistoryCoverage | null {
+  const who = (a.institution || a.label || 'This account').trim();
+  if (a.source === 'manual' || !a.source) {
+    return { kind: 'none', from: null, monthsCovered: null,
+      sentence: `${who} has no activity records — dividends and interest here are only what you enter.` };
+  }
+  const from = a.history_from ? String(a.history_from).slice(0, 10) : null;
+  if (!from) {
+    return { kind: 'none', from: null, monthsCovered: null,
+      sentence: `${who} hasn't shared any activity records yet — its income lines stay empty rather than showing a false $0.` };
+  }
+  if (from <= windowStart.slice(0, 10)) return null;          // fully covered — say nothing
+  const [fy, fm, fd] = from.split('-').map(Number);
+  const months = Math.max(0, Math.round(((now.getFullYear() - fy) * 12 + (now.getMonth() + 1 - fm) + (now.getDate() - fd) / 30) * 10) / 10);
+  const span = months >= 12 ? `${Math.round(months / 12)} year${months >= 18 ? 's' : ''}`
+    : months >= 1 ? `${Math.round(months)} month${Math.round(months) === 1 ? '' : 's'}`
+    : 'a few days';
+  return { kind: 'partial', from, monthsCovered: months,
+    sentence: `${who} shared ${span} of history (from ${prettyDay(from)}) — figures before that aren't counted.` };
+}
+const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+function prettyDay(iso: string): string {
+  const [y, m, d] = iso.split('-').map(Number);
+  return `${MONTH_ABBR[(m || 1) - 1]} ${d}, ${y}`;
 }

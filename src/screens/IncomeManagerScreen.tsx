@@ -8,6 +8,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
+import { historyCoverage } from '../domain/assets';
 import { interestIncomeAnnual } from '../domain/bonds';
 import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the rich grants/rentals editors
 import type { StepCtx } from '../onboarding/modules';
@@ -49,6 +50,14 @@ export default function IncomeManagerScreen() {
   };
 
   const investIncome = investmentIncomeAnnual(transactions) + interestIncomeAnnual(store.assetAccounts ?? []);
+  // FOUNDER RULE 2026-08-04 (fifth ingredient check): a "last 12 months" figure can only cover the
+  // history each source actually shared. Name the shortfalls rather than quietly understating.
+  const yearStart = new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
+  const coverageNotes = ((store.assetAccounts ?? []) as any[])
+    .filter((a) => a.source === 'connected' || a.source === 'imported')
+    .map((a) => historyCoverage(a, yearStart))
+    .filter(Boolean)
+    .map((c: any) => c.sentence);
   // When real holdings/bonds report income, drop the onboarding interest/dividends ESTIMATE so we
   // don't double-count it with the actual "Investment income" row below.
   const opLive = useMemo(() => (investIncome > 0 ? { ...op, invAnnual: 0 } : op), [op, investIncome]);
@@ -130,6 +139,13 @@ export default function IncomeManagerScreen() {
           </View>
           <Text style={styles.rowVal}>{money(investIncome)}</Text>
         </View>
+        {coverageNotes.length > 0 && (
+          <View accessibilityLabel={`How far back this figure reaches: ${coverageNotes.join(' ')}`}>
+            {coverageNotes.map((n: string, i: number) => (
+              <Text key={i} style={styles.coverageNote}>· {n}</Text>
+            ))}
+          </View>
+        )}
         <Text style={styles.note}>Reinvested dividends grow the holding instead of paying cash, so they're not counted as income here. Log dividends from Portfolio → Record transaction.</Text>
       </View>
 
@@ -325,6 +341,8 @@ function AddIncome({ open, onClose, onSave }: { open: boolean; onClose: () => vo
 }
 
 const styles = StyleSheet.create({
+  // fifth ingredient check (2026-08-04): how far back each source's shared history reaches
+  coverageNote: { fontSize: 11.5, color: Colors.textSecondary, marginTop: 4, lineHeight: 16 },
   content: { padding: Spacing.lg },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: 8 },
   summary: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.base, marginTop: 12, alignItems: 'center' },
