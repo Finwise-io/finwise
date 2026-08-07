@@ -65,3 +65,12 @@ describe('the fifth check, wired end to end', () => {
     expect(src).toMatch(/coverageNotes\.map/);
   });
 });
+
+// FOUNDER RULE 2026-08-04 (v8): the depth sentence appears ONLY where the figure's window actually
+// predates the shared history. On a 1-day change line it must stay silent — otherwise a user reads
+// it as "older dividends from other accounts are inside my change number", which would be false.
+test('a short window (yesterday → today) never triggers the depth sentence', () => {
+  const shallow = a({ history_from: '2026-05-04', institution: 'E*TRADE' });
+  expect(historyCoverage(shallow, '2026-08-03', NOW)).toBeNull();      // NW change window: silent
+  expect(historyCoverage(shallow, '2025-08-04', NOW)).not.toBeNull();  // 12-month income figure: speaks
+});
