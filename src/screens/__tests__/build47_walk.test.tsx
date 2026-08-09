@@ -706,3 +706,7 @@ test('B48 finding 6: editing a CD exposes its maturity, and the date re-sorts th
   expect(src).toMatch(/Matures \(YYYY-MM — CDs and dated bonds count under Bonds & CDs\)/);
   expect(src).toMatch(/maturity_date: maturity\.trim\(\), asset_class: maturityClass\(maturity\.trim\(\)\)/);
 });
+
+// FINAL mock (mockup-vf/performance-FINAL): the account page groups holdings under their CLASS on
+// the light-green sub-band, puts each holding's income directly beneath it, and offers every kind
+// of record — money in/out, income received, and a buy or sale.

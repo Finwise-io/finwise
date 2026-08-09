@@ -89,7 +89,7 @@ test('Update value re-stamps the as-of date with the new amount', () => {
   expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10));
 });
 
-test('property accounts get no money-movement buttons; cash gets exactly deposit/withdraw/transfer', () => {
+test('property accounts get no money-movement buttons; cash gets deposit/withdraw/transfer AND interest (savings earns it)', () => {
   render(<AccountDetailScreen />);
   expect(screen.getByLabelText('Record a deposit for Checking')).toBeOnTheScreen();
   expect(screen.queryByLabelText(/Record a coupon/)).toBeNull();
@@ -154,4 +154,29 @@ describe('bond and alternative detail sections', () => {
     expect(screen.queryByText('BOND FACTS')).toBeNull();
     expect(screen.queryByText('IF INTEREST RATES MOVE')).toBeNull();
   });
+});
+
+
+// FINAL mock (mockup-vf/performance-FINAL): holdings sit under their CLASS on the light-green
+// sub-band, each holding's income sits directly beneath it, and every kind of record has a door.
+test('class sub-bands with per-holding income, and the income door exists for a CD account', () => {
+  useStore.setState({
+    assetAccounts: [{
+      asset_id: 'e1', label: 'E*TRADE Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 48704, source: 'connected', last_synced: new Date().toISOString(),
+      positions: [
+        { position_id: 'p1', ticker: 'LCTX', asset_class: 'stock_etf', last_price: 41.45, lots: [{ lot_id: 'l1', shares: 965, cost_per_share: 30 }] },
+        { position_id: 'p2', ticker: 'KEYBANK CD 4.00%', asset_class: 'bond', last_price: 100, lots: [{ lot_id: 'l2', shares: 87, cost_per_share: 100 }] },
+      ],
+    }],
+    transactions: [
+      { account_id: 'e1', type: 'DIVIDEND', ticker: 'LCTX', amount: 120, date: '2026-08-01' },
+      { account_id: 'e1', type: 'INTEREST', amount: 60, date: '2026-07-31' },
+    ],
+  } as any);
+  mockParams = { id: 'e1' };
+  render(<AccountDetailScreen />);
+  expect(screen.getByText('BY CATEGORY & HOLDING')).toBeOnTheScreen();
+  expect(screen.getByText(/Income: \$120 dividends/)).toBeOnTheScreen();
+  expect(screen.getAllByText('Interest').length).toBeGreaterThan(0);
 });

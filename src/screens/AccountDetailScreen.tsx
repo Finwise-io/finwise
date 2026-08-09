@@ -7,6 +7,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { assetClassOf, taxTreatmentOf, ASSET_CLASS_LABEL, valueFreshness, assetKind, benchmarkReturn, accountDisplayNames, accountClassBreakdown, type AssetAccount, sourceWording } from '../domain/assets';
@@ -84,6 +85,19 @@ export default function AccountDetailScreen() {
   // every holding with a readable name, class dot and value; the cash sleeve; each option row.
   const breakdown = accountClassBreakdown(account);
   const breakdownClasses = breakdown ? (Object.keys(breakdown) as (keyof typeof breakdown)[]).filter((k) => breakdown[k] !== 0) : [];
+  // income for a holding = its own ledger rows (never estimated); blank when the broker shared none
+  const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
+  const incomeOf = (rw: any): string => {
+    const tk = String(rw.name ?? '').split(' · ')[0].trim().toUpperCase();
+    const rowsFor = ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
+      && (t.ticker ? String(t.ticker).toUpperCase() === tk : rw.cls !== 'stocks_etf'));
+    const div = rowsFor.filter((t) => t.type === 'DIVIDEND').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+    const int = rowsFor.filter((t) => t.type === 'INTEREST').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+    const parts: string[] = [];
+    if (div > 0) parts.push(`${maskedMoney(Math.round(div))} dividends`);
+    if (int > 0) parts.push(`${maskedMoney(Math.round(int))} interest`);
+    return parts.join(' · ');
+  };
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
@@ -106,11 +120,14 @@ export default function AccountDetailScreen() {
   ].sort((x, y) => Math.abs(y.value) - Math.abs(x.value));
 
   // per-class actions (design: only what makes sense for this account)
+  // FINAL mock (mockup-vf/performance-FINAL): EVERY kind of record has a way in on every account —
+  // money in/out, income received, and (via tradeLink) a buy or sale. Previously bonds offered only
+  // a coupon and cash offered no income door, so a user with a CD had no way to log its interest.
   const actions: ActionType[] =
-    cls === 'cash' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER']
-    : cls === 'stocks_etf' || cls === 'mixed' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'INTEREST']
-    : cls === 'bonds' ? ['COUPON']
-    : [];
+    cls === 'real_estate' || cls === 'personal_property' ? []          // a house takes no deposits
+    : cls === 'cash' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'INTEREST']   // a savings account earns interest
+    : cls === 'bonds' ? ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'COUPON', 'INTEREST']
+    : ['DEPOSIT', 'WITHDRAWAL', 'TRANSFER', 'DIVIDEND', 'INTEREST'];
   // ticker trades and bond/alt buys-sells keep their existing full flows — one recorder each
   const tradeLink = cls === 'stocks_etf' || cls === 'mixed' ? { label: 'Buy / Sell holdings ›', route: '/(tabs)/invest' }
     : cls === 'bonds' ? { label: 'Buy more / Sell this bond ›', route: '/bonds' }
@@ -170,23 +187,38 @@ export default function AccountDetailScreen() {
           <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>
         )}
         {insideRows.length > 0 ? (
-          /* APPROVED: WHAT'S INSIDE · BY TYPE — readable names, class dots, exact-sum note */
+          /* FINAL mock (mockup-vf/performance-FINAL): holdings sit UNDER their class, on the same
+             light-green sub-band the Net-worth groups use; each holding carries its own income
+             beneath it — income belongs to the holding that earned it, not to the class. */
           <View style={s.optBlock}>
-            <Text style={s.optHdr}>WHAT'S INSIDE · BY TYPE</Text>
-            {insideRows.map((rw) => (
-              <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
-                accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
-                onPress={() => (rw as any).posId && router.push(`/holding-detail?account=${account.asset_id}&position=${(rw as any).posId}` as any)}
-                accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${(rw as any).posId ? '. Opens its page.' : ''}`}>
-                <View style={[s.insideDot, { backgroundColor: rw.color }]} />
-                <View style={{ flex: 1 }}>
-                  <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
-                  {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+            <SectionBand inCard title="BY CATEGORY & HOLDING" />
+            {(['stocks_etf', 'bonds', 'cash', 'alternatives'] as const).map((k) => {
+              const inClass = insideRows.filter((rw: any) => rw.cls === k);
+              if (!inClass.length) return null;
+              const total = inClass.reduce((t: number, rw: any) => t + (rw.value || 0), 0);
+              return (
+                <View key={k}>
+                  <SectionBand light title={`${ASSET_CLASS_LABEL[k]}`} value={maskedMoney(Math.round(total))} />
+                  {inClass.map((rw: any) => (
+                    <View key={rw.key}>
+                      <TouchableOpacity style={s.insideRow} disabled={!rw.posId}
+                        accessibilityRole={rw.posId ? 'button' : undefined} accessible
+                        onPress={() => rw.posId && router.push(`/holding-detail?account=${account.asset_id}&position=${rw.posId}` as any)}
+                        accessibilityLabel={`${rw.name}${rw.sub ? `, ${rw.sub}` : ''}, ${spokenMoney(Math.abs(rw.value))}${incomeOf(rw) ? `, ${incomeOf(rw)}` : ''}${rw.posId ? '. Opens its page.' : ''}`}>
+                        <View style={[s.insideDot, { backgroundColor: rw.color }]} />
+                        <View style={{ flex: 1 }}>
+                          <Text style={s.optLabel} numberOfLines={2}>{rw.name}</Text>
+                          {!!rw.sub && <Text style={s.insideSub}>{rw.sub}</Text>}
+                        </View>
+                        <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
+                      </TouchableOpacity>
+                      {!!incomeOf(rw) && <Text style={s.incomeLine}>Income: {incomeOf(rw)}</Text>}
+                    </View>
+                  ))}
                 </View>
-                <Text style={s.optVal}>{maskedMoney(rw.value)}</Text>
-              </TouchableOpacity>
-            ))}
-            <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden.</Text>
+              );
+            })}
+            <Text style={s.optNote}>Counted inside this account's total — listed here so nothing is hidden. Income sits with the holding that earned it.</Text>
           </View>
         ) : tickers.length > 0 ? (
           <Text style={s.holdsLine}>Holds: {tickers.slice(0, 3).join(' · ')}{tickers.length > 3 ? ` · +${tickers.length - 3}` : ''}</Text>
@@ -564,6 +596,7 @@ const s = StyleSheet.create({
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   optVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  incomeLine: { fontSize: 11, color: Colors.textSecondary, paddingLeft: 20, paddingBottom: 6, marginTop: -2 },
   optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },
   maturedTitle: { fontSize: 15, fontWeight: '800', color: Colors.amber },
