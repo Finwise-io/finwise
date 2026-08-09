@@ -286,3 +286,24 @@ test('change line: NO percent before the cash+investments history exists', () =>
   render(<NetWorthScreen />);
   expect(screen.queryByText(/on cash \+ investments/)).toBeNull();
 });
+
+// FINAL mock (mockup-vf/networth-FINAL, founder-approved 2026-08-04): what you own is grouped into
+// Cash · Investments · Personal property; each group bar carries its total and collapses.
+test('WHAT YOU OWN shows the three uber-groups with their totals, classes inside', () => {
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [
+      { asset_id: 'c1', label: 'Chase Checking', kind: 'checking', tax_bucket: 'CASH', balance: 8838, target_return: 0 },
+      { asset_id: 's1', label: 'Vanguard Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 348495, target_return: 0.07 },
+      { asset_id: 'h1', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, target_return: 0 },
+    ],
+    liabilities: [],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/▾ 💵 Cash/)).toBeOnTheScreen();
+  expect(screen.getByText(/▾ 📈 Investments/)).toBeOnTheScreen();
+  expect(screen.getByText(/▾ 🏠 Personal property/)).toBeOnTheScreen();
+  // group totals ride their bars — Investments equals the invested total by definition
+  expect(screen.getAllByText('$348,495').length).toBeGreaterThan(0);
+  expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();
+});

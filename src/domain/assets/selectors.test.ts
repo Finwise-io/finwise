@@ -130,3 +130,29 @@ describe('wrapperAccount — maps the held-in wrapper to kind + tax bucket', () 
     expect(wrapperAccount(undefined)).toEqual({ kind: 'brokerage', tax_bucket: 'TAXABLE' });
   });
 });
+
+// THE THREE UBER-GROUPS (founder-approved final mock, mockup-vf/networth-FINAL): Cash ·
+// Investments · Personal property, with the asset classes as rows inside each.
+describe('uberGroupRows — the Net-worth screen grouping', () => {
+  const { uberGroupRows, uberGroupOf } = require('./index');
+  const rows = [
+    { key: 'cash', label: 'Cash', color: '#1baf7a', total: 8838 },
+    { key: 'bonds', label: 'Bonds & CDs', color: '#4a3aa7', total: 5819 },
+    { key: 'stocks_etf', label: 'Stocks / ETFs', color: '#2a78d6', total: 348495 },
+    { key: 'real_estate', label: 'Real estate', color: '#eda100', total: 450000 },
+  ];
+  test('three groups in order, each summing its classes', () => {
+    const g = uberGroupRows(rows);
+    expect(g.map((x: any) => x.label)).toEqual(['Cash', 'Investments', 'Personal property']);
+    expect(g.map((x: any) => x.total)).toEqual([8838, 354314, 450000]);
+    expect(g.reduce((t: number, x: any) => t + x.total, 0)).toBe(813152);   // = what you own
+  });
+  test('every class maps to exactly one group — Investments is the Performance set', () => {
+    expect(uberGroupOf('cash')).toBe('cash');
+    for (const k of ['stocks_etf', 'bonds', 'alternatives', 'mixed']) expect(uberGroupOf(k)).toBe('investments');
+    for (const k of ['real_estate', 'personal_property']) expect(uberGroupOf(k)).toBe('property');
+  });
+  test('a group with no classes is omitted rather than shown as $0', () => {
+    expect(uberGroupRows([rows[0]]).map((x: any) => x.label)).toEqual(['Cash']);
+  });
+});

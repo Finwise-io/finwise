@@ -13,7 +13,7 @@ import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints, investableChangePct } from '../domain/history';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
-import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind } from '../domain/assets';
+import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup } from '../domain/assets';
 import { buildDebtState, debtKind, TOXIC_APR, Debt } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { plannedMonthlySpend } from '../domain/budget';
@@ -139,7 +139,9 @@ export default function NetWorthScreen() {
   const [invGroup, setInvGroup] = useState<'type' | 'account'>('type');
   const [expanded, setExpanded] = useState(false);        // legacy editors section (kept for edit flows)
   const [showAllClassRows, setShowAllClassRows] = useState<Record<string, boolean>>({});
-  const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});   // v4: per-class expand, default collapsed
+  const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});
+  // FINAL mock (mockup-vf/networth-FINAL): the three uber-groups, collapsible, remembered per session
+  const [openUber, setOpenUber] = useState<Record<string, boolean>>({ cash: true, investments: true, property: true });   // v4: per-class expand, default collapsed
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
   // Walk row 8 (v7 FINAL, audit Home·NW #13): the inventory grouping — class is the approved default
   const [nwGrouping, setNwGrouping] = useState<'class' | 'institution' | 'type'>('class');
@@ -181,6 +183,57 @@ export default function NetWorthScreen() {
   const scrollToClass = (cls: AssetClass) => {
     const target = ASSET_SECTIONS.find((sec) => assets.some((a) => sectionOf(a) === sec && assetClassOf(a) === cls));
     if (target) scrollToSection(target);
+  };
+
+  // ONE class-row renderer — used inside every uber-group (and by the legacy path), so a row can
+  // never look different depending on where it is drawn.
+  const renderClassRow = (r: { key: AssetClass; label: string; color: string; total: number }, i: number) => {
+    const members = assets
+      .map((a) => {
+        const b = accountClassBreakdown(a);
+        const portion = b ? b[r.key] : assetClassOf(a) === r.key ? (a.balance || 0) : 0;
+        return { a, portion, split: !!b };
+      })
+      .filter((m) => m.portion !== 0)
+      .sort((x, y) => y.portion - x.portion);
+    // approved v4 rule kept: a LONE class auto-expands — hiding the only account behind a tap
+    // would obscure, not glance.
+    const isOpen = classRows.length === 1 || !!openClasses[r.key];
+    const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
+    return (
+      <View key={r.key} style={i > 0 ? styles.divider : undefined}>
+        <TouchableOpacity style={styles.row} accessibilityRole="button"
+          onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
+          accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
+          <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
+          <View style={[styles.dot, { backgroundColor: r.color }]} />
+          <View style={{ flex: 1 }}>
+            <Text style={styles.rowTitle}>{r.label}</Text>
+            {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
+          </View>
+          <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
+        </TouchableOpacity>
+        {shownMembers.map(({ a, portion, split }) => (
+          <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
+            onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
+            accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
+            <View style={{ flex: 1 }}>
+              <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
+              {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
+              <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
+            </View>
+            <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
+            <Text style={styles.acctChev}>›</Text>
+          </TouchableOpacity>
+        ))}
+        {isOpen && members.length > 5 && !showAllClassRows[r.key] && (
+          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
+            accessibilityLabel={`Show all ${members.length} ${r.label} accounts`}>
+            <Text style={styles.acctMore}>all {members.length} ›</Text>
+          </TouchableOpacity>
+        )}
+      </View>
+    );
   };
 
   // ── shared section renderers (used by both the manager and the guided wizard) ──
@@ -515,52 +568,21 @@ export default function NetWorthScreen() {
           {/* v4 mock APPROVED 2026-07-19: class rows expand/collapse (default collapsed, caret ▸/▾
               word+motion never color alone); a lone class auto-expands — hiding the only account
               behind a tap would obscure, not glance. */}
-          {nwGrouping === 'class' && classRows.map((r, i) => {
-            // APPROVED v6: connected accounts appear under EACH class they hold, with just that
-            // slice; whole accounts appear once under their class. Larger slices first.
-            const members = assets
-              .map((a) => {
-                const b = accountClassBreakdown(a);
-                const portion = b ? b[r.key] : assetClassOf(a) === r.key ? (a.balance || 0) : 0;
-                return { a, portion, split: !!b };
-              })
-              .filter((m) => m.portion !== 0)
-              .sort((x, y) => y.portion - x.portion);
-            const isOpen = classRows.length === 1 || !!openClasses[r.key];
-            const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
+          {/* FINAL mock: classes sit INSIDE the three uber-groups (Cash · Investments · Personal
+              property). The group bar carries its own total and collapses; a closed group says how
+              many rows are behind it. Investments == the Performance total, by definition. */}
+          {nwGrouping === 'class' && uberGroupRows(classRows).map((g) => {
+            const gOpen = openUber[g.group] !== false;
+            const inner = g.classes.length;
             return (
-              <View key={r.key} style={i > 0 ? styles.divider : undefined}>
-                <TouchableOpacity style={styles.row} accessibilityRole="button"
-                  onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
-                  accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
-                  <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
-                  <View style={[styles.dot, { backgroundColor: r.color }]} />
-                  <View style={{ flex: 1 }}>
-                    <Text style={styles.rowTitle}>{r.label}</Text>
-                    {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
-                  </View>
-                  <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
+              <View key={g.group}>
+                <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
+                  onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
+                  accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${inner} ${inner === 1 ? 'category' : 'categories'}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
+                  <SectionBand light title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${inner} ${inner === 1 ? 'category' : 'categories'}`}`}
+                    value={maskedMoney(Math.round(g.total))} />
                 </TouchableOpacity>
-                {shownMembers.map(({ a, portion, split }) => (
-                  <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
-                    onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
-                    accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
-                      {split && <Text style={styles.acctRowSub}>{classPortionLabel(a, r.key)}</Text>}
-                      {/* mock #3 APPROVED: provenance at a glance, one chip per account row */}
-                      <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
-                    </View>
-                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
-                    <Text style={styles.acctChev}>›</Text>
-                  </TouchableOpacity>
-                ))}
-                {isOpen && members.length > 5 && !showAllClassRows[r.key] && (
-                  <TouchableOpacity accessibilityRole="button" onPress={() => setShowAllClassRows((m) => ({ ...m, [r.key]: true }))}
-                    accessibilityLabel={`Show all ${members.length} ${r.label} accounts`}>
-                    <Text style={styles.acctMore}>all {members.length} ›</Text>
-                  </TouchableOpacity>
-                )}
+                {gOpen && g.classes.map((r, i) => renderClassRow(r, i))}
               </View>
             );
           })}

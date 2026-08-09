@@ -567,3 +567,35 @@ function prettyDay(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
   return `${MONTH_ABBR[(m || 1) - 1]} ${d}, ${y}`;
 }
+
+
+// ── THE THREE UBER-GROUPS (founder-approved final mock, mockup-vf/networth-FINAL) ────────────────
+// The Net-worth screen groups what you own into three plain ideas — Cash · Investments ·
+// Personal property — with the asset CLASSES as rows inside. One map, so the screen, the totals
+// and any future surface can never disagree about which class belongs where.
+// Investments == the Performance tab's total, by definition (agreement-pinned).
+export type UberGroup = 'cash' | 'investments' | 'property';
+export const UBER_LABEL: Record<UberGroup, string> = {
+  cash: 'Cash', investments: 'Investments', property: 'Personal property',
+};
+export const UBER_ICON: Record<UberGroup, string> = { cash: '💵', investments: '📈', property: '🏠' };
+export const UBER_ORDER: UberGroup[] = ['cash', 'investments', 'property'];
+const CLASS_UBER: Record<AssetClass, UberGroup> = {
+  cash: 'cash',
+  stocks_etf: 'investments', bonds: 'investments', alternatives: 'investments', mixed: 'investments',
+  real_estate: 'property', personal_property: 'property',
+};
+export const uberGroupOf = (cls: AssetClass): UberGroup => CLASS_UBER[cls] ?? 'investments';
+
+/** Group per-class totals into the three uber-groups, keeping class order inside each. */
+export function uberGroupRows(
+  classRows: { key: AssetClass; label: string; color: string; total: number }[],
+): { group: UberGroup; label: string; icon: string; total: number; classes: typeof classRows }[] {
+  return UBER_ORDER.map((group) => {
+    const classes = classRows.filter((r) => uberGroupOf(r.key) === group);
+    return {
+      group, label: UBER_LABEL[group], icon: UBER_ICON[group],
+      total: round2(classes.reduce((t, r) => t + r.total, 0)), classes,
+    };
+  }).filter((g) => g.classes.length > 0);
+}
