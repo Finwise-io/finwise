@@ -7,6 +7,8 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { DataGapsBanner } from '../components/DataGapsBanner';
+import { dataGaps } from '../domain/gaps';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
@@ -453,6 +455,9 @@ export default function NetWorthScreen() {
     const deltaText = changeThisYear == null ? null
       : Math.round(changeThisYear) === 0 ? `no change ${sinceLabel}`
       : `${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} ${sinceLabel}${pctText}`;
+    // FINAL mock: the missing-data banner — computed against the SAME window the change line
+    // above it reports, so the depth check can never imply older income sits inside the change.
+    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any);
     // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
@@ -514,6 +519,9 @@ export default function NetWorthScreen() {
             );
           })()}
         </View>
+
+        {/* FINAL mock: the banner sits INLINE under the hero — never a pop-up */}
+        <DataGapsBanner gaps={gaps} />
 
         {/* Walk row 7 (v7 FINAL + doc, Home·NW #15): one calm projection line from the Plan.
             With a computable plan it carries the number; without one it's the plain approved link. */}

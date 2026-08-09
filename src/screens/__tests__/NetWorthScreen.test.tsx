@@ -307,3 +307,32 @@ test('WHAT YOU OWN shows the three uber-groups with their totals, classes inside
   expect(screen.getAllByText('$348,495').length).toBeGreaterThan(0);
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();
 });
+
+// FINAL mock: the missing-data banner is INLINE on the screen (never a pop-up) and exists ONLY
+// while a promised number is incomplete.
+test('banner appears with the gap named — and is absent when the data is complete', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [{
+      asset_id: 'e1', label: 'E*TRADE Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 40000, target_return: 0.07, source: 'connected', last_synced: '2026-07-01T09:00:00Z',
+      positions: [{ position_id: 'p1', ticker: 'LCTX', shares: 965, price: null, kind: 'stocks_etf' }],
+    }],
+    liabilities: [], transactions: [],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/numbers? needs? more information/)).toBeOnTheScreen();
+  expect(screen.getByText(/LCTX has no price today/)).toBeOnTheScreen();
+
+  useStore.setState({
+    assetAccounts: [{
+      asset_id: 'e1', label: 'E*TRADE Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 40000, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`,
+      positions: [{ position_id: 'p1', ticker: 'LCTX', shares: 965, price: 41.45, kind: 'stocks_etf' }],
+    }],
+    transactions: [{ account_id: 'e1', type: 'DIVIDEND' }],
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.queryByText(/numbers? needs? more information/)).toBeNull();   // complete data → NO banner at all
+});
