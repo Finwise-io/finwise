@@ -68,3 +68,27 @@ describe('investableChangePct — % on cash + investments only', () => {
     expect(investableChangePct({ '2026-08-02': 'x' as any }, 363152, '2026-08-02')).toBeNull();
   });
 });
+
+// THE CHANGE WALK (founder structure, 2026-08-04): rows always sum to the ending value.
+describe('buildChangeWalk', () => {
+  const { buildChangeWalk } = require('./history');
+  test('the founder mock reconciles exactly', () => {
+    const w = buildChangeWalk({ beginning: 393042, ending: 395152, fromLabel: 'Aug 3', toLabel: 'Aug 4',
+      contributions: 500, withdrawals: 500, dividends: 1220, interest: 430, debtPrincipal: 200 });
+    expect(w.wealthGenerated).toBe(1910);
+    expect(w.marketChange).toBe(260);                                    // the residual, never a guess
+    expect(w.beginning + w.contributions - w.withdrawals + w.wealthGenerated + w.debtPrincipal).toBe(w.ending);
+  });
+  test('with no ledger detail the whole move sits in change-in-value — still sums', () => {
+    const w = buildChangeWalk({ beginning: 100000, ending: 101500, fromLabel: 'Jul 1', toLabel: 'Aug 1' });
+    expect(w.wealthGenerated).toBe(1500);
+    expect(w.dividends + w.interest).toBe(0);
+    expect(w.marketChange).toBe(1500);
+    expect(w.beginning + w.wealthGenerated).toBe(w.ending);
+  });
+  test('a fall reconciles too (negative wealth generated)', () => {
+    const w = buildChangeWalk({ beginning: 100000, ending: 98000, fromLabel: 'Jul 1', toLabel: 'Aug 1', contributions: 1000 });
+    expect(w.wealthGenerated).toBe(-3000);
+    expect(w.beginning + w.contributions + w.wealthGenerated).toBe(w.ending);
+  });
+});

@@ -336,3 +336,25 @@ test('banner appears with the gap named — and is absent when the data is compl
   render(<NetWorthScreen />);
   expect(screen.queryByText(/numbers? needs? more information/)).toBeNull();   // complete data → NO banner at all
 });
+
+// FINAL mock State E: tapping the change opens the walk sheet — the same card design as the
+// Performance walk, with the net-worth wording and the debt-principal line, rows summing exactly.
+test('tapping the change opens the walk sheet and its rows reach the ending net worth', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 401000, target_return: 0.07 }],
+    liabilities: [],
+    nwDaily: { '2026-01-02': 400000, [today]: 401000 },
+    invDaily: { '2026-01-02': 400000 },
+    transactions: [{ account_id: 'b1', type: 'DIVIDEND', amount: 600, date: '2026-06-01' }],
+  } as any);
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByLabelText(/Opens what drove this change/));
+  expect(screen.getByText(/How .* became /)).toBeOnTheScreen();
+  expect(screen.getByText('Wealth generated')).toBeOnTheScreen();
+  expect(screen.getByText('Dividends')).toBeOnTheScreen();
+  expect(screen.getByText('Debt principal you paid')).toBeOnTheScreen();
+  expect(screen.getByText(/Ending net worth/)).toBeOnTheScreen();      // "net worth", never "market value"
+  expect(screen.getByText(/Contributions are not a gain/)).toBeOnTheScreen();
+});

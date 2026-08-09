@@ -8,11 +8,12 @@ import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { DataGapsBanner } from '../components/DataGapsBanner';
+import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
 import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { trendPoints, investableChangePct } from '../domain/history';
+import { trendPoints, investableChangePct, buildChangeWalk } from '../domain/history';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup } from '../domain/assets';
@@ -143,7 +144,8 @@ export default function NetWorthScreen() {
   const [showAllClassRows, setShowAllClassRows] = useState<Record<string, boolean>>({});
   const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});
   // FINAL mock (mockup-vf/networth-FINAL): the three uber-groups, collapsible, remembered per session
-  const [openUber, setOpenUber] = useState<Record<string, boolean>>({ cash: true, investments: true, property: true });   // v4: per-class expand, default collapsed
+  const [openUber, setOpenUber] = useState<Record<string, boolean>>({ cash: true, investments: true, property: true });
+  const [walkOpen, setWalkOpen] = useState(false);   // the change tap → the walk sheet (final mock State E)   // v4: per-class expand, default collapsed
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
   // Walk row 8 (v7 FINAL, audit Home·NW #13): the inventory grouping — class is the approved default
   const [nwGrouping, setNwGrouping] = useState<'class' | 'institution' | 'type'>('class');
@@ -458,6 +460,18 @@ export default function NetWorthScreen() {
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
     const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any);
+    // FINAL mock State E: tapping the change opens the walk. Built from the SAME window the line
+    // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
+    const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);
+    const led = ((store.transactions ?? []) as any[]).filter(inWindow);
+    const sumOf = (type: string) => led.filter((t) => t.type === type).reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+    const changeWalk = janPoint && changeThisYear != null ? buildChangeWalk({
+      beginning: janPoint.nw, ending: nw.net_worth,
+      fromLabel: sinceLabel.replace(/^since /, '') || 'the start',
+      toLabel: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+      contributions: sumOf('DEPOSIT'), withdrawals: sumOf('WITHDRAWAL'),
+      dividends: sumOf('DIVIDEND'), interest: sumOf('INTEREST'), debtPrincipal: sumOf('DEBT_PAYMENT'),
+    }) : null;
     // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
@@ -486,9 +500,12 @@ export default function NetWorthScreen() {
             Math.round(changeThisYear) === 0 ? (
               <Text style={styles.glanceDelta}>{deltaText}</Text>
             ) : (
-              <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
-                {changeThisYear >= 0 ? '▲' : '▼'} {deltaText}
-              </Text>
+              <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
+                accessibilityLabel={`${deltaText}. Opens what drove this change.`}>
+                <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
+                  {changeThisYear >= 0 ? '▲' : '▼'} {deltaText} ›
+                </Text>
+              </TouchableOpacity>
             )
           ) : (
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
@@ -521,6 +538,7 @@ export default function NetWorthScreen() {
         </View>
 
         {/* FINAL mock: the banner sits INLINE under the hero — never a pop-up */}
+        <ChangeWalkSheet visible={walkOpen} onClose={() => setWalkOpen(false)} walk={changeWalk} />
         <DataGapsBanner gaps={gaps} />
 
         {/* Walk row 7 (v7 FINAL + doc, Home·NW #15): one calm projection line from the Plan.

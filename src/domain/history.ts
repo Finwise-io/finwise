@@ -129,3 +129,35 @@ export function investableChangePct(
   if (typeof base !== 'number' || !(base > 0)) return null;
   return Math.round(((currentInvestable - base) / base) * 1000) / 10;
 }
+
+/** THE CHANGE WALK (founder-approved final mock, 2026-08-04) — what drove the net-worth change,
+ *  in the founder's structure. The rows ALWAYS sum to the ending value, by construction:
+ *  beginning + contributions − withdrawals + wealth generated + debt principal = ending.
+ *  Wealth generated splits into dividends + interest + change in investment value; whatever the
+ *  ledger cannot explain lands in that last line rather than being silently dropped. */
+export interface ChangeWalk {
+  fromLabel: string; toLabel: string;
+  beginning: number; contributions: number; withdrawals: number;
+  wealthGenerated: number; dividends: number; interest: number; marketChange: number;
+  debtPrincipal: number; ending: number;
+}
+export function buildChangeWalk(args: {
+  beginning: number; ending: number; fromLabel: string; toLabel: string;
+  contributions?: number; withdrawals?: number; dividends?: number; interest?: number; debtPrincipal?: number;
+}): ChangeWalk {
+  const contributions = Math.max(0, args.contributions ?? 0);
+  const withdrawals = Math.max(0, args.withdrawals ?? 0);
+  const dividends = Math.max(0, args.dividends ?? 0);
+  const interest = Math.max(0, args.interest ?? 0);
+  const debtPrincipal = Math.max(0, args.debtPrincipal ?? 0);
+  const total = round2(args.ending - args.beginning);
+  // the residual IS market movement — the walk must reach the ending value exactly
+  const wealthGenerated = round2(total - contributions + withdrawals - debtPrincipal);
+  const marketChange = round2(wealthGenerated - dividends - interest);
+  return {
+    fromLabel: args.fromLabel, toLabel: args.toLabel,
+    beginning: round2(args.beginning), contributions, withdrawals,
+    wealthGenerated, dividends, interest, marketChange, debtPrincipal,
+    ending: round2(args.ending),
+  };
+}
