@@ -9,7 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
 import { buildChangeWalk } from '../domain/history';
-import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
+import { Colors, Spacing, Radii, ChartPalette, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
 import { ASSET_KINDS, assetKind, accountAllowsTicker, assetClassOf, ASSET_CLASS_LABEL, investmentsTotal, type AssetAccount, accountDisplayNames, benchmarkReturn } from '../domain/assets';
@@ -85,6 +85,16 @@ export default function PerformanceScreen() {
   const sinceWord = (iso: string) => `since you bought · ${new Date(`${iso}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
   const anyCapped = rows.some((r) => r.cappedSince != null);
   const portReturn = portfolioPeriodReturn(rows);
+  // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
+  // guess. Same rows/engine as the headline, just run per period, so chips can't disagree with it.
+  const chipReturns = useMemo(() => {
+    const out: Record<string, number | null> = {};
+    for (const p of PERIODS) {
+      const r = p === period ? rows : buildPerformance(positions, priceOf, p, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null);
+      out[p] = portfolioPeriodReturn(r);
+    }
+    return out;
+  }, [rows, period, owned, priceCache, earliestBuyByTicker]);
   const benchPort = portfolioBenchReturn(rows);   // the ONE shared formula Home uses too (walk row 5)
   const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
@@ -206,8 +216,12 @@ export default function PerformanceScreen() {
           {/* PERIOD SELECTOR */}
           <View style={styles.periodRow}>
             {PERIODS.map((p) => (
-              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel={`Show ${p} performance`} onPress={() => setPeriod(p)}>
-                <Text style={[styles.periodT, period === p && styles.periodTOn]}>{p}</Text>
+              <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
+                accessibilityLabel={`Show ${p} performance${chipReturns[p] == null ? ', no data for that window yet' : `, ${pct(chipReturns[p]!)}`}`}
+                onPress={() => setPeriod(p)}>
+                <Text style={[styles.periodT, period === p && styles.periodTOn]}>
+                  {p} {chipReturns[p] == null ? '—' : pct(chipReturns[p]!)}
+                </Text>
               </TouchableOpacity>
             ))}
           </View>
@@ -268,6 +282,58 @@ export default function PerformanceScreen() {
                   </View>
                 </View>
               </>
+            );
+          })()}
+
+          {/* WHAT EACH CATEGORY EARNED (final mock): dollars received in this window, then the
+              rate WITH ITS NAME. Income is ledger-only — a category with no records shows an
+              em-dash, never a false $0. Rows sum to the walk's income lines by construction. */}
+          {rows.length > 0 && (() => {
+            const windowStart = periodStartKey(period);
+            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+            const classOfTicker = (tk: string) => {
+              const r = rows.find((x: any) => String(x.position?.ticker ?? '').toUpperCase() === String(tk ?? '').toUpperCase());
+              return (r?.position?.kind ?? r?.position?.asset_class ?? 'stocks_etf') as string;
+            };
+            const buckets: { key: string; label: string; color: string; earned: number; ret: string }[] = [
+              { key: 'stocks_etf', label: 'Stocks & ETFs', color: ClassMarkColors.stocks_etf, earned: 0, ret: portReturn == null ? '—' : pct(portReturn) },
+              { key: 'bonds', label: 'Bonds & CDs', color: ClassMarkColors.bonds, earned: 0, ret: '—' },
+              { key: 'cash', label: 'Sweep cash', color: ClassMarkColors.cash, earned: 0, ret: '—' },
+            ];
+            for (const t of led) {
+              if (t.type !== 'DIVIDEND' && t.type !== 'INTEREST') continue;
+              const amt = Math.abs(Number(t.amount) || 0);
+              const cls = t.ticker ? classOfTicker(t.ticker) : (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds');
+              const b = buckets.find((x) => x.key === cls) ?? buckets.find((x) => x.key === (t.type === 'DIVIDEND' ? 'stocks_etf' : 'bonds'))!;
+              b.earned += amt;
+            }
+            const shown = buckets.filter((b) => b.earned > 0);
+            const total = shown.reduce((n, b) => n + b.earned, 0);
+            if (!shown.length) return null;                       // nothing received → no table at all
+            return (
+              <View style={styles.card}>
+                <SectionBand inCard title="WHAT EACH CATEGORY EARNED" value={PERIOD_PHRASE[period]} />
+                <View style={styles.catHead}>
+                  <Text style={styles.catHeadL}>CATEGORY</Text>
+                  <Text style={styles.catHeadV}>EARNED</Text>
+                  <Text style={styles.catHeadR}>RETURN</Text>
+                </View>
+                {shown.map((b) => (
+                  <View key={b.key} style={styles.catRow} accessible
+                    accessibilityLabel={`${b.label}, earned ${spokenMoney(Math.round(b.earned))}, return ${b.ret}`}>
+                    <View style={[styles.catDot, { backgroundColor: b.color }]} />
+                    <Text style={styles.catL}>{b.label}</Text>
+                    <Text style={[styles.catV, { color: Colors.gainText }]}>{maskedMoney(Math.round(b.earned))}</Text>
+                    <Text style={styles.catR}>{b.ret}</Text>
+                  </View>
+                ))}
+                <View style={[styles.catRow, styles.walkTotal]}>
+                  <Text style={[styles.catL, { fontWeight: '800', marginLeft: 14 }]}>All categories</Text>
+                  <Text style={[styles.catV, { fontWeight: '800' }]}>{maskedMoney(Math.round(total))}</Text>
+                  <Text style={styles.catR}> </Text>
+                </View>
+                <Text style={styles.sumNote}>Earned = dividends + interest received in this window. A category with no records shows —, never a false $0.</Text>
+              </View>
             );
           })()}
 
@@ -931,6 +997,15 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  catDot: { width: 8, height: 8, borderRadius: 4 },
+  catHead: { flexDirection: 'row', alignItems: 'center', paddingTop: 6, paddingBottom: 2 },
+  catHeadL: { flex: 1, fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  catHeadV: { width: 84, textAlign: 'right', fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  catHeadR: { width: 64, textAlign: 'right', fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.4 },
+  catRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 7, gap: 6 },
+  catL: { flex: 1, fontSize: 13, color: Colors.textPrimary },
+  catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
+  catR: { width: 64, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingTop: 4 },
   trioCell: { minWidth: 96 },
   sumLbl: { fontSize: 11, color: Colors.textSecondary },
@@ -999,7 +1074,7 @@ const styles = StyleSheet.create({
   addBtn: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingVertical: 14, paddingHorizontal: 24, marginTop: 20 },
   addBtnT: { color: Colors.white, fontSize: 15, fontWeight: '800' },
 
-  periodRow: { flexDirection: 'row', gap: 6, marginTop: 12 },
+  periodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
   periodPill: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: Radii.pill, backgroundColor: Colors.cardBg },
   periodPillOn: { backgroundColor: Colors.primary },
   periodT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },

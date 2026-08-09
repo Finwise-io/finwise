@@ -77,7 +77,7 @@ test('the hero (invest-v3/v4 FINAL, 2026-07-19): YOUR RETURN leads with the gain
 
 test('the period chips switch the WHOLE story: 3M relabels the hero kicker', () => {
   render(<PerformanceScreen />);
-  fireEvent.press(screen.getByText('3M'));
+  fireEvent.press(screen.getByLabelText(/Show 3M performance/));   // chips now carry their own return in the label
   expect(screen.getByText(/YOUR RETURN \(PAST 3 MONTHS\)/)).toBeOnTheScreen();
 });
 
@@ -216,3 +216,34 @@ describe('the value walk (founder final mock, 2026-08-04) — where the return c
   });
 });
 
+
+// FINAL mock: chips carry their own window return; the category table shows dollars received with
+// the rate NAMED, and never fakes a $0 for a category with no records.
+describe('period chips + category earnings (final mock, 2026-08-04)', () => {
+  test('each chip states its own return, or an em-dash when that window has no data', () => {
+    render(<PerformanceScreen />);
+    expect(screen.getByLabelText(/Show 1Y performance, [−+]?\d/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Show 3Y performance/)).toBeOnTheScreen();
+  });
+
+  test('the category table sums the ledger income and labels its columns', () => {
+    const today = new Date().toISOString().slice(0, 10);
+    useStore.setState({ transactions: [
+      { account_id: 'brk', type: 'DIVIDEND', ticker: 'VTI', amount: 300, date: today },
+      { account_id: 'brk', type: 'INTEREST', amount: 120, date: today },
+    ] } as any);
+    render(<PerformanceScreen />);
+    expect(screen.getByText('CATEGORY')).toBeOnTheScreen();
+    expect(screen.getByText('EARNED')).toBeOnTheScreen();
+    expect(screen.getAllByText('RETURN').length).toBeGreaterThan(0);   // also appears in the hero kicker
+    expect(screen.getByText('All categories')).toBeOnTheScreen();
+    expect(screen.getByText('$420')).toBeOnTheScreen();                     // 300 + 120, the ledger's own rows
+    expect(screen.getByText(/never a false \$0/)).toBeOnTheScreen();
+  });
+
+  test('with no income records the table is absent entirely (no zero rows)', () => {
+    useStore.setState({ transactions: [] } as any);
+    render(<PerformanceScreen />);
+    expect(screen.queryByText('WHAT EACH CATEGORY EARNED')).toBeNull();
+  });
+});
