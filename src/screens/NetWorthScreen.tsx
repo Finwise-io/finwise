@@ -466,6 +466,12 @@ export default function NetWorthScreen() {
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
           <SectionBand inCard title="YOUR NET WORTH" />
+          {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
+          {(totalAssets > 0 || dState.total_debt_balance > 0) && (
+            <Text style={styles.ownOweTop}>
+              Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))}
+            </Text>
+          )}
           <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
             {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
           </HeroAmount>
@@ -524,10 +530,32 @@ export default function NetWorthScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* WHAT YOU OWN — one row per asset class; tapping jumps to those accounts */}
+        {/* WHAT YOU OWN — the class donut (validated palette, direct-labeled) then the three
+            uber-groups. Donut is centered per the approved final mock; legend names + percents
+            are ON the chart so color is never the only signal (colorblind rule, UX doc). */}
         <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} />
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
+          {classRows.length > 0 && nwGrouping === 'class' && (
+            <View style={styles.donutWrap} accessible
+              accessibilityLabel={`What you own by category: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ')}.`}>
+              <Donut segments={classRows.map((r) => ({ value: r.total, color: r.color }))} size={124} stroke={18}
+                label={`${maskedMoney(Math.round(totalAssets))} of assets`}   /* maskedMoney already hides when balances are hidden */>
+                <Text style={styles.donutLbl}>Assets</Text>
+                <Text style={styles.donutVal}>{store.hideBalances ? '••••' : shortMoney(Math.round(totalAssets))}</Text>
+              </Donut>
+              <View style={styles.donutLegend}>
+                {classRows.map((r) => (
+                  <TouchableOpacity key={r.key} accessibilityRole="button" style={styles.legendItem}
+                    onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: true }))}
+                    accessibilityLabel={`${r.label}, ${pctOf(r.total)} percent, ${spokenMoney(Math.round(r.total))}`}>
+                    <View style={[styles.dot, { backgroundColor: r.color }]} />
+                    <Text style={styles.legendTxt}>{r.label} {pctOf(r.total)}%</Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </View>
+          )}
           {/* Walk row 8 (v7 FINAL): By institution / By type — whole accounts roll up under one
               header (two E*TRADE entries become one E*TRADE group); class view keeps the approved
               expand/collapse with per-class portions. */}
@@ -607,15 +635,11 @@ export default function NetWorthScreen() {
           ))}
         </View>
 
-        {/* the arithmetic, spelled out — the headline is never a mystery number */}
-        <Text style={styles.nwIdentity}>
-          Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))} ={' '}
-          <Text style={{ fontWeight: '800', color: nw.net_worth < 0 ? Colors.red : Colors.textPrimary }}>Net worth {maskedMoney(Math.round(nw.net_worth))}</Text>
-        </Text>
+        {/* the arithmetic now sits ABOVE the hero (final mock) — one place, not two */}
 
         {/* Walk row 8 (v7 FINAL): the grouping pills — the approved mock places them here */}
         <View style={styles.groupPills}>
-          {([['class', 'By class'], ['institution', 'By institution'], ['type', 'By type']] as const).map(([key, label]) => (
+          {([['class', 'By category'], ['institution', 'By institution']] as const).map(([key, label]) => (
             <TouchableOpacity key={key} accessibilityRole="button"
               accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
               style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
@@ -888,6 +912,11 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
 const styles = StyleSheet.create({
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
+  ownOweTop: { fontSize: 13, color: Colors.textSecondary, marginBottom: 2 },
+  donutWrap: { alignItems: 'center', paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)', marginBottom: 6 },
+  donutLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 8 },
+  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, paddingHorizontal: 4 },
+  legendTxt: { fontSize: 11, fontWeight: '600', color: Colors.textPrimary },
   glanceKickerNW: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
   acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 44 },
   classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },

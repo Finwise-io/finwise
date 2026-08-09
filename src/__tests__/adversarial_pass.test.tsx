@@ -93,7 +93,7 @@ test('SEAM add-account→NW math line: property with a mortgage lands on BOTH si
   fireEvent.press(screen.getByLabelText('Save this account'));
   add.unmount();
   render(<NetWorthScreen />);
-  expect(screen.getByText(/Own \$400,000 − Owe \$250,000 =/)).toBeOnTheScreen();
+  expect(screen.getByText(/Own \$400,000 − Owe \$250,000/)).toBeOnTheScreen();   // FINAL mock: above the hero
   expect(screen.getByText('Home mortgage')).toBeOnTheScreen();
 });
 

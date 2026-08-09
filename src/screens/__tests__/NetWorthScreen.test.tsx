@@ -107,7 +107,7 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
   expect(screen.getByText('Cash')).toBeOnTheScreen();          // WHAT YOU OWN class row
   expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class row
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();  // the FCC group header
-  expect(screen.getByText(/Own .* − Owe .* =/)).toBeOnTheScreen();   // the spelled-out math line
+  expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();   // FINAL mock: the math sits ABOVE the hero
 });
 
 test('#14/#10: a wrapper account can be classified by what it HOLDS (no parallel double-counting account)', () => {
@@ -231,24 +231,24 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
     nwSetupChoice: 'self',
   } as any);
 
-  test('the three pills render; By institution rolls both E*TRADE accounts under ONE header', () => {
+  test('TWO pills only (By type removed, founder 2026-08-04); By institution rolls both E*TRADE accounts under ONE header', () => {
     seedTwoEtrade();
     render(<NetWorthScreen />);
-    expect(screen.getByText('By class')).toBeOnTheScreen();
+    expect(screen.getByText('By category')).toBeOnTheScreen();
+    expect(screen.getByText('By institution')).toBeOnTheScreen();
+    expect(screen.queryByText('By type')).toBeNull();                 // the third view is gone
     fireEvent.press(screen.getByText('By institution'));
     expect(screen.getByLabelText(/E\*TRADE, \$100,000, 2 accounts/)).toBeOnTheScreen();   // one header, summed
     expect(screen.getByLabelText(/Chase, \$8,000, 1 account\./)).toBeOnTheScreen();
   });
 
-  test('By type groups by account kind and By class returns to the approved class view', () => {
-    // SUPERSEDED by B47 finding 14 (founder, 2026-08-01): cash-bucket kinds no longer stand as
-    // separate "Checking"/"Savings" headers — they merge under the accountant's honest term.
+  test('By category returns to the uber-grouped class view', () => {
     seedTwoEtrade();
     render(<NetWorthScreen />);
-    fireEvent.press(screen.getByText('By type'));
-    expect(screen.getByLabelText(/Cash and cash equivalents, \$8,000, 1 account\./)).toBeOnTheScreen();
-    fireEvent.press(screen.getByText('By class'));
-    expect(screen.getByText('Cash')).toBeOnTheScreen();               // class rows are back
+    fireEvent.press(screen.getByText('By institution'));
+    fireEvent.press(screen.getByText('By category'));
+    expect(screen.getByText(/▾ 💵 Cash/)).toBeOnTheScreen();          // uber-group bars are back
+    expect(screen.getByText(/▾ 📈 Investments/)).toBeOnTheScreen();
   });
 });
 

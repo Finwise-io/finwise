@@ -596,29 +596,25 @@ describe('B47 finding 13 — the coasting box reads as one honest sentence', () 
 });
 
 // ── B47 finding 14 (founder, 2026-08-01): "by type, cash and cash equivalents is called Savings" ──
-test('finding 14: Net worth By-type rolls every cash-bucket account under "Cash and cash equivalents"', () => {
+test('finding 14 (re-pinned after By-type was removed): every cash-bucket account lands in the ONE Cash group', () => {
   const { fireEvent } = require('@testing-library/react-native');
   useStore.setState({
     hideBalances: false,
     assetAccounts: [
       { asset_id: 's1', label: 'E*TRADE Savings', institution: 'E*TRADE', kind: 'savings', tax_bucket: 'CASH', balance: 20000 },
       { asset_id: 'c1', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 3000 },
-      { asset_id: 'cd1', label: 'Key Bank CD', institution: 'E*TRADE', kind: 'cd', tax_bucket: 'CASH', balance: 10000 },
-      { asset_id: 'b1', label: 'Brokerage', institution: 'Fidelity', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 50000 },
+      { asset_id: 'h1', label: 'HYSA', institution: 'Ally', kind: 'hysa', tax_bucket: 'CASH', balance: 5000 },
     ],
   } as any);
   const NetWorthScreen = require('../NetWorthScreen').default;
   render(<NetWorthScreen />);
-  fireEvent.press(screen.getByText('By type'));
-  // ONE merged group carrying the accountant's term, with the summed total
-  expect(screen.getByText('Cash and cash equivalents')).toBeOnTheScreen();
-  expect(screen.getByLabelText(/Cash and cash equivalents, \$33,000, 3 accounts/)).toBeOnTheScreen();
-  // no "Savings" / "Checking" / "CD" group headers — the kinds merged (row names still show)
-  expect(screen.queryByLabelText(/^Savings, \$/)).toBeNull();
-  expect(screen.queryByLabelText(/^Checking, \$/)).toBeNull();
+  // checking + savings + HYSA all sit under ONE Cash uber-group carrying their sum — no
+  // "Checking"/"Savings"/"HYSA" headers anywhere (the honest-merge rule survives the redesign)
+  expect(screen.getByLabelText(/Cash, \$28,000, 1 category/)).toBeOnTheScreen();
+  expect(screen.queryByText('Savings')).toBeNull();
+  expect(screen.queryByText('HYSA')).toBeNull();
 });
 
-// ── Pre-48 audit A3 (PRD F2#2): bonus & one-time income visible and month-editable ──
 test('A3: Cash flow sources list shows the bonus WITH its landing month; the chooser offers Bonus / one-time', () => {
   useStore.setState({
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'flat', flatRate: '25', monthlySpending: '4000', bonusAnnual: '12000', bonusMonth: 3 },
