@@ -188,26 +188,31 @@ test('Build-46 walk row 2: a holding with NO price shows what you paid — never
 });
 
 // r16 (mock return-breakdown-v1, founder-approved 2026-08-03): the four where-it-came-from lines
-describe('return breakdown — where the return came from', () => {
-  test('with ledger rows in the window: lines render and sum to the period total by construction', () => {
-    const yr = new Date().getFullYear();
-    useStore.setState({
-      transactions: [
-        { id: 'd1', type: 'DIVIDEND', ticker: 'NVDA', amount: 430, date: `${yr}-06-01`, account_id: 'brk' },
-        { id: 'i1', type: 'INTEREST', amount: 120, date: `${yr}-06-15`, account_id: 'brk' },
-      ],
-    } as any);
-    const PerformanceScreen = require('../PerformanceScreen').default;
+describe('the value walk (founder final mock, 2026-08-04) — where the return came from', () => {
+  test('the walk renders in the approved order and its rows reach the ending value', () => {
+    useStore.setState({ transactions: [
+      { account_id: 'b1', type: 'DIVIDEND', amount: 300, date: new Date().toISOString().slice(0, 10) },
+      { account_id: 'b1', type: 'INTEREST', amount: 120, date: new Date().toISOString().slice(0, 10) },
+    ] } as any);
     render(<PerformanceScreen />);
-    expect(screen.getByText('Price change (on paper)')).toBeOnTheScreen();
+    expect(screen.getByText(/HOW .* BECAME /)).toBeOnTheScreen();
+    expect(screen.getByText(/Beginning market value/)).toBeOnTheScreen();
+    expect(screen.getByText('Contributions')).toBeOnTheScreen();
+    expect(screen.getByText('Withdrawals')).toBeOnTheScreen();
+    expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);   // trio + walk row
     expect(screen.getByText('Dividends')).toBeOnTheScreen();
     expect(screen.getByText('Interest')).toBeOnTheScreen();
-    expect(screen.getByText(/The lines always sum to the total/)).toBeOnTheScreen();
+    expect(screen.getByText('Change in investment value')).toBeOnTheScreen();
+    expect(screen.getByText('Ending market value (today)')).toBeOnTheScreen();   // "market value" here — it is true on this tab
   });
-  test('sparse honesty: with no realized/dividend/interest rows, no zero-lines are faked', () => {
-    const PerformanceScreen = require('../PerformanceScreen').default;
+
+  test('the summary trio states the window rule in plain words', () => {
     render(<PerformanceScreen />);
-    expect(screen.queryByText('Dividends')).toBeNull();
-    expect(screen.getByText(/All price change so far/)).toBeOnTheScreen();
+    expect(screen.getByText('Ending value')).toBeOnTheScreen();
+    expect(screen.getAllByText('Wealth generated').length).toBeGreaterThan(0);
+    expect(screen.getByText('Return')).toBeOnTheScreen();
+    expect(screen.getByText(/not a yearly rate/)).toBeOnTheScreen();
+    expect(screen.getByText(/Money you added never counts as return/)).toBeOnTheScreen();
   });
 });
+

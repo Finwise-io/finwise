@@ -6,6 +6,9 @@ import Svg, { Path, Line } from 'react-native-svg';
 import { DateField } from '../components/DateField';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { DataGapsBanner } from '../components/DataGapsBanner';
+import { dataGaps } from '../domain/gaps';
+import { buildChangeWalk } from '../domain/history';
 import { Colors, Spacing, Radii, ChartPalette } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -126,6 +129,14 @@ export default function PerformanceScreen() {
   const laggards = ranked.filter((x) => x.gain < 0).slice(-2);
   const winners = ranked.filter((x) => x.gain >= 0).slice(0, 3);
   const [listMode, setListMode] = useState<'top' | 'all' | 'account'>('top');
+  // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it
+  const periodStartKey = (p: string): string => {
+    const d = new Date();
+    const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '3Y': 36 };
+    if (p === 'YTD') return `${d.getFullYear()}-01-01`;
+    d.setMonth(d.getMonth() - (months[p] ?? 12));
+    return d.toISOString().slice(0, 10);
+  };
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '3Y': 'past 3 years' };
   const freshLine = (() => {
     const f = priceFreshness(store.pricesFetchedAt, Date.now());
@@ -201,6 +212,65 @@ export default function PerformanceScreen() {
             ))}
           </View>
 
+          {/* FINAL mock (mockup-vf/performance-FINAL, founder-approved 2026-08-04): the SUMMARY trio
+              and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
+              can never disagree; the walk's rows sum to the ending value by construction. */}
+          {rows.length > 0 && (() => {
+            const windowStart = periodStartKey(period);
+            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+            const sumOf = (type: string) => led.filter((t) => t.type === type).reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+            const contributions = sumOf('DEPOSIT');
+            const withdrawals = sumOf('WITHDRAWAL');
+            const ending = investTotalAll;
+            const beginning = ending - periodDollar - contributions + withdrawals;
+            const walk = buildChangeWalk({
+              beginning, ending, fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
+              contributions, withdrawals, dividends: breakdown.dividends, interest: breakdown.interest,
+            });
+            const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any);
+            return (
+              <>
+                <View style={styles.card}>
+                  <SectionBand inCard title={`SUMMARY · ${PERIOD_PHRASE[period].toUpperCase()}`} />
+                  <View style={styles.trioRow}>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(ending))}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (portReturn ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{portReturn == null ? '—' : pct(portReturn)}</Text></View>
+                  </View>
+                  <Text style={styles.sumNote}>
+                    Return is for the window you picked ({PERIOD_PHRASE[period]}) — not a yearly rate. Money you added never counts as return.
+                  </Text>
+                </View>
+
+                <DataGapsBanner gaps={gaps} />
+
+                <View style={styles.card}>
+                  <SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))}`} />
+                  {[
+                    { l: `Beginning market value (${PERIOD_PHRASE[period]} start)`, v: walk.beginning },
+                    { l: 'Contributions', v: walk.contributions },
+                    { l: 'Withdrawals', v: -walk.withdrawals },
+                    { l: 'Wealth generated', v: walk.wealthGenerated, strong: true },
+                    { l: 'Dividends', v: walk.dividends, indent: true },
+                    { l: 'Interest', v: walk.interest, indent: true },
+                    { l: 'Change in investment value', v: walk.marketChange, indent: true },
+                  ].map((r) => (
+                    <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
+                      <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
+                      <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
+                        {r.v < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(r.v)))}
+                      </Text>
+                    </View>
+                  ))}
+                  <View style={[styles.walkRow, styles.walkTotal]}>
+                    <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
+                    <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(walk.ending))}</Text>
+                  </View>
+                </View>
+              </>
+            );
+          })()}
+
           {/* PORTFOLIO VALUE hero (founder mock 2026-07-15): the level first, the period gain
               second, then the NAMED honest comparison + the freshness clock — one card, one story */}
           {rows.length > 0 && <View style={styles.card} accessible
@@ -215,17 +285,8 @@ export default function PerformanceScreen() {
               <Text style={{ color: periodDollar >= 0 ? Colors.gainText : Colors.red }}>{periodDollar >= 0 ? '▲ up ' : '▼ down '}{maskedMoney(Math.abs(Math.round(periodDollar)))}</Text>
               <Text style={styles.glancePct}>  ({pct(portReturn)})</Text>
             </HeroAmount>
-            {(breakdown.realized !== 0 || breakdown.dividends !== 0 || breakdown.interest !== 0) ? (
-              <View style={styles.bdBlock}>
-                <View style={styles.bdRow}><Text style={styles.bdL}>Price change (on paper)</Text><Text style={styles.bdV}>{breakdown.price >= 0 ? '＋' : '−'}{maskedMoney(Math.abs(breakdown.price))}</Text></View>
-                {breakdown.realized !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Realized on sales</Text><Text style={styles.bdV}>{breakdown.realized >= 0 ? '＋' : '−'}{maskedMoney(Math.abs(breakdown.realized))}</Text></View>}
-                {breakdown.dividends !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Dividends</Text><Text style={styles.bdV}>＋{maskedMoney(breakdown.dividends)}</Text></View>}
-                {breakdown.interest !== 0 && <View style={styles.bdRow}><Text style={styles.bdL}>Interest</Text><Text style={styles.bdV}>＋{maskedMoney(breakdown.interest)}</Text></View>}
-                <Text style={styles.bdNote}>The lines always sum to the total. Ledger rows only; nothing estimated.</Text>
-              </View>
-            ) : (
-              <Text style={styles.bdNote}>All price change so far — sales, dividends and interest lines appear as your ledger earns them.</Text>
-            )}
+            {/* the old inline breakdown was SUPERSEDED by the value walk above (founder's
+                approved structure) — one concept, one place. */}
             <View style={styles.honestBlock}>
               <SectionBand inCard title="HONEST COMPARISON" />
               {benchPort != null && (
@@ -870,6 +931,15 @@ export function HistorySheet({ open, transactions, accounts, onClose, onDelete }
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
   headRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
+  trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingTop: 4 },
+  trioCell: { minWidth: 96 },
+  sumLbl: { fontSize: 11, color: Colors.textSecondary },
+  sumValBig: { fontSize: 20, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
+  sumNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 4, lineHeight: 15 },
+  walkRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 6 },
+  walkL: { flex: 1, fontSize: 13, color: Colors.textPrimary, paddingRight: 16 },
+  walkV: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'], minWidth: 92, textAlign: 'right' },
+  walkTotal: { borderTopWidth: 1, borderTopColor: Colors.bgTertiary, marginTop: 4, paddingTop: 10 },
   eyebrow: { fontSize: 11, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5 },
   investTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, flex: 1 },
   heroValue: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, marginTop: 2 },
