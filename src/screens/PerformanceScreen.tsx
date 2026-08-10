@@ -88,9 +88,14 @@ export default function PerformanceScreen() {
   const portReturn = portfolioPeriodReturn(rows);
   // FINAL mock: every chip shows ITS OWN return — a window with no data shows an em-dash, never a
   // guess. Same rows/engine as the headline, just run per period, so chips can't disagree with it.
+  // the earliest day we actually have data for — the mock's "Since <date>" chip
+  const dataStartLabel = useMemo(() => {
+    const keys = Object.keys((store.invDaily ?? {}) as Record<string, number>).filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).sort();
+    return keys.length ? new Date(`${keys[0]}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : null;
+  }, [store.invDaily]);
   const chipReturns = useMemo(() => {
     const out: Record<string, number | null> = {};
-    for (const p of PERIODS) {
+    for (const p of [...PERIODS, 'SINCE' as any]) {
       const r = p === period ? rows : buildPerformance(positions, priceOf, p, new Date(), (q) => earliestBuyByTicker[q.ticker.trim().toUpperCase()] ?? null);
       out[p] = portfolioPeriodReturn(r);
     }
@@ -194,7 +199,11 @@ export default function PerformanceScreen() {
         <HiddenBalancesBanner />
       {/* Invest (FCC glance-then-drill): title + refresh; the grouped list below owns the total */}
       <View style={styles.headRow}>
-        <Text style={styles.investTitle}>Performance</Text>
+        <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+          <Text style={styles.investTitle}>Performance</Text>
+          {/* the mock puts today's date on the header row, right-aligned */}
+          <Text style={styles.headDate}>{new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}</Text>
+        </View>
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={loading ? 'Refreshing prices' : 'Refresh prices'} onPress={refresh} disabled={loading}>
           <Text style={styles.refresh}>{loading ? 'Updating…' : '↻ Refresh'}</Text>
         </TouchableOpacity>
@@ -211,6 +220,18 @@ export default function PerformanceScreen() {
            with honest zeros. Nothing hides, nothing is invented, nothing moves position later. */
         <View>
           <View style={styles.periodRow}>
+            {/* the mock's leading chip is the DATA-START window — an honest "since you connected"
+                option that no fixed period can express (and it is the default when history is young) */}
+            {dataStartLabel && (
+              <TouchableOpacity style={[styles.periodPill, (period as string) === 'SINCE' && styles.periodPillOn]}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
+                accessibilityLabel={`Show performance since ${dataStartLabel}`}
+                onPress={() => setPeriod('SINCE' as any)}>
+                <Text style={[styles.periodT, (period as string) === 'SINCE' && styles.periodTOn]}>
+                  Since {dataStartLabel} {chipReturns['SINCE'] == null ? '—' : pct(chipReturns['SINCE']!)}
+                </Text>
+              </TouchableOpacity>
+            )}
             {PERIODS.map((p) => (
               <View key={p} style={[styles.periodPill, p === period && styles.periodPillOn]}>
                 <Text style={[styles.periodT, p === period && styles.periodTOn]}>{p} —</Text>
@@ -259,6 +280,18 @@ export default function PerformanceScreen() {
         <>
           {/* PERIOD SELECTOR */}
           <View style={styles.periodRow}>
+            {/* the mock's leading chip is the DATA-START window — an honest "since you connected"
+                option that no fixed period can express (and it is the default when history is young) */}
+            {dataStartLabel && (
+              <TouchableOpacity style={[styles.periodPill, (period as string) === 'SINCE' && styles.periodPillOn]}
+                hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
+                accessibilityLabel={`Show performance since ${dataStartLabel}`}
+                onPress={() => setPeriod('SINCE' as any)}>
+                <Text style={[styles.periodT, (period as string) === 'SINCE' && styles.periodTOn]}>
+                  Since {dataStartLabel} {chipReturns['SINCE'] == null ? '—' : pct(chipReturns['SINCE']!)}
+                </Text>
+              </TouchableOpacity>
+            )}
             {PERIODS.map((p) => (
               <TouchableOpacity key={p} style={[styles.periodPill, period === p && styles.periodPillOn]} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button"
                 accessibilityLabel={`Show ${p} performance${chipReturns[p] == null ? ', no data for that window yet' : `, ${pct(chipReturns[p]!)}`}`}
@@ -1117,6 +1150,7 @@ const styles = StyleSheet.create({
   catL: { flex: 1, fontSize: 13, color: Colors.textPrimary },
   catV: { width: 84, textAlign: 'right', fontSize: 13, fontWeight: '700', fontVariant: ['tabular-nums'] },
   catR: { width: 64, textAlign: 'right', fontSize: 13, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  headDate: { fontSize: 11, color: Colors.textSecondary },
   trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, paddingTop: 4 },
   trioCell: { minWidth: 96 },
   sumLbl: { fontSize: 11, color: Colors.textSecondary },
