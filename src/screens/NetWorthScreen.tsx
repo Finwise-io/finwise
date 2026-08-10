@@ -576,7 +576,7 @@ export default function NetWorthScreen() {
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
           {/* the mock's second line: the TRUE date the change is measured from — never "as of today" */}
-          <Text style={styles.glanceDelta}>{sinceDate ? `since ${sinceDate}` : 'tracking starts today'}</Text>
+          {sinceDate != null && <Text style={styles.glanceDelta}>since {sinceDate}</Text>}
           {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
               banner below already names stale accounts with a fix button; saying it twice is noise. */}
           {series.length >= 2 && (() => {
