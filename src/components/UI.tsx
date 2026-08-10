@@ -171,10 +171,12 @@ export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string })
   const def = GLOSSARY[term];
   return (
     <>
-      <TouchableOpacity onPress={() => setOpen(true)} hitSlop={{ top: 14, bottom: 14, left: 14, right: 14 }}
-        accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}>
-        <Text style={{ fontSize: 13, color: color || Colors.textTertiary, fontWeight: '700' }}>ⓘ</Text>
-      </TouchableOpacity>
+      {/* a pressable Text, deliberately NOT a Touchable: info dots often sit inside tappable
+          cards, and a button nested in a button is invalid DOM on web (the browser re-parents it
+          and scrambles the card). Text.onPress works on native and web alike. */}
+      <Text onPress={() => setOpen(true)} suppressHighlighting
+        accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}
+        style={{ fontSize: 13, color: color || Colors.textTertiary, fontWeight: '700', paddingHorizontal: 6, paddingVertical: 4 }}>ⓘ</Text>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <TouchableOpacity style={styles.infoBackdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.infoCard} onStartShouldSetResponder={() => true}>
