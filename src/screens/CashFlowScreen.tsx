@@ -314,7 +314,7 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
   return (
     <>
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>YOUR SOURCES</Text>
+        <SectionBand title="YOUR SOURCES" />
         {sources.length === 0 && <Text style={styles.note}>No income set up yet.</Text>}
         {sources.map((sc) => (
           <View key={sc.label} style={styles.row}>
@@ -340,14 +340,14 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
         </TouchableOpacity>
       </View>
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>RECEIVED · {ym}</Text>
+        <SectionBand title={`RECEIVED · ${ym}`} />
         {received.length === 0 && <Text style={styles.note}>Nothing logged for this month yet.</Text>}
         {received.slice(0, 6).map((i: any) => (
           <Row key={i.id} label={`${String(i.date).slice(5)} · ${i.source || i.type || 'Income'}`} value={`+${maskedMoney(Math.round(Number(i.amount) || 0))}`} color={Colors.gainText} />
         ))}
       </View>
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>COMING SOON</Text>
+        <SectionBand title="COMING SOON" />
         <View style={styles.door}>
           <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank</Text><Text style={styles.doorSub}>paychecks appear on their own</Text></View>
           <Text style={styles.soonPill}>SOON</Text>
@@ -376,7 +376,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
       {(expenses ?? []).length === 0 ? (
         /* day one — the three doors (approved §A), never an empty list */
         <View style={styles.card}>
-          <Text style={styles.cardHdr}>GET YOUR SPENDING IN</Text>
+          <SectionBand title="GET YOUR SPENDING IN" />
           <View style={styles.door}>
             <View style={{ flex: 1 }}><Text style={styles.doorT}>Connect your bank or card</Text><Text style={styles.doorSub}>every transaction, automatically</Text></View>
             <Text style={styles.soonPill}>SOON</Text>
@@ -393,7 +393,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
         </View>
       ) : (
         <View style={styles.card}>
-          <Text style={styles.cardHdr}>{monthWord.toUpperCase()} · {maskedMoney(Math.round(spent))} SPENT</Text>
+          <SectionBand title={`${monthWord.toUpperCase()} · ${maskedMoney(Math.round(spent))} SPENT`} />
           {monthExp.length === 0 && <Text style={styles.note}>Nothing logged for this month.</Text>}
           {monthExp.slice(0, 6).map((e: any) => (
             <View key={e.id} style={styles.row}>
@@ -422,7 +422,7 @@ function SpendingTab({ grid, offset, expenses, ym, bva, monthWord }: { grid: any
 
       {(bva?.buckets ?? []).some((b: any) => (b.planned || 0) > 0) && (
         <View style={styles.card}>
-          <Text style={styles.cardHdr}>BY CATEGORY VS PLAN</Text>
+          <SectionBand title="BY CATEGORY VS PLAN" />
           {(bva.buckets as any[]).filter((b) => (b.planned || 0) > 0).map((b) => (
             <Row key={b.key} label={BUCKET_WORDS[b.key] ?? b.key}
               value={`${maskedMoney(Math.round(b.spent || 0))} of ${maskedMoney(Math.round(b.planned || 0))}`}
@@ -470,7 +470,7 @@ function BigTicketRadar({ grid, offset, expenses, ym }: { grid: any; offset: num
   if (bills.length === 0 && oneOffs.length === 0) return null;
   return (
     <View style={styles.card}>
-      <Text style={styles.cardHdr}>BIG-TICKET RADAR</Text>
+      <SectionBand title="BIG-TICKET RADAR" />
       {bills.map((b: any, i: number) => (
         <Row key={`b${i}`} label={`${b.label ?? 'Big bill'} · due ${cell.label}`} value={maskedMoney(Math.round(b.amount))} color={Colors.amber} />
       ))}
@@ -573,7 +573,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
   return (
     <>
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>THIS MONTH</Text>
+        <SectionBand title="THIS MONTH" />
         {(() => { const free = committed > 0 ? surplus - committed : surplus; return (
           <>
             <HeroAmount style={[styles.heroNum, { color: free >= 0 ? Colors.gainText : Colors.red }]} accessible
@@ -613,7 +613,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
       {projection && (
         <TouchableOpacity accessibilityRole="button" style={styles.projCard} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>
-          <Text style={styles.cardHdr}>YOUR FUTURE PAYCHECK</Text>
+          <SectionBand title="YOUR FUTURE PAYCHECK" />
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
           <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}

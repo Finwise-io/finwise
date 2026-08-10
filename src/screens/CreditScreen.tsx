@@ -4,6 +4,7 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput } from 'react-native';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { creditUtilization, creditScoreBand, type Debt } from '../domain/debt';
@@ -75,7 +76,7 @@ export default function CreditScreen() {
       </View>
 
       {/* habits */}
-      <Text style={styles.section}>WHAT MOVES YOUR SCORE</Text>
+      <SectionBand title="WHAT MOVES YOUR SCORE" />
       {HABITS.map((h) => (
         <View key={h.title} style={styles.habit}>
           <Text style={styles.habitIcon}>{h.icon}</Text>

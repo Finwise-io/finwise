@@ -679,7 +679,7 @@ export default function NetWorthScreen() {
             card, word + icon always; no spending captured → a door, never a made-up number */}
         {monthlySpend > 0 && runwayMonths != null ? (
           <View style={styles.card}>
-            <Text style={styles.kickerSm}>EMERGENCY CUSHION</Text>
+            <SectionBand title="EMERGENCY CUSHION" />
             <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
               <Text style={styles.cushionMonths}>{(Math.round(runwayMonths * 10) / 10).toFixed(1)} months</Text>
               <Text style={[styles.cushionWord, { color: runwayMonths < 3 ? Colors.amber : Colors.gainText }]}>
@@ -692,7 +692,7 @@ export default function NetWorthScreen() {
         ) : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" style={styles.card} onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
-            <Text style={styles.kickerSm}>EMERGENCY CUSHION</Text>
+            <SectionBand title="EMERGENCY CUSHION" />
             <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
             <Text style={styles.link}>Answer one question in Cash flow ›</Text>
           </TouchableOpacity>

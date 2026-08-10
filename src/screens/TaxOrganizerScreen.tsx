@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, TextInput } from 'react-native';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { taxOrganizer, type TaxOrganizer } from '../domain/planning';
@@ -49,7 +50,7 @@ export default function TaxOrganizerScreen() {
 
       {/* PRD F9#14: filing status + optional flat state rate — every tax ESTIMATE in the app
           (withholding, Roth, capital gains, the RMD drag) reads these two answers */}
-      <Text style={styles.section}>HOW YOU FILE</Text>
+      <SectionBand title="HOW YOU FILE" />
       <View style={styles.card}>
         <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
           {([['single', 'Single'], ['married', 'Married, filing jointly'], ['hoh', 'Head of household']] as const).map(([v, label]) => {
@@ -74,7 +75,7 @@ export default function TaxOrganizerScreen() {
       </View>
 
       {/* income */}
-      <Text style={styles.section}>INCOME</Text>
+      <SectionBand title="INCOME" />
       <View style={styles.card}>
         {org.income.map((l) => (
           <View key={l.label} style={styles.row}>
@@ -90,7 +91,7 @@ export default function TaxOrganizerScreen() {
       {/* contributions */}
       {org.contributions.length > 0 && (
         <>
-          <Text style={styles.section}>RETIREMENT CONTRIBUTIONS</Text>
+          <SectionBand title="RETIREMENT CONTRIBUTIONS" />
           <View style={styles.card}>
             {org.contributions.map((c) => <View key={c.label} style={styles.row}><Text style={styles.rowL}>{c.label}</Text><Text style={styles.rowV}>{money(c.amount)}</Text></View>)}
           </View>
@@ -108,7 +109,7 @@ export default function TaxOrganizerScreen() {
       )}
 
       {/* documents */}
-      <Text style={styles.section}>DOCUMENTS TO GATHER</Text>
+      <SectionBand title="DOCUMENTS TO GATHER" />
       <View style={styles.card}>
         {org.documents.map((d) => <Text key={d} style={styles.doc}>•  {d}</Text>)}
       </View>

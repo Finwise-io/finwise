@@ -4,6 +4,7 @@
 // nothing is recomputed differently here (r24: same row object, no recomputation).
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import Svg, { Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -157,7 +158,7 @@ export default function HoldingDetailScreen() {
           </>
         ) : hasPrice ? (
           <>
-            <Text style={s.kicker}>CURRENT PRICE{fresh.stale ? '' : ' · LIVE'}</Text>
+            <SectionBand title={`CURRENT PRICE${fresh.stale ? '' : ' · LIVE'}`} />
             <Text style={s.big}>{money(row.price as number)}</Text>
             {dayChange != null && (
               <Text style={[s.gainLine, { color: dayChange.d >= 0 ? Colors.gainText : Colors.red }]}>
@@ -206,7 +207,7 @@ export default function HoldingDetailScreen() {
       {hasPrice && !closed && (row.periodReturn != null && row.benchReturn != null ? (
         <View style={s.card} accessible
           accessibilityLabel={`Versus the stock market, same dates: your return ${row.periodReturn >= 0 ? 'up' : 'down'} ${Math.abs(Math.round(row.periodReturn * 1000) / 10)} percent, the market ${Math.abs(Math.round(row.benchReturn * 1000) / 10)} percent, you are ${(row.beatBy ?? 0) >= 0 ? 'ahead' : 'behind'} by ${Math.abs(Math.round((row.beatBy ?? 0) * 1000) / 10)} points`}>
-          <Text style={s.kicker}>VS THE STOCK MARKET · SAME DATES</Text>
+          <SectionBand title="VS THE STOCK MARKET · SAME DATES" />
           <View style={s.tRow}><Text style={s.tL}>{row.cappedSince ? 'Your return since purchase' : `Your return, past ${PERIOD_WORDS[period]}`}</Text><Text style={s.tV}>{pct(row.periodReturn)}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>The market, same dates</Text><Text style={s.tV}>{pct(row.benchReturn)}</Text></View>
           {row.beatBy != null && (
@@ -218,14 +219,14 @@ export default function HoldingDetailScreen() {
         </View>
       ) : (
         <View style={s.card}>
-          <Text style={s.kicker}>VS THE STOCK MARKET</Text>
+          <SectionBand title="VS THE STOCK MARKET" />
           <Text style={s.note}>Not enough price history for a fair comparison — check back as prices fill in.</Text>
         </View>
       ))}
 
       {/* what you bought — r25: the lots ARE the cost basis */}
       <View style={s.card}>
-        <Text style={s.kicker}>WHAT YOU BOUGHT</Text>
+        <SectionBand title="WHAT YOU BOUGHT" />
         {position.lots.map((l) => (
           <TouchableOpacity accessibilityRole="button" key={l.lot_id} style={s.lotRow} onPress={() => setEditOpen(true)}
             accessibilityLabel={`${l.shares} shares at ${spokenMoney(l.cost_per_share)} on ${dateWords(l.purchase_date)}. Opens the editor.`}>
@@ -240,7 +241,7 @@ export default function HoldingDetailScreen() {
       {/* dividends & realized — one card (mock v2); facts from the ledger, zeros said plainly */}
       {hasPrice && !closed && (
         <View style={s.card}>
-          <Text style={s.kicker}>DIVIDENDS & REALIZED</Text>
+          <SectionBand title="DIVIDENDS & REALIZED" />
           <View style={s.tRow}><Text style={s.tL}>Dividends received (12 mo)</Text><Text style={s.tV}>{maskedMoney2(dividends.trailing12)}</Text></View>
           <View style={s.tRow}><Text style={s.tL}>Realized from sales</Text>
             <Text style={s.tV}>{realized.sellsCounted > 0
@@ -255,7 +256,7 @@ export default function HoldingDetailScreen() {
       {/* if you sold today — r26, table grammar; the estimate labeled in real text */}
       {cg && !closed && (
         <View style={s.card}>
-          <Text style={s.kicker}>IF YOU SOLD TODAY</Text>
+          <SectionBand title="IF YOU SOLD TODAY" />
           <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.longGain))}</Text></View>
           {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.shortGain))}</Text></View>}
           {tax != null && tax > 0 && (

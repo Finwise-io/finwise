@@ -5,6 +5,7 @@
 // instead of chatty alerts. Answers persist on tap; there is no Save button to forget.
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore, useMonthlyStats } from '../store/useStore';
 import { Disclaimer } from '../components/Disclaimer';
@@ -60,7 +61,7 @@ export default function JobSafetyScreen() {
 
       {/* 1 · the stability question — calm word cards, selection = ✓ + weight, saved on tap */}
       <View style={s.card}>
-        <Text style={s.kicker}>HOW STEADY IS YOUR INCOME?</Text>
+        <SectionBand title="HOW STEADY IS YOUR INCOME?" />
         <View style={{ gap: 8, marginTop: 8 }}>
           {RISK_OPTIONS.map((opt) => {
             const on = selected === opt.level;
@@ -133,7 +134,7 @@ export default function JobSafetyScreen() {
       {/* 3 · what would close it — a labeled example pace + a real action */}
       {gap > 0 && ess > 0 && (
         <View style={s.card}>
-          <Text style={s.kicker}>WHAT WOULD CLOSE IT</Text>
+          <SectionBand title="WHAT WOULD CLOSE IT" />
           <Text style={s.closeLine}>
             Setting aside <Text style={s.bold}>{money(EXAMPLE_PACE)}/mo</Text> closes the gap in <Text style={s.bold}>{monthsToClose} months</Text> — an example pace, set your own.
           </Text>

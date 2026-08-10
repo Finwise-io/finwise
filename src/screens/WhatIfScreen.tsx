@@ -4,6 +4,7 @@
 // estimate. Prefillable (?addMonthly=) so the 401(k)-room nudge lands here with its number.
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useLocalSearchParams } from 'expo-router';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -90,7 +91,7 @@ export default function WhatIfScreen() {
       {/* the dial only renders when it can actually compute something (a dead control confuses) */}
       {result != null && !result.retired && (
         <View style={s.card}>
-          <Text style={s.cardHdr}>IF YOU SAVE MORE EACH MONTH</Text>
+          <SectionBand title="IF YOU SAVE MORE EACH MONTH" />
           <View style={s.stepperRow}>
             <TouchableOpacity accessibilityRole="button" style={s.stepBtn} onPress={() => setAddMonthly((n) => Math.max(0, n - STEP))}
               accessibilityLabel="Lower the extra monthly amount by $100">
@@ -108,7 +109,7 @@ export default function WhatIfScreen() {
       {/* ABOUT YOU — the two plan basics, asked where they're needed, saved to the ONE plan */}
       {hasAccounts && (
         <View style={s.card}>
-          <Text style={s.cardHdr}>ABOUT YOU — SAVED TO YOUR PLAN</Text>
+          <SectionBand title="ABOUT YOU — SAVED TO YOUR PLAN" />
           <PlanSlider label="Your age" value={age} min={25} max={80}
             onChange={setAge} onSettle={saveAge} onDraggingChange={setSliding} />
           <PlanSlider label="Retire at" value={Math.max(retireAt, age + 1)} min={Math.max(50, age + 1)} max={75}
@@ -138,7 +139,7 @@ export default function WhatIfScreen() {
       ) : result != null && !result.retired ? (
         <View style={s.card} accessible
           accessibilityLabel={`Estimates at age ${result.retireAge}: nest egg ${spokenMoney(result.before.egg)} becomes ${spokenMoney(result.after.egg)}; the chance your money lasts ${result.before.chance} percent becomes ${result.after.chance} percent.`}>
-          <Text style={s.cardHdr}>AT {result.retireAge} (ESTIMATES)</Text>
+          <SectionBand title={`AT ${result.retireAge} (ESTIMATES)`} />
           {/* the payoff leads (audit WI-1): the delta is why the screen exists */}
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 6, flexWrap: 'wrap' }}>
             <Text style={s.deltaHero}>{result.after.egg - result.before.egg >= 0 ? '+' : '\u2212'}{maskedMoney(Math.abs(result.after.egg - result.before.egg))}</Text>

@@ -5,6 +5,7 @@ import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { budgetVsActual } from '../domain/budget';
@@ -65,7 +66,7 @@ export default function MonthDetailScreen() {
 
       {/* money in, with real dates — rows visibly sum */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>MONEY IN</Text>
+        <SectionBand title="MONEY IN" />
         {retired ? (
           <>
             {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
@@ -85,7 +86,7 @@ export default function MonthDetailScreen() {
 
       {/* big dated bills — absence is information, the section never silently disappears */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>BIG BILLS THIS MONTH</Text>
+        <SectionBand title="BIG BILLS THIS MONTH" />
         {bigBills.length === 0 && <Text style={styles.empty}>No big bills this month.</Text>}
         {bigBills.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={`−${maskedMoney(b.amount)}`} />)}
         {retired && (
@@ -98,7 +99,7 @@ export default function MonthDetailScreen() {
 
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
-        <Text style={styles.cardHdr}>REGULAR BILLS</Text>
+        <SectionBand title="REGULAR BILLS" />
         <Text style={styles.cardHdrSub}>{retired ? 'These come out of your safe-to-spend.' : 'Including everyday spending.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}

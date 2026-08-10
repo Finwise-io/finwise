@@ -151,7 +151,7 @@ export default function AccountDetailScreen() {
       {/* B47 finding 7 (APPROVED): the class-only view — the slice you tapped is the question */}
       {classView && breakdown ? (
         <View style={s.card}>
-          <Text style={s.optHdr}>{ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT</Text>
+          <SectionBand title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
           <Text style={s.balance}>{maskedMoney(Math.round((breakdown as any)[classView] || 0))}</Text>
           <Text style={s.classLine}>part of {account.label} · {maskedMoney(account.balance || 0)} total</Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="See the whole account"
@@ -159,7 +159,7 @@ export default function AccountDetailScreen() {
             <Text style={s.linkTxt}>See the whole account ›</Text>
           </TouchableOpacity>
           <View style={s.optBlock}>
-            <Text style={s.optHdr}>THE HOLDINGS · {ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY</Text>
+            <SectionBand title={`THE HOLDINGS · ${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} ONLY`} />
             {insideRows.filter((rw: any) => rw.cls === classView).map((rw) => (
               <TouchableOpacity key={rw.key} style={s.insideRow} disabled={!(rw as any).posId}
                 accessibilityRole={(rw as any).posId ? 'button' : undefined} accessible
@@ -309,7 +309,7 @@ export default function AccountDetailScreen() {
       {/* record activity — the ONE engine, surfaced here per class */}
       {(actions.length > 0 || tradeLink) && (
         <>
-          <Text style={s.section}>RECORD ACTIVITY</Text>
+          <SectionBand title="RECORD ACTIVITY" />
           <View style={s.actionRow}>
             {actions.map((t) => (
               <TouchableOpacity accessibilityRole="button" key={t} style={s.actionBtn} onPress={() => setAction(t)}
@@ -328,7 +328,7 @@ export default function AccountDetailScreen() {
       )}
 
       {/* activity history — the ledger, in plain words with signed effects */}
-      <Text style={s.section}>ACTIVITY</Text>
+      <SectionBand title="ACTIVITY" />
       <View style={s.card}>
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {

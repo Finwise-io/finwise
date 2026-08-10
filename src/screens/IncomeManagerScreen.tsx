@@ -4,6 +4,7 @@
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform , Alert } from 'react-native';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, totalGrossAnnual, SALARY_PERIODS } from '../domain/income';
@@ -80,7 +81,7 @@ export default function IncomeManagerScreen() {
 
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.eyebrow}>YOUR INCOME</Text>
+      <SectionBand title="YOUR INCOME" />
 
       <View style={styles.summary}>
         <Text style={styles.sumVal}>{money(totalAnnual)}</Text>
@@ -88,7 +89,7 @@ export default function IncomeManagerScreen() {
       </View>
 
       {/* RECURRING / STRUCTURED SOURCES */}
-      <Text style={styles.section}>WHAT YOU ENTERED</Text>
+      <SectionBand title="WHAT YOU ENTERED" />
       <View style={styles.card}>
         {sources.map((s: any) => {
           const open = openEditorFor(s.label);
@@ -130,7 +131,7 @@ export default function IncomeManagerScreen() {
       </View>
 
       {/* INVESTMENT INCOME (from the ledger) */}
-      <Text style={styles.section}>INVESTMENT INCOME</Text>
+      <SectionBand title="INVESTMENT INCOME" />
       <View style={styles.card}>
         <View style={styles.row}>
           <View style={{ flex: 1 }}>
@@ -150,7 +151,7 @@ export default function IncomeManagerScreen() {
       </View>
 
       {/* ONE-OFF INCOME */}
-      <Text style={styles.section}>ONE-OFF INCOME</Text>
+      <SectionBand title="ONE-OFF INCOME" />
       <View style={styles.card}>
         {incomes.length === 0 && <Text style={styles.empty}>None logged.</Text>}
         {incomes.map((i: any) => (

@@ -4,6 +4,7 @@ import React, { useMemo, useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore, type Goal } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -77,7 +78,7 @@ export default function GoalsScreen() {
       )}
 
       {/* GOALS */}
-      <Text style={styles.section}>YOUR GOALS</Text>
+      <SectionBand title="YOUR GOALS" />
       {sink.monthly > 0 && !hasSinkingGoal && (
         <View style={styles.suggestCard}>
           <Text style={styles.suggestTitle}>💡 Suggested: a sinking fund</Text>
@@ -143,7 +144,7 @@ export default function GoalsScreen() {
       </TouchableOpacity>
 
       {/* ── DEBT & CREDIT ───────────────────────────────────────── */}
-      <Text style={styles.section}>DEBT & CREDIT</Text>
+      <SectionBand title="DEBT & CREDIT" />
       <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/credit')}>
         <Text style={styles.creditIcon}>📊</Text>
         <View style={{ flex: 1 }}>
@@ -156,7 +157,7 @@ export default function GoalsScreen() {
       {/* STUDENT LOAN OUTLOOK */}
       {loanOutlook.borrowed > 0 && (
         <>
-          <Text style={styles.cardKicker}>STUDENT LOAN OUTLOOK</Text>
+          <SectionBand title="STUDENT LOAN OUTLOOK" />
           <View style={styles.card}>
             <Text style={styles.loanBig}>{money(loanOutlook.borrowed)} <Text style={styles.loanBigSub}>borrowed</Text></Text>
             {loanOutlook.monthly > 0 ? (
@@ -174,7 +175,7 @@ export default function GoalsScreen() {
       {/* DEBT-TO-INCOME */}
       {liabilities.length > 0 && grossMonthly > 0 && (
         <>
-          <Text style={styles.cardKicker}>DEBT-TO-INCOME</Text>
+          <SectionBand title="DEBT-TO-INCOME" />
           <View style={styles.card}>
             <View style={styles.dtiHead}>
               <Text style={[styles.dtiPct, { color: dti.status === 'good' ? Colors.primary : dti.status === 'caution' ? Colors.amber : Colors.red }]}>{Math.round(dti.ratio * 100)}%</Text>
@@ -191,7 +192,7 @@ export default function GoalsScreen() {
       {/* DEBT PAYOFF */}
       {liabilities.length > 0 && (
         <>
-          <Text style={styles.cardKicker}>DEBT PAYOFF PLAN</Text>
+          <SectionBand title="DEBT PAYOFF PLAN" />
           <View style={styles.card}>
             <View style={styles.segRow}>
               <TouchableOpacity style={[styles.seg, method === 'avalanche' && styles.segOn]} onPress={() => setMethod('avalanche')}><Text style={[styles.segT, method === 'avalanche' && styles.segTOn]}>Avalanche</Text><Text style={styles.segSub}>least interest</Text></TouchableOpacity>
@@ -230,7 +231,7 @@ export default function GoalsScreen() {
       )}
 
       {/* ── PREPARE & PROTECT — plan for what's ahead ───────────── */}
-      <Text style={styles.section}>PREPARE & PROTECT</Text>
+      <SectionBand title="PREPARE & PROTECT" />
       <TouchableOpacity style={[styles.creditCard, { marginTop: 0 }]} activeOpacity={0.85} onPress={() => router.push('/insurance')}>
         <Text style={styles.creditIcon}>🛡️</Text>
         <View style={{ flex: 1 }}>

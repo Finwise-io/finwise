@@ -7,6 +7,7 @@
 // labeled. The app never moves money — it records the intention and the numbers.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -125,7 +126,7 @@ export default function RothScreen() {
 
       {/* convert-this-year dial (r36) — capped at the REAL pre-tax balance */}
       <View style={s.card}>
-        <Text style={s.kicker}>CONVERT THIS YEAR</Text>
+        <SectionBand title="CONVERT THIS YEAR" />
         <TextInput style={s.amtInput} keyboardType="number-pad" placeholder="$0" placeholderTextColor={Colors.textTertiary}
           value={amount} onChangeText={setAmount} accessibilityLabel="Amount to convert this year" />
         <Text style={s.note}>from your pre-tax {maskedMoney(Math.round(preTax))}{num(amount) > preTax ? ' — capped at your balance' : ''}</Text>
@@ -143,7 +144,7 @@ export default function RothScreen() {
         <>
           {/* the tax bill now (r37) — estimate, rate visible and changeable */}
           <View style={s.card}>
-            <Text style={s.kicker}>THE COST NOW</Text>
+            <SectionBand title="THE COST NOW" />
             <Text style={s.bigLine}>Tax bill next April: about {maskedMoney(taxCost)}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={() => setRateOpen(!rateOpen)}
               accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'set by you' : 'estimated from your income'}. Tap to change it.`}>
@@ -159,7 +160,7 @@ export default function RothScreen() {
 
           {/* the two later effects (r38) */}
           <View style={s.card}>
-            <Text style={s.kicker}>WHAT IT BUYS LATER</Text>
+            <SectionBand title="WHAT IT BUYS LATER" />
             <Text style={s.line}>Required withdrawals at {RMD_START_AGE}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)} a year smaller</Text></Text>
             <Text style={s.line}>Tax-free bucket: {maskedMoney(Math.round(rothNow))} → <Text style={s.strong}>{maskedMoney(Math.round(rothNow + amt))}</Text></Text>
             <Text style={s.note}>From {RMD_START_AGE} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
@@ -168,7 +169,7 @@ export default function RothScreen() {
           {/* the will-it-last impact (r39) — honest when it barely moves */}
           {before.captured && before.chance != null && after?.chance != null && (
             <View style={s.card}>
-              <Text style={s.kicker}>YOUR MONEY-LASTS ODDS</Text>
+              <SectionBand title="YOUR MONEY-LASTS ODDS" />
               <Text style={s.line}>
                 {before.chance}% → {after.chance}%{Math.abs(after.chance - before.chance) < 2 ? ' — little change. This decision is about taxes, not the odds.' : ''}
               </Text>

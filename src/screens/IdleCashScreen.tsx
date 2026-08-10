@@ -5,6 +5,7 @@ import React from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { cashTotal, assetClassOf, type AssetAccount } from '../domain/assets';
@@ -30,7 +31,7 @@ export default function IdleCashScreen() {
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
       <Text style={styles.fact}>{maskedMoney(total)} of your cash is earning about $0.</Text>
 
-      <Text style={styles.section}>WHERE IT SITS</Text>
+      <SectionBand title="WHERE IT SITS" />
       <View style={styles.card}>
         {cashAccounts.length === 0 && <Text style={styles.rowSub}>No cash accounts recorded yet.</Text>}
         {cashAccounts.map((a: any, i: number) => (
@@ -44,7 +45,7 @@ export default function IdleCashScreen() {
         ))}
       </View>
 
-      <Text style={styles.section}>FOR COMPARISON (ESTIMATES)</Text>
+      <SectionBand title="FOR COMPARISON (ESTIMATES)" />
       <View style={styles.card}>
         <View style={styles.row}>
           <Text style={[styles.rowTitle, { flex: 1 }]}>In high-yield savings (about {(EXAMPLE_RATES.highYieldSavings * 100).toFixed(1)}%)</Text>

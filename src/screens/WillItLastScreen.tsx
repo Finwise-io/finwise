@@ -4,6 +4,7 @@
 // headline is the SAME selector run the hub, Home and Cash flow read — never a second computation.
 import React, { useMemo } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -59,14 +60,14 @@ export default function WillItLastScreen() {
       {/* the headline — the one selector, the one number */}
       <View style={s.card} accessible
         accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.word}, ${wil.chance} percent, an estimate${wil.band ? `. In the worst futures ${wil.band.low} percent, in the best ${wil.band.high} percent` : ''}.`}>
-        <Text style={s.kicker}>WILL MY MONEY LAST? — TO {wil.horizonAge}</Text>
+        <SectionBand title={`WILL MY MONEY LAST? — TO ${wil.horizonAge}`} />
         <Text style={s.headline}>{wil.word} — {wil.chance}% <EstimateTag /></Text>
         {wil.band && <Text style={s.bandTxt}>range {wil.band.low}–{wil.band.high}% across bad-to-good markets</Text>}
       </View>
 
       {/* what the number means — plain English, grade-6 target */}
       <View style={s.card}>
-        <Text style={s.kicker}>WHAT THIS MEANS</Text>
+        <SectionBand title="WHAT THIS MEANS" />
         <Text style={s.body}>
           We play out hundreds of possible market futures — some kind, some rough — using the numbers below.
           In {wil.chance} of every 100 futures, your money lasts to {wil.horizonAge}. It's an honest estimate
@@ -75,7 +76,7 @@ export default function WillItLastScreen() {
       </View>
 
       {/* the drivers — every number sourced, every number changeable */}
-      <Text style={s.section}>WHAT DRIVES THIS</Text>
+      <SectionBand title="WHAT DRIVES THIS" />
       <View style={s.card}>
         {drivers.map((d, i) => (
           <TouchableOpacity accessibilityRole="button" key={d.label} style={[s.driverRow, i > 0 && s.divider]}

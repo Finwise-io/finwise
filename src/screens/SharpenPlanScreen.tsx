@@ -5,6 +5,7 @@ import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
 import { planCompleteness } from '../domain/completeness';
@@ -58,7 +59,7 @@ export default function SharpenPlanScreen() {
       </View>
 
       {/* the fast doors — bring accounts in without typing everything */}
-      <Text style={styles.kicker}>THE FAST WAYS IN</Text>
+      <SectionBand title="THE FAST WAYS IN" />
       {DOORS.map((d) => (
         <TouchableOpacity accessibilityRole="button" accessibilityLabel={`${d.title} ${d.sub}`}
           key={d.route} style={styles.door} onPress={() => router.push(d.route as any)}>
@@ -70,7 +71,7 @@ export default function SharpenPlanScreen() {
         </TouchableOpacity>
       ))}
 
-      <Text style={styles.kicker}>FINISH WHAT YOU SKIPPED</Text>
+      <SectionBand title="FINISH WHAT YOU SKIPPED" />
       {checks.map((c) => (
         <TouchableOpacity accessibilityRole="button" accessibilityState={{ disabled: c.done }}
           accessibilityLabel={`${c.label}${c.done ? ', done' : `, not done. ${c.detail}`}`}

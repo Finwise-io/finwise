@@ -5,6 +5,7 @@
 // Logistics and reminders — the decision of WHEN in the year to take it stays with the user.
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, TextInput, StyleSheet, TouchableOpacity, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -84,7 +85,7 @@ export default function RequiredWithdrawalsScreen() {
 
   const explainer = (
     <View style={s.card}>
-      <Text style={s.kicker}>WHAT THIS IS</Text>
+      <SectionBand title="WHAT THIS IS" />
       <Text style={s.line}>From age {RMD_START_AGE}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
       {preTax > 0 && age != null && !applies && (
         <>
@@ -120,7 +121,7 @@ export default function RequiredWithdrawalsScreen() {
           {/* this year (r45): required · taken · still, one ledger */}
           <View style={s.card} accessible
             accessibilityLabel={`This year: required ${spokenMoney(Math.round(required))}, taken so far ${spokenMoney(Math.round(taken))}, still to take ${spokenMoney(Math.round(still))} by December 31`}>
-            <Text style={s.kicker}>THIS YEAR ({nowYear})</Text>
+            <SectionBand title={`THIS YEAR (${nowYear})`} />
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
             {still <= 0 && <Text style={s.doneTxt}>✓ Done for {nowYear} — nothing left to take.</Text>}
@@ -146,7 +147,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* getting-ready checklist leads for the under-73 visitor (r49/r51) */}
       {preTax > 0 && (
         <View style={s.card}>
-          <Text style={s.kicker}>GETTING READY{applies ? '' : ' FOR ' + RMD_START_AGE}</Text>
+          <SectionBand title={`GETTING READY${applies ? '' : ' FOR ' + RMD_START_AGE}`} />
           {checks.map((c) => (
             <TouchableOpacity accessibilityRole="button" key={c.key} style={s.checkRow} onPress={() => openCheck(c)}
               accessibilityLabel={`${c.label}: ${c.done ? 'done' : 'not yet'}${c.key === 'health' ? '. Opens a short note.' : '. Opens its screen.'}`}>
@@ -162,7 +163,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* year-by-year schedule (r47) — estimates, moving with balances and the divisor table */}
       {schedule.length > 0 && (
         <View style={s.card}>
-          <Text style={s.kicker}>YEAR BY YEAR (ESTIMATES)</Text>
+          <SectionBand title="YEAR BY YEAR (ESTIMATES)" />
           {schedule.slice(0, 8).map((r) => (
             <View key={r.year} style={s.schedRow} accessible
               accessibilityLabel={`${r.year}, age ${r.age}: about ${spokenMoney(Math.round(r.amount))}${r.isCurrent ? ', this year' : ''}`}>
@@ -177,7 +178,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* which accounts (r50): the visible inputs, with the road to fix a wrong tax chip */}
       {preTaxAccts.length > 0 && (
         <View style={s.card}>
-          <Text style={s.kicker}>BASED ON THESE ACCOUNTS</Text>
+          <SectionBand title="BASED ON THESE ACCOUNTS" />
           {preTaxAccts.map((a: any) => (
             <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={s.acctRow}
               onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}

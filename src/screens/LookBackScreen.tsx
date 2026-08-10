@@ -5,6 +5,7 @@
 import React, { useMemo, useState } from 'react';
 import { useLocalSearchParams } from 'expo-router';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, KeyboardAvoidingView, Platform } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
@@ -84,7 +85,7 @@ export default function LookBackScreen() {
       {result ? (
         <View style={s.card} accessible
           accessibilityLabel={`What actually happened: left in ${from} it became ${spokenMoney(result.stayed.endValue)}, ${result.stayed.pct} percent. Moved to ${to} it would be ${spokenMoney(result.moved.endValue)}, ${result.moved.pct} percent. Difference ${spokenMoney(Math.abs(result.difference))} ${result.difference >= 0 ? 'more' : 'less'} if you had moved. Real past prices, not a prediction.`}>
-          <Text style={s.cardHdr}>WHAT ACTUALLY HAPPENED</Text>
+          <SectionBand title="WHAT ACTUALLY HAPPENED" />
           <Text style={s.legLine}>
             Left in {from} it became <Text style={s.strong}>{maskedMoney(result.stayed.endValue)}</Text>
             {'  '}({result.stayed.delta >= 0 ? 'up' : 'down'} {maskedMoney(Math.abs(result.stayed.delta))}, {result.stayed.pct >= 0 ? '+' : ''}{result.stayed.pct}%)

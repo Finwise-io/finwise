@@ -5,6 +5,7 @@
 // quietly assumes no big one-time costs.
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
@@ -39,7 +40,7 @@ export default function BigCostsScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       <Text style={s.tagline}>We lay it out. You decide.</Text>
       <View style={s.card}>
-        <Text style={s.kicker}>YOUR BIG ONE-TIME COSTS</Text>
+        <SectionBand title="YOUR BIG ONE-TIME COSTS" />
         {costs.length === 0 ? (
           <>
             <Text style={s.emptyBody}>A new roof, replacing the car, a family wedding — money that leaves once, in a year you can name. Add it and the odds account for it; leave it out and the plan quietly assumes it never happens.</Text>

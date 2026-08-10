@@ -5,6 +5,7 @@
 // sandbox until the Use-this-plan sheet; adopted commitments then appear on Cash flow by name.
 import React, { useMemo, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, Switch } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -93,7 +94,7 @@ export default function MultiGoalScreen() {
       <Text style={s.banner}>{TRYING_IT_OUT}</Text>
 
       {/* goal dials */}
-      <Text style={s.section}>TRY THESE TOGETHER</Text>
+      <SectionBand title="TRY THESE TOGETHER" />
       <View style={s.card}>
         {dials.length === 0 && (
           <View>
@@ -161,7 +162,7 @@ export default function MultiGoalScreen() {
       {/* verdict — against the canonical capacity (your regular bills are already counted) */}
       <View style={s.card} accessible
         accessibilityLabel={`Can you do it all? ${weighed.covered ? `Covered, with ${spokenMoney(weighed.spare)} a month to spare` : `Short ${spokenMoney(Math.abs(weighed.spare))} a month`}`}>
-        <Text style={s.cardHdr}>CAN YOU DO IT ALL?</Text>
+        <SectionBand title="CAN YOU DO IT ALL?" />
         <Text style={s.hint}>Your regular bills, including the mortgage, are already counted.</Text>
         <Text style={[s.verdict, { color: weighed.covered ? Colors.primary : Colors.red }]}>
           {weighed.covered ? `Covered — ${maskedMoney(weighed.spare)}/mo to spare` : `Short ${maskedMoney(Math.abs(weighed.spare))}/mo`}
@@ -185,7 +186,7 @@ export default function MultiGoalScreen() {
       {before.chance != null && weighed.chance != null && (
         <View style={s.card} accessible
           accessibilityLabel={`Effect on retirement: will-it-last ${before.chance} percent to ${weighed.chance} percent. Estimate, not a promise.`}>
-          <Text style={s.cardHdr}>EFFECT ON RETIREMENT</Text>
+          <SectionBand title="EFFECT ON RETIREMENT" />
           {beforeRetireAge != null && weighed.retireAge != null && (
             <Row label="Earliest retire age" value={`${beforeRetireAge} → ${weighed.retireAge}`} />
           )}
@@ -197,7 +198,7 @@ export default function MultiGoalScreen() {
       {/* trim hints — each one IS a pre-run of the dials, never separate math */}
       {hints.length > 0 && weighed.chance != null && (
         <View style={s.card}>
-          <Text style={s.cardHdr}>WHAT IF YOU TRIM ONE?</Text>
+          <SectionBand title="WHAT IF YOU TRIM ONE?" />
           {hints.map((h) => (
             <TouchableOpacity accessibilityRole="button" key={h.dialId} style={s.hintRow}
               onPress={() => {

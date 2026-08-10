@@ -10,6 +10,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
@@ -274,7 +275,7 @@ export default function RetirementCockpit() {
           <Text style={styles.sandboxTag}>SANDBOX</Text>
         </View>
 
-        <Text style={styles.section}>{scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'}</Text>
+        <SectionBand title={scRetired ? 'ADJUST YOUR PLAN — DRAG TO EXPLORE' : 'WHAT IF? — DRAG TO EXPLORE'} />
         <Text style={styles.note}>{TRYING_IT_OUT}</Text>
 
         {/* HERO — two-up: today → projected at the horizon (reacts to the sliders) */}
@@ -440,7 +441,7 @@ export default function RetirementCockpit() {
   // ───────────────── SCREEN 1 — WHERE YOU STAND ─────────────────
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <Text style={styles.eyebrow}>RETIREMENT · WHERE YOU STAND</Text>
+      <SectionBand title="RETIREMENT · WHERE YOU STAND" />
 
       {/* RETIRED: input-first — WHAT YOU HAVE (nest egg + legacy) then ONE verdict; NON-RETIRED: the two target cards */}
       {isRetired ? (

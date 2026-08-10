@@ -6,6 +6,7 @@
 // honestly with the by-hand path — never a dead end.
 import React, { useEffect, useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, ActivityIndicator, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import * as WebBrowser from 'expo-web-browser';
 import * as Linking from 'expo-linking';
 import { useRouter } from 'expo-router';
@@ -88,7 +89,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
   if (step === 'pick') {
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
-        <Text style={s.kicker}>PICK YOUR BROKERAGE</Text>
+        <SectionBand title="PICK YOUR BROKERAGE" />
         {BROKER_COVERAGE.map((b) => (
           <TouchableOpacity accessibilityRole="button" key={b.slug} style={[s.row, b.tier === 'gated' && { opacity: 0.55 }]}
             disabled={b.tier === 'gated'}
@@ -103,7 +104,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
             <Text style={s.chev}>›</Text>
           </TouchableOpacity>
         ))}
-        <Text style={s.kicker}>NOT CONNECTABLE YET</Text>
+        <SectionBand title="NOT CONNECTABLE YET" />
         {UNSUPPORTED_INSTITUTIONS.map((u) => (
           <View key={u.name} style={s.row}>
             <View style={{ flex: 1 }}>
@@ -123,7 +124,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
         {/* the HONESTY CARD — founder decision 4: what this broker does and does not share */}
         <Text style={s.h2}>{broker.name}</Text>
         <View style={s.card}>
-          <Text style={s.kicker}>WHAT {broker.name.toUpperCase()} SHARES</Text>
+          <SectionBand title={`WHAT ${broker.name.toUpperCase()} SHARES`} />
           {broker.shares.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}
           {broker.cantShare.length > 0 && (
             <>
