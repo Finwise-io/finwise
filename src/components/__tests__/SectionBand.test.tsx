@@ -67,3 +67,12 @@ describe('one type scale + theme colors app-wide', () => {
     expect(offenders).toEqual([]);
   });
 });
+
+// regression (live review 2026-08-10): the dated title + dot must BOTH render — the nested-row
+// layout collapsed the title to nothing on web, leaving only the dot.
+test('a dated title with an info dot renders the FULL title and the dot side by side', () => {
+  render(<SectionBand inCard infoTerm="nwChange" title="YOUR NET WORTH · AUG 10, 2026" value="$355,152" />);
+  expect(screen.getByText('YOUR NET WORTH · AUG 10, 2026')).toBeOnTheScreen();   // full text, one node
+  expect(screen.getByLabelText(/What is How your change/)).toBeOnTheScreen();     // the dot beside it
+  expect(screen.getByText('$355,152')).toBeOnTheScreen();                         // value still right-aligned
+});

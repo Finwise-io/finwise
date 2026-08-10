@@ -13,12 +13,11 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
 }) {
   return (
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
-      {/* the dot hugs the title text (founder 2026-08-10) — never floated to the band's far edge */}
-      <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flex: 1, minWidth: 0 }}>
-        <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1}
-          adjustsFontSizeToFit minimumFontScale={0.75}>{title}</Text>
-        {!!infoTerm && <InfoDot term={infoTerm as any} color={light ? Colors.primaryDeep : Colors.white} />}
-      </View>
+      {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
+          row, because the nested flex collapsed the title to nothing on web. */}
+      <Text style={[s.title, { flex: 0, flexShrink: 1 }, light && s.textLight]} numberOfLines={1}>{title}</Text>
+      {!!infoTerm && <InfoDot term={infoTerm as any} color={light ? Colors.primaryDeep : Colors.white} />}
+      <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}
       {value != null && <Text style={[s.value, light && s.textLight, inCard && { marginRight: inset }]}>{value}</Text>}
