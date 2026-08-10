@@ -514,11 +514,13 @@ export default function NetWorthScreen() {
     // the colour — so "up $0" / "down $0" can never be rendered again by any path.
     // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
     const deltaRounded = changeThisYear == null || !Number.isFinite(changeThisYear) ? null : Math.round(changeThisYear);
-    const deltaZero = deltaRounded === 0 || deltaRounded === null;
-    // the change line carries the MOVE only; the line beneath carries the date (never repeated)
-    const deltaText = changeThisYear == null ? null
-      : deltaZero ? 'no change'
-      : `${deltaRounded! > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded!))}${pctText}`;
+    const deltaZero = deltaRounded === 0;   // a non-finite value renders the tracking line instead
+    // the change line carries the MOVE only; the line beneath carries the date (never repeated).
+    // Founder 2026-08-10: a zero net change still says "$0" and stays TAPPABLE — $0 can hide real
+    // motion (a $500 contribution offset by $500 of spending), and the walk sheet shows exactly that.
+    const deltaText = deltaRounded == null ? null
+      : deltaZero ? `${maskedMoney(0)}${pctText}`
+      : `${deltaRounded > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded))}${pctText}`;
     // the true measured-from date, always with day AND year
     const sinceDate = janPoint
       ? new Date(janPoint.month.length === 7 ? `${janPoint.month}-01T12:00:00` : `${janPoint.month}T12:00:00`)
@@ -563,35 +565,20 @@ export default function NetWorthScreen() {
           </HeroAmount>
           {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
               honest first-day line instead of a bare number when history hasn't built yet */}
-          {changeThisYear != null ? (
-            deltaZero ? (
-              <Text style={styles.glanceDelta}>{deltaText}</Text>
-            ) : (
-              <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
-                accessibilityLabel={`${deltaText}. Opens what drove this change.`}>
-                <Text style={[styles.glanceDelta, { color: deltaZero ? Colors.textSecondary : deltaRounded! > 0 ? Colors.gainText : Colors.red }]}>
-                  {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
-                </Text>
-              </TouchableOpacity>
-            )
+          {deltaText != null ? (
+            <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
+              accessibilityLabel={`${deltaZero ? `No net change — ${deltaText}` : deltaText}. Opens what drove this change.`}>
+              <Text style={[styles.glanceDelta, { color: deltaZero ? Colors.textSecondary : deltaRounded! > 0 ? Colors.gainText : Colors.red }]}>
+                {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
+              </Text>
+            </TouchableOpacity>
           ) : (
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
           {/* the mock's second line: the TRUE date the change is measured from — never "as of today" */}
           <Text style={styles.glanceDelta}>{sinceDate ? `since ${sinceDate}` : 'tracking starts today'}</Text>
-          {(() => {
-            const st = assets
-              .filter((a) => a.source === 'connected')
-              .map((a) => ({ a, f: connectionFreshness(a.last_synced) }))
-              .filter((x) => x.f?.stale)
-              .sort((x, y) => (y.f!.daysOld - x.f!.daysOld))[0];
-            if (!st) return null;
-            const asOf = st.a.last_synced ? new Date(st.a.last_synced).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '—';
-            return (
-              <DotJoined style={[styles.glanceDelta, { color: Colors.amber }]}
-                parts={[`⏱ ${st.a.institution ?? st.a.label} part as of ${asOf} — ${st.f!.daysOld} days old`, 'pull to refresh']} />
-            );
-          })()}
+          {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
+              banner below already names stale accounts with a fix button; saying it twice is noise. */}
           {series.length >= 2 && (() => {
             const vals = series.map((pt) => pt.nw);
             const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;

@@ -214,7 +214,7 @@ test('the validated colorblind-safe palette is adopted, fixed order, same class 
 });
 
 // ── Staleness stamps (mock #4 approved with the founder's left-justified change, 2026-07-31) ──
-test('a 3-day-old connection stamps the Home hero and the Net worth hero; fresh connections stamp nothing', () => {
+test('a 3-day-old connection stamps the Home hero; on Net worth the BANNER carries it (founder 2026-08-10 — the hero stamp was deleted as duplication)', () => {
   const old = new Date(Date.now() - 4 * 86400000).toISOString();
   useStore.setState({
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly' },
@@ -227,7 +227,7 @@ test('a 3-day-old connection stamps the Home hero and the Net worth hero; fresh 
   r1.unmount();
   const NetWorthScreen = require('../NetWorthScreen').default;
   const r2 = render(<NetWorthScreen />);
-  expect(screen.getByText(/⏱ E\*TRADE part as of .* — 4 days old · pull to refresh/)).toBeOnTheScreen();
+  expect(screen.getByText(/E\*TRADE last updated/)).toBeOnTheScreen();   // the banner names the stale account instead
   r2.unmount();
   // fresh: no stamp anywhere
   useStore.setState({ assetAccounts: [{ asset_id: 'e1', label: 'Individual Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100000, source: 'connected', last_synced: new Date().toISOString() }] } as any);

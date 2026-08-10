@@ -274,7 +274,7 @@ test('B45: a young history labels the span HONESTLY — "since Jul 19", never "u
   expect(screen.queryByText(/this year/)).toBeNull();
 });
 
-test('B45: an unchanged young history reads "no change since …", never "up $0"', () => {
+test('B45 + founder 2026-08-10: an unchanged history reads "$0" and stays TAPPABLE (zero can hide offsetting moves) — never "up $0"', () => {
   freshWorker();
   const key = new Date(Date.now() - 5 * 86400e3).toISOString().slice(0, 10);
   useStore.setState({
@@ -282,7 +282,7 @@ test('B45: an unchanged young history reads "no change since …", never "up $0"
     nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText('no change')).toBeOnTheScreen();
+  expect(screen.getByLabelText(/No net change — \$0/)).toBeOnTheScreen();   // tappable: opens the walk
     expect(screen.getByText(/since /)).toBeOnTheScreen();
   expect(screen.queryByText(/up \$0/)).toBeNull();     // the founder's exact complaint ("up $0 this year")
   expect(screen.queryByText(/this year/)).toBeNull();
