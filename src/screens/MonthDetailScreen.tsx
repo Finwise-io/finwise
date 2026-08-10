@@ -59,7 +59,7 @@ export default function MonthDetailScreen() {
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
         accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
-        <Text style={styles.cardHdr}>{retired ? 'SAFE TO SPEND' : 'LEFT OVER'}{isCurrent ? ' · AS OF TODAY' : ''}</Text>
+        <SectionBand title={`${retired ? 'SAFE TO SPEND' : 'LEFT OVER'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>

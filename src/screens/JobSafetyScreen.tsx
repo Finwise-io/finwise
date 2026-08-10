@@ -78,7 +78,7 @@ export default function JobSafetyScreen() {
 
       {/* 2 · the cushion — the gap IS the hero; the math is one readable sentence */}
       <View style={s.card}>
-        <Text style={s.kicker}>{covered ? 'YOUR CUSHION' : 'STILL NEEDED FOR YOUR CUSHION'}</Text>
+        <SectionBand title={covered ? 'YOUR CUSHION' : 'STILL NEEDED FOR YOUR CUSHION'} />
 
         {ess <= 0 ? (
           <>

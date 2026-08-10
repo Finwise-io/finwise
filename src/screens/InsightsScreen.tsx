@@ -3,6 +3,7 @@
 // per-insight detail breakdowns from the store + domain.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Modal, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -168,7 +169,7 @@ export default function InsightsScreen() {
         <View style={styles.card}><Text style={styles.empty}>🎉 Nothing urgent — your plan looks healthy. Keep it up.</Text></View>
       ) : order.filter((t) => insights.some((i) => i.theme === t)).map((t) => (
         <View key={t}>
-          <Text style={styles.groupHdr}>{THEME_META[t].icon}  {THEME_META[t].label.toUpperCase()}</Text>
+          <SectionBand title={`${THEME_META[t].icon}  ${THEME_META[t].label.toUpperCase()}`} />
           {insights.filter((i) => i.theme === t).map((i) => (
             <TouchableOpacity key={i.id} accessibilityRole="button" accessibilityLabel={spokenDollars(i.title)} accessibilityHint="Shows where this number comes from" style={[styles.card, styles.row]} onPress={() => setOpen(i)}>
               <Text style={styles.icon}>{i.icon}</Text>
