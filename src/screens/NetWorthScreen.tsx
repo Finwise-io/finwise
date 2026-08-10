@@ -80,7 +80,7 @@ function Donut({ segments, size = 124, stroke = 16, children, label }: { segment
     <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
       accessible accessibilityRole="image" accessibilityLabel={label}>{/* VoiceOver: summarize the chart */}
       <Svg width={size} height={size} style={{ position: 'absolute' }}>
-        <G rotation={-90} origin={`${size / 2}, ${size / 2}`}>
+        <G transform={`rotate(-90 ${size / 2} ${size / 2})`}>{/* plain SVG transform — the rotation/origin props emit an invalid DOM attribute on web */}
           <Circle cx={size / 2} cy={size / 2} r={r} stroke={Colors.bgTertiary} strokeWidth={stroke} fill="none" />
           {segments.map((s, i) => {
             const dash = (Math.max(0, s.value) / total) * c; const el = (
