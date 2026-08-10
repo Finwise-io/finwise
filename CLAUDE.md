@@ -82,3 +82,19 @@ the founder had approved all of it. Never again.
 ## Workflow
 - Branch `taxonomy-v1.0.7`. Commit per logical change; push when asked. Keep `docs/finwise-bug-ledger.md` current.
 - Device truth: ML Kit has no arm64-sim slice → verify on a real TestFlight build, not the iOS Simulator.
+
+## MOCK-MATCH AUDIT — standing order (2026-08-10, after three false "it matches" reports)
+"Match" = 100% mirror of the approved mock: same elements, words, ORDER, nesting, alignment,
+numbers and flow. A presence check (grep for a component, or a passing text assertion) NEVER
+proves a match and must never be reported as one.
+The only accepted method — full procedure in `docs/MOCK-MATCH-AUDIT-STANDING-ORDER.md`:
+1. Extract EVERY visible string from the mock, in order → that list is the spec.
+2. Render the screen with the founder's real data shape and dump EVERY visible string, in order.
+3. DIFF the two lists. Every different / missing / extra line is a defect until the founder says
+   otherwise. Report a coverage line: "N of N identical; X different; Y missing".
+4. Check what a text diff cannot see: section ORDER · NESTING (nothing duplicated or under the
+   wrong parent) · ALIGNMENT (all numbers on one right edge, band totals included) · DATA REALITY
+   (open it with real data — a rule change must RE-CLASSIFY existing accounts, not just new ones).
+5. State plainly what was NOT verified (appearance: spacing, colour, weight, chart rendering).
+Find every instance of a defect's CLASS before reporting. The founder must never be the one who
+finds the 6th gap.
