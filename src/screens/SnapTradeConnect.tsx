@@ -122,7 +122,7 @@ export default function SnapTradeConnect({ reconnectId }: { reconnectId?: string
     return (
       <ScrollView showsVerticalScrollIndicator={false}>
         {/* the HONESTY CARD — founder decision 4: what this broker does and does not share */}
-        <Text style={s.h2}>{broker.name}</Text>
+        <SectionBand title={broker.name} />
         <View style={s.card}>
           <SectionBand title={`WHAT ${broker.name.toUpperCase()} SHARES`} />
           {broker.shares.map((line) => <Text key={line} style={s.body}>·  {line}</Text>)}

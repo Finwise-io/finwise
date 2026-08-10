@@ -9,6 +9,7 @@ import { useRouter } from 'expo-router';
 import * as DocumentPicker from 'expo-document-picker';
 import { readFileString } from '../services/fileRead';   // T19: supported read path (legacy readAsStringAsync throws at runtime)
 import { useStore } from '../store/useStore';
+import { SectionBand } from '../components/SectionBand';
 import { importHoldings, decodeCsvBase64, matchImportAccount, type ImportResult } from '../domain/import/holdingsImport';
 import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/assets';
 import { newEntityId } from '../domain/_shared/ids';
@@ -162,6 +163,7 @@ export default function ImportHoldingsScreen() {
     return (
       <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <Text style={styles.h1}>Review your holdings</Text>
+      <SectionBand title="REVIEW YOUR HOLDINGS" />
         <Text style={styles.sub}>
           Found <Text style={styles.bold}>{result.holdings.length}</Text> holding{result.holdings.length === 1 ? '' : 's'}
           {result.skipped > 0 ? ` · skipped ${result.skipped} row${result.skipped === 1 ? '' : 's'} we couldn't read` : ''}.
@@ -251,6 +253,7 @@ export default function ImportHoldingsScreen() {
     <ScrollView automaticallyAdjustKeyboardInsets style={styles.root} contentContainerStyle={styles.content}>
       <Text style={styles.emoji}>📄</Text>
       <Text style={styles.h1}>Import your holdings</Text>
+      <SectionBand title="IMPORT YOUR HOLDINGS" />
       <Text style={styles.sub}>
         Upload a CSV export from your brokerage (Fidelity, Schwab, Vanguard, Robinhood, and most others).
         We'll read your tickers, shares, and cost — no logins or passwords.

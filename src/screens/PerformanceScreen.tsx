@@ -50,6 +50,7 @@ export default function PerformanceScreen() {
   const accounts: AssetAccount[] = store.assetAccounts ?? [];
   const priceCache = store.priceCache ?? {};
   const [period, setPeriod] = useState<Period>('1Y');
+  const [openAcctWalk, setOpenAcctWalk] = useState<Record<string, boolean>>({});   // per-account walks (final mock)
   // walk row 17: the concentration callout scrolls to the holdings list (reach-through, wired at last)
   const scrollRef = React.useRef<ScrollView>(null);
   const invListY = React.useRef(0);
@@ -283,6 +284,72 @@ export default function PerformanceScreen() {
                 </View>
               </>
             );
+          })()}
+
+          {/* PER-ACCOUNT WALKS (final mock): the same card, one per account, collapsible — a
+              person with eight accounts sees a list, not an endless scroll. Every account's walk
+              uses the SAME engine as the all-accounts walk, so the parts sum to the whole. */}
+          {rows.length > 0 && (() => {
+            const windowStart = periodStartKey(period);
+            const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
+            const byAcct = new Map<string, { label: string; ending: number; gain: number }>();
+            for (const r of rows as any[]) {
+              const o = owned.find((x) => x.p.position_id === r.position.position_id);
+              if (!o) continue;
+              const acct = accounts.find((a) => a.asset_id === o.accountId);
+              const cur = byAcct.get(o.accountId) ?? { label: acct?.institution?.trim() || acct?.label || 'Account', ending: 0, gain: 0 };
+              cur.ending += r.marketValue; cur.gain += rowGain(r);
+              byAcct.set(o.accountId, cur);
+            }
+            if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
+            return [...byAcct.entries()].map(([id, a]) => {
+              const sumFor = (type: string) => led.filter((t) => t.account_id === id && t.type === type)
+                .reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+              const contributions = sumFor('DEPOSIT'), withdrawals = sumFor('WITHDRAWAL');
+              const w = buildChangeWalk({
+                beginning: a.ending - a.gain - contributions + withdrawals, ending: a.ending,
+                fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
+                contributions, withdrawals, dividends: sumFor('DIVIDEND'), interest: sumFor('INTEREST'),
+              });
+              const isOpen = !!openAcctWalk[id];
+              return (
+                <View key={id} style={styles.card}>
+                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.85}
+                    onPress={() => setOpenAcctWalk((m) => ({ ...m, [id]: !isOpen }))}
+                    accessibilityLabel={`${a.label}, ${spokenMoney(Math.round(a.ending))}. ${isOpen ? 'Collapses' : 'Expands'} its walk.`}>
+                    <SectionBand inCard title={`${isOpen ? '▾' : '▸'} ${a.label}`} value={maskedMoney(Math.round(a.ending))} />
+                  </TouchableOpacity>
+                  {!isOpen ? (
+                    <Text style={styles.sumNote}>
+                      wealth generated {w.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(w.wealthGenerated)))} · tap to see the walk
+                    </Text>
+                  ) : (
+                    <>
+                      {[
+                        { l: 'Beginning market value', v: w.beginning },
+                        { l: 'Contributions', v: w.contributions },
+                        { l: 'Withdrawals', v: -w.withdrawals },
+                        { l: 'Wealth generated', v: w.wealthGenerated, strong: true },
+                        { l: 'Dividends', v: w.dividends, indent: true },
+                        { l: 'Interest', v: w.interest, indent: true },
+                        { l: 'Change in investment value', v: w.marketChange, indent: true },
+                      ].map((r) => (
+                        <View key={r.l} style={[styles.walkRow, (r as any).indent && { paddingLeft: 20 }]}>
+                          <Text style={[styles.walkL, (r as any).indent && { color: Colors.textSecondary }, (r as any).strong && { fontWeight: '800' }]}>{r.l}</Text>
+                          <Text style={[styles.walkV, (r as any).strong && { fontWeight: '800' }, r.v < 0 && { color: Colors.red }]}>
+                            {r.v < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(r.v)))}
+                          </Text>
+                        </View>
+                      ))}
+                      <View style={[styles.walkRow, styles.walkTotal]}>
+                        <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value</Text>
+                        <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(Math.round(w.ending))}</Text>
+                      </View>
+                    </>
+                  )}
+                </View>
+              );
+            });
           })()}
 
           {/* WHAT EACH CATEGORY EARNED (final mock): dollars received in this window, then the

@@ -3,6 +3,7 @@
 // surface alongside Performance (stocks/ETFs) and Bonds.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
 import { DateField } from '../components/DateField';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -37,7 +38,8 @@ export default function OtherInvestmentsScreen() {
 
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text><InfoDot term="alternatives" /></View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Alternatives</Text>
+      <SectionBand title="ALTERNATIVES" /><InfoDot term="alternatives" /></View>
 
       {alts.length === 0 ? (
         <View style={styles.card}>

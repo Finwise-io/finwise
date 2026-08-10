@@ -2,6 +2,7 @@
 // already flow into Net Worth + the nest egg; here we add/edit them and show bond-specific metrics.
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, Platform, Alert, KeyboardAvoidingView } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -41,7 +42,8 @@ export default function BondsScreen() {
 
   return (
     <ScrollView automaticallyAdjustKeyboardInsets style={{ flex: 1, backgroundColor: Colors.bgSecondary }} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
-      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text><InfoDot term="bonds" /></View>
+      <View style={{ flexDirection: 'row', alignItems: 'center' }}><Text style={styles.h1}>Bonds</Text>
+      <SectionBand title="BONDS & CDS" /><InfoDot term="bonds" /></View>
 
       {bonds.length === 0 ? (
         <View style={styles.card}>

@@ -247,3 +247,22 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
     expect(screen.queryByText('WHAT EACH CATEGORY EARNED')).toBeNull();
   });
 });
+
+// FINAL mock: one collapsible walk PER ACCOUNT, using the same engine as the all-accounts walk.
+test('per-account walks: collapsed by default with a one-line summary, expanding to the full walk', () => {
+  const { fireEvent } = require('@testing-library/react-native');
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'a1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q1', ticker: 'NVDA', kind: 'stocks_etf', lots: [{ lot_id: 'm1', shares: 200, cost_per_share: 300, purchase_date: '2024-01-02' }] }] },
+      { asset_id: 'a2', label: 'E*TRADE', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
+        positions: [{ position_id: 'q2', ticker: 'VTI', kind: 'stocks_etf', lots: [{ lot_id: 'm2', shares: 100, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
+    ],
+  } as any);
+  render(<PerformanceScreen />);
+  expect(screen.getByLabelText(/Vanguard, .*Expands its walk/)).toBeOnTheScreen();
+  expect(screen.getAllByText(/tap to see the walk/).length).toBe(2);      // both collapsed by default
+  fireEvent.press(screen.getByLabelText(/Vanguard, .*Expands its walk/));
+  expect(screen.getAllByText('Beginning market value').length).toBeGreaterThan(0);
+  expect(screen.getAllByText('Ending market value').length).toBeGreaterThan(0);
+});
