@@ -98,6 +98,12 @@ export default function AccountDetailScreen() {
     if (int > 0) parts.push(`${maskedMoney(Math.round(int))} interest`);
     return parts.join(' · ');
   };
+  // header trio numbers — the account's own ledger; no estimate ever fills a blank
+  const acctIncome = ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST')
+    .reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+  const acctCost = ((account.positions ?? []) as any[]).reduce((n, p) =>
+    n + ((p.lots ?? []) as any[]).reduce((m: number, l: any) => m + (l.shares || 0) * (l.cost_per_share || 0), 0), 0);
+  const acctReturn = acctCost > 0 ? ((account.balance || 0) - acctCost) / acctCost : null;
   const insideRows = !breakdown ? [] : [
     ...((account.positions ?? []) as any[]).map((p) => {
       const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
@@ -180,6 +186,13 @@ export default function AccountDetailScreen() {
       <View style={s.card} accessible
         accessibilityLabel={`Balance ${spokenMoney(account.balance || 0)}. ${breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]}, ${TAX_WORDS[taxTreatmentOf(account)] ?? ''}${tickers.length ? `. Holds ${tickers.slice(0, 3).join(', ')}${tickers.length > 3 ? ` and ${tickers.length - 3} more` : ''}` : ''}`}>
         <Text style={s.balance}>{maskedMoney(account.balance || 0)}</Text>
+        {/* HEADER TRIO (approved performance-FINAL account portfolio): market value · return ·
+            income. Income is the account's OWN ledger rows — never estimated; a blank stays blank. */}
+        <View style={s.trioRow}>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Market value</Text><Text style={s.trioVal}>{maskedMoney(Math.round(account.balance || 0))}</Text></View>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Return</Text><Text style={s.trioVal}>{acctReturn == null ? '—' : `${acctReturn >= 0 ? '+' : '−'}${Math.abs(acctReturn * 100).toFixed(1)}%`}</Text></View>
+          <View style={s.trioCell}><Text style={s.trioLbl}>Income</Text><Text style={s.trioVal}>{acctIncome > 0 ? maskedMoney(Math.round(acctIncome)) : '—'}</Text></View>
+        </View>
         {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
             what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
         <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
@@ -596,6 +609,10 @@ const s = StyleSheet.create({
   optRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 6 },
   optLabel: { flex: 1, fontSize: 15, fontWeight: '600', color: Colors.textPrimary },
   optVal: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
+  trioRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 16, marginTop: 8 },
+  trioCell: { minWidth: 88 },
+  trioLbl: { fontSize: 11, color: Colors.textSecondary },
+  trioVal: { fontSize: 17, fontWeight: '800', color: Colors.primaryDark, fontVariant: ['tabular-nums'] },
   incomeLine: { fontSize: 11, color: Colors.textSecondary, paddingLeft: 20, paddingBottom: 6, marginTop: -2 },
   optNote: { fontSize: 13, color: Colors.textSecondary, marginTop: 2, lineHeight: 18 },
   maturedCard: { backgroundColor: Colors.amberLight, borderRadius: Radii.md, padding: 12, marginBottom: Spacing.sm },

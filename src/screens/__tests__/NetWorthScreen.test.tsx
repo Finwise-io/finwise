@@ -18,10 +18,20 @@ describe('NetWorthScreen first-run intro', () => {
     useStore.getState().setOnboardingProfile(employedPartner as any);
     render(<NetWorthScreen />);
 
-    expect(screen.getByText("Let's build your net worth")).toBeOnTheScreen();
-    expect(screen.getByText('We\'ll start from what you shared in setup.')).toBeOnTheScreen();
+    // FIRST-DAY = the approved State C: the FULL layout with honest zeros + the ONE app-wide sample
+    expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();
+    expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();
+    expect(screen.getByText('WHAT YOU OWN')).toBeOnTheScreen();
+    expect(screen.getByText('WHAT YOU OWE')).toBeOnTheScreen();
+    expect(screen.getByText('💵 CASH')).toBeOnTheScreen();
+    expect(screen.getByText('📈 INVESTMENTS')).toBeOnTheScreen();
+    expect(screen.getByText('🏠 PERSONAL PROPERTY')).toBeOnTheScreen();
+    expect(screen.getByText('Sample: 84%')).toBeOnTheScreen();                 // identical to Home's
+    expect(screen.getByText(/a sample, not your number/)).toBeOnTheScreen();
+    expect(screen.getByText('🛡️ EMERGENCY CUSHION')).toBeOnTheScreen();
+    expect(screen.getByText('— months')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByText("I'll add my own"));
+    fireEvent.press(screen.getByText('Type it yourself ›'));
 
     const st = useStore.getState();
     expect(st.nwSetupChoice).toBe('self');
@@ -71,8 +81,8 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
     useStore.getState().setOnboardingProfile(newAnswers as any);
 
     render(<NetWorthScreen />);
-    expect(screen.getByText("Let's build your net worth")).toBeOnTheScreen();
-    fireEvent.press(screen.getByText("I'll add my own"));
+    expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();   // State C keeps the full layout
+    fireEvent.press(screen.getByText('Type it yourself ›'));
 
     const accounts = useStore.getState().assetAccounts;
     // B-21: '200000' retirement + explicit '0' holdings → a $0 Investments placeholder too.

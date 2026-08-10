@@ -382,21 +382,59 @@ export default function NetWorthScreen() {
   let body: React.ReactNode;
 
   if (!choice) {
-    // ── first-run: guided vs self ──
+    // ── FIRST DAY — the approved State C (mockup-vf/networth-FINAL, founder rule 2026-08-04):
+    // keep the FULL layout with honest zeros so a new person sees exactly what this screen becomes,
+    // and show THE ONE app-wide retirement sample (identical to Home's) — never a reinvented one.
     body = (
-      <View style={styles.intro}>
-        <Text style={styles.introEmoji}>💎</Text>
-        <Text style={styles.introTitle}>Let's build your net worth</Text>
-        <Text style={styles.introSub}>Add your accounts and debts to see what you're worth — and where your money sits.</Text>
-        <TouchableOpacity style={styles.introPrimary} onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
-          <Text style={styles.introPrimaryTxt}>Guided setup  →</Text>
-          <Text style={styles.introBtnSub}>Walk through each bucket, step by step</Text>
-        </TouchableOpacity>
-        <TouchableOpacity style={styles.introSecondary} onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }}>
-          <Text style={styles.introSecondaryTxt}>I'll add my own</Text>
-          <Text style={styles.introBtnSub2}>Jump straight in and add accounts</Text>
-        </TouchableOpacity>
-        {!!op && <Text style={styles.introNote}>We'll start from what you shared in setup.</Text>}
+      <View>
+        <View style={styles.glanceCard}>
+          <SectionBand inCard title="YOUR NET WORTH" />
+          <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
+          <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
+          <Text style={styles.glanceDelta}>Add your first account and this becomes your one live number</Text>
+        </View>
+
+        <View style={styles.card}>
+          <SectionBand inCard title="YOUR RETIREMENT PLAN" />
+          <Text style={styles.sampleLine}>
+            <Text style={styles.sampleNum}>Sample: 84%</Text> odds of lasting to age 90
+          </Text>
+          <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
+        </View>
+
+        <View style={styles.card}>
+          <SectionBand inCard title="WHAT YOU OWN" value={maskedMoney(0)} />
+          <SectionBand light title="💵 CASH" value={maskedMoney(0)} />
+          <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} />
+          <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} />
+          <TouchableOpacity style={styles.introPrimary} accessibilityRole="button" accessibilityLabel="Connect a brokerage"
+            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/connect-account' as any); }}>
+            <Text style={styles.introPrimaryTxt}>Connect a brokerage ›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.introSecondary} accessibilityRole="button" accessibilityLabel="Add a file from your bank"
+            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/import-holdings' as any); }}>
+            <Text style={styles.introSecondaryTxt}>Add a file from your bank ›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.introSecondary} accessibilityRole="button" accessibilityLabel="Type it yourself"
+            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }}>
+            <Text style={styles.introSecondaryTxt}>Type it yourself ›</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
+            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
+            <Text style={styles.introNote}>or walk through it step by step ›</Text>
+          </TouchableOpacity>
+        </View>
+
+        <View style={styles.card}>
+          <SectionBand inCard title="WHAT YOU OWE" value={maskedMoney(0)} />
+          <Text style={styles.rowSub}>Add a mortgage, card, or loan</Text>
+        </View>
+
+        <View style={styles.card}>
+          <SectionBand inCard title="🛡️ EMERGENCY CUSHION" />
+          <Text style={styles.cushionEmpty}>— months</Text>
+          <Text style={styles.rowSub}>appears with your first cash account + monthly spending</Text>
+        </View>
       </View>
     );
   } else if (choice === 'guided') {
@@ -1046,6 +1084,10 @@ const styles = StyleSheet.create({
   hotPill: { backgroundColor: Colors.redLight, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   // P0 (design audit NW-1): the one actionable debt recommendation — never 9pt
   hotPillTxt: { fontSize: 11, fontWeight: '800', color: Colors.red },
+  ownOweLine: { fontSize: 13, color: Colors.textSecondary },
+  sampleLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 2 },
+  sampleNum: { fontWeight: '800', color: Colors.textTertiary, fontStyle: 'italic' },
+  cushionEmpty: { fontSize: 24, fontWeight: '800', color: Colors.textTertiary },
   intro: { flex: 1, justifyContent: 'center', padding: Spacing.xl },
   introEmoji: { fontSize: 38, textAlign: 'center', marginBottom: Spacing.sm },
   introTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },

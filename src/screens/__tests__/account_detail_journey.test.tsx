@@ -30,7 +30,7 @@ test('shows the balance, class in plain words, and the by-hand source sentence (
   render(<AccountDetailScreen />);
   expect(screen.getByText('Chase Checking')).toBeOnTheScreen();
   expect(screen.getByText('By hand · you update it')).toBeOnTheScreen();
-  expect(screen.getByText('$12,000')).toBeOnTheScreen();
+  expect(screen.getAllByText('$12,000').length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does
   expect(screen.getByText(/Cash · taxable/)).toBeOnTheScreen();
 });
 

@@ -105,7 +105,7 @@ describe('USER WALK · 10 common flows', () => {
     seedConnected();
     mockParams = { id: 'st-acc-1' };
     render(<AccountDetailScreen />);
-    expect(screen.getByText(/\$52,000/)).toBeOnTheScreen();          // the broker's total — authoritative
+    expect(screen.getAllByText(/\$52,000/).length).toBeGreaterThan(0);   // the header trio repeats the value, as the approved mock does          // the broker's total — authoritative
     expect(screen.getAllByText(/VTI/).length).toBeGreaterThan(0);
     expect(screen.getByText('AAPL $220 call · exp Jan 16 2027')).toBeOnTheScreen();
     expect(screen.getByText(/Counted inside this account's total/)).toBeOnTheScreen();

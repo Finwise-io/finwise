@@ -206,11 +206,54 @@ export default function PerformanceScreen() {
       })()}
 
       {positions.length === 0 && bondAccts.length === 0 && altAccts.length === 0 && untracked.length === 0 ? (
-        <View style={styles.empty}>
-          <Text style={styles.emptyT}>Track how your investments perform against the market.</Text>
-          <Text style={styles.emptyS}>Add a holding with its ticker and what you paid — we'll value it live and compare its return to the right benchmark.</Text>
-          <TouchableOpacity style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add a holding" onPress={() => setAddOpen(true)}><Text style={styles.addBtnT}>＋ Add a holding</Text></TouchableOpacity>
-          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }}><Text style={styles.addLink}>📄 Import from a file instead</Text></TouchableOpacity>
+        /* DAY ONE (approved performance-FINAL state B + the founder's empty-state rule): the
+           structure is IDENTICAL to the rich screen — chips, summary, walk, category table —
+           with honest zeros. Nothing hides, nothing is invented, nothing moves position later. */
+        <View>
+          <View style={styles.periodRow}>
+            {PERIODS.map((p) => (
+              <View key={p} style={[styles.periodPill, p === period && styles.periodPillOn]}>
+                <Text style={[styles.periodT, p === period && styles.periodTOn]}>{p} —</Text>
+              </View>
+            ))}
+          </View>
+
+          <View style={styles.card}>
+            <SectionBand inCard title="SUMMARY · SINCE TODAY" />
+            <View style={styles.trioRow}>
+              <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(0)}</Text></View>
+              <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>{maskedMoney(0)}</Text></View>
+              <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: Colors.textTertiary }]}>—</Text></View>
+            </View>
+            <Text style={styles.sumNote}>Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see.</Text>
+          </View>
+
+          <View style={styles.card}>
+            <SectionBand inCard title="HOW TODAY'S VALUE STANDS" />
+            {['Beginning market value (today)', 'Contributions', 'Withdrawals', 'Wealth generated', 'Dividends', 'Interest', 'Change in investment value'].map((l, i) => (
+              <View key={l} style={[styles.walkRow, i >= 4 && { paddingLeft: 20 }]}>
+                <Text style={[styles.walkL, i >= 4 && { color: Colors.textSecondary }, i === 3 && { fontWeight: '800' }]}>{l}</Text>
+                <Text style={[styles.walkV, i === 3 && { fontWeight: '800' }]}>{maskedMoney(0)}</Text>
+              </View>
+            ))}
+            <View style={[styles.walkRow, styles.walkTotal]}>
+              <Text style={[styles.walkL, { fontWeight: '800' }]}>Ending market value (today)</Text>
+              <Text style={[styles.walkV, { fontWeight: '800', color: Colors.primaryDark }]}>{maskedMoney(0)}</Text>
+            </View>
+            <Text style={styles.sumNote}>Every line fills in as days pass — the structure never changes.</Text>
+          </View>
+
+          <View style={styles.card}>
+            <SectionBand inCard title="WHAT EACH CATEGORY EARNED" />
+            <Text style={styles.sumNote}>Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0.</Text>
+          </View>
+
+          <TouchableOpacity style={styles.addBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Add a holding" onPress={() => setAddOpen(true)}>
+            <Text style={styles.addBtnT}>＋ Add a holding</Text>
+          </TouchableOpacity>
+          <TouchableOpacity hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} accessibilityRole="button" accessibilityLabel="Import holdings from a file" onPress={() => router.push('/import-holdings')} style={{ marginTop: 14 }}>
+            <Text style={styles.addLink}>📄 Import from a file instead</Text>
+          </TouchableOpacity>
         </View>
       ) : (
         <>
@@ -255,6 +298,8 @@ export default function PerformanceScreen() {
                   <Text style={styles.sumNote}>
                     Return is for the window you picked ({PERIOD_PHRASE[period]}) — not a yearly rate. Money you added never counts as return.
                   </Text>
+                  {/* the value graph lives INSIDE the summary card (approved performance-FINAL) */}
+                  {trend.length > 1 && <TrendChartAuto data={trend} />}
                 </View>
 
                 <DataGapsBanner gaps={gaps} />
@@ -439,7 +484,6 @@ export default function PerformanceScreen() {
                 {freshLine && <Text style={styles.freshInHero}> · {freshLine}</Text>}
               </View>
             </View>
-            {trend.length > 1 && <TrendChartAuto data={trend} />}
             {trend.length > 1 && (
               <View style={styles.legendRow}>
                 <View style={styles.legItem}><View style={[styles.legLine, { backgroundColor: Colors.primary }]} /><Text style={styles.legT}>you</Text></View>
