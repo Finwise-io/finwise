@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Linking, Modal, TextInput, KeyboardAvoidingView, Platform, ActivityIndicator, Switch } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Card, TipCard } from '../components/UI';
@@ -284,7 +285,7 @@ export default function SettingsScreen() {
 
       {/* Current settings */}
       <Card>
-        <Text style={styles.sectionTitle}>Current settings</Text>
+        <SectionBand title="Current settings" />
         <View style={styles.settingRow}>
           <Text style={styles.settingLabel}>Budget frequency</Text>
           <Text style={styles.settingValue}>{budgetFrequency.charAt(0).toUpperCase() + budgetFrequency.slice(1)}</Text>
@@ -298,7 +299,7 @@ export default function SettingsScreen() {
 
       {/* Display mode */}
       <Card>
-        <Text style={styles.sectionTitle}>Display mode</Text>
+        <SectionBand title="Display mode" />
         <View style={styles.modeRow}>
           {(['simple', 'advisor'] as const).map((m) => (
             <TouchableOpacity accessibilityRole="button" key={m} style={[styles.modeBtn, (displayMode ?? 'simple') === m && styles.modeBtnOn]} onPress={() => setDisplayMode(m)}>
@@ -312,7 +313,7 @@ export default function SettingsScreen() {
 
       {/* Text size (accessibility) */}
       <Card>
-        <Text style={styles.sectionTitle}>Text size</Text>
+        <SectionBand title="Text size" />
         <View style={styles.modeRow}>
           {FONT_SCALES.map((f) => (
             <TouchableOpacity accessibilityRole="button" key={f.value} style={[styles.modeBtn, (fontScale ?? 1) === f.value && styles.modeBtnOn]} onPress={() => setFontScale(f.value)}>
@@ -325,7 +326,7 @@ export default function SettingsScreen() {
 
       {/* App lock (F-2) */}
       <Card>
-        <Text style={styles.sectionTitle}>Security</Text>
+        <SectionBand title="Security" />
         <View style={styles.lockRow}>
           <View style={{ flex: 1, marginRight: Spacing.sm }}>
             <Text style={styles.actionLabel}>App lock</Text>
@@ -409,7 +410,7 @@ export default function SettingsScreen() {
       <Card>
         {(useStore.getState() as any).snaptradeConnections?.length > 0 && (
           <>
-            <Text style={styles.sectionTitle}>Connected accounts</Text>
+            <SectionBand title="Connected accounts" />
             {((useStore.getState() as any).snaptradeConnections ?? []).map((c: any) => (
               <View key={c.id} style={styles.actionRow}>
                 <Text style={{ fontSize: 24 }}>🔗</Text>
@@ -434,7 +435,7 @@ export default function SettingsScreen() {
           </>
         )}
 
-        <Text style={styles.sectionTitle}>Account</Text>
+        <SectionBand title="Account" />
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={handleRerunOnboarding}>
           <Text style={{ fontSize: 24 }}>⚙️</Text>
@@ -544,7 +545,7 @@ export default function SettingsScreen() {
 
       {/* Legal & Support */}
       <Card>
-        <Text style={styles.sectionTitle}>Legal & Support</Text>
+        <SectionBand title="Legal & Support" />
 
         <TouchableOpacity accessibilityRole="button" style={styles.actionRow} onPress={() => openURL(PRIVACY_URL)}>
           <Text style={{ fontSize: 24 }}>🔒</Text>

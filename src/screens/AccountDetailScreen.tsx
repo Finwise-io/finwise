@@ -507,7 +507,7 @@ function RecordActivitySheet({ account, action, onClose }: { account: AssetAccou
           </View>
           {action === 'TRANSFER' && (
             <View style={s.destWrap}>
-              <Text style={s.destHdr}>INTO</Text>
+              <SectionBand title="INTO" />
               {others.map((a) => (
                 <TouchableOpacity accessibilityRole="button" key={a.asset_id}
                   style={[s.destRow, destId === a.asset_id && s.destOn]}

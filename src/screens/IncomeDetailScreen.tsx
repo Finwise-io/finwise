@@ -3,6 +3,7 @@
 // the effective tax rate, and the 12-month cash-flow grid (lumpy bonus/RSU months).
 import React, { useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
@@ -72,7 +73,7 @@ export default function IncomeDetailScreen() {
       </View>
 
       {/* sources */}
-      <Text style={styles.section}>Sources</Text>
+      <SectionBand title="Sources" />
       <View style={styles.card}>
         {sources.map((src) => (
           <View key={src.income_source_id} style={styles.srcRow}>
@@ -86,7 +87,7 @@ export default function IncomeDetailScreen() {
       </View>
 
       {/* monthly cash-flow grid */}
-      <Text style={styles.section}>Monthly cash flow (gross)</Text>
+      <SectionBand title="Monthly cash flow (gross)" />
       <View style={styles.card}>
         <View style={styles.grid}>
           {state.monthly_cash_flow_grid.map((c, i) => (
@@ -104,7 +105,7 @@ export default function IncomeDetailScreen() {
       {/* equity vesting cash flow — chart/table + gross/net toggles */}
       {equityFlow.length > 0 && (
         <>
-          <Text style={styles.section}>Equity vesting cash flow</Text>
+          <SectionBand title="Equity vesting cash flow" />
           <View style={styles.card}>
             <View style={styles.toggleRow}>
               <Toggle options={[['chart', 'Chart'], ['table', 'Table']]} value={view} onChange={(v) => setView(v as any)} />

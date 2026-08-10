@@ -101,7 +101,7 @@ export default function TaxOrganizerScreen() {
       {/* accounts */}
       {org.accounts.length > 0 && (
         <>
-          <Text style={styles.section}>ACCOUNTS (year-end)</Text>
+          <SectionBand title="ACCOUNTS (year-end)" />
           <View style={styles.card}>
             {org.accounts.map((ac, i) => <View key={i} style={styles.row}><Text style={styles.rowL}>{ac.label} <Text style={styles.tag}>{ac.kind}</Text></Text><Text style={styles.rowV}>{money(ac.balance)}</Text></View>)}
           </View>

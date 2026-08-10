@@ -5,6 +5,7 @@
 // F5 paycheck engine and the F2 dated grid; this screen computes nothing of its own.
 import React, { useState } from 'react';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { useCashflowModel } from '../hooks/useCashflowModel';
@@ -38,14 +39,14 @@ export default function PaycheckMonthsScreen() {
             </TouchableOpacity>
             {open && (
               <View style={styles.detail}>
-                <Text style={styles.sectionT}>Money in</Text>
+                <SectionBand title="Money in" />
                 {m.guaranteed.length === 0 && <Text style={styles.line}>No guaranteed income captured yet</Text>}
                 {m.guaranteed.map((g, i) => (
                   <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
                 ))}
                 <Row label="Safe draw from savings" value={maskedMoney(m.safeDraw)} />
                 <Row label="= In" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
-                <Text style={styles.sectionT}>Big bills this month</Text>
+                <SectionBand title="Big bills this month" />
                 {m.bills.length === 0 && <Text style={styles.line}>No big bills this month</Text>}
                 {m.bills.map((b, i) => (
                   <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
@@ -53,7 +54,7 @@ export default function PaycheckMonthsScreen() {
                 <Row label="= Safe to spend" value={maskedMoney(m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
-                    <Text style={styles.sectionT}>Regular bills (your safe-to-spend pays these)</Text>
+                    <SectionBand title="Regular bills (your safe-to-spend pays these)" />
                     {regulars.map((b, i) => (
                       <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />
                     ))}

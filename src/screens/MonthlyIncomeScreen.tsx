@@ -5,6 +5,7 @@
 // annuities / other (withdrawals & required minimums live elsewhere; the safe draw replaces them).
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { KeyboardAwareScreen } from '../components/KeyboardAwareScreen';
 import { useStore } from '../store/useStore';
@@ -96,7 +97,7 @@ export default function MonthlyIncomeScreen() {
       <Text style={styles.sub}>The money that arrives no matter what markets do. This builds your paycheck — no bank login needed.</Text>
 
       <View style={styles.card}>
-        <Text style={styles.section}>Social Security</Text>
+        <SectionBand title="Social Security" />
         <View style={styles.row}>
           <TouchableOpacity accessibilityRole="radio" accessibilityState={{ selected: ssReceiving }}
             style={[styles.chip, ssReceiving && styles.chipOn]} onPress={() => setSsReceiving(true)}>
@@ -124,7 +125,7 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.section}>Pension</Text>
+        <SectionBand title="Pension" />
         <Text style={styles.label}>Amount {pensionFreq === 'monthly' ? 'each month' : pensionFreq === 'quarterly' ? 'each quarter' : 'each year'}</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={pension} onChangeText={setPension}
           placeholder="1,600" accessibilityLabel="pension amount" />
@@ -132,14 +133,14 @@ export default function MonthlyIncomeScreen() {
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.section}>Annuity</Text>
+        <SectionBand title="Annuity" />
         <TextInput style={styles.input} keyboardType="decimal-pad" value={annuity} onChangeText={setAnnuity}
           placeholder="0" accessibilityLabel="annuity amount" />
         {rhythmChips(annuityFreq, setAnnuityFreq, annuityMonth, setAnnuityMonth, 'annuity')}
       </View>
 
       <View style={styles.card}>
-        <Text style={styles.section}>Other steady income</Text>
+        <SectionBand title="Other steady income" />
         <Text style={styles.label}>Each month (rental, part-time, anything regular)</Text>
         <TextInput style={styles.input} keyboardType="decimal-pad" value={other} onChangeText={setOther}
           placeholder="0" accessibilityLabel="other steady income each month" />
