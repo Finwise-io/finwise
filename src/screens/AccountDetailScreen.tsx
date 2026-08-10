@@ -195,6 +195,8 @@ export default function AccountDetailScreen() {
         </View>
         {/* APPROVED account-detail mock (2026-07-19): an account holding several types is called
             what it is — "Mixed holdings" — never mislabeled by its single biggest type */}
+        {/* NOTE for the live review: the mock's portfolio header shows the trio only, but this line
+            carries real information (class + tax treatment), so it stays until the founder says drop it. */}
         <Text style={s.classLine}>{breakdownClasses.length > 1 ? 'Mixed holdings' : ASSET_CLASS_LABEL[cls]} · {TAX_WORDS[taxTreatmentOf(account)] ?? taxTreatmentOf(account)}</Text>
         {account.status && account.status !== 'open' && (
           <Text style={s.statusBadge}>This account is {account.status} at {account.institution ?? 'the broker'} — kept here so its history stays.</Text>

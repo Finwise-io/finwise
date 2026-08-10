@@ -514,7 +514,7 @@ export default function PerformanceScreen() {
               <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
                 <Text style={styles.freshInHero}>How these numbers work</Text>
                 <InfoDot term="howReturnsWork" />
-                {freshLine && <Text style={styles.freshInHero}> · {freshLine}</Text>}
+                
               </View>
             </View>
             {trend.length > 1 && (
