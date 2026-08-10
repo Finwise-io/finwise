@@ -551,7 +551,7 @@ export default function NetWorthScreen() {
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-          <SectionBand inCard infoTerm="netWorth" title={`YOUR NET WORTH · ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`} />
+          <SectionBand inCard infoTerm="nwChange" title={`YOUR NET WORTH · ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`} />
           {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
           {(totalAssets > 0 || dState.total_debt_balance > 0) && (
             <Text style={styles.ownOweTop}>

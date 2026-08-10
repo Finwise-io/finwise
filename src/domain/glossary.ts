@@ -5,7 +5,7 @@
 // the canonical selectors (take-home = after tax + 401k; surplus = after debt; etc.).
 export type GlossaryTerm =
   | 'rmd' | 'surplus' | 'nestEgg' | 'unclassified' | 'earmarked'
-  | 'takeHome' | 'investable' | 'emergencyFund' | 'savingsRate' | 'netWorth'
+  | 'takeHome' | 'investable' | 'emergencyFund' | 'savingsRate' | 'netWorth' | 'nwChange'
   // asset classes (what your money is invested in) + income — added so the same plain-English meaning
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
@@ -16,6 +16,7 @@ export type GlossaryTerm =
 export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   takeHome:     { title: 'Take-home', body: 'What actually lands in your account each month — after income tax and your 401(k) contribution.' },
   surplus:      { title: 'Surplus', body: 'Your take-home minus spending minus debt payments — the money left to save or invest each month.' },
+  nwChange:     { title: 'How your change and return are calculated', body: 'THE DOLLAR CHANGE — today\u2019s net worth minus your net worth on the date shown, from our own saved daily records (never a guess). It counts everything: market moves, dividends and interest, money you added or took out, property values you update, and debt principal you paid.\n\nTHE PERCENT — measured on your cash + investments only: their value today versus the start date, divided by the start value. Your home and property are left out of the percent because they only move when you retype them.\n\nTap the change line to see the full story \u2014 dividends, interest, change in investment value, and debt you paid, always summing exactly.\n\nRETURN on the Performance tab is a different number by design: it measures invested money only, counts when you added or took out money (so deposits never count as return), and a window under a year is never shown as a yearly rate.' },
   netWorth:     { title: 'Net worth', body: 'Everything you own minus everything you owe. Assets − debts.' },
   // Build-43 feedback #2: "$0 investments vs $1,500 net worth" needs the difference said in place.
   // c1 in the approved detailed design (Home tab) + the build-43 clarification ask.
