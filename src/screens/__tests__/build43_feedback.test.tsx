@@ -282,7 +282,7 @@ test('B45 + founder 2026-08-10: an unchanged history reads "$0" and stays TAPPAB
     nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByLabelText(/No net change — \$0/)).toBeOnTheScreen();   // tappable: opens the walk
+  expect(screen.getByLabelText(/\$0 change.*hide offsetting moves/)).toBeOnTheScreen();   // tappable: opens the walk
     expect(screen.getByText(/since /)).toBeOnTheScreen();
   expect(screen.queryByText(/up \$0/)).toBeNull();     // the founder's exact complaint ("up $0 this year")
   expect(screen.queryByText(/this year/)).toBeNull();

@@ -519,7 +519,7 @@ export default function NetWorthScreen() {
     // Founder 2026-08-10: a zero net change still says "$0" and stays TAPPABLE — $0 can hide real
     // motion (a $500 contribution offset by $500 of spending), and the walk sheet shows exactly that.
     const deltaText = deltaRounded == null ? null
-      : deltaZero ? `${maskedMoney(0)}${pctText}`
+      : deltaZero ? `${maskedMoney(0)} change${pctText}`   // reads as a sentence, not a stray number
       : `${deltaRounded > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded))}${pctText}`;
     // the true measured-from date, always with day AND year
     const sinceDate = janPoint
@@ -567,7 +567,7 @@ export default function NetWorthScreen() {
               honest first-day line instead of a bare number when history hasn't built yet */}
           {deltaText != null ? (
             <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
-              accessibilityLabel={`${deltaZero ? `No net change — ${deltaText}` : deltaText}. Opens what drove this change.`}>
+              accessibilityLabel={`${deltaText}. ${deltaZero ? 'A flat total can hide offsetting moves — opens' : 'Opens'} what drove this change.`}>
               <Text style={[styles.glanceDelta, { color: deltaZero ? Colors.textSecondary : deltaRounded! > 0 ? Colors.gainText : Colors.red }]}>
                 {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
               </Text>
