@@ -152,6 +152,7 @@ export default function HomeScreen() {
     // days of first use (monthly snapshots stay the deep record; this is just a chart point).
     // founder rule 2026-08-04: also capture cash+investments — the change-% denominator
     store.captureDailyNw?.(new Date().toISOString().slice(0, 10), nwv.net_worth, investableAssets(resolvedRows.accounts));
+    store.runReclassifyOnce?.();   // founder gaps 1 & 2: fix accounts stored under the OLD rule
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
   // ── working-lens hero numbers (canonical helpers named by the design) ──

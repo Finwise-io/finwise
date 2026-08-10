@@ -56,12 +56,12 @@ test('#3 · the hero change is DOLLARS+percent from ONE source — the approved 
   expect(periodDollarDelta(0, 0.05)).toBe(0);
 });
 
-test('#3 · Net worth: first-day account shows the tracking line AND the as-of date, not a bare number', () => {
+test('#3 · Net worth: first-day account shows the tracking line AND the SINCE date (mock wording), not a bare number', () => {
   freshWorker();
   useStore.setState({ assetAccounts: [{ asset_id: 'a1', label: 'Checking', kind: 'cash', tax_bucket: 'TAXABLE', balance: 1500, target_return: 0 }] } as any);
   render(<NetWorthScreen />);
   expect(screen.getByText(/tracking starts today — change shows as history builds|▲ up|▼ down/)).toBeOnTheScreen();
-  expect(screen.getByText(/as of \w{3} \d/)).toBeOnTheScreen();
+  expect(screen.getByText(/since /)).toBeOnTheScreen();
 });
 
 // ── round 2 (device findings on the live E*TRADE connection) ────────────────────────────────────

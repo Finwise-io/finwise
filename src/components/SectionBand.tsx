@@ -13,7 +13,9 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md }:
   return (
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
       <Text style={[s.title, light && s.textLight]} numberOfLines={2}>{title}</Text>
-      {value != null && <Text style={[s.value, light && s.textLight]}>{value}</Text>}
+      {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
+          value carries the same inset back — every number on the screen shares ONE right edge. */}
+      {value != null && <Text style={[s.value, light && s.textLight, inCard && { marginRight: inset }]}>{value}</Text>}
     </View>
   );
 }

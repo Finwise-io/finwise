@@ -7,6 +7,10 @@ import { useRouter, useLocalSearchParams } from 'expo-router';
 import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
+import { selectWillItLast } from '../domain/retirement/willItLast';
+import { simulate } from '../domain/retirement';
+import { onCourseSentence, lensChanceWord } from '../domain/planning/hub';
+import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
@@ -191,7 +195,19 @@ export default function NetWorthScreen() {
 
   // ONE class-row renderer — used inside every uber-group (and by the legacy path), so a row can
   // never look different depending on where it is drawn.
-  const renderClassRow = (r: { key: AssetClass; label: string; color: string; total: number }, i: number) => {
+  // the retirement line: the SAME engine + the SAME approved words as the Plan hub
+  const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
+  const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
+  const nwWord = nwWil.chance != null ? lensChanceWord(resolveLens(op ?? {}, store.lensOverride), nwWil.chance) : '';
+  const nwOnCourse = onCourseSentence({
+    lens: resolveLens(op ?? {}, store.lensOverride), chance: nwWil.chance,
+    retireAge: Math.round(Number(store.retirementAssumptions?.retireAge ?? op?.targetRetirementAge ?? 67)),
+    horizonAge: nwWil.horizonAge,
+    potAtRetire: nwSim?.projected_at_retirement ?? null,
+    leftoverAtHorizon: nwSim?.band?.length ? nwSim.band[nwSim.band.length - 1].p50 : null,
+    money: maskedMoney,
+  });
+  const renderClassRow = (r: { key: AssetClass; label: string; color: string; total: number }, i: number, hideHeader = false) => {
     const members = assets
       .map((a) => {
         const b = accountClassBreakdown(a);
@@ -202,11 +218,13 @@ export default function NetWorthScreen() {
       .sort((x, y) => y.portion - x.portion);
     // approved v4 rule kept: a LONE class auto-expands — hiding the only account behind a tap
     // would obscure, not glance.
-    const isOpen = classRows.length === 1 || !!openClasses[r.key];
+    const isOpen = hideHeader || classRows.length === 1 || !!openClasses[r.key];
     const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
     return (
       <View key={r.key} style={i > 0 ? styles.divider : undefined}>
-        <TouchableOpacity style={styles.row} accessibilityRole="button"
+        {/* founder gap 3 (2026-08-10): no "Cash" heading inside the Cash group — the group bar
+            already said it. A single same-named class renders its accounts directly. */}
+        {!hideHeader && <TouchableOpacity style={styles.row} accessibilityRole="button"
           onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
           accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
           <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
@@ -216,7 +234,7 @@ export default function NetWorthScreen() {
             {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
           </View>
           <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
-        </TouchableOpacity>
+        </TouchableOpacity>}
         {shownMembers.map(({ a, portion, split }) => (
           <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
             onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
@@ -492,9 +510,14 @@ export default function NetWorthScreen() {
     // invDaily history exists (never back-guessed).
     const invPct = janPoint ? investableChangePct(store.invDaily, investable, janPoint.month) : null;
     const pctText = invPct == null || Math.abs(invPct) < 0.05 ? '' : ` · ${invPct > 0 ? '+' : '−'}${Math.abs(invPct).toFixed(1)}% on cash + investments`;
+    // B45 rule, re-broken and re-fixed 2026-08-10: ONE rounded value drives the words, the arrow and
+    // the colour — so "up $0" / "down $0" can never be rendered again by any path.
+    // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
+    const deltaRounded = changeThisYear == null || !Number.isFinite(changeThisYear) ? null : Math.round(changeThisYear);
+    const deltaZero = deltaRounded === 0 || deltaRounded === null;
     const deltaText = changeThisYear == null ? null
-      : Math.round(changeThisYear) === 0 ? `no change ${sinceLabel}`
-      : `${changeThisYear >= 0 ? 'up' : 'down'} ${maskedMoney(Math.round(Math.abs(changeThisYear)))} ${sinceLabel}${pctText}`;
+      : deltaZero ? `no change ${sinceLabel}`
+      : `${deltaRounded! > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded!))} ${sinceLabel}${pctText}`;
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
     const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any);
@@ -535,20 +558,21 @@ export default function NetWorthScreen() {
           {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
               honest first-day line instead of a bare number when history hasn't built yet */}
           {changeThisYear != null ? (
-            Math.round(changeThisYear) === 0 ? (
+            deltaZero ? (
               <Text style={styles.glanceDelta}>{deltaText}</Text>
             ) : (
               <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
                 accessibilityLabel={`${deltaText}. Opens what drove this change.`}>
-                <Text style={[styles.glanceDelta, { color: changeThisYear >= 0 ? Colors.gainText : Colors.red }]}>
-                  {changeThisYear >= 0 ? '▲' : '▼'} {deltaText} ›
+                <Text style={[styles.glanceDelta, { color: deltaZero ? Colors.textSecondary : deltaRounded! > 0 ? Colors.gainText : Colors.red }]}>
+                  {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
                 </Text>
               </TouchableOpacity>
             )
           ) : (
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
-          <Text style={styles.glanceDelta}>as of {new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</Text>
+          {/* the mock's second line: the TRUE date the change is measured from — never "as of today" */}
+          <Text style={styles.glanceDelta}>{sinceLabel ? sinceLabel.replace(/^since /, 'since ') : `since ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}</Text>
           {(() => {
             const st = assets
               .filter((a) => a.source === 'connected')
@@ -579,24 +603,36 @@ export default function NetWorthScreen() {
         <ChangeWalkSheet visible={walkOpen} onClose={() => setWalkOpen(false)} walk={changeWalk} />
         <DataGapsBanner gaps={gaps} />
 
-        {/* Walk row 7 (v7 FINAL + doc, Home·NW #15): one calm projection line from the Plan.
-            With a computable plan it carries the number; without one it's the plain approved link. */}
-        <TouchableOpacity accessibilityRole="button" style={styles.pathAhead} onPress={() => router.push('/(tabs)/plan')}
-          accessibilityLabel={pathAhead
-            ? `Your path ahead, from your Plan: on course for about ${maskedMoney(pathAhead.egg)} by ${pathAhead.age}. Opens the Plan tab.`
-            : 'Your path ahead, from your Plan. Opens the Plan tab.'}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-            <Text style={styles.pathAheadTxt}>
-              Your path ahead (from your Plan){pathAhead ? <Text>: on course for <Text style={styles.pathAheadNum}>~{maskedMoney(pathAhead.egg)}</Text> by {pathAhead.age}</Text> : null} ›
-            </Text>
-            {/* founder 2026-07-31: say HOW — the ⓘ opens your approved nest-egg explanation */}
-            {pathAhead && <InfoDot term="nestEggMath" />}
+        {/* THE RETIREMENT CARD (approved final mock + the approved words, 2026-08-04): banded, and it
+            speaks the same sentence the Plan hub speaks — never the old "path ahead by 92" wording. */}
+        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85}
+          onPress={() => router.push('/(tabs)/plan')}
+          accessibilityLabel={nwOnCourse ? `Your retirement plan: ${nwOnCourse}. Opens the Plan tab.` : 'Your retirement plan. Opens the Plan tab.'}>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
+            <SectionBand inCard title="YOUR RETIREMENT PLAN" />
+          </View>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
+          <Text style={styles.rowTitle}>
+            {nwOnCourse ? <Text><Text style={{ fontWeight: '800' }}>{nwWord}</Text> — {nwOnCourse} ›</Text> : 'See your plan ›'}
+          </Text>
+          <InfoDot term="nestEggMath" />
           </View>
         </TouchableOpacity>
 
         {/* WHAT YOU OWN — the class donut (validated palette, direct-labeled) then the three
             uber-groups. Donut is centered per the approved final mock; legend names + percents
             are ON the chart so color is never the only signal (colorblind rule, UX doc). */}
+        {/* Walk row 8 (v7 FINAL): the grouping pills — ABOVE the lists, per the approved final mock (founder gap 5) */}
+        <View style={styles.groupPills}>
+          {([['class', 'By category'], ['institution', 'By institution']] as const).map(([key, label]) => (
+            <TouchableOpacity key={key} accessibilityRole="button"
+              accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
+              style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
+              onPress={() => setNwGrouping(key)}>
+              <Text style={[styles.groupPillTxt, nwGrouping === key && styles.groupPillTxtOn]}>{label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
         <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} />
         <View style={styles.card}>
           {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
@@ -674,7 +710,9 @@ export default function NetWorthScreen() {
                   <SectionBand light title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${inner} ${inner === 1 ? 'category' : 'categories'}`}`}
                     value={maskedMoney(Math.round(g.total))} />
                 </TouchableOpacity>
-                {gOpen && g.classes.map((r, i) => renderClassRow(r, i))}
+                {gOpen && g.classes.map((r, i) => renderClassRow(
+                  r, i, g.classes.length === 1 && r.label.trim().toLowerCase() === g.label.trim().toLowerCase(),
+                ))}
               </View>
             );
           })}
@@ -701,17 +739,6 @@ export default function NetWorthScreen() {
 
         {/* the arithmetic now sits ABOVE the hero (final mock) — one place, not two */}
 
-        {/* Walk row 8 (v7 FINAL): the grouping pills — the approved mock places them here */}
-        <View style={styles.groupPills}>
-          {([['class', 'By category'], ['institution', 'By institution']] as const).map(([key, label]) => (
-            <TouchableOpacity key={key} accessibilityRole="button"
-              accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
-              style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
-              onPress={() => setNwGrouping(key)}>
-              <Text style={[styles.groupPillTxt, nwGrouping === key && styles.groupPillTxtOn]}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
 
         {/* EMERGENCY CUSHION (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
             card, word + icon always; no spending captured → a door, never a made-up number */}

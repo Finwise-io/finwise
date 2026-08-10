@@ -1,4 +1,5 @@
 import { pruneDaily } from '../domain/history';
+import { reclassifyAccounts, RECLASSIFY_VERSION } from '../domain/assets/reclassify';
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -358,6 +359,9 @@ type AppState = {
   skipAllocPrompt: (ym: string) => void;
   captureMonthlySnapshot: (ym: string, data: any) => void;
   captureDailyNw: (dateKey: string, nw: number, investable?: number) => void;
+  runReclassifyOnce: () => void;
+  reclassifyVersion?: string;
+  reclassifiedCount?: number;
   setRetirementAssumptions: (patch: Partial<RetirementAssumptions>) => void;
   // F11 composer: adoption is the ONE write path a decision screen uses — it snapshots the current
   // plan first so "Back to previous plan" can restore it exactly. History keeps the last 5.
@@ -792,6 +796,13 @@ export const useStore = create<AppState>()(
       // at its final state); past months stay frozen. We keep ALL months (history is cheap, data is key).
       captureMonthlySnapshot: (ym, data) => set((s) => ({ monthlySnapshots: { ...s.monthlySnapshots, [ym]: { ...data } } })),
       // daily chart point — once per day (last write of the day wins), bounded retention
+      // FOUNDER GAPS 1 & 2 (2026-08-10): re-classify ALREADY-STORED accounts under the cash-only
+      // rule. Runs once per device, then records its version so it never repeats.
+      runReclassifyOnce: () => set((s: any) => {
+        if (s.reclassifyVersion === RECLASSIFY_VERSION) return {};
+        const { accounts, changed } = reclassifyAccounts(s.assetAccounts ?? []);
+        return { assetAccounts: accounts, reclassifyVersion: RECLASSIFY_VERSION, reclassifiedCount: changed };
+      }),
       captureDailyNw: (dateKey: string, nw: number, investable?: number) => set((s: any) => ({
         nwDaily: pruneDaily({ ...(s.nwDaily ?? {}), [dateKey]: nw }),
         ...(investable != null ? { invDaily: pruneDaily({ ...(s.invDaily ?? {}), [dateKey]: investable }) } : {}),

@@ -299,7 +299,7 @@ test('path-ahead row carries the how ⓘ (your approved nest-egg explanation)', 
   } as any);
   const NetWorthScreen = require('../NetWorthScreen').default;
   render(<NetWorthScreen />);
-  expect(screen.getByText(/on course for/)).toBeOnTheScreen();
+  expect(screen.getByText(/retire at \d+ with|on course to last past|See your plan/)).toBeOnTheScreen();   // approved words, 2026-08-04
   expect(screen.getByLabelText('What is How we estimate this?')).toBeOnTheScreen();
 });
 

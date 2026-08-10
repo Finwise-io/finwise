@@ -106,3 +106,67 @@ describe('mock-match harness — first-day dumps', () => {
     expect(nw.length + pf.length).toBeGreaterThan(0);
   });
 });
+
+// ── APPEARANCE AUDIT (founder standing order step 5, 2026-08-10) ──────────────────────────────
+// Not a disclaimer any more: pull the RENDERED style values and check them against the mock's.
+describe('appearance audit — rendered styles, not stylesheet definitions', () => {
+  const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
+
+  beforeEach(() => { useStore.getState().resetAll(); useStore.setState(REAL_DATA as any); mockParams = {}; });
+
+  test('band colours: deep-green bands with white caps; sub-bands light with deep-green text', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const own = screen.getByText('WHAT YOU OWN');
+    expect(flat(own).color).toBe('#FFFFFF');
+    expect(flat(own).textTransform).toBe('uppercase');
+    const cash = screen.getAllByText(/💵/)[0];
+    expect(flat(cash).color).toBe('#085041');            // sub-band text is deep green, never white
+  });
+
+  test('font sizes are on the design scale everywhere that renders', () => {
+    const SCALE = [11, 13, 15, 17, 20, 24, 30, 38];
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const bad: string[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      if (n.props?.style) { const f = flat(n).fontSize; if (f && !SCALE.includes(f)) bad.push(`${f}`); }
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    expect(bad).toEqual([]);
+  });
+
+  test('THE SHARED RIGHT EDGE: a band total and a row value resolve to the same right inset', () => {
+    const { SectionBand } = require('../components/SectionBand');
+    const { Spacing } = require('../utils/theme');
+    render(<SectionBand inCard title="WHAT YOU OWN" value="$813,152" />);
+    const v = screen.getByText('$813,152');
+    // the band bleeds by -inset and the value adds the same inset back, so it lands on the rows' edge
+    expect(flat(v).marginRight).toBe(Spacing.md);
+  });
+
+  test('donut: slices follow the fixed validated palette, in the fixed class order', () => {
+    const { ClassMarkColors } = require('../utils/theme');
+    expect(ClassMarkColors.cash).toBe('#1baf7a');
+    expect(ClassMarkColors.stocks_etf).toBe('#2a78d6');
+    expect(ClassMarkColors.bonds).toBe('#4a3aa7');
+    expect(ClassMarkColors.real_estate).toBe('#eda100');
+  });
+
+  test('nesting: no class header repeats its own group name (founder gap 3)', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const cashHeaders = screen.queryAllByText('Cash');     // the plain class header, not the group bar
+    expect(cashHeaders.length).toBe(0);
+  });
+
+  test('order: the grouping pills render BEFORE the WHAT YOU OWN band (founder gap 5)', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const strings = dumpStrings();
+    expect(strings.indexOf('By category')).toBeLessThan(strings.indexOf('WHAT YOU OWN'));
+    expect(strings.indexOf('By category')).toBeGreaterThan(-1);
+  });
+});

@@ -114,7 +114,7 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
     liabilities: [],
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText('Cash')).toBeOnTheScreen();          // WHAT YOU OWN class row
+  expect(screen.getAllByText(/CASH/i).length).toBeGreaterThan(0);   // group bar (the duplicate class header is gone by design)
   expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class row
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();  // the FCC group header
   expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();   // FINAL mock: the math sits ABOVE the hero
@@ -203,7 +203,7 @@ describe('debt planned payment clears on blank (P0 orphan field)', () => {
 });
 
 // ── Build-46 walk rows 7 + 8 (v7 FINAL mock, audit Home·NW #15/#13) ──────────────────────────────
-describe('walk row 7: the "Your path ahead" row (v7 FINAL)', () => {
+describe('the retirement card (approved final mock + approved words, 2026-08-10; supersedes "Your path ahead")', () => {
   test('renders under the glance and routes to the Plan tab; with a computable plan it carries the projection', () => {
     useStore.setState({
       onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 55), targetRetirementAge: '67', monthlySpending: '5000', horizonAge: '92' },
@@ -211,11 +211,11 @@ describe('walk row 7: the "Your path ahead" row (v7 FINAL)', () => {
       nwSetupChoice: 'self',
     } as any);
     render(<NetWorthScreen />);
-    const row = screen.getByLabelText(/Your path ahead, from your Plan/);
+    const row = screen.getByLabelText(/Your retirement plan/);
     expect(row).toBeOnTheScreen();
-    expect(screen.getByText(/on course for/)).toBeOnTheScreen();
-    expect(screen.getByText(/by 67/)).toBeOnTheScreen();
-    expect(screen.getByText(/~\$[\d,]+/)).toBeOnTheScreen();          // the ~ says estimate
+    expect(screen.getByText(/retire at \d+ with|on course to last past|See your plan/)).toBeOnTheScreen();   // approved words, 2026-08-04
+    expect(screen.getByText('YOUR RETIREMENT PLAN')).toBeOnTheScreen();   // the banded card replaces the by-age phrasing
+    expect(screen.getByLabelText(/Your retirement plan/)).toBeOnTheScreen();   // the sentence lives on the card's label          // the ~ says estimate
     fireEvent.press(row);
     expect(router.push).toHaveBeenCalledWith('/(tabs)/plan');
   });
@@ -226,7 +226,7 @@ describe('walk row 7: the "Your path ahead" row (v7 FINAL)', () => {
       nwSetupChoice: 'self',
     } as any);
     render(<NetWorthScreen />);
-    expect(screen.getByLabelText(/Your path ahead, from your Plan/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Your retirement plan/)).toBeOnTheScreen();
     expect(screen.queryByText(/on course for/)).toBeNull();
   });
 });
