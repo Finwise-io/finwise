@@ -95,6 +95,11 @@ The only accepted method — full procedure in `docs/MOCK-MATCH-AUDIT-STANDING-O
 4. Check what a text diff cannot see: section ORDER · NESTING (nothing duplicated or under the
    wrong parent) · ALIGNMENT (all numbers on one right edge, band totals included) · DATA REALITY
    (open it with real data — a rule change must RE-CLASSIFY existing accounts, not just new ones).
-5. State plainly what was NOT verified (appearance: spacing, colour, weight, chart rendering).
+5. AUDIT APPEARANCE — not optional: pull the RENDERED style values (not the stylesheet) and compare
+   to the mock — band/sub-band colours, hero and row colours, font sizes+weights on the design scale,
+   the ONE shared right edge for every number (band totals included), card padding / row height /
+   nested indent, and the donut (slice order, validated palette, direct labels, centre content).
+   Where a test truly cannot reach (device fonts), name the exact item left unchecked and how you
+   would check it. Never let "audit complete" imply "looks right".
 Find every instance of a defect's CLASS before reporting. The founder must never be the one who
 finds the 6th gap.

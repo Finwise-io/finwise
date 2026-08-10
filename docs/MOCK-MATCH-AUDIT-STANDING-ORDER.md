@@ -42,9 +42,31 @@ Report the diff. Every "different", "missing" and "extra" is a defect until I sa
    not sit under Cash. If a rule was changed, existing accounts must be re-classified, not just new
    ones — a rule that only applies to future data is not built.
 
-### Step 5 — Say what you did NOT verify
-Appearance (spacing, colour, font weight, chart rendering) is not verified by any test. Say so
-plainly every time. Never let "audit complete" imply "looks right".
+### Step 5 — Audit APPEARANCE. It is not optional and "a test can't see it" is not an excuse
+Appearance is half the mock. Check every one of these against the picture, and report each:
+
+1. **Colours** — pull the ACTUAL style values off the rendered element (not the stylesheet
+   definition, the rendered node) and compare them to the mock's: band background, band text,
+   sub-band background and text, hero number colour, gain/loss colours, every class dot. A colour
+   that differs by one token is a defect.
+2. **Font sizes and weights** — same method: the rendered size and weight of every heading, hero
+   number, row label, row value and footnote, against the mock's. All sizes must be on the design
+   scale; a heading at the wrong step is a defect.
+3. **The shared right edge** — every number on the screen must resolve to ONE right edge: group
+   totals riding a band, row values, and section totals alike. Compare the rendered width/inset of
+   each number column; if the band's value inset differs from the rows' inset, that is a defect
+   (this is exactly the "totals sit slightly left" defect I found by eye).
+4. **Spacing and padding** — card padding, row height, indent of nested rows, the gap between a
+   name and its number. Nested rows must indent by one step, not two, not zero.
+5. **Charts and marks** — the donut: slice ORDER, slice colours from the validated palette, direct
+   labels present, the centre content, its size. A chart that renders in a different order or with
+   borrowed colours is a defect even if the totals are right.
+6. **Order and nesting, visually** — walk the rendered tree top to bottom and confirm section order
+   matches the mock, and that nothing is duplicated or nested under the wrong parent.
+
+Where a test genuinely cannot reach (real device rendering, fonts as drawn by iOS), say exactly
+which item you could not check and how you would check it — never let "audit complete" imply
+"looks right" when you have not looked.
 
 ## Rules of reporting
 - Never write "matches" unless steps 1–4 all came back clean. Write "elements present, appearance
