@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { View, Platform } from 'react-native';
+import { useWindowDimensions } from 'react-native';
 import { DesktopSidebar } from '../../desktop/platform/DesktopSidebar';   // approved desktop shell (web only)
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../../src/utils/theme';
@@ -27,7 +28,10 @@ export default function TabLayout() {
 
   // DESKTOP shell (founder-approved mock, 2026-08-03): on web the five surfaces render as the
   // sidebar; the bottom bar disappears. Same TAB_META map, same lens order — one nav, two faces.
-  if (Platform.OS === 'web') {
+  // DESKTOP shell only when the window is actually desktop-wide — a narrow browser (or a phone
+  // browser) gets the real phone layout, which is also how a small window should behave.
+  const { width: winW } = useWindowDimensions();
+  if (Platform.OS === 'web' && winW >= 900) {
     return (
       <View style={{ flex: 1, flexDirection: 'row' }}>
         <DesktopSidebar order={order} />

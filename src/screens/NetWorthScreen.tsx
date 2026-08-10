@@ -406,7 +406,7 @@ export default function NetWorthScreen() {
     body = (
       <View>
         <View style={styles.glanceCard}>
-          <SectionBand inCard title="YOUR NET WORTH" />
+          <SectionBand inCard infoTerm="netWorth" title="YOUR NET WORTH" />
           <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
           <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
           <Text style={styles.glanceDelta}>Add your first account and this becomes your one live number</Text>
@@ -515,9 +515,15 @@ export default function NetWorthScreen() {
     // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
     const deltaRounded = changeThisYear == null || !Number.isFinite(changeThisYear) ? null : Math.round(changeThisYear);
     const deltaZero = deltaRounded === 0 || deltaRounded === null;
+    // the change line carries the MOVE only; the line beneath carries the date (never repeated)
     const deltaText = changeThisYear == null ? null
-      : deltaZero ? `no change ${sinceLabel}`
-      : `${deltaRounded! > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded!))} ${sinceLabel}${pctText}`;
+      : deltaZero ? 'no change'
+      : `${deltaRounded! > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded!))}${pctText}`;
+    // the true measured-from date, always with day AND year
+    const sinceDate = janPoint
+      ? new Date(janPoint.month.length === 7 ? `${janPoint.month}-01T12:00:00` : `${janPoint.month}T12:00:00`)
+          .toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+      : null;
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
     const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any);
@@ -545,7 +551,7 @@ export default function NetWorthScreen() {
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-          <SectionBand inCard title="YOUR NET WORTH" />
+          <SectionBand inCard infoTerm="netWorth" title={`YOUR NET WORTH · ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`} />
           {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
           {(totalAssets > 0 || dState.total_debt_balance > 0) && (
             <Text style={styles.ownOweTop}>
@@ -572,7 +578,7 @@ export default function NetWorthScreen() {
             <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
           )}
           {/* the mock's second line: the TRUE date the change is measured from — never "as of today" */}
-          <Text style={styles.glanceDelta}>{sinceLabel ? sinceLabel.replace(/^since /, 'since ') : `since ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`}</Text>
+          <Text style={styles.glanceDelta}>{sinceDate ? `since ${sinceDate}` : 'tracking starts today'}</Text>
           {(() => {
             const st = assets
               .filter((a) => a.source === 'connected')
@@ -1002,7 +1008,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
 
 const styles = StyleSheet.create({
   // FCC glance-that-expands
-  glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'center' },
+  glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'flex-start' },
   ownOweTop: { fontSize: 13, color: Colors.textSecondary, marginBottom: 2 },
   donutWrap: { alignItems: 'center', paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)', marginBottom: 6 },
   donutLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 8 },
@@ -1016,7 +1022,7 @@ const styles = StyleSheet.create({
   acctRowVal: { fontSize: 15, color: Colors.textSecondary, fontVariant: ['tabular-nums'] },
   acctChev: { fontSize: 15, color: Colors.textTertiary },
   acctMore: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 13, minHeight: 44 },
-  glanceVal: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary },
+  glanceVal: { fontSize: 38, fontWeight: '800', color: Colors.primaryDark },
   glanceDelta: { fontSize: 13, fontWeight: '800', marginTop: 4 },
   glanceLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 44, paddingTop: 12 },
   ownHdr: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
@@ -1111,7 +1117,7 @@ const styles = StyleSheet.create({
   hotPill: { backgroundColor: Colors.redLight, borderRadius: 8, paddingHorizontal: 6, paddingVertical: 2 },
   // P0 (design audit NW-1): the one actionable debt recommendation — never 9pt
   hotPillTxt: { fontSize: 11, fontWeight: '800', color: Colors.red },
-  ownOweLine: { fontSize: 13, color: Colors.textSecondary },
+  ownOweLine: { fontSize: 13, color: Colors.textSecondary, textAlign: 'left' },
   sampleLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 2 },
   sampleNum: { fontWeight: '800', color: Colors.textTertiary, fontStyle: 'italic' },
   cushionEmpty: { fontSize: 24, fontWeight: '800', color: Colors.textTertiary },

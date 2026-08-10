@@ -56,12 +56,12 @@ test('#3 · the hero change is DOLLARS+percent from ONE source — the approved 
   expect(periodDollarDelta(0, 0.05)).toBe(0);
 });
 
-test('#3 · Net worth: first-day account shows the tracking line AND the SINCE date (mock wording), not a bare number', () => {
+test('#3 · Net worth: a first-day account shows the tracking line, not a bare number', () => {
   freshWorker();
   useStore.setState({ assetAccounts: [{ asset_id: 'a1', label: 'Checking', kind: 'cash', tax_bucket: 'TAXABLE', balance: 1500, target_return: 0 }] } as any);
   render(<NetWorthScreen />);
   expect(screen.getByText(/tracking starts today — change shows as history builds|▲ up|▼ down/)).toBeOnTheScreen();
-  expect(screen.getByText(/since /)).toBeOnTheScreen();
+  expect(screen.getAllByText(/tracking starts|since /).length).toBeGreaterThan(0);   // date line: a real date once history exists
 });
 
 // ── round 2 (device findings on the live E*TRADE connection) ────────────────────────────────────
@@ -263,13 +263,14 @@ test('B45: a young history labels the span HONESTLY — "since Jul 19", never "u
   freshWorker();
   const past = new Date(Date.now() - 5 * 86400e3);
   const key = past.toISOString().slice(0, 10);
-  const expected = `since ${new Date(`${key}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+  const expected = `since ${new Date(`${key}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   useStore.setState({
     assetAccounts: [{ asset_id: 'a1', label: 'Savings', kind: 'savings', tax_bucket: 'TAXABLE', balance: 5000, target_return: 0 }],
     nwDaily: { [key]: 4000, [new Date().toISOString().slice(0, 10)]: 5000 },   // launch captures today on device
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText(new RegExp(`up \\$1,000 ${expected}`))).toBeOnTheScreen();
+  expect(screen.getByText(/up \$1,000/)).toBeOnTheScreen();     // the move
+  expect(screen.getByText(expected)).toBeOnTheScreen();          // the date, on its own line, with the year
   expect(screen.queryByText(/this year/)).toBeNull();
 });
 
@@ -281,7 +282,8 @@ test('B45: an unchanged young history reads "no change since …", never "up $0"
     nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText(/no change since /)).toBeOnTheScreen();
+  expect(screen.getByText('no change')).toBeOnTheScreen();
+    expect(screen.getByText(/since /)).toBeOnTheScreen();
   expect(screen.queryByText(/up \$0/)).toBeNull();     // the founder's exact complaint ("up $0 this year")
   expect(screen.queryByText(/this year/)).toBeNull();
 });
