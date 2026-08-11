@@ -123,12 +123,31 @@ describe('on-course sentence (founder-approved words, 2026-08-04)', () => {
     expect(onCourseSentence({ ...base, lens: 'retired', chance: 84 }))
       .toBe('on course to last past 92, ~$890,000 to spare');
   });
-  test('below 80% the sentence is refused — "lasting past 92" may not be said off-course', () => {
-    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 79 })).toBeNull();
-    expect(onCourseSentence({ ...base, lens: 'retired', chance: null })).toBeNull();
+  // CHANGED 2026-08-11 (founder finding): below 80% the sentence used to be REFUSED, so the card fell
+  // back to a bare "See your plan ›" — the app went quiet exactly when the news mattered. It speaks
+  // for every computable plan now; what changes is the ENDING, which must never claim money to spare
+  // that isn't there.
+  test('below 80% it still speaks — the plan is stated, the odds word carries the verdict', () => {
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 62 }))
+      .toBe('retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare');
   });
-  test('missing numbers refuse the sentence rather than guess', () => {
+  test('a plan that runs short says WHEN — never "to spare" it does not have', () => {
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 41, leftoverAtHorizon: 0, shortfallAge: 84 }))
+      .toBe('retire at 65 with ~$1,412,000, running short around age 84');
+    expect(onCourseSentence({ ...base, lens: 'retired', chance: 35, leftoverAtHorizon: -5000, shortfallAge: 88 }))
+      .toBe('running short around age 88');
+    // no band to read an age from → still honest, just less precise
+    expect(onCourseSentence({ ...base, lens: 'preretired', chance: 41, leftoverAtHorizon: 0 }))
+      .toBe('retire at 65 with ~$1,412,000, running short before 92');
+  });
+  test('it stays silent ONLY when there is genuinely nothing to say', () => {
+    expect(onCourseSentence({ ...base, lens: 'retired', chance: null })).toBeNull();       // no odds yet
     expect(onCourseSentence({ ...base, lens: 'preretired', chance: 90, potAtRetire: null })).toBeNull();
-    expect(onCourseSentence({ ...base, lens: 'retired', chance: 90, leftoverAtHorizon: 0 })).toBeNull();
+  });
+  test('the shortfall age is read from the band the simulation already produces', () => {
+    const { shortfallAgeFromBand } = require('../../domain/planning/hub');
+    expect(shortfallAgeFromBand([{ age: 80, p50: 100 }, { age: 84, p50: 0 }, { age: 92, p50: -1 }])).toBe(84);
+    expect(shortfallAgeFromBand([{ age: 80, p50: 100 }, { age: 92, p50: 50 }])).toBeNull();
+    expect(shortfallAgeFromBand(null)).toBeNull();
   });
 });

@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
-import { onCourseSentence, lensChanceWord } from '../domain/planning/hub';
+import { onCourseSentence, lensChanceWord, shortfallAgeFromBand } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
@@ -248,6 +248,7 @@ export default function NetWorthScreen() {
     horizonAge: nwWil.horizonAge,
     potAtRetire: nwSim?.projected_at_retirement ?? null,
     leftoverAtHorizon: nwSim?.band?.length ? nwSim.band[nwSim.band.length - 1].p50 : null,
+    shortfallAge: shortfallAgeFromBand(nwSim?.band),
     money: maskedMoney,
   });
   // how many accounts actually sit inside a class (the same member rule the rows use)

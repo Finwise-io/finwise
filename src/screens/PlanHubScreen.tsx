@@ -20,7 +20,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
 import { SectionBand } from '../components/SectionBand';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
-import { lensChanceWord, onCourseSentence, planDoor, nextDecision } from '../domain/planning/hub';
+import { lensChanceWord, onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 
@@ -59,6 +59,7 @@ export default function PlanHubScreen() {
     lens, chance: wil.chance, retireAge: planRetire, horizonAge: wil.horizonAge,
     potAtRetire: simFull?.projected_at_retirement ?? null,
     leftoverAtHorizon: simFull?.band?.length ? simFull.band[simFull.band.length - 1].p50 : null,
+    shortfallAge: shortfallAgeFromBand(simFull?.band),
     money: maskedMoney,
   });
   const door = useMemo(() => planDoor(op, accounts), [op, accounts]);

@@ -105,20 +105,41 @@ export function nextDecision(args: {
 // "on course for ~$890,000 by 92" read as "working till 92" — the founder had to ask.
 // The approved shape leads with what each lens acts on: workers get the pot at retirement
 // day FIRST, then survival; retirees have no retirement-day pot, so lasting IS the headline.
-// Null below 80% — "lasting past 92" may only be said when the plan is actually on course.
+
+/** The age the middle path first hits zero, from a simulation band — null while it never does. */
+export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | null): number | null {
+  return (band ?? []).find((pt) => pt.p50 <= 0)?.age ?? null;
+}
 export function onCourseSentence(args: {
   lens: 'retired' | string; chance: number | null;
   retireAge: number; horizonAge: number;
   potAtRetire: number | null; leftoverAtHorizon: number | null;
   money: (n: number) => string;
+  /** The age the middle path runs out, when it does — so a plan that falls short says WHEN,
+   *  not just that it does (founder finding 2026-08-11). */
+  shortfallAge?: number | null;
 }): string | null {
   const { lens, chance, money } = args;
-  if (chance == null || chance < 80) return null;
+  // FOUNDER FINDING 2026-08-11: this used to return null below 80% odds, so the card fell back to a
+  // bare "See your plan ›" — the app went QUIET exactly when the news was worth hearing. The verdict
+  // words prove it was never meant to: Likely / Uncertain / Unlikely (Holding / Watch closely /
+  // Running short). It now speaks for every computable plan and tells the truth about the ending —
+  // "to spare" only when there IS something spare, otherwise when the money runs short.
+  // It stays null only when there is genuinely nothing to say yet: no odds, or no projected pot.
+  if (chance == null) return null;
   const near = (n: number) => money(Math.max(1000, Math.round(n / 1000) * 1000));
+  const lasts = (args.leftoverAtHorizon ?? 0) > 0;
+  const shortAt = args.shortfallAge;
+  const ending = lasts
+    ? `lasting past ${args.horizonAge} with ~${near(args.leftoverAtHorizon!)} to spare`
+    : shortAt != null
+      ? `running short around age ${shortAt}`
+      : `running short before ${args.horizonAge}`;
   if (lens === 'retired') {
-    if (!(args.leftoverAtHorizon! > 0)) return null;
-    return `on course to last past ${args.horizonAge}, ~${near(args.leftoverAtHorizon!)} to spare`;
+    return lasts
+      ? `on course to last past ${args.horizonAge}, ~${near(args.leftoverAtHorizon!)} to spare`
+      : shortAt != null ? `running short around age ${shortAt}` : `running short before ${args.horizonAge}`;
   }
-  if (!(args.potAtRetire! > 0) || !(args.leftoverAtHorizon! > 0)) return null;
-  return `retire at ${args.retireAge} with ~${near(args.potAtRetire!)}, lasting past ${args.horizonAge} with ~${near(args.leftoverAtHorizon!)} to spare`;
+  if (!(args.potAtRetire! > 0)) return null;
+  return `retire at ${args.retireAge} with ~${near(args.potAtRetire!)}, ${ending}`;
 }
