@@ -2,10 +2,10 @@
 // titles sit on a DEEP-GREEN band in white caps; group sub-titles on the LIGHT-GREEN band in
 // deep-green text. Totals ride the band, right-aligned. White caps on the mid brand green fails
 // the 4.5:1 small-text floor — the deep green is the accessible band color, never primary.
-// `inCard` bleeds the band to the card's edges (cards app-wide use Spacing.md padding + Radii.lg).
+// `inCard` bleeds the band to the card's edges (cards app-wide use Spacing.md padding).
 import React from 'react';
 import { View, Text, StyleSheet } from 'react-native';
-import { Colors, Spacing, Radii } from '../utils/theme';
+import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
 
 export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0 }: {
@@ -31,8 +31,10 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
 
 const s = StyleSheet.create({
   band: {
+    // Founder 2026-08-11: SQUARE corners. A band runs edge to edge, and rounded tops read as a card
+    // lid rather than a section rule — this is the one change that makes the whole app agree.
     alignSelf: 'stretch', backgroundColor: Colors.primaryDeep, paddingVertical: 8, paddingHorizontal: Spacing.md,
-    borderTopLeftRadius: Radii.lg, borderTopRightRadius: Radii.lg,
+    borderTopLeftRadius: 0, borderTopRightRadius: 0,
     flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs,
   },
   light: { backgroundColor: Colors.bandLight },

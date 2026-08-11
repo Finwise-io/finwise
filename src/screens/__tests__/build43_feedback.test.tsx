@@ -68,8 +68,10 @@ test('#3 · Net worth: a first-day account shows the tracking line, not a bare n
 const { accountDisplayName, accountDisplayNames } = require('../../domain/assets');
 
 test('R2-1 · display names: institution never doubles; a REAL digit mask shows; scrambled broker ids never do', () => {
+  // FOUNDER RULE 2026-08-11: when we have the institution AND real digits, that IS the name —
+  // "Vanguard -5738", never the broker's own wording ("Vanguard Kamala Kavadia Brokerage").
   expect(accountDisplayName({ label: 'Individual Brokerage', institution: 'Robinhood', mask: '••4821' }))
-    .toBe('Robinhood Individual Brokerage ••4821');           // real last-4 digits — useful, shown
+    .toBe('Robinhood -4821');
   expect(accountDisplayName({ label: 'E*Trade Individual Brokerage', institution: 'E-Trade' }))
     .toBe('E*Trade Individual Brokerage');                    // no "E-Trade E*Trade …" doubling
   // founder catch R3-1: "9Cmw" is E*TRADE's SCRAMBLED id, not account digits — never shown as a mask.

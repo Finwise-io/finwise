@@ -9,9 +9,9 @@
 // Each gap carries: what's missing (title), what the app is honestly doing meanwhile (meanwhile),
 // and the button that lands on the exact cure (fixLabel + route) — never a generic settings page.
 import type { AssetAccount } from '../assets';
-import { historyCoverage } from '../assets';
+import { historyCoverage, accountDisplayNames } from '../assets';
 
-export type GapKind = 'no-price' | 'stale-account' | 'no-activity' | 'stale-value' | 'history-depth';
+export type GapKind = 'no-price' | 'stale-account' | 'unreachable-account' | 'no-activity' | 'stale-value' | 'history-depth';
 
 export interface DataGap {
   kind: GapKind;
@@ -20,6 +20,9 @@ export interface DataGap {
   fixLabel: string;     // the button that cures it
   route: string;        // where that button lands (the exact field, not a settings page)
   accountId?: string;
+  /** What the button DOES. 'sync' runs the sync in place (a button that says "Sync now" must sync,
+   *  founder finding 2026-08-11); 'reconnect' opens the connection flow; absent = plain navigation. */
+  action?: 'sync' | 'reconnect';
 }
 
 const STALE_SYNC_DAYS = 3;
@@ -33,7 +36,13 @@ const prettyDate = (iso: string) => {
   const d = new Date(iso.length === 7 ? `${iso}-15T12:00:00` : `${iso}T12:00:00`);
   return isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
 };
-const nameOf = (a: AssetAccount) => (a.institution?.trim() || a.label || 'this account');
+// Founder finding 2026-08-11: this named an account by its INSTITUTION alone, so two Vanguard
+// accounts produced two identical banner lines ("Vanguard last updated Aug 3" twice) with no way to
+// tell which was which. It now speaks the app's ONE account name — institution + last four — and
+// falls back to the same disambiguation every other screen uses.
+const namesFor = (accounts: AssetAccount[]) => accountDisplayNames(accounts);
+const nameOf = (a: AssetAccount, names: Map<string, string>) =>
+  names.get(a.asset_id) || a.institution?.trim() || a.label || 'this account';
 
 /**
  * Every incomplete promise across the given accounts.
@@ -46,10 +55,12 @@ export function dataGaps(
   windowStart?: string | null,
   now: number = Date.now(),
   transactions: { account_id?: string; type?: string }[] = [],   // the store's ledger (income rows live there, not on the account)
+  failures: { accountId: string; at: string; reason?: string }[] = [],   // accounts the last sync could not reach
 ): DataGap[] {
   const gaps: DataGap[] = [];
+  const names = namesFor(accounts ?? []);   // one naming rule, the same one every screen shows
   for (const a of accounts ?? []) {
-    const who = nameOf(a);
+    const who = nameOf(a, names);
 
     // 1) a holding we hold but cannot price today → we show cost, and we say so
     for (const p of (a.positions ?? []) as any[]) {
@@ -68,12 +79,25 @@ export function dataGaps(
     // 2) a connected account whose last successful sync has gone stale
     if (a.source === 'connected') {
       const d = daysBetween(a.last_synced, now);
-      if (d != null && d > STALE_SYNC_DAYS) {
+      const unreachable = (failures ?? []).find((f) => f.accountId === a.asset_id);
+      if (unreachable) {
+        // We TRIED and could not reach it — say that, and offer the re-login, because another sync
+        // will not fix a connection the broker has dropped (founder finding 2026-08-11).
+        gaps.push({
+          kind: 'unreachable-account', accountId: a.asset_id,
+          title: `We couldn't reach ${who}`,
+          meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don't guess at newer ones. This usually means the connection needs a re-login.`,
+          fixLabel: 'Reconnect', route: `/connect?account=${a.asset_id}`,
+          action: 'reconnect',
+        });
+      } else if (d != null && d > STALE_SYNC_DAYS) {
         gaps.push({
           kind: 'stale-account', accountId: a.asset_id,
           title: `${who} last updated ${prettyDate(String(a.last_synced).slice(0, 10))}`,
           meanwhile: `Balances may have moved in ${d} days. A fresh sync usually fixes this; if not, the connection needs a re-login.`,
-          fixLabel: 'Sync now', route: `/account-detail?id=${a.asset_id}`,
+          // founder finding 2026-08-11: this used to NAVIGATE to the account page, which has no sync
+          // on it — a button that said "Sync now" and synced nothing. It runs the sync in place now.
+          fixLabel: 'Sync now', route: `/account-detail?id=${a.asset_id}`, action: 'sync',
         });
       }
       // 3) a broker that sends balances but no dividend/interest records

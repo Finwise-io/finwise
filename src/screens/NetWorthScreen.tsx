@@ -636,7 +636,7 @@ export default function NetWorthScreen() {
       : null;
     // FINAL mock: the missing-data banner — computed against the SAME window the change line
     // above it reports, so the depth check can never imply older income sits inside the change.
-    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any);
+    const gaps = dataGaps(assets, janPoint?.month ?? null, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
     // FINAL mock State E: tapping the change opens the walk. Built from the SAME window the line
     // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
     const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);

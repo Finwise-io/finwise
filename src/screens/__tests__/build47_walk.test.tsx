@@ -227,7 +227,9 @@ test('a 3-day-old connection stamps the Home hero; on Net worth the BANNER carri
   r1.unmount();
   const NetWorthScreen = require('../NetWorthScreen').default;
   const r2 = render(<NetWorthScreen />);
-  expect(screen.getByText(/E\*TRADE last updated/)).toBeOnTheScreen();   // the banner names the stale account instead
+  // 2026-08-11: the banner names the account by the app's ONE naming rule (institution + last four,
+  // falling back to institution + label), so two accounts at one firm can never print the same line
+  expect(screen.getByText(/E\*TRADE Individual Brokerage last updated/)).toBeOnTheScreen();
   r2.unmount();
   // fresh: no stamp anywhere
   useStore.setState({ assetAccounts: [{ asset_id: 'e1', label: 'Individual Brokerage', institution: 'E*TRADE', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100000, source: 'connected', last_synced: new Date().toISOString() }] } as any);

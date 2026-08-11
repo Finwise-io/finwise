@@ -300,11 +300,37 @@ export function investableAssets(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => !isRealAsset(a));
 }
 /** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
+/** The last four digits of an account, or null when we genuinely don't have them. Reads the stored
+ *  mask ('••4821') or an account number, and only ever returns FOUR DIGITS — E*TRADE relays a
+ *  scrambled identifier through SnapTrade whose tail is gibberish, and showing that as "your last
+ *  four" would be worse than showing nothing (live-verified 2026-07-19). */
+export function accountLastFour(a: { mask?: string; account_number?: string }): string | null {
+  for (const raw of [a.mask, (a as any).account_number]) {
+    const digits = String(raw ?? '').replace(/\D/g, '');
+    if (digits.length >= 4) return digits.slice(-4);
+  }
+  return null;
+}
+
 /** The ONE display name for an account row (build-43 finding #1): institution prefixes the label
  *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
  *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
  *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
 export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'> & { positions?: unknown[] }): string {
+  // FOUNDER RULE 2026-08-11 — THE account name, used on every surface:
+  //     <institution> -<last four>      e.g. "Vanguard -5738"
+  // A person recognises their account by who holds it and the digits on their statement, not by the
+  // broker's own wording ("Vanguard Kamala Kavadia Brokerage"). When we have both, nothing else is
+  // shown; the wrapper type (Brokerage / IRA / 401k) still rides its own quiet line where it matters,
+  // because it changes the tax treatment and the name no longer carries it.
+  const instRaw = (a.institution ?? '').trim();
+  const last4 = accountLastFour(a);
+  if (instRaw && last4) return `${instRaw} -${last4}`;
+
+  // NO digits available (a broker that won't share the number, or a hand-entered account): fall back
+  // to what we had before — institution + label, never doubled. The founder's rule fixes the verbose
+  // broker wording wherever the digits exist; where they don't, dropping the label would leave two
+  // accounts at one firm looking identical, which is worse.
   let label = (a.label ?? '').trim();
   // B45 founder finding: an older import kept the generic "Imported holdings" label while newer
   // single-security imports are named by their ticker (so rows read "E*TRADE LCTX" like

@@ -32,7 +32,7 @@ test('an unpriced holding names itself and says what we show meanwhile', () => {
 
 test('a stale connection is dated, and a fresh one is silent', () => {
   const stale = dataGaps([a({ asset_id: 'e1' as any, institution: 'E*TRADE', source: 'connected', last_synced: '2026-07-28T09:00:00Z' })], null, NOW, []);
-  expect(stale.some((g) => g.kind === 'stale-account' && /E\*TRADE last updated Jul 28/.test(g.title))).toBe(true);
+  expect(stale.some((g) => g.kind === 'stale-account' && /E\*TRADE .*last updated Jul 28/.test(g.title))).toBe(true);
   const fresh = dataGaps([a({ asset_id: 'e1' as any, institution: 'E*TRADE', source: 'connected', last_synced: '2026-08-03T09:00:00Z' })], null, NOW, []);
   expect(fresh.some((g) => g.kind === 'stale-account')).toBe(false);
 });

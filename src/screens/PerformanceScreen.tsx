@@ -318,7 +318,7 @@ export default function PerformanceScreen() {
               beginning, ending, fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
               contributions, withdrawals, dividends: breakdown.dividends, interest: breakdown.interest,
             });
-            const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any);
+            const gaps = dataGaps(accounts, windowStart, Date.now(), (store.transactions ?? []) as any, (store.syncFailures ?? []) as any);
             return (
               <>
                 <View style={styles.card}>

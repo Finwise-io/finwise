@@ -259,6 +259,9 @@ type AppState = {
   snaptradeSeenKeys: Record<string, true>;        // SnapTrade activity dedupe registry (composite keys)
   snaptradeConnections: { id: string; brokerage: string; disabled: boolean }[];  // last-known connections meta
   snaptradeLastSyncAt: string | null;             // ISO of last successful full sync (drives the daily debounce)
+  /** Accounts the last sync could NOT reach. Recorded so a dead connection can SAY it is dead
+   *  instead of looking identical to a healthy idle one (founder finding 2026-08-11). */
+  syncFailures: { accountId: string; at: string; reason?: string }[];
   wrapperConfirmQueue: string[];                  // asset_ids whose tax wrapper the user must confirm
   snaptradeActivityCursor: Record<string, string>; // per-account activity cursor (device-local; advances only after the broker's initial sync completes)
   txnFlags: TxnFlag[];                            // F10 "worth a look" flags (newest first)
@@ -335,6 +338,7 @@ type AppState = {
   updateExpense: (id: string, updates: Partial<ExpenseEntry>) => void;
   addAsset: (a: Omit<AssetAccount, 'asset_id'>) => void;
   ingestSnapTradeSync: (payloads: AccountSyncPayload[], connections: { id: string; brokerage: string; disabled: boolean }[]) => void;
+  setSyncFailures: (failures: { accountId: string; at: string; reason?: string }[]) => void;
   confirmAccountWrapper: (assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']) => void;
   removeConnectionAccounts: (connectionId: string, keepAsManual: boolean) => void;
   setSnaptradeActivityCursor: (c: Record<string, string>) => void;
@@ -493,6 +497,7 @@ export const useStore = create<AppState>()(
       snaptradeSeenKeys: {},
       snaptradeConnections: [],
       snaptradeLastSyncAt: null,
+      syncFailures: [],
       snaptradeActivityCursor: {},
       wrapperConfirmQueue: [],
       txnFlags: [],
@@ -591,6 +596,7 @@ export const useStore = create<AppState>()(
       // AUDIT FIX 2026-07-18 (P1 race): ingest runs INSIDE set() against the state as it is at
       // write time — a sync that started before cloud hydration can no longer replace hydrated
       // accounts with a stale empty snapshot.
+      setSyncFailures: (failures) => set({ syncFailures: failures ?? [] }),
       ingestSnapTradeSync: (payloads, connections) => set((s) => {
         const r = ingestSyncPure(s.assetAccounts, s.snaptradeSeenKeys ?? {}, payloads);
         return {
@@ -1015,7 +1021,7 @@ export const useStore = create<AppState>()(
       lastRetireChance: null,
         benchmarkReturns: {},
         priceCache: {}, pricesFetchedAt: null, transactions: [], txnFlags: [], knownPayees: {},
-        snaptradeSeenKeys: {}, snaptradeConnections: [], snaptradeLastSyncAt: null, snaptradeActivityCursor: {}, wrapperConfirmQueue: [],
+        snaptradeSeenKeys: {}, snaptradeConnections: [], snaptradeLastSyncAt: null, snaptradeActivityCursor: {}, wrapperConfirmQueue: [], syncFailures: [],
         lensOverride: null,
         milestoneHighSeen: null, transitionChecks: {}, drawOrder: null, dismissedInsights: {},
         goals: [], badges: DEFAULT_BADGES, xp: 0, streak: 0,

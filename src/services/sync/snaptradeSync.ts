@@ -4,6 +4,7 @@
 // connection. All rules that touch money live in ingest.ts and are pinned there.
 import { snaptradeApi, usdCash, snaptradeConfigured } from './snaptradeClient';
 import type { AccountSyncPayload } from './ingest';
+import { stAssetId } from './ingest';
 import { useStore } from '../../store/useStore';
 import type { StActivity } from './snaptrade';
 
@@ -62,6 +63,9 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
   const cursors: Record<string, string> = { ...(s.snaptradeActivityCursor ?? {}) };
 
   const payloads: AccountSyncPayload[] = [];
+  // accounts we could NOT reach this run — recorded, never swallowed (founder finding 2026-08-11)
+  const failed: { accountId: string; at: string; reason?: string }[] = [];
+  const nowIso = new Date().toISOString();
   for (const account of accounts ?? []) {
     try {
       const h = await snaptradeApi.holdings(account.id);
@@ -87,12 +91,18 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
       });
       if (initialDone) cursors[account.id] = new Date().toISOString();   // advance ONLY once the broker says complete
     } catch (e) {
-      // one broken account never sinks the sync — its prior data stays, freshness shows its age
+      // one broken account never sinks the sync — its prior data stays, freshness shows its age.
+      // Founder finding 2026-08-11: swallowing it here was why a dead connection and a healthy idle
+      // one looked identical on screen. The failure is now RECORDED against the account so the
+      // missing-data banner can say "we couldn't reach it" and offer Reconnect, instead of leaving
+      // the person to guess from a date that never moves.
+      failed.push({ accountId: stAssetId(account.id), at: nowIso, reason: (e as Error).message?.slice(0, 200) });
       console.warn('snaptrade sync: account failed', account.id, (e as Error).message);
     }
   }
 
   s.ingestSnapTradeSync?.(payloads, connMeta);
   s.setSnaptradeActivityCursor?.(cursors);
+  s.setSyncFailures?.(failed);   // empty array CLEARS them — a fixed connection stops complaining
   return payloads.length;
 }
