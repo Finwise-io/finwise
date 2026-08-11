@@ -300,6 +300,23 @@ export function investableAssets(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => !isRealAsset(a));
 }
 /** Asset value grouped by class — for the Net Worth donut (#19). Sums to totalAssets(). */
+/** THE wrapper word for a naming rule — the kind of ACCOUNT it is, not what it holds. A kind like
+ *  'stocks_etf' or 'crypto' describes the holdings; the account they sit in is a Brokerage, and that
+ *  is the word a person recognises on a statement (founder rule 2026-08-11:
+ *  "Institution + Brokerage/checking/savings/…" and "Institution + 401k/RothIRA/HSA/…"). */
+const KIND_TO_WRAPPER: Record<string, string> = {
+  checking: 'Checking', savings: 'Savings', hysa: 'High-yield savings',
+  money_market: 'Money market', cd: 'CD', cash_mgmt: 'Cash management',
+  // everything held inside a taxable investment account wears the account's own word
+  brokerage: 'Brokerage', stocks_etf: 'Brokerage', fixed_income: 'Brokerage', crypto: 'Brokerage',
+  private_equity: 'Brokerage', hedge_funds: 'Brokerage', commodities: 'Brokerage',
+  options: 'Brokerage', annuities: 'Annuity', other_asset: 'Brokerage',
+  // tax-advantaged wrappers — these ALWAYS show, because the wrapper is the tax treatment
+  '401k': '401(k)', trad_ira: 'Traditional IRA', roth_ira: 'Roth IRA', hsa: 'HSA', college_529: '529',
+  home: 'Home', vehicle: 'Vehicle',
+};
+export const wrapperWord = (kind?: string): string => (kind ? KIND_TO_WRAPPER[kind] ?? '' : '');
+
 /** The last four digits of an account, or null when we genuinely don't have them. Reads the stored
  *  mask ('••4821') or an account number, and only ever returns FOUR DIGITS — E*TRADE relays a
  *  scrambled identifier through SnapTrade whose tail is gibberish, and showing that as "your last
@@ -316,16 +333,28 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
  *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
  *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
-export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'> & { positions?: unknown[] }): string {
-  // FOUNDER RULE 2026-08-11 — THE account name, used on every surface:
-  //     <institution> -<last four>      e.g. "Vanguard -5738"
-  // A person recognises their account by who holds it and the digits on their statement, not by the
-  // broker's own wording ("Vanguard Kamala Kavadia Brokerage"). When we have both, nothing else is
-  // shown; the wrapper type (Brokerage / IRA / 401k) still rides its own quiet line where it matters,
-  // because it changes the tax treatment and the name no longer carries it.
+export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'> & { positions?: unknown[]; kind?: string; tax_bucket?: TaxBucket; tax_treatment?: TaxTreatment }): string {
+  // FOUNDER RULE 2026-08-11 (refined) — THE account name, on every surface:
+  //
+  //   TAXABLE accounts      → institution + last four            "Vanguard -5738"
+  //                           no digits?  institution + wrapper  "Vanguard Brokerage"
+  //   TAX-ADVANTAGED        → institution + wrapper + last four  "Vanguard Roth IRA -5738"
+  //                           no digits?  institution + wrapper  "Vanguard Roth IRA"
+  //   two identical names   → a trailing · 1 / · 2 (accountDisplayNames)
+  //
+  // Why the wrapper is compulsory on a tax-advantaged account and optional on a taxable one: the
+  // wrapper IS the tax treatment. A Roth IRA and a brokerage at the same firm behave differently for
+  // withdrawals, required distributions and the nest egg, so the name has to carry it. On a taxable
+  // account the digits alone identify it and the wrapper adds nothing the row needs.
   const instRaw = (a.institution ?? '').trim();
   const last4 = accountLastFour(a);
-  if (instRaw && last4) return `${instRaw} -${last4}`;
+  const wrapper = wrapperWord((a as any).kind);
+  const taxAdvantaged = taxTreatmentOf(a as AssetAccount) !== 'taxable';
+  if (instRaw) {
+    if (taxAdvantaged && wrapper) return last4 ? `${instRaw} ${wrapper} -${last4}` : `${instRaw} ${wrapper}`;
+    if (last4) return `${instRaw} -${last4}`;
+    if (wrapper) return `${instRaw} ${wrapper}`;
+  }
 
   // NO digits available (a broker that won't share the number, or a hand-entered account): fall back
   // to what we had before — institution + label, never doubled. The founder's rule fixes the verbose

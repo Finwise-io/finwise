@@ -37,13 +37,52 @@ test('every green section banner has square corners — one component, so it hol
 });
 
 // ── (3) THE ONE ACCOUNT-NAMING RULE: institution + last four ───────────────────────────────────
-test('an account is named "<institution> -<last four>" — never the broker\'s own wording', () => {
+// THE NAMING RULE (founder, 2026-08-11 — recorded in the PRD's Amendments tab):
+//   taxable        → institution + last four   · no digits → institution + wrapper
+//   tax-advantaged → institution + wrapper + last four (the wrapper IS the tax treatment)
+//   duplicates     → a trailing · 1 / · 2
+test('TAXABLE: institution + last four — never the broker\'s own wording', () => {
   expect(accountDisplayName({
-    label: 'Kamala Kavadia Brokerage', institution: 'Vanguard', mask: '••5738',
-  })).toBe('Vanguard -5738');
+    label: 'Kamala Kavadia Brokerage', institution: 'Vanguard', mask: '••5738', tax_bucket: 'TAXABLE', kind: 'brokerage',
+  } as any)).toBe('Vanguard -5738');
   // an account number works as well as a mask, and only the last FOUR are ever shown
-  expect(accountDisplayName({ label: 'Whatever', institution: 'Chase', account_number: '1234567890' } as any))
+  expect(accountDisplayName({ label: 'Whatever', institution: 'Chase', account_number: '1234567890', tax_bucket: 'TAXABLE' } as any))
     .toBe('Chase -7890');
+});
+
+test('TAXABLE with no digits: institution + the ACCOUNT word (Brokerage / Checking / Savings)', () => {
+  const n = (over: any) => accountDisplayName({ label: 'Kamala Kavadia Brokerage', institution: 'Vanguard', tax_bucket: 'TAXABLE', ...over } as any);
+  expect(n({ kind: 'brokerage' })).toBe('Vanguard Brokerage');
+  // a kind that describes the HOLDINGS still names the account it sits in
+  expect(n({ kind: 'stocks_etf' })).toBe('Vanguard Brokerage');
+  expect(n({ kind: 'crypto' })).toBe('Vanguard Brokerage');
+  expect(accountDisplayName({ label: 'x', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH' } as any)).toBe('Chase Checking');
+  expect(accountDisplayName({ label: 'x', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH' } as any)).toBe('Ally Savings');
+});
+
+test('TAX-ADVANTAGED: the wrapper ALWAYS shows — it is the tax treatment', () => {
+  expect(accountDisplayName({ label: 'K K Roth', institution: 'Vanguard', kind: 'roth_ira', tax_bucket: 'ROTH', mask: '••5738' } as any))
+    .toBe('Vanguard Roth IRA -5738');
+  expect(accountDisplayName({ label: 'K K 401k', institution: 'Fidelity', kind: '401k', tax_bucket: 'PRE_TAX' } as any))
+    .toBe('Fidelity 401(k)');
+  expect(accountDisplayName({ label: 'health', institution: 'Fidelity', kind: 'hsa', tax_bucket: 'PRE_TAX', mask: '••2210' } as any))
+    .toBe('Fidelity HSA -2210');
+  expect(accountDisplayName({ label: 'ira', institution: 'Vanguard', kind: 'trad_ira', tax_bucket: 'PRE_TAX' } as any))
+    .toBe('Vanguard Traditional IRA');
+});
+
+test('two accounts that still read the same get a 1 and a 2', () => {
+  const names = accountDisplayNames([
+    { asset_id: 'a', label: 'One', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE' },
+    { asset_id: 'b', label: 'Two', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE' },
+  ] as any);
+  expect([...names.values()].sort()).toEqual(['Vanguard Brokerage · 1', 'Vanguard Brokerage · 2']);
+  // two Roth IRAs at one firm, neither sharing digits, are still tellable apart
+  const roths = accountDisplayNames([
+    { asset_id: 'r1', label: 'A', institution: 'Vanguard', kind: 'roth_ira', tax_bucket: 'ROTH' },
+    { asset_id: 'r2', label: 'B', institution: 'Vanguard', kind: 'roth_ira', tax_bucket: 'ROTH' },
+  ] as any);
+  expect(new Set(roths.values()).size).toBe(2);
 });
 
 test('two accounts at one firm read differently — the founder\'s duplicate-banner bug', () => {
