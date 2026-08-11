@@ -42,8 +42,13 @@ export default function AccountDetailScreen() {
   const [showAll, setShowAll] = useState(false);
   const [valueSheet, setValueSheet] = useState(false);
 
+  // FOUNDER FINDING 2026-08-11: this was unsorted, and the list below shows only the first eight —
+  // so on an account with any history the dividends and interest could be sitting past the cut and
+  // the page looked as if it had none, while the figures above counted them. Newest first now.
   const txns: Transaction[] = useMemo(
-    () => ((store.transactions ?? []) as Transaction[]).filter((t) => String(t.account_id) === String(id) || String(t.counter_account_id) === String(id)),
+    () => ((store.transactions ?? []) as Transaction[])
+      .filter((t) => String(t.account_id) === String(id) || String(t.counter_account_id) === String(id))
+      .sort((a, b) => String(b.date ?? '').localeCompare(String(a.date ?? ''))),
     [store.transactions, id]);
 
   if (!account) {
@@ -89,8 +94,13 @@ export default function AccountDetailScreen() {
   const ledger = ((store.transactions ?? []) as any[]).filter((t) => t.account_id === account.asset_id);
   const incomeOf = (rw: any): string => {
     const tk = String(rw.name ?? '').split(' · ')[0].trim().toUpperCase();
-    const rowsFor = ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
-      && (t.ticker ? String(t.ticker).toUpperCase() === tk : rw.cls !== 'stocks_etf'));
+    // FOUNDER FINDING 2026-08-11: a ledger row with NO ticker used to match EVERY non-stock holding,
+    // so the whole account's untickered income was pinned onto each row — a CD showed "$16,907
+    // dividends", which a CD cannot pay, and two CDs showed the same figure twice. Income belongs to
+    // a holding only when the source actually says which holding it came from. Untickered income is
+    // real and is still counted — at the ACCOUNT level, in the Income figure above, where it belongs.
+    const rowsFor = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
+      && !!t.ticker && String(t.ticker).toUpperCase() === tk);
     const div = rowsFor.filter((t) => t.type === 'DIVIDEND').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
     const int = rowsFor.filter((t) => t.type === 'INTEREST').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
     const parts: string[] = [];
@@ -159,7 +169,14 @@ export default function AccountDetailScreen() {
         <View style={s.card}>
           <SectionBand title={`${ASSET_CLASS_LABEL[classView as keyof typeof ASSET_CLASS_LABEL]?.toUpperCase()} IN THIS ACCOUNT`} />
           <Text style={s.balance}>{maskedMoney(Math.round((breakdown as any)[classView] || 0))}</Text>
-          <Text style={s.classLine}>part of {account.label} · {maskedMoney(account.balance || 0)} total</Text>
+          {/* FOUNDER FINDING 2026-08-11: two bare figures ($224,190 above, $224,690 here) read as a
+              mismatch. Say the arithmetic out loud — this slice PLUS everything else IS the total. */}
+          <Text style={s.classLine}>
+            {maskedMoney(Math.round((breakdown as any)[classView] || 0))} of {maskedMoney(Math.round(account.balance || 0))} in {accountDisplayNames((store.assetAccounts ?? []) as AssetAccount[]).get(account.asset_id) ?? account.label}
+            {Math.round((account.balance || 0) - ((breakdown as any)[classView] || 0)) > 0
+              ? ` — the other ${maskedMoney(Math.round((account.balance || 0) - ((breakdown as any)[classView] || 0)))} is ${breakdownClasses.filter((k) => k !== classView).map((k) => ASSET_CLASS_LABEL[k as keyof typeof ASSET_CLASS_LABEL]).join(' + ') || 'other types'}`
+              : ''}
+          </Text>
           <TouchableOpacity accessibilityRole="button" accessibilityLabel="See the whole account"
             style={{ minHeight: 44, justifyContent: 'center' }} onPress={() => router.setParams({ class: undefined } as any)}>
             <Text style={s.linkTxt}>See the whole account ›</Text>

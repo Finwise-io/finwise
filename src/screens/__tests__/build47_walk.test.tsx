@@ -422,7 +422,9 @@ test('B47 finding 7: arriving with ?class= renders the class-only view with the 
   const AccountDetailScreen = require('../AccountDetailScreen').default;
   render(<AccountDetailScreen />);
   expect(screen.getByText(/IN THIS ACCOUNT/)).toBeOnTheScreen();
-  expect(screen.getByText(/part of Vanguard Brokerage/)).toBeOnTheScreen();
+  // 2026-08-11: two bare figures read as a mismatch, so the line states the arithmetic instead —
+  // this slice, of the account total, and what the remainder is
+  expect(screen.getByText(/of .* in Vanguard/)).toBeOnTheScreen();
   expect(screen.getByText('See the whole account ›')).toBeOnTheScreen();
   expect(screen.getByText(/VTI · 400 shares/)).toBeOnTheScreen();          // the stocks row (ticker naming)
   expect(screen.queryByText(/CUSIP9/)).toBeNull();                          // the CD stays out of the stocks view

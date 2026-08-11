@@ -6,13 +6,14 @@ import { useStore } from '../store/useStore';
 import { accountDisplayName, accountDisplayNames, accountLastFour } from '../domain/assets';
 import { dataGaps } from '../domain/gaps';
 
+let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), setParams: jest.fn() }),
-  useLocalSearchParams: () => ({}),
+  useLocalSearchParams: () => mockParams,
   router: { push: jest.fn() },
 }));
 
-beforeEach(() => useStore.getState().resetAll());
+beforeEach(() => { useStore.getState().resetAll(); mockParams = {}; });
 
 // ── (2) THE GREEN TITLE BARS ARE SQUARE, EVERYWHERE ────────────────────────────────────────────
 test('every green section banner has square corners — one component, so it holds on all screens', () => {
@@ -320,4 +321,49 @@ test('a money-market fund sent as a BARE TICKER is still not cash (the founder\'
   } as any)!;
   expect(b.cash).toBe(10000);                              // sweep only
   expect(b.stocks_etf).toBe(50000);
+});
+
+// ── ACCOUNT DETAIL: income belongs to the holding the SOURCE named, never to a guess ────────────
+test('untickered income is not pinned onto every holding — a CD never shows "dividends"', () => {
+  const acct = {
+    asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage',
+    tax_bucket: 'TAXABLE', balance: 224690, target_return: 0.05, source: 'connected', cash_balance: 500,
+    last_synced: new Date().toISOString(),
+    positions: [
+      { position_id: 'p1', ticker: 'CD1', name: 'ALLY BANK CD 4.2% 2027', asset_class: 'bond', last_price: 1, lots: [{ shares: 112095, cost_per_share: 1 }] },
+      { position_id: 'p2', ticker: 'CD2', name: 'CHASE CD 4.0% 2028', asset_class: 'bond', last_price: 1, lots: [{ shares: 112095, cost_per_share: 1 }] },
+    ],
+  };
+  useStore.setState({
+    assetAccounts: [acct],
+    // the broker sent income with NO ticker — it cannot be attributed to either CD
+    transactions: [
+      { id: 't1', account_id: 'van', type: 'DIVIDEND', amount: 16907, date: '2026-03-01' },
+      { id: 't2', account_id: 'van', type: 'INTEREST', amount: 10787, date: '2026-04-01' },
+    ],
+  } as any);
+  mockParams = { id: 'van' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  // the whole-account Income figure still counts it — the money is real and is not hidden
+  expect(screen.getByText('$27,694')).toBeOnTheScreen();
+  // …but no holding row claims it, and no CD is ever shown paying dividends
+  expect(screen.queryByText(/\$16,907 dividends/)).toBeNull();
+  expect(screen.queryByText(/Income: .*dividends/)).toBeNull();
+});
+
+test('the activity list is newest-first, so recent income is never pushed off the visible eight', () => {
+  const many = Array.from({ length: 12 }, (_, i) => ({
+    id: `old${i}`, account_id: 'van', type: 'DEPOSIT', amount: 100, date: `2025-${String((i % 12) + 1).padStart(2, '0')}-02`,
+  }));
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 1000, target_return: 0 }],
+    // the newest row is a dividend, stored LAST — it used to fall past the eight-row cut
+    transactions: [...many, { id: 'div', account_id: 'van', type: 'DIVIDEND', amount: 250, date: '2026-08-01' }],
+  } as any);
+  mockParams = { id: 'van' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  expect(screen.getByText('08-01')).toBeOnTheScreen();        // the 2026 dividend, newest, is visible
+  expect(screen.getByLabelText('2026-08-01: Dividend, plus $250')).toBeOnTheScreen();
 });
