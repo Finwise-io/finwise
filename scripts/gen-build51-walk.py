@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""The Build-50 founder walk sheet — what changed since Build 49, in the order you'd tap it.
+"""The Build-51 founder walk sheet — what changed since Build 50, in the order you'd tap it.
 
 One row per thing to look at, phrased as what YOU do and what you should see. Yellow columns are
 yours: Pass/Fail and a comment. Nothing in here is a code instruction — it is a walk.
@@ -8,7 +8,7 @@ import openpyxl
 from openpyxl.styles import Font, Alignment, PatternFill
 from openpyxl.utils import get_column_letter
 
-OUT = 'docs/FCC-core-55-70/build50-founder-walk-2026-08-11.xlsx'
+OUT = 'docs/FCC-core-55-70/build51-founder-walk-2026-08-11.xlsx'
 HEAD = PatternFill('solid', fgColor='085041')
 YOURS = PatternFill('solid', fgColor='FFF7D6')
 BAND = PatternFill('solid', fgColor='DFF2E9')
@@ -84,7 +84,7 @@ WALK = [
 
 wb = openpyxl.Workbook()
 ws = wb.active
-ws.title = 'Build 50 walk'
+ws.title = 'Build 51 walk'
 heads = ['#', 'Area', 'What you do', 'What you should see', 'Pass / Fail', 'Your comment']
 ws.append(heads)
 for c in range(1, len(heads) + 1):
@@ -107,8 +107,8 @@ ws.freeze_panes = 'A2'
 # ── the context tab ──
 ws2 = wb.create_sheet('What is in this build')
 rows = [
-    ['Build', 'v1.1.0 build 50, cut 2026-08-11 from commit 8e09374 on branch taxonomy-v1.0.7'],
-    ['Since', 'Build 49 (2026-08-10, commit 58bd1d1) — 22 commits'],
+    ['Build', 'v1.1.0 BUILD 51, cut 2026-08-11 from commit 8e09374 on branch taxonomy-v1.0.7. NOTE: not 50 — build 50 is the Aug-10 build (commit 58bd1d1) and has none of this work in it. If the Net worth title still sits on a white card, you are on 50.'],
+    ['Since', 'Build 50 (2026-08-10, commit 58bd1d1) — 22 commits'],
     ['The headline', 'Net worth rebuilt to the Claude Design "Quiet Instrument" handoff: one flat ledger where every number shares one right edge, the composition bar in place of the donut, collapsible institutions, and one green banner titling all five sections.'],
     ['Your decisions built', 'Bar replaces donut · debt bar · cushion progress bar · categories biggest first · cash-flow row deleted · grouping buttons on day one · real account names kept · white hero card kept · today\'s date on the hero title.'],
     ['Defects fixed on the way', 'Two buttons that led to screens that do not exist · connected accounts landing in Unclassified · two different cash numbers on one screen · "updated updated today" on every connected row · a figure that could not be computed printing as a real-looking $0 · an audit fixture that had been hiding all debts from the audit.'],
