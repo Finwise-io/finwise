@@ -301,8 +301,10 @@ test('path-ahead row carries the how ⓘ (your approved nest-egg explanation)', 
   } as any);
   const NetWorthScreen = require('../NetWorthScreen').default;
   render(<NetWorthScreen />);
-  expect(screen.getByText(/retire at \d+ with|on course to last past|See your plan/)).toBeOnTheScreen();   // approved words, 2026-08-04
-  expect(screen.getByLabelText('What is How we estimate this?')).toBeOnTheScreen();
+  // 2026-08-11: the card speaks for every computable plan (running short included) and shows the
+  // labelled sample + the missing answers when it cannot compute one — never a bare "See your plan"
+  expect(screen.getByText(/retire at \d+ with|on course to last past|running short|Sample: 84%/)).toBeOnTheScreen();
+  expect(screen.getByLabelText('What is How we work out your odds?')).toBeOnTheScreen();
 });
 
 test('matured bond: the dated banner with the three outcomes; paid-out writes the ledger row', () => {

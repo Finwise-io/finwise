@@ -106,6 +106,21 @@ export function nextDecision(args: {
 // The approved shape leads with what each lens acts on: workers get the pot at retirement
 // day FIRST, then survival; retirees have no retirement-day pot, so lasting IS the headline.
 
+/** THE ONE app-wide sample verdict — shown, always labelled as a sample, while the real one cannot
+ *  be computed. One constant so Home and Net worth can never drift to two different samples. */
+export const SAMPLE_CHANCE = 84;
+export const SAMPLE_HORIZON = 90;
+
+/** The invitation under a sample: name the answers still missing, so a dead end becomes one tap.
+ *  Founder rule 2026-08-11 — sample + ask, whether ONE answer is missing or all three. */
+export function sampleAskLine(missing: string[]): string {
+  const n = missing.length;
+  if (n === 0) return '';
+  if (n === 1) return `a sample, not your number — add ${missing[0]} and it becomes yours`;
+  const list = n === 2 ? `${missing[0]} and ${missing[1]}` : `${missing.slice(0, -1).join(', ')} and ${missing[n - 1]}`;
+  return `a sample, not your number — ${n} answers make it yours: ${list}`;
+}
+
 /** The age the middle path first hits zero, from a simulation band — null while it never does. */
 export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | null): number | null {
   return (band ?? []).find((pt) => pt.p50 <= 0)?.age ?? null;

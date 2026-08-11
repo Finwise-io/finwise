@@ -174,12 +174,19 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
       assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
     } as any);
     render(<WhatIfScreen />);
-    expect(screen.getAllByLabelText('What is How we estimate this?').length).toBe(2);
+    expect(screen.getAllByLabelText('What is How we work out your odds?').length).toBe(2);
     // founder's approved wording (2026-07-19), near-verbatim
-    expect(GLOSSARY.nestEggMath.body).toMatch(/earmarked retirement accounts/);
-    expect(GLOSSARY.nestEggMath.body).toMatch(/tailored to your specific asset mix/);
-    expect(GLOSSARY.nestEggMath.body).toMatch(/incremental wealth/);
-    expect(GLOSSARY.nestEggMath.body).toMatch(/estimate, not a promise/);
+    // REWRITTEN 2026-08-11 (founder ask): the whole method, for someone who does not follow finance —
+    // what we run, what Monte Carlo means, every assumption, and where to change them.
+    const body = GLOSSARY.nestEggMath.body;
+    expect(body).toMatch(/500 times/);                         // how many runs, in plain words
+    expect(body).toMatch(/named after the casino/);            // what "Monte Carlo" means
+    expect(body).toMatch(/WHAT WE ASSUME/);                    // the assumptions, listed
+    expect(body).toMatch(/2\.5% a year/);                      // inflation, stated
+    expect(body).toMatch(/S&P 500 for shares/);                // where the growth figures come from
+    expect(body).toMatch(/Plan tab and open Retirement/);      // where to change them
+    expect(body).toMatch(/WHAT THIS IS NOT — a promise/);      // and the honest limits
+    expect(body).not.toMatch(/\b(stochastic|volatility|Monte-Carlo simulation of)\b/);   // no jargon
   });
 
   test('truly no accounts → connect-or-add wording; sliders wait (nothing to grow yet)', () => {

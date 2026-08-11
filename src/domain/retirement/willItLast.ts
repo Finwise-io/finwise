@@ -4,7 +4,7 @@
 // The derivation mirrors RetirementCockpit's committed-plan inputs exactly (pinned by tests).
 import { simulate, retirementSpendMonthly, type RetirementInputs } from './index';
 import { ssBenefitAtClaimAge } from './ssTiming';
-import { retirementEarmarkedValue, blendedReturn, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
+import { retirementEarmarkedValue, blendedReturn, blendedVolatility, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../assets';
 import { taxBucketSplit } from '../decumulation';
 import { effectiveRateOnGrossFor } from '../income/tax';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../income';
@@ -13,6 +13,9 @@ import { retirementIncomeMonthly } from '../income';
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 /** Same volatility convention as the cockpit: higher return ⇒ more volatility. */
+/** SCENARIO fallback only: when someone types a return on the Plan sliders with nothing held yet,
+ *  there are no holdings to measure, so risk is derived from the return. Real portfolios use
+ *  blendedVolatility (per-class figures from the same long-run series as the returns). */
 export const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);
 
 /** Chance band → plain word (word pairs the number so color is never the only signal). */
@@ -99,7 +102,9 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     now_year: new Date().getFullYear(),
     inflation: planInfl,
     mean_return: growthRate,
-    vol_return: volOf(growthRate),
+    // 2026-08-11: the portfolio's OWN volatility, weighted like its return — not `return × 1.7`.
+    // The scenario rule still applies when the user has typed a return with nothing held yet.
+    vol_return: (a.accounts ?? []).length ? blendedVolatility(a.accounts) : volOf(growthRate),
     paths: 400, seed: 42,
   } as RetirementInputs;
 }

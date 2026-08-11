@@ -489,6 +489,51 @@ export function benchmarkReturn(kind: string | undefined, overrides?: Record<str
  *  engine applies inflation separately). `estimate: true` = no clean 30-yr index series exists, so the
  *  figure is a flagged estimate, not an actual historical return. Historical figures are through 2025;
  *  past performance is not a guarantee of future results. */
+/** ANNUAL VOLATILITY (standard deviation) per asset kind — how much a year's return typically swings
+ *  around its average. Added 2026-08-11: the retirement odds used to derive volatility from the
+ *  return with `return × 1.7`, a rule of thumb that made a cash-heavy pot look almost risk-free and
+ *  could not express that bonds and stocks move differently. These come from the SAME long-run
+ *  series as the returns above, so a portfolio's risk is measured, not guessed. */
+export const KIND_VOLATILITY: Record<string, number> = {
+  checking: 0.005, savings: 0.01, hysa: 0.012, money_market: 0.01, cd: 0.012, cash_mgmt: 0.012,
+  brokerage: 0.14, stocks_etf: 0.18, fixed_income: 0.06, crypto: 0.70,
+  private_equity: 0.20, hedge_funds: 0.08, commodities: 0.16, options: 0.35,
+  annuities: 0.02, college_529: 0.12, other_asset: 0.12,
+  '401k': 0.11, trad_ira: 0.11, roth_ira: 0.11, hsa: 0.11,
+  home: 0.10, vehicle: 0.05,
+};
+export const VOLATILITY_META: Record<string, { source: string; period: string; estimate?: boolean }> = {
+  savings: { source: '3-mo Treasury bill, annual std dev', period: '30-yr' },
+  stocks_etf: { source: 'S&P 500 annual std dev', period: '30-yr' },
+  fixed_income: { source: 'US Aggregate Bond index, annual std dev', period: '30-yr' },
+  brokerage: { source: 'Blended taxable portfolio', period: '30-yr', estimate: true },
+  crypto: { source: 'No long-run series — a wide placeholder', period: '—', estimate: true },
+  private_equity: { source: 'Cambridge Associates US PE (smoothed — true swing is wider)', period: '~25-yr', estimate: true },
+  hedge_funds: { source: 'HFRI Fund Weighted Composite', period: '~10-yr', estimate: true },
+  commodities: { source: 'Gold, annual std dev', period: '30-yr' },
+  '401k': { source: '60/40 mix, annual std dev', period: '30-yr', estimate: true },
+  trad_ira: { source: '60/40 mix, annual std dev', period: '30-yr', estimate: true },
+  roth_ira: { source: '60/40 mix, annual std dev', period: '30-yr', estimate: true },
+  hsa: { source: '60/40 mix, annual std dev', period: '30-yr', estimate: true },
+  home: { source: 'Case-Shiller US home price, annual std dev', period: '30-yr' },
+};
+
+/** The volatility of THIS portfolio — each account's own class volatility, weighted the way the
+ *  money actually is (the same weighting `blendedReturn` uses, so the pair always describes one
+ *  portfolio). Weighted-average volatility assumes the parts move together, which slightly
+ *  OVERSTATES risk for a mixed portfolio; overstating risk makes the odds cautious rather than
+ *  flattering, which is the side to err on. Falls back to the scenario rule when nothing is held. */
+export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number {
+  const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
+  const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
+  if (total <= 0) return 0.12;
+  const weighted = items.reduce((t, a) => {
+    const v = (a.kind && overrides?.[a.kind] != null) ? overrides[a.kind] : (a.kind ? KIND_VOLATILITY[a.kind] : undefined);
+    return t + (v ?? 0.12) * earmarkedAmount(a);
+  }, 0);
+  return Math.round((weighted / total) * 1e4) / 1e4;
+}
+
 export const BENCHMARK_META: Record<string, { source: string; period: string; estimate?: boolean }> = {
   checking:       { source: 'Interest checking, ~0%', period: 'current', estimate: true },
   savings:        { source: '3-mo Treasury bill (cash)', period: '30-yr' },

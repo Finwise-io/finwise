@@ -163,3 +163,59 @@ test('the fix-it sheet runs the sync in place and says what happened', async () 
   expect(sync).toHaveBeenCalledWith({ force: true });
   expect(await screen.findByText(/Updated\. Anything still listed here needs a re-login\./)).toBeOnTheScreen();
 });
+
+// ── MEASURED VOLATILITY (founder ask 2026-08-11: "where are we getting assumptions?") ───────────
+test('a portfolio\'s risk is MEASURED from what it holds, not derived from its return', () => {
+  const { blendedVolatility, blendedReturn, KIND_VOLATILITY, VOLATILITY_META } = require('../domain/assets');
+  // retirement_pct forces the cash into the pot — by default cash is emergency money, not nest egg
+  const cashy = [{ asset_id: 'c', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 100000, target_return: 0, retirement_pct: 100 }] as any;
+  const stocky = [{ asset_id: 's', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 100000, target_return: 0 }] as any;
+  // the old rule (return × 1.7, floored at 5%) called a savings account 5% volatile. It is not.
+  expect(blendedVolatility(cashy)).toBeLessThan(0.02);
+  expect(blendedVolatility(stocky)).toBe(KIND_VOLATILITY.stocks_etf);
+  // a 50/50 mix sits between its parts, weighted by the money — same weighting the return uses
+  const mixed = [...cashy, ...stocky];
+  const v = blendedVolatility(mixed);
+  expect(v).toBeGreaterThan(blendedVolatility(cashy));
+  expect(v).toBeLessThan(blendedVolatility(stocky));
+  expect(blendedReturn(mixed)).toBeGreaterThan(0);            // the pair describes ONE portfolio
+  // every figure that is an estimate rather than a measured series says so, like the returns do
+  expect(VOLATILITY_META.stocks_etf.source).toMatch(/S&P 500/);
+  expect(VOLATILITY_META.crypto.estimate).toBe(true);
+});
+
+// ── SAMPLE + ASK when the verdict cannot be computed ────────────────────────────────────────────
+test('the ask names the missing answers — one, two or all three', () => {
+  const { sampleAskLine } = require('../domain/planning/hub');
+  expect(sampleAskLine(['what you spend']))
+    .toBe('a sample, not your number — add what you spend and it becomes yours');
+  expect(sampleAskLine(['your age', 'what you spend']))
+    .toBe('a sample, not your number — 2 answers make it yours: your age and what you spend');
+  expect(sampleAskLine(['your age', 'what you spend', 'what you have']))
+    .toBe('a sample, not your number — 3 answers make it yours: your age, what you spend and what you have');
+  expect(sampleAskLine([])).toBe('');
+});
+
+test('a plan missing ONE answer shows the labelled sample and names it — never a bare "See your plan"', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    // age ✔ and savings ✔, but nothing captured about spending
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(yr - 55), targetRetirementAge: '67' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000, target_return: 0.07 }],
+    nwSetupChoice: 'self',
+  } as any);
+  const NetWorthScreen = require('../screens/NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
+  expect(screen.getByText(/odds of lasting to age 90/)).toBeOnTheScreen();
+  expect(screen.getByText(/add what you spend and it becomes yours/)).toBeOnTheScreen();
+  expect(screen.queryByText('See your plan ›')).toBeNull();
+  // the sample is ALWAYS labelled — a sample figure and a real verdict never mix
+  expect(screen.queryByText(/retire at \d+ with/)).toBeNull();
+});
+
+test('the one app-wide sample is one constant — Home and Net worth cannot drift apart', () => {
+  const { SAMPLE_CHANCE, SAMPLE_HORIZON } = require('../domain/planning/hub');
+  expect(SAMPLE_CHANCE).toBe(84);
+  expect(SAMPLE_HORIZON).toBe(90);
+});

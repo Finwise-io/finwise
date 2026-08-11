@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
-import { onCourseSentence, lensChanceWord, shortfallAgeFromBand } from '../domain/planning/hub';
+import { onCourseSentence, lensChanceWord, shortfallAgeFromBand, planDoor, sampleAskLine, SAMPLE_CHANCE, SAMPLE_HORIZON } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
@@ -242,6 +242,8 @@ export default function NetWorthScreen() {
   const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
   const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
   const nwWord = nwWil.chance != null ? lensChanceWord(resolveLens(op ?? {}, store.lensOverride), nwWil.chance) : '';
+  // which of the three answers are still missing (age · what you spend · what you have)
+  const nwDoor = planDoor(op, assets);
   const nwOnCourse = onCourseSentence({
     lens: resolveLens(op ?? {}, store.lensOverride), chance: nwWil.chance,
     retireAge: Math.round(Number(store.retirementAssumptions?.retireAge ?? op?.targetRetirementAge ?? 67)),
@@ -712,10 +714,22 @@ export default function NetWorthScreen() {
           onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={nwOnCourse ? `Your retirement plan: ${nwOnCourse}. Opens the Plan tab.` : 'Your retirement plan. Opens the Plan tab.'}>
           <SectionBand title="YOUR RETIREMENT PLAN" />
-          <View style={[styles.blockBody, { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }]}>
-            <Text style={styles.rowTitle}>
+          {/* Founder rule 2026-08-11: when the real verdict cannot be computed, show THE one app-wide
+              sample — labelled as a sample — and name the answers still missing, whether that is one
+              of them or all three. A bare "See your plan ›" told the person nothing about why. */}
+          {!nwOnCourse && nwDoor.count > 0 && (
+            <View style={styles.blockBody}>
+              <Text style={styles.sampleLine}>
+                <Text style={styles.sampleNum}>Sample: {SAMPLE_CHANCE}%</Text> odds of lasting to age {SAMPLE_HORIZON}
+              </Text>
+              <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
+            </View>
+          )}
+          <View style={[styles.blockBody, { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
+            !nwOnCourse && nwDoor.count > 0 && { paddingTop: 0 }]}>
+            {(nwOnCourse || nwDoor.count === 0) && (<Text style={styles.rowTitle}>
               {nwOnCourse ? <Text><Text style={{ fontWeight: '800' }}>{nwWord}</Text> — {nwOnCourse} ›</Text> : 'See your plan ›'}
-            </Text>
+            </Text>)}
             <InfoDot term="nestEggMath" />
           </View>
         </TouchableOpacity>
