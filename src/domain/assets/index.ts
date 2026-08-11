@@ -267,9 +267,15 @@ function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean):
 export function totalAssets(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).reduce((t, a) => t + (a.balance || 0), 0));
 }
-/** Cash & cash equivalents (Term #3). */
+/** Cash & cash equivalents (Term #3) — THE cash number, and the same one the Net Worth CASH group
+ *  shows. L-7 fix 2026-08-10: this used to count whole cash accounts only, so a connected brokerage's
+ *  sweep balance was cash in the donut and the CASH group but NOT in the emergency cushion — the same
+ *  screen printed "CASH $8,838" above "$8,000 cash ÷ …". Both now read the class breakdown. */
 export function cashTotal(accounts: AssetAccount[]): number {
-  return sumWhere(accounts, (a) => assetClassOf(a) === 'cash');
+  return round2((accounts ?? []).reduce((t, a) => {
+    const b = accountClassBreakdown(a);
+    return t + (b ? b.cash : assetClassOf(a) === 'cash' ? (a.balance || 0) : 0);
+  }, 0));
 }
 export function equitiesTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'stocks_etf');
@@ -358,7 +364,16 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     if (Math.abs(r) <= Math.max(1, 0.01 * Math.abs(a.balance || 0))) {
       const largest = (Object.keys(out) as AssetClass[]).sort((x, y) => out[y] - out[x])[0];
       out[largest] = round2(out[largest] + r);
-    } else out.mixed = round2(out.mixed + r);
+    } else {
+      // 2026-08-10, same class of defect as the founder's CD-under-Cash finding: a CONNECTED account
+      // that sends no position detail (a CD ladder, a Treasuries account, a savings account) was
+      // dumped whole into Unclassified even when we know exactly what it is — its own explicit class,
+      // its CD/T-bill label or its kind. Only a wrapper whose contents are genuinely unknown
+      // (assetClassOf === 'mixed': a bare 401(k)/IRA/brokerage) may land in Unclassified.
+      const own = assetClassOf(a);
+      const bucket: AssetClass = own === 'mixed' ? 'mixed' : own;
+      out[bucket] = round2(out[bucket] + r);
+    }
   }
   return out;
 }

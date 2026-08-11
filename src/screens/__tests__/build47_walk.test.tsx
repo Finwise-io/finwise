@@ -610,7 +610,9 @@ test('finding 14 (re-pinned after By-type was removed): every cash-bucket accoun
   render(<NetWorthScreen />);
   // checking + savings + HYSA all sit under ONE Cash uber-group carrying their sum — no
   // "Checking"/"Savings"/"HYSA" headers anywhere (the honest-merge rule survives the redesign)
-  expect(screen.getByLabelText(/Cash, \$28,000, 1 category/)).toBeOnTheScreen();
+  // 2026-08-10: a group whose single class collapses straight to accounts counts ACCOUNTS, the way
+  // the approved mock words it ("CASH · 2 accounts"), not the internal "1 category".
+  expect(screen.getByLabelText(/Cash, \$28,000, 3 accounts/)).toBeOnTheScreen();
   expect(screen.queryByText('Savings')).toBeNull();
   expect(screen.queryByText('HYSA')).toBeNull();
 });

@@ -108,7 +108,10 @@ export function dataGaps(
           kind: 'stale-value', accountId: a.asset_id,
           title: `${a.label || 'A value'} hasn't been updated in ${Math.floor(d / 365)} year${d >= 730 ? 's' : ''}`,
           meanwhile: 'We still count what you typed — property has no price feed, so only you can refresh it.',
-          fixLabel: 'Update the value', route: `/(tabs)/networth?edit=${a.asset_id}`,
+          // the Net worth tab's route key is 'analytics' — '/(tabs)/networth' matches nothing, so this
+          // button used to land on an unmatched route and bounce Home. Every fix button must reach the
+          // exact cure: the account's own page, where Edit opens its editor.
+          fixLabel: 'Update the value', route: `/account-detail?id=${a.asset_id}`,
         });
       }
     }

@@ -8,9 +8,13 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { InfoDot } from './UI';
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0 }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
+  /** width of the row's trailing arrow column, so a band total lands on the SAME right edge as a row
+   *  value that is followed by a `›` (Net worth's flat ledger). 0 = no arrow column on the rows. */
+  trailing?: number;
 }) {
+  const valuePad = (inCard ? inset : 0) + trailing;
   return (
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
       {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
@@ -20,7 +24,7 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
       <View style={{ flex: 1 }} />
       {/* founder gap 4 (2026-08-10): the band bleeds to the card edge while rows are inset, so the
           value carries the same inset back — every number on the screen shares ONE right edge. */}
-      {value != null && <Text style={[s.value, light && s.textLight, inCard && { marginRight: inset }]}>{value}</Text>}
+      {value != null && <Text style={[s.value, light && s.textLight, valuePad > 0 && { marginRight: valuePad }]}>{value}</Text>}
     </View>
   );
 }

@@ -269,7 +269,9 @@ test('B45: a young history labels the span HONESTLY — "since Jul 19", never "u
     nwDaily: { [key]: 4000, [new Date().toISOString().slice(0, 10)]: 5000 },   // launch captures today on device
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText(/up \$1,000/)).toBeOnTheScreen();     // the move
+  // founder wording 2026-08-10: the move is named ("Change in net worth"), signed, and no longer
+  // says "up"/"down" in words — the arrow and the sign carry the direction.
+  expect(screen.getByText(/Change in net worth \+\$1,000/)).toBeOnTheScreen();     // the move
   expect(screen.getByText(expected)).toBeOnTheScreen();          // the date, on its own line, with the year
   expect(screen.queryByText(/this year/)).toBeNull();
 });
@@ -282,8 +284,8 @@ test('B45 + founder 2026-08-10: an unchanged history reads "$0" and stays TAPPAB
     nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByLabelText(/\$0 change.*hide offsetting moves/)).toBeOnTheScreen();   // tappable: opens the walk
-    expect(screen.getByText(/since /)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Change in net worth \$0.*hide offsetting moves/)).toBeOnTheScreen();   // tappable: opens the walk
+  expect(screen.getByText(/since /)).toBeOnTheScreen();
   expect(screen.queryByText(/up \$0/)).toBeNull();     // the founder's exact complaint ("up $0 this year")
   expect(screen.queryByText(/this year/)).toBeNull();
 });

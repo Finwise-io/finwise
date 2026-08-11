@@ -1,0 +1,527 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>Net Worth — Quiet Instrument v2 (BUILD SPEC) — 2026-08-10</title>
+<style>
+/* ——— app tokens, verbatim from src/utils/theme.ts ——— */
+:root{
+  --primary:#178F6B; --primaryDark:#0F6E56; --primaryDeep:#085041; --primaryLight:#E1F5EE; --bandLight:#DFF2E9;
+  --amber:#854F0B; --amberLight:#FAEEDA; --amberMid:#FAC775;
+  --red:#A32D2D; --redLight:#FCEBEB; --white:#FFFFFF;
+  --bgSecondary:#F6F7F5; --bgTertiary:#EEEEE9; --cardBg:#FFFFFF;
+  --textPrimary:#1A1A18; --textSecondary:#6B6B66; --textTertiary:#76766F;
+  --border:rgba(0,0,0,.10); --gainText:#006300; --onDeepTint:#BEE7D8;
+  /* ClassMarkColors — the validated donut palette */
+  --cStocks:#2a78d6; --cCash:#1baf7a; --cRealEstate:#eda100; --cBonds:#4a3aa7; --cAlt:#eb6834; --cProp:#e87ba4;
+}
+body{margin:0;background:#e7e3dc;font-family:system-ui,-apple-system,sans-serif;padding:30px;color:#222}
+.note{max-width:900px;font-size:13px;line-height:1.6;margin:0 0 12px}
+.note b{color:#000}
+.delta{max-width:900px;background:#fff;border-left:4px solid var(--primaryDeep);padding:12px 16px;font-size:12.5px;line-height:1.65;margin:0 0 26px}
+.delta li{margin:3px 0}
+.row{display:flex;flex-wrap:wrap;gap:30px;align-items:flex-start}
+.frame{width:390px;flex:none}
+.cap{font-size:12px;line-height:1.55;color:#3a3a3a;margin:10px 2px 26px;max-width:390px}
+.cap b{color:#000}
+
+/* ——— phone ——— */
+.phone{width:390px;border-radius:40px;overflow:hidden;background:var(--bgSecondary);
+  box-shadow:0 26px 54px rgba(0,0,0,.16),0 0 0 1px rgba(0,0,0,.1);color:var(--textPrimary)}
+.status{display:flex;justify-content:space-between;padding:12px 24px 4px;font-size:13px;font-weight:700;color:var(--textPrimary)}
+/* TopBar — the app's real shared header (Menu · wordmark · eye · gear) */
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:4px 20px 10px;background:var(--bgSecondary)}
+.tbtn{display:flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--border);border-radius:19px;
+  background:var(--cardBg);font-size:13px;font-weight:700;color:var(--textSecondary)}
+.wordmark{font-size:14px;font-weight:800;color:var(--primaryDeep);letter-spacing:.2px}
+.tico{width:32px;height:32px;border:1px solid var(--border);border-radius:19px;background:var(--cardBg);
+  display:flex;align-items:center;justify-content:center;font-size:14px;color:var(--textSecondary)}
+.tright{display:flex;gap:8px}
+
+/* ——— hero (the app's approved white card + deep-green band title) ——— */
+.hero{background:var(--cardBg);border-radius:16px;margin:6px 16px 0;overflow:hidden;padding-bottom:12px}
+.heroband{background:var(--primaryDeep);display:flex;align-items:center;gap:6px;padding:8px 12px;margin-bottom:8px}
+.heroband .t{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--white);text-transform:uppercase}
+.idot{width:14px;height:14px;border-radius:50%;border:1px solid currentColor;font-size:9px;font-style:italic;
+  display:inline-flex;align-items:center;justify-content:center;flex:none}
+.ownowe{font-size:13px;color:var(--textSecondary);margin-bottom:2px;padding:0 12px;font-variant-numeric:tabular-nums}
+.heronum{font-size:38px;font-weight:800;line-height:1.05;color:var(--primaryDark);padding:0 12px;font-variant-numeric:tabular-nums}
+.change{font-size:13px;font-weight:800;margin-top:4px;padding:0 12px;font-variant-numeric:tabular-nums}
+.change.up{color:var(--gainText)}
+.change.down{color:var(--amber)}
+.since{font-size:13px;font-weight:400;color:var(--textSecondary);margin-top:4px;padding:0 12px}
+
+/* ——— banner ——— */
+.banner{margin:8px 16px 0;background:var(--amberLight);border:1px solid var(--amber);border-radius:16px;padding:12px}
+.banner .h{font-size:13px;font-weight:800;color:var(--textPrimary)}
+.banner .l{font-size:13px;color:var(--textSecondary);margin-top:2px}
+
+/* ——— retirement card ——— */
+.card{background:var(--cardBg);border-radius:16px;margin:6px 16px 0;overflow:hidden}
+.bandInCard{background:var(--primaryDeep);padding:8px 12px;display:flex;align-items:center;gap:6px}
+.bandInCard .t{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--white);text-transform:uppercase}
+.cardBody{padding:8px 12px 12px;font-size:15px;font-weight:600;color:var(--textPrimary);line-height:1.35}
+.cardBody b{font-weight:800}
+.cardSub{font-size:11px;font-weight:600;color:var(--textSecondary);margin-top:2px}
+
+/* ——— pills (LEFT justified — founder note 4) ——— */
+.pills{display:flex;gap:8px;padding:12px 16px 0}
+.pill{border:1px solid var(--border);border-radius:999px;padding:8px 14px;font-size:13px;font-weight:700;
+  background:var(--cardBg);color:var(--textPrimary)}
+.pill.on{background:var(--textPrimary);color:var(--cardBg);border-color:var(--textPrimary)}
+
+/* ——— flat ledger: bands full-bleed, one shared right edge ——— */
+.band{background:var(--primaryDeep);display:grid;grid-template-columns:1fr auto 16px;align-items:center;
+  column-gap:8px;padding:8px 16px;margin-top:12px}
+.band .t{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--white);text-transform:uppercase}
+.band .v{font-size:13px;font-weight:800;color:var(--white);font-variant-numeric:tabular-nums;text-align:right}
+.band.light{background:var(--bandLight);margin-top:0}
+.band.light .t,.band.light .v{color:var(--primaryDeep);text-transform:none;letter-spacing:.3px}
+.sheetRow,.acct,.debt{background:var(--cardBg);display:grid;grid-template-columns:1fr auto 16px;align-items:center;
+  column-gap:8px;padding:10px 16px;border-top:1px solid var(--border)}
+.sheetRow .n{font-size:15px;font-weight:600;color:var(--textPrimary);display:flex;align-items:center;gap:8px}
+.sheetRow .v{font-size:15px;font-weight:800;color:var(--textPrimary);font-variant-numeric:tabular-nums;text-align:right}
+.sheetRow .c,.acct .c,.debt .c{font-size:15px;color:var(--textTertiary);text-align:right}
+.acct{padding-left:36px}
+.acct .n{font-size:15px;color:var(--textPrimary)}
+.acct .v{font-size:15px;color:var(--textSecondary);font-variant-numeric:tabular-nums;text-align:right}
+.acct .src{font-size:11px;color:var(--textTertiary);margin-top:1px}
+.inst{padding-left:32px}
+.debt .n{font-size:15px;font-weight:600;color:var(--textPrimary);display:flex;align-items:center;gap:6px}
+.debt .v{font-size:15px;font-weight:800;color:var(--red);font-variant-numeric:tabular-nums;text-align:right}
+.hot{background:var(--redLight);color:var(--red);font-size:11px;font-weight:800;border-radius:8px;padding:2px 6px}
+.caret{font-size:13px;color:var(--textTertiary);width:14px;display:inline-block}
+.cnt{font-weight:400;color:var(--textSecondary);font-size:13px}
+
+/* ——— donut ——— */
+.donutWrap{background:var(--cardBg);padding:14px 16px 12px;display:flex;justify-content:center}
+.donutBox{position:relative;width:330px;height:150px}
+.dlabel{position:absolute;font-size:11px;font-weight:700;color:var(--textPrimary);line-height:1.25;max-width:96px}
+.dpct{font-weight:800}
+.dcenterL{font-size:11px;color:var(--textSecondary)}
+.dcenterV{font-size:20px;font-weight:800;color:var(--textPrimary)}
+.dsmall{background:var(--cardBg);font-size:11px;font-weight:700;color:var(--textSecondary);padding:0 16px 12px;text-align:center}
+.dsw{display:inline-block;width:8px;height:8px;border-radius:4px;margin-right:4px;vertical-align:0}
+
+/* ——— cushion ——— */
+.cush{background:var(--cardBg);padding:10px 16px 14px}
+.cushTop{display:flex;align-items:baseline;gap:8px;margin-top:4px}
+.cushM{font-size:24px;font-weight:800;font-variant-numeric:tabular-nums}
+.cushW{font-size:13px;font-weight:800;color:var(--amber)}
+.cushMath{font-size:13px;color:var(--textSecondary);margin-top:2px}
+.cushNote{font-size:11px;color:var(--textTertiary);margin-top:4px}
+
+/* ——— extras + tab bar ——— */
+.glance{background:var(--cardBg);border-radius:16px;margin:8px 16px 0;padding:12px;display:grid;
+  grid-template-columns:1fr 16px;align-items:center}
+.glance .t{font-size:15px;font-weight:600}
+.glance .s{font-size:11px;font-weight:600;color:var(--textSecondary);margin-top:1px}
+.addbtn{margin:12px 16px 0;background:var(--primary);border-radius:16px;padding:14px;text-align:center;
+  color:#fff;font-size:17px;font-weight:800}
+.door{background:var(--cardBg);border-top:1px solid var(--border);padding:12px 16px;display:grid;
+  grid-template-columns:1fr 16px;font-size:15px;font-weight:800;color:var(--primaryDark)}
+.door .c{color:var(--textTertiary);text-align:right;font-weight:400}
+.tabbar{display:flex;justify-content:space-around;background:var(--cardBg);border-top:.5px solid var(--border);
+  padding:8px 0 18px;margin-top:14px}
+.tab{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:10.5px;font-weight:700;color:var(--textTertiary)}
+.tab .u{width:22px;height:3px;border-radius:2px;background:transparent}
+.tab.on{color:var(--primary)} .tab.on .u{background:var(--primary)}
+
+/* ——— sheets ——— */
+.sheetback{background:rgba(0,0,0,.35);min-height:700px;display:flex;flex-direction:column;justify-content:flex-end}
+.sheet{background:var(--white);border-radius:24px 24px 0 0;padding:10px 16px 30px}
+.grab{width:36px;height:4px;border-radius:2px;background:var(--bgTertiary);margin:0 auto 10px}
+.walkband{background:var(--primaryDeep);margin:0 -16px 6px;padding:8px 12px;font-size:11px;font-weight:800;
+  letter-spacing:.5px;color:#fff;text-transform:uppercase}
+.wrow{display:grid;grid-template-columns:1fr auto;padding:7px 0;font-size:13px;color:var(--textPrimary);
+  font-variant-numeric:tabular-nums}
+.wrow .v{font-weight:700;text-align:right;min-width:92px}
+.wrow.ind{padding-left:20px;color:var(--textSecondary)}
+.wrow.ind .v{font-weight:700;color:var(--textSecondary)}
+.wrow.s .v,.wrow.s{font-weight:800}
+.wrow.tot{border-top:1px solid var(--bgTertiary);margin-top:4px;padding-top:10px;font-weight:800}
+.wrow.tot .v{color:var(--primaryDark);font-weight:800}
+.wnote{font-size:11px;color:var(--textTertiary);margin-top:8px;line-height:1.45}
+.gapcard{background:var(--cardBg);border-radius:16px;padding:12px;margin-bottom:8px;box-shadow:0 0 0 1px rgba(0,0,0,.05)}
+.gapcard .t{font-size:13px;font-weight:700}
+.gapcard .s{font-size:13px;color:var(--textSecondary);margin-top:2px}
+.fixbtn{background:var(--primaryDeep);color:#fff;border-radius:10px;min-height:44px;display:flex;align-items:center;
+  justify-content:center;font-size:13px;font-weight:800;margin-top:8px}
+</style>
+</head>
+<body>
+
+<p class="note">
+<b>Net Worth — “Quiet Instrument” v2 · BUILD SPEC · 2026-08-10.</b> This is the version I am building.
+It takes the Claude Design handoff (option 1b, archived in this folder) and reconciles it with your
+NW-screen notes of the same day and the decisions already approved for this app. Every colour and size below is a
+real token from <i>src/utils/theme.ts</i> — nothing invented. v1 in this folder is the handoff drawn as-received;
+this v2 is what the screen will actually become.
+</p>
+<div class="delta">
+<b>What I took from the handoff, and what I kept from your app:</b>
+<ul>
+<li><b>Taken — the flat ledger.</b> The floating white cards are gone from the own/owe lists. Sections run edge to edge
+with hairline dividers, so every number in the whole list lands on <b>one right edge</b>, group totals included, each row
+carrying its own arrow slot. This is what fixes the “totals sit slightly left” problem for good instead of nudging it.</li>
+<li><b>Taken — collapsible institutions.</b> By institution now opens and closes like By category, remembers each side
+separately, and shows only what that institution <i>holds</i> — the Chase Visa debt never merges into Chase’s total.</li>
+<li><b>Kept — your green, and your hero.</b> The handoff’s palette is the same green family we already use, so the bands
+stay the app’s deep green (#085041) and the class colours stay the validated colourblind-safe set. The handoff also turns
+the whole hero into a solid green block; I did <b>not</b> do that, because you approved the white hero card with the green
+band and the green number six days ago. Say the word and I’ll switch it — v1 in this folder shows that version.</li>
+<li><b>Kept — the donut, with labels on it</b> (your note 5): percentages and names sit beside the ring, small slices on one
+line beneath. The handoff replaced the donut with a stacked bar; your note asked for the donut, so the donut stays.</li>
+<li><b>Kept — the walk sheet and the one debt editor.</b> The handoff sends the change line and the debt rows to separate
+screens; in this app they open the approved sheets, which is the same destination with less travel.</li>
+</ul>
+<b>Your five hero corrections, all applied:</b> title carries only the info dot (the date now lives once, on the since
+line) · the green line under the hero is deleted · the change reads
+“Change in net worth +$2,110 · Return on cash + investments +0.5% ›”, green when zero or up and amber when down ·
+the since line carries the year and is no longer bold · the hero ends there.
+<br><b>Two broken doors found and fixed on the way:</b> day-one “Connect a brokerage” pointed at a route that does not
+exist (<i>/connect-account</i>), and the banner’s “Update the value” button pointed at <i>/(tabs)/networth</i>, which is
+not this tab’s route — both landed nowhere.
+</div>
+
+<div class="row">
+
+<!-- ══════════ STATE A — with data, By category ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁ ▐</span></div>
+  <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark">MoneyKeel</span>
+    <span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+
+  <div class="hero">
+    <div class="heroband"><span class="t">Your net worth</span><span class="idot">i</span></div>
+    <div class="ownowe">Own $813,152 − Owe $418,000</div>
+    <div class="heronum">$395,152</div>
+    <div class="change up">▲ Change in net worth +$2,110 · Return on cash + investments +0.5% ›</div>
+    <div class="since">since Aug 3, 2026</div>
+  </div>
+
+  <div class="card">
+    <div class="bandInCard"><span class="t">Your retirement plan</span></div>
+    <div class="cardBody"><b>Likely</b> — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare
+      <span class="idot" style="color:var(--textTertiary)">i</span> ›</div>
+  </div>
+
+  <div class="pills"><span class="pill on">By category</span><span class="pill">By institution</span></div>
+
+  <div class="band"><span class="t">What you own</span><span class="v">$813,152</span><span></span></div>
+
+  <div class="donutWrap">
+    <div class="donutBox">
+      <svg width="330" height="150" viewBox="0 0 330 150">
+        <g transform="translate(165,75)">
+          <circle r="53" fill="none" stroke="var(--bgTertiary)" stroke-width="18"/>
+          <!-- order: cash 1% · bonds 1% · stocks 43% · real estate 55%, starting at 12 o'clock -->
+          <circle r="53" fill="none" stroke="var(--cCash)" stroke-width="18" stroke-dasharray="3.3 329.7" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cBonds)" stroke-width="18" stroke-dasharray="3.3 329.7" stroke-dashoffset="-3.3" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cStocks)" stroke-width="18" stroke-dasharray="143.2 189.8" stroke-dashoffset="-6.6" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cRealEstate)" stroke-width="18" stroke-dasharray="183 150" stroke-dashoffset="-149.8" transform="rotate(-90)"/>
+        </g>
+      </svg>
+      <div style="position:absolute;left:0;right:0;top:56px;text-align:center">
+        <div class="dcenterL">Assets</div><div class="dcenterV">$813K</div>
+      </div>
+      <div class="dlabel" style="left:236px;top:34px;color:var(--cStocks)">Stocks / ETFs <span class="dpct">43%</span></div>
+      <div class="dlabel" style="left:8px;top:86px;text-align:right;color:var(--cRealEstate)">Real estate <span class="dpct">55%</span></div>
+    </div>
+  </div>
+  <div class="dsmall"><span class="dsw" style="background:var(--cCash)"></span>Cash 1%&nbsp;&nbsp;·&nbsp;&nbsp;<span class="dsw" style="background:var(--cBonds)"></span>Bonds &amp; CDs 1%</div>
+
+  <div class="band light"><span class="t"><span class="caret">▾</span>💵 Cash</span><span class="v">$8,838</span><span></span></div>
+  <div class="acct"><span class="n">Chase Checking<div class="src">typed by you</div></span><span class="v">$8,000</span><span class="c">›</span></div>
+  <div class="acct"><span class="n">Vanguard — sweep cash<div class="src">connected · updated today</div></span><span class="v">$838</span><span class="c">›</span></div>
+
+  <div class="band light"><span class="t"><span class="caret">▾</span>📈 Investments</span><span class="v">$354,314</span><span></span></div>
+  <div class="sheetRow"><span class="n"><span class="caret">▾</span><span style="width:9px;height:9px;border-radius:5px;background:var(--cStocks);display:inline-block"></span>Stocks / ETFs</span><span class="v">$348,495</span><span></span></div>
+  <div class="acct"><span class="n">Vanguard Brokerage<div class="src">connected · updated today</div></span><span class="v">$348,495</span><span class="c">›</span></div>
+  <div class="sheetRow"><span class="n"><span class="caret">▾</span><span style="width:9px;height:9px;border-radius:5px;background:var(--cBonds);display:inline-block"></span>Bonds &amp; CDs</span><span class="v">$5,819</span><span></span></div>
+  <div class="acct"><span class="n">E*TRADE Treasuries &amp; CDs<div class="src">connected · updated today</div></span><span class="v">$5,819</span><span class="c">›</span></div>
+
+  <div class="band light"><span class="t"><span class="caret">▸</span>🏠 Personal property <span class="cnt">· 1 item</span></span><span class="v">$450,000</span><span></span></div>
+
+  <div class="band"><span class="t">What you owe</span><span class="v">−$418,000</span><span></span></div>
+  <div class="debt"><span class="n">🏠 Home mortgage</span><span class="v">−$412,000</span><span class="c">›</span></div>
+  <div class="debt"><span class="n">💳 Chase Visa <span class="hot">pay first</span></span><span class="v">−$6,000</span><span class="c">›</span></div>
+
+  <div class="band"><span class="t">Emergency cushion</span><span></span><span></span></div>
+  <div class="cush">
+    <div class="cushTop"><span class="cushM">2.0 months</span><span class="cushW">Tight ⚠</span></div>
+    <div class="cushMath">of essentials covered by your cash — $8,838 cash ÷ $4,500/mo essentials</div>
+    <div class="cushNote">3–6 months is the usual guide · an estimate from your own numbers</div>
+  </div>
+
+  <div class="glance"><span><span class="t">This month's cash flow</span><div class="s">In $9,200 · Out $6,410</div></span><span class="c" style="text-align:right;color:var(--textTertiary)">›</span></div>
+  <div class="addbtn">＋ Add or connect an account</div>
+
+  <div class="tabbar">
+    <div class="tab"><span class="u"></span>Home</div><div class="tab on"><span class="u"></span>Net worth</div>
+    <div class="tab"><span class="u"></span>Performance</div><div class="tab"><span class="u"></span>Cash flow</div>
+    <div class="tab"><span class="u"></span>Plan</div>
+  </div>
+</div>
+<p class="cap"><b>STATE A — with data, By category.</b> Note the single right edge: the band totals ($813,152 · $8,838 ·
+$354,314 · −$418,000) line up exactly with the row amounts, because every row — bands included — reserves the same
+16-point arrow column. Groups open and closed are remembered. The two rows below the hero that the mock doesn’t show
+(cash-flow glance, add-or-connect button) are existing approved features I did not delete — flagged for your call.</p>
+</div>
+
+<!-- ══════════ STATE A2 — By institution ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁ ▐</span></div>
+  <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark">MoneyKeel</span>
+    <span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="hero">
+    <div class="heroband"><span class="t">Your net worth</span><span class="idot">i</span></div>
+    <div class="ownowe">Own $813,152 − Owe $418,000</div>
+    <div class="heronum">$395,152</div>
+    <div class="change up">▲ Change in net worth +$2,110 · Return on cash + investments +0.5% ›</div>
+    <div class="since">since Aug 3, 2026</div>
+  </div>
+  <div class="card">
+    <div class="bandInCard"><span class="t">Your retirement plan</span></div>
+    <div class="cardBody"><b>Likely</b> — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare
+      <span class="idot" style="color:var(--textTertiary)">i</span> ›</div>
+  </div>
+  <div class="pills"><span class="pill">By category</span><span class="pill on">By institution</span></div>
+  <div class="band"><span class="t">What you own</span><span class="v">$813,152</span><span></span></div>
+
+  <div class="band light"><span class="t"><span class="caret">▾</span>Vanguard</span><span class="v">$349,333</span><span></span></div>
+  <div class="inst acct"><span class="n">Vanguard Brokerage</span><span class="v">$348,495</span><span class="c">›</span></div>
+  <div class="inst acct"><span class="n">Vanguard — sweep cash</span><span class="v">$838</span><span class="c">›</span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>No institution <span class="cnt">· 1 account</span></span><span class="v">$450,000</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▾</span>Chase</span><span class="v">$8,000</span><span></span></div>
+  <div class="inst acct"><span class="n">Chase Checking</span><span class="v">$8,000</span><span class="c">›</span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>E*TRADE <span class="cnt">· 1 account</span></span><span class="v">$5,819</span><span></span></div>
+
+  <div class="band"><span class="t">What you owe</span><span class="v">−$418,000</span><span></span></div>
+  <div class="debt"><span class="n">🏠 Home mortgage</span><span class="v">−$412,000</span><span class="c">›</span></div>
+  <div class="debt"><span class="n">💳 Chase Visa <span class="hot">pay first</span></span><span class="v">−$6,000</span><span class="c">›</span></div>
+  <div class="band"><span class="t">Emergency cushion</span><span></span><span></span></div>
+  <div class="cush">
+    <div class="cushTop"><span class="cushM">2.0 months</span><span class="cushW">Tight ⚠</span></div>
+    <div class="cushMath">of essentials covered by your cash — $8,838 cash ÷ $4,500/mo essentials</div>
+    <div class="cushNote">3–6 months is the usual guide · an estimate from your own numbers</div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><span class="u"></span>Home</div><div class="tab on"><span class="u"></span>Net worth</div>
+    <div class="tab"><span class="u"></span>Performance</div><div class="tab"><span class="u"></span>Cash flow</div>
+    <div class="tab"><span class="u"></span>Plan</div>
+  </div>
+</div>
+<p class="cap"><b>STATE A2 — By institution.</b> Same ledger, regrouped by who holds the money, biggest first, each one
+opening and closing on its own. Two things this fixes: institutions could not be collapsed at all before, and the totals
+now sit on the same right edge as everything else. Debts are untouched by the switch — Chase’s row says $8,000, the
+Chase Visa still lives under What you owe. The donut belongs to the category view and steps aside here.</p>
+</div>
+
+<!-- ══════════ STATE B — all collapsed ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁ ▐</span></div>
+  <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark">MoneyKeel</span>
+    <span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="hero">
+    <div class="heroband"><span class="t">Your net worth</span><span class="idot">i</span></div>
+    <div class="ownowe">Own $813,152 − Owe $418,000</div>
+    <div class="heronum">$395,152</div>
+    <div class="change down">▼ Change in net worth −$1,480 · Return on cash + investments −0.4% ›</div>
+    <div class="since">since Aug 3, 2026</div>
+  </div>
+  <div class="card">
+    <div class="bandInCard"><span class="t">Your retirement plan</span></div>
+    <div class="cardBody"><b>Likely</b> — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare
+      <span class="idot" style="color:var(--textTertiary)">i</span> ›</div>
+  </div>
+  <div class="pills"><span class="pill on">By category</span><span class="pill">By institution</span></div>
+  <div class="band"><span class="t">What you own</span><span class="v">$813,152</span><span></span></div>
+  <div class="donutWrap">
+    <div class="donutBox">
+      <svg width="330" height="150" viewBox="0 0 330 150">
+        <g transform="translate(165,75)">
+          <circle r="53" fill="none" stroke="var(--bgTertiary)" stroke-width="18"/>
+          <circle r="53" fill="none" stroke="var(--cCash)" stroke-width="18" stroke-dasharray="3.3 329.7" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cBonds)" stroke-width="18" stroke-dasharray="3.3 329.7" stroke-dashoffset="-3.3" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cStocks)" stroke-width="18" stroke-dasharray="143.2 189.8" stroke-dashoffset="-6.6" transform="rotate(-90)"/>
+          <circle r="53" fill="none" stroke="var(--cRealEstate)" stroke-width="18" stroke-dasharray="183 150" stroke-dashoffset="-149.8" transform="rotate(-90)"/>
+        </g>
+      </svg>
+      <div style="position:absolute;left:0;right:0;top:56px;text-align:center">
+        <div class="dcenterL">Assets</div><div class="dcenterV">$813K</div>
+      </div>
+      <div class="dlabel" style="left:236px;top:34px;color:var(--cStocks)">Stocks / ETFs <span class="dpct">43%</span></div>
+      <div class="dlabel" style="left:8px;top:86px;text-align:right;color:var(--cRealEstate)">Real estate <span class="dpct">55%</span></div>
+    </div>
+  </div>
+  <div class="dsmall"><span class="dsw" style="background:var(--cCash)"></span>Cash 1%&nbsp;&nbsp;·&nbsp;&nbsp;<span class="dsw" style="background:var(--cBonds)"></span>Bonds &amp; CDs 1%</div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>💵 Cash <span class="cnt">· 2 accounts</span></span><span class="v">$8,838</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>📈 Investments <span class="cnt">· 2 categories</span></span><span class="v">$354,314</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>🏠 Personal property <span class="cnt">· 1 item</span></span><span class="v">$450,000</span><span></span></div>
+  <div class="band"><span class="t">What you owe</span><span class="v">−$418,000</span><span></span></div>
+  <div class="debt"><span class="n">🏠 Home mortgage</span><span class="v">−$412,000</span><span class="c">›</span></div>
+  <div class="debt"><span class="n">💳 Chase Visa <span class="hot">pay first</span></span><span class="v">−$6,000</span><span class="c">›</span></div>
+  <div class="band"><span class="t">Emergency cushion</span><span></span><span></span></div>
+  <div class="cush">
+    <div class="cushTop"><span class="cushM">2.0 months</span><span class="cushW">Tight ⚠</span></div>
+    <div class="cushMath">of essentials covered by your cash — $8,838 cash ÷ $4,500/mo essentials</div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><span class="u"></span>Home</div><div class="tab on"><span class="u"></span>Net worth</div>
+    <div class="tab"><span class="u"></span>Performance</div><div class="tab"><span class="u"></span>Cash flow</div>
+    <div class="tab"><span class="u"></span>Plan</div>
+  </div>
+</div>
+<p class="cap"><b>STATE B — all collapsed, and the down case.</b> The 2-second glance: three group totals and nothing
+else. This frame also shows the negative change in amber — “▼ Change in net worth −$1,480 · Return on cash +
+investments −0.4% ›” — the only case that is not green. A closed group says how many rows are behind it.</p>
+</div>
+
+<!-- ══════════ STATE C — first day ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁ ▐</span></div>
+  <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark">MoneyKeel</span>
+    <span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="hero">
+    <div class="heroband"><span class="t">Your net worth</span><span class="idot">i</span></div>
+    <div class="ownowe">Own $0 − Owe $0</div>
+    <div class="heronum">$0</div>
+    <div class="change up">Add your first account and this becomes your one live number ›</div>
+  </div>
+  <div class="card">
+    <div class="bandInCard"><span class="t">Your retirement plan</span></div>
+    <div class="cardBody"><b style="color:var(--textTertiary);font-style:italic">Sample: 84%</b> odds of lasting to age 90
+      <div class="cardSub">a sample, not your number — 3 answers make it yours</div></div>
+  </div>
+  <div class="pills"><span class="pill on">By category</span><span class="pill">By institution</span></div>
+  <div class="band"><span class="t">What you own</span><span class="v">$0</span><span></span></div>
+  <div class="band light"><span class="t">💵 Cash</span><span class="v">$0</span><span></span></div>
+  <div class="band light"><span class="t">📈 Investments</span><span class="v">$0</span><span></span></div>
+  <div class="band light"><span class="t">🏠 Personal property</span><span class="v">$0</span><span></span></div>
+  <div class="door"><span>Connect a brokerage</span><span class="c">›</span></div>
+  <div class="door"><span>Add a file from your bank</span><span class="c">›</span></div>
+  <div class="door"><span>Type it yourself</span><span class="c">›</span></div>
+  <div class="door" style="font-weight:400;color:var(--textTertiary)"><span>or walk through it step by step</span><span class="c">›</span></div>
+  <div class="band"><span class="t">What you owe</span><span class="v">$0</span><span></span></div>
+  <div class="door"><span>Add a mortgage, card, or loan</span><span class="c">›</span></div>
+  <div class="band"><span class="t">Emergency cushion</span><span></span><span></span></div>
+  <div class="cush">
+    <div class="cushTop"><span class="cushM" style="color:var(--textTertiary)">— months</span></div>
+    <div class="cushMath">appears with your first cash account + monthly spending</div>
+  </div>
+  <div class="tabbar">
+    <div class="tab"><span class="u"></span>Home</div><div class="tab on"><span class="u"></span>Net worth</div>
+    <div class="tab"><span class="u"></span>Performance</div><div class="tab"><span class="u"></span>Cash flow</div>
+    <div class="tab"><span class="u"></span>Plan</div>
+  </div>
+</div>
+<p class="cap"><b>STATE C — first day.</b> Your rule kept: the whole layout stays at zero, so a new person sees exactly
+what the screen becomes. No date line and no change line (there is nothing to compare to yet), no donut and no
+percentages — nothing invented. The retirement card shows the one app-wide sample, word for word the same as Home’s.
+“Connect a brokerage” now actually opens the connect flow; before today it pushed a route that does not exist.</p>
+</div>
+
+<!-- ══════════ STATE D — banner ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="status"><span>9:41</span><span>▮▮▮ ⌁ ▐</span></div>
+  <div class="topbar"><span class="tbtn">▦ Menu</span><span class="wordmark">MoneyKeel</span>
+    <span class="tright"><span class="tico">◉</span><span class="tico">⚙</span></span></div>
+  <div class="hero">
+    <div class="heroband"><span class="t">Your net worth</span><span class="idot">i</span></div>
+    <div class="ownowe">Own $813,152 − Owe $418,000</div>
+    <div class="heronum">$395,152</div>
+    <div class="change up">▲ Change in net worth +$2,110 · Return on cash + investments +0.5% ›</div>
+    <div class="since">since Aug 3, 2026</div>
+  </div>
+  <div class="banner">
+    <div class="h">⚠ 2 numbers need more information ›</div>
+    <div class="l">· LCTX has no price today — showing what you paid</div>
+    <div class="l">· E*TRADE last updated Jul 28 — balances may have moved</div>
+  </div>
+  <div class="card">
+    <div class="bandInCard"><span class="t">Your retirement plan</span></div>
+    <div class="cardBody"><b>Likely</b> — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare
+      <span class="idot" style="color:var(--textTertiary)">i</span> ›</div>
+  </div>
+  <div class="pills"><span class="pill on">By category</span><span class="pill">By institution</span></div>
+  <div class="band"><span class="t">What you own</span><span class="v">$813,152</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>💵 Cash <span class="cnt">· 2 accounts</span></span><span class="v">$8,838</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>📈 Investments <span class="cnt">· 2 categories</span></span><span class="v">$354,314</span><span></span></div>
+  <div class="band light"><span class="t"><span class="caret">▸</span>🏠 Personal property <span class="cnt">· 1 item</span></span><span class="v">$450,000</span><span></span></div>
+  <div class="band"><span class="t">What you owe</span><span class="v">−$418,000</span><span></span></div>
+  <div class="debt"><span class="n">🏠 Home mortgage</span><span class="v">−$412,000</span><span class="c">›</span></div>
+  <div class="debt"><span class="n">💳 Chase Visa <span class="hot">pay first</span></span><span class="v">−$6,000</span><span class="c">›</span></div>
+  <div class="tabbar">
+    <div class="tab"><span class="u"></span>Home</div><div class="tab on"><span class="u"></span>Net worth</div>
+    <div class="tab"><span class="u"></span>Performance</div><div class="tab"><span class="u"></span>Cash flow</div>
+    <div class="tab"><span class="u"></span>Plan</div>
+  </div>
+</div>
+<p class="cap"><b>STATE D — where the banner lives.</b> A tinted card (not white, per your note) directly under the hero,
+above the retirement plan. It exists only while a gap exists and removes itself when the gap closes; tapping it opens
+the fix-it sheet. Nothing interrupts you — no alert, no takeover. Frame cut below the debts; nothing else changes.</p>
+</div>
+
+<!-- ══════════ STATE E — change walk ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="sheetback">
+    <div class="sheet">
+      <div class="grab"></div>
+      <div class="walkband">How $393,042 became $395,152</div>
+      <div class="wrow"><span>Beginning net worth (Aug 3)</span><span class="v">$393,042</span></div>
+      <div class="wrow"><span>Contributions</span><span class="v">$500</span></div>
+      <div class="wrow"><span>Withdrawals</span><span class="v">−$500</span></div>
+      <div class="wrow s"><span>Wealth generated</span><span class="v">$1,910</span></div>
+      <div class="wrow ind"><span>Dividends</span><span class="v">$1,220</span></div>
+      <div class="wrow ind"><span>Interest</span><span class="v">$430</span></div>
+      <div class="wrow ind"><span>Change in investment value</span><span class="v">$260</span></div>
+      <div class="wrow"><span>Debt principal you paid</span><span class="v">$200</span></div>
+      <div class="wrow tot"><span>Ending net worth (Aug 4)</span><span class="v">$395,152</span></div>
+      <div class="wnote">Aug 3 → Aug 4, 2026 · every line counts only what happened in this window.
+        Contributions are not a gain — that's why Wealth generated is its own section.</div>
+    </div>
+  </div>
+</div>
+<p class="cap"><b>STATE E — the change walk</b>, opened by tapping the change line (a $0 change opens it too — a flat
+total can hide a $500 deposit offset by $500 of spending). Same structure as the Performance walk: same title form,
+same row order, the three parts of Wealth generated indented one step in the quieter grey, one shared right edge, and
+the rows always sum to the ending figure by construction. Unchanged by this rebuild.</p>
+</div>
+
+<!-- ══════════ STATE F — fix-it sheet ══════════ -->
+<div class="frame">
+<div class="phone">
+  <div class="sheetback">
+    <div class="sheet" style="background:var(--bgSecondary)">
+      <div class="grab"></div>
+      <div style="font-size:17px;font-weight:800">2 numbers need more information</div>
+      <div style="font-size:13px;color:var(--textSecondary);margin-bottom:8px">Fix them here — the banner clears itself when they close.</div>
+      <div class="gapcard">
+        <div class="t">LCTX has no price today</div>
+        <div class="s">We're showing what you paid ($1,167) — it's left out of the change line, and we say so.</div>
+        <div class="fixbtn">Check ticker or set a price ›</div>
+      </div>
+      <div class="gapcard">
+        <div class="t">E*TRADE last updated Jul 28</div>
+        <div class="s">Balances may have moved in 7 days. A fresh sync usually fixes this; if not, the connection needs a re-login.</div>
+        <div class="fixbtn">Sync now ›</div>
+      </div>
+      <div style="font-size:11px;color:var(--textTertiary);text-align:center;margin-top:4px">Nothing here is a nag — each row exists only while its gap does.</div>
+    </div>
+  </div>
+</div>
+<p class="cap"><b>STATE F — what the banner opens.</b> One row per gap: what's missing, what we're honestly doing
+meanwhile, and a button that lands on the exact cure. The property row's “Update the value” button was pointing at a
+route that does not exist — fixed in this pass, so it now opens that account's page.</p>
+</div>
+
+</div>
+</body>
+</html>

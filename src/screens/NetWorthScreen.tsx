@@ -70,6 +70,10 @@ const shortMoney = (n: number) => {
   if (Math.abs(n) >= 1000) return moneyCompact(n, 'MM');   // $2.43MM / $182K (currency-aware)
   return maskedMoney(n);
 };
+// THE ONE trailing arrow column. Every ledger row reserves it — a row that navigates fills it with
+// "›", a row that doesn't leaves it empty, and a section band adds it to its total's right margin.
+// That is what puts every number on the screen on ONE right edge (founder gap 4, 2026-08-10).
+const ARROW = 16;
 
 // Donut ring (react-native-svg) with content in the center hole.
 function Donut({ segments, size = 124, stroke = 16, children, label }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode; label?: string }) {
@@ -90,6 +94,67 @@ function Donut({ segments, size = 124, stroke = 16, children, label }: { segment
         </G>
       </Svg>
       <View style={{ alignItems: 'center' }}>{children}</View>
+    </View>
+  );
+}
+
+// THE CLASS DONUT with its labels ON the chart (founder note 5, 2026-08-10). A slice big enough to
+// name carries its own label beside it — name, percent and a colour swatch, so colour is never the
+// only signal (the colourblind rule). Slivers too small to label without collision ride one line
+// underneath rather than being dropped: every class the ring draws is still named somewhere.
+const DONUT = 124, DONUT_STROKE = 18, DONUT_BOX = 330, LABEL_W = 104, NAME_MIN_PCT = 5;
+function ClassDonut({ rows, total, pctOf, hidden }: {
+  rows: { key: AssetClass; label: string; color: string; total: number }[];
+  total: number; pctOf: (v: number) => number; hidden: boolean;
+}) {
+  const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0) || 1;
+  const R = DONUT / 2 - DONUT_STROKE / 2 + 22;          // label ring: just outside the stroke
+  const cx = DONUT_BOX / 2, cy = DONUT / 2;
+  let acc = 0;
+  const placed: { key: string; label: string; color: string; pct: number; left: number; top: number; right: boolean }[] = [];
+  const small: typeof rows = [];
+  for (const r of rows) {
+    const share = Math.max(0, r.total) / sum;
+    const mid = (acc + share / 2) * 2 * Math.PI;         // radians clockwise from 12 o'clock
+    acc += share;
+    if (pctOf(r.total) < NAME_MIN_PCT) { small.push(r); continue; }
+    const x = cx + Math.sin(mid) * R, y = cy - Math.cos(mid) * R;
+    const right = x >= cx;
+    placed.push({
+      key: r.key, label: r.label, color: r.color, pct: pctOf(r.total), right,
+      left: right ? Math.min(x, DONUT_BOX - LABEL_W) : Math.max(0, x - LABEL_W),
+      top: Math.max(0, Math.min(y - 9, DONUT - 18)),
+    });
+  }
+  return (
+    <View style={styles.donutWrap} accessible
+      accessibilityLabel={`What you own by category: ${rows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ')}.`}>
+      <View style={{ width: DONUT_BOX, height: DONUT }}>
+        <View style={styles.donutCenter}>
+          <Donut segments={rows.map((r) => ({ value: r.total, color: r.color }))} size={DONUT} stroke={DONUT_STROKE}
+            label={`${maskedMoney(Math.round(total))} of assets`}>
+            <Text style={styles.donutLbl}>Assets</Text>
+            <Text style={styles.donutVal}>{hidden ? '••••' : shortMoney(Math.round(total))}</Text>
+          </Donut>
+        </View>
+        {placed.map((p) => (
+          <View key={p.key} style={[styles.donutLabel, { left: p.left, top: p.top, width: LABEL_W },
+            p.right ? styles.donutLabelR : styles.donutLabelL]}>
+            <View style={[styles.dot, { backgroundColor: p.color }]} />
+            <Text style={styles.donutLabelTxt}>{p.label} {p.pct}%</Text>
+          </View>
+        ))}
+      </View>
+      {small.length > 0 && (
+        <View style={styles.donutSmallRow}>
+          {small.map((r) => (
+            <View key={r.key} style={styles.donutSmall}>
+              <View style={[styles.dot, { backgroundColor: r.color }]} />
+              <Text style={styles.donutLabelTxt}>{r.label} {pctOf(r.total)}%</Text>
+            </View>
+          ))}
+        </View>
+      )}
     </View>
   );
 }
@@ -149,6 +214,9 @@ export default function NetWorthScreen() {
   const [openClasses, setOpenClasses] = useState<Record<string, boolean>>({});
   // FINAL mock (mockup-vf/networth-FINAL): the three uber-groups, collapsible, remembered per session
   const [openUber, setOpenUber] = useState<Record<string, boolean>>({ cash: true, investments: true, property: true });
+  // handoff 2026-08-10: By institution collapses too, and keeps its OWN memory — closing Vanguard
+  // here must not close the Investments group over on By category. Two views, two sets of flags.
+  const [openInst, setOpenInst] = useState<Record<string, boolean>>({});
   const [walkOpen, setWalkOpen] = useState(false);   // the change tap → the walk sheet (final mock State E)   // v4: per-class expand, default collapsed
   const [addChooser, setAddChooser] = useState(false);    // the one add-or-connect button's three paths
   // Walk row 8 (v7 FINAL, audit Home·NW #13): the inventory grouping — class is the approved default
@@ -207,6 +275,20 @@ export default function NetWorthScreen() {
     leftoverAtHorizon: nwSim?.band?.length ? nwSim.band[nwSim.band.length - 1].p50 : null,
     money: maskedMoney,
   });
+  // how many accounts actually sit inside a class (the same member rule the rows use)
+  const membersOf = (cls: AssetClass) => assets.filter((a) => {
+    const b = accountClassBreakdown(a);
+    return b ? !!b[cls] : assetClassOf(a) === cls;
+  }).length;
+  // the closed-group count, worded the way the approved mock words it: CASH · 2 accounts,
+  // INVESTMENTS · 2 categories, PERSONAL PROPERTY · 1 item. It names what is really behind the bar.
+  const collapsedCount = (g: { group: UberGroup; label: string; classes: { key: AssetClass; label: string }[] }) => {
+    const accounts = g.classes.reduce((t, c) => t + membersOf(c.key), 0);
+    if (g.group === 'property') return `${accounts} item${accounts === 1 ? '' : 's'}`;
+    if (g.classes.length > 1) return `${g.classes.length} categories`;
+    return `${accounts} account${accounts === 1 ? '' : 's'}`;
+  };
+
   const renderClassRow = (r: { key: AssetClass; label: string; color: string; total: number }, i: number, hideHeader = false) => {
     const members = assets
       .map((a) => {
@@ -221,10 +303,10 @@ export default function NetWorthScreen() {
     const isOpen = hideHeader || classRows.length === 1 || !!openClasses[r.key];
     const shownMembers = !isOpen ? [] : showAllClassRows[r.key] ? members : members.slice(0, 5);
     return (
-      <View key={r.key} style={i > 0 ? styles.divider : undefined}>
+      <View key={r.key}>
         {/* founder gap 3 (2026-08-10): no "Cash" heading inside the Cash group — the group bar
             already said it. A single same-named class renders its accounts directly. */}
-        {!hideHeader && <TouchableOpacity style={styles.row} accessibilityRole="button"
+        {!hideHeader && <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button"
           onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: !isOpen }))}
           accessibilityLabel={`${r.label}, ${spokenMoney(Math.round(r.total))}. ${isOpen ? 'Collapses' : 'Expands'} its ${members.length} account${members.length === 1 ? '' : 's'}.${r.key === 'mixed' ? ' Tap an account to say what is inside.' : ''}`}>
           <Text style={styles.classCaret}>{isOpen ? '▾' : '▸'}</Text>
@@ -234,9 +316,12 @@ export default function NetWorthScreen() {
             {r.key === 'mixed' && isOpen && <Text style={styles.rowSub}>tap an account to say what's inside</Text>}
           </View>
           <Text style={styles.rowVal}>{maskedMoney(Math.round(r.total))}</Text>
+          {/* the empty arrow column: a row that doesn't navigate still holds the slot open, so its
+              number lands on the same right edge as one that does (founder gap 4) */}
+          <View style={styles.arrowGap} />
         </TouchableOpacity>}
         {shownMembers.map(({ a, portion, split }) => (
-          <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
+          <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
             onPress={() => router.push((split ? `/account-detail?id=${a.asset_id}&class=${r.key}` : `/account-detail?id=${a.asset_id}`) as any)}
             accessibilityLabel={`${displayNames.get(a.asset_id)}${split ? `, ${classPortionLabel(a, r.key)}` : ''}, ${spokenMoney(Math.round(portion))}. Opens its page.`}>
             <View style={{ flex: 1 }}>
@@ -245,7 +330,7 @@ export default function NetWorthScreen() {
               <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
             </View>
             <Text style={styles.acctRowVal}>{maskedMoney(Math.round(portion))}</Text>
-            <Text style={styles.acctChev}>›</Text>
+            <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
         ))}
         {isOpen && members.length > 5 && !showAllClassRows[r.key] && (
@@ -404,15 +489,15 @@ export default function NetWorthScreen() {
     // keep the FULL layout with honest zeros so a new person sees exactly what this screen becomes,
     // and show THE ONE app-wide retirement sample (identical to Home's) — never a reinvented one.
     body = (
-      <View>
-        <View style={styles.glanceCard}>
+      <ScrollView contentContainerStyle={styles.contentFlat} showsVerticalScrollIndicator={false}>
+        <View style={[styles.glanceCard, styles.inset]}>
           <SectionBand inCard infoTerm="netWorth" title="YOUR NET WORTH" />
           <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
           <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
-          <Text style={styles.glanceDelta}>Add your first account and this becomes your one live number</Text>
+          <Text style={[styles.glanceDelta, { color: Colors.gainText }]}>Add your first account and this becomes your one live number ›</Text>
         </View>
 
-        <View style={styles.card}>
+        <View style={[styles.card, styles.inset]}>
           <SectionBand inCard title="YOUR RETIREMENT PLAN" />
           <Text style={styles.sampleLine}>
             <Text style={styles.sampleNum}>Sample: 84%</Text> odds of lasting to age 90
@@ -420,40 +505,48 @@ export default function NetWorthScreen() {
           <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
         </View>
 
-        <View style={styles.card}>
-          <SectionBand inCard title="WHAT YOU OWN" value={maskedMoney(0)} />
-          <SectionBand light title="💵 CASH" value={maskedMoney(0)} />
-          <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} />
-          <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} />
-          <TouchableOpacity style={styles.introPrimary} accessibilityRole="button" accessibilityLabel="Connect a brokerage"
-            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/connect-account' as any); }}>
-            <Text style={styles.introPrimaryTxt}>Connect a brokerage ›</Text>
+        {/* the same flat ledger the with-data screen uses, at honest zeros — so a new person sees
+            exactly what this screen becomes. No donut and no percentages: nothing is invented. */}
+        <View style={styles.ledger}>
+          <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={ARROW} />
+          <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={ARROW} />
+          <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={ARROW} />
+          <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={ARROW} />
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Connect a brokerage"
+            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/connect' as any); }}>
+            <Text style={styles.doorTxt}>Connect a brokerage</Text>
+            <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.introSecondary} accessibilityRole="button" accessibilityLabel="Add a file from your bank"
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a file from your bank"
             onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/import-holdings' as any); }}>
-            <Text style={styles.introSecondaryTxt}>Add a file from your bank ›</Text>
+            <Text style={styles.doorTxt}>Add a file from your bank</Text>
+            <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.introSecondary} accessibilityRole="button" accessibilityLabel="Type it yourself"
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Type it yourself"
             onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }}>
-            <Text style={styles.introSecondaryTxt}>Type it yourself ›</Text>
+            <Text style={styles.doorTxt}>Type it yourself</Text>
+            <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
-          <TouchableOpacity accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
             onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
-            <Text style={styles.introNote}>or walk through it step by step ›</Text>
+            <Text style={styles.doorTxtQuiet}>or walk through it step by step</Text>
+            <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
-        </View>
 
-        <View style={styles.card}>
-          <SectionBand inCard title="WHAT YOU OWE" value={maskedMoney(0)} />
-          <Text style={styles.rowSub}>Add a mortgage, card, or loan</Text>
-        </View>
+          <SectionBand title="WHAT YOU OWE" value={maskedMoney(0)} trailing={ARROW} />
+          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
+            onPress={() => setDebtSheet({ open: true })}>
+            <Text style={styles.doorTxt}>Add a mortgage, card, or loan</Text>
+            <Text style={styles.arrowSlot}>›</Text>
+          </TouchableOpacity>
 
-        <View style={styles.card}>
-          <SectionBand inCard title="🛡️ EMERGENCY CUSHION" />
-          <Text style={styles.cushionEmpty}>— months</Text>
-          <Text style={styles.rowSub}>appears with your first cash account + monthly spending</Text>
+          <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+          <View style={styles.ledgerPad}>
+            <Text style={styles.cushionEmpty}>— months</Text>
+            <Text style={styles.rowSub}>appears with your first cash account + monthly spending</Text>
+          </View>
         </View>
-      </View>
+      </ScrollView>
     );
   } else if (choice === 'guided') {
     // ── guided wizard: one bucket per step ──
@@ -509,7 +602,11 @@ export default function NetWorthScreen() {
     // property moves only when retyped, so a total-NW percent is noise. Appears only once the
     // invDaily history exists (never back-guessed).
     const invPct = janPoint ? investableChangePct(store.invDaily, investable, janPoint.month) : null;
-    const pctText = invPct == null || Math.abs(invPct) < 0.05 ? '' : ` · ${invPct > 0 ? '+' : '−'}${Math.abs(invPct).toFixed(1)}% on cash + investments`;
+    // Founder wording 2026-08-10: the two halves are NAMED — the dollar move is the change in net
+    // worth, the percent is a RETURN and it is measured on cash + investments only. Spelled out in
+    // full on both sides (no "NW"), so the line never needs a decoder.
+    const pctText = invPct == null ? ''
+      : ` · Return on cash + investments ${invPct > 0 ? '+' : invPct < 0 ? '−' : ''}${Math.abs(invPct).toFixed(1)}%`;
     // B45 rule, re-broken and re-fixed 2026-08-10: ONE rounded value drives the words, the arrow and
     // the colour — so "up $0" / "down $0" can never be rendered again by any path.
     // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
@@ -518,9 +615,12 @@ export default function NetWorthScreen() {
     // the change line carries the MOVE only; the line beneath carries the date (never repeated).
     // Founder 2026-08-10: a zero net change still says "$0" and stays TAPPABLE — $0 can hide real
     // motion (a $500 contribution offset by $500 of spending), and the walk sheet shows exactly that.
+    // Founder wording 2026-08-10: "Change in net worth <signed $> · Return on cash + investments <signed %>".
     const deltaText = deltaRounded == null ? null
-      : deltaZero ? `${maskedMoney(0)} change${pctText}`   // reads as a sentence, not a stray number
-      : `${deltaRounded > 0 ? 'up' : 'down'} ${maskedMoney(Math.abs(deltaRounded))}${pctText}`;
+      : `Change in net worth ${deltaZero ? maskedMoney(0) : `${deltaRounded > 0 ? '+' : '−'}${maskedMoney(Math.abs(deltaRounded))}`}${pctText}`;
+    // Founder colour rule 2026-08-10: zero and up are GREEN; only a fall is amber (never red — amber
+    // is this app's one warning hue, and red/green alone can't be read by everyone).
+    const deltaDown = deltaRounded != null && deltaRounded < 0;
     // the true measured-from date, always with day AND year
     const sinceDate = janPoint
       ? new Date(janPoint.month.length === 7 ? `${janPoint.month}-01T12:00:00` : `${janPoint.month}T12:00:00`)
@@ -545,15 +645,17 @@ export default function NetWorthScreen() {
     const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
     body = (
-      <ScrollView ref={scrollRef} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}
+      <ScrollView ref={scrollRef} contentContainerStyle={styles.contentFlat} showsVerticalScrollIndicator={false}
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onPull} />}>
-        <HiddenBalancesBanner />
-        {/* GLANCE: the one number + its year change + the 12-month trend */}
-        <View style={styles.glanceCard} accessible
+        <View style={styles.inset}><HiddenBalancesBanner /></View>
+        {/* HERO (founder notes 2026-08-10): the band title carries ONLY the info dot — the date lives
+            once, on the since line. Own−Owe, the one number, the change, the date. Then it ENDS:
+            the green trend line that used to sit under it is gone. */}
+        <View style={[styles.glanceCard, styles.inset]} accessible
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-          <SectionBand inCard infoTerm="nwChange" title={`YOUR NET WORTH · ${new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}`} />
+          <SectionBand inCard infoTerm="nwChange" title="YOUR NET WORTH" />
           {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
           {(totalAssets > 0 || dState.total_debt_balance > 0) && (
             <Text style={styles.ownOweTop}>
@@ -568,37 +670,29 @@ export default function NetWorthScreen() {
           {deltaText != null ? (
             <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
               accessibilityLabel={`${deltaText}. ${deltaZero ? 'A flat total can hide offsetting moves — opens' : 'Opens'} what drove this change.`}>
-              <Text style={[styles.glanceDelta, { color: deltaZero ? Colors.textSecondary : deltaRounded! > 0 ? Colors.gainText : Colors.red }]}>
+              <Text style={[styles.glanceDelta, { color: deltaDown ? Colors.amber : Colors.gainText }]}>
                 {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
               </Text>
             </TouchableOpacity>
           ) : (
-            <Text style={styles.glanceDelta}>tracking starts today — change shows as history builds</Text>
+            <Text style={[styles.glanceDelta, { color: Colors.textSecondary }]}>tracking starts today — change shows as history builds</Text>
           )}
-          {/* the mock's second line: the TRUE date the change is measured from — never "as of today" */}
-          {sinceDate != null && <Text style={styles.glanceDelta}>since {sinceDate}</Text>}
+          {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
+              Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
+          {sinceDate != null && <Text style={styles.glanceSince}>since {sinceDate}</Text>}
           {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
-              banner below already names stale accounts with a fix button; saying it twice is noise. */}
-          {series.length >= 2 && (() => {
-            const vals = series.map((pt) => pt.nw);
-            const lo = Math.min(...vals), hi = Math.max(...vals), span = hi - lo || 1;
-            const Wd = 280, Ht = 44;
-            const pts = series.map((pt, k) => `${(k / (series.length - 1)) * Wd},${Ht - ((pt.nw - lo) / span) * Ht}`).join(' ');
-            return (
-              <Svg width={Wd} height={Ht + 4} style={{ marginTop: 10 }}>
-                <Polyline points={pts} fill="none" stroke={Colors.primary} strokeWidth={2.5} />
-              </Svg>
-            );
-          })()}
+              banner below already names stale accounts with a fix button; saying it twice is noise.
+              The trend sparkline is gone too (founder 2026-08-10: "the green line at the bottom —
+              delete it"); the hero ENDS at the since line. */}
         </View>
 
         {/* FINAL mock: the banner sits INLINE under the hero — never a pop-up */}
         <ChangeWalkSheet visible={walkOpen} onClose={() => setWalkOpen(false)} walk={changeWalk} />
-        <DataGapsBanner gaps={gaps} />
+        <View style={styles.inset}><DataGapsBanner gaps={gaps} /></View>
 
         {/* THE RETIREMENT CARD (approved final mock + the approved words, 2026-08-04): banded, and it
             speaks the same sentence the Plan hub speaks — never the old "path ahead by 92" wording. */}
-        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85}
+        <TouchableOpacity accessibilityRole="button" style={[styles.card, styles.inset]} activeOpacity={0.85}
           onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={nwOnCourse ? `Your retirement plan: ${nwOnCourse}. Opens the Plan tab.` : 'Your retirement plan. Opens the Plan tab.'}>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
@@ -626,65 +720,54 @@ export default function NetWorthScreen() {
             </TouchableOpacity>
           ))}
         </View>
-        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} />
-        <View style={styles.card}>
-          {classRows.length === 0 && <Text style={styles.empty}>Nothing yet — use the button below to add or import.</Text>}
+        {/* THE LEDGER (Quiet Instrument direction, founder handoff 2026-08-10): one flat table, no
+            floating cards. Bands bleed edge to edge and rows carry the SAME horizontal inset, so
+            every number on the screen — band totals included — resolves to ONE right edge, each row
+            reserving the same trailing arrow column. */}
+        <View style={styles.ledger}>
+        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={ARROW} />
+          {classRows.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>Nothing yet — use the button below to add or import.</Text>}
           {classRows.length > 0 && nwGrouping === 'class' && (
-            <View style={styles.donutWrap} accessible
-              accessibilityLabel={`What you own by category: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ')}.`}>
-              <Donut segments={classRows.map((r) => ({ value: r.total, color: r.color }))} size={124} stroke={18}
-                label={`${maskedMoney(Math.round(totalAssets))} of assets`}   /* maskedMoney already hides when balances are hidden */>
-                <Text style={styles.donutLbl}>Assets</Text>
-                <Text style={styles.donutVal}>{store.hideBalances ? '••••' : shortMoney(Math.round(totalAssets))}</Text>
-              </Donut>
-              <View style={styles.donutLegend}>
-                {classRows.map((r) => (
-                  <TouchableOpacity key={r.key} accessibilityRole="button" style={styles.legendItem}
-                    onPress={() => setOpenClasses((m) => ({ ...m, [r.key]: true }))}
-                    accessibilityLabel={`${r.label}, ${pctOf(r.total)} percent, ${spokenMoney(Math.round(r.total))}`}>
-                    <View style={[styles.dot, { backgroundColor: r.color }]} />
-                    <Text style={styles.legendTxt}>{r.label} {pctOf(r.total)}%</Text>
-                  </TouchableOpacity>
-                ))}
-              </View>
-            </View>
+            <ClassDonut rows={classRows} total={totalAssets} pctOf={pctOf} hidden={!!store.hideBalances} />
           )}
-          {/* Walk row 8 (v7 FINAL): By institution / By type — whole accounts roll up under one
-              header (two E*TRADE entries become one E*TRADE group); class view keeps the approved
-              expand/collapse with per-class portions. */}
-          {nwGrouping !== 'class' && (() => {
-            const keyOf = (a: AssetAccount) => nwGrouping === 'institution'
-              ? (a.institution?.trim() || 'No institution')
-              // finding 14: ALL cash-bucket kinds merge under the one honest group label
-              : isCashKind(a.kind) ? CASH_GROUP_LABEL : (assetKind(a.kind)?.label ?? 'Other');
+          {/* By institution (handoff, 2026-08-10): the same collapsible shape as By category, biggest
+              first. An institution's row is what it HOLDS — a debt at the same bank never merges into
+              it; the Chase Visa stays under WHAT YOU OWE. Open/closed is remembered per view. */}
+          {nwGrouping === 'institution' && (() => {
             const groups = new Map<string, { total: number; members: AssetAccount[] }>();
             for (const a of assets) {
-              const k = keyOf(a);
+              const k = a.institution?.trim() || 'No institution';
               const g = groups.get(k) ?? { total: 0, members: [] };
               g.total += a.balance || 0; g.members.push(a);
               groups.set(k, g);
             }
-            return [...groups.entries()].sort((x, y) => y[1].total - x[1].total).map(([label, g], i) => (
-              <View key={label} style={i > 0 ? styles.divider : undefined}>
-                <View style={styles.row} accessible
-                  accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${g.members.length} account${g.members.length === 1 ? '' : 's'}.`}>
-                  <View style={{ flex: 1 }}><Text style={styles.rowTitle}>{label}</Text></View>
-                  <Text style={styles.rowVal}>{maskedMoney(Math.round(g.total))}</Text>
-                </View>
-                {g.members.map((a) => (
-                  <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={styles.acctRowNW}
-                    onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
-                    accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>
-                    <View style={{ flex: 1 }}>
-                      <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
-                      <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
-                    </View>
-                    <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
-                    <Text style={styles.acctChev}>›</Text>
+            return [...groups.entries()].sort((x, y) => y[1].total - x[1].total).map(([label, g]) => {
+              const open = openInst[label] !== false;
+              const n = g.members.length;
+              const count = `${n} account${n === 1 ? '' : 's'}`;
+              return (
+                <View key={label}>
+                  <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
+                    onPress={() => setOpenInst((m) => ({ ...m, [label]: !open }))}
+                    accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
+                    <SectionBand light trailing={ARROW} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
+                      value={maskedMoney(Math.round(g.total))} />
                   </TouchableOpacity>
-                ))}
-              </View>
-            ));
+                  {open && g.members.map((a) => (
+                    <TouchableOpacity accessibilityRole="button" key={a.asset_id} style={[styles.ledgerRow, styles.ledgerChild]}
+                      onPress={() => router.push(`/account-detail?id=${a.asset_id}` as any)}
+                      accessibilityLabel={`${displayNames.get(a.asset_id)}, ${spokenMoney(Math.round(a.balance || 0))}. Opens its page.`}>
+                      <View style={{ flex: 1 }}>
+                        <Text style={styles.acctRowLabel} numberOfLines={1}>{displayNames.get(a.asset_id)}</Text>
+                        <SourceChip account={a} paused={!!(a.connection_id && (store.snaptradeConnections ?? []).find((c: any) => c.id === a.connection_id && c.disabled))} />
+                      </View>
+                      <Text style={styles.acctRowVal}>{maskedMoney(Math.round(a.balance || 0))}</Text>
+                      <Text style={styles.arrowSlot}>›</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              );
+            });
           })()}
           {/* v4 mock APPROVED 2026-07-19: class rows expand/collapse (default collapsed, caret ▸/▾
               word+motion never color alone); a lone class auto-expands — hiding the only account
@@ -694,13 +777,16 @@ export default function NetWorthScreen() {
               many rows are behind it. Investments == the Performance total, by definition. */}
           {nwGrouping === 'class' && uberGroupRows(classRows).map((g) => {
             const gOpen = openUber[g.group] !== false;
-            const inner = g.classes.length;
+            // the closed count names what is ACTUALLY behind the bar (approved final mock): a group
+            // whose one class collapses straight to accounts counts accounts, property counts items,
+            // and a group holding several classes counts categories.
+            const count = collapsedCount(g);
             return (
               <View key={g.group}>
                 <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
-                  accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${inner} ${inner === 1 ? 'category' : 'categories'}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
-                  <SectionBand light title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${inner} ${inner === 1 ? 'category' : 'categories'}`}`}
+                  accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
+                  <SectionBand light trailing={ARROW} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
                     value={maskedMoney(Math.round(g.total))} />
                 </TouchableOpacity>
                 {gOpen && g.classes.map((r, i) => renderClassRow(
@@ -709,14 +795,13 @@ export default function NetWorthScreen() {
               </View>
             );
           })}
-        </View>
 
         {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
-        <SectionBand title="WHAT YOU OWE" value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
-        <View style={styles.card}>
-          {liabilities.length === 0 && <Text style={styles.empty}>No debts — it's all yours.</Text>}
-          {liabilities.map((d, i) => (
-            <TouchableOpacity key={d.debt_id} style={[styles.row, i > 0 && styles.divider]} accessibilityRole="button"
+        <SectionBand title="WHAT YOU OWE" trailing={ARROW}
+          value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
+          {liabilities.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>No debts — it's all yours.</Text>}
+          {liabilities.map((d) => (
+            <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
               accessibilityLabel={`${d.label}, you owe ${spokenMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
               onPress={() => setDebtSheet({ open: true, edit: d })}>
               <Text style={styles.rowIcon}>{debtKind(d.debt_type)?.icon ?? '🧾'}</Text>
@@ -725,39 +810,40 @@ export default function NetWorthScreen() {
                 {costliest?.debt_id === d.debt_id && <View style={styles.hotPill}><Text style={styles.hotPillTxt}>pay first</Text></View>}
               </View>
               <Text style={[styles.rowVal, { color: Colors.red }]}>−{maskedMoney(Math.round(d.remaining_balance))}</Text>
-              <Text style={styles.chev}>›</Text>
+              <Text style={styles.arrowSlot}>›</Text>
             </TouchableOpacity>
           ))}
-        </View>
-
-        {/* the arithmetic now sits ABOVE the hero (final mock) — one place, not two */}
-
 
         {/* EMERGENCY CUSHION (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
             card, word + icon always; no spending captured → a door, never a made-up number */}
         {monthlySpend > 0 && runwayMonths != null ? (
-          <View style={styles.card}>
-            <SectionBand title="EMERGENCY CUSHION" />
-            <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-              <Text style={styles.cushionMonths}>{(Math.round(runwayMonths * 10) / 10).toFixed(1)} months</Text>
-              <Text style={[styles.cushionWord, { color: runwayMonths < 3 ? Colors.amber : Colors.gainText }]}>
-                {runwayMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
-              </Text>
+          <View>
+            <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+            <View style={styles.ledgerPad}>
+              <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
+                <Text style={styles.cushionMonths}>{(Math.round(runwayMonths * 10) / 10).toFixed(1)} months</Text>
+                <Text style={[styles.cushionWord, { color: runwayMonths < 3 ? Colors.amber : Colors.gainText }]}>
+                  {runwayMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
+                </Text>
+              </View>
+              <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/mo essentials</Text>
+              <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
-            <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/mo essentials</Text>
-            <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
           </View>
         ) : cashOnHand > 0 ? (
-          <TouchableOpacity accessibilityRole="button" style={styles.card} onPress={() => router.push('/(tabs)/cashflow')}
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
-            <SectionBand title="EMERGENCY CUSHION" />
-            <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
-            <Text style={styles.link}>Answer one question in Cash flow ›</Text>
+            <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+            <View style={styles.ledgerPad}>
+              <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
+              <Text style={styles.link}>Answer one question in Cash flow ›</Text>
+            </View>
           </TouchableOpacity>
         ) : null}
+        </View>
 
         {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
-        <TouchableOpacity accessibilityRole="button" style={styles.cfGlance} onPress={() => router.push('/(tabs)/cashflow')}
+        <TouchableOpacity accessibilityRole="button" style={[styles.cfGlance, styles.inset]} onPress={() => router.push('/(tabs)/cashflow')}
           accessibilityLabel={`This month's cash flow: in ${spokenMoney(Math.round(cfCell?.inflow ?? 0))}, out ${spokenMoney(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
           <View style={{ flex: 1 }}>
             <Text style={styles.rowTitle}>This month's cash flow</Text>
@@ -767,7 +853,7 @@ export default function NetWorthScreen() {
         </TouchableOpacity>
 
         {/* ONE button, three honest paths */}
-        <TouchableOpacity accessibilityRole="button" style={styles.addConnect} onPress={() => setAddChooser(true)}
+        <TouchableOpacity accessibilityRole="button" style={[styles.addConnect, styles.inset]} onPress={() => setAddChooser(true)}
           accessibilityLabel="Add or connect an account">
           <Text style={styles.addConnectTxt}>＋ Add or connect an account</Text>
         </TouchableOpacity>
@@ -994,10 +1080,31 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
 // (the local Sheet was replaced by the shared, keyboard-aware <KeyboardAwareSheet/> — Theme 3)
 
 const styles = StyleSheet.create({
+  // ── THE FLAT LEDGER (Quiet Instrument, 2026-08-10) ──────────────────────────────────────────
+  // The own/owe lists run edge to edge; only the cards above and below them are inset. Rows carry
+  // the SAME horizontal padding a SectionBand carries (Spacing.md), so a band total and a row value
+  // land on the identical right edge once both reserve the ARROW column.
+  contentFlat: { paddingTop: Spacing.md, paddingBottom: 40 },
+  inset: { marginHorizontal: Spacing.base },
+  ledger: { backgroundColor: Colors.cardBg, marginTop: Spacing.sm },
+  ledgerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
+    paddingHorizontal: Spacing.md, paddingVertical: 10, minHeight: 44,
+    borderTopWidth: 1, borderTopColor: Colors.border },
+  ledgerChild: { paddingLeft: Spacing.md + 20 },   // one step in — never two
+  ledgerPad: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.md },
+  arrowSlot: { width: ARROW, fontSize: 15, color: Colors.textTertiary, textAlign: 'right' },
+  arrowGap: { width: ARROW },
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'flex-start' },
   ownOweTop: { fontSize: 13, color: Colors.textSecondary, marginBottom: 2 },
-  donutWrap: { alignItems: 'center', paddingBottom: 10, borderBottomWidth: 1, borderBottomColor: 'rgba(0,0,0,0.06)', marginBottom: 6 },
+  donutWrap: { alignItems: 'center', paddingTop: Spacing.md, paddingBottom: 10 },
+  donutCenter: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
+  donutLabel: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 4 },
+  donutLabelL: { justifyContent: 'flex-end' },
+  donutLabelR: { justifyContent: 'flex-start' },
+  donutLabelTxt: { fontSize: 11, fontWeight: '700', color: Colors.textPrimary },
+  donutSmallRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 6 },
+  donutSmall: { flexDirection: 'row', alignItems: 'center', gap: 4 },
   donutLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 8 },
   legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, paddingHorizontal: 4 },
   legendTxt: { fontSize: 11, fontWeight: '600', color: Colors.textPrimary },
@@ -1011,6 +1118,8 @@ const styles = StyleSheet.create({
   acctMore: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, paddingLeft: 26, paddingVertical: 13, minHeight: 44 },
   glanceVal: { fontSize: 38, fontWeight: '800', color: Colors.primaryDark },
   glanceDelta: { fontSize: 13, fontWeight: '800', marginTop: 4 },
+  // founder note 1 (2026-08-10): the since-date is a plain line, not another bold figure
+  glanceSince: { fontSize: 13, fontWeight: '400', color: Colors.textSecondary, marginTop: 4 },
   glanceLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 44, paddingTop: 12 },
   ownHdr: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   chev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 6 },
@@ -1027,8 +1136,10 @@ const styles = StyleSheet.create({
   pathAhead: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12, marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
   pathAheadTxt: { fontSize: 13, fontWeight: '700', color: Colors.primary },
   pathAheadNum: { fontWeight: '800' },
-  // walk row 8: the grouping pills (44pt targets — the tap-target rule applies to new controls)
-  groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, justifyContent: 'center' },
+  // walk row 8: the grouping pills (44pt targets — the tap-target rule applies to new controls).
+  // Founder note 4 (2026-08-10): LEFT justified, sharing the ledger's left edge.
+  groupPills: { flexDirection: 'row', gap: 8, marginTop: Spacing.sm, marginBottom: Spacing.xs,
+    justifyContent: 'flex-start', paddingHorizontal: Spacing.base },
   groupPill: { borderWidth: 1, borderColor: Colors.border, borderRadius: 999, paddingHorizontal: 14, minHeight: 44, justifyContent: 'center', backgroundColor: Colors.cardBg },
   groupPillOn: { backgroundColor: Colors.textPrimary, borderColor: Colors.textPrimary },
   groupPillTxt: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
@@ -1108,6 +1219,9 @@ const styles = StyleSheet.create({
   sampleLine: { fontSize: 15, color: Colors.textPrimary, marginTop: 2 },
   sampleNum: { fontWeight: '800', color: Colors.textTertiary, fontStyle: 'italic' },
   cushionEmpty: { fontSize: 24, fontWeight: '800', color: Colors.textTertiary },
+  // first-day doors: the three ways in, as ledger rows on the same left and right edges
+  doorTxt: { flex: 1, fontSize: 15, fontWeight: '800', color: Colors.primaryDark },
+  doorTxtQuiet: { flex: 1, fontSize: 15, fontWeight: '400', color: Colors.textTertiary },
   intro: { flex: 1, justifyContent: 'center', padding: Spacing.xl },
   introEmoji: { fontSize: 38, textAlign: 'center', marginBottom: Spacing.sm },
   introTitle: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },

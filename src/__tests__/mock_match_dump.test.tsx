@@ -24,18 +24,25 @@ const REAL_DATA = {
   retirementAssumptions: { retireAge: 65, contribMonthly: 1200, spendMonthly: 4500, horizonAge: 92 },
   assetAccounts: [
     { asset_id: 'chk', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, target_return: 0 },
-    { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 348495,
+    // balance = the stocks (3,319 × $105 = $348,495) PLUS the $838 sweep cash the mock shows as its
+    // own Cash row — so this fixture reproduces the approved mock's arithmetic exactly:
+    // 8,000 + 838 + 348,495 + 5,819 + 450,000 = $813,152 − $418,000 = $395,152.
+    { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 349333,
       target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`, cash_balance: 838,
-      positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 250, price: 250, shares: 1394,
-        lots: [{ lot_id: 'l1', shares: 1394, cost_per_share: 200, purchase_date: '2024-01-02' }] }] },
+      positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 105, price: 105, shares: 3319,
+        lots: [{ lot_id: 'l1', shares: 3319, cost_per_share: 84, purchase_date: '2024-01-02' }] }] },
     { asset_id: 'etr', label: 'E*TRADE Treasuries & CDs', institution: 'E*TRADE', kind: 'fixed_income', tax_bucket: 'TAXABLE',
       asset_class: 'bonds', balance: 5819, target_return: 0.042, source: 'connected', last_synced: `${today}T09:00:00Z`,
       maturity_date: '2026-08-24', coupon_rate: 0.04 },
     { asset_id: 'hme', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 450000, target_return: 0, value_as_of: today },
   ],
+  // 2026-08-10: these two rows used `kind`/`balance`/`minimum_payment` — none of which are Debt
+  // fields (they are `debt_type`/`remaining_balance`/`minimum_monthly_payment`). Every debt read as
+  // $0, so the harness had been dumping a screen with no debts on it while claiming founder-shaped
+  // data. Real field names now; the mortgage + card totals match the approved mock.
   liabilities: [
-    { debt_id: 'mtg', label: 'Home mortgage', kind: 'mortgage', balance: 412000, interest_rate_apr: 0.055, minimum_payment: 2400 },
-    { debt_id: 'cc', label: 'Chase Visa', kind: 'credit_card', balance: 6000, interest_rate_apr: 0.229, minimum_payment: 150 },
+    { debt_id: 'mtg', label: 'Home mortgage', debt_type: 'MORTGAGE', remaining_balance: 412000, interest_rate_apr: 0.055, minimum_monthly_payment: 2400 },
+    { debt_id: 'cc', label: 'Chase Visa', debt_type: 'CREDIT_CARD', remaining_balance: 6000, interest_rate_apr: 0.229, minimum_monthly_payment: 150 },
   ],
   transactions: [
     { account_id: 'van', type: 'DIVIDEND', ticker: 'VTI', amount: 1220, date: today },
@@ -168,5 +175,71 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const strings = dumpStrings();
     expect(strings.indexOf('By category')).toBeLessThan(strings.indexOf('WHAT YOU OWN'));
     expect(strings.indexOf('By category')).toBeGreaterThan(-1);
+  });
+
+  // ── the Quiet-Instrument rebuild, 2026-08-10 ────────────────────────────────────────────────
+  // THE right edge, measured on the real screen rather than on a component in isolation: a section
+  // total, a group total, a class total and an account amount must all resolve to the same inset.
+  test('THE SHARED RIGHT EDGE, on the built screen: section, group, class and account amounts agree', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    const { Spacing } = require('../utils/theme');
+    render(<NW />);
+    const ARROW = 16;
+    // a band total clears the row inset AND the arrow column the rows reserve
+    expect(flat(screen.getByText('$813,152')).marginRight).toBe(ARROW);      // WHAT YOU OWN
+    expect(flat(screen.getByText('$354,314')).marginRight).toBe(ARROW);      // the INVESTMENTS group bar
+    expect(flat(screen.getByText('−$418,000')).marginRight).toBe(ARROW);     // WHAT YOU OWE
+    // and the rows themselves sit at that inset with a real arrow in the same column
+    const row = screen.getByText('$348,495');                                // a class total inside a group
+    const arrows = screen.getAllByText('›');
+    expect(flat(row).marginRight ?? 0).toBe(0);
+    expect(flat(arrows[0]).width).toBe(ARROW);
+    expect(flat(arrows[0]).textAlign).toBe('right');
+    expect(Spacing.md).toBe(12);                                             // the ledger's row inset
+  });
+
+  test('the hero ends at the since line: no date in the band title, no trend line under it', () => {
+    const Svg = require('react-native-svg');
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();
+    expect(screen.queryByText(/YOUR NET WORTH ·/)).toBeNull();
+    expect(screen.UNSAFE_queryAllByType(Svg.Polyline).length).toBe(0);
+  });
+
+  test('the change line names both halves and colours only a fall in amber', () => {
+    const { Colors } = require('../utils/theme');
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const line = screen.getByText(/Change in net worth/);
+    expect(line.props.children.join('')).toMatch(/Change in net worth \+\$2,110 · Return on cash \+ investments \+0\.5%/);
+    expect(flat(line).color).toBe(Colors.gainText);      // up (and $0) is green; amber is only for a fall
+  });
+
+  test('the donut names its slices ON the chart — colour is never the only signal', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    // the two big slices carry their own labels; the slivers ride the line beneath, still named
+    expect(screen.getByText(/Real estate 55/)).toBeOnTheScreen();
+    expect(screen.getByText(/Stocks \/ ETFs 43/)).toBeOnTheScreen();
+    expect(screen.getByText(/Cash 1/)).toBeOnTheScreen();
+    expect(screen.getByText(/Bonds & CDs 1/)).toBeOnTheScreen();
+  });
+
+  test('data reality: a connected CD/Treasuries account reads as Bonds & CDs, never Unclassified', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    expect(screen.getAllByText(/Bonds & CDs/).length).toBeGreaterThan(0);
+    expect(screen.queryByText('Unclassified')).toBeNull();
+  });
+
+  test('the cushion divides by the SAME cash the CASH group shows (one number, two places)', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    expect(screen.getByText('$8,838')).toBeOnTheScreen();                    // the CASH group total
+    const strings = dumpStrings();
+    const math = strings.indexOf('of essentials covered by your cash —');
+    expect(strings[math + 1]).toBe('$8,838');                                // and the cushion divides the same figure
+    expect(strings[strings.indexOf('months') - 1]).toBe('2.0');              // 8,838 ÷ 4,500 = 2.0, not 1.8
   });
 });

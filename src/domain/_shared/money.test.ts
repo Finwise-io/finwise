@@ -59,9 +59,13 @@ describe('formatMoney', () => {
     expect(formatMoney(1000)).toContain('€');
   });
 
-  test('non-finite input renders as zero, never throws', () => {
-    expect(formatMoney(NaN)).toBe('$0');
-    expect(formatMoney(Infinity)).toBe('$0');
+  // CHANGED 2026-08-10: a figure we could not compute used to print as "$0" — a real-looking balance.
+  // That is how a Net Worth screen whose debts failed to parse rendered a confident "$0" net worth
+  // instead of admitting it had nothing to show. Non-finite now reads as an em dash: never throws,
+  // and never passes itself off as zero.
+  test('non-finite input renders as an em dash — never a real-looking $0 — and never throws', () => {
+    expect(formatMoney(NaN)).toBe('—');
+    expect(formatMoney(Infinity)).toBe('—');
   });
 
   test('rounds to whole units (the app-wide whole-number money style)', () => {

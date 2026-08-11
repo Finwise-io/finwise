@@ -40,6 +40,8 @@ export function setMoneyFormat(currency?: string | null, locale?: string | null)
 // becomes •••• when on. Module-level (like _code/_locale) + synced from the store in app/_layout.tsx, which
 // also remounts the tree on toggle so all money() call sites re-run. Pure MATH (round2, etc.) is unaffected.
 export const BALANCE_MASK = '••••';
+/** What a figure we could not compute looks like — never a "$0" that reads as a real balance. */
+export const NOT_A_NUMBER = '—';
 let _hide = false;
 export function setHideBalances(b: boolean) { _hide = !!b; }
 export function balancesHidden(): boolean { return _hide; }
@@ -55,7 +57,10 @@ export function currencySymbol(): string {
 // e.g. USD 2460137 → "$2,460,137" · INR → "₹24,60,137" · EUR (en-IE) → "€2,460,137".
 export function formatMoney(n: number): string {
   if (_hide) return BALANCE_MASK;
-  const v = Number.isFinite(n) ? Math.round(n) : 0;
+  // A number we could not compute must never print as a real "$0" (founder's B45 rule: never show an
+  // invented figure). NaN/Infinity reads as an em dash, which is visibly not a balance.
+  if (!Number.isFinite(n)) return NOT_A_NUMBER;
+  const v = Math.round(n);
   try {
     return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, maximumFractionDigits: 0 }).format(v);
   } catch {
@@ -68,7 +73,8 @@ export function formatMoney(n: number): string {
 // recurring lines). Also masks to •••• when hide-balances is on, so cents displays don't leak.
 export function formatMoneyCents(n: number): string {
   if (_hide) return BALANCE_MASK;
-  const v = Number.isFinite(n) ? n : 0;
+  if (!Number.isFinite(n)) return NOT_A_NUMBER;
+  const v = n;
   try {
     return new Intl.NumberFormat(_locale, { style: 'currency', currency: _code, minimumFractionDigits: 2, maximumFractionDigits: 2 }).format(v);
   } catch {

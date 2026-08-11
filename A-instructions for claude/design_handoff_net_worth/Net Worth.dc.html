@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600;8..60,700&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#f0eee9;font-family:'Public Sans',sans-serif}
+a{color:oklch(40% 0.09 150);text-decoration:none}
+a:hover{color:oklch(32% 0.09 150)}
+.dv-turn{padding:40px 44px 60px}
+.dv-thd{display:flex;align-items:baseline;gap:10px;margin:0 0 20px}
+.dv-tid{font:600 10px ui-monospace,Menlo,monospace;padding:3px 7px;background:#1a1a1a;color:#fff;border-radius:4px;text-decoration:none}
+.dv-tname{font:600 13px/1.2 'Public Sans',sans-serif;color:#1a1a1a}
+.dv-opts{display:flex;flex-wrap:wrap;gap:36px;align-items:flex-start}
+.dv-opt{flex:none;display:flex;flex-direction:column;gap:9px}
+.dv-oid{font:600 10.5px ui-monospace,Menlo,monospace;padding:3px 7px;background:rgba(0,0,0,.08);color:#1a1a1a;border-radius:5px;text-decoration:none}
+.dv-olabel{display:flex;align-items:baseline;gap:8px;font:400 11px/1.3 'Public Sans',sans-serif;color:rgba(0,0,0,.55)}
+.dv-next{margin:26px 0 0;font:12px/1.6 'Public Sans',sans-serif;color:rgba(0,0,0,.5);max-width:640px}
+</style>
+</helmet>
+
+<section class="dv-turn" id="t1">
+<div class="dv-thd"><a class="dv-tid" href="#t1">1</a><span class="dv-tname">Net worth — State A, two visual directions</span></div>
+<div class="dv-opts">
+
+<div class="dv-opt" id="1a">
+<div class="dv-olabel"><a class="dv-oid" href="#1a">1a</a>Warm Ledger — floating cards, soft donut</div>
+<div style="width:390px" data-screen-label="Net Worth — Warm Ledger">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div style="background:oklch(97% 0.012 75);min-height:844px;padding:70px 16px 100px;box-sizing:border-box;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75)">
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+<div style="display:flex;align-items:center;gap:6px">
+<span style="font-family:'Source Serif 4',serif;font-weight:600;font-size:20px;letter-spacing:-.2px">Net worth</span>
+<span style="width:15px;height:15px;border-radius:50%;border:1.3px solid oklch(60% 0.02 75);display:flex;align-items:center;justify-content:center;font-size:10px;color:oklch(55% 0.02 75);font-style:italic">i</span>
+</div>
+<span style="font-size:12px;color:oklch(52% 0.02 75)">Aug 4, 2026</span>
+</div>
+
+<div style="background:linear-gradient(155deg, oklch(34% 0.09 150), oklch(28% 0.08 150));border-radius:22px;padding:22px 20px;color:oklch(96% 0.01 150);margin-bottom:14px;box-shadow:0 10px 24px -12px oklch(30% 0.08 150 / 0.5)">
+<div style="font-size:13px;color:oklch(90% 0.02 150 / 0.75);margin-bottom:6px">Own $813,152 − Owe $418,000</div>
+<div style="font-family:'Source Serif 4',serif;font-weight:600;font-size:42px;line-height:1;letter-spacing:-.5px;margin-bottom:10px">$395,152</div>
+<a href="#" style="display:flex;align-items:center;gap:6px;font-size:13px;color:oklch(96% 0.01 150);font-weight:500">
+<span style="color:oklch(80% 0.12 150)">▲</span> up $2,110 · +0.5% on cash + investments <span style="opacity:.6">›</span>
+</a>
+<div style="font-size:11px;color:oklch(90% 0.02 150 / 0.55);margin-top:8px">since Aug 3, 2026 · <span style="font-style:italic">ⓘ</span></div>
+</div>
+
+<a href="#" style="display:block;background:oklch(99% 0.006 75);border-radius:18px;padding:16px 18px;margin-bottom:14px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<div style="font-size:11px;font-weight:600;letter-spacing:.06em;color:oklch(48% 0.09 150);margin-bottom:6px">YOUR RETIREMENT PLAN</div>
+<div style="font-size:14px;line-height:1.45;color:oklch(28% 0.02 75)">Likely — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare <span style="color:oklch(55% 0.02 75)">›</span></div>
+</a>
+
+<div style="display:flex;background:oklch(93% 0.012 75);border-radius:12px;padding:3px;margin-bottom:16px">
+<button onClick="{{ oa.setCat }}" style="{{ oa.catBtnStyle }}">By category</button>
+<button onClick="{{ oa.setInst }}" style="{{ oa.instBtnStyle }}">By institution</button>
+</div>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+<span style="font-size:12px;font-weight:600;letter-spacing:.05em;color:oklch(46% 0.02 75)">WHAT YOU OWN</span>
+<span style="font-size:16px;font-weight:600">$813,152</span>
+</div>
+
+<sc-if value="{{ oa.isCat }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:22px;margin-bottom:20px">
+<div style="width:104px;height:104px;border-radius:50%;flex:none;background:conic-gradient(oklch(65% 0.03 75) 0% 55%, oklch(40% 0.09 150) 55% 98%, oklch(48% 0.1 40) 98% 99%, oklch(78% 0.04 150) 99% 100%);display:flex;align-items:center;justify-content:center">
+<div style="width:62px;height:62px;border-radius:50%;background:oklch(97% 0.012 75)"></div>
+</div>
+<div style="display:flex;flex-direction:column;gap:7px;font-size:12.5px">
+<div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(65% 0.03 75)"></span>Real estate <span style="color:oklch(52% 0.02 75)">55%</span></div>
+<div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(40% 0.09 150)"></span>Stocks / ETFs <span style="color:oklch(52% 0.02 75)">43%</span></div>
+<div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(78% 0.04 150)"></span>Cash <span style="color:oklch(52% 0.02 75)">1%</span></div>
+<div style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;border-radius:2px;background:oklch(48% 0.1 40)"></span>Bonds & CDs <span style="color:oklch(52% 0.02 75)">1%</span></div>
+</div>
+</div>
+
+<div style="background:oklch(99% 0.006 75);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<button onClick="{{ oa.toggleCash }}" style="width:100%;border:none;background:transparent;display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;text-align:left">
+<span style="width:26px;height:26px;border-radius:50%;background:oklch(93% 0.012 75);color:oklch(38% 0.02 75);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">$</span>
+<span style="flex:1;font-size:13.5px;font-weight:600;letter-spacing:.03em;color:oklch(30% 0.02 75)">CASH</span>
+<span style="font-size:14.5px;font-weight:600;margin-right:6px">$8,838</span>
+<span style="{{ oa.cashChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:12px">▸</span>
+</button>
+<div style="{{ oa.cashRows }}flex-direction:column;padding:0 16px 12px 52px;gap:10px">
+<a href="#" style="display:flex;justify-content:space-between;font-size:13.5px;color:oklch(38% 0.02 75)">Chase Checking <span>$8,000 ›</span></a>
+<a href="#" style="display:flex;justify-content:space-between;font-size:13.5px;color:oklch(38% 0.02 75)">Vanguard — sweep cash <span>$838 ›</span></a>
+</div>
+</div>
+
+<div style="background:oklch(99% 0.006 75);border-radius:18px;overflow:hidden;margin-bottom:14px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<button onClick="{{ oa.toggleInv }}" style="width:100%;border:none;background:transparent;display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;text-align:left">
+<span style="width:26px;height:26px;border-radius:50%;background:oklch(90% 0.04 150);color:oklch(34% 0.09 150);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">↗</span>
+<span style="flex:1;font-size:13.5px;font-weight:600;letter-spacing:.03em;color:oklch(30% 0.02 75)">INVESTMENTS</span>
+<span style="font-size:14.5px;font-weight:600;margin-right:6px">$354,314</span>
+<span style="{{ oa.invChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:12px">▸</span>
+</button>
+<div style="{{ oa.invRows }}flex-direction:column;padding:0 16px 12px 52px;gap:10px">
+<a href="#" style="display:flex;justify-content:space-between;font-size:13.5px;color:oklch(38% 0.02 75)">Stocks & ETFs — Vanguard <span>$348,495 ›</span></a>
+<a href="#" style="display:flex;justify-content:space-between;font-size:13.5px;color:oklch(38% 0.02 75)">Bonds & CDs — Vanguard T <span>$5,819 ›</span></a>
+</div>
+</div>
+
+<div style="background:oklch(99% 0.006 75);border-radius:18px;overflow:hidden;margin-bottom:18px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<button onClick="{{ oa.toggleProp }}" style="width:100%;border:none;background:transparent;display:flex;align-items:center;gap:10px;padding:14px 16px;cursor:pointer;text-align:left">
+<span style="width:26px;height:26px;border-radius:50%;background:oklch(93% 0.012 75);color:oklch(38% 0.02 75);font-size:13px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">⌂</span>
+<span style="flex:1;font-size:13.5px;font-weight:600;letter-spacing:.03em;color:oklch(30% 0.02 75)">PERSONAL PROPERTY <span style="font-weight:400;color:oklch(55% 0.02 75);letter-spacing:0">· 1 item</span></span>
+<span style="font-size:14.5px;font-weight:600;margin-right:6px">$450,000</span>
+<span style="{{ oa.propChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:12px">▸</span>
+</button>
+<div style="{{ oa.propRows }}flex-direction:column;padding:0 16px 12px 52px;gap:10px">
+<a href="#" style="display:flex;justify-content:space-between;font-size:13.5px;color:oklch(38% 0.02 75)">Primary residence <span>$450,000 ›</span></a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ oa.isInst }}" hint-placeholder-val="{{ false }}">
+<div style="display:flex;flex-direction:column;gap:10px;margin-bottom:18px">
+<div style="background:oklch(99% 0.006 75);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>Chase</span><span>$2,000</span></div>
+<div style="background:oklch(99% 0.006 75);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>Vanguard</span><span>$355,152</span></div>
+<div style="background:oklch(99% 0.006 75);border-radius:18px;padding:14px 16px;display:flex;justify-content:space-between;font-size:13.5px;font-weight:600"><span>Real estate</span><span>$450,000</span></div>
+</div>
+</sc-if>
+
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:12px">
+<span style="font-size:12px;font-weight:600;letter-spacing:.05em;color:oklch(46% 0.02 75)">WHAT YOU OWE</span>
+<span style="font-size:16px;font-weight:600;color:oklch(42% 0.1 40)">−$418,000</span>
+</div>
+<div style="background:oklch(99% 0.006 75);border-radius:18px;overflow:hidden;margin-bottom:16px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<a href="#" style="display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid oklch(93% 0.012 75)">
+<span style="width:26px;height:26px;border-radius:50%;background:oklch(92% 0.04 40);color:oklch(42% 0.1 40);font-size:13px;display:flex;align-items:center;justify-content:center;flex:none">⌂</span>
+<span style="flex:1;font-size:13.5px;color:oklch(30% 0.02 75)">Home mortgage</span>
+<span style="font-size:13.5px;font-weight:600;color:oklch(42% 0.1 40)">−$412,000 ›</span>
+</a>
+<a href="#" style="display:flex;align-items:center;gap:10px;padding:14px 16px">
+<span style="width:26px;height:26px;border-radius:50%;background:oklch(92% 0.04 40);color:oklch(42% 0.1 40);font-size:11px;display:flex;align-items:center;justify-content:center;flex:none">▮</span>
+<span style="flex:1;font-size:13.5px;color:oklch(30% 0.02 75)">Chase Visa <span style="font-size:11px;color:oklch(55% 0.02 75)">· pay first</span></span>
+<span style="font-size:13.5px;font-weight:600;color:oklch(42% 0.1 40)">−$6,000 ›</span>
+</a>
+</div>
+
+<div style="background:oklch(99% 0.006 75);border-radius:18px;padding:16px 18px;box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.05)">
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:8px">
+<span style="font-size:11px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">EMERGENCY CUSHION</span>
+</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+<span style="font-size:19px;font-weight:600">2.0 months</span>
+<span style="font-size:11px;font-weight:600;color:oklch(45% 0.1 40);background:oklch(93% 0.04 40);padding:2px 8px;border-radius:20px">Tight ⚠</span>
+</div>
+<div style="height:6px;border-radius:4px;background:oklch(92% 0.012 75);overflow:hidden;margin-bottom:8px">
+<div style="width:33%;height:100%;background:oklch(45% 0.1 40)"></div>
+</div>
+<div style="font-size:12px;color:oklch(52% 0.02 75)">$8,838 ÷ $4,500/mo <span style="font-style:italic">ⓘ</span></div>
+</div>
+
+</div>
+</x-import>
+</div>
+<div style="display:flex;justify-content:space-around;align-items:center;width:390px;background:oklch(99% 0.006 75);border-top:1px solid oklch(92% 0.012 75);padding:10px 0 6px;border-radius:0 0 40px 40px;margin-top:-2px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(40% 0.09 150)"></span><span style="font-size:10px;color:oklch(40% 0.09 150);font-weight:600">Net worth</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Performance</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Cash flow</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:6px;height:6px;border-radius:50%;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Plan</span></div>
+</div>
+</div>
+</div>
+
+<div class="dv-opt" id="1b">
+<div class="dv-olabel"><a class="dv-oid" href="#1b">1b</a>Quiet Instrument — flat ledger, stacked bar, tabular numbers</div>
+<div style="width:390px" data-screen-label="Net Worth — Quiet Instrument">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div style="background:oklch(98% 0.008 75);min-height:844px;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75);padding-bottom:100px;box-sizing:border-box">
+
+<div style="background:oklch(28% 0.09 150);padding:76px 18px 22px;color:oklch(96% 0.01 150)">
+<div style="display:flex;align-items:center;gap:7px;margin-bottom:16px">
+<span style="width:20px;height:20px;border-radius:6px;background:oklch(96% 0.01 150);color:oklch(28% 0.09 150);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">M</span>
+<span style="font-size:13px;font-weight:700;letter-spacing:.01em">MoneyKeel</span>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between;margin-bottom:14px">
+<span style="display:flex;align-items:center;gap:5px;font-weight:600;font-size:15px;letter-spacing:.01em">Your Net Worth <span style="width:13px;height:13px;border-radius:50%;border:1px solid oklch(90% 0.02 150 / 0.6);font-size:9px;font-style:italic;color:oklch(90% 0.02 150 / 0.75);display:flex;align-items:center;justify-content:center">i</span></span>
+<span style="font-size:11.5px;color:oklch(90% 0.02 150 / 0.6)">Aug 4, 2026</span>
+</div>
+<div style="font-size:12.5px;color:oklch(90% 0.02 150 / 0.7);margin-bottom:4px;font-variant-numeric:tabular-nums">Own $813,152 − Owe $418,000</div>
+<div style="font-weight:600;font-size:38px;line-height:1;letter-spacing:-.5px;font-variant-numeric:tabular-nums;margin-bottom:8px">$395,152</div>
+<a href="#" style="display:flex;align-items:center;gap:6px;font-size:12.5px;color:oklch(96% 0.01 150);font-variant-numeric:tabular-nums">
+<span style="color:oklch(85% 0.06 150)">▲</span> +$2,110 · +0.5% on cash + investments <span style="opacity:.55">›</span>
+</a>
+<div style="font-size:11px;color:oklch(90% 0.02 150 / 0.55);margin-top:6px">since Aug 3, 2026</div>
+</div>
+
+<a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:13px 18px;border-bottom:1px solid oklch(90% 0.012 75)">
+<div>
+<div style="font-size:10.5px;font-weight:600;letter-spacing:.07em;color:oklch(40% 0.1 150);margin-bottom:3px">YOUR RETIREMENT PLAN</div>
+<div style="font-size:13px;line-height:1.4;color:oklch(30% 0.02 75);max-width:300px">Likely — retire at 65 with ~$1,412,000, lasting past 92 with ~$890,000 to spare</div>
+</div>
+<span style="color:oklch(55% 0.02 75);flex:none;margin-left:8px">›</span>
+</a>
+
+<div style="display:flex;gap:18px;padding:12px 18px 0;border-bottom:1px solid oklch(90% 0.012 75)">
+<button onClick="{{ ob.setCat }}" style="{{ ob.catTabStyle }}">By category</button>
+<button onClick="{{ ob.setInst }}" style="{{ ob.instTabStyle }}">By institution</button>
+</div>
+
+<div style="padding:16px 18px 6px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">WHAT YOU OWN</span>
+<span style="font-size:15px;font-weight:600;font-variant-numeric:tabular-nums">$813,152</span>
+</div>
+
+<div style="padding:0 18px 14px">
+<div style="display:flex;height:10px;border-radius:3px;overflow:hidden;margin-bottom:10px">
+<span style="width:55%;background:oklch(65% 0.02 75)"></span>
+<span style="width:43%;background:oklch(38% 0.1 150)"></span>
+<span style="width:1%;background:oklch(80% 0.05 150)"></span>
+<span style="width:1%;background:oklch(24% 0.09 150)"></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:oklch(48% 0.02 75)">
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(65% 0.02 75);margin-right:5px"></span>Real estate 55%</span>
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(38% 0.1 150);margin-right:5px"></span>Stocks/ETFs 43%</span>
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(80% 0.05 150);margin-right:5px"></span>Cash 1%</span>
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(24% 0.09 150);margin-right:5px"></span>Bonds & CDs 1%</span>
+</div>
+</div>
+
+<sc-if value="{{ ob.isCat }}" hint-placeholder-val="{{ true }}">
+<div>
+<button onClick="{{ ob.toggleCash }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:8px 1fr auto 16px;align-items:center;column-gap:10px;padding:12px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="width:8px;height:8px;background:oklch(80% 0.05 150)"></span>
+<span style="font-size:13px;font-weight:600;letter-spacing:.02em">CASH</span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$8,838</span>
+<span style="{{ ob.cashChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.cashRows }}flex-direction:column;padding:0 18px 10px 36px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Chase Checking <span style="text-align:right">$8,000</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Vanguard — sweep cash <span style="text-align:right">$838</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+
+<div>
+<button onClick="{{ ob.toggleInv }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:8px 1fr auto 16px;align-items:center;column-gap:10px;padding:12px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="width:8px;height:8px;background:oklch(38% 0.1 150)"></span>
+<span style="font-size:13px;font-weight:600;letter-spacing:.02em">INVESTMENTS</span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$354,314</span>
+<span style="{{ ob.invChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.invRows }}flex-direction:column;padding:0 18px 10px 36px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Stocks & ETFs — Vanguard <span style="text-align:right">$348,495</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Bonds & CDs — Vanguard T <span style="text-align:right">$5,819</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+
+<div style="border-top:1px solid oklch(90% 0.012 75);border-bottom:1px solid oklch(90% 0.012 75)">
+<button onClick="{{ ob.toggleProp }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:8px 1fr auto 16px;align-items:center;column-gap:10px;padding:12px 18px;cursor:pointer;text-align:left">
+<span style="width:8px;height:8px;background:oklch(65% 0.02 75)"></span>
+<span style="font-size:13px;font-weight:600;letter-spacing:.02em">PERSONAL PROPERTY <span style="font-weight:400;color:oklch(55% 0.02 75);letter-spacing:0">· 1 item</span></span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$450,000</span>
+<span style="{{ ob.propChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.propRows }}flex-direction:column;padding:0 18px 10px 36px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Primary residence <span style="text-align:right">$450,000</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ ob.isInst }}" hint-placeholder-val="{{ false }}">
+<div>
+<div>
+<button onClick="{{ ob.toggleInstChase }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:1fr auto 16px;align-items:center;column-gap:8px;padding:12px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:13px;font-weight:600">Chase</span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$8,000</span>
+<span style="{{ ob.instChaseChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.instChaseRows }}flex-direction:column;padding:0 18px 10px 18px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Checking <span style="text-align:right">$8,000</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+<div>
+<button onClick="{{ ob.toggleInstVanguard }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:1fr auto 16px;align-items:center;column-gap:8px;padding:12px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:13px;font-weight:600">Vanguard</span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$355,152</span>
+<span style="{{ ob.instVanguardChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.instVanguardRows }}flex-direction:column;padding:0 18px 10px 18px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Sweep cash <span style="text-align:right">$838</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Stocks & ETFs <span style="text-align:right">$348,495</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Bonds & CDs (T) <span style="text-align:right">$5,819</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+<div style="border-bottom:1px solid oklch(90% 0.012 75)">
+<button onClick="{{ ob.toggleInstProperty }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:1fr auto 16px;align-items:center;column-gap:8px;padding:12px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:13px;font-weight:600">Real estate</span>
+<span style="font-size:13.5px;font-weight:600;font-variant-numeric:tabular-nums;text-align:right">$450,000</span>
+<span style="{{ ob.instPropertyChevron }}display:inline-block;color:oklch(55% 0.02 75);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ ob.instPropertyRows }}flex-direction:column;padding:0 18px 10px 18px;gap:9px">
+<a href="#" style="display:grid;grid-template-columns:1fr auto 16px;column-gap:8px;font-size:13px;color:oklch(38% 0.02 75);font-variant-numeric:tabular-nums">Primary residence <span style="text-align:right">$450,000</span><span style="text-align:right;color:oklch(55% 0.02 75)">›</span></a>
+</div>
+</div>
+</div>
+</sc-if>
+
+<div style="height:8px;background:oklch(94% 0.012 75);margin-top:6px"></div>
+<div style="padding:16px 18px 6px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">WHAT YOU OWE</span>
+<span style="font-size:15px;font-weight:600;color:oklch(42% 0.1 65);font-variant-numeric:tabular-nums">−$418,000</span>
+</div>
+<div style="padding:0 18px 14px">
+<div style="display:flex;height:10px;border-radius:3px;overflow:hidden;margin-bottom:10px">
+<span style="width:98.6%;background:oklch(42% 0.1 65)"></span>
+<span style="width:1.4%;background:oklch(70% 0.06 65)"></span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:12px;font-size:11.5px;color:oklch(48% 0.02 75)">
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(42% 0.1 65);margin-right:5px"></span>Home mortgage 98.6%</span>
+<span><span style="display:inline-block;width:7px;height:7px;background:oklch(70% 0.06 65);margin-right:5px"></span>Chase Visa 1.4%</span>
+</div>
+</div>
+<a href="#" style="display:grid;grid-template-columns:8px 1fr auto 16px;align-items:center;column-gap:10px;padding:12px 18px;border-top:1px solid oklch(90% 0.012 75)">
+<span style="width:8px;height:8px;background:oklch(42% 0.1 65)"></span>
+<span style="font-size:13px;color:oklch(30% 0.02 75)">Home mortgage</span>
+<span style="font-size:13px;font-weight:600;color:oklch(42% 0.1 65);font-variant-numeric:tabular-nums;text-align:right">−$412,000</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</a>
+<a href="#" style="display:grid;grid-template-columns:8px 1fr auto 16px;align-items:center;column-gap:10px;padding:12px 18px;border-top:1px solid oklch(90% 0.012 75);border-bottom:1px solid oklch(90% 0.012 75)">
+<span style="width:8px;height:8px;background:oklch(42% 0.1 65)"></span>
+<span style="font-size:13px;color:oklch(30% 0.02 75)">Chase Visa <span style="font-size:11px;color:oklch(55% 0.02 75)">· pay first</span></span>
+<span style="font-size:13px;font-weight:600;color:oklch(42% 0.1 65);font-variant-numeric:tabular-nums;text-align:right">−$6,000</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</a>
+
+<div style="padding:16px 18px 4px">
+<div style="font-size:11px;font-weight:600;letter-spacing:.07em;color:oklch(46% 0.02 75);margin-bottom:8px">EMERGENCY CUSHION</div>
+<div style="display:flex;align-items:baseline;gap:8px;margin-bottom:8px">
+<span style="font-size:18px;font-weight:600;font-variant-numeric:tabular-nums">2.0 months</span>
+<span style="font-size:11px;font-weight:600;color:oklch(45% 0.13 65)">Tight ⚠</span>
+</div>
+<div style="height:4px;background:oklch(92% 0.012 75);margin-bottom:8px">
+<div style="width:33%;height:100%;background:oklch(45% 0.13 65)"></div>
+</div>
+<div style="font-size:11.5px;color:oklch(52% 0.02 75);font-variant-numeric:tabular-nums">$8,838 ÷ $4,500/mo · ⓘ</div>
+</div>
+
+</div>
+</x-import>
+</div>
+<div style="display:flex;justify-content:space-around;align-items:center;width:390px;background:oklch(98% 0.008 75);border-top:1px solid oklch(90% 0.012 75);padding:10px 0 6px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(38% 0.1 150)"></span><span style="font-size:10px;color:oklch(38% 0.1 150);font-weight:600">Net worth</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Performance</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Cash flow</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Plan</span></div>
+</div>
+</div>
+</div>
+<p class="dv-next">Try next: "more like <a class="dv-oid" href="#1a">1a</a> but flatten the hero" · "give <a class="dv-oid" href="#1b">1b</a> the soft donut instead of the bar" · "build state B/C/D on top of one of these"</p>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    a: { tab: 'category', open: { cash: true, inv: true, prop: false, instChase: false, instVanguard: false, instProperty: false } },
+    b: { tab: 'category', open: { cash: true, inv: true, prop: false, instChase: false, instVanguard: false, instProperty: false } }
+  };
+
+  toggle(opt, key) {
+    this.setState(s => ({ ...s, [opt]: { ...s[opt], open: { ...s[opt].open, [key]: !s[opt].open[key] } } }));
+  }
+  setTab(opt, tab) {
+    this.setState(s => ({ ...s, [opt]: { ...s[opt], tab } }));
+  }
+
+  buildPill(opt, active, activeBg, activeColor) {
+    const base = 'flex:1;border:none;border-radius:9px;padding:8px 0;font-size:12.5px;font-weight:600;cursor:pointer;';
+    return active ? base + `background:${activeBg};color:${activeColor};box-shadow:0 1px 2px oklch(20% 0.02 75 / 0.08);`
+                  : base + 'background:transparent;color:oklch(48% 0.02 75);';
+  }
+  buildUnderlineTab(active) {
+    const base = 'border:none;background:transparent;padding:0 0 10px;font-size:12.5px;font-weight:600;cursor:pointer;';
+    return active ? base + 'color:oklch(30% 0.02 75);border-bottom:2px solid oklch(38% 0.1 150);'
+                  : base + 'color:oklch(55% 0.02 75);border-bottom:2px solid transparent;';
+  }
+
+  build(opt, style) {
+    const s = this.state[opt];
+    const chev = open => `transform:${open ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform .18s;`;
+    const rows = open => open ? 'display:flex;' : 'display:none;';
+    const vals = {
+      isCat: s.tab === 'category',
+      isInst: s.tab === 'institution',
+      setCat: () => this.setTab(opt, 'category'),
+      setInst: () => this.setTab(opt, 'institution'),
+      cashChevron: chev(s.open.cash),
+      invChevron: chev(s.open.inv),
+      propChevron: chev(s.open.prop),
+      cashRows: rows(s.open.cash),
+      invRows: rows(s.open.inv),
+      propRows: rows(s.open.prop),
+      toggleCash: () => this.toggle(opt, 'cash'),
+      toggleInv: () => this.toggle(opt, 'inv'),
+      toggleProp: () => this.toggle(opt, 'prop'),
+      instChaseChevron: chev(s.open.instChase),
+      instVanguardChevron: chev(s.open.instVanguard),
+      instPropertyChevron: chev(s.open.instProperty),
+      instChaseRows: rows(s.open.instChase),
+      instVanguardRows: rows(s.open.instVanguard),
+      instPropertyRows: rows(s.open.instProperty),
+      toggleInstChase: () => this.toggle(opt, 'instChase'),
+      toggleInstVanguard: () => this.toggle(opt, 'instVanguard'),
+      toggleInstProperty: () => this.toggle(opt, 'instProperty')
+    };
+    if (style === 'pill') {
+      vals.catBtnStyle = this.buildPill(opt, vals.isCat, 'oklch(99% 0.006 75)', 'oklch(28% 0.02 75)');
+      vals.instBtnStyle = this.buildPill(opt, vals.isInst, 'oklch(99% 0.006 75)', 'oklch(28% 0.02 75)');
+    } else {
+      vals.catTabStyle = this.buildUnderlineTab(vals.isCat);
+      vals.instTabStyle = this.buildUnderlineTab(vals.isInst);
+    }
+    return vals;
+  }
+
+  renderVals() {
+    return { oa: this.build('a', 'pill'), ob: this.build('b', 'underline') };
+  }
+}
+</script>
+</body>
+</html>

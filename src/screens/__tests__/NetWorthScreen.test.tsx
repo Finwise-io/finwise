@@ -28,10 +28,14 @@ describe('NetWorthScreen first-run intro', () => {
     expect(screen.getByText('🏠 PERSONAL PROPERTY')).toBeOnTheScreen();
     expect(screen.getByText('Sample: 84%')).toBeOnTheScreen();                 // identical to Home's
     expect(screen.getByText(/a sample, not your number/)).toBeOnTheScreen();
-    expect(screen.getByText('🛡️ EMERGENCY CUSHION')).toBeOnTheScreen();
+    expect(screen.getByText('EMERGENCY CUSHION')).toBeOnTheScreen();
     expect(screen.getByText('— months')).toBeOnTheScreen();
+    // the three ways in are ledger rows now — the label and its arrow are separate cells, so the
+    // arrow can sit in the SAME trailing column every other row uses
+    expect(screen.getByText('Connect a brokerage')).toBeOnTheScreen();
+    expect(screen.getByText('Add a file from your bank')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByText('Type it yourself ›'));
+    fireEvent.press(screen.getByText('Type it yourself'));
 
     const st = useStore.getState();
     expect(st.nwSetupChoice).toBe('self');
@@ -82,7 +86,7 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
 
     render(<NetWorthScreen />);
     expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();   // State C keeps the full layout
-    fireEvent.press(screen.getByText('Type it yourself ›'));
+    fireEvent.press(screen.getByText('Type it yourself'));
 
     const accounts = useStore.getState().assetAccounts;
     // B-21: '200000' retirement + explicit '0' holdings → a $0 Investments placeholder too.
@@ -278,8 +282,10 @@ test('change line: % on cash + investments, from real history — never total-NW
     invDaily: { [past]: 400000 },                    // baseline cash+investments
   } as any);
   render(<NetWorthScreen />);
-  // current investable = 410,000 vs baseline 400,000 → +2.5% — labeled with its denominator
-  expect(screen.getByText(/\+2\.5% on cash \+ investments/)).toBeOnTheScreen();
+  // current investable = 410,000 vs baseline 400,000 → +2.5%. Founder wording 2026-08-10: both halves
+  // are NAMED — the dollars are the change in net worth, the percent is a RETURN, and the line says
+  // out loud which pot the percent is measured on.
+  expect(screen.getByText(/Change in net worth \+\$20,000 · Return on cash \+ investments \+2\.5%/)).toBeOnTheScreen();
 });
 
 test('change line: NO percent before the cash+investments history exists', () => {
@@ -316,6 +322,58 @@ test('WHAT YOU OWN shows the three uber-groups with their totals, classes inside
   // group totals ride their bars — Investments equals the invested total by definition
   expect(screen.getAllByText('$348,495').length).toBeGreaterThan(0);
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();
+});
+
+// ── QUIET-INSTRUMENT REBUILD (founder handoff + notes, 2026-08-10) ──────────────────────────────
+// The flat ledger: every number on the screen resolves to ONE right edge. A band total carries the
+// rows' inset PLUS the trailing arrow column; a row that navigates fills that column with "›" and a
+// row that doesn't leaves it empty — so nothing sits a few points left of everything else.
+test('one shared right edge: band totals reserve the same arrow column the rows do', () => {
+  const { SectionBand } = require('../../components/SectionBand');
+  const { Spacing } = require('../../utils/theme');
+  const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
+  render(<SectionBand title="WHAT YOU OWN" value="$813,152" trailing={16} />);
+  // rows sit at Spacing.md and end with a 16pt arrow cell → the band's total must clear both
+  expect(flat(screen.getByText('$813,152')).marginRight).toBe(16);
+  screen.unmount();
+  render(<SectionBand inCard title="WHAT YOU OWN" value="$813,152" trailing={16} />);
+  expect(flat(screen.getByText('$813,152')).marginRight).toBe(Spacing.md + 16);
+});
+
+// Founder notes 2026-08-10, the hero: the band title carries ONLY the info dot (the date lives once,
+// on the since line), and the trend line that used to close the box is gone.
+test('hero: title has no date, the since line does, and no sparkline follows it', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  useStore.setState({
+    nwSeeded: true,
+    assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 401000, target_return: 0.07 }],
+    liabilities: [],
+    nwDaily: { '2026-01-02': 400000, [today]: 401000 },
+  } as any);
+  render(<NetWorthScreen />);
+  expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();          // exactly that — no "· AUG 10, 2026"
+  expect(screen.getByText(/^since /)).toBeOnTheScreen();                 // the one date, on its own line
+  expect(screen.UNSAFE_queryAllByType(require('react-native-svg').Polyline).length).toBe(0);
+});
+
+// The handoff's By-institution view: collapsible like By category, its own memory, and an
+// institution's row is what it HOLDS — a debt at the same bank never merges into it.
+test('By institution: groups collapse, and a bank\'s debt never joins its asset total', () => {
+  useStore.setState({
+    nwSeeded: true, hideBalances: false,
+    assetAccounts: [
+      { asset_id: 'c1', label: 'Chase Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 8000, target_return: 0 },
+      { asset_id: 'v1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 348495, target_return: 0.07 },
+    ],
+    liabilities: [{ debt_id: 'cc', label: 'Chase Visa', institution: 'Chase', debt_type: 'CREDIT_CARD', remaining_balance: 6000, interest_rate_apr: 0.229, minimum_monthly_payment: 150 }],
+  } as any);
+  render(<NetWorthScreen />);
+  fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
+  // Chase holds $8,000 of ASSETS — the $6,000 card is not netted off it and is not added to it
+  expect(screen.getByLabelText(/^Chase, \$8,000, 1 account/)).toBeOnTheScreen();
+  expect(screen.getByText(/Chase Visa/)).toBeOnTheScreen();              // the card lives under what you owe
+  fireEvent.press(screen.getByLabelText(/^Chase, \$8,000, 1 account\. Collapses/));
+  expect(screen.getByLabelText(/^Chase, \$8,000, 1 account\. Expands/)).toBeOnTheScreen();
 });
 
 // FINAL mock: the missing-data banner is INLINE on the screen (never a pop-up) and exists ONLY

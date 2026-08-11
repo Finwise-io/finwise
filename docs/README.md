@@ -41,6 +41,14 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 `onboarding-flow-design.md` · `onboarding-data-matrix.md` · `onboarding-scorecard.md` ·
 `finwise-onboarding-flow-review.md` · `finwise-onboarding-screen-review.md`
 
+## 🎨 Design source of truth (mockups)
+| Where | What |
+|---|---|
+| `docs/MOCK-MATCH-AUDIT-STANDING-ORDER.md` | **How a build is audited against an approved mock** — the only accepted method (5 steps, coverage line required). Mirrored in the repo `CLAUDE.md`. |
+| `docs/FCC-core-55-70/FCC-core-detailed-design-v1.3-2026-07-19.xlsx` | The detailed design. Its **Changelog** tab is where every founder approval gets a dated row the same day. |
+| `mockups/NW-Performance-Mockup Finals - August 10/` | The Net worth + Performance finals (index workbook + `NW screens/` per-screen set + the open-gaps ledger). |
+| `mockups/NW-QuietInstrument-Aug-10/` | The 2026-08-10 Net worth rebuild: the Claude Design handoff as received, mock v1 (as drawn) and v2 (build spec), plus the mock-match audit workbook. See its own README. |
+
 ## 🗂️ Snapshots (version trail — not canonical)
 `snapshots/` — dated copies of living docs (e.g. `finwise-bug-ledger-2026-06-26.md`), saved on each
 substantive change so the latest version is easy to track. **Not duplicates to delete** — the

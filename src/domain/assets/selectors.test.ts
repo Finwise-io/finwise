@@ -57,6 +57,48 @@ describe('canonical asset selectors — agreement', () => {
   });
 });
 
+// ── CONNECTED ACCOUNTS WITHOUT POSITION DETAIL (2026-08-10) ─────────────────────────────────────
+// Same class of defect as the founder's "the E*TRADE CD still shows under Cash": a connected account
+// that sends a balance but no holdings was dumped WHOLE into Unclassified, even when we know exactly
+// what it is. Its own class wins; only a wrapper whose contents are genuinely unknown stays mixed.
+describe('a connected account with no position detail keeps its own class', () => {
+  const connected = (over: Partial<AssetAccount>) => a({ source: 'connected', ...over });
+
+  test('a connected Treasuries & CDs account is Bonds & CDs, not Unclassified', () => {
+    const acct = connected({ label: 'E*TRADE Treasuries & CDs', kind: 'fixed_income', asset_class: 'bonds', balance: 5819 });
+    expect(assetClassOf(acct)).toBe('bonds');
+    expect(assetAllocation([acct]).bonds).toBe(5819);
+    expect(assetAllocation([acct]).mixed).toBe(0);
+  });
+
+  test('a connected savings account is Cash — and the cushion counts it', () => {
+    const acct = connected({ label: 'Ally Savings', kind: 'savings', tax_bucket: 'CASH', balance: 12000 });
+    expect(assetAllocation([acct]).cash).toBe(12000);
+    expect(cashTotal([acct])).toBe(12000);
+  });
+
+  test('a bare connected brokerage stays honestly Unclassified — we still do not know what it holds', () => {
+    const acct = connected({ label: 'Some Brokerage', kind: 'brokerage', balance: 40000 });
+    expect(assetAllocation([acct]).mixed).toBe(40000);
+  });
+});
+
+// ── ONE CASH NUMBER (L-7, 2026-08-10) ───────────────────────────────────────────────────────────
+// The Net worth screen printed "CASH $8,838" one inch above "…$8,000 cash ÷ $4,500/mo": the CASH
+// group counted a connected brokerage's sweep balance and the emergency cushion did not. Both read
+// the same breakdown now, so the two figures cannot disagree again.
+test('cash includes a connected brokerage sweep balance — the CASH group and the cushion agree', () => {
+  const p: AssetAccount[] = [
+    a({ label: 'Chase Checking', kind: 'checking', tax_bucket: 'CASH', balance: 8000 }),
+    a({ label: 'Vanguard Brokerage', kind: 'brokerage', balance: 349333, source: 'connected', cash_balance: 838,
+      positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 105,
+        lots: [{ lot_id: 'l1', shares: 3319, cost_per_share: 84 }] }] } as any),
+  ];
+  expect(assetAllocation(p).cash).toBe(8838);
+  expect(cashTotal(p)).toBe(8838);            // the cushion's numerator — the same number the group shows
+  expect(assetAllocation(p).stocks_etf).toBe(348495);
+});
+
 // pj review note: the "add cash" picker only offered Checking/Savings. Added the common cash sub-types.
 // They MUST behave as cash (CASH bucket, class 'cash', no individual tickers) — not be mistaken for investments.
 describe('cash sub-types (HYSA / money-market / CD / cash management)', () => {
