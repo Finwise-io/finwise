@@ -433,15 +433,49 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
   return out;
 }
 
-/** Plain words for an account's slice inside a class row ("money market + cash in this account"). */
+const CD_RE = /\b(cd|certificate of deposit)\b/i;
+const TREASURY_RE = /\b(treasur\w*|t-?bills?|t-?notes?|govt?|government)\b/i;
+const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
+
+/** Plain words for an account's slice inside a class row. Founder finding 2026-08-11: this repeated
+ *  the class name the row already carried ("CDs & Treasuries in this account" under Bonds & CDs).
+ *  It COUNTS what is actually in there instead — "3 CDs & 1 Treasury in this account" — so the line
+ *  earns its space. Where we cannot tell two things apart (a plain ticker gives no way to know a
+ *  stock from an ETF), we say the honest broader word rather than guess a split. */
 export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
-  const hasMmf = ((a.positions ?? []) as any[]).some((p) => p.asset_class === 'cash');
-  const hasOptions = (((a as any).option_holdings ?? []) as any[]).length > 0;
+  const pos = ((a.positions ?? []) as any[]);
+  const inClass = pos.filter((p) => {
+    const c = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
+    return c === cls;
+  });
+  const nameOf = (p: any) => `${p.ticker ?? ''} ${p.name ?? p.label ?? ''}`;
+  const opts = (((a as any).option_holdings ?? []) as any[]).length;
+
   switch (cls) {
-    case 'cash': return hasMmf ? 'money market + cash in this account' : 'cash in this account';
-    case 'bonds': return 'CDs & Treasuries in this account';
-    case 'stocks_etf': return 'stocks in this account';
-    case 'alternatives': return hasOptions ? 'options in this account' : 'alternatives in this account';
+    case 'cash': {
+      // a cash sleeve is one line — say so plainly (founder: "typically one account has one cash line")
+      const mmf = inClass.filter((p) => /money[\s-]?market|\bmmkt\b|\bmmf\b/i.test(nameOf(p))).length;
+      return mmf > 0 ? `${plural(mmf, 'money-market fund')} + cash in this account` : 'cash in this account';
+    }
+    case 'bonds': {
+      const cds = inClass.filter((p) => CD_RE.test(nameOf(p))).length;
+      const treas = inClass.filter((p) => !CD_RE.test(nameOf(p)) && TREASURY_RE.test(nameOf(p))).length;
+      const rest = inClass.length - cds - treas;
+      const parts = [
+        cds ? plural(cds, 'CD') : '',
+        treas ? plural(treas, 'Treasury') : '',
+        rest ? plural(rest, 'bond') : '',
+      ].filter(Boolean);
+      return parts.length ? `${parts.join(' & ')} in this account` : 'bonds & CDs in this account';
+    }
+    case 'stocks_etf': {
+      // a ticker alone cannot tell a share from a fund — one honest word covers both
+      return inClass.length ? `${plural(inClass.length, 'holding')} in this account` : 'stocks & funds in this account';
+    }
+    case 'alternatives': {
+      const parts = [opts ? plural(opts, 'option') : '', inClass.length ? plural(inClass.length, 'holding') : ''].filter(Boolean);
+      return parts.length ? `${parts.join(' & ')} in this account` : 'alternatives in this account';
+    }
     default: return 'unpriced portion of this account';
   }
 }

@@ -60,6 +60,12 @@ export const Colors = {
 // the colorblind-validated FIXED-ORDER allocation set (worst adjacent ΔE 21.6, target ≥12).
 // Same class = same color on every screen; order is part of the validation — never shuffle.
 export const ChartPalette = ['#2a78d6', '#1baf7a', '#eda100', '#4a3aa7', '#eb6834', '#e87ba4', '#898781'] as const;
+/** DEBT composition ramp (founder finding 2026-08-11: the debt bar mixed red and amber, the exact
+ *  pair red-green colour blindness collapses into one muddy tone). ONE hue, four clearly separated
+ *  LIGHTNESS steps — telling them apart needs no colour vision at all, only light vs dark, so
+ *  protanopia, deuteranopia, tritanopia and a greyscale screenshot all read it the same way.
+ *  Kept in the warning family so what you OWE never looks like what you own. */
+export const DebtRamp = ['#4A2E00', '#854F0B', '#B98A4B', '#E8CFA6'] as const;
 export const ClassMarkColors: Record<string, string> = {
   stocks_etf: '#2a78d6', cash: '#1baf7a', real_estate: '#eda100', bonds: '#4a3aa7',
   alternatives: '#eb6834', personal_property: '#e87ba4', mixed: '#898781',

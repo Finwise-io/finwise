@@ -12,7 +12,7 @@ import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
-import { Colors, Spacing, Radii, ClassMarkColors } from '../utils/theme';
+import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints, investableChangePct, buildChangeWalk } from '../domain/history';
@@ -72,9 +72,9 @@ const shortMoney = (n: number) => {
 // "›", a row that doesn't leaves it empty, and a section band adds it to its total's right margin.
 // That is what puts every number on the screen on ONE right edge (founder gap 4, 2026-08-10).
 const ARROW = 16;
-// The debt bar's colour ramp — the warning family only, so what you OWE can never be misread as what
-// you own. Every segment is still named with its percent in the legend; colour alone never carries it.
-const DEBT_RAMP = [Colors.red, Colors.amber, Colors.redMid, Colors.amberMid];
+// The debt bar's ramp lives in the theme (DebtRamp): ONE hue in four lightness steps, so the
+// segments are told apart by light-vs-dark rather than by hue — readable with any colour blindness,
+// and in a greyscale screenshot. Every segment is still named with its percent in the legend too.
 // The cushion bar fills against the top of the usual 3-6 month guide, so a full bar means "covered".
 const CUSHION_FULL_MONTHS = 6;
 
@@ -219,6 +219,19 @@ export default function NetWorthScreen() {
   const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0)
     .sort((a, b) => b.total - a.total);
   const displayNames = accountDisplayNames(assets);   // masks only when real digits; twins get " · 1/2"
+  // the same accounts, grouped by who holds them — biggest first, so the bar and the list beneath
+  // it read in the same order. Colours come from the validated categorical palette.
+  const institutionRows = useMemo(() => {
+    const by = new Map<string, number>();
+    for (const a of assets) {
+      const k = a.institution?.trim() || 'No institution';
+      by.set(k, (by.get(k) ?? 0) + (a.balance || 0));
+    }
+    return [...by.entries()]
+      .filter(([, total]) => total > 0)
+      .sort((x, y) => y[1] - x[1])
+      .map(([label, total], i) => ({ key: label, label, color: ChartPalette[i % ChartPalette.length], total }));
+  }, [assets]);
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
   // NW-9: the headline insight names the largest asset CLASS (matches the bar), not the account section.
@@ -746,9 +759,12 @@ export default function NetWorthScreen() {
         <View style={styles.ledger}>
         <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={ARROW} />
           {classRows.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>Nothing yet — use the button below to add or import.</Text>}
-          {/* the bar shows the same split whichever grouping is selected — the underlying totals
-              don't change when you regroup the list beneath it */}
-          {classRows.length > 0 && <CompositionBar rows={classRows} spoken="What you own by category" />}
+          {/* Founder finding 2026-08-11: the bar used to stay by category even on the institution
+              tab, so the picture and the list underneath answered different questions. It follows
+              the toggle now — same totals, regrouped the way you asked to see them. */}
+          {classRows.length > 0 && (nwGrouping === 'class'
+            ? <CompositionBar rows={classRows} spoken="What you own by category" />
+            : <CompositionBar rows={institutionRows} spoken="What you own by institution" />)}
           {/* By institution (handoff, 2026-08-10): the same collapsible shape as By category, biggest
               first. An institution's row is what it HOLDS — a debt at the same bank never merges into
               it; the Chase Visa stays under WHAT YOU OWE. Open/closed is remembered per view. */}
@@ -823,7 +839,7 @@ export default function NetWorthScreen() {
               bar above, in the warning family so the two sections can never be misread for each other */}
           {liabilities.length > 0 && (
             <CompositionBar spoken="What you owe" rows={liabilities.map((d, i) => ({
-              key: String(d.debt_id), label: d.label, color: DEBT_RAMP[i % DEBT_RAMP.length], total: d.remaining_balance || 0,
+              key: String(d.debt_id), label: d.label, color: DebtRamp[i % DebtRamp.length], total: d.remaining_balance || 0,
             }))} />
           )}
           {liabilities.map((d) => (

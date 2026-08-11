@@ -219,3 +219,71 @@ test('the one app-wide sample is one constant — Home and Net worth cannot drif
   expect(SAMPLE_CHANCE).toBe(84);
   expect(SAMPLE_HORIZON).toBe(90);
 });
+
+// ── (1) THE BAR FOLLOWS THE TOGGLE ─────────────────────────────────────────────────────────────
+test('the composition bar regroups by institution when you switch tabs', () => {
+  useStore.setState({
+    nwSeeded: true, hideBalances: false,
+    assetAccounts: [
+      { asset_id: 'c1', label: 'Checking', institution: 'Chase', kind: 'checking', tax_bucket: 'CASH', balance: 20000, target_return: 0 },
+      { asset_id: 'v1', label: 'Brokerage', institution: 'Vanguard', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 80000, target_return: 0.07 },
+    ],
+    liabilities: [],
+  } as any);
+  const NetWorthScreen = require('../screens/NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  expect(screen.getByLabelText(/What you own by category: /)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
+  // the SAME money, regrouped the way the list beneath it is now grouped
+  const bar = screen.getByLabelText(/What you own by institution: /);
+  expect(bar).toBeOnTheScreen();
+  expect(bar.props.accessibilityLabel).toMatch(/Vanguard 80 percent/);
+  expect(bar.props.accessibilityLabel).toMatch(/Chase 20 percent/);
+  expect(screen.queryByLabelText(/What you own by category: /)).toBeNull();
+});
+
+// ── (2) THE SUB-LINE COUNTS WHAT IS THERE INSTEAD OF REPEATING THE CLASS ───────────────────────
+test('the line under an account counts its holdings — it no longer repeats the class name', () => {
+  const { classPortionLabel } = require('../domain/assets');
+  const acct = (positions: any[], extra: any = {}) => ({ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, target_return: 0, positions, ...extra });
+  // bonds: the CDs and the Treasuries are counted separately, as the founder asked
+  expect(classPortionLabel(acct([
+    { ticker: 'CD1', name: 'CHASE CD 4.2% 2027', asset_class: 'bond' },
+    { ticker: 'CD2', name: 'ALLY CERTIFICATE OF DEPOSIT', asset_class: 'bond' },
+    { ticker: 'CD3', name: 'KEY BANK CD 3.85%', asset_class: 'bond' },
+    { ticker: 'T1', name: 'US TREASURY NOTE 4% 2032', asset_class: 'bond' },
+  ]), 'bonds')).toBe('3 CDs & 1 Treasury in this account');
+  // one of each reads in the singular
+  expect(classPortionLabel(acct([
+    { ticker: 'CD1', name: 'CHASE CD', asset_class: 'bond' },
+    { ticker: 'T1', name: 'TREASURY BILL', asset_class: 'bond' },
+  ]), 'bonds')).toBe('1 CD & 1 Treasury in this account');
+  // shares: a ticker cannot tell a share from a fund, so ONE honest word covers both — never a guess
+  expect(classPortionLabel(acct([
+    { ticker: 'VTI', asset_class: 'stock_etf' }, { ticker: 'AAPL', asset_class: 'stock_etf' },
+  ]), 'stocks_etf')).toBe('2 holdings in this account');
+  // cash: one account, one cash line — say it plainly
+  expect(classPortionLabel(acct([]), 'cash')).toBe('cash in this account');
+  expect(classPortionLabel(acct([{ ticker: 'VMFXX', name: 'VANGUARD MONEY MARKET', asset_class: 'cash' }]), 'cash'))
+    .toBe('1 money-market fund + cash in this account');
+});
+
+// ── (3) THE DEBT BAR IS READABLE WITHOUT COLOUR VISION ─────────────────────────────────────────
+test('debt segments are told apart by LIGHTNESS, not hue — colour blindness cannot collapse them', () => {
+  const { DebtRamp } = require('../utils/theme');
+  const lum = (hex: string) => {
+    const [r, g, b] = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+    const f = (c: number) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4);
+    return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+  };
+  const ls = DebtRamp.map(lum);
+  // strictly increasing lightness, each step clearly separated — this is what makes it readable
+  for (let i = 1; i < ls.length; i++) {
+    expect(ls[i]).toBeGreaterThan(ls[i - 1]);
+    const contrast = (ls[i] + 0.05) / (ls[i - 1] + 0.05);
+    expect(contrast).toBeGreaterThan(1.7);                 // adjacent steps never read as one tone
+  }
+  // and the old pairing is gone: red beside amber is exactly what red-green blindness merges
+  const { Colors } = require('../utils/theme');
+  expect(DebtRamp).not.toContain(Colors.red);
+});
