@@ -53,11 +53,38 @@ sheet(wb, 'Read me', ['Item', 'What it says'], [
     ['What this is', 'The Net worth main screen rebuilt to the Claude Design "Quiet Instrument" handoff you sent on 2026-08-10, reconciled with your NW-screen notes of the same day and with the decisions already approved for this app.'],
     ['The mocks', 'mockups/NW-QuietInstrument-Aug-10/ — v1 is the handoff drawn exactly as received; v2 is the BUILD SPEC (what I actually built) with the differences and the reasons written on it. The handoff files themselves are archived in the same folder.'],
     ['How the audit was run', 'Your standing order, all five steps: (1) pull every visible string from the mock in order; (2) render the screen in a test with your data shape and dump every visible string in order; (3) diff the two; (4) check order, nesting, alignment and data reality; (5) pull the RENDERED styles and check colours, sizes, the shared right edge, spacing and the donut.'],
-    ['Coverage — with data', '124 of 153 mock content tokens identical and in the same order. Of the 29 unmatched: 8 are how the extractor reads an info dot or a percent sign (the screen shows them), 6 are figures the mock illustrated but the engine computes from the test person, and 5 are real differences — all listed on the Mock-vs-build tab.'],
-    ['Coverage — first day', '92 of 101 mock tokens identical and in order. One real difference (the grouping buttons), listed on the Mock-vs-build tab.'],
-    ['Gates', 'Full suite 1479 passing (was 1464) · types clean · UI-test gate passing. 15 new tests, each pinning one thing this pass changed.'],
-    ['What I did NOT do', 'I did not cut a build. I did not change anything on the Open founder calls tab.'],
+    ['Coverage — ROUND 2 (after your six decisions)', 'With data: 142 of 150 mock lines identical and in the same order. First day: 98 of 103. Combined 240 of 253, and every one of the 13 unmatched lines is accounted for: 3 are the info dot (the extractor reads the mock\'s dot as a letter and the screen\'s as decoration — both screens show it), 2 are the retirement figures the engine computes for the test person rather than the mock\'s illustration, and 2 are the tab bar, which belongs to the app shell rather than this screen. NO unexplained differences remain.'],
+    ['Coverage — round 1 (before your decisions)', 'With data 124 of 153, first day 92 of 101 — five real differences and one gap, which became the six questions you answered.'],
+    ['Gates', 'Full suite 1490 passing (was 1464 before this work) · types clean · UI-test gate passing. 26 new tests, each pinning one thing this work changed.'],
+    ['What I did NOT do', 'I did not cut a build.'],
 ], [24, 132])
+
+# ── 1b Round 2: the decisions ────────────────────────────────────────────────
+sheet(wb, 'Round 2 — your decisions', ['#', 'Your decision', 'What changed in the app', 'Proof'], [
+    ['Q1', 'Keep the real account name',
+     'No code change — the cash row still reads "Vanguard Brokerage" with "cash in this account" beneath it, so the row you tap is the account you open. The MOCK was corrected to match your decision.',
+     'Mock v3 updated; the screen dump was already this way'],
+    ['Q2', 'Biggest first',
+     'Categories now sort largest-to-smallest, in the bar AND in the list, so the picture and the rows tell the same story in the same order. Inside Investments: Stocks / ETFs $348,495 above Bonds & CDs $5,819. This SUPERSEDES the older "order by liquidity, cash first" rule from the pre-48 audit — noted in the code and in the changelog so nobody re-applies the old rule by accident.',
+     'Test: "categories read BIGGEST FIRST inside a group, matching the bar above them"'],
+    ['Q3', 'Keep add or connect. Delete cashflow.',
+     'The "This month\'s cash flow" row is deleted from this screen, along with the code that computed it. The add-or-connect button stays. The emergency cushion keeps its own door into Cash flow for the case where it needs one.',
+     'Test: "the cash-flow glance is gone from this screen (founder Q3)"'],
+    ['Q4', 'Yes — the buttons give the user a view of what they can do',
+     'By category / By institution now show on the first-day screen, rendered from the SAME control the full screen uses so the two can never drift. By institution at zero says what it will hold ("Your banks and brokerages will be listed here, each with what it holds") instead of drawing three $0 banks that do not exist.',
+     'Test: "first day: the grouping buttons are there, and By institution says what it will hold"'],
+    ['Q5', 'Keep the white hero card with green band',
+     'No change.', 'Unchanged since round 1'],
+    ['Q6', 'Add both. Bar replaces donut.',
+     'The donut is REMOVED (component and its styles deleted). What you own now carries one thin stacked bar with a named legend; what you owe carries the same bar shape in the warning colours; the emergency cushion carries a progress bar filling against the 3-6 month guide its own note names. Percentages always total 100 — the rounding remainder goes to the largest slice, and a slice too small to reach 1% still gets a visible mark and reads "<1%" rather than vanishing.',
+     '7 arithmetic tests + "the composition bar names every slice with its percent" + "the cushion carries its own progress bar"'],
+    ['—', 'Something to look at (my call, reversible)',
+     'The debt bar reads "Home mortgage 99% · Chase Visa 1%". The handoff drew 98.6% / 1.4%. I used whole percentages on BOTH bars so the two read the same way on one screen. Say the word for one decimal place on debts.',
+     'Mock v3 header note'],
+    ['—', 'One number, one picture',
+     'While wiring the cushion bar I found it would have been drawn from 1.96 months while the label read 2.0. The bar now uses the same rounded figure the person can see — a chart must never be drawn from a number that is not on screen.',
+     'Test asserts the bar width matches the shown 2.0 months'],
+], [6, 44, 92, 52], fills=lambda k, row: BAND)
 
 # ── 2 Founder notes ──────────────────────────────────────────────────────────
 sheet(wb, 'Founder notes', ['#', 'Your note (2026-08-10)', 'What I did', 'Where'], [
@@ -120,21 +147,27 @@ sheet(wb, 'Defects found', ['#', 'What was wrong', 'Who would have hit it', 'Fix
      'The dump now reconciles to $813,152 − $418,000 = $395,152'],
 ], [6, 76, 44, 46, 58], fills=lambda k, row: WARN)
 
-# ── 5 Open founder calls ─────────────────────────────────────────────────────
-sheet(wb, 'Open founder calls', ['#', 'The question', 'What I did meanwhile', 'Why I did not just decide'], [
+# ── 5 Open founder calls (ANSWERED 2026-08-11) ───────────────────────────────
+sheet(wb, 'Open founder calls', ['#', 'The question', 'What I did meanwhile', 'Why I did not just decide', 'Decision', 'Status'], [
     ['Q1', 'The cash row inside CASH: "Vanguard — sweep cash", or the account\'s real name with "cash in this account" beneath it?',
-     'Kept the real account name', 'The mock\'s shorter name is friendlier; the built one is traceable to an actual account you can open. Both are defensible.'],
-    ['Q2', 'Inside INVESTMENTS, order the categories biggest-first (the mock) or by liquidity (Bonds & CDs then Stocks / ETFs, the rule approved in the pre-48 audit)?',
-     'Kept liquidity order — the approved rule', 'Changing an approved ordering rule on the strength of one drawing is how rules quietly die.'],
-    ['Q3', 'The "This month\'s cash flow" row and the "＋ Add or connect an account" button sit below the cushion. Neither is in the mock, which simply ends. Keep or drop?',
-     'Kept both', 'They are approved features and the add button is this screen\'s only way to add an account. Deleting approved function on the strength of a crop is not mine to do.'],
-    ['Q4', 'Should the By category / By institution buttons appear on the first-day screen? The approved State C mock shows them.',
-     'Left them off until there is an account', 'On an empty screen the second button changes nothing — a dead control on the first screen a new person sees. But your State C rule says the full layout stays, so this is genuinely your call.'],
-    ['Q5', 'The handoff turns the whole hero into a solid green block. I kept the white hero card with the green band and the green number that you approved on 2026-08-04.',
-     'Kept your approved hero', 'v1 in the mock folder shows the handoff version if you want to compare them side by side.'],
-    ['Q6', 'The handoff adds a second composition bar under WHAT YOU OWE and a progress bar in the cushion. Neither is in the approved MoneyKeel mocks.',
-     'Did not add either', 'They are new chart furniture, not corrections — worth a look before they go in.'],
-], [6, 70, 44, 76], fills=lambda k, row: ASK)
+     'Kept the real account name', 'The mock\'s shorter name is friendlier; the built one is traceable to an actual account you can open.',
+     'Keep the real account name', 'DONE — no code change; the mock was corrected to match'],
+    ['Q2', 'Inside INVESTMENTS, order the categories biggest-first (the mock) or by liquidity (the rule approved in the pre-48 audit)?',
+     'Kept liquidity order — the approved rule', 'Changing an approved ordering rule on the strength of one drawing is how rules quietly die.',
+     'Biggest first', 'DONE — bar and list both sort by size; supersedes the liquidity rule, logged'],
+    ['Q3', 'The "This month\'s cash flow" row and the "＋ Add or connect an account" button sit below the cushion. Neither is in the mock. Keep or drop?',
+     'Kept both', 'They are approved features and the add button is this screen\'s only way to add an account.',
+     'Keep add or connect. Delete cashflow.', 'DONE — the row and its code are gone; the button stays'],
+    ['Q4', 'Should the By category / By institution buttons appear on the first-day screen?',
+     'Left them off until there is an account', 'On an empty screen the second button changes nothing — a dead control on the first screen a new person sees.',
+     'Yes, as it will give user view of what they can do in the app', 'DONE — both buttons show; By institution says what it will hold'],
+    ['Q5', 'The handoff turns the whole hero into a solid green block. Keep your approved white hero card?',
+     'Kept your approved hero', 'v1 in the mock folder shows the handoff version to compare.',
+     'Keep the white hero card with green band', 'DONE — no change'],
+    ['Q6', 'The handoff adds a composition bar under WHAT YOU OWE and a progress bar in the cushion. Neither is in the approved MoneyKeel mocks.',
+     'Did not add either', 'They are new chart furniture, not corrections — worth a look before they go in.',
+     'add both. Bar replaces donut.', 'DONE — donut removed; assets bar, debts bar and cushion bar built'],
+], [6, 58, 36, 58, 40, 52], fills=lambda k, row: BAND)
 
 # ── 6 Appearance audit ───────────────────────────────────────────────────────
 sheet(wb, 'Appearance audit', ['Check (standing order step 5)', 'Method', 'Result'], [

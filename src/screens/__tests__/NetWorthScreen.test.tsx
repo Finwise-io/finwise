@@ -371,7 +371,8 @@ test('By institution: groups collapse, and a bank\'s debt never joins its asset 
   fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
   // Chase holds $8,000 of ASSETS — the $6,000 card is not netted off it and is not added to it
   expect(screen.getByLabelText(/^Chase, \$8,000, 1 account/)).toBeOnTheScreen();
-  expect(screen.getByText(/Chase Visa/)).toBeOnTheScreen();              // the card lives under what you owe
+  // the card lives under what you owe — as its own row (it also appears in the debt bar's legend)
+  expect(screen.getByLabelText(/Chase Visa, you owe \$6,000/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText(/^Chase, \$8,000, 1 account\. Collapses/));
   expect(screen.getByLabelText(/^Chase, \$8,000, 1 account\. Expands/)).toBeOnTheScreen();
 });

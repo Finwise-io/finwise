@@ -216,14 +216,64 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     expect(flat(line).color).toBe(Colors.gainText);      // up (and $0) is green; amber is only for a fall
   });
 
-  test('the donut names its slices ON the chart — colour is never the only signal', () => {
+  // Founder decisions 2026-08-11 (audit Q2 + Q6): the composition bar replaces the donut, what you
+  // owe gets its own bar, and categories read biggest first — in the bar and the list alike.
+  test('the composition bar names every slice with its percent — colour is never the only signal', () => {
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
-    // the two big slices carry their own labels; the slivers ride the line beneath, still named
-    expect(screen.getByText(/Real estate 55/)).toBeOnTheScreen();
-    expect(screen.getByText(/Stocks \/ ETFs 43/)).toBeOnTheScreen();
-    expect(screen.getByText(/Cash 1/)).toBeOnTheScreen();
-    expect(screen.getByText(/Bonds & CDs 1/)).toBeOnTheScreen();
+    const strings = dumpStrings();
+    const own = strings.indexOf('WHAT YOU OWN');
+    const owe = strings.indexOf('WHAT YOU OWE');
+    // assets legend, biggest first, immediately under the section total
+    expect(strings.slice(own, owe).join(' ')).toMatch(/Real estate 55 % Stocks \/ ETFs 43 % Cash 1 % Bonds & CDs 1 %/);
+    // debts get the same shape in the warning family
+    expect(strings.slice(owe).join(' ')).toMatch(/Home mortgage 99 % Chase Visa 1 %/);
+    // and the donut's centre content is gone with it
+    expect(screen.queryByText('Assets')).toBeNull();
+  });
+
+  test('categories read BIGGEST FIRST inside a group, matching the bar above them', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const s = dumpStrings();
+    const inv = s.indexOf('▾ 📈 Investments');
+    const rest = s.slice(inv);
+    expect(rest.indexOf('Stocks / ETFs')).toBeLessThan(rest.indexOf('Bonds & CDs'));   // 348,495 before 5,819
+  });
+
+  test('the cushion carries its own progress bar, and it is never the only signal', () => {
+    const { Colors } = require('../utils/theme');
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const fills: any[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      const st = n.props?.style ? flat(n) : null;
+      if (st && typeof st.width === 'string' && st.backgroundColor === Colors.amber) fills.push(st);
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    expect(fills.length).toBeGreaterThan(0);                       // 2.0 of 6 months → an amber part-bar
+    expect(fills[fills.length - 1].width).toBe('33.33333333333333%');
+    expect(screen.getByText('Tight ⚠')).toBeOnTheScreen();         // the word carries it too
+  });
+
+  test('the cash-flow glance is gone from this screen (founder Q3)', () => {
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    expect(screen.queryByText("This month's cash flow")).toBeNull();
+    expect(screen.getByText('＋ Add or connect an account')).toBeOnTheScreen();   // the add door stays
+  });
+
+  test('first day: the grouping buttons are there, and By institution says what it will hold', () => {
+    const { fireEvent } = require('@testing-library/react-native');
+    useStore.getState().resetAll();
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    expect(screen.getByText('By category')).toBeOnTheScreen();
+    fireEvent.press(screen.getByLabelText(/Group what you own by institution/));
+    expect(screen.getByText(/Your banks and brokerages will be listed here/)).toBeOnTheScreen();
+    expect(screen.queryByText('💵 CASH')).toBeNull();               // no invented $0 banks either
   });
 
   test('data reality: a connected CD/Treasuries account reads as Bonds & CDs, never Unclassified', () => {

@@ -2,9 +2,7 @@
 // (per-account, with institution), so it works as both first-run setup and ongoing management.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, RefreshControl, Alert } from 'react-native';
-import Svg, { Circle, G, Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
-import { buildDatedGrid } from '../domain/grid';
 import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { selectWillItLast } from '../domain/retirement/willItLast';
@@ -41,7 +39,7 @@ const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
   cash: 'cash', stocks_etf: 'stocks', bonds: 'bonds', alternatives: 'alternatives', real_estate: 'realEstate', personal_property: 'personalProperty',
 };
 const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
-// #19: the donut groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
+// #19: the composition bar groups assets by ASSET CLASS (the taxonomy), not the old section/wrapper axis.
 // Labels come from the canonical ASSET_CLASS_LABEL (single source) — only color lives here.
 // #10: 'mixed' = a 401(k)/IRA/brokerage we don't know the holdings of — shown honestly, NOT as stocks.
 // pre-48 audit A7: the approved mocks order classes by LIQUIDITY (Cash first), not by palette order
@@ -50,7 +48,7 @@ const CLASS_META: { key: AssetClass; label: string; color: string }[] =
   CLASS_ORDER.filter((k) => k in ClassMarkColors)
     .map((key) => ({ key, label: ASSET_CLASS_LABEL[key], color: (ClassMarkColors as any)[key] }));
 // #10/#14: the asset-class options offered when classifying a wrapper account (what it HOLDS). 'auto'
-// leaves it Unclassified (mixed); the rest set an explicit class so the donut is accurate.
+// leaves it Unclassified (mixed); the rest set an explicit class so the split is accurate.
 const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
   { key: 'auto', label: 'Mixed / not sure' },
   { key: 'stocks_etf', label: 'Stocks / ETFs' },
@@ -74,94 +72,66 @@ const shortMoney = (n: number) => {
 // "›", a row that doesn't leaves it empty, and a section band adds it to its total's right margin.
 // That is what puts every number on the screen on ONE right edge (founder gap 4, 2026-08-10).
 const ARROW = 16;
+// The debt bar's colour ramp — the warning family only, so what you OWE can never be misread as what
+// you own. Every segment is still named with its percent in the legend; colour alone never carries it.
+const DEBT_RAMP = [Colors.red, Colors.amber, Colors.redMid, Colors.amberMid];
+// The cushion bar fills against the top of the usual 3-6 month guide, so a full bar means "covered".
+const CUSHION_FULL_MONTHS = 6;
 
-// Donut ring (react-native-svg) with content in the center hole.
-function Donut({ segments, size = 124, stroke = 16, children, label }: { segments: { value: number; color: string }[]; size?: number; stroke?: number; children?: React.ReactNode; label?: string }) {
-  const r = (size - stroke) / 2, c = 2 * Math.PI * r;
-  const total = segments.reduce((t, s) => t + Math.max(0, s.value), 0) || 1;
-  let acc = 0;
-  return (
-    <View style={{ width: size, height: size, alignItems: 'center', justifyContent: 'center' }}
-      accessible accessibilityRole="image" accessibilityLabel={label}>{/* VoiceOver: summarize the chart */}
-      <Svg width={size} height={size} style={{ position: 'absolute' }}>
-        <G transform={`rotate(-90 ${size / 2} ${size / 2})`}>{/* plain SVG transform — the rotation/origin props emit an invalid DOM attribute on web */}
-          <Circle cx={size / 2} cy={size / 2} r={r} stroke={Colors.bgTertiary} strokeWidth={stroke} fill="none" />
-          {segments.map((s, i) => {
-            const dash = (Math.max(0, s.value) / total) * c; const el = (
-              <Circle key={i} cx={size / 2} cy={size / 2} r={r} stroke={s.color} strokeWidth={stroke} fill="none" strokeDasharray={`${dash} ${c - dash}`} strokeDashoffset={-acc} />
-            ); acc += dash; return el;
-          })}
-        </G>
-      </Svg>
-      <View style={{ alignItems: 'center' }}>{children}</View>
-    </View>
-  );
+// (The donut ring that used to live here was removed 2026-08-11 — founder Q6: "bar replaces donut".
+//  The composition bar below is the one picture of what you own; the cockpit keeps its own chart.)
+
+// THE COMPOSITION BAR (founder decision 2026-08-11, Q6: "add both. Bar replaces donut."). One thin
+// stacked bar plus a wrapping legend, used for BOTH what you own and what you owe — one shape, so
+// the two sections read as the same kind of picture. Every segment is named with its percent in the
+// legend, so colour is never the only signal (the colourblind rule).
+//
+// The percentages ALWAYS total 100: whole-percent rounding leaves a remainder, and the remainder is
+// given to the largest segment rather than left to make the bar over- or under-run. A segment that
+// rounds to 0% still appears in the legend as <1% — never silently dropped.
+const BAR_MIN_W = 1.5;   // % width floor, so a sliver is still visible as a mark
+export function barSegments<T extends { key: string; label: string; color: string; total: number }>(rows: T[]) {
+  const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0);
+  if (sum <= 0) return [] as (T & { pct: number; width: number })[];
+  const raw = rows.map((r) => ({ ...r, exact: (Math.max(0, r.total) / sum) * 100 }));
+  const out = raw.map((r) => ({ ...r, pct: Math.round(r.exact) }));
+  const drift = 100 - out.reduce((t, r) => t + r.pct, 0);
+  if (drift !== 0) {
+    const biggest = out.reduce((a, b) => (b.exact > a.exact ? b : a));
+    biggest.pct += drift;                      // the largest bucket absorbs the rounding remainder
+  }
+  return out.map((r) => ({ ...r, width: Math.max(BAR_MIN_W, r.exact) }));
 }
 
-// THE CLASS DONUT with its labels ON the chart (founder note 5, 2026-08-10). A slice big enough to
-// name carries its own label beside it — name, percent and a colour swatch, so colour is never the
-// only signal (the colourblind rule). Slivers too small to label without collision ride one line
-// underneath rather than being dropped: every class the ring draws is still named somewhere.
-const DONUT = 124, DONUT_STROKE = 18, DONUT_BOX = 330, LABEL_W = 104, NAME_MIN_PCT = 5;
-function ClassDonut({ rows, total, pctOf, hidden }: {
-  rows: { key: AssetClass; label: string; color: string; total: number }[];
-  total: number; pctOf: (v: number) => number; hidden: boolean;
-}) {
-  const sum = rows.reduce((t, r) => t + Math.max(0, r.total), 0) || 1;
-  const R = DONUT / 2 - DONUT_STROKE / 2 + 22;          // label ring: just outside the stroke
-  const cx = DONUT_BOX / 2, cy = DONUT / 2;
-  let acc = 0;
-  const placed: { key: string; label: string; color: string; pct: number; left: number; top: number; right: boolean }[] = [];
-  const small: typeof rows = [];
-  for (const r of rows) {
-    const share = Math.max(0, r.total) / sum;
-    const mid = (acc + share / 2) * 2 * Math.PI;         // radians clockwise from 12 o'clock
-    acc += share;
-    if (pctOf(r.total) < NAME_MIN_PCT) { small.push(r); continue; }
-    const x = cx + Math.sin(mid) * R, y = cy - Math.cos(mid) * R;
-    const right = x >= cx;
-    placed.push({
-      key: r.key, label: r.label, color: r.color, pct: pctOf(r.total), right,
-      left: right ? Math.min(x, DONUT_BOX - LABEL_W) : Math.max(0, x - LABEL_W),
-      top: Math.max(0, Math.min(y - 9, DONUT - 18)),
-    });
-  }
+function CompositionBar<T extends { key: string; label: string; color: string; total: number }>(
+  { rows, spoken }: { rows: T[]; spoken: string },
+) {
+  const segs = barSegments(rows);
+  if (!segs.length) return null;
+  const scale = 100 / segs.reduce((t, s) => t + s.width, 0);   // re-normalise after the sliver floor
   return (
-    <View style={styles.donutWrap} accessible
-      accessibilityLabel={`What you own by category: ${rows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ')}.`}>
-      <View style={{ width: DONUT_BOX, height: DONUT }}>
-        <View style={styles.donutCenter}>
-          <Donut segments={rows.map((r) => ({ value: r.total, color: r.color }))} size={DONUT} stroke={DONUT_STROKE}
-            label={`${maskedMoney(Math.round(total))} of assets`}>
-            <Text style={styles.donutLbl}>Assets</Text>
-            <Text style={styles.donutVal}>{hidden ? '••••' : shortMoney(Math.round(total))}</Text>
-          </Donut>
-        </View>
-        {placed.map((p) => (
-          <View key={p.key} style={[styles.donutLabel, { left: p.left, top: p.top, width: LABEL_W },
-            p.right ? styles.donutLabelR : styles.donutLabelL]}>
-            <View style={[styles.dot, { backgroundColor: p.color }]} />
-            <Text style={styles.donutLabelTxt}>{p.label} {p.pct}%</Text>
+    <View style={styles.compWrap} accessible
+      accessibilityLabel={`${spoken}: ${segs.map((s) => `${s.label} ${s.pct} percent`).join(', ')}.`}>
+      <View style={styles.compBar}>
+        {segs.map((s) => (
+          <View key={s.key} style={{ width: `${s.width * scale}%`, backgroundColor: s.color }} />
+        ))}
+      </View>
+      <View style={styles.compLegend}>
+        {segs.map((s) => (
+          <View key={s.key} style={styles.compLegendItem}>
+            <View style={[styles.compSwatch, { backgroundColor: s.color }]} />
+            <Text style={styles.compLegendTxt}>{s.label} {s.pct < 1 ? '<1' : s.pct}%</Text>
           </View>
         ))}
       </View>
-      {small.length > 0 && (
-        <View style={styles.donutSmallRow}>
-          {small.map((r) => (
-            <View key={r.key} style={styles.donutSmall}>
-              <View style={[styles.dot, { backgroundColor: r.color }]} />
-              <Text style={styles.donutLabelTxt}>{r.label} {pctOf(r.total)}%</Text>
-            </View>
-          ))}
-        </View>
-      )}
     </View>
   );
 }
 
-// You CAPTURE money by account (how it's held); the donut REGROUPS by asset class (what it is). These
+// You CAPTURE money by account (how it's held); the bar REGROUPS by asset class (what it is). These
 // display labels make the capture axis read as account/tax-bucket framing so it never sounds like it's
-// contradicting the donut's class words (Option B, 2026-06-24). Keys stay stable for grouping.
+// contradicting the bar's class words (Option B, 2026-06-24). Keys stay stable for grouping.
 const SECTION_LABEL: Record<string, string> = {
   Cash: 'Cash',
   Investments: 'Taxable accounts',
@@ -242,17 +212,22 @@ export default function NetWorthScreen() {
 
   const sectionTotals = ASSET_SECTIONS.map((sec) => ({ sec, total: assets.filter((a) => sectionOf(a) === sec).reduce((t, a) => t + a.balance, 0) }));
   const alloc = assetAllocation(assets);   // #19: assets grouped by ASSET CLASS (the taxonomy)
-  const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0);
+  // FOUNDER DECISION 2026-08-11 (audit Q2) — supersedes the pre-48 audit A7 liquidity order:
+  // categories read BIGGEST FIRST, in the bar and in the list alike, so the two always tell the
+  // same story in the same order. The three uber-groups keep their fixed Cash → Investments →
+  // Personal property order; only the categories inside them are sorted.
+  const classRows = CLASS_META.map((m) => ({ ...m, total: alloc[m.key] })).filter((r) => r.total > 0)
+    .sort((a, b) => b.total - a.total);
   const displayNames = accountDisplayNames(assets);   // masks only when real digits; twins get " · 1/2"
   const costliest = dState.highest_rate_debt && dState.highest_rate_debt.interest_rate_apr > TOXIC_APR ? dState.highest_rate_debt : null;
   const totalAssets = aState.total_asset_value;
-  // NW-9: the headline insight names the largest asset CLASS (matches the donut), not the account section.
+  // NW-9: the headline insight names the largest asset CLASS (matches the bar), not the account section.
   const topClass = [...classRows].sort((a, b) => b.total - a.total)[0];
   const investable = investableAssets(assets);   // NW-12: cash + investments (excludes home & belongings)
   const debtRatio = totalAssets > 0 ? dState.total_debt_balance / totalAssets : 0;
   const pctOf = (v: number) => (totalAssets > 0 ? Math.round((v / totalAssets) * 100) : 0);
 
-  // Tapping a donut-legend item jumps to the accounts that make up that class (feedback: legend is a nav).
+  // Legacy helper: jump to the accounts that make up a class.
   const scrollRef = useRef<ScrollView>(null);
   const sectionY = useRef<Record<string, number>>({});
   const scrollToSection = (sec: string) => { const y = sectionY.current[sec]; if (y != null) scrollRef.current?.scrollTo({ y: Math.max(0, y - 8), animated: true }); };
@@ -482,6 +457,21 @@ export default function NetWorthScreen() {
     </View>
   );
 
+  // ONE definition of the grouping buttons — the first-day screen and the full screen render the
+  // same control (founder Q4, 2026-08-11), so the two can never drift apart.
+  const groupingPills = (
+    <View style={styles.groupPills}>
+      {([['class', 'By category'], ['institution', 'By institution']] as const).map(([key, label]) => (
+        <TouchableOpacity key={key} accessibilityRole="button"
+          accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
+          style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
+          onPress={() => setNwGrouping(key)}>
+          <Text style={[styles.groupPillTxt, nwGrouping === key && styles.groupPillTxtOn]}>{label}</Text>
+        </TouchableOpacity>
+      ))}
+    </View>
+  );
+
   let body: React.ReactNode;
 
   if (!choice) {
@@ -506,12 +496,20 @@ export default function NetWorthScreen() {
         </View>
 
         {/* the same flat ledger the with-data screen uses, at honest zeros — so a new person sees
-            exactly what this screen becomes. No donut and no percentages: nothing is invented. */}
+            exactly what this screen becomes. No bar and no percentages: nothing is invented. */}
+        {/* founder Q4 (2026-08-11): the grouping buttons show on day one too — "it will give the user
+            a view of what they can do in the app". By institution then says what it will hold rather
+            than drawing three $0 banks that don't exist. */}
+        {groupingPills}
         <View style={styles.ledger}>
           <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={ARROW} />
-          <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={ARROW} />
-          <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={ARROW} />
-          <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={ARROW} />
+          {nwGrouping === 'class' ? (<>
+            <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={ARROW} />
+            <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={ARROW} />
+            <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={ARROW} />
+          </>) : (
+            <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
+          )}
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Connect a brokerage"
             onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/connect' as any); }}>
             <Text style={styles.doorTxt}>Connect a brokerage</Text>
@@ -581,7 +579,7 @@ export default function NetWorthScreen() {
     // One number, its yearly change, a simple trend — then WHAT YOU OWN / WHAT YOU OWE rows,
     // the own−owe math line, a collapsed accounts-and-detail expander, the tiny cash-flow
     // glance, and ONE add-or-connect button with three honest paths. Calm by design: the
-    // donut, captions, explore box and insight cards moved off this screen (Home's insights
+    // captions, explore box and insight cards moved off this screen (Home's insights
     // engine owns the nudges; class rows carry the allocation story).
     // APPROVED 2026-07-19 (daily snapshots): the trend draws from monthly snapshots PLUS the daily
     // net-worth points captured at app open — a real line within days of first use, never invented.
@@ -641,8 +639,6 @@ export default function NetWorthScreen() {
       contributions: sumOf('DEPOSIT'), withdrawals: sumOf('WITHDRAWAL'),
       dividends: sumOf('DIVIDEND'), interest: sumOf('INTEREST'), debtPrincipal: sumOf('DEBT_PAYMENT'),
     }) : null;
-    // the tiny cash-flow glance reads the SAME dated grid the Cash flow tab reads (cheap — no simulation)
-    const cfCell = buildDatedGrid(op, { liabilities }).cells[0];
 
     body = (
       <ScrollView ref={scrollRef} contentContainerStyle={styles.contentFlat} showsVerticalScrollIndicator={false}
@@ -706,20 +702,11 @@ export default function NetWorthScreen() {
           </View>
         </TouchableOpacity>
 
-        {/* WHAT YOU OWN — the class donut (validated palette, direct-labeled) then the three
-            uber-groups. Donut is centered per the approved final mock; legend names + percents
-            are ON the chart so color is never the only signal (colorblind rule, UX doc). */}
+        {/* WHAT YOU OWN — the composition bar (founder Q6, 2026-08-11: the bar replaces the donut)
+            then the three uber-groups. The legend names every slice with its percent, so colour is
+            never the only signal (colorblind rule, UX doc). */}
         {/* Walk row 8 (v7 FINAL): the grouping pills — ABOVE the lists, per the approved final mock (founder gap 5) */}
-        <View style={styles.groupPills}>
-          {([['class', 'By category'], ['institution', 'By institution']] as const).map(([key, label]) => (
-            <TouchableOpacity key={key} accessibilityRole="button"
-              accessibilityLabel={`Group what you own ${label.toLowerCase()}${nwGrouping === key ? ', selected' : ''}`}
-              style={[styles.groupPill, nwGrouping === key && styles.groupPillOn]}
-              onPress={() => setNwGrouping(key)}>
-              <Text style={[styles.groupPillTxt, nwGrouping === key && styles.groupPillTxtOn]}>{label}</Text>
-            </TouchableOpacity>
-          ))}
-        </View>
+        {groupingPills}
         {/* THE LEDGER (Quiet Instrument direction, founder handoff 2026-08-10): one flat table, no
             floating cards. Bands bleed edge to edge and rows carry the SAME horizontal inset, so
             every number on the screen — band totals included — resolves to ONE right edge, each row
@@ -727,9 +714,9 @@ export default function NetWorthScreen() {
         <View style={styles.ledger}>
         <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={ARROW} />
           {classRows.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>Nothing yet — use the button below to add or import.</Text>}
-          {classRows.length > 0 && nwGrouping === 'class' && (
-            <ClassDonut rows={classRows} total={totalAssets} pctOf={pctOf} hidden={!!store.hideBalances} />
-          )}
+          {/* the bar shows the same split whichever grouping is selected — the underlying totals
+              don't change when you regroup the list beneath it */}
+          {classRows.length > 0 && <CompositionBar rows={classRows} spoken="What you own by category" />}
           {/* By institution (handoff, 2026-08-10): the same collapsible shape as By category, biggest
               first. An institution's row is what it HOLDS — a debt at the same bank never merges into
               it; the Chase Visa stays under WHAT YOU OWE. Open/closed is remembered per view. */}
@@ -800,6 +787,13 @@ export default function NetWorthScreen() {
         <SectionBand title="WHAT YOU OWE" trailing={ARROW}
           value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
           {liabilities.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>No debts — it's all yours.</Text>}
+          {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
+              bar above, in the warning family so the two sections can never be misread for each other */}
+          {liabilities.length > 0 && (
+            <CompositionBar spoken="What you owe" rows={liabilities.map((d, i) => ({
+              key: String(d.debt_id), label: d.label, color: DEBT_RAMP[i % DEBT_RAMP.length], total: d.remaining_balance || 0,
+            }))} />
+          )}
           {liabilities.map((d) => (
             <TouchableOpacity key={d.debt_id} style={styles.ledgerRow} accessibilityRole="button"
               accessibilityLabel={`${d.label}, you owe ${spokenMoney(Math.round(d.remaining_balance))}. Opens the editor.`}
@@ -816,21 +810,35 @@ export default function NetWorthScreen() {
 
         {/* EMERGENCY CUSHION (mock approved 2026-07-31): cash ÷ monthly essentials, the math on the
             card, word + icon always; no spending captured → a door, never a made-up number */}
-        {monthlySpend > 0 && runwayMonths != null ? (
+        {monthlySpend > 0 && runwayMonths != null ? (() => {
+          // ONE figure drives the words AND the bar: the bar must never be drawn from a number the
+          // person cannot see (2.0 months on the label and 1.96 in the bar is two truths).
+          const shownMonths = Math.round(runwayMonths * 10) / 10;
+          return (
           <View>
             <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
             <View style={styles.ledgerPad}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
-                <Text style={styles.cushionMonths}>{(Math.round(runwayMonths * 10) / 10).toFixed(1)} months</Text>
-                <Text style={[styles.cushionWord, { color: runwayMonths < 3 ? Colors.amber : Colors.gainText }]}>
-                  {runwayMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
+                <Text style={styles.cushionMonths}>{shownMonths.toFixed(1)} months</Text>
+                <Text style={[styles.cushionWord, { color: shownMonths < 3 ? Colors.amber : Colors.gainText }]}>
+                  {shownMonths < 3 ? 'Tight ⚠' : 'Comfortable ✓'}
                 </Text>
+              </View>
+              {/* the cushion's progress bar (founder Q6, 2026-08-11): it fills against the top of the
+                  3-6 month guide the note beneath names, so a full bar means "covered" — never an
+                  unlabelled meter (the word and the figure above always carry the meaning too) */}
+              <View style={styles.cushionTrack}>
+                <View style={[styles.cushionFill, {
+                  width: `${Math.min(100, (shownMonths / CUSHION_FULL_MONTHS) * 100)}%`,
+                  backgroundColor: shownMonths < 3 ? Colors.amber : Colors.gainText,
+                }]} />
               </View>
               <Text style={styles.cushionMath}>of essentials covered by your cash — {maskedMoney(Math.round(cashOnHand))} cash ÷ {maskedMoney(Math.round(monthlySpend))}/mo essentials</Text>
               <DotJoined style={styles.cushionNote} parts={['3–6 months is the usual guide', 'an estimate from your own numbers']} />
             </View>
           </View>
-        ) : cashOnHand > 0 ? (
+          );
+        })() : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
             <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
@@ -842,15 +850,9 @@ export default function NetWorthScreen() {
         ) : null}
         </View>
 
-        {/* this month's cash flow — the tiny glance; movement lives on the Cash flow tab */}
-        <TouchableOpacity accessibilityRole="button" style={[styles.cfGlance, styles.inset]} onPress={() => router.push('/(tabs)/cashflow')}
-          accessibilityLabel={`This month's cash flow: in ${spokenMoney(Math.round(cfCell?.inflow ?? 0))}, out ${spokenMoney(Math.round(cfCell?.outflow ?? 0))}. Opens the Cash flow tab.`}>
-          <View style={{ flex: 1 }}>
-            <Text style={styles.rowTitle}>This month's cash flow</Text>
-            <Text style={styles.rowSub}>In {maskedMoney(Math.round(cfCell?.inflow ?? 0))} · Out {maskedMoney(Math.round(cfCell?.outflow ?? 0))}</Text>
-          </View>
-          <Text style={styles.chev}>›</Text>
-        </TouchableOpacity>
+        {/* the "This month's cash flow" glance was DELETED here (founder Q3, 2026-08-11): this screen
+            answers what you own and owe; movement is the Cash flow tab's whole job, and Home already
+            carries the monthly glance. The cushion's own door still reaches Cash flow when it needs to. */}
 
         {/* ONE button, three honest paths */}
         <TouchableOpacity accessibilityRole="button" style={[styles.addConnect, styles.inset]} onPress={() => setAddChooser(true)}
@@ -1097,17 +1099,13 @@ const styles = StyleSheet.create({
   // FCC glance-that-expands
   glanceCard: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, alignItems: 'flex-start' },
   ownOweTop: { fontSize: 13, color: Colors.textSecondary, marginBottom: 2 },
-  donutWrap: { alignItems: 'center', paddingTop: Spacing.md, paddingBottom: 10 },
-  donutCenter: { position: 'absolute', left: 0, right: 0, alignItems: 'center' },
-  donutLabel: { position: 'absolute', flexDirection: 'row', alignItems: 'center', gap: 4 },
-  donutLabelL: { justifyContent: 'flex-end' },
-  donutLabelR: { justifyContent: 'flex-start' },
-  donutLabelTxt: { fontSize: 11, fontWeight: '700', color: Colors.textPrimary },
-  donutSmallRow: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 12, marginTop: 6 },
-  donutSmall: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  donutLegend: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'center', gap: 10, marginTop: 8 },
-  legendItem: { flexDirection: 'row', alignItems: 'center', gap: 4, minHeight: 44, paddingHorizontal: 4 },
-  legendTxt: { fontSize: 11, fontWeight: '600', color: Colors.textPrimary },
+  // the composition bar + its wrapping legend (founder Q6, 2026-08-11 — replaces the donut)
+  compWrap: { paddingHorizontal: Spacing.md, paddingTop: 10, paddingBottom: 12 },
+  compBar: { flexDirection: 'row', height: 10, borderRadius: 3, overflow: 'hidden', backgroundColor: Colors.bgTertiary },
+  compLegend: { flexDirection: 'row', flexWrap: 'wrap', gap: 12, marginTop: 10 },
+  compLegendItem: { flexDirection: 'row', alignItems: 'center', gap: 5 },
+  compSwatch: { width: 8, height: 8, borderRadius: 2 },
+  compLegendTxt: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary },
   glanceKickerNW: { fontSize: 13, fontWeight: '800', color: Colors.textSecondary, letterSpacing: 0.6, marginBottom: 2 },
   acctRowNW: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingLeft: 34, paddingRight: 2, paddingVertical: 8, minHeight: 44 },
   classCaret: { fontSize: 13, color: Colors.textTertiary, width: 14 },
@@ -1125,12 +1123,13 @@ const styles = StyleSheet.create({
   chev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 6 },
   expandBtn: { minHeight: 46, justifyContent: 'center', alignItems: 'center', marginTop: Spacing.sm },
   expandTxt: { fontSize: 15, fontWeight: '700', color: Colors.primary },
-  cfGlance: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginTop: Spacing.sm },
   // walk row 7: the calm projection line (v7 FINAL position — right under the glance card)
   kickerSm: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, color: Colors.textSecondary },
   cushionMonths: { fontSize: 24, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   cushionWord: { fontSize: 13, fontWeight: '800' },
   cushionMath: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
+  cushionTrack: { height: 4, borderRadius: 2, backgroundColor: Colors.bgTertiary, overflow: 'hidden', marginTop: 8 },
+  cushionFill: { height: '100%' },
   cushionNote: { fontSize: 11, color: Colors.textTertiary, marginTop: 4 },
   link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 8, minHeight: 44, paddingTop: 12 },
   pathAhead: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, paddingHorizontal: Spacing.md, paddingVertical: 12, marginTop: Spacing.sm, minHeight: 44, justifyContent: 'center' },
@@ -1155,8 +1154,6 @@ const styles = StyleSheet.create({
   chooserSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   content: { padding: Spacing.lg },
   nwHero: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md },
-  donutVal: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary },
-  donutLbl: { fontSize: 11, color: Colors.textSecondary, marginTop: -2 },
   nwIdentity: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 8, marginBottom: 2 },
   nwInvestable: { fontSize: 11, fontWeight: '700', color: Colors.textSecondary, textAlign: 'center', marginBottom: 4 },
   nwCaption: { fontSize: 11, color: Colors.textSecondary, textAlign: 'left', marginBottom: 4, lineHeight: 15 },
