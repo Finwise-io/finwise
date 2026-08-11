@@ -99,9 +99,13 @@ test('APPROVED split · slices sum EXACTLY to the broker total; manual accounts 
   };
   const b = accountClassBreakdown(connected as any)!;
   expect(b.bonds).toBe(110000);
-  expect(b.cash).toBe(55500);                        // VMFXX 48,700 + sleeve 6,800
+  // CHANGED 2026-08-11: the founder's cash-only rule (2026-08-04) now applies at the LIVE
+  // classification point, not just in the one-time migration. The broker tags VMFXX 'cash'; it is a
+  // money-market FUND that pays dividends, so it belongs to Stocks / ETFs where that income is
+  // measured. Only the uninvested sweep sleeve is cash.
+  expect(b.cash).toBe(6800);                         // the sweep sleeve alone
+  expect(b.stocks_etf).toBe(1400 + 48700);           // LCTX + VMFXX (the money-market fund)
   expect(b.alternatives).toBe(1800);
-  expect(b.stocks_etf).toBe(1400);
   expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(168700);   // EXACT
   expect(accountClassBreakdown({ asset_id: 'm', source: 'manual', balance: 5000 } as any)).toBeNull();
 });

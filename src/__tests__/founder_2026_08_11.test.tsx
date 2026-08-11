@@ -262,10 +262,12 @@ test('the line under an account counts its holdings — it no longer repeats the
   expect(classPortionLabel(acct([
     { ticker: 'VTI', asset_class: 'stock_etf' }, { ticker: 'AAPL', asset_class: 'stock_etf' },
   ]), 'stocks_etf')).toBe('2 holdings in this account');
-  // cash: one account, one cash line — say it plainly
+  // cash: one account, one cash line — said plainly. Cash is CASH ONLY (founder rule 2026-08-04),
+  // so a money-market fund is never named here: it belongs to Stocks / ETFs, where its dividends
+  // are measured.
   expect(classPortionLabel(acct([]), 'cash')).toBe('cash in this account');
   expect(classPortionLabel(acct([{ ticker: 'VMFXX', name: 'VANGUARD MONEY MARKET', asset_class: 'cash' }]), 'cash'))
-    .toBe('1 money-market fund + cash in this account');
+    .toBe('cash in this account');
 });
 
 // ── (3) THE DEBT BAR IS READABLE WITHOUT COLOUR VISION ─────────────────────────────────────────
@@ -286,4 +288,36 @@ test('debt segments are told apart by LIGHTNESS, not hue — colour blindness ca
   // and the old pairing is gone: red beside amber is exactly what red-green blindness merges
   const { Colors } = require('../utils/theme');
   expect(DebtRamp).not.toContain(Colors.red);
+});
+
+// ── CASH MEANS CASH ONLY — at the LIVE classification point, not just in the migration ──────────
+test('a money-market or CD position lands in the right class the moment it syncs', () => {
+  const { accountClassBreakdown } = require('../domain/assets');
+  // exactly what a broker sends: it tags both of these 'cash'. The NAME decides, not the tag.
+  const b = accountClassBreakdown({
+    asset_id: 'st-x', source: 'connected', balance: 100000, cash_balance: 10000,
+    positions: [
+      { position_id: 'p1', ticker: 'VMFXX', name: 'VANGUARD FEDERAL MONEY MARKET', asset_class: 'cash', last_price: 1, lots: [{ shares: 50000, cost_per_share: 1 }] },
+      { position_id: 'p2', ticker: 'CD1', name: 'ALLY BANK CD 4.2% 2027', asset_class: 'cash', last_price: 1, lots: [{ shares: 40000, cost_per_share: 1 }] },
+    ],
+  } as any)!;
+  expect(b.stocks_etf).toBe(50000);      // money-market fund pays dividends → Stocks / ETFs
+  expect(b.bonds).toBe(40000);           // the CD pays interest → Bonds & CDs
+  expect(b.cash).toBe(10000);            // only the sweep sleeve is cash
+  expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(100000);   // still exact
+});
+
+test('a money-market fund sent as a BARE TICKER is still not cash (the founder\'s VMFXX case)', () => {
+  const { incomeBearingClassOf, accountClassBreakdown } = require('../domain/assets');
+  // the name rule has no words to match on a ticker — the symbol list covers it
+  expect(incomeBearingClassOf('VMFXX')).toBe('stocks_etf');
+  expect(incomeBearingClassOf('SPAXX')).toBe('stocks_etf');
+  expect(incomeBearingClassOf('SWVXX')).toBe('stocks_etf');
+  expect(incomeBearingClassOf('VTI')).toBeNull();          // an ordinary fund is left alone
+  const b = accountClassBreakdown({
+    asset_id: 'st-y', source: 'connected', balance: 60000, cash_balance: 10000,
+    positions: [{ position_id: 'p1', ticker: 'VMFXX', asset_class: 'cash', last_price: 1, lots: [{ shares: 50000, cost_per_share: 1 }] }],
+  } as any)!;
+  expect(b.cash).toBe(10000);                              // sweep only
+  expect(b.stocks_etf).toBe(50000);
 });

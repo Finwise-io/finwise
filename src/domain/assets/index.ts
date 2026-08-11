@@ -188,11 +188,23 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
 // money-market funds → Stocks / ETFs (funds paying dividends) · CDs / T-bills → Bonds & CDs.
 const SWEEP_RE = /\b(sweep|settlement)\b/i;
 const MONEY_MARKET_RE = /\b(money[\s-]?market|mmkt|mmf)\b/i;
+// The rule matched on the fund's NAME, so a broker that sends only a ticker (VMFXX, SPAXX…) put its
+// money-market fund straight back into Cash — the founder's own gap #2, surviving in the one place
+// the name never appears. These are the widely-held sweep/money-market funds at the big brokers;
+// the name rule above still catches everything else.
+const MONEY_MARKET_TICKERS = new Set([
+  'VMFXX', 'VMRXX', 'VUSXX', 'VMSXX',                    // Vanguard
+  'SPAXX', 'FDRXX', 'FZFXX', 'FZDXX', 'SPRXX',           // Fidelity
+  'SWVXX', 'SNVXX', 'SNSXX', 'SWGXX',                    // Schwab
+  'TTTXX', 'MVRXX', 'GOFXX', 'FGXXX',                    // Merrill / BlackRock / Goldman
+]);
 const CD_TBILL_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?)\b/i;
 export function incomeBearingClassOf(label?: string): AssetClass | null {
   const t = (label ?? '').trim();
   if (SWEEP_RE.test(t)) return 'cash';                 // uninvested brokerage cash IS cash
   if (MONEY_MARKET_RE.test(t)) return 'stocks_etf';
+  // a bare ticker carries no words to match — check the known money-market symbols too
+  if (t.split(/[\s·—-]+/).some((w) => MONEY_MARKET_TICKERS.has(w.toUpperCase()))) return 'stocks_etf';
   if (CD_TBILL_RE.test(t)) return 'bonds';
   return null;
 }
@@ -408,7 +420,14 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
   for (const p of (a.positions ?? []) as any[]) {
     const sh = (p.lots ?? []).reduce((t: number, l: any) => t + (l.shares || 0), 0);
     const v = p.last_price != null ? sh * p.last_price : 0;
-    const cls: AssetClass = p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
+    // FOUNDER RULE 2026-08-04, applied HERE 2026-08-11: cash means cash only. A broker tags VMFXX as
+    // 'cash' and a CD as 'cash' too; the name decides instead — money-market funds pay dividends
+    // (Stocks / ETFs), CDs and T-bills pay interest (Bonds & CDs). This used to live ONLY in the
+    // one-time migration over stored data, so a position synced AFTER the migration ran landed back
+    // in Cash — the same defect as the founder's original CD-under-Cash finding, mirrored in time.
+    const byName = incomeBearingClassOf(`${p.ticker ?? ''} ${p.name ?? p.description ?? ''}`);
+    const cls: AssetClass = byName && byName !== 'cash' ? byName
+      : p.asset_class === 'bond' ? 'bonds' : p.asset_class === 'other' ? 'alternatives' : p.asset_class === 'cash' ? 'cash' : 'stocks_etf';
     out[cls] += v;
   }
   for (const o of ((a as any).option_holdings ?? []) as any[]) out.alternatives += o.value || 0;
@@ -452,11 +471,10 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
   const opts = (((a as any).option_holdings ?? []) as any[]).length;
 
   switch (cls) {
-    case 'cash': {
-      // a cash sleeve is one line — say so plainly (founder: "typically one account has one cash line")
-      const mmf = inClass.filter((p) => /money[\s-]?market|\bmmkt\b|\bmmf\b/i.test(nameOf(p))).length;
-      return mmf > 0 ? `${plural(mmf, 'money-market fund')} + cash in this account` : 'cash in this account';
-    }
+    // Cash is CASH ONLY (founder rule 2026-08-04): money-market funds live under Stocks / ETFs and
+    // CDs / T-bills under Bonds & CDs, because they pay dividends and interest that must be measured.
+    // So a cash slice is the sweep balance — one line, said plainly.
+    case 'cash': return 'cash in this account';
     case 'bonds': {
       const cds = inClass.filter((p) => CD_RE.test(nameOf(p))).length;
       const treas = inClass.filter((p) => !CD_RE.test(nameOf(p)) && TREASURY_RE.test(nameOf(p))).length;
