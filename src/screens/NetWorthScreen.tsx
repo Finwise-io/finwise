@@ -72,6 +72,10 @@ const shortMoney = (n: number) => {
 // "›", a row that doesn't leaves it empty, and a section band adds it to its total's right margin.
 // That is what puts every number on the screen on ONE right edge (founder gap 4, 2026-08-10).
 const ARROW = 16;
+// …but a row also carries a gap between its value and that arrow, and the band did not, so band
+// totals sat 8 points RIGHT of every row value (founder, 2026-08-11). The band's total must clear
+// BOTH. This is the number every band on this screen passes as `trailing`.
+const RIGHT_SLOT = ARROW + Spacing.sm;
 // The debt bar's ramp lives in the theme (DebtRamp): ONE hue in four lightness steps, so the
 // segments are told apart by light-vs-dark rather than by hue — readable with any colour blindness,
 // and in a greyscale screenshot. Every segment is still named with its percent in the legend too.
@@ -528,11 +532,11 @@ export default function NetWorthScreen() {
             than drawing three $0 banks that don't exist. */}
         {groupingPills}
         <View style={styles.ledger}>
-          <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={ARROW} />
+          <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
           {nwGrouping === 'class' ? (<>
-            <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={ARROW} />
-            <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={ARROW} />
-            <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={ARROW} />
+            <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
+            <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
@@ -557,14 +561,14 @@ export default function NetWorthScreen() {
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="WHAT YOU OWE" value={maskedMoney(0)} trailing={ARROW} />
+          <SectionBand title="WHAT YOU OWE" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
             onPress={() => setDebtSheet({ open: true })}>
             <Text style={styles.doorTxt}>Add a mortgage, card, or loan</Text>
             <Text style={styles.arrowSlot}>›</Text>
           </TouchableOpacity>
 
-          <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+          <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
           <View style={styles.ledgerPad}>
             <Text style={styles.cushionEmpty}>— months</Text>
             <Text style={styles.rowSub}>appears with your first cash account + monthly spending</Text>
@@ -757,7 +761,7 @@ export default function NetWorthScreen() {
             every number on the screen — band totals included — resolves to ONE right edge, each row
             reserving the same trailing arrow column. */}
         <View style={styles.ledger}>
-        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={ARROW} />
+        <SectionBand title="WHAT YOU OWN" value={maskedMoney(Math.round(totalAssets))} trailing={RIGHT_SLOT} />
           {classRows.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>Nothing yet — use the button below to add or import.</Text>}
           {/* Founder finding 2026-08-11: the bar used to stay by category even on the institution
               tab, so the picture and the list underneath answered different questions. It follows
@@ -785,7 +789,7 @@ export default function NetWorthScreen() {
                   <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                     onPress={() => setOpenInst((m) => ({ ...m, [label]: !open }))}
                     accessibilityLabel={`${label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${open ? 'Collapses' : 'Expands'} them.`}>
-                    <SectionBand light trailing={ARROW} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
+                    <SectionBand light trailing={RIGHT_SLOT} title={`${open ? '▾' : '▸'} ${label}${open ? '' : ` · ${count}`}`}
                       value={maskedMoney(Math.round(g.total))} />
                   </TouchableOpacity>
                   {open && g.members.map((a) => (
@@ -821,7 +825,7 @@ export default function NetWorthScreen() {
                 <TouchableOpacity accessibilityRole="button" activeOpacity={0.8}
                   onPress={() => setOpenUber((m) => ({ ...m, [g.group]: !gOpen }))}
                   accessibilityLabel={`${g.label}, ${spokenMoney(Math.round(g.total))}, ${count}. ${gOpen ? 'Collapses' : 'Expands'} them.`}>
-                  <SectionBand light trailing={ARROW} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
+                  <SectionBand light trailing={RIGHT_SLOT} title={`${gOpen ? '▾' : '▸'} ${g.icon} ${g.label}${gOpen ? '' : ` · ${count}`}`}
                     value={maskedMoney(Math.round(g.total))} />
                 </TouchableOpacity>
                 {gOpen && g.classes.map((r, i) => renderClassRow(
@@ -832,7 +836,7 @@ export default function NetWorthScreen() {
           })}
 
         {/* WHAT YOU OWE — minus numbers, the word carries the meaning */}
-        <SectionBand title="WHAT YOU OWE" trailing={ARROW}
+        <SectionBand title="WHAT YOU OWE" trailing={RIGHT_SLOT}
           value={dState.total_debt_balance > 0 ? `−${maskedMoney(Math.round(dState.total_debt_balance))}` : undefined} />
           {liabilities.length === 0 && <Text style={[styles.empty, styles.ledgerPad]}>No debts — it's all yours.</Text>}
           {/* the debts' own composition bar (founder Q6, 2026-08-11) — the same shape as the assets
@@ -864,7 +868,7 @@ export default function NetWorthScreen() {
           const shownMonths = Math.round(runwayMonths * 10) / 10;
           return (
           <View>
-            <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+            <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
               <View style={{ flexDirection: 'row', alignItems: 'baseline', gap: 8, marginTop: 4 }}>
                 <Text style={styles.cushionMonths}>{shownMonths.toFixed(1)} months</Text>
@@ -889,7 +893,7 @@ export default function NetWorthScreen() {
         })() : cashOnHand > 0 ? (
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/(tabs)/cashflow')}
             accessibilityLabel={`Emergency cushion: your cash is ${spokenMoney(Math.round(cashOnHand))} — answer what a typical month costs to see the real number. Opens Cash flow.`}>
-            <SectionBand title="EMERGENCY CUSHION" trailing={ARROW} />
+            <SectionBand title="EMERGENCY CUSHION" trailing={RIGHT_SLOT} />
             <View style={styles.ledgerPad}>
               <Text style={styles.cushionMath}>Your cash is {maskedMoney(Math.round(cashOnHand))} — tell us what a typical month costs and this becomes a real number.</Text>
               <Text style={styles.link}>Answer one question in Cash flow ›</Text>

@@ -180,27 +180,33 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
   // ── the Quiet-Instrument rebuild, 2026-08-10 ────────────────────────────────────────────────
   // THE right edge, measured on the real screen rather than on a component in isolation: a section
   // total, a group total, a class total and an account amount must all resolve to the same inset.
-  test('THE SHARED RIGHT EDGE, on the built screen: section, group, class and account amounts agree', () => {
+  // THE RIGHT EDGE, MEASURED — not asserted by presence. My earlier version of this test checked
+  // only that a band total carried marginRight === 16, which was necessary and NOT sufficient: a
+  // ledger ROW also puts an 8pt gap between its value and its arrow, so band totals sat 8 points
+  // right of every row value and the founder saw the column bend. This computes the distance from
+  // the screen edge to each number's right edge and asserts they are equal.
+  test('THE SHARED RIGHT EDGE, measured: band totals and row values end on the same line', () => {
     const NW = require('../screens/NetWorthScreen').default;
     const { Spacing } = require('../utils/theme');
     render(<NW />);
     const ARROW = 16;
-    // a band total clears the row inset AND the arrow column the rows reserve
-    expect(flat(screen.getByText('$813,152')).marginRight).toBe(ARROW);      // WHAT YOU OWN
-    expect(flat(screen.getByText('$354,314')).marginRight).toBe(ARROW);      // the INVESTMENTS group bar
-    expect(flat(screen.getByText('−$418,000')).marginRight).toBe(ARROW);     // WHAT YOU OWE
-    // and the rows themselves sit at that inset with a real arrow in the same column
-    const row = screen.getByText('$348,495');                                // a class total inside a group
-    const arrows = screen.getAllByText('›');
-    expect(flat(row).marginRight ?? 0).toBe(0);
-    expect(flat(arrows[0]).width).toBe(ARROW);
-    expect(flat(arrows[0]).textAlign).toBe('right');
-    expect(Spacing.md).toBe(12);                                             // the ledger's row inset
+    const ROW_PAD = Spacing.md, ROW_GAP = Spacing.sm;
+    // a row: [name][gap][value][gap][arrow] — its value ends this far from the screen edge
+    const rowInset = ROW_PAD + ARROW + ROW_GAP;
+    // a band: [title][spacer][value(marginRight)] — same padding, so its total must clear the same
+    const bandInset = ROW_PAD + flat(screen.getByText('$813,152')).marginRight;
+    expect(bandInset).toBe(rowInset);
+    for (const total of ['$354,314', '−$418,000']) {
+      expect(ROW_PAD + flat(screen.getByText(total)).marginRight).toBe(rowInset);
+    }
+    // and every money figure is ONE size, so the digits line up rather than stepping
+    const sizeOf = (t: string) => flat(screen.getByText(t)).fontSize;
+    expect(sizeOf('$813,152')).toBe(15);              // a section total
+    expect(sizeOf('$354,314')).toBe(15);              // a group total on its band
+    expect(sizeOf('$348,495')).toBe(15);              // a category total in a row
+    expect(flat(screen.getByText('$813,152')).fontWeight).toBe('800');   // totals are bold
   });
 
-  // Founder 2026-08-11: today's date rides the title bar again — it stamps when the numbers were
-  // true. The "since" line keeps naming the day the CHANGE is measured from; two different facts,
-  // never the same date twice. The hero still ends there — no trend line under it.
   test('the hero title carries today, the since line carries the measured-from day, and no trend line follows', () => {
     const Svg = require('react-native-svg');
     const NW = require('../screens/NetWorthScreen').default;

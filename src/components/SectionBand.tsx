@@ -40,5 +40,7 @@ const s = StyleSheet.create({
   light: { backgroundColor: Colors.bandLight },
   title: { flex: 1, color: Colors.white, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
   textLight: { color: Colors.primaryDeep },
-  value: { color: Colors.white, fontSize: 13, fontWeight: '800', fontVariant: ['tabular-nums'] },
+  // Founder 2026-08-11: every money figure on a screen is ONE size (15) and a total is bold, so a
+  // band total and the row values beneath it read as one column rather than two.
+  value: { color: Colors.white, fontSize: 15, fontWeight: '800', fontVariant: ['tabular-nums'] },
 });
