@@ -183,7 +183,13 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     expect(body).toMatch(/named after the casino/);            // what "Monte Carlo" means
     expect(body).toMatch(/WHAT WE ASSUME/);                    // the assumptions, listed
     expect(body).toMatch(/2\.5% a year/);                      // inflation, stated
-    expect(body).toMatch(/S&P 500 for shares/);                // where the growth figures come from
+    expect(body).toMatch(/S&P 500, 30 years/);                 // where the growth figures come from
+    // founder ask 2026-08-11: the actual NUMBERS, not just the categories
+    expect(body).toMatch(/Shares and funds 10\.4%/);
+    expect(body).toMatch(/bonds and CDs 4\.2%/);
+    expect(body).toMatch(/shares ±18%/);                       // the swing, per year
+    expect(body).toMatch(/at 22% unless you have set your own/);
+    expect(body).toMatch(/the dice are seeded/);               // same answer every time
     expect(body).toMatch(/Plan tab and open Retirement/);      // where to change them
     expect(body).toMatch(/WHAT THIS IS NOT — a promise/);      // and the honest limits
     expect(body).not.toMatch(/\b(stochastic|volatility|Monte-Carlo simulation of)\b/);   // no jargon
