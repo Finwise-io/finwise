@@ -436,8 +436,24 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
   const r = round2((a.balance || 0) - sum);
   if (r !== 0) {
     if (Math.abs(r) <= Math.max(1, 0.01 * Math.abs(a.balance || 0))) {
-      const largest = (Object.keys(out) as AssetClass[]).sort((x, y) => out[y] - out[x])[0];
-      out[largest] = round2(out[largest] + r);
+      // FOUNDER FINDING 2026-08-11 ("why is cash added to CD and not cash?"): this leftover used to
+      // be added to the LARGEST class, so on a CD-heavy account the uninvested money was counted as
+      // MORE CDs — overstating the bonds slice and understating cash, both silently.
+      //
+      // A POSITIVE leftover is money the broker's total includes but its holdings do not account
+      // for. In a brokerage that is uninvested money: settlement cash, a dividend just received,
+      // a pending trade. Calling it cash is nearly always true; calling it "more CDs" is a claim
+      // about what you OWN that we cannot support.
+      //
+      // A NEGATIVE leftover means the priced holdings exceed the broker's stated total — a pricing
+      // or rounding artifact, not money. That still lands on the largest class, because writing it
+      // into cash would show a negative cash balance, which is worse than a rounding nudge.
+      if (r > 0) {
+        out.cash = round2(out.cash + r);
+      } else {
+        const largest = (Object.keys(out) as AssetClass[]).sort((x, y) => out[y] - out[x])[0];
+        out[largest] = round2(out[largest] + r);
+      }
     } else {
       // 2026-08-10, same class of defect as the founder's CD-under-Cash finding: a CONNECTED account
       // that sends no position detail (a CD ladder, a Treasuries account, a savings account) was

@@ -367,3 +367,31 @@ test('the activity list is newest-first, so recent income is never pushed off th
   expect(screen.getByText('08-01')).toBeOnTheScreen();        // the 2026 dividend, newest, is visible
   expect(screen.getByLabelText('2026-08-01: Dividend, plus $250')).toBeOnTheScreen();
 });
+
+// ── THE LEFTOVER IS CASH, NOT MORE OF THE BIGGEST HOLDING ──────────────────────────────────────
+test('uninvested money in a CD-heavy account counts as CASH, never as more CDs', () => {
+  const { accountClassBreakdown } = require('../domain/assets');
+  // the broker says the account is worth $224,690; its holdings account for $224,190
+  const b = accountClassBreakdown({
+    asset_id: 'st-cd', source: 'connected', balance: 224690,
+    positions: [
+      { position_id: 'p1', ticker: 'CD1', name: 'ALLY CD 4.2%', asset_class: 'bond', last_price: 1, lots: [{ shares: 112095, cost_per_share: 1 }] },
+      { position_id: 'p2', ticker: 'CD2', name: 'CHASE CD 4.0%', asset_class: 'bond', last_price: 1, lots: [{ shares: 112095, cost_per_share: 1 }] },
+    ],
+  } as any)!;
+  expect(b.bonds).toBe(224190);        // exactly the CDs the broker itemised — not a penny more
+  expect(b.cash).toBe(500);            // the unitemised money is cash, which is what it actually is
+  expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(224690);   // still exact
+});
+
+test('a NEGATIVE leftover is a pricing artifact — it never becomes negative cash', () => {
+  const { accountClassBreakdown } = require('../domain/assets');
+  // priced holdings ($100,500) exceed the broker's stated total ($100,000) — stale prices, not money
+  const b = accountClassBreakdown({
+    asset_id: 'st-neg', source: 'connected', balance: 100000,
+    positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 100.5, lots: [{ shares: 1000, cost_per_share: 90 }] }],
+  } as any)!;
+  expect(b.cash).toBe(0);              // never a negative cash balance
+  expect(b.stocks_etf).toBe(100000);   // the artifact is absorbed where it came from
+  expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(100000);
+});
