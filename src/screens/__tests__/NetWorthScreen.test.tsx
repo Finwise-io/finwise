@@ -340,9 +340,10 @@ test('one shared right edge: band totals reserve the same arrow column the rows 
   expect(flat(screen.getByText('$813,152')).marginRight).toBe(Spacing.md + 16);
 });
 
-// Founder notes 2026-08-10, the hero: the band title carries ONLY the info dot (the date lives once,
-// on the since line), and the trend line that used to close the box is gone.
-test('hero: title has no date, the since line does, and no sparkline follows it', () => {
+// The hero's two dates (founder 2026-08-11): TODAY rides the title bar — it stamps when these
+// numbers were true — and the "since" line names the day the CHANGE is measured from. Two different
+// facts, so both earn a place; neither may print the other's date. The trend line stays gone.
+test('hero: today stamps the title, the since line carries the measured-from day, no sparkline', () => {
   const today = new Date().toISOString().slice(0, 10);
   useStore.setState({
     nwSeeded: true,
@@ -351,9 +352,18 @@ test('hero: title has no date, the since line does, and no sparkline follows it'
     nwDaily: { '2026-01-02': 400000, [today]: 401000 },
   } as any);
   render(<NetWorthScreen />);
-  expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();          // exactly that — no "· AUG 10, 2026"
-  expect(screen.getByText(/^since /)).toBeOnTheScreen();                 // the one date, on its own line
+  const stamp = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+  expect(screen.getByText(`YOUR NET WORTH · ${stamp}`)).toBeOnTheScreen();
+  expect(screen.getByText('since Jan 2, 2026')).toBeOnTheScreen();       // the measured-from day, not today
   expect(screen.UNSAFE_queryAllByType(require('react-native-svg').Polyline).length).toBe(0);
+});
+
+// The first-day screen has no numbers yet, so it carries no as-of stamp — dating a screen of zeros
+// would imply we measured something today. Approved State C shows the title with its dot alone.
+test('first day: the title carries no date (there is nothing yet for a date to be true of)', () => {
+  render(<NetWorthScreen />);
+  expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();
+  expect(screen.queryByText(/YOUR NET WORTH ·/)).toBeNull();
 });
 
 // The handoff's By-institution view: collapsible like By category, its own memory, and an

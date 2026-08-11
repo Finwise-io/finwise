@@ -457,6 +457,10 @@ export default function NetWorthScreen() {
     </View>
   );
 
+  // "AUG 11, 2026" — today, the day these numbers are true as of. One definition, so the hero and
+  // anything else that stamps the screen can never print two different todays.
+  const asOfToday = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+
   // ONE definition of the grouping buttons — the first-day screen and the full screen render the
   // same control (founder Q4, 2026-08-11), so the two can never drift apart.
   const groupingPills = (
@@ -480,19 +484,25 @@ export default function NetWorthScreen() {
     // and show THE ONE app-wide retirement sample (identical to Home's) — never a reinvented one.
     body = (
       <ScrollView contentContainerStyle={styles.contentFlat} showsVerticalScrollIndicator={false}>
-        <View style={[styles.glanceCard, styles.inset]}>
-          <SectionBand inCard infoTerm="netWorth" title="YOUR NET WORTH" />
-          <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
-          <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
-          <Text style={[styles.glanceDelta, { color: Colors.gainText }]}>Add your first account and this becomes your one live number ›</Text>
+        {/* the same full-width green banners the with-data screen wears (founder 2026-08-11) — one
+            titling treatment, whatever state the screen is in. No date: nothing has been measured yet. */}
+        <View style={styles.heroBlock}>
+          <SectionBand infoTerm="netWorth" title="YOUR NET WORTH" />
+          <View style={styles.blockBody}>
+            <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
+            <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
+            <Text style={[styles.glanceDelta, { color: Colors.gainText }]}>Add your first account and this becomes your one live number ›</Text>
+          </View>
         </View>
 
-        <View style={[styles.card, styles.inset]}>
-          <SectionBand inCard title="YOUR RETIREMENT PLAN" />
-          <Text style={styles.sampleLine}>
-            <Text style={styles.sampleNum}>Sample: 84%</Text> odds of lasting to age 90
-          </Text>
-          <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
+        <View style={styles.heroBlock}>
+          <SectionBand title="YOUR RETIREMENT PLAN" />
+          <View style={styles.blockBody}>
+            <Text style={styles.sampleLine}>
+              <Text style={styles.sampleNum}>Sample: 84%</Text> odds of lasting to age 90
+            </Text>
+            <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
+          </View>
         </View>
 
         {/* the same flat ledger the with-data screen uses, at honest zeros — so a new person sees
@@ -647,39 +657,46 @@ export default function NetWorthScreen() {
         {/* HERO (founder notes 2026-08-10): the band title carries ONLY the info dot — the date lives
             once, on the since line. Own−Owe, the one number, the change, the date. Then it ENDS:
             the green trend line that used to sit under it is gone. */}
-        <View style={[styles.glanceCard, styles.inset]} accessible
+        {/* Founder 2026-08-11: the hero's title is a FULL-WIDTH green banner, the same one WHAT YOU
+            OWN wears — every section on this screen is now titled the same way, edge to edge. */}
+        <View style={styles.heroBlock} accessible
           accessibilityLabel={store.hideBalances
             ? 'Net worth hidden'
             : `Net worth ${maskedMoney(Math.round(nw.net_worth))}${nw.net_worth < 0 ? ', negative' : ''}${deltaText ? `, ${deltaText}` : ''}. By asset class: ${classRows.map((r) => `${r.label} ${pctOf(r.total)} percent`).join(', ') || 'none yet'}.`}>
-          <SectionBand inCard infoTerm="nwChange" title="YOUR NET WORTH" />
-          {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
-          {(totalAssets > 0 || dState.total_debt_balance > 0) && (
-            <Text style={styles.ownOweTop}>
-              Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))}
-            </Text>
-          )}
-          <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
-            {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
-          </HeroAmount>
-          {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
-              honest first-day line instead of a bare number when history hasn't built yet */}
-          {deltaText != null ? (
-            <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
-              accessibilityLabel={`${deltaText}. ${deltaZero ? 'A flat total can hide offsetting moves — opens' : 'Opens'} what drove this change.`}>
-              <Text style={[styles.glanceDelta, { color: deltaDown ? Colors.amber : Colors.gainText }]}>
-                {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
+          {/* Founder 2026-08-11: TODAY's date rides the title bar — it stamps when these numbers were
+              true. It is a different fact from the "since" line beneath the change, which names the
+              day the change is measured FROM; both dates earn their place. */}
+          <SectionBand infoTerm="nwChange" title={`YOUR NET WORTH · ${asOfToday}`} />
+          <View style={styles.blockBody}>
+            {/* FINAL mock: the arithmetic sits small ABOVE the hero, so the one number leads */}
+            {(totalAssets > 0 || dState.total_debt_balance > 0) && (
+              <Text style={styles.ownOweTop}>
+                Own {maskedMoney(Math.round(totalAssets))} − Owe {maskedMoney(Math.round(dState.total_debt_balance))}
               </Text>
-            </TouchableOpacity>
-          ) : (
-            <Text style={[styles.glanceDelta, { color: Colors.textSecondary }]}>tracking starts today — change shows as history builds</Text>
-          )}
-          {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
-              Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
-          {sinceDate != null && <Text style={styles.glanceSince}>since {sinceDate}</Text>}
-          {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
-              banner below already names stale accounts with a fix button; saying it twice is noise.
-              The trend sparkline is gone too (founder 2026-08-10: "the green line at the bottom —
-              delete it"); the hero ENDS at the since line. */}
+            )}
+            <HeroAmount style={[styles.glanceVal, nw.net_worth < 0 && !store.hideBalances && { color: Colors.red }]} numberOfLines={1} adjustsFontSizeToFit minimumFontScale={0.6}>
+              {store.hideBalances ? '••••' : maskedMoney(Math.round(nw.net_worth))}{nw.net_worth < 0 && !store.hideBalances ? '  (negative)' : ''}
+            </HeroAmount>
+            {/* Build-43 feedback #3: change + date render ALWAYS, matching the approved mock — an
+                honest first-day line instead of a bare number when history hasn't built yet */}
+            {deltaText != null ? (
+              <TouchableOpacity accessibilityRole="button" onPress={() => setWalkOpen(true)}
+                accessibilityLabel={`${deltaText}. ${deltaZero ? 'A flat total can hide offsetting moves — opens' : 'Opens'} what drove this change.`}>
+                <Text style={[styles.glanceDelta, { color: deltaDown ? Colors.amber : Colors.gainText }]}>
+                  {deltaZero ? '' : deltaRounded! > 0 ? '▲ ' : '▼ '}{deltaText} ›
+                </Text>
+              </TouchableOpacity>
+            ) : (
+              <Text style={[styles.glanceDelta, { color: Colors.textSecondary }]}>tracking starts today — change shows as history builds</Text>
+            )}
+            {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
+                Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
+            {sinceDate != null && <Text style={styles.glanceSince}>since {sinceDate}</Text>}
+            {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
+                banner below already names stale accounts with a fix button; saying it twice is noise.
+                The trend sparkline is gone too (founder 2026-08-10: "the green line at the bottom —
+                delete it"); the hero ENDS at the since line. */}
+          </View>
         </View>
 
         {/* FINAL mock: the banner sits INLINE under the hero — never a pop-up */}
@@ -688,17 +705,17 @@ export default function NetWorthScreen() {
 
         {/* THE RETIREMENT CARD (approved final mock + the approved words, 2026-08-04): banded, and it
             speaks the same sentence the Plan hub speaks — never the old "path ahead by 92" wording. */}
-        <TouchableOpacity accessibilityRole="button" style={[styles.card, styles.inset]} activeOpacity={0.85}
+        {/* Founder 2026-08-11: full-width green banner here too — one titling treatment for every
+            section on the screen. */}
+        <TouchableOpacity accessibilityRole="button" style={styles.heroBlock} activeOpacity={0.85}
           onPress={() => router.push('/(tabs)/plan')}
           accessibilityLabel={nwOnCourse ? `Your retirement plan: ${nwOnCourse}. Opens the Plan tab.` : 'Your retirement plan. Opens the Plan tab.'}>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <SectionBand inCard title="YOUR RETIREMENT PLAN" />
-          </View>
-          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-          <Text style={styles.rowTitle}>
-            {nwOnCourse ? <Text><Text style={{ fontWeight: '800' }}>{nwWord}</Text> — {nwOnCourse} ›</Text> : 'See your plan ›'}
-          </Text>
-          <InfoDot term="nestEggMath" />
+          <SectionBand title="YOUR RETIREMENT PLAN" />
+          <View style={[styles.blockBody, { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }]}>
+            <Text style={styles.rowTitle}>
+              {nwOnCourse ? <Text><Text style={{ fontWeight: '800' }}>{nwWord}</Text> — {nwOnCourse} ›</Text> : 'See your plan ›'}
+            </Text>
+            <InfoDot term="nestEggMath" />
           </View>
         </TouchableOpacity>
 
@@ -1086,8 +1103,13 @@ const styles = StyleSheet.create({
   // The own/owe lists run edge to edge; only the cards above and below them are inset. Rows carry
   // the SAME horizontal padding a SectionBand carries (Spacing.md), so a band total and a row value
   // land on the identical right edge once both reserve the ARROW column.
-  contentFlat: { paddingTop: Spacing.md, paddingBottom: 40 },
+  contentFlat: { paddingTop: 0, paddingBottom: 40 },
   inset: { marginHorizontal: Spacing.base },
+  // Founder 2026-08-11: the hero and the retirement plan are full-width blocks titled by the SAME
+  // green banner WHAT YOU OWN wears — one titling treatment for every section, edge to edge. Their
+  // body carries the ledger's own inset, so the text under a banner lines up with the rows under one.
+  heroBlock: { backgroundColor: Colors.cardBg, marginBottom: Spacing.sm },
+  blockBody: { paddingHorizontal: Spacing.md, paddingBottom: Spacing.md, alignItems: 'flex-start' },
   ledger: { backgroundColor: Colors.cardBg, marginTop: Spacing.sm },
   ledgerRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm,
     paddingHorizontal: Spacing.md, paddingVertical: 10, minHeight: 44,

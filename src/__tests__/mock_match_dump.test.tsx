@@ -198,13 +198,51 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     expect(Spacing.md).toBe(12);                                             // the ledger's row inset
   });
 
-  test('the hero ends at the since line: no date in the band title, no trend line under it', () => {
+  // Founder 2026-08-11: today's date rides the title bar again — it stamps when the numbers were
+  // true. The "since" line keeps naming the day the CHANGE is measured from; two different facts,
+  // never the same date twice. The hero still ends there — no trend line under it.
+  test('the hero title carries today, the since line carries the measured-from day, and no trend line follows', () => {
     const Svg = require('react-native-svg');
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
-    expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();
-    expect(screen.queryByText(/YOUR NET WORTH ·/)).toBeNull();
+    const today = new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase();
+    expect(screen.getByText(`YOUR NET WORTH · ${today}`)).toBeOnTheScreen();
+    expect(screen.getByText(/^since /)).toBeOnTheScreen();
+    const strings = dumpStrings();
+    expect(strings.filter((s) => s.includes(today)).length).toBe(1);      // today is stamped ONCE
     expect(screen.UNSAFE_queryAllByType(Svg.Polyline).length).toBe(0);
+  });
+
+  // Founder 2026-08-11: the hero and the retirement plan wear the SAME full-width green banner as
+  // WHAT YOU OWN. Measured from the rendered nodes, not from the stylesheet: every banner must have
+  // the one deep-green background and must NOT be pulled inward or bled out with side margins.
+  test('every section banner is the same full-width green bar — hero and retirement plan included', () => {
+    const { Colors } = require('../utils/theme');
+    const NW = require('../screens/NetWorthScreen').default;
+    render(<NW />);
+    const titles = ['YOUR NET WORTH', 'YOUR RETIREMENT PLAN', 'WHAT YOU OWN', 'WHAT YOU OWE', 'EMERGENCY CUSHION'];
+    const bands: any[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      if (n.props?.style) {
+        const st = flat(n);
+        if (st.backgroundColor === Colors.primaryDeep && st.flexDirection === 'row') bands.push(st);
+      }
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    expect(bands.length).toBe(titles.length);              // one banner per section, no more, no fewer
+    for (const b of bands) {
+      expect(b.marginHorizontal ?? 0).toBe(0);             // never inset, never bled — flush to both edges
+      expect(b.alignSelf).toBe('stretch');
+      expect(b.paddingHorizontal).toBe(12);                // and all five share one text inset
+    }
+    // the banner texts themselves are the app's white caps
+    for (const t of titles) {
+      const node = t === 'YOUR NET WORTH' ? screen.getByText(new RegExp(`^${t}`)) : screen.getByText(t);
+      expect(flat(node).color).toBe('#FFFFFF');
+      expect(flat(node).textTransform).toBe('uppercase');
+    }
   });
 
   test('the change line names both halves and colours only a fall in amber', () => {

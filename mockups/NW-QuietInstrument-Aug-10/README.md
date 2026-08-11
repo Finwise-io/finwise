@@ -13,7 +13,9 @@ corrections written the same day. This folder holds both, what I built from them
 | `ios-frame.jsx` | The handoff's device-frame helper. Presentation only; not part of the spec. |
 | `networth-quiet-instrument-v1-2026-08-10.html` | **Mock v1 — the handoff drawn as received**, extended to all six data states (A with data · A2 by institution · B collapsed · C first day · D banner · E change walk · F fix sheet). |
 | `networth-quiet-instrument-v2-BUILD-SPEC-2026-08-10.html` | Mock v2 — what I proposed on 2026-08-10, with the differences from v1 and the reason for each written on the page. Superseded by v3; kept as the trail. |
-| `networth-quiet-instrument-v3-BUILT-2026-08-11.html` | **Mock v3 — THE CURRENT ONE.** The screen as built after the founder's six decisions (bar replaces donut, debt bar, cushion bar, biggest-first, cash-flow row deleted, day-one buttons). |
+| `networth-quiet-instrument-v3-BUILT-2026-08-11.html` | Mock v3 — the screen after the founder's six decisions (bar replaces donut, debt bar, cushion bar, biggest-first, cash-flow row deleted, day-one buttons). Superseded by v4. |
+| `networth-quiet-instrument-v4-BUILT-dated-hero-2026-08-11.html` | Mock v4 — v3 plus today's date on the hero title bar ("YOUR NET WORTH · AUG 11, 2026"), first-day screen deliberately unstamped. Superseded by v5. |
+| `networth-quiet-instrument-v5-BUILT-full-width-banners-2026-08-11.html` | **Mock v5 — THE CURRENT ONE.** v4 plus the hero and retirement-plan titles as full-width green banners, matching WHAT YOU OWN — five sections, one bar. |
 | `NW-quiet-instrument-audit-2026-08-10.xlsx` | The mock-match audit (founder standing order, all five steps): founder notes → where each landed · mock-vs-build diff with the coverage line · defects found · open founder calls · appearance audit. |
 
 ## Why three versions exist
