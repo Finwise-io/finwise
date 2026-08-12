@@ -338,7 +338,7 @@ export default function PerformanceScreen() {
                 <DataGapsBanner gaps={gaps} />
 
                 <View style={styles.card}>
-                  <SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))}`} />
+                  <SectionBand inCard title={`HOW ${maskedMoney(Math.round(walk.beginning))} BECAME ${maskedMoney(Math.round(walk.ending))} · ALL ACCOUNTS`} />
                   {[
                     { l: `Beginning market value (${PERIOD_PHRASE[period]} start)`, v: walk.beginning },
                     { l: 'Contributions', v: walk.contributions },
@@ -378,6 +378,14 @@ export default function PerformanceScreen() {
               const cur = byAcct.get(o.accountId) ?? { label: acct?.institution?.trim() || acct?.label || 'Account', ending: 0, gain: 0 };
               cur.ending += r.marketValue; cur.gain += rowGain(r);
               byAcct.set(o.accountId, cur);
+            }
+            // HANDOFF 2026-08-11 + reconciliation: the per-account walks must SUM to the all-accounts
+            // walk above them. They were built only from itemised holding rows, so an account with a
+            // balance and no holdings (a CD account, anything hand-entered) simply vanished from the
+            // list — the parts stopped adding up to the whole with no sign that anything was missing.
+            for (const a of (accounts ?? []) as AssetAccount[]) {
+              if (byAcct.has(a.asset_id) || !(a.balance > 0)) continue;
+              byAcct.set(a.asset_id, { label: accountDisplayNames(accounts).get(a.asset_id) ?? a.label, ending: a.balance, gain: 0 });
             }
             if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
             return [...byAcct.entries()].map(([id, a]) => {

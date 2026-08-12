@@ -710,3 +710,33 @@ test('the info dot scrolls — a definition longer than the card is no longer un
   // and the definition really is longer than a phone card — this is why it needed to scroll
   expect(GLOSSARY.nestEggMath.body.length).toBeGreaterThan(2000);
 });
+
+// ── PERFORMANCE HANDOFF (2026-08-11): the parts must sum to the whole ──────────────────────────
+test('every account with value gets its own walk, so the per-account walks sum to the all-accounts walk', () => {
+  const today = new Date().toISOString().slice(0, 10);
+  useStore.setState({
+    onboardingComplete: true, nwSeeded: true,
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], monthlySpending: '4500' },
+    assetAccounts: [
+      // one account WITH itemised holdings…
+      { asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE',
+        balance: 300000, target_return: 0.07, source: 'connected', last_synced: `${today}T09:00:00Z`,
+        positions: [{ position_id: 'p1', ticker: 'VTI', asset_class: 'stock_etf', last_price: 100, price: 100, shares: 3000,
+          lots: [{ lot_id: 'l1', shares: 3000, cost_per_share: 90, purchase_date: '2024-01-02' }] }] },
+      // …and one WITHOUT: a CD account with a balance and nothing itemised. It used to vanish from
+      // the per-account walks entirely, so the parts stopped adding up to the whole.
+      { asset_id: 'etr', label: 'E*TRADE Treasuries & CDs', institution: 'E*TRADE', kind: 'fixed_income',
+        asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 52704, target_return: 0.042,
+        source: 'connected', last_synced: `${today}T09:00:00Z` },
+    ],
+    liabilities: [],
+  } as any);
+  mockParams = {};
+  const Perf = require('../screens/PerformanceScreen').default;
+  render(<Perf />);
+  // the all-accounts walk says what it is, because per-account walks sit directly beneath it
+  expect(screen.getByText(/HOW .* BECAME .* · ALL ACCOUNTS/)).toBeOnTheScreen();
+  // and BOTH accounts have a walk of their own — the CD account included
+  expect(screen.getByLabelText(/Vanguard.*Expands its walk/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/E\*TRADE.*Expands its walk/)).toBeOnTheScreen();
+});

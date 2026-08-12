@@ -125,7 +125,9 @@ test('bonds and alternatives fold into the grouped list with value-as-of stamps 
 
 test('tapping a bond row opens its account page (the routed holding detail)', () => {
   render(<PerformanceScreen />);
-  fireEvent.press(screen.getByLabelText(/Treasury 4.5% ’36/));
+  // 2026-08-11: the account now also appears in the per-account walks (every account with value
+  // gets one, so the parts sum to the whole), so target the HOLDINGS row explicitly
+  fireEvent.press(screen.getByLabelText(/Treasury 4.5% ’36.*Opens/));
   expect(pushes).toContain('/account-detail?id=bnd1');
 });
 
