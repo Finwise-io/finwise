@@ -752,7 +752,12 @@ export default function NetWorthScreen() {
           <View style={[styles.blockBody, { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
             !nwOnCourse && nwDoor.count > 0 && { paddingTop: 0 }]}>
             {(nwOnCourse || nwDoor.count === 0) && (<Text style={styles.rowTitle}>
-              {nwOnCourse ? <Text><Text style={{ fontWeight: '800' }}>{nwWord}</Text> — {nwOnCourse} ›</Text> : 'See your plan ›'}
+              {/* FOUNDER FINDING 2026-08-11 ("what does uncertain mean?"): this was the ONLY screen
+                  showing the verdict WORD with no number beside it — Home says "78% odds", the Plan
+                  hub says "84 in 100". A bare adjective is not a verdict. The number travels with it. */}
+              {nwOnCourse
+                ? <Text><Text style={{ fontWeight: '800' }}>{nwWord} — {nwWil.chance} in 100</Text> · {nwOnCourse} ›</Text>
+                : 'See your plan ›'}
             </Text>)}
             <InfoDot term="nestEggMath" />
           </View>

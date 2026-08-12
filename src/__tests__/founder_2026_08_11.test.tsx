@@ -645,3 +645,32 @@ test('the door credits what actually COUNTS, not every balance on file', () => {
   expect(d.count).toBe(0);                       // the savings make it computable
   expect(d.credit.total).toBe(20000);            // …and only the savings are credited, not the home
 });
+
+// ── THE VERDICT WORD CARRIES ITS NUMBER (founder question 2026-08-11: "what does uncertain mean?") ─
+test('the Net worth verdict shows the NUMBER beside the word — a bare adjective is not a verdict', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    nwSeeded: true, nwSetupChoice: 'self', onboardingComplete: true,
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '9000', salaryMode: 'gross',
+      salaryFreq: 'monthly', birthYear: String(yr - 55), targetRetirementAge: '65', monthlySpending: '4500' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', institution: 'Vanguard', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 800000, target_return: 0.07 }],
+    liabilities: [],
+  } as any);
+  mockParams = {};
+  const NW = require('../screens/NetWorthScreen').default;
+  render(<NW />);
+  expect(screen.getByText(/(Likely|Uncertain|Unlikely) — \d+ in 100/)).toBeOnTheScreen();
+});
+
+test('the words are defined where the question gets asked, including the apparent contradiction', () => {
+  const { GLOSSARY } = require('../domain/glossary');
+  const body = GLOSSARY.nestEggMath.body;
+  expect(body).toMatch(/Likely = 80 or more/);
+  expect(body).toMatch(/Uncertain = 60 to 79/);
+  expect(body).toMatch(/Unlikely = under 60/);
+  expect(body).toMatch(/Holding, Watch closely, and Running short/);      // the retired voice too
+  // and WHY a plan with money to spare can still read Uncertain — two true facts, not a mistake
+  expect(body).toMatch(/WHY "UNCERTAIN" CAN SIT NEXT TO MONEY TO SPARE/);
+  expect(body).toMatch(/MIDDLE future/);
+  expect(body).toMatch(/22 runs out of 100 the money still ran out/);
+});
