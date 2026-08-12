@@ -396,7 +396,8 @@ test('the activity list is newest-first, so recent income is never pushed off th
   const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
   render(<AccountDetailScreen />);
   expect(screen.getByText('08-01')).toBeOnTheScreen();        // the 2026 dividend, newest, is visible
-  expect(screen.getByLabelText('2026-08-01: Dividend, plus $250')).toBeOnTheScreen();
+  // 2026-08-11: each row now also says WHOSE fact it is — the broker's or yours
+  expect(screen.getByLabelText(/2026-08-01: Dividend, plus \$250\. You entered this — editable\./)).toBeOnTheScreen();
 });
 
 // ── THE LEFTOVER IS CASH, NOT MORE OF THE BIGGEST HOLDING ──────────────────────────────────────
@@ -739,4 +740,46 @@ test('every account with value gets its own walk, so the per-account walks sum t
   // and BOTH accounts have a walk of their own — the CD account included
   expect(screen.getByLabelText(/Vanguard.*Expands its walk/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/E\*TRADE.*Expands its walk/)).toBeOnTheScreen();
+});
+
+// ── WHOSE FACT IS THIS ROW? (handoff 2026-08-11) ───────────────────────────────────────────────
+test('a row you typed is marked yours and editable; a broker row says where it came from and is not', () => {
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'van', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage',
+      tax_bucket: 'TAXABLE', balance: 10000, target_return: 0, source: 'connected', last_synced: new Date().toISOString() }],
+    transactions: [
+      { id: 'broker', account_id: 'van', type: 'DIVIDEND', amount: 120, date: '2026-08-01', source: 'connected' },
+      { id: 'mine', account_id: 'van', type: 'DEPOSIT', amount: 500, date: '2026-07-22' },
+    ],
+  } as any);
+  mockParams = { id: 'van' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  expect(screen.getByText('you entered this')).toBeOnTheScreen();
+  expect(screen.getByText('from Vanguard')).toBeOnTheScreen();
+  // only YOUR row offers the pencil — a broker row would be overwritten by the next sync
+  const edits = screen.queryAllByLabelText(/Edit or delete your/);
+  expect(edits).toHaveLength(1);
+  expect(edits[0].props.accessibilityLabel).toMatch(/deposit of \$500/);
+});
+
+test('correcting your record reverses the old amount and records the new one — the balance stays right', () => {
+  useStore.getState().resetAll();
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'sav', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 1000, target_return: 0 }],
+  } as any);
+  // a deposit typed as $5,000 when it should have been $500
+  (useStore.getState() as any).recordTransaction({ account_id: 'sav', type: 'DEPOSIT', amount: 5000, date: '2026-08-01' });
+  expect((useStore.getState() as any).assetAccounts[0].balance).toBe(6000);
+  mockParams = { id: 'sav' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  fireEvent.press(screen.getByLabelText(/Edit or delete your deposit/));
+  fireEvent.changeText(screen.getByLabelText('Amount'), '500');
+  fireEvent.press(screen.getByLabelText('Save this correction'));
+  // the wrong amount is reversed and the right one recorded — not patched behind the ledger's back
+  expect((useStore.getState() as any).assetAccounts[0].balance).toBe(1500);
+  const rows = (useStore.getState() as any).transactions.filter((t: any) => t.account_id === 'sav');
+  expect(rows).toHaveLength(1);
+  expect(rows[0].amount).toBe(500);
 });

@@ -41,6 +41,7 @@ export default function AccountDetailScreen() {
   const [action, setAction] = useState<ActionType | null>(null);
   const [showAll, setShowAll] = useState(false);
   const [valueSheet, setValueSheet] = useState(false);
+  const [editRow, setEditRow] = useState<Transaction | null>(null);   // a row YOU entered, opened to correct
 
   // FOUNDER FINDING 2026-08-11: this was unsorted, and the list below shows only the first eight —
   // so on an account with any history the dividends and interest could be sitting past the cut and
@@ -366,16 +367,30 @@ export default function AccountDetailScreen() {
         {shown.map((t) => {
           const incoming = String(t.counter_account_id) === String(id) && t.type === 'TRANSFER';
           const eff = incoming ? (t.amount || 0) : cashEffect(t);
-          return (
+            // HANDOFF 2026-08-11: a row is either the BROKER'S fact or YOURS, and the list has to say
+            // which. A broker row cannot be edited — the next sync would overwrite it — so it says
+            // where it came from and offers nothing. A row you typed is yours to correct, so it wears
+            // "you entered this" and a pencil. Before this they looked identical, which meant a typo
+            // you made was indistinguishable from the broker's own record and equally unfixable.
+            const mine = t.source !== 'connected';
+            const from = mine ? 'you entered this' : `from ${account.institution?.trim() || 'your broker'}`;
+            return (
             <View key={String(t.id)} style={s.txnRow} accessible
-              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${spokenMoney(Math.abs(eff))}`}>
+              accessibilityLabel={`${t.date}: ${txnLabel(t.type)}${t.ticker ? ` ${t.ticker}` : ''}, ${eff < 0 ? 'minus ' : 'plus '}${spokenMoney(Math.abs(eff))}. ${mine ? 'You entered this — editable.' : `${from}, read-only.`}`}>
               <Text style={s.txnDate}>{String(t.date).slice(5)}</Text>
-              <Text style={s.txnLabel} numberOfLines={1}>
-                {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
-              </Text>
+              <View style={{ flex: 1 }}>
+                <Text style={s.txnLabel} numberOfLines={1}>
+                  {txnLabel(t.type)}{t.ticker ? ` ${t.ticker}` : ''}{t.shares ? ` · ${t.shares} sh${t.price ? ` @ ${maskedMoney(t.price)}` : ''}` : ''}
+                </Text>
+                <Text style={mine ? s.txnMine : s.txnFrom}>{from}</Text>
+              </View>
               <Text style={[s.txnAmt, { color: eff >= 0 ? Colors.gainText : Colors.textPrimary }]}>
                 {eff >= 0 ? '+' : '−'}{maskedMoney(Math.abs(eff))}
               </Text>
+              {mine ? (
+                <Text style={s.txnEdit} onPress={() => setEditRow(t)} suppressHighlighting
+                  accessibilityRole="button" accessibilityLabel={`Edit or delete your ${txnLabel(t.type).toLowerCase()} of ${spokenMoney(Math.abs(eff))}`}>✎</Text>
+              ) : <Text style={s.txnEditGap} />}
             </View>
           );
         })}
@@ -387,6 +402,7 @@ export default function AccountDetailScreen() {
       </View>
 
       <RecordActivitySheet account={account} action={action} onClose={() => setAction(null)} />
+      <EditRecordSheet row={editRow} onClose={() => setEditRow(null)} />
       <UpdateValueSheet account={account} visible={valueSheet} onClose={() => setValueSheet(false)} />
       <View style={{ height: 40 }} />
     </ScrollView>
@@ -661,6 +677,10 @@ const s = StyleSheet.create({
   actionTxt: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
   link: { fontSize: 15, fontWeight: '700', color: Colors.primary, marginTop: 4, paddingVertical: 12, minHeight: 44, textAlignVertical: 'center' },
   txnRow: { flexDirection: 'row', alignItems: 'center', gap: 8, paddingVertical: 8, minHeight: 40 },
+  txnMine: { fontSize: 11, fontWeight: '700', color: Colors.primaryDark, marginTop: 1 },
+  txnFrom: { fontSize: 11, color: Colors.textTertiary, marginTop: 1 },
+  txnEdit: { fontSize: 15, color: Colors.primaryDark, fontWeight: '800', paddingHorizontal: 8, paddingVertical: 6 },
+  txnEditGap: { width: 31 },
   txnDate: { width: 46, fontSize: 13, fontWeight: '700', color: Colors.textTertiary },
   txnLabel: { flex: 1, fontSize: 15, color: Colors.textPrimary },
   txnAmt: { fontSize: 15, fontWeight: '700', fontVariant: ['tabular-nums'] },
@@ -696,4 +716,74 @@ const s = StyleSheet.create({
   ttmInput: { borderWidth: 1, borderColor: Colors.border, borderRadius: Radii.md, paddingHorizontal: 10, paddingVertical: 8, fontSize: 15, color: Colors.textPrimary, minWidth: 80, backgroundColor: Colors.bgSecondary },
   ttmSave: { backgroundColor: Colors.primary, borderRadius: Radii.md, paddingHorizontal: 14, minHeight: 40, justifyContent: 'center' },
   ttmSaveTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },
+});
+
+// ── EDIT A RECORD YOU ENTERED (handoff 2026-08-11) ─────────────────────────────────────────────
+// Only rows the person typed reach this sheet — a broker row is the broker's own fact and the next
+// sync would overwrite any change, so it is never editable. A correction is applied as a REVERSAL
+// plus a fresh record, through the one transactions engine, so the account's balance moves by the
+// same tested rules as every other change rather than being patched behind the ledger's back.
+function EditRecordSheet({ row, onClose }: { row: Transaction | null; onClose: () => void }) {
+  const store = useStore() as any;
+  const [amount, setAmount] = useState('');
+  React.useEffect(() => { if (row) setAmount(String(Math.abs(Number(row.amount) || 0))); }, [row?.id]);
+  if (!row) return null;
+  const n = parseFloat(String(amount).replace(/[^0-9.]/g, ''));
+  const valid = Number.isFinite(n) && n > 0;
+
+  const save = () => {
+    if (!valid) return;
+    const { id, created_at, ...rest } = row as any;
+    if (store.deleteTransaction?.(row.id) === false) {
+      Alert.alert('This one can’t be changed', 'It is an older record the ledger cannot reverse. You can add a correcting entry instead.');
+      onClose(); return;
+    }
+    store.recordTransaction?.({ ...rest, amount: n });
+    onClose();
+  };
+  const remove = () => {
+    if (store.deleteTransaction?.(row.id) === false) {
+      Alert.alert('This one can’t be deleted', 'It is an older record the ledger cannot reverse.');
+    }
+    onClose();
+  };
+
+  return (
+    <Modal visible transparent animationType={modalAnimation()} onRequestClose={onClose}>
+      <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={sh.backdrop} activeOpacity={1} onPress={onClose}>
+        <View style={sh.sheet} onStartShouldSetResponder={() => true}>
+          <View style={sh.grip} />
+          <Text style={sh.title}>{txnLabel(row.type)} — you entered this</Text>
+          <Text style={sh.note}>{String(row.date)} · correcting it reverses the old amount and records the new one, so your balance stays right.</Text>
+          <View style={sh.amtRow}>
+            <Text style={sh.amtPrefix}>{currencySymbol()}</Text>
+            <TextInput style={sh.amtInput} keyboardType="decimal-pad" value={amount} onChangeText={setAmount}
+              autoFocus accessibilityLabel="Amount" />
+          </View>
+          <TouchableOpacity accessibilityRole="button" style={[sh.saveBtn, !valid && { opacity: 0.5 }]} disabled={!valid}
+            onPress={save} accessibilityLabel="Save this correction">
+            <Text style={sh.saveTxt}>Save</Text>
+          </TouchableOpacity>
+          <TouchableOpacity accessibilityRole="button" onPress={remove} accessibilityLabel="Delete this record">
+            <Text style={sh.deleteLink}>Delete this record</Text>
+          </TouchableOpacity>
+        </View>
+      </TouchableOpacity>
+    </Modal>
+  );
+}
+
+const sh = StyleSheet.create({
+  backdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
+  sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
+  grip: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
+  title: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  note: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
+  amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: 6, marginTop: Spacing.md },
+  amtPrefix: { fontSize: 24, fontWeight: '800', color: Colors.textSecondary },
+  amtInput: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, minWidth: 140, textAlign: 'center',
+    borderBottomWidth: 2, borderBottomColor: Colors.primaryDeep, paddingVertical: 6, minHeight: 48 },
+  saveBtn: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.lg },
+  saveTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
+  deleteLink: { fontSize: 15, fontWeight: '700', color: Colors.red, textAlign: 'center', marginTop: Spacing.md, minHeight: 44, paddingTop: 12 },
 });
