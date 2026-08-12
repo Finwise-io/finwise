@@ -395,3 +395,47 @@ test('a NEGATIVE leftover is a pricing artifact — it never becomes negative ca
   expect(b.stocks_etf).toBe(100000);   // the artifact is absorbed where it came from
   expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(100000);
 });
+
+// ── A DEPOSIT LANDS AS CASH, AND SAYS SO ───────────────────────────────────────────────────────
+test('a deposit into a holdings account becomes CASH in that account — not an unexplained total', () => {
+  const { applyTransaction } = require('../domain/transactions');
+  // exactly the founder's account: itemised holdings, the broker never sent a cash figure
+  const before = [{
+    asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage',
+    tax_bucket: 'TAXABLE', balance: 224190, target_return: 0.05, source: 'connected',
+    positions: [{ position_id: 'p1', ticker: 'CD1', name: 'ALLY CD', asset_class: 'bond', last_price: 1, lots: [{ shares: 224190, cost_per_share: 1 }] }],
+  }] as any;
+  const after = applyTransaction(before, { id: 't', account_id: 'van', type: 'DEPOSIT', amount: 500, date: '2026-08-11' } as any);
+  const a = after[0];
+  expect(a.cash_balance).toBe(500);        // the money has a NAME now — it is cash
+  expect(a.balance).toBe(224690);          // and the account is worth $500 more, as it must be
+  // and the classification explains the whole total, with nothing left to infer
+  const { accountClassBreakdown } = require('../domain/assets');
+  const b = accountClassBreakdown(a)!;
+  expect(b.cash).toBe(500);
+  expect(b.bonds).toBe(224190);            // the CDs did NOT grow — this was the founder's question
+  expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(224690);
+});
+
+test('a plain account with no holdings still just grows by the deposit', () => {
+  const { applyTransaction } = require('../domain/transactions');
+  const before = [{ asset_id: 'sav', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 1000, target_return: 0 }] as any;
+  const after = applyTransaction(before, { id: 't', account_id: 'sav', type: 'DEPOSIT', amount: 500, date: '2026-08-11' } as any);
+  expect(after[0].balance).toBe(1500);
+  expect(after[0].cash_balance).toBeUndefined();   // no sleeve invented where there is nothing to itemise
+});
+
+test('the deposit sheet says where the money lands, so nothing is decided silently', () => {
+  useStore.setState({
+    assetAccounts: [{
+      asset_id: 'van', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE',
+      balance: 224190, target_return: 0.05, source: 'connected', last_synced: new Date().toISOString(),
+      positions: [{ position_id: 'p1', ticker: 'CD1', name: 'ALLY CD', asset_class: 'bond', last_price: 1, lots: [{ shares: 224190, cost_per_share: 1 }] }],
+    }],
+  } as any);
+  mockParams = { id: 'van' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  fireEvent.press(screen.getByLabelText(/Record a deposit/));
+  expect(screen.getByText(/Lands as cash in this account/)).toBeOnTheScreen();
+});

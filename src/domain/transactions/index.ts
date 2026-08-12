@@ -57,9 +57,25 @@ const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket 
   && (a.derive_balance === true || a.cash_balance != null);
 const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0) : (a.balance || 0));
 function bumpCash(a: AssetAccount, delta: number): AssetAccount {
-  return usesSleeve(a)
-    ? { ...a, cash_balance: round2((a.cash_balance || 0) + delta) }
-    : { ...a, balance: round2((a.balance || 0) + delta) };
+  if (usesSleeve(a)) return { ...a, cash_balance: round2((a.cash_balance || 0) + delta) };
+  // FOUNDER FINDING 2026-08-11 ("$500 is what I added manually as a deposit — it never asked if it
+  // was cash or something else"): an account that ITEMISES its holdings but whose broker never sent
+  // a cash figure had no sleeve, so a deposit only inflated the total. The holdings could then no
+  // longer explain the total, and the unexplained difference was inferred elsewhere — which is how
+  // $500 of deposited money ended up counted as more CDs.
+  //
+  // Money arriving in an investment account IS settlement cash — that is what happens at the broker,
+  // and it is why we never need to ask: it sits as cash until a purchase moves it into a holding.
+  // So open the sleeve and put it there, and raise the stated total by the same amount.
+  const itemised = (a.positions?.length ?? 0) > 0 && a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY';
+  if (itemised) {
+    return {
+      ...a,
+      cash_balance: round2((a.cash_balance || 0) + delta),
+      balance: round2((a.balance || 0) + delta),
+    };
+  }
+  return { ...a, balance: round2((a.balance || 0) + delta) };
 }
 const findPos = (a: AssetAccount, t: Transaction) =>
   (a.positions ?? []).find((p) => (t.position_id && p.position_id === t.position_id) || (t.ticker && p.ticker === t.ticker?.toUpperCase()));

@@ -532,6 +532,15 @@ function RecordActivitySheet({ account, action, onClose }: { account: AssetAccou
         <View style={s.sheet} onStartShouldSetResponder={() => true}>
           <View style={s.handle} />
           <Text style={s.sheetTitle}>{action ? ACTION_LABEL[action] : ''} — {account.label}</Text>
+          {/* Founder finding 2026-08-11: a deposit never said where the money went, so it looked as
+              though the app had silently decided. It has not decided anything — money arriving in an
+              investment account IS settlement cash until a purchase moves it. Say that. */}
+          {action === 'DEPOSIT' && (account.positions?.length ?? 0) > 0 && (
+            <Text style={s.sheetNote}>Lands as cash in this account. When you invest it, record the purchase and it moves into that holding.</Text>
+          )}
+          {action === 'WITHDRAWAL' && (account.positions?.length ?? 0) > 0 && (
+            <Text style={s.sheetNote}>Comes out of the cash in this account — sell a holding first if there isn't enough.</Text>
+          )}
           <View style={s.amtRow}>
             <Text style={s.amtPrefix}>{currencySymbol()}</Text>
             <TextInput style={s.amtInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
@@ -664,6 +673,7 @@ const s = StyleSheet.create({
   sheet: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 32 },
   handle: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },
   sheetTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center' },
+  sheetNote: { fontSize: 13, color: Colors.textSecondary, textAlign: 'center', marginTop: 6, lineHeight: 18 },
   amtRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   amtPrefix: { fontSize: 30, fontWeight: '800', color: Colors.textSecondary },
   amtInput: { fontSize: 38, fontWeight: '800', color: Colors.textPrimary, minWidth: 80, textAlign: 'center', padding: 0 },
