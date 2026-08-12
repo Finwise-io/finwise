@@ -14,6 +14,18 @@ export function lensChanceWord(lens: 'retired' | string, chance: number): string
   return chance >= 80 ? 'Likely' : chance >= 60 ? 'Uncertain' : 'Unlikely';
 }
 
+/** THE ONE way the odds are said, anywhere they are said (founder rule 2026-08-11: "we should have
+ *  the same language on Home, NW and Plan"). Three screens had three phrasings for one number —
+ *  "78% odds of lasting to age 90", "84 in 100 paths last to 90", and a bare "Uncertain". One helper
+ *  now, so a fourth phrasing cannot appear. */
+export function oddsLine(lens: 'retired' | string, chance: number, horizonAge: number): string {
+  return `${lensChanceWord(lens, chance)} — ${chance}% odds of lasting to age ${horizonAge}`;
+}
+/** The same sentence for the app-wide SAMPLE, always labelled as one. */
+export function sampleOddsLine(horizonAge: number = SAMPLE_HORIZON): string {
+  return `Sample: ${SAMPLE_CHANCE}% odds of lasting to age ${horizonAge}`;
+}
+
 // ── the dynamic door ──────────────────────────────────────────────────────────
 export interface PlanDoor {
   missing: ('your age' | 'what you spend' | 'what you have' | 'what counts toward retirement')[];

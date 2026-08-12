@@ -9,6 +9,7 @@ import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, RefreshCon
 import Svg, { Path } from 'react-native-svg';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { Colors, Spacing, Radii, GaugeRamp } from '../utils/theme';
 import { money, round2 } from '../domain/_shared/num';
 import { buildSnapshot, resolveNetWorthRows } from '../domain/snapshot';
@@ -401,7 +402,7 @@ export default function HomeScreen() {
           <SectionBand inCard title="WILL MY MONEY LAST?" />
           {wil.chance != null ? (
             <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' }}>
-              <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}% odds of lasting to age {wil.horizonAge} <Text style={styles.wilEst}>— estimate</Text></Text>
+              <Text style={styles.wilTxt}>{oddsLine(resolveLens(op ?? {}, store.lensOverride), wil.chance, wil.horizonAge)} <Text style={styles.wilEst}>— estimate</Text></Text>
               <InfoDot term="estimate" />
             </View>
           ) : (
@@ -418,7 +419,7 @@ export default function HomeScreen() {
               </View>
               <View style={{ flex: 1 }}>
                 <View style={styles.gaugeLine}>
-                  <Text style={styles.gaugeBlank}><Text style={styles.gaugeSampleNum}>Sample: 84%</Text> odds of lasting to age {wil.horizonAge}</Text>
+                  <Text style={styles.gaugeBlank}><Text style={styles.gaugeSampleNum}>{sampleOddsLine(wil.horizonAge)}</Text></Text>
                 </View>
                 <Text style={styles.wilInvite}>3 quick answers unlock your real number</Text>
               </View>

@@ -84,7 +84,7 @@ test('first day: locked sample gauge + the dynamic door counting ONLY missing an
     assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 162000 }],
   } as any);
   render(<PlanHubScreen />);
-  expect(screen.getByText(/Sample: Likely — 84 in 100/)).toBeOnTheScreen();
+  expect(screen.getByText(/Sample: 84% odds of lasting to age \d+/)).toBeOnTheScreen();
   expect(screen.getByText(/1 answer left/)).toBeOnTheScreen();                       // only spending missing
   expect(screen.getByText('what you spend')).toBeOnTheScreen();
   expect(screen.getByText(/What you have — already in: 1 account, \$162,000 counted/)).toBeOnTheScreen();

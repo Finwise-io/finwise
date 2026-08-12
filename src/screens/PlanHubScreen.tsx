@@ -20,7 +20,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
 import { SectionBand } from '../components/SectionBand';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
-import { lensChanceWord, onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand } from '../domain/planning/hub';
+import { lensChanceWord, onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 
@@ -124,7 +124,7 @@ export default function PlanHubScreen() {
           </View>
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
-              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${wil.chance} in 100 paths last to ${wil.horizonAge}`}
+              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}
               {wplan?.withdrawalRate != null ? ` — a ${(wplan.withdrawalRate * 100).toFixed(1)}%/yr withdrawal, ${wplan.rateBand === 'safe' ? 'within the safe range' : wplan.rateBand === 'moderate' ? 'a bit above the 4% guideline — watch it' : 'above 5% — high risk of running short'}` : ''}.
             </Text>
           ) : (
@@ -146,7 +146,7 @@ export default function PlanHubScreen() {
               accessibilityLabel={`Sample gauge: ${lens === 'retired' ? 'Holding, 88' : 'Likely, 84'} in 100 — a sample, not your number.`}>
               <GaugeArc locked />
               <Text style={styles.sampleTxt}>
-                <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>Sample: {lens === 'retired' ? 'Holding — 88 in 100' : 'Likely — 84 in 100'}</Text> paths last through age {wil.horizonAge}.{'\n'}
+                <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{sampleOddsLine(wil.horizonAge)}</Text>{'\n'}
                 <Text style={{ color: Colors.textTertiary }}>A sample — {door.count < 3 ? `yours needs ${door.count} more answer${door.count === 1 ? '' : 's'}` : 'not your number'}.</Text>
               </Text>
             </View>

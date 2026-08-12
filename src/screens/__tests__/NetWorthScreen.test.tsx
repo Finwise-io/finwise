@@ -26,7 +26,8 @@ describe('NetWorthScreen first-run intro', () => {
     expect(screen.getByText('💵 CASH')).toBeOnTheScreen();
     expect(screen.getByText('📈 INVESTMENTS')).toBeOnTheScreen();
     expect(screen.getByText('🏠 PERSONAL PROPERTY')).toBeOnTheScreen();
-    expect(screen.getByText('Sample: 84%')).toBeOnTheScreen();                 // identical to Home's
+    // FOUNDER RULE 2026-08-11: ONE wording everywhere — Home, Net worth and Plan all say it this way
+    expect(screen.getByText('Sample: 84% odds of lasting to age 90')).toBeOnTheScreen();
     expect(screen.getByText(/a sample, not your number/)).toBeOnTheScreen();
     expect(screen.getByText('EMERGENCY CUSHION')).toBeOnTheScreen();
     expect(screen.getByText('— months')).toBeOnTheScreen();

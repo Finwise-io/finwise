@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
-import { onCourseSentence, lensChanceWord, shortfallAgeFromBand, planDoor, sampleAskLine, SAMPLE_CHANCE, SAMPLE_HORIZON } from '../domain/planning/hub';
+import { onCourseSentence, lensChanceWord, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
@@ -258,7 +258,8 @@ export default function NetWorthScreen() {
   // the retirement line: the SAME engine + the SAME approved words as the Plan hub
   const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
   const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
-  const nwWord = nwWil.chance != null ? lensChanceWord(resolveLens(op ?? {}, store.lensOverride), nwWil.chance) : '';
+  const nwLens = resolveLens(op ?? {}, store.lensOverride);
+  const nwWord = nwWil.chance != null ? lensChanceWord(nwLens, nwWil.chance) : '';
   // which of the three answers are still missing (age · what you spend · what you have)
   const nwDoor = planDoor(op, assets);
   const nwOnCourse = onCourseSentence({
@@ -518,9 +519,7 @@ export default function NetWorthScreen() {
         <View style={styles.heroBlock}>
           <SectionBand title="YOUR RETIREMENT PLAN" />
           <View style={styles.blockBody}>
-            <Text style={styles.sampleLine}>
-              <Text style={styles.sampleNum}>Sample: 84%</Text> odds of lasting to age 90
-            </Text>
+            <Text style={styles.sampleLine}><Text style={styles.sampleNum}>{sampleOddsLine()}</Text></Text>
             <Text style={styles.rowSub}>a sample, not your number — 3 answers make it yours</Text>
           </View>
         </View>
@@ -736,9 +735,7 @@ export default function NetWorthScreen() {
               of them or all three. A bare "See your plan ›" told the person nothing about why. */}
           {!nwOnCourse && nwDoor.count > 0 && (
             <View style={styles.blockBody}>
-              <Text style={styles.sampleLine}>
-                <Text style={styles.sampleNum}>Sample: {SAMPLE_CHANCE}%</Text> odds of lasting to age {SAMPLE_HORIZON}
-              </Text>
+              <Text style={styles.sampleLine}><Text style={styles.sampleNum}>{sampleOddsLine()}</Text></Text>
               {/* Founder finding 2026-08-11: this line NAMES one missing answer, so it must land on
                   that answer — not on the Plan hub, and not on the seven-item completeness list two
                   hops further on. Same rule the fix-it sheet already holds itself to. */}
@@ -756,7 +753,7 @@ export default function NetWorthScreen() {
                   showing the verdict WORD with no number beside it — Home says "78% odds", the Plan
                   hub says "84 in 100". A bare adjective is not a verdict. The number travels with it. */}
               {nwOnCourse
-                ? <Text><Text style={{ fontWeight: '800' }}>{nwWord} — {nwWil.chance} in 100</Text> · {nwOnCourse} ›</Text>
+                ? <Text><Text style={{ fontWeight: '800' }}>{oddsLine(nwLens, nwWil.chance!, nwWil.horizonAge)}</Text> · {nwOnCourse} ›</Text>
                 : 'See your plan ›'}
             </Text>)}
             <InfoDot term="nestEggMath" />

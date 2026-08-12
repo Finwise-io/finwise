@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ActivityIndicator, Modal,
-  ViewStyle, TextStyle, Animated,
+  ViewStyle, TextStyle, Animated, ScrollView,
 } from 'react-native';
 import { Colors, Typography, Spacing, Radii, Shadows } from '../utils/theme';
 import { formatMoney } from '../domain/_shared/money';
@@ -181,7 +181,14 @@ export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string })
         <TouchableOpacity style={styles.infoBackdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.infoCard} onStartShouldSetResponder={() => true}>
             <Text style={styles.infoTitle}>{def.title}</Text>
-            <Text style={styles.infoBody}>{def.body}</Text>
+            {/* FOUNDER FINDING 2026-08-11: a long definition ran off the bottom with no way to reach
+                it — the retirement explanation is several screens long and everything past the fold
+                was simply unreadable. The body scrolls now, capped so the card never fills the
+                screen, and the Got-it button stays put below it instead of scrolling away. */}
+            <ScrollView style={styles.infoScroll} contentContainerStyle={{ paddingBottom: 4 }}
+              showsVerticalScrollIndicator persistentScrollbar>
+              <Text style={styles.infoBody}>{def.body}</Text>
+            </ScrollView>
             <TouchableOpacity style={styles.infoClose} onPress={() => setOpen(false)} accessibilityRole="button" accessibilityLabel="Close definition">
               <Text style={styles.infoCloseTxt}>Got it</Text>
             </TouchableOpacity>
@@ -215,6 +222,7 @@ export function EmptyState({ icon, title, subtitle }: { icon: string; title: str
 // ── Styles ────────────────────────────────────────────────────────────
 const styles = StyleSheet.create({
   infoBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.45)', justifyContent: 'center', padding: Spacing.lg },
+  infoScroll: { maxHeight: '70%' },
   infoCard: { backgroundColor: Colors.bgSecondary, borderRadius: Radii.lg, padding: Spacing.lg },
   infoTitle: { fontSize: 17, fontWeight: '800', color: Colors.textPrimary, marginBottom: 6 },
   infoBody: { fontSize: 15, lineHeight: 20, color: Colors.textSecondary },

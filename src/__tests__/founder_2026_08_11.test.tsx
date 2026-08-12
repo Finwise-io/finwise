@@ -647,7 +647,9 @@ test('the door credits what actually COUNTS, not every balance on file', () => {
 });
 
 // ── THE VERDICT WORD CARRIES ITS NUMBER (founder question 2026-08-11: "what does uncertain mean?") ─
-test('the Net worth verdict shows the NUMBER beside the word — a bare adjective is not a verdict', () => {
+// FOUNDER RULE 2026-08-11: one wording on all three screens —
+// "<word> — xx% odds of lasting to age abc"
+test('the Net worth verdict shows the NUMBER beside the word, in the ONE app-wide wording', () => {
   const yr = new Date().getFullYear();
   useStore.setState({
     nwSeeded: true, nwSetupChoice: 'self', onboardingComplete: true,
@@ -659,7 +661,7 @@ test('the Net worth verdict shows the NUMBER beside the word — a bare adjectiv
   mockParams = {};
   const NW = require('../screens/NetWorthScreen').default;
   render(<NW />);
-  expect(screen.getByText(/(Likely|Uncertain|Unlikely) — \d+ in 100/)).toBeOnTheScreen();
+  expect(screen.getByText(/(Likely|Uncertain|Unlikely) — \d+% odds of lasting to age \d+/)).toBeOnTheScreen();
 });
 
 test('the words are defined where the question gets asked, including the apparent contradiction', () => {
@@ -673,4 +675,38 @@ test('the words are defined where the question gets asked, including the apparen
   expect(body).toMatch(/WHY "UNCERTAIN" CAN SIT NEXT TO MONEY TO SPARE/);
   expect(body).toMatch(/MIDDLE future/);
   expect(body).toMatch(/22 runs out of 100 the money still ran out/);
+});
+
+// ── ONE WORDING FOR THE ODDS, EVERYWHERE (founder rule 2026-08-11) ─────────────────────────────
+test('Home, Net worth and Plan say the odds in the SAME words, from one helper', () => {
+  const { oddsLine, sampleOddsLine } = require('../domain/planning/hub');
+  expect(oddsLine('preretired', 78, 90)).toBe('Uncertain — 78% odds of lasting to age 90');
+  expect(oddsLine('preretired', 84, 92)).toBe('Likely — 84% odds of lasting to age 92');
+  expect(oddsLine('retired', 45, 95)).toBe('Running short — 45% odds of lasting to age 95');
+  expect(sampleOddsLine()).toBe('Sample: 84% odds of lasting to age 90');
+  expect(sampleOddsLine(92)).toBe('Sample: 84% odds of lasting to age 92');
+  // and no screen builds the sentence by hand any more — the old phrasings are gone for good
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/PlanHubScreen.tsx']) {
+    expect(read(f)).toMatch(/oddsLine\(|sampleOddsLine\(/);
+    expect(read(f)).not.toMatch(/in 100 paths/);
+    expect(read(f)).not.toMatch(/% odds of lasting to age \{/);   // no hand-built copy of the sentence
+  }
+});
+
+// ── A LONG DEFINITION MUST BE READABLE (founder finding 2026-08-11) ────────────────────────────
+test('the info dot scrolls — a definition longer than the card is no longer unreachable', () => {
+  const { InfoDot } = require('../components/UI');
+  const { GLOSSARY } = require('../domain/glossary');
+  const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
+  render(<InfoDot term="nestEggMath" />);
+  fireEvent.press(screen.getByLabelText('What is How we work out your odds?'));
+  // the body sits in a scroller that is capped, so the Got-it button can never be pushed off-screen
+  const scrollers = screen.UNSAFE_getAllByType(require('react-native').ScrollView);
+  expect(scrollers.length).toBeGreaterThan(0);
+  expect(flat(scrollers[0]).maxHeight).toBe('70%');
+  expect(screen.getByText('Got it')).toBeOnTheScreen();
+  // and the definition really is longer than a phone card — this is why it needed to scroll
+  expect(GLOSSARY.nestEggMath.body.length).toBeGreaterThan(2000);
 });
