@@ -16,7 +16,7 @@ import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { currencySymbol } from '../domain/_shared/money';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { planDoor, lensChanceWord, onCourseSentence, shortfallAgeFromBand, SAMPLE_CHANCE, SAMPLE_HORIZON } from '../domain/planning/hub';
+import { planDoor, oddsLine, onCourseSentence, shortfallAgeFromBand, SAMPLE_CHANCE, SAMPLE_HORIZON } from '../domain/planning/hub';
 import { earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, accountDisplayNames, type AssetAccount } from '../domain/assets';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
@@ -177,7 +177,9 @@ export default function PlanAnswersScreen() {
         <SectionBand inCard title="YOUR ODDS" />
         {wil.captured && wil.chance != null ? (
           <Text style={s.odds}>
-            <Text style={s.oddsWord}>{lensChanceWord(lens, wil.chance)} — {wil.chance} in 100</Text>
+            {/* ONE wording, everywhere (founder rule 2026-08-11) — the same sentence Home, Net worth
+                and the Plan hub speak, so the answer screen never re-words the verdict it just re-ran */}
+            <Text style={s.oddsWord}>{oddsLine(lens, wil.chance, wil.horizonAge)}</Text>
             {sentence ? <Text style={s.oddsRest}>{'\n'}{sentence}</Text> : null}
           </Text>
         ) : (
