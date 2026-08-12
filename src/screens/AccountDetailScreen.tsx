@@ -361,7 +361,7 @@ export default function AccountDetailScreen() {
       )}
 
       {/* activity history — the ledger, in plain words with signed effects */}
-      <SectionBand title="ACTIVITY" />
+      <SectionBand title="ACTIVITY" value={txns.length ? `${txns.length} record${txns.length === 1 ? '' : 's'}` : undefined} />
       <View style={s.card}>
         {txns.length === 0 && <Text style={s.empty}>Log a deposit or a buy — your history starts here.</Text>}
         {shown.map((t) => {
@@ -394,11 +394,22 @@ export default function AccountDetailScreen() {
             </View>
           );
         })}
-        {txns.length > 8 && !showAll && (
-          <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)} accessibilityLabel="See all activity">
-            <Text style={s.link}>See all activity ({txns.length}) ›</Text>
-          </TouchableOpacity>
-        )}
+        {/* HANDOFF 2026-08-11: the door names the DATE the list stops at, not just a count. "10 more"
+            tells you nothing about whether the missing rows are last week or four years ago — and
+            this list is what someone checks when a total looks wrong, so the boundary is the fact
+            that matters. The rows are newest-first, so the cut is the date of the last one shown. */}
+        {txns.length > 8 && !showAll && (() => {
+          const cut = String(shown[shown.length - 1]?.date ?? '');
+          const when = cut ? new Date(`${cut}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }) : '';
+          const hidden = txns.length - shown.length;
+          return (
+            <TouchableOpacity accessibilityRole="button" onPress={() => setShowAll(true)}
+              accessibilityLabel={`See all activity — ${hidden} more record${hidden === 1 ? '' : 's'}${when ? `, older than ${when}` : ''}`}>
+              <Text style={s.link}>See all activity{when ? ` (older than ${when})` : ''} ›</Text>
+              <Text style={s.txnFrom}>{hidden} more record{hidden === 1 ? '' : 's'} below this date</Text>
+            </TouchableOpacity>
+          );
+        })()}
       </View>
 
       <RecordActivitySheet account={account} action={action} onClose={() => setAction(null)} />

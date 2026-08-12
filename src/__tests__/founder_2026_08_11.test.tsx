@@ -783,3 +783,22 @@ test('correcting your record reverses the old amount and records the new one —
   expect(rows).toHaveLength(1);
   expect(rows[0].amount).toBe(500);
 });
+
+test('the activity door names the DATE the list stops at, not just how many rows are hidden', () => {
+  const many = Array.from({ length: 14 }, (_, i) => ({
+    id: `t${i}`, account_id: 'van', type: 'DEPOSIT', amount: 100,
+    date: `2026-0${(i % 8) + 1}-0${(i % 9) + 1}`,
+  }));
+  useStore.setState({
+    assetAccounts: [{ asset_id: 'van', label: 'Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 10000, target_return: 0 }],
+    transactions: many,
+  } as any);
+  mockParams = { id: 'van' };
+  const AccountDetailScreen = require('../screens/AccountDetailScreen').default;
+  render(<AccountDetailScreen />);
+  expect(screen.getByText('14 records')).toBeOnTheScreen();          // the header carries the count
+  expect(screen.getByText(/See all activity \(older than \w{3} \d+, \d{4}\)/)).toBeOnTheScreen();
+  expect(screen.getByText(/6 more records below this date/)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(/See all activity — 6 more records, older than/));
+  expect(screen.queryByText(/See all activity/)).toBeNull();         // expanded → the door is spent
+});
