@@ -1,5 +1,5 @@
 // Plan-hub selectors (founder-approved mock v9, 2026-08-01). Three small pure engines:
-//   lensChanceWord — the verdict word in each lens's voice (word pairs the number; color never alone)
+//   oddsLine       — THE one sentence for the odds, everywhere they are said
 //   planDoor       — the DYNAMIC first-day door: counts ONLY the missing answers, credits live accounts
 //   nextDecision   — the ONE amber card: the single most urgent dated decision, absent when none is
 import type { AssetAccount } from '../assets';
@@ -7,19 +7,19 @@ import { retirementEarmarkedValue } from '../assets';
 import { RMD_START_AGE, rmdAtAge, rmdTakenThisYear } from '../decumulation';
 import { round2 } from '../_shared/num';
 
-/** Working asks "will it last?" → Likely/Uncertain/Unlikely. Retired asks "is it lasting?" →
- *  the same thresholds in the present tense. One mapping, so screens can't invent words. */
-export function lensChanceWord(lens: 'retired' | string, chance: number): string {
-  if (lens === 'retired') return chance >= 80 ? 'Holding' : chance >= 60 ? 'Watch closely' : 'Running short';
-  return chance >= 80 ? 'Likely' : chance >= 60 ? 'Uncertain' : 'Unlikely';
-}
-
 /** THE ONE way the odds are said, anywhere they are said (founder rule 2026-08-11: "we should have
  *  the same language on Home, NW and Plan"). Three screens had three phrasings for one number —
  *  "78% odds of lasting to age 90", "84 in 100 paths last to 90", and a bare "Uncertain". One helper
- *  now, so a fourth phrasing cannot appear. */
-export function oddsLine(lens: 'retired' | string, chance: number, horizonAge: number): string {
-  return `${lensChanceWord(lens, chance)} — ${chance}% odds of lasting to age ${horizonAge}`;
+ *  now, so a fourth phrasing cannot appear.
+ *
+ *  THE WORD IS GONE (founder ruling 2026-08-12): "uncertain and giving it 60% probability does not
+ *  make sense — it should be either or." A percentage IS the uncertainty; labelling it as well says
+ *  the same thing twice, and at 60% it hedges a hedge. The number speaks for itself. This also
+ *  retires the two rival word-sets (Likely/Uncertain/Unlikely and Holding/Watch closely/Running
+ *  short) that gave one person two different verdicts on two screens. The LENS still decides the
+ *  question asked around it — "will my money last" vs "is my money lasting" — never the verdict. */
+export function oddsLine(_lens: 'retired' | string, chance: number, horizonAge: number): string {
+  return `${chance}% odds of lasting to age ${horizonAge}`;
 }
 /** The same sentence for the app-wide SAMPLE, always labelled as one. */
 export function sampleOddsLine(horizonAge: number = SAMPLE_HORIZON): string {

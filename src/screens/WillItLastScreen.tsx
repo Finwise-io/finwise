@@ -8,7 +8,7 @@ import { SectionBand } from '../components/SectionBand';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
-import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
+import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { maskedMoney } from '../components/useMoney';
 import { EstimateTag } from '../components/UI';
@@ -59,9 +59,9 @@ export default function WillItLastScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       {/* the headline — the one selector, the one number */}
       <View style={s.card} accessible
-        accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.word}, ${wil.chance} percent, an estimate${wil.band ? `. In the worst futures ${wil.band.low} percent, in the best ${wil.band.high} percent` : ''}.`}>
+        accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.chance} percent, an estimate${wil.band ? `. In the worst futures ${wil.band.low} percent, in the best ${wil.band.high} percent` : ''}.`}>
         <SectionBand title={`WILL MY MONEY LAST? — TO ${wil.horizonAge}`} />
-        <Text style={s.headline}>{wil.word} — {wil.chance}% <EstimateTag /></Text>
+        <Text style={s.headline}>{wil.chance}% <EstimateTag /></Text>
         {wil.band && <Text style={s.bandTxt}>range {wil.band.low}–{wil.band.high}% across bad-to-good markets</Text>}
       </View>
 

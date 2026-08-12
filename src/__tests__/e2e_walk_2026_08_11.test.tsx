@@ -184,7 +184,8 @@ test('C5 Net worth → answer the questions → the real odds come back in the o
   render(React.createElement(screens.NW()));
   noNonsense();
   expect(screen.queryByText(/Sample: 84%/)).toBeNull();
-  expect(screen.getByText(/(Likely|Uncertain|Unlikely) — \d+% odds of lasting to age \d+/)).toBeOnTheScreen();
+  expect(screen.getByText(/\d+% odds of lasting to age \d+/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/)).toBeNull();   // the verdict word is gone (founder 2026-08-12)
 });
 
 // ── C6 · SAMENESS: three surfaces, one sentence ────────────────────────────────────────────────
@@ -198,7 +199,7 @@ test('C6 Home, Net worth and the answers screen all speak the SAME odds sentence
     render(React.createElement(S));
     const line = visible().find((s) => /odds of lasting to age \d+/.test(s));
     expect(line).toBeDefined();
-    said.push(line!.replace(/^(Likely|Uncertain|Unlikely) — /, ''));
+    said.push(line!);
     screen.unmount();
   }
   expect(new Set(said).size).toBe(1);        // one wording, one number, all three places
@@ -362,8 +363,11 @@ test('E5 no age — the app says so and shows a labelled sample; it never prints
   noNonsense();
   expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   expect(screen.getByText(/add your age and it becomes yours/)).toBeOnTheScreen();
-  // no unlabelled verdict may appear beside the sample
-  expect(screen.queryByText(/(Likely|Uncertain|Unlikely) — \d+% odds/)).toBeNull();
+  // with the verdict word gone, the sample line and a real verdict read alike — so the pin is that
+  // EVERY odds sentence on this screen is the labelled sample, and none of them is presented as theirs
+  const odds = visible().filter((t) => /\d+% odds of lasting/.test(t));
+  expect(odds.length).toBeGreaterThan(0);
+  expect(odds.every((t) => /^Sample:/.test(t))).toBe(true);
 });
 
 // ── E6 · PAST THE PLAN: a 74-year-old whose "retire at 65" is already history ──────────────────

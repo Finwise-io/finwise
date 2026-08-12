@@ -28,11 +28,13 @@ const seedRetired = () => useStore.setState({
 
 beforeEach(() => { useStore.getState().resetAll(); });
 
-test('working verdict: the word + percent AND the if-clause that names THEIR plan', () => {
+test('working verdict: the percent AND the if-clause that names THEIR plan', () => {
   seedWorking();
   render(<PlanHubScreen />);
   expect(screen.getByText(/WILL MY MONEY LAST\? — to \d+/)).toBeOnTheScreen();
-  expect(screen.getByText(/(Likely|Uncertain|Unlikely)/)).toBeOnTheScreen();
+  // founder 2026-08-12: no verdict word — the number is the verdict
+  expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Likely|Uncertain|Unlikely/)).toBeNull();
   expect(screen.getByText(/…if you retire at 67, keep saving \$1,200\/mo, and spend \$4,500\/mo in retirement \(your planned spending — you set it\)/)).toBeOnTheScreen();
   expect(screen.getByText('What drives this? ›')).toBeOnTheScreen();
 });
@@ -50,11 +52,12 @@ test('working: the one next-decision card is the dated Social Security window; t
   expect(screen.getByText(/Try what-ifs — a sandbox/)).toBeOnTheScreen();
 });
 
-test('retired verdict: present-tense words, the spending frame, and the withdrawal pace', () => {
+test('retired verdict: the present-tense question, the spending frame, and the withdrawal pace', () => {
   seedRetired();
   render(<PlanHubScreen />);
   expect(screen.getByText(/IS MY MONEY LASTING\? — to \d+/)).toBeOnTheScreen();
-  expect(screen.getByText(/(Holding|Watch closely|Running short)/)).toBeOnTheScreen();
+  expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Holding|Watch closely|Running short/)).toBeNull();
   expect(screen.getByText(/Your \$4,500\/mo spending/)).toBeOnTheScreen();
 });
 

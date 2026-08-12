@@ -26,7 +26,7 @@ import { connectionFreshness } from '../services/sync';
 import { buildDebtState, requiredPayment } from '../domain/debt';
 import { buildNetWorth } from '../domain/networth';
 import { resolveLens } from '../domain/profile/lens';
-import { selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
+import { selectWillItLast } from '../domain/retirement/willItLast';
 import { milestoneCrossed, milestoneFloor, milestoneLabel } from '../domain/milestones';
 import { makeMonthlySnapshot, readHistory } from '../domain/history';
 import { useInsights } from './InsightsScreen';
@@ -397,7 +397,7 @@ export default function HomeScreen() {
           onPress={() => router.push((wil.chance != null ? '/(tabs)/plan' : '/plan-answers') as any)}
          
           accessibilityLabel={wil.chance != null
-            ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`
+            ? `Will my money last: ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`
             : `Will my money last: sample gauge, sample 84 percent odds of lasting to age ${wil.horizonAge}, not your number. Three quick answers show your real odds — questions, not a purchase. Opens Plan.`}>
           <SectionBand inCard title="WILL MY MONEY LAST?" />
           {wil.chance != null ? (

@@ -10,7 +10,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { weighGoals, trimHints, retireAgeWithContribution, type GoalDial } from '../domain/planning/multiGoal';
-import { willItLastInputs, selectWillItLast, chanceWord } from '../domain/retirement/willItLast';
+import { willItLastInputs, selectWillItLast } from '../domain/retirement/willItLast';
 import { monthlySavings } from '../domain/savings';
 import { requiredMonthly } from '../domain/goals';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -191,7 +191,8 @@ export default function MultiGoalScreen() {
             <Row label="Earliest retire age" value={`${beforeRetireAge} → ${weighed.retireAge}`} />
           )}
           <Row label="Will my money last?" value={`${before.chance}% → ${weighed.chance}%`} />
-          <Text style={s.hint}>{chanceWord(before.chance)} → {chanceWord(weighed.chance)} · estimate, not a promise</Text>
+          {/* the word row said the same thing twice; the numbers above are the whole story */}
+          <Text style={s.hint}>estimate, not a promise</Text>
         </View>
       )}
 

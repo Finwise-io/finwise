@@ -6,7 +6,6 @@ import React, { useMemo, useState } from 'react';
 import { View, Text, TouchableOpacity, StyleSheet, Alert } from 'react-native';
 import { Colors, Radii } from '../../src/utils/theme';
 import { simulate, RetirementInputs } from '../../src/domain/retirement';
-import { lensChanceWord } from '../../src/domain/planning/hub';
 import { maskedMoney } from '../../src/components/useMoney';
 import { useStore } from '../../src/store/useStore';
 
@@ -86,8 +85,8 @@ export function DesktopPlanSandbox({ lens, inputs, planChance }: {
           </View>
         </View>
       ))}
-      <View style={s.verdictRow} accessible accessibilityLabel={`Sandbox odds: ${lensChanceWord(lens, tryChance)}, ${tryChance} percent, an estimate. ${deltaLine}`}>
-        <Text style={s.word}>{lensChanceWord(lens, tryChance)}</Text>
+      <View style={s.verdictRow} accessible accessibilityLabel={`Sandbox odds: ${tryChance} percent, an estimate. ${deltaLine}`}>
+        <Text style={s.word}>{tryChance}%</Text>
         <Text style={s.pct}> — {tryChance}% · estimate</Text>
       </View>
       <Text style={s.deltaLine}>{deltaLine}</Text>

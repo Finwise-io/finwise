@@ -7,7 +7,7 @@ import { useStore } from '../store/useStore';
 import { SectionBand } from '../components/SectionBand';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
-import { onCourseSentence, lensChanceWord, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
+import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
@@ -259,7 +259,6 @@ export default function NetWorthScreen() {
   const nwWil = selectWillItLast({ op: op ?? {}, accounts: assets, assumptions: store.retirementAssumptions ?? {}, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true });
   const nwSim = nwWil.inputs ? simulate({ ...nwWil.inputs, with_band: true }) : null;
   const nwLens = resolveLens(op ?? {}, store.lensOverride);
-  const nwWord = nwWil.chance != null ? lensChanceWord(nwLens, nwWil.chance) : '';
   // which of the three answers are still missing (age · what you spend · what you have)
   const nwDoor = planDoor(op, assets);
   const nwOnCourse = onCourseSentence({

@@ -17,7 +17,7 @@ import { retirementIncomeMonthly, salaryGrossByMonth, monthlyTaxRates } from '..
 import { rsuAnnual, rentalNetAnnual } from '../domain/income/onboarding';   // pre-48 A3: canonical source totals
 import { taxBucketSplit, withdrawalOrder } from '../domain/decumulation';
 import { simulate } from '../domain/retirement';
-import { selectWillItLast, willItLastInputs, chanceWord } from '../domain/retirement/willItLast';
+import { selectWillItLast, willItLastInputs } from '../domain/retirement/willItLast';
 import { DrawSteerSheet } from '../components/DrawSteerSheet';
 import { buildPaycheckYear } from '../domain/paycheck';
 import { resolveNetWorthRows } from '../domain/snapshot';
@@ -160,10 +160,10 @@ export default function CashFlowScreen() {
 
       {/* will-it-last strip — mirrors Plan, never a second computation */}
       <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
-        accessibilityLabel={wil.chance != null ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
+        accessibilityLabel={wil.chance != null ? `Will my money last: ${wil.chance} percent, an estimate. Lives in your Plan.` : 'See your odds in Plan'}>
         <SectionBand inCard inset={16} title="WILL MY MONEY LAST?" />
         {wil.chance != null
-          ? <Text style={styles.wilTxt}>{chanceWord(wil.chance)} — {wil.chance}%{wil.band ? ` (range ${wil.band.low}–${wil.band.high}%)` : ''} <EstimateTag /></Text>
+          ? <Text style={styles.wilTxt}>{wil.chance}%{wil.band ? ` (range ${wil.band.low}–${wil.band.high}%)` : ''} <EstimateTag /></Text>
           : <Text style={styles.note}>Answer 3 quick questions in Plan to see your odds</Text>}
         <Text style={styles.link}>Lives in your Plan ›</Text>
       </TouchableOpacity>

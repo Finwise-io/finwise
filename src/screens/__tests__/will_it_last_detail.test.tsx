@@ -28,7 +28,9 @@ test('the headline equals the hub selector to the digit, with the range and the 
   render(<WillItLastScreen />);
   const s = useStore.getState() as any;
   const hub = selectWillItLast({ op: s.onboardingProfile, accounts: s.assetAccounts, assumptions: s.retirementAssumptions, inflationRate: s.inflationRate, employmentStatus: s.employmentStatus, withBand: true });
-  expect(screen.getByText(new RegExp(`${hub.word} — ${hub.chance}%`))).toBeOnTheScreen();
+  // the verdict word was removed 2026-08-12 — the percentage stands alone
+  expect(screen.getByText(new RegExp(`${hub.chance}%`))).toBeOnTheScreen();
+  expect(screen.queryByText(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/)).toBeNull();
   expect(screen.getByText(new RegExp(`range ${hub.band!.low}–${hub.band!.high}%`))).toBeOnTheScreen();
   expect(screen.getByText(new RegExp(`In ${hub.chance} of every 100 futures`))).toBeOnTheScreen();
   // every driver names its source and is a labeled road to change it

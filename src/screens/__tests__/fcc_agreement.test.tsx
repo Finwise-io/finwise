@@ -80,18 +80,27 @@ describe('pin 1 — investments: Home hero = Invest header, to the dollar', () =
 });
 
 describe('pin 2 — will-it-last: one selector, three surfaces, one percent', () => {
+  // 2026-08-12: the verdict word is gone, so the odds can no longer be found by the word beside
+  // them — and a bare "NN%" would catch any percentage on the screen. Read what a screen reader
+  // hears instead: every surface labels this strip "…my money last(ing)… NN percent". That is a
+  // stronger pin anyway — it fails if a screen shows the number but never says what it is.
   const pctOn = (el: React.ReactElement): string => {
     const r = render(el);
-    const texts = allText(r);
-    const hit = texts.map((t) => t.match(/^(\d{1,3})%$|— (\d{1,3})%|(\d{1,3})% /)).find(Boolean);
-    // gather any NN% token on the screen paired with Likely/Uncertain/Unlikely wording
-    const joined = texts.join(' ');
-    // JSX interpolation splits 'Likely — 84%' into separate text nodes — allow whitespace runs
-    // v9: the hub speaks each lens's words (retired: Holding/Watch closely/Running short) — same number
-    const m = joined.match(/(Likely|Uncertain|Unlikely|Holding|Watch closely|Running short)\s*—?\s*(\d{1,3})\s*%/);
+    const labels: string[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      const l = n.props?.accessibilityLabel;
+      if (typeof l === 'string') labels.push(l);
+      (n.children ?? []).forEach(walk);
+    };
+    walk(r.toJSON());
+    const joined = allText(r).join(' ');
+    // and no screen may put one of the retired words back beside the number
+    expect(joined).not.toMatch(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/);
+    const said = labels.find((l) => /my money last/i.test(l) && /\d{1,3} percent/.test(l));
     r.unmount();
-    expect(m).toBeTruthy();
-    return m![2];
+    expect(said).toBeTruthy();
+    return said!.match(/(\d{1,3}) percent/)![1];
   };
 
   test('retiree: Home strip = Plan hub = Cash flow strip', () => {

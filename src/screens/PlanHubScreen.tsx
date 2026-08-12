@@ -20,7 +20,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
 import { SectionBand } from '../components/SectionBand';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
-import { lensChanceWord, onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine } from '../domain/planning/hub';
+import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 
@@ -107,17 +107,18 @@ export default function PlanHubScreen() {
 
   // ── section blocks — desktop places the SAME blocks in two columns; phone order unchanged ──
   const verdictBlock = (<>
-      {/* THE VERDICT — mock v9: spectrum + word + the "if" clause that makes the number theirs */}
+      {/* THE VERDICT — mock v9, minus the word (founder 2026-08-12): the spectrum, the number, and
+          the "if" clause that makes it theirs. The percentage IS the uncertainty; naming it too said
+          the same thing twice. */}
       {wil.captured && wil.chance != null ? (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/will-it-last')}
-          accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${wil.horizonAge}: ${lensChanceWord(lens, wil.chance)}, ${wil.chance} percent, an estimate. Opens what drives this.`}>
+          accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${wil.horizonAge}: ${wil.chance} percent, an estimate. Opens what drives this.`}>
           <SectionBand inCard title={`${lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} — to ${wil.horizonAge}`} />
           <View style={styles.gaugeRow}>
             <GaugeArc pct={wil.chance} />
             <View style={{ flex: 1 }}>
               <View style={styles.chanceRow}>
-                <Text style={styles.chanceWord}>{lensChanceWord(lens, wil.chance)}</Text>
-                <Text style={styles.chancePct}> — {wil.chance}%</Text>
+                <Text style={styles.chanceWord}>{wil.chance}%</Text>
               </View>
               {wil.band && <Text style={styles.bandTxt}>range {wil.band.low}–{wil.band.high}% · estimate</Text>}
             </View>

@@ -18,10 +18,9 @@ const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v
  *  blendedVolatility (per-class figures from the same long-run series as the returns). */
 export const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);
 
-/** Chance band → plain word (word pairs the number so color is never the only signal). */
-export function chanceWord(chance: number): 'Likely' | 'Uncertain' | 'Unlikely' {
-  return chance >= 80 ? 'Likely' : chance >= 60 ? 'Uncertain' : 'Unlikely';
-}
+// chanceWord (Likely/Uncertain/Unlikely) was deleted 2026-08-12 on the founder's ruling: a
+// percentage already carries the uncertainty, so naming it as well said the same thing twice —
+// and at 60% it hedged a hedge. The number stands alone now, everywhere.
 
 export interface WillItLastArgs {
   bigCosts?: { amount: number; year: number; label?: string }[];   // store.bigCosts (big one-time costs)
@@ -36,7 +35,6 @@ export interface WillItLastArgs {
 export interface WillItLastResult {
   captured: boolean;                 // the three questions answered (age, spending, something saved)?
   chance: number | null;             // Monte-Carlo % (null when not captured — never a guessed number)
-  word: 'Likely' | 'Uncertain' | 'Unlikely' | null;
   band: { low: number; high: number } | null;   // best-to-worst chance range when withBand
   horizonAge: number;
   inputs: RetirementInputs | null;   // the exact inputs fed to simulate() (decision screens re-run with patches)
@@ -121,7 +119,7 @@ export function selectWillItLast(a: WillItLastArgs): WillItLastResult {
   const spendKnown = (retirementSpendMonthly(op) || num(op.monthlySpending)) > 0 || (a.assumptions?.spendMonthly ?? null) != null;
   const captured = inputs != null && spendKnown && nestEgg > 0;
   if (!captured || !inputs) {
-    return { captured: false, chance: null, word: null, band: null, horizonAge: inputs?.horizon_age ?? (num(op.horizonAge) || 90), inputs };
+    return { captured: false, chance: null, band: null, horizonAge: inputs?.horizon_age ?? (num(op.horizonAge) || 90), inputs };
   }
   const sim = simulate(a.withBand ? { ...inputs, with_band: true } : inputs) as any;
   const chance = sim.chance_of_success as number;
@@ -133,5 +131,5 @@ export function selectWillItLast(a: WillItLastArgs): WillItLastResult {
     const hi = simulate({ ...inputs, mean_return: (inputs.mean_return ?? 0.05) + 0.02 } as RetirementInputs).chance_of_success;
     band = { low: Math.min(lo, hi, chance), high: Math.max(lo, hi, chance) };
   }
-  return { captured: true, chance, word: chanceWord(chance), band, horizonAge: inputs.horizon_age, inputs };
+  return { captured: true, chance, band, horizonAge: inputs.horizon_age, inputs };
 }

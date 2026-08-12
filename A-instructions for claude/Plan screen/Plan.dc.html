@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eae8e2;font-family:'Public Sans',sans-serif}
+a{color:oklch(38% 0.1 150);text-decoration:none}
+a:hover{color:oklch(30% 0.1 150)}
+.pl-turn{padding:40px 44px 60px;display:flex;flex-direction:column;gap:22px}
+.pl-hd{font:600 12px 'Public Sans',sans-serif;color:oklch(30% 0.02 75);max-width:900px;line-height:1.5}
+.pl-row{display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start}
+.pl-banner{background:oklch(28% 0.09 150);color:#fff;display:grid;grid-template-columns:1fr auto 14px;align-items:baseline;column-gap:8px;padding:10px 18px;font-size:11px;font-weight:700;letter-spacing:.06em}
+.pl-bantot{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right;letter-spacing:0}
+.pl-row-a{display:grid;grid-template-columns:1fr auto 14px;align-items:center;column-gap:8px;padding:12px 18px;border-top:1px solid oklch(90% 0.012 75);font-size:13px;color:oklch(30% 0.02 75);min-height:44px}
+.pl-amt{font-size:15px;font-variant-numeric:tabular-nums;text-align:right}
+.pl-amt-b{font-size:15px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right}
+.pl-chev{text-align:right;color:oklch(55% 0.02 75);font-size:11px}
+.pl-body{background:oklch(98% 0.008 75);min-height:844px;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75);padding-bottom:100px;box-sizing:border-box}
+.pl-head{padding:76px 18px 14px;color:#fff;background:oklch(28% 0.09 150)}
+.pl-logo{display:flex;align-items:center;gap:7px;margin-bottom:14px}
+.pl-mono{width:20px;height:20px;border-radius:6px;background:#fff;color:oklch(28% 0.09 150);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none}
+.pl-tag{font-size:11px;color:oklch(90% 0.02 150 / 0.7);margin-top:2px}
+.pl-tab{flex:none;display:flex;justify-content:space-around;align-items:center;width:390px;background:oklch(98% 0.008 75);border-top:1px solid oklch(90% 0.012 75);padding:10px 0 6px}
+.pl-tabitem{display:flex;flex-direction:column;align-items:center;gap:3px}
+.pl-dot{width:5px;height:5px;background:oklch(70% 0.02 75)}
+.pl-dot-on{width:5px;height:5px;background:oklch(38% 0.1 150)}
+.pl-lbl{font-size:10.5px;color:oklch(58% 0.02 75)}
+.pl-lbl-on{font-size:10.5px;color:oklch(38% 0.1 150);font-weight:600}
+.pl-sec{padding:16px 18px 4px;font-size:11.5px;font-weight:800;letter-spacing:.08em;color:oklch(28% 0.09 150)}
+.pl-fact{display:grid;grid-template-columns:1fr auto 14px;align-items:center;column-gap:8px;padding:12px 18px;border-top:1px solid oklch(90% 0.012 75);font-size:13px;min-height:44px}
+.pl-facttag{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:oklch(55% 0.02 75);background:oklch(93% 0.012 75);border-radius:3px;padding:2px 6px;margin-left:6px}
+.pl-drafttag{font-size:9.5px;font-weight:700;letter-spacing:.05em;color:oklch(30% 0.1 150);background:oklch(90% 0.05 150);border-radius:3px;padding:2px 6px;margin-left:6px}
+.pl-stepper{display:flex;align-items:center;justify-content:space-between;padding:14px 18px;border-top:1px solid oklch(90% 0.012 75);min-height:44px}
+.pl-btn{width:36px;height:36px;border-radius:50%;border:1.5px solid oklch(80% 0.02 75);background:#fff;font-size:18px;font-weight:700;cursor:pointer}
+.pl-card{width:340px;background:#fff;border:1px solid oklch(88% 0.012 75)}
+</style>
+</helmet>
+
+<div class="pl-turn">
+
+<div class="pl-hd">v2 brief: two fixed sections (retirement plan / decisions today), inputs+sandbox merged into one screen (facts save instantly, choices draft until "Use as my plan"), target nest egg derived from 80%-odds engine (never typed), and the honest bad-odds state showing real levers instead of a verdict. Word-set decided: <b>Likely / Uncertain / Unlikely</b> for both people (drops "Holding/Watch closely/Running short" — one sentence everywhere, incl. June at 100%).</div>
+
+<div class="pl-hd" style="font-weight:800;color:oklch(28% 0.09 150)">Priority 1.1 — the Plan tab, both sections in one scroll</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Pat, 58, working — Uncertain 60%</div>
+<div style="width:390px" data-screen-label="Plan tab — Pat">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700;letter-spacing:.01em">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+
+<div class="pl-sec">YOUR RETIREMENT PLAN</div>
+<div class="pl-banner"><span>WILL MY MONEY LAST?</span><span class="pl-bantot" style="font-size:11px">ESTIMATE</span><span></span></div>
+<div style="display:flex;padding:16px 12px 4px">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 82.2,24.4" fill="none" stroke="oklch(60% 0.12 65)" stroke-width="18" stroke-linecap="round"></path>
+<path d="M85.6,20.6 A90,90 0 0,1 179.4,53.5" fill="none" stroke="oklch(82% 0.02 75)" stroke-width="18" stroke-linecap="round"></path>
+<path d="M182.8,57.1 A90,90 0 0,1 200,110" fill="none" stroke="oklch(46% 0.1 150)" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="134.7" y2="33.9" stroke="oklch(24% 0.02 75)" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="oklch(24% 0.02 75)"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:24px;font-weight:800;line-height:1;margin-top:-6px">60%</div>
+<div style="font-size:11.5px;font-weight:700;color:oklch(38% 0.02 75);margin-top:2px;text-align:center">Uncertain — odds of lasting to 90</div>
+</div>
+<div style="flex:1;display:flex;flex-direction:column;align-items:center">
+<svg viewBox="0 0 220 128" style="width:150px">
+<path d="M20,110 A90,90 0 0,1 104.5,20.2" fill="none" stroke="oklch(46% 0.1 150)" stroke-width="18" stroke-linecap="round"></path>
+<path d="M104.5,20.2 A90,90 0 0,1 200,110" fill="none" stroke="oklch(88% 0.012 75)" stroke-width="18" stroke-linecap="round"></path>
+<line x1="110" y1="110" x2="105.2" y2="32.2" stroke="oklch(24% 0.02 75)" stroke-width="4" stroke-linecap="round"></line>
+<circle cx="110" cy="110" r="7" fill="oklch(24% 0.02 75)"></circle><circle cx="110" cy="110" r="2.5" fill="#fff"></circle>
+</svg>
+<div style="font-size:24px;font-weight:800;line-height:1;margin-top:-6px">48%</div>
+<div style="font-size:11.5px;font-weight:700;color:oklch(38% 0.02 75);margin-top:2px;text-align:center">$909,152 of $1.9M target</div>
+</div>
+</div>
+<div style="padding:8px 18px 16px;font-size:12.5px;line-height:1.5;border-bottom:8px solid oklch(94% 0.012 75)">Add <b>$38,000</b> to your retirement assets every year for <b>7 years</b> to reach your target and raise your odds to <b>80%</b>. $32,500/yr of it fits in tax-advantaged room. <a href="#">Other options to increase odds ›</a></div>
+
+<a href="#" style="display:block;padding:12px 18px;font-size:13px;font-weight:600;border-bottom:8px solid oklch(94% 0.012 75)">Your plan, in full — age, spending, accounts, big costs ›</a>
+
+<div class="pl-sec">DECISIONS YOU CAN MAKE TODAY</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span>Claim Social Security at 70, not 67</span><span class="pl-amt-b" style="color:oklch(38% 0.1 150)">+$624/mo</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Send a child to college</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">$120,000 · −4 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Pay off the mortgage early</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">$210,000 · +3 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Convert to a Roth</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">$420,000 pre-tax ›</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:8px solid oklch(94% 0.012 75);padding-bottom:16px"><span>A surprise expense, stress-tested</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">7.3mo cash covers it</span><span class="pl-chev">›</span></a>
+
+<div style="padding:14px 18px 4px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">400 simulations of your own numbers — not advice.</div>
+</div></x-import></div>
+<div class="pl-tab"><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Home</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Net worth</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Performance</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Cash flow</span></div><div class="pl-tabitem"><span class="pl-dot-on"></span><span class="pl-lbl-on">Plan</span></div></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">June, 72, retired — Likely 100%</div>
+<div style="width:390px" data-screen-label="Plan tab — June">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div class="pl-head"><div class="pl-logo"><span class="pl-mono">M</span><span style="font-size:13px;font-weight:700;letter-spacing:.01em">MoneyKeel</span></div><div style="font-weight:600;font-size:15px">Plan</div><div class="pl-tag">We lay it out. You decide.</div></div>
+
+<div class="pl-sec">YOUR RETIREMENT PLAN</div>
+<div class="pl-banner"><span>IS MY MONEY LASTING?</span><span class="pl-bantot" style="font-size:11px">ESTIMATE</span><span></span></div>
+<div style="padding:16px 18px 6px">
+<div style="font-size:22px;font-weight:800;line-height:1.15">Likely — 100% odds of lasting to age 94</div>
+<div style="font-size:12px;color:oklch(52% 0.02 75);margin-top:4px">~$2,810,000 to spare in the middle future</div>
+</div>
+<div class="pl-banner" style="margin-top:8px"><span>YOUR RETIREMENT PAYCHECK</span><span class="pl-bantot">$8,155/MO</span><span></span></div>
+<div class="pl-row-a" style="border-top:none"><span>Social Security</span><span class="pl-amt">$2,600</span><span></span></div>
+<div class="pl-row-a"><span>Pension</span><span class="pl-amt">$1,400</span><span></span></div>
+<div class="pl-row-a" style="font-weight:700"><span>Guaranteed income</span><span class="pl-amt-b">$4,000</span><span></span></div>
+<div class="pl-row-a"><span>Safe draw from savings</span><span class="pl-amt">$4,155</span><span></span></div>
+<div class="pl-row-a" style="font-weight:700;border-top:2px solid oklch(28% 0.09 150)"><span>Your paycheck</span><span class="pl-amt-b" style="color:oklch(28% 0.09 150)">$8,155</span><span></span></div>
+<div style="padding:10px 18px 16px;font-size:12.5px;line-height:1.5;border-bottom:8px solid oklch(94% 0.012 75)">✓ covers your $5,600/mo spending — you're using $1,600 of the $4,155 safe draw.</div>
+
+<a href="#" style="display:block;padding:12px 18px;font-size:13px;font-weight:600;border-bottom:8px solid oklch(94% 0.012 75)">Your plan, in full — age, spending, accounts, big costs ›</a>
+
+<div class="pl-sec">DECISIONS YOU CAN MAKE TODAY</div>
+<a href="#" class="pl-row-a" style="border-top:none"><span>Spend more — you have slack</span><span class="pl-amt-b" style="color:oklch(38% 0.1 150)">+$1,600/mo room</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Which account to draw from first</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">order matters ›</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Required withdrawals start 2027</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">~$15,849 first year</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Convert to a Roth</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">$420,000 pre-tax ›</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:8px solid oklch(94% 0.012 75);padding-bottom:16px"><span>A surprise expense, stress-tested</span><span class="pl-amt" style="font-size:12px;color:oklch(52% 0.02 75)">9.1mo cash covers it</span><span class="pl-chev">›</span></a>
+
+<div style="padding:14px 18px 4px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">400 simulations of your own numbers — not advice.</div>
+</div></x-import></div>
+<div class="pl-tab"><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Home</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Net worth</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Performance</span></div><div class="pl-tabitem"><span class="pl-dot"></span><span class="pl-lbl">Cash flow</span></div><div class="pl-tabitem"><span class="pl-dot-on"></span><span class="pl-lbl-on">Plan</span></div></div>
+</div>
+
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:oklch(28% 0.09 150);margin-top:10px">Priority 1.2 — Section 1, the merged screen (facts save instantly · choices draft until "Use as my plan" · outcome pinned)</div>
+<div class="pl-row">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Everything answered</div>
+<div style="width:390px" data-screen-label="Section 1 — Complete">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px">‹</span><div style="font-size:16px;font-weight:700">Your plan</div></div>
+
+<div style="position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 2px 6px oklch(20% 0.02 75 / 0.08);padding:8px 12px 10px;display:grid;grid-template-columns:1fr 1fr;column-gap:8px;align-items:center">
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ODDS</div><div style="font-size:16px;font-weight:800">60%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:60%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ASSETS vs TARGET</div><div style="font-size:16px;font-weight:800">48%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:48%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+</div>
+
+<div class="pl-sec">FACTS — SAVE AS YOU GO</div>
+<div class="pl-fact"><span>Your age<span class="pl-facttag">FACT</span></span><span class="pl-amt-b">58</span><span class="pl-chev">›</span></div>
+<div class="pl-fact"><span>Monthly spending in retirement<span class="pl-facttag">FACT</span></span><span class="pl-amt-b">$5,200</span><span class="pl-chev">›</span></div>
+<div class="pl-banner" style="margin-top:0"><span>WHAT COUNTS TOWARD RETIREMENT</span><span class="pl-bantot">$909,152</span><span></span></div>
+<div class="pl-row-a" style="border-top:none"><span>Vanguard brokerage</span><span class="pl-amt">$355,152</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a"><span>Fidelity Traditional IRA</span><span class="pl-amt">$420,000</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a"><span>Vanguard Roth IRA</span><span class="pl-amt">$96,000</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a"><span>Ally savings</span><span class="pl-amt">$38,000</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a" style="color:oklch(52% 0.02 75)"><span>Home</span><span class="pl-amt">$620,000</span><span class="pl-chev" style="font-size:10.5px;white-space:nowrap">doesn't count</span></div>
+<div class="pl-banner" style="margin-top:0"><span>BIG ONE-TIME COSTS</span><span class="pl-bantot">$18,000</span><span></span></div>
+<div class="pl-row-a" style="border-top:none"><span>Roof, 2028</span><span class="pl-amt">$18,000</span><span class="pl-chev">✕</span></div>
+<a href="#" style="display:block;padding:12px 18px;font-size:13px;font-weight:600;border-bottom:8px solid oklch(94% 0.012 75)">+ Add a big cost — leaving them out assumes it never happens</a>
+
+<div class="pl-sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+<div class="pl-stepper" style="border-top:none"><span>Retire at<span class="pl-drafttag">DRAFT</span></span><span style="display:flex;align-items:center;gap:14px"><button class="pl-btn">−</button><span style="font-size:17px;font-weight:800;min-width:24px;text-align:center">65</span><button class="pl-btn">+</button></span></div>
+<div class="pl-stepper"><span>Plan to age<span class="pl-drafttag">DRAFT</span></span><span style="display:flex;align-items:center;gap:14px"><button class="pl-btn">−</button><span style="font-size:17px;font-weight:800;min-width:24px;text-align:center">90</span><button class="pl-btn">+</button></span></div>
+<div class="pl-stepper" style="border-bottom:8px solid oklch(94% 0.012 75)"><span>Extra saving each month<span class="pl-drafttag">DRAFT</span></span><span style="display:flex;align-items:center;gap:14px"><button class="pl-btn">−</button><span style="font-size:17px;font-weight:800;min-width:44px;text-align:center">+$0</span><button class="pl-btn">+</button></span></div>
+
+<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<span style="background:oklch(93% 0.012 75);color:oklch(48% 0.02 75);padding:12px 16px;font-size:14px;font-weight:700;text-align:center">Use as my plan</span>
+</div>
+<div style="padding:0 18px 4px;font-size:11px;color:oklch(52% 0.02 75)">No changes to try yet — nothing to commit.</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">One answer missing — age (deep-linked, same screen from Home/Net worth/Plan)</div>
+<div style="width:390px" data-screen-label="Section 1 — Missing Age">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px">‹</span><div style="font-size:16px;font-weight:700">Your plan</div></div>
+
+<div style="padding:10px 18px 14px;font-size:12.5px;line-height:1.5;color:oklch(48% 0.02 75)">Nothing below computes without your age — everything else has a default or a calculation.</div>
+
+<div class="pl-sec">FACTS — SAVE AS YOU GO</div>
+<div class="pl-fact" style="background:oklch(96% 0.025 65)"><span style="font-weight:700">Your age<span class="pl-facttag" style="background:oklch(90% 0.04 65);color:oklch(40% 0.1 65)">MISSING</span></span><span class="pl-amt-b" style="color:oklch(42% 0.1 65)">Add ›</span><span></span></div>
+<div class="pl-fact"><span>Monthly spending in retirement<span class="pl-facttag">FACT</span></span><span class="pl-amt-b">$5,200</span><span class="pl-chev">›</span></div>
+<div class="pl-banner" style="margin-top:0"><span>WHAT COUNTS TOWARD RETIREMENT</span><span class="pl-bantot">$909,152</span><span></span></div>
+<div class="pl-row-a" style="border-top:none"><span>Vanguard brokerage</span><span class="pl-amt">$355,152</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a"><span>Fidelity Traditional IRA</span><span class="pl-amt">$420,000</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a"><span>Vanguard Roth IRA</span><span class="pl-amt">$96,000</span><span class="pl-chev">✓</span></div>
+<div class="pl-row-a" style="border-bottom:8px solid oklch(94% 0.012 75)"><span>Ally savings</span><span class="pl-amt">$38,000</span><span class="pl-chev">✓</span></div>
+
+<div class="pl-sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+<div class="pl-stepper" style="border-top:none;opacity:.4;pointer-events:none"><span>Retire at</span><span style="display:flex;align-items:center;gap:14px"><button class="pl-btn">−</button><span style="font-size:17px;font-weight:800">65</span><button class="pl-btn">+</button></span></div>
+<div class="pl-stepper" style="opacity:.4;pointer-events:none;border-bottom:8px solid oklch(94% 0.012 75)"><span>Plan to age</span><span style="display:flex;align-items:center;gap:14px"><button class="pl-btn">−</button><span style="font-size:17px;font-weight:800">90</span><button class="pl-btn">+</button></span></div>
+
+<div style="padding:16px 18px;margin:0 18px 0 0"></div>
+<div style="margin:0 18px 16px;border:1.5px dashed oklch(75% 0.02 75);padding:14px 16px;font-size:13px;color:oklch(48% 0.02 75)">Your odds — can't compute yet. Add your age above.</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Nothing answered — labelled sample, honesty rule</div>
+<div style="width:390px" data-screen-label="Section 1 — Empty Sample">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px">‹</span><div style="font-size:16px;font-weight:700">Your plan</div></div>
+<div style="padding:10px 18px 14px;font-size:13px;line-height:1.55">We can't compute anything without your age. Below is a labelled sample using typical numbers — not yours.</div>
+<a href="#" style="display:block;margin:0 18px 16px;background:oklch(38% 0.1 150);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;text-align:center">Add your age ›</a>
+
+<div style="margin:0 18px 16px;border:1.5px dashed oklch(75% 0.02 75);padding:14px 16px;position:relative">
+<span style="position:absolute;top:-9px;left:12px;background:oklch(98% 0.008 75);padding:0 6px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:oklch(55% 0.02 75)">SAMPLE — NOT YOUR NUMBERS</span>
+<div style="font-size:18px;font-weight:800;color:oklch(48% 0.02 75)">Likely — 74% odds of lasting to age 90</div>
+<div style="font-size:12px;color:oklch(55% 0.02 75);margin-top:4px">A typical 60-year-old retiring at 65 with $900,000, spending $5,000/mo</div>
+</div>
+
+<div class="pl-sec" style="opacity:.5">FACTS — SAVE AS YOU GO</div>
+<div class="pl-fact" style="opacity:.5;pointer-events:none"><span>Your age</span><span class="pl-amt-b">—</span><span></span></div>
+<div class="pl-fact" style="opacity:.5;pointer-events:none;border-bottom:8px solid oklch(94% 0.012 75)"><span>Monthly spending in retirement</span><span class="pl-amt-b">—</span><span></span></div>
+<div class="pl-sec" style="opacity:.5">WHAT COUNTS TOWARD RETIREMENT</div>
+<div style="padding:0 18px 16px;font-size:12.5px;color:oklch(52% 0.02 75)">Nothing linked yet. <a href="#">Link or add an account ›</a></div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">Mid-change — try it live (retire age / plan-to / extra saving)</div>
+<div style="width:390px" data-screen-label="Section 1 — Mid-change">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px">‹</span><div style="font-size:16px;font-weight:700">Your plan</div></div>
+
+<div style="position:sticky;top:0;z-index:5;background:#fff;box-shadow:0 2px 6px oklch(20% 0.02 75 / 0.08);padding:8px 12px 10px;display:grid;grid-template-columns:1fr 1fr;column-gap:8px;align-items:center">
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ODDS · NOW 60% →</div><div style="font-size:16px;font-weight:800;color:oklch(28% 0.09 150)">{{ sb.odds }}%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="{{ sb.oddsBar }}height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ASSETS vs TARGET</div><div style="font-size:16px;font-weight:800;color:oklch(28% 0.09 150)">{{ sb.gapPct }}%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="{{ sb.gapBar }}height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+</div>
+<div style="padding:8px 18px 8px;font-size:11.5px;color:oklch(48% 0.02 75)">{{ sb.nestEgg }} of {{ sb.target }} target</div>
+
+<div class="pl-sec" style="opacity:.55">FACTS — already saved</div>
+<div class="pl-fact" style="opacity:.55;pointer-events:none"><span>Your age<span class="pl-facttag">FACT</span></span><span class="pl-amt-b">58</span><span></span></div>
+<div class="pl-fact" style="opacity:.55;pointer-events:none;border-bottom:8px solid oklch(94% 0.012 75)"><span>Monthly spending in retirement<span class="pl-facttag">FACT</span></span><span class="pl-amt-b">$5,200</span><span></span></div>
+
+<div class="pl-sec">CHOICES — TRY THEM, NOTHING CHANGES YET</div>
+<div class="pl-stepper" style="border-top:none"><span>Retire at<span class="pl-drafttag">DRAFT</span></span><span style="display:flex;align-items:center;gap:14px"><button onClick="{{ sb.decRetire }}" class="pl-btn">−</button><span style="font-size:17px;font-weight:800;min-width:24px;text-align:center">{{ sb.retireAge }}</span><button onClick="{{ sb.incRetire }}" class="pl-btn">+</button></span></div>
+<div class="pl-stepper"><span>Extra saving each month<span class="pl-drafttag">DRAFT</span></span><span style="display:flex;align-items:center;gap:14px"><button onClick="{{ sb.decSave }}" class="pl-btn">−</button><span style="font-size:17px;font-weight:800;min-width:44px;text-align:center">+${{ sb.extraSave }}</span><button onClick="{{ sb.incSave }}" class="pl-btn">+</button></span></div>
+<div class="pl-stepper" style="border-bottom:8px solid oklch(94% 0.012 75)"><span>A big one-time cost</span><span style="font-size:13px;color:oklch(52% 0.02 75)">Roof, 2028 · $18,000</span></div>
+
+<div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+<span style="background:transparent;color:oklch(38% 0.1 150);border:1.5px solid oklch(38% 0.1 150);padding:12px 16px;font-size:14px;font-weight:700;text-align:center">Save this scenario</span>
+<span style="background:oklch(38% 0.1 150);color:#fff;padding:12px 16px;font-size:14px;font-weight:700;text-align:center">Use as my plan</span>
+</div>
+<div style="padding:0 18px 4px;font-size:11px;color:oklch(52% 0.02 75)">These are drafts — nothing changes until you tap Use as my plan.</div>
+</div></x-import></div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div class="pl-hd">The impossible-required-saving state (§3.5) — say it plainly, then the real levers</div>
+<div style="width:390px" data-screen-label="Section 1 — Impossible Saving">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div class="pl-body">
+<div style="padding:76px 18px 10px;display:flex;align-items:center;gap:10px"><span style="font-size:20px">‹</span><div style="font-size:16px;font-weight:700">Your plan</div></div>
+
+<div style="padding:10px 18px 4px;font-size:14px;font-weight:800;color:oklch(38% 0.12 65)">Unlikely — 12% odds of lasting to age 90</div>
+<div style="padding:0 18px 10px">
+<div style="display:flex;justify-content:space-between;font-size:11px;color:oklch(48% 0.02 75);margin-bottom:4px"><span>$312,000 of $2.1M target</span><span style="font-weight:700">15%</span></div>
+<div style="height:6px;background:oklch(92% 0.012 75)"><div style="width:15%;height:100%;background:oklch(58% 0.11 65)"></div></div>
+</div>
+<div style="padding:2px 18px 16px;font-size:13px;line-height:1.55;border-bottom:8px solid oklch(94% 0.012 75)">Reaching 80% odds the way you're saving now would take <b>~$95,000 a year</b> — more than you earn. That number is real. Here's what actually moves it:</div>
+
+<div class="pl-banner"><span>THREE REAL OPTIONS</span><span></span><span></span></div>
+<a href="#" class="pl-row-a" style="border-top:none"><span>Retire at 67 instead of 65</span><span class="pl-amt-b" style="color:oklch(38% 0.1 150)">+14 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a"><span>Spend $400 less a month</span><span class="pl-amt-b" style="color:oklch(38% 0.1 150)">+9 pts</span><span class="pl-chev">›</span></a>
+<a href="#" class="pl-row-a" style="border-bottom:8px solid oklch(94% 0.012 75);padding-bottom:16px"><span>Claim Social Security at 70</span><span class="pl-amt-b" style="color:oklch(38% 0.1 150)">+6 pts</span><span class="pl-chev">›</span></a>
+<a href="#" style="display:block;padding:14px 18px;font-size:13px;font-weight:700;color:oklch(38% 0.1 150)">Try all three together — one sandbox ›</a>
+<div style="padding:2px 18px 4px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">400 simulations of your own numbers — not advice.</div>
+</div></x-import></div>
+</div>
+
+</div>
+
+<div class="pl-hd" style="font-weight:800;color:oklch(28% 0.09 150);margin-top:10px">Priority 1.3 — the outcome block alone, three levels</div>
+<div class="pl-row">
+
+<div class="pl-card">
+<div style="padding:10px 16px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:oklch(28% 0.09 150);background:oklch(93% 0.05 150)">STRONG — 85%</div>
+<div style="padding:14px 16px 6px;font-size:16px;font-weight:800">Likely — 85% odds of lasting to age 90</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:8px;padding:0 16px 10px">
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ODDS</div><div style="font-size:16px;font-weight:800">85%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:85%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ASSETS vs TARGET</div><div style="font-size:16px;font-weight:800">108%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:100%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+</div>
+<div style="padding:0 16px 6px;font-size:11.5px;color:oklch(48% 0.02 75)">$1,620,000 of $1.5M target</div>
+<div style="padding:6px 16px 16px;font-size:12.5px;line-height:1.5;color:oklch(48% 0.02 75)">You've cleared the 80% target — no saving increase needed to stay Likely.</div>
+</div>
+
+<div class="pl-card">
+<div style="padding:10px 16px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:oklch(30% 0.02 75);background:oklch(93% 0.012 75)">MIDDLING — 60%</div>
+<div style="padding:14px 16px 6px;font-size:16px;font-weight:800">Uncertain — 60% odds of lasting to age 90</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:8px;padding:0 16px 10px">
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ODDS</div><div style="font-size:16px;font-weight:800">60%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:60%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ASSETS vs TARGET</div><div style="font-size:16px;font-weight:800">48%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:48%;height:100%;background:oklch(46% 0.1 150)"></div></div></div>
+</div>
+<div style="padding:0 16px 6px;font-size:11.5px;color:oklch(48% 0.02 75)">$909,152 of $1.9M target</div>
+<div style="padding:6px 16px 16px;font-size:12.5px;line-height:1.5;color:oklch(48% 0.02 75)">Add $38,000/yr for 7 years to reach target and raise odds to 80%.</div>
+</div>
+
+<div class="pl-card">
+<div style="padding:10px 16px;font-size:10.5px;font-weight:700;letter-spacing:.06em;color:oklch(38% 0.12 65);background:oklch(96% 0.025 65)">BAD — 12%</div>
+<div style="padding:14px 16px 6px;font-size:16px;font-weight:800;color:oklch(38% 0.12 65)">Unlikely — 12% odds of lasting to age 90</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;column-gap:8px;padding:0 16px 10px">
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ODDS</div><div style="font-size:16px;font-weight:800;color:oklch(38% 0.12 65)">12%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:12%;height:100%;background:oklch(58% 0.11 65)"></div></div></div>
+<div><div style="font-size:9.5px;font-weight:700;letter-spacing:.06em;color:oklch(52% 0.02 75)">ASSETS vs TARGET</div><div style="font-size:16px;font-weight:800;color:oklch(38% 0.12 65)">15%</div><div style="height:5px;background:oklch(92% 0.012 75);margin-top:3px"><div style="width:15%;height:100%;background:oklch(58% 0.11 65)"></div></div></div>
+</div>
+<div style="padding:0 16px 6px;font-size:11.5px;color:oklch(48% 0.02 75)">$312,000 of $2.1M target</div>
+<div style="padding:6px 16px 16px;font-size:12.5px;line-height:1.5;color:oklch(48% 0.02 75)">The saving needed (~$95,000/yr) exceeds what you earn — never shown as the ask. See the three real levers instead.</div>
+</div>
+
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = { retireAge: 65, extraSave: 0 };
+  clamp(n, lo, hi) { return Math.max(lo, Math.min(hi, n)); }
+
+  renderVals() {
+    const base = 60;
+    const retireBonus = (this.state.retireAge - 65) * 7;
+    const saveBonus = (this.state.extraSave / 100) * 0.8;
+    const odds = Math.round(this.clamp(base + retireBonus + saveBonus, 1, 99));
+    const target = Math.round(1900000 - (this.state.retireAge - 65) * 80000);
+    const nestEgg = Math.round(909152 + (this.state.retireAge - 65) * 90000 + this.state.extraSave * 210);
+    const gapPct = Math.round(this.clamp(nestEgg / target * 100, 0, 100));
+    const fmt = n => '$' + n.toLocaleString('en-US');
+    return {
+      sb: {
+        retireAge: this.state.retireAge,
+        extraSave: this.state.extraSave,
+        odds, gapPct,
+        target: '$' + (target / 1000000).toFixed(1) + 'M',
+        nestEgg: fmt(nestEgg),
+        gapBar: `width:${gapPct}%;`,
+        oddsBar: `width:${odds}%;`,
+        decRetire: () => this.setState(s => ({ retireAge: this.clamp(s.retireAge - 1, 60, 70) })),
+        incRetire: () => this.setState(s => ({ retireAge: this.clamp(s.retireAge + 1, 60, 70) })),
+        decSave: () => this.setState(s => ({ extraSave: this.clamp(s.extraSave - 100, 0, 2000) })),
+        incSave: () => this.setState(s => ({ extraSave: this.clamp(s.extraSave + 100, 0, 2000) }))
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

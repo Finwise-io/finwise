@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet data-dc-atomics>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Public+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+body{margin:0;background:#eae8e2;font-family:'Public Sans',sans-serif}
+a{color:oklch(38% 0.1 150);text-decoration:none}
+a:hover{color:oklch(30% 0.1 150)}
+</style>
+</helmet>
+
+<div style="padding:40px 44px 60px;display:flex;flex-wrap:wrap;gap:32px;align-items:flex-start">
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px 'Public Sans',sans-serif;color:oklch(30% 0.02 75)">Performance — rich data</div>
+<div style="width:390px" data-screen-label="Performance — Summary">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div style="background:oklch(98% 0.008 75);min-height:844px;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75);padding-bottom:100px;box-sizing:border-box">
+
+<div style="background:oklch(28% 0.09 150);padding:76px 18px 14px;color:oklch(96% 0.01 150)">
+<div style="display:flex;align-items:center;gap:7px;margin-bottom:16px">
+<span style="width:20px;height:20px;border-radius:6px;background:oklch(96% 0.01 150);color:oklch(28% 0.09 150);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">M</span>
+<span style="font-size:13px;font-weight:700;letter-spacing:.01em">MoneyKeel</span>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-weight:600;font-size:15px;letter-spacing:.01em">Performance</span>
+<span style="font-size:11.5px;color:oklch(90% 0.02 150 / 0.6)">Aug 4, 2026</span>
+</div>
+</div>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;padding:14px 18px 4px">
+<button onClick="{{ main.setSince }}" style="{{ main.sincePillStyle }}">Since Jul 19 <b>+0.5%</b></button>
+<button onClick="{{ main.set1m }}" style="{{ main.pill1mStyle }}">1M <b>+0.3%</b></button>
+<button onClick="{{ main.setYtd }}" style="{{ main.pillYtdStyle }}">This year —</button>
+<button onClick="{{ main.set1y }}" style="{{ main.pill1yStyle }}">1Y —</button>
+<button onClick="{{ main.set3y }}" style="{{ main.pill3yStyle }}">3Y —</button>
+</div>
+
+<div style="padding:12px 18px 4px;display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">SUMMARY · SINCE JUL 19</span>
+<span style="font-size:12px;color:oklch(55% 0.02 75);font-style:italic">ⓘ</span>
+</div>
+<div style="display:flex;gap:20px;flex-wrap:wrap;padding:8px 18px 4px">
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Ending value</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums">$354,314</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Wealth generated</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150)">$1,910</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Return</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150)">+0.5%</div></div>
+</div>
+<div style="padding:2px 18px 10px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">Return is for the window you picked (Jul 19 → Aug 4) — not a yearly rate ⓘ · money-weighted, so money you added never counts as return ⓘ</div>
+
+<div style="padding:0 18px 14px;border-bottom:8px solid oklch(94% 0.012 75)">
+<svg viewBox="0 0 320 78" style="width:100%;height:70px">
+<polyline points="4,58 44,55 84,60 124,48 164,52 204,38 244,44 284,26 316,22" fill="none" stroke="oklch(38% 0.1 150)" stroke-width="2.5" stroke-linejoin="round"></polyline>
+<line x1="0" y1="70" x2="320" y2="70" stroke="oklch(90% 0.012 75)"></line>
+<circle cx="316" cy="22" r="3.5" fill="oklch(28% 0.09 150)"></circle>
+</svg>
+<div style="display:flex;justify-content:space-between;font-size:10px;color:oklch(55% 0.02 75)"><span>Jul 19</span><span>Aug 4</span></div>
+</div>
+
+<div style="margin:12px 18px;background:oklch(96% 0.025 65);border:1px solid oklch(75% 0.09 65);border-radius:12px;padding:10px 12px;font-size:12.5px;color:oklch(30% 0.02 75)">
+<div style="font-weight:700;color:oklch(38% 0.12 65)">⚠ 2 numbers need more information ›</div>
+<div style="margin-top:4px">· LCTX has no price today — showing what you paid</div>
+<div>· E*TRADE hasn't shared dividend records — its return shows price change only</div>
+</div>
+
+<div style="padding:14px 18px 4px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">HOW $352,404 BECAME $354,314 · ALL ACCOUNTS</span>
+</div>
+<div style="padding:0 18px">
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Beginning market value (Jul 19)</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$352,404</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Contributions</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Withdrawals</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:700"><span>Wealth generated</span><span style="font-variant-numeric:tabular-nums">$1,910</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Dividends</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$1,220</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Interest</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$430</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 10px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Change in investment value</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$260</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)"><span>Ending market value (Aug 4)</span><span style="font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150)">$354,314</span></div>
+</div>
+
+<div style="height:8px;background:oklch(94% 0.012 75);margin-top:6px"></div>
+
+<button onClick="{{ main.toggleVanguard }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:16px 1fr auto 16px;align-items:center;column-gap:8px;padding:14px 18px 4px;cursor:pointer;text-align:left">
+<span style="{{ main.vanguardChevron }}display:inline-block;color:oklch(46% 0.02 75);font-size:11px">▸</span>
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">VANGUARD BROKERAGE</span>
+<span style="font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right">$301,610</span>
+<span></span>
+</button>
+<div style="{{ main.vanguardRows }}flex-direction:column;padding:0 18px">
+<div style="font-size:11px;color:oklch(52% 0.02 75);padding:2px 0 8px">Connected · updated today</div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Beginning market value (Jul 19)</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$300,000</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Contributions</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Withdrawals</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:700"><span>Wealth generated</span><span style="font-variant-numeric:tabular-nums">$1,610</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Dividends</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$1,100</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Interest</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$330</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 10px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Change in investment value</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$180</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)"><span>Ending market value (Aug 4)</span><span style="font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150)">$301,610</span></div>
+<a href="#" style="display:block;font-size:11px;color:oklch(52% 0.02 75);padding:6px 0 12px">Tap ▸ to collapse · tap the name to open this account's portfolio ›</a>
+</div>
+
+<button onClick="{{ main.toggleEtrade }}" style="width:100%;border:none;background:transparent;display:grid;grid-template-columns:16px 1fr auto 16px;align-items:center;column-gap:8px;padding:10px 18px;cursor:pointer;text-align:left;border-top:1px solid oklch(90% 0.012 75)">
+<span style="{{ main.etradeChevron }}display:inline-block;color:oklch(46% 0.02 75);font-size:11px">▸</span>
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">E*TRADE ACCOUNT 1</span>
+<span style="font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums;text-align:right">$52,704</span>
+<span></span>
+</button>
+<div style="{{ main.etradeRows }}flex-direction:column;padding:0 18px 12px">
+<div style="font-size:11px;color:oklch(52% 0.02 75)">Connected · updated Jul 28 · wealth generated $300</div>
+</div>
+
+<div style="height:8px;background:oklch(94% 0.012 75)"></div>
+
+<div style="padding:14px 18px 4px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">WHAT EACH CATEGORY EARNED</span>
+<span style="font-size:10.5px;font-weight:600;letter-spacing:.05em;color:oklch(52% 0.02 75)">SINCE JUL 19</span>
+</div>
+<div style="padding:6px 18px 0;display:grid;grid-template-columns:1fr auto auto 14px;column-gap:10px;font-size:10px;font-weight:700;letter-spacing:.05em;color:oklch(55% 0.02 75)">
+<span>CATEGORY</span><span style="text-align:right">EARNED</span><span style="text-align:right">RETURN</span><span></span>
+</div>
+<a href="#" style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;border-top:1px solid oklch(90% 0.012 75);font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(38% 0.1 150);flex:none"></span>Stocks & ETFs</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$1,220</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">+2.1%</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(24% 0.09 150);flex:none"></span>Bonds & CDs</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$210</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">4.2%/yr</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</a>
+<a href="#" style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(80% 0.05 150);flex:none"></span>Sweep cash <span style="color:oklch(55% 0.02 75);font-style:italic;font-size:11px">ⓘ</span></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$220</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">2.5%/yr</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</a>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)">
+<span>All categories</span><span style="text-align:right;font-variant-numeric:tabular-nums">$1,650</span><span></span><span></span>
+</div>
+<div style="padding:6px 18px 16px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">Earned = dividends + interest received in this window ⓘ · a /yr figure is that category's yearly pace ⓘ</div>
+
+</div>
+</x-import>
+</div>
+<div style="display:flex;justify-content:space-around;align-items:center;width:390px;background:oklch(98% 0.008 75);border-top:1px solid oklch(90% 0.012 75);padding:10px 0 6px">
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Home</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Net worth</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(38% 0.1 150)"></span><span style="font-size:10px;color:oklch(38% 0.1 150);font-weight:600">Performance</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Cash flow</span></div>
+<div style="display:flex;flex-direction:column;align-items:center;gap:3px"><span style="width:5px;height:5px;background:oklch(70% 0.02 75)"></span><span style="font-size:10px;color:oklch(58% 0.02 75)">Plan</span></div>
+</div>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px 'Public Sans',sans-serif;color:oklch(30% 0.02 75)">Account portfolio — E*TRADE detail</div>
+<div style="width:390px" data-screen-label="Performance — Account Portfolio">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div style="background:oklch(98% 0.008 75);min-height:844px;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75);padding-bottom:100px;box-sizing:border-box">
+
+<div style="padding:76px 18px 14px;display:flex;align-items:center;gap:10px">
+<span style="font-size:20px;color:oklch(38% 0.02 75)">‹</span>
+<div>
+<div style="font-size:16px;font-weight:700">E*TRADE Account 1</div>
+<div style="font-size:11.5px;color:oklch(52% 0.02 75)">Portfolio · connected · updated Jul 28</div>
+</div>
+</div>
+
+<div style="padding:6px 18px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">THIS ACCOUNT · SINCE JUL 19</div>
+<div style="display:flex;gap:20px;flex-wrap:wrap;padding:6px 18px 14px;border-bottom:8px solid oklch(94% 0.012 75)">
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Market value</div><div style="font-size:17px;font-weight:700;font-variant-numeric:tabular-nums">$52,704</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Return</div><div style="font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150)">+0.6%</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Income</div><div style="font-size:17px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150)">$220</div></div>
+</div>
+
+<div style="margin:14px 18px;background:oklch(96% 0.025 65);border:1px solid oklch(75% 0.09 65);border-radius:12px;padding:10px 12px;font-size:12.5px;color:oklch(30% 0.02 75)">
+<div style="font-weight:700;color:oklch(38% 0.12 65)">⚠ 1 number needs more information ›</div>
+<div style="margin-top:4px">· E*TRADE hasn't shared dividend records for this account — the return above shows price change only</div>
+<div style="display:flex;gap:8px;margin-top:8px;flex-wrap:wrap">
+<span style="background:oklch(38% 0.1 150);color:#fff;border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700">Enter dividends yourself ›</span>
+<span style="background:transparent;color:oklch(38% 0.1 150);border:1.5px solid oklch(38% 0.1 150);border-radius:8px;padding:6px 11px;font-size:12px;font-weight:700">Sync now ›</span>
+</div>
+</div>
+
+<div style="padding:6px 18px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">HOW $52,404 BECAME $52,704 · THIS ACCOUNT</div>
+<div style="padding:0 18px">
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Beginning market value (Jul 19)</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$52,404</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Contributions</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Withdrawals</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:700"><span>Wealth generated</span><span style="font-variant-numeric:tabular-nums">$300</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Dividends</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$120</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Interest</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$100</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 10px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Change in investment value</span><span style="font-variant-numeric:tabular-nums;color:oklch(38% 0.1 150);font-weight:600">$80</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)"><span>Ending market value (Aug 4)</span><span style="font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150)">$52,704</span></div>
+</div>
+<div style="padding:2px 18px 14px;font-size:11px;color:oklch(52% 0.02 75);border-bottom:8px solid oklch(94% 0.012 75)">Every line opens the rows behind it ›</div>
+
+<div style="padding:14px 18px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">BY CATEGORY & HOLDING</div>
+<div style="padding:2px 18px 0;display:grid;grid-template-columns:1fr auto auto 14px;column-gap:10px;font-size:10px;font-weight:700;letter-spacing:.05em;color:oklch(55% 0.02 75)">
+<span>CATEGORY / HOLDING</span><span style="text-align:right">MARKET VALUE</span><span style="text-align:right">RETURN</span><span></span>
+</div>
+
+<button onClick="{{ acct.toggleStocks }}" style="width:100%;border:none;background:oklch(93% 0.05 150);display:grid;grid-template-columns:8px 1fr auto auto 14px;align-items:center;column-gap:8px;padding:8px 18px;margin-top:6px;cursor:pointer;text-align:left">
+<span style="width:8px;height:8px;background:oklch(38% 0.1 150)"></span>
+<span style="font-size:12px;font-weight:700;letter-spacing:.03em;color:oklch(28% 0.09 150)">STOCKS & ETFS</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">$40,000</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">+2.1%</span>
+<span style="{{ acct.stocksChevron }}display:inline-block;color:oklch(28% 0.09 150);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ acct.stocksRows }}flex-direction:column;padding:0 18px">
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;column-gap:8px;padding:8px 0 2px 8px;font-size:12.5px">
+<span><b>LCTX</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">965 shares · $41.45</span></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$40,000</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">+2.1%</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</div>
+<div style="font-size:10.5px;color:oklch(52% 0.02 75);padding:0 0 8px 8px">Income: $120 dividends</div>
+</div>
+
+<button onClick="{{ acct.toggleBonds }}" style="width:100%;border:none;background:oklch(93% 0.05 150);display:grid;grid-template-columns:8px 1fr auto auto 14px;align-items:center;column-gap:8px;padding:8px 18px;margin-top:6px;cursor:pointer;text-align:left">
+<span style="width:8px;height:8px;background:oklch(24% 0.09 150)"></span>
+<span style="font-size:12px;font-weight:700;letter-spacing:.03em;color:oklch(28% 0.09 150)">BONDS & CDS</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">$8,704</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">4.2%/yr</span>
+<span style="{{ acct.bondsChevron }}display:inline-block;color:oklch(28% 0.09 150);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ acct.bondsRows }}flex-direction:column;padding:0 18px">
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;column-gap:8px;padding:8px 0 2px 8px;font-size:12.5px">
+<span><b>KeyBank CD 4.00%</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">matures Aug 24, 2026</span></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$5,704</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">4.0%/yr</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</div>
+<div style="font-size:10.5px;color:oklch(52% 0.02 75);padding:0 0 8px 8px">Income: $40 interest</div>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;column-gap:8px;padding:2px 0 2px 8px;font-size:12.5px">
+<span><b>US Treasury 4.25%</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">matures Feb 15, 2028</span></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$3,000</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">4.25%/yr</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</div>
+<div style="font-size:10.5px;color:oklch(52% 0.02 75);padding:0 0 8px 8px">Income: $20 interest</div>
+</div>
+
+<button onClick="{{ acct.toggleCash }}" style="width:100%;border:none;background:oklch(93% 0.05 150);display:grid;grid-template-columns:8px 1fr auto auto 14px;align-items:center;column-gap:8px;padding:8px 18px;margin-top:6px;cursor:pointer;text-align:left">
+<span style="width:8px;height:8px;background:oklch(80% 0.05 150)"></span>
+<span style="font-size:12px;font-weight:700;letter-spacing:.03em;color:oklch(28% 0.09 150)">CASH</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">$4,000</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">2.5%/yr</span>
+<span style="{{ acct.cashChevron }}display:inline-block;color:oklch(28% 0.09 150);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ acct.cashRows }}flex-direction:column;padding:0 18px">
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;column-gap:8px;padding:8px 0 2px 8px;font-size:12.5px">
+<span><b>Sweep cash</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">uninvested balance</span></span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$4,000</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">2.5%/yr</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">›</span>
+</div>
+<div style="font-size:10.5px;color:oklch(52% 0.02 75);padding:0 0 8px 8px">Income: $40 interest</div>
+</div>
+
+<button onClick="{{ acct.toggleAlt }}" style="width:100%;border:none;background:oklch(93% 0.05 150);display:grid;grid-template-columns:8px 1fr auto auto 14px;align-items:center;column-gap:8px;padding:8px 18px;margin-top:6px;cursor:pointer;text-align:left">
+<span style="width:8px;height:8px;background:oklch(65% 0.02 75)"></span>
+<span style="font-size:12px;font-weight:700;letter-spacing:.03em;color:oklch(28% 0.09 150)">ALTERNATIVES</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">$0</span>
+<span style="font-size:12.5px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150);text-align:right">—</span>
+<span style="{{ acct.altChevron }}display:inline-block;color:oklch(28% 0.09 150);font-size:11px;text-align:right">▸</span>
+</button>
+<div style="{{ acct.altRows }}flex-direction:column;padding:6px 18px 8px 26px">
+<div style="font-size:11.5px;color:oklch(52% 0.02 75)">Nothing held in this account</div>
+</div>
+
+<div style="display:flex;justify-content:space-between;padding:10px 18px;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)">
+<span>Total</span><span style="font-variant-numeric:tabular-nums">$52,704 · +0.6%</span>
+</div>
+<div style="padding:0 18px 14px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75);border-bottom:8px solid oklch(94% 0.012 75)">Income sits with the holding that earned it (120+40+20+40 = $220 for this account). Tap a holding for its own page. ⓘ</div>
+
+<div style="padding:14px 18px 4px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">ACTIVITY · SINCE JUL 19</span>
+<span style="font-size:11.5px;color:oklch(52% 0.02 75)">6 records</span>
+</div>
+<a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:8px 18px;border-top:1px solid oklch(90% 0.012 75);font-size:13px">
+<span><b>Dividend · LCTX</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">Aug 1 · from E*TRADE</span></span>
+<span style="font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$120 ›</span>
+</a>
+<a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-size:13px">
+<span><b>Interest · KeyBank CD</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">Jul 31 · from E*TRADE</span></span>
+<span style="font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$60 ›</span>
+</a>
+<a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-size:13px">
+<span><b>Interest · sweep cash</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">Jul 31 · from E*TRADE</span></span>
+<span style="font-variant-numeric:tabular-nums;font-weight:600;color:oklch(38% 0.1 150)">$40 ›</span>
+</a>
+<a href="#" style="display:flex;justify-content:space-between;align-items:center;padding:8px 18px;font-size:13px">
+<span><b>Contribution</b><span style="display:block;font-size:10.5px;color:oklch(52% 0.02 75)">Jul 22 · you entered this</span></span>
+<span style="font-variant-numeric:tabular-nums;font-weight:600">$0 ✎</span>
+</a>
+<div style="padding:2px 18px 10px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">Records from E*TRADE can't be edited — they are the broker's own. Anything you add is marked "you entered this" and stays editable. ⓘ</div>
+<div style="padding:0 18px 8px;display:flex;flex-direction:column;gap:8px">
+<span style="background:oklch(38% 0.1 150);color:#fff;border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;text-align:center">Add a contribution or withdrawal ›</span>
+<span style="background:transparent;color:oklch(38% 0.1 150);border:1.5px solid oklch(38% 0.1 150);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;text-align:center">Add a dividend or interest ›</span>
+<span style="background:transparent;color:oklch(38% 0.1 150);border:1.5px solid oklch(38% 0.1 150);border-radius:9px;padding:9px 14px;font-size:13px;font-weight:700;text-align:center">Add a buy or sale ›</span>
+</div>
+<div style="padding:2px 18px 16px;font-size:11px;color:oklch(52% 0.02 75)">See all activity (older than Jul 19) ›</div>
+
+</div>
+</x-import>
+</div>
+</div>
+
+<div style="display:flex;flex-direction:column;gap:10px">
+<div style="font:600 12px 'Public Sans',sans-serif;color:oklch(30% 0.02 75)">Performance — day one (empty state)</div>
+<div style="width:390px" data-screen-label="Performance — Day One">
+<x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" hint-size="390px,844px">
+<div style="background:oklch(98% 0.008 75);min-height:844px;font-family:'Public Sans',sans-serif;color:oklch(24% 0.02 75);padding-bottom:100px;box-sizing:border-box">
+
+<div style="background:oklch(28% 0.09 150);padding:76px 18px 14px;color:oklch(96% 0.01 150)">
+<div style="display:flex;align-items:center;gap:7px;margin-bottom:16px">
+<span style="width:20px;height:20px;border-radius:6px;background:oklch(96% 0.01 150);color:oklch(28% 0.09 150);font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center;flex:none">M</span>
+<span style="font-size:13px;font-weight:700;letter-spacing:.01em">MoneyKeel</span>
+</div>
+<div style="display:flex;align-items:baseline;justify-content:space-between">
+<span style="font-weight:600;font-size:15px;letter-spacing:.01em">Performance</span>
+<span style="font-size:11.5px;color:oklch(90% 0.02 150 / 0.6)">Aug 4, 2026</span>
+</div>
+</div>
+
+<div style="display:flex;gap:6px;flex-wrap:wrap;padding:14px 18px 4px">
+<span style="flex:1;border:none;border-radius:9px;padding:8px 0;font-size:12.5px;font-weight:700;text-align:center;background:oklch(93% 0.012 75);color:oklch(28% 0.02 75)">Since today —</span>
+<span style="border:none;border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600;color:oklch(52% 0.02 75)">1M —</span>
+<span style="border:none;border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600;color:oklch(52% 0.02 75)">This year —</span>
+<span style="border:none;border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600;color:oklch(52% 0.02 75)">1Y —</span>
+<span style="border:none;border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600;color:oklch(52% 0.02 75)">3Y —</span>
+</div>
+
+<div style="padding:12px 18px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75);border-top:1px solid oklch(90% 0.012 75)">SUMMARY · SINCE TODAY</div>
+<div style="display:flex;gap:20px;flex-wrap:wrap;padding:8px 18px 4px">
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Ending value</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums">$354,314</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Wealth generated</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(60% 0.01 75)">$0</div></div>
+<div><div style="font-size:11px;color:oklch(52% 0.02 75);margin-bottom:2px">Return</div><div style="font-size:19px;font-weight:700;font-variant-numeric:tabular-nums;color:oklch(60% 0.01 75)">—</div></div>
+</div>
+<div style="padding:2px 18px 10px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">Day one: your value is real, your return starts measuring from today. We never back-fill a year we didn't see. ⓘ</div>
+
+<div style="padding:0 18px 14px;border-bottom:8px solid oklch(94% 0.012 75)">
+<svg viewBox="0 0 320 78" style="width:100%;height:70px">
+<line x1="0" y1="70" x2="320" y2="70" stroke="oklch(90% 0.012 75)"></line>
+<circle cx="316" cy="40" r="4" fill="oklch(28% 0.09 150)"></circle>
+<text x="150" y="36" font-size="11" fill="oklch(55% 0.02 75)" font-family="'Public Sans',sans-serif">your line starts today</text>
+</svg>
+<div style="display:flex;justify-content:space-between;font-size:10px;color:oklch(55% 0.02 75)"><span>Aug 4</span><span>Aug 4</span></div>
+</div>
+
+<div style="padding:14px 18px 4px;font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">HOW TODAY'S VALUE STANDS · ALL ACCOUNTS</div>
+<div style="padding:0 18px">
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Beginning market value (today)</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$354,314</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Contributions</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px"><span>Withdrawals</span><span style="font-variant-numeric:tabular-nums;font-weight:600">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:6px 0;font-size:13px;font-weight:700"><span>Wealth generated</span><span style="font-variant-numeric:tabular-nums">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Dividends</span><span style="font-variant-numeric:tabular-nums">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 5px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Interest</span><span style="font-variant-numeric:tabular-nums">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:5px 0 10px 20px;font-size:12.5px;color:oklch(48% 0.02 75)"><span>Change in investment value</span><span style="font-variant-numeric:tabular-nums">$0</span></div>
+<div style="display:flex;justify-content:space-between;padding:8px 0;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)"><span>Ending market value (today)</span><span style="font-variant-numeric:tabular-nums;color:oklch(28% 0.09 150)">$354,314</span></div>
+</div>
+<div style="padding:2px 18px 14px;font-size:11px;color:oklch(52% 0.02 75)">Every line fills in as days pass — the structure never changes.</div>
+
+<div style="padding:8px 18px 4px;display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">VANGUARD BROKERAGE</span>
+<span style="font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums">$301,610</span>
+</div>
+<div style="padding:0 18px 12px;font-size:11px;color:oklch(52% 0.02 75)">Connected · updated today · wealth generated $0</div>
+
+<div style="padding:8px 18px 4px;display:flex;justify-content:space-between;align-items:baseline;border-top:1px solid oklch(90% 0.012 75)">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">E*TRADE ACCOUNT 1</span>
+<span style="font-size:13.5px;font-weight:700;font-variant-numeric:tabular-nums">$52,704</span>
+</div>
+<div style="padding:0 18px 14px;font-size:11px;color:oklch(52% 0.02 75);border-bottom:8px solid oklch(94% 0.012 75)">Connected · updated today · wealth generated $0</div>
+
+<div style="padding:14px 18px 4px;display:flex;justify-content:space-between;align-items:baseline">
+<span style="font-size:11.5px;font-weight:600;letter-spacing:.06em;color:oklch(46% 0.02 75)">WHAT EACH CATEGORY EARNED</span>
+<span style="font-size:10.5px;font-weight:600;letter-spacing:.05em;color:oklch(52% 0.02 75)">SINCE TODAY</span>
+</div>
+<div style="padding:6px 18px 0;display:grid;grid-template-columns:1fr auto auto 14px;column-gap:10px;font-size:10px;font-weight:700;letter-spacing:.05em;color:oklch(55% 0.02 75)">
+<span>CATEGORY</span><span style="text-align:right">EARNED</span><span style="text-align:right">RETURN</span><span></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;border-top:1px solid oklch(90% 0.012 75);font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(38% 0.1 150);flex:none"></span>Stocks & ETFs</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$0</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">—</span>
+<span></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(24% 0.09 150);flex:none"></span>Bonds & CDs</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$0</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">—</span>
+<span></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:8px;height:8px;background:oklch(80% 0.05 150);flex:none"></span>Sweep cash</span>
+<span style="text-align:right;font-variant-numeric:tabular-nums;font-weight:600">$0</span>
+<span style="text-align:right;color:oklch(55% 0.02 75)">—</span>
+<span></span>
+</div>
+<div style="display:grid;grid-template-columns:1fr auto auto 14px;align-items:center;column-gap:10px;padding:8px 18px;font-size:13px;font-weight:700;border-top:1px solid oklch(90% 0.012 75)">
+<span>All categories</span><span style="text-align:right;font-variant-numeric:tabular-nums">$0</span><span></span><span></span>
+</div>
+<div style="padding:6px 18px 16px;font-size:11px;line-height:1.5;color:oklch(52% 0.02 75)">Fills in with your first dividend or interest record. A file import carries no activity — that line will say so rather than show a false $0. ⓘ</div>
+
+</div>
+</x-import>
+</div>
+</div>
+
+</div>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  state = {
+    main: { open: { vanguard: true, etrade: false } },
+    acct: { open: { stocks: true, bonds: true, cash: true, alt: false } },
+    pill: 'since'
+  };
+
+  toggleMain(key) { this.setState(s => ({ ...s, main: { ...s.main, open: { ...s.main.open, [key]: !s.main.open[key] } } })); }
+  toggleAcct(key) { this.setState(s => ({ ...s, acct: { ...s.acct, open: { ...s.acct.open, [key]: !s.acct.open[key] } } })); }
+  setPill(p) { this.setState(s => ({ ...s, pill: p })); }
+
+  pillStyle(active) {
+    const base = 'border:none;border-radius:9px;padding:8px 12px;font-size:12.5px;font-weight:600;cursor:pointer;';
+    return active ? base + 'background:oklch(38% 0.1 150);color:#fff;'
+                  : base + 'background:oklch(93% 0.012 75);color:oklch(28% 0.02 75);';
+  }
+
+  renderVals() {
+    const m = this.state.main.open, a = this.state.acct.open;
+    const chev = o => `transform:${o ? 'rotate(90deg)' : 'rotate(0deg)'};transition:transform .18s;`;
+    const rows = o => o ? 'display:flex;' : 'display:none;';
+    return {
+      main: {
+        vanguardChevron: chev(m.vanguard), etradeChevron: chev(m.etrade),
+        vanguardRows: rows(m.vanguard), etradeRows: rows(m.etrade),
+        toggleVanguard: () => this.toggleMain('vanguard'), toggleEtrade: () => this.toggleMain('etrade'),
+        sincePillStyle: this.pillStyle(this.state.pill === 'since'), pill1mStyle: this.pillStyle(this.state.pill === '1m'),
+        pillYtdStyle: this.pillStyle(this.state.pill === 'ytd'), pill1yStyle: this.pillStyle(this.state.pill === '1y'),
+        pill3yStyle: this.pillStyle(this.state.pill === '3y'),
+        setSince: () => this.setPill('since'), set1m: () => this.setPill('1m'), setYtd: () => this.setPill('ytd'),
+        set1y: () => this.setPill('1y'), set3y: () => this.setPill('3y')
+      },
+      acct: {
+        stocksChevron: chev(a.stocks), bondsChevron: chev(a.bonds), cashChevron: chev(a.cash), altChevron: chev(a.alt),
+        stocksRows: rows(a.stocks), bondsRows: rows(a.bonds), cashRows: rows(a.cash), altRows: rows(a.alt),
+        toggleStocks: () => this.toggleAcct('stocks'), toggleBonds: () => this.toggleAcct('bonds'),
+        toggleCash: () => this.toggleAcct('cash'), toggleAlt: () => this.toggleAcct('alt')
+      }
+    };
+  }
+}
+</script>
+</body>
+</html>

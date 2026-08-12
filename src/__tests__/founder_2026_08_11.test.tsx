@@ -650,7 +650,7 @@ test('the door credits what actually COUNTS, not every balance on file', () => {
 // ── THE VERDICT WORD CARRIES ITS NUMBER (founder question 2026-08-11: "what does uncertain mean?") ─
 // FOUNDER RULE 2026-08-11: one wording on all three screens —
 // "<word> — xx% odds of lasting to age abc"
-test('the Net worth verdict shows the NUMBER beside the word, in the ONE app-wide wording', () => {
+test('the Net worth verdict shows the odds in the ONE app-wide wording — no verdict word', () => {
   const yr = new Date().getFullYear();
   useStore.setState({
     nwSeeded: true, nwSetupChoice: 'self', onboardingComplete: true,
@@ -662,18 +662,20 @@ test('the Net worth verdict shows the NUMBER beside the word, in the ONE app-wid
   mockParams = {};
   const NW = require('../screens/NetWorthScreen').default;
   render(<NW />);
-  expect(screen.getByText(/(Likely|Uncertain|Unlikely) — \d+% odds of lasting to age \d+/)).toBeOnTheScreen();
+  expect(screen.getByText(/\d+% odds of lasting to age \d+/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/)).toBeNull();
 });
 
-test('the words are defined where the question gets asked, including the apparent contradiction', () => {
+test('the number is explained where the question gets asked, including the apparent contradiction', () => {
   const { GLOSSARY } = require('../domain/glossary');
   const body = GLOSSARY.nestEggMath.body;
-  expect(body).toMatch(/Likely = 80 or more/);
-  expect(body).toMatch(/Uncertain = 60 to 79/);
-  expect(body).toMatch(/Unlikely = under 60/);
-  expect(body).toMatch(/Holding, Watch closely, and Running short/);      // the retired voice too
-  // and WHY a plan with money to spare can still read Uncertain — two true facts, not a mistake
-  expect(body).toMatch(/WHY "UNCERTAIN" CAN SIT NEXT TO MONEY TO SPARE/);
+  // 2026-08-12: there is no verdict word left to define — the explainer defines the NUMBER, and
+  // says plainly why no word sits beside it
+  expect(body).toMatch(/WHAT THE NUMBER MEANS/);
+  expect(body).toMatch(/60 of them and ran out in 40/);
+  expect(body).not.toMatch(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/);
+  // and WHY a plan with money to spare can still show low odds — two true facts, not a mistake
+  expect(body).toMatch(/WHY A LOW NUMBER CAN SIT NEXT TO MONEY TO SPARE/);
   expect(body).toMatch(/MIDDLE future/);
   expect(body).toMatch(/22 runs out of 100 the money still ran out/);
 });
@@ -681,9 +683,13 @@ test('the words are defined where the question gets asked, including the apparen
 // ── ONE WORDING FOR THE ODDS, EVERYWHERE (founder rule 2026-08-11) ─────────────────────────────
 test('Home, Net worth and Plan say the odds in the SAME words, from one helper', () => {
   const { oddsLine, sampleOddsLine } = require('../domain/planning/hub');
-  expect(oddsLine('preretired', 78, 90)).toBe('Uncertain — 78% odds of lasting to age 90');
-  expect(oddsLine('preretired', 84, 92)).toBe('Likely — 84% odds of lasting to age 92');
-  expect(oddsLine('retired', 45, 95)).toBe('Running short — 45% odds of lasting to age 95');
+  // FOUNDER RULING 2026-08-12: the verdict word is gone — "uncertain and giving it 60%
+  // probability does not make sense; it should be either or". The number carries the uncertainty.
+  expect(oddsLine('preretired', 78, 90)).toBe('78% odds of lasting to age 90');
+  expect(oddsLine('preretired', 84, 92)).toBe('84% odds of lasting to age 92');
+  expect(oddsLine('retired', 45, 95)).toBe('45% odds of lasting to age 95');
+  // the lens no longer changes the verdict — one sentence for everyone
+  expect(oddsLine('retired', 78, 90)).toBe(oddsLine('preretired', 78, 90));
   expect(sampleOddsLine()).toBe('Sample: 84% odds of lasting to age 90');
   expect(sampleOddsLine(92)).toBe('Sample: 84% odds of lasting to age 92');
   // and no screen builds the sentence by hand any more — the old phrasings are gone for good
