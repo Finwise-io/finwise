@@ -13,7 +13,7 @@ import { Colors, Spacing, Typography } from '../utils/theme';
 import { GaugeArc } from './GaugeArc';
 import { SectionBand } from './SectionBand';
 import { InfoDot } from './UI';
-import { maskedMoney } from './useMoney';
+import { maskedMoney, spokenMoney } from './useMoney';
 import { planTarget, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
 import { oddsLine } from '../domain/planning/hub';
 import type { RetirementInputs } from '../domain/retirement';
@@ -57,11 +57,12 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
       {/* the arithmetic — money, not a second score */}
       {t?.targetAtRetirement != null && (
         <View style={s.sums}>
-          <Row label={`On track for${lens === 'retired' ? '' : `, at ${retireAge}`}`} value={maskedMoney(t.projectedAtRetirement)} />
-          <Row label="Target nest egg" value={maskedMoney(t.targetAtRetirement)} />
+          <Row label={`On track for${lens === 'retired' ? '' : `, at ${retireAge}`}`} value={maskedMoney(t.projectedAtRetirement)} spoken={spokenMoney(t.projectedAtRetirement)} />
+          <Row label="Target nest egg" value={maskedMoney(t.targetAtRetirement)} spoken={spokenMoney(t.targetAtRetirement)} />
           <Row
             label={spare ? 'More than you need' : 'Short'}
             value={maskedMoney(Math.abs(short!))}
+            spoken={spokenMoney(Math.abs(short!))}
             strong
             tone={spare ? 'good' : 'warn'}
           />
@@ -102,9 +103,9 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   );
 }
 
-function Row({ label, value, strong, tone }: { label: string; value: string; strong?: boolean; tone?: 'good' | 'warn' }) {
+function Row({ label, value, spoken, strong, tone }: { label: string; value: string; spoken: string; strong?: boolean; tone?: 'good' | 'warn' }) {
   return (
-    <View style={s.row} accessible accessibilityLabel={`${label}: ${value}`}>
+    <View style={s.row} accessible accessibilityLabel={`${label}: ${spoken}`}>
       <Text style={[s.rowLabel, strong && s.rowLabelStrong]}>{label}</Text>
       <Text style={[s.rowValue, strong && s.rowValueStrong, tone === 'warn' && s.warn, tone === 'good' && s.good]}>{value}</Text>
     </View>
