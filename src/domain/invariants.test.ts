@@ -90,19 +90,26 @@ describe('Wealth single-source invariants', () => {
     expect(pct).toBeCloseTo(100, 1);
   });
 
-  test('retirement earmark defaults: property 0%, 529 0%, cash 0%, retirement/investment 100% (Term #7)', () => {
+  // FOUNDER RULE 2026-08-11: everything you own counts toward retirement EXCEPT your primary home
+  // and your primary car. Cash counts (it is money you can spend); a rental counts (you can sell it).
+  // Only the roof you live under and the car you drive are off the table. Any of it is changeable
+  // per account, and the plan-answers screen is where a person changes it.
+  test('retirement earmark defaults: ALL assets except the primary home and the primary car', () => {
     const acct = (kind: string, bucket: AssetAccount['tax_bucket'], balance = 1000): AssetAccount =>
       ({ asset_id: kind, label: kind, kind, tax_bucket: bucket, balance, target_return: 0.07 });
-    expect(earmarkDefault(acct('home', 'PROPERTY'))).toBe(0);
-    expect(earmarkDefault(acct('college_529', 'TAXABLE'))).toBe(0);
-    expect(earmarkDefault(acct('savings', 'CASH'))).toBe(0);   // cash = liquidity, not the nest egg (was 50%)
+    expect(earmarkDefault(acct('home', 'PROPERTY'))).toBe(0);          // the home you live in
+    expect(earmarkDefault(acct('vehicle', 'PROPERTY'), 'vehicle')).toBe(0);   // the car you drive
+    expect(earmarkDefault(acct('college_529', 'TAXABLE'))).toBe(0);    // legally someone else's
+    expect(earmarkDefault(acct('savings', 'CASH'))).toBe(100);         // cash IS money you can spend
     expect(earmarkDefault(acct('401k', 'PRE_TAX'))).toBe(100);
     expect(earmarkDefault(acct('roth_ira', 'ROTH'))).toBe(100);
-    expect(earmarkedAmount({ ...acct('savings', 'CASH'), balance: 10000 })).toBe(0);
+    // a RENTAL is not the roof over your head — it counts, because you could sell it
+    expect(earmarkDefault({ ...acct('home', 'PROPERTY'), re_use: 'rental' } as AssetAccount)).toBe(100);
+    expect(earmarkedAmount({ ...acct('savings', 'CASH'), balance: 10000 })).toBe(10000);
     expect(earmarkedAmount({ ...acct('401k', 'PRE_TAX'), retirement_pct: 250 } as AssetAccount)).toBe(1000); // clamped to 100%
     expect(retirementEarmarkedValue([
       acct('home', 'PROPERTY', 500000), acct('savings', 'CASH', 10000), acct('401k', 'PRE_TAX', 90000),
-    ])).toBe(0 + 90000);   // Term #7: only the 401(k) — home + cash excluded
+    ])).toBe(10000 + 90000);   // the home is out; the cash and the 401(k) are in
   });
 });
 

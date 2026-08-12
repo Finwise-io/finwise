@@ -25,8 +25,9 @@ describe('A-2 canonical money selectors (math)', () => {
   test('investableAssets excludes real estate / personal property', () => {
     expect(investableAssets([cash, brok, home])).toBe(110_000);
   });
-  test('retirementEarmarkedValue = earmarked investments (cash 0%, property 0%)', () => {
-    expect(retirementEarmarkedValue([cash, brok, home])).toBe(100_000);
+  test('retirementEarmarkedValue = everything except the primary home and primary car', () => {
+    // FOUNDER RULE 2026-08-11: cash counts, the home does not
+    expect(retirementEarmarkedValue([cash, brok, home])).toBe(110_000);
   });
   test('totalDebtBalance = Σ outstanding balances', () => {
     expect(totalDebtBalance(debts)).toBe(25_000);

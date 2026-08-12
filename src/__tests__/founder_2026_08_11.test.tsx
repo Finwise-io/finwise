@@ -472,7 +472,9 @@ test('the deposit sheet says where the money lands, so nothing is decided silent
 });
 
 // ── THE THREE QUESTIONS: a line that names an answer lands ON that answer ───────────────────────
-test('the three questions screen asks ONLY what is missing, and shows the odds once they are in', () => {
+// FOUNDER RULE 2026-08-11 (refined): the screen shows what we ALREADY have and lets it be changed —
+// it never hides an answered question. Missing ones come first; ?focus= puts one at the very top.
+test('the three questions screen shows ALL three, missing first, prefilled with what we know', () => {
   const yr = new Date().getFullYear();
   // age ✔ and savings ✔ — only spending is missing
   useStore.setState({
@@ -484,8 +486,11 @@ test('the three questions screen asks ONLY what is missing, and shows the odds o
   render(<PlanAnswersScreen />);
   expect(screen.getByText('One answer left')).toBeOnTheScreen();
   expect(screen.getByText('WHAT DO YOU SPEND IN A TYPICAL MONTH?')).toBeOnTheScreen();
-  expect(screen.queryByText('HOW OLD ARE YOU?')).toBeNull();            // already answered — not asked again
-  expect(screen.getByText(/already in: 1 account/)).toBeOnTheScreen();  // and credited, never retyped
+  // the answered ones are STILL shown, prefilled, so they can be changed here
+  expect(screen.getByText('HOW OLD ARE YOU?')).toBeOnTheScreen();
+  expect(screen.getByLabelText('Your age in years').props.value).toBe('55');
+  expect(screen.getByText('WHAT COUNTS TOWARD RETIREMENT')).toBeOnTheScreen();
+  expect(screen.getByLabelText(/IRA.*Counts toward retirement\. Tap to change\./)).toBeOnTheScreen();
   // the payoff sits on the SAME screen — no third hop to find out whether it worked
   expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   fireEvent.changeText(screen.getByLabelText('What you spend in a typical month'), '4500');
@@ -530,4 +535,60 @@ test('the three ways in are ONE list — Sharpen and the questions screen cannot
   expect(read('screens/SharpenPlanScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
   expect(read('screens/PlanAnswersScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
   expect(read('screens/SharpenPlanScreen.tsx')).not.toMatch(/Read-only: we can look, never touch your money/);
+});
+
+// ── ONE SCREEN, WHEREVER YOU TAP IT (founder rule 2026-08-11) ──────────────────────────────────
+test('Home, Net worth and Plan all open the SAME three-questions screen', () => {
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/PlanHubScreen.tsx']) {
+    expect(read(f)).toMatch(/\/plan-answers/);
+  }
+  // the hub's ODDS door goes to the questions; its separate "sharpen your whole plan" card still
+  // goes to Sharpen, which is a different job and stays
+  expect(read('screens/PlanHubScreen.tsx')).toMatch(/doorBtn[\s\S]{0,200}plan-answers/);
+});
+
+// ── WHAT COUNTS TOWARD RETIREMENT (founder rule 2026-08-11) ────────────────────────────────────
+test('all assets count except the primary home and the primary car', () => {
+  const { earmarkDefault, primaryCarIdOf, retirementEarmarkedValue } = require('../domain/assets');
+  const a = (over: any) => ({ asset_id: over.kind, label: over.kind, tax_bucket: 'TAXABLE', balance: 1000, target_return: 0, ...over });
+  const home = a({ kind: 'home', tax_bucket: 'PROPERTY', balance: 500000 });
+  const rental = a({ kind: 'home', tax_bucket: 'PROPERTY', balance: 300000, re_use: 'rental', asset_id: 'rental' });
+  const car = a({ kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 30000, asset_id: 'car1' });
+  const car2 = a({ kind: 'vehicle', tax_bucket: 'PROPERTY', balance: 8000, asset_id: 'car2' });
+  const cash = a({ kind: 'savings', tax_bucket: 'CASH', balance: 20000, asset_id: 'cash' });
+  const all = [home, rental, car, car2, cash];
+  expect(primaryCarIdOf(all)).toBe('car1');                    // the car you drive = the valuable one
+  expect(earmarkDefault(home)).toBe(0);                        // the roof over your head
+  expect(earmarkDefault(car, 'car1')).toBe(0);                 // the car you drive
+  expect(earmarkDefault(car2, 'car1')).toBe(100);              // a SECOND car is a real asset
+  expect(earmarkDefault(rental)).toBe(100);                    // a rental can be sold
+  expect(earmarkDefault(cash)).toBe(100);                      // cash is money you can spend
+  // 300,000 rental + 8,000 second car + 20,000 cash = 328,000; home and primary car excluded
+  expect(retirementEarmarkedValue(all)).toBe(328000);
+});
+
+test('a person can change what counts, and their choice always beats the default', () => {
+  const { earmarkedAmount, retirementEarmarkedValue } = require('../domain/assets');
+  const home = { asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000, target_return: 0 } as any;
+  // "I do plan to sell the house" — the override wins over the default exclusion
+  expect(earmarkedAmount({ ...home, retirement_pct: 100 })).toBe(500000);
+  // "keep my savings out of it" — and the other way round
+  const cash = { asset_id: 'c', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 20000, target_return: 0 } as any;
+  expect(earmarkedAmount({ ...cash, retirement_pct: 0 })).toBe(0);
+  expect(retirementEarmarkedValue([{ ...home, retirement_pct: 100 }, { ...cash, retirement_pct: 0 }])).toBe(500000);
+});
+
+test('tapping a row on the answers screen flips whether it counts', () => {
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(new Date().getFullYear() - 55), monthlySpending: '4000' },
+    assetAccounts: [{ asset_id: 'sav', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 20000, target_return: 0 }],
+  } as any);
+  mockParams = {};
+  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
+  render(<PlanAnswersScreen />);
+  expect(screen.getByText(/Counting toward retirement: \$20,000/)).toBeOnTheScreen();
+  fireEvent.press(screen.getByLabelText(/Ally Savings.*Counts toward retirement\. Tap to change\./));
+  expect((useStore.getState() as any).assetAccounts[0].retirement_pct).toBe(0);
 });

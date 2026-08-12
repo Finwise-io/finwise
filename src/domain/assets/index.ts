@@ -530,21 +530,39 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
 // asset CLASS, the taxonomy definition).
 
 /** Default % of an account that's earmarked for retirement (rest funds other goals). */
-export function earmarkDefault(a: AssetAccount): number {
-  // Term #7: the nest egg is the INVESTED retirement portfolio the 4% rule draws on. Default-exclude (0%):
-  if (isRealAsset(a)) return 0;                         // real estate + personal property (a home funds nothing; a rental adds INCOME, not a draw-down balance)
-  if (a.kind === 'college_529') return 0;               // earmarked for college
-  if (assetClassOf(a) === 'cash') return 0;             // cash = emergency fund / near-term liquidity, NOT the invested portfolio (was 50%)
-  return 100;                                           // retirement + investments default fully in (override per account)
+/** FOUNDER RULE 2026-08-11 — what counts toward retirement by default:
+ *      EVERYTHING you own, except your primary home and your primary car.
+ *  Cash counts (it is money you can spend), a rental counts (you can sell it), a second car counts.
+ *  Only the roof you live under and the car you drive are assumed off the table, because selling
+ *  those is not a retirement plan. Any of it can be changed per account — `retirement_pct` always
+ *  wins over this default, and the plan-answers screen is where a person changes it.
+ *
+ *  A 529 stays out: that money is legally earmarked for someone else's education, not a choice.
+ *  `primaryCarId` names the one vehicle treated as the car you drive (the most valuable one) —
+ *  callers pass it so a household with two cars keeps the second as a real asset. */
+export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
+  if (a.kind === 'college_529') return 0;               // not the household's to spend
+  if (assetClassOf(a) === 'real_estate' && realEstateUseOf(a) === 'primary') return 0;   // the home you live in
+  if (a.asset_id === primaryCarId) return 0;            // the car you drive
+  return 100;                                           // everything else is money that could fund retirement
+}
+
+/** The vehicle treated as "the car you drive" — the most valuable one, so a second car stays a real
+ *  asset. Ties break on id, so the choice never shuffles between renders. */
+export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
+  const cars = (accounts ?? []).filter((a) => a.kind === 'vehicle' || assetClassOf(a) === 'personal_property');
+  if (!cars.length) return undefined;
+  return [...cars].sort((x, y) => (y.balance || 0) - (x.balance || 0) || String(x.asset_id).localeCompare(String(y.asset_id)))[0].asset_id;
 }
 /** The retirement-earmarked $ for one account (uses the saved % or the smart default). */
-export function earmarkedAmount(a: AssetAccount): number {
-  const pct = a.retirement_pct == null ? earmarkDefault(a) : a.retirement_pct;
+export function earmarkedAmount(a: AssetAccount, primaryCarId?: string): number {
+  const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarId) : a.retirement_pct;
   return round2((a.balance || 0) * Math.max(0, Math.min(100, pct)) / 100);
 }
 /** Total nest egg = sum of each account's retirement-earmarked portion. This — not net worth — funds retirement. */
 export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
-  return round2((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a), 0));
+  const car = primaryCarIdOf(accounts);
+  return round2((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a, car), 0));
 }
 
 /** Benchmark expected annual return for an asset kind — user override if set, else the ASSET_KINDS default. */
@@ -592,12 +610,13 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  *  OVERSTATES risk for a mixed portfolio; overstating risk makes the odds cautious rather than
  *  flattering, which is the side to err on. Falls back to the scenario rule when nothing is held. */
 export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number {
+  const car = primaryCarIdOf(accounts);
   const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
-  const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
+  const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
   if (total <= 0) return 0.12;
   const weighted = items.reduce((t, a) => {
     const v = (a.kind && overrides?.[a.kind] != null) ? overrides[a.kind] : (a.kind ? KIND_VOLATILITY[a.kind] : undefined);
-    return t + (v ?? 0.12) * earmarkedAmount(a);
+    return t + (v ?? 0.12) * earmarkedAmount(a, car);
   }, 0);
   return Math.round((weighted / total) * 1e4) / 1e4;
 }
@@ -632,10 +651,11 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the
  *  nest egg's growth rate is the value-weighted average of their benchmarks. */
 export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>): number {
+  const car = primaryCarIdOf(accounts);
   const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
-  const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
+  const total = items.reduce((t, a) => t + earmarkedAmount(a, car), 0);
   if (total <= 0) return 0.06;
-  const weighted = items.reduce((t, a) => t + benchmarkReturn(a.kind, overrides) * earmarkedAmount(a), 0);
+  const weighted = items.reduce((t, a) => t + benchmarkReturn(a.kind, overrides) * earmarkedAmount(a, car), 0);
   return Math.round((weighted / total) * 1e4) / 1e4;
 }
 /** Distinct investment kinds present in the earmarked nest egg (for the benchmark editor). */

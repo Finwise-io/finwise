@@ -389,7 +389,11 @@ export default function HomeScreen() {
   </>);
   const gaugeBlock = (<>
         {/* WILL MY MONEY LAST? — Home displays the one selector's number; Plan is its home */}
-        <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85} onPress={() => router.push('/(tabs)/plan')}
+        {/* FOUNDER RULE 2026-08-11: "See your real odds" opens THE SAME screen wherever it is tapped —
+            Home, Net worth or Plan. Until the odds exist it goes to the three questions; once they do,
+            it goes to the Plan tab where the full picture lives. */}
+        <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85}
+          onPress={() => router.push((wil.chance != null ? '/(tabs)/plan' : '/plan-answers') as any)}
          
           accessibilityLabel={wil.chance != null
             ? `Will my money last: ${chanceWord(wil.chance)}, ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`

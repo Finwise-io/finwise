@@ -142,12 +142,15 @@ describe('nest-egg basis: retirementEarmarkedValue (B-49)', () => {
   const mk = (tax_bucket: AssetAccount['tax_bucket'], balance: number, extra: Partial<AssetAccount> = {}): AssetAccount =>
     ({ asset_id: 'a', label: 'x', tax_bucket, balance, target_return: 0.07, ...extra });
 
-  test('PRE_TAX/TAXABLE 100%, CASH 0%, PROPERTY 0% — nest egg < net worth (Term #7)', () => {
+  test('everything except the primary home and car — nest egg still < net worth', () => {
     const accts = [mk('PRE_TAX', 120000), mk('TAXABLE', 45000), mk('CASH', 40000), mk('PROPERTY', 500000)];
     const netWorth = accts.reduce((t, a) => t + a.balance, 0);
     expect(netWorth).toBe(705000);
     // Term #7: cash is liquidity (emergency/near-term), NOT the invested portfolio → 0% (was 50%).
-    expect(retirementEarmarkedValue(accts)).toBe(120000 + 45000 + 0 + 0); // 165,000
+    // FOUNDER RULE 2026-08-11: cash IS money you can spend, so it counts; the PROPERTY row is a
+    // home (kind 'home' by default here) and stays out. Nest egg is still below net worth, which
+    // is the invariant this test exists to hold.
+    expect(retirementEarmarkedValue(accts)).toBe(120000 + 45000 + 40000); // 205,000
     expect(retirementEarmarkedValue(accts)).toBeLessThan(netWorth);
   });
 
