@@ -592,3 +592,56 @@ test('tapping a row on the answers screen flips whether it counts', () => {
   fireEvent.press(screen.getByLabelText(/Ally Savings.*Counts toward retirement\. Tap to change\./));
   expect((useStore.getState() as any).assetAccounts[0].retirement_pct).toBe(0);
 });
+
+// ── WHEN EVERYTHING IS ANSWERED (founder question 2026-08-11) ──────────────────────────────────
+test('all three answered: both screens show the REAL verdict, no sample and no "See your plan"', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    nwSeeded: true, nwSetupChoice: 'self', onboardingComplete: true,
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '9000', salaryMode: 'gross',
+      salaryFreq: 'monthly', birthYear: String(yr - 55), targetRetirementAge: '65', monthlySpending: '4500' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', institution: 'Vanguard', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 800000, target_return: 0.07 }],
+    liabilities: [],
+  } as any);
+  mockParams = {};
+  const NW = require('../screens/NetWorthScreen').default;
+  render(<NW />);
+  expect(screen.getByText(/retire at 65 with ~\$/)).toBeOnTheScreen();   // the real sentence
+  expect(screen.queryByText(/Sample: 84%/)).toBeNull();                  // no sample beside a real verdict
+  expect(screen.queryByText('See your plan ›')).toBeNull();              // and never the bare fallback
+  screen.unmount();
+  const Home = require('../screens/HomeScreen').default;
+  render(<Home />);
+  expect(screen.getByText(/odds of lasting to age/)).toBeOnTheScreen();
+  expect(screen.getByText('See the full picture ›')).toBeOnTheScreen();  // Home leads to the whole plan
+  expect(screen.queryByText(/Sample: 84%/)).toBeNull();
+});
+
+// the hole this question exposed: the door counted ANY account, the odds count what is EARMARKED
+test('owning ONLY the home you live in is not "everything answered" — it says which part is missing', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    nwSeeded: true, nwSetupChoice: 'self',
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(yr - 55), monthlySpending: '4500' },
+    assetAccounts: [{ asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000, target_return: 0 }],
+    liabilities: [],
+  } as any);
+  mockParams = {};
+  const NW = require('../screens/NetWorthScreen').default;
+  render(<NW />);
+  // it used to look complete to the door and compute nothing → a bare "See your plan ›"
+  expect(screen.queryByText('See your plan ›')).toBeNull();
+  expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
+  expect(screen.getByText(/choose what counts toward retirement and it becomes yours/)).toBeOnTheScreen();
+});
+
+test('the door credits what actually COUNTS, not every balance on file', () => {
+  const { planDoor } = require('../domain/planning/hub');
+  const accounts = [
+    { asset_id: 'h', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 500000, target_return: 0 },
+    { asset_id: 's', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 20000, target_return: 0 },
+  ] as any;
+  const d = planDoor({ birthYear: '1970', monthlySpending: '4000' }, accounts);
+  expect(d.count).toBe(0);                       // the savings make it computable
+  expect(d.credit.total).toBe(20000);            // …and only the savings are credited, not the home
+});

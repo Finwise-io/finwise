@@ -3,6 +3,7 @@
 //   planDoor       — the DYNAMIC first-day door: counts ONLY the missing answers, credits live accounts
 //   nextDecision   — the ONE amber card: the single most urgent dated decision, absent when none is
 import type { AssetAccount } from '../assets';
+import { retirementEarmarkedValue } from '../assets';
 import { RMD_START_AGE, rmdAtAge, rmdTakenThisYear } from '../decumulation';
 import { round2 } from '../_shared/num';
 
@@ -15,7 +16,7 @@ export function lensChanceWord(lens: 'retired' | string, chance: number): string
 
 // ── the dynamic door ──────────────────────────────────────────────────────────
 export interface PlanDoor {
-  missing: ('your age' | 'what you spend' | 'what you have')[];
+  missing: ('your age' | 'what you spend' | 'what you have' | 'what counts toward retirement')[];
   count: number;                      // how many answers are still needed
   credit: { accounts: number; total: number } | null;   // live accounts already counted (never retyped)
 }
@@ -25,14 +26,20 @@ export function planDoor(op: Record<string, any> | null, accounts: AssetAccount[
   const hasAge = Number(a.birthYear) > 1900 || Number(a.age) > 0;
   const hasSpend = Number(a.monthlySpending) > 0 || Number(a.spendMonthly) > 0;
   const total = round2((accounts ?? []).reduce((t, x) => t + (x.balance || 0), 0));
-  const hasHave = (accounts ?? []).length > 0 && total > 0;
+  // FOUNDER FINDING 2026-08-11: this counted ANY account with a balance, but the odds run on what is
+  // EARMARKED for retirement. Someone whose only asset is the home they live in looked complete to
+  // this door and produced no odds at all — landing on a bare "See your plan ›", the very fallback
+  // we removed everywhere else. The gate now means what the odds mean.
+  const earmarked = retirementEarmarkedValue(accounts ?? []);
+  const hasHave = earmarked > 0;
   if (!hasAge) missing.push('your age');
   if (!hasSpend) missing.push('what you spend');
-  if (!hasHave) missing.push('what you have');
+  // owning things but none of them counting is a DIFFERENT problem from owning nothing — say which
+  if (!hasHave) missing.push((accounts ?? []).length > 0 && total > 0 ? 'what counts toward retirement' : 'what you have');
   return {
     missing,
     count: missing.length,
-    credit: hasHave ? { accounts: accounts.length, total } : null,
+    credit: hasHave ? { accounts: accounts.length, total: earmarked } : null,
   };
 }
 
@@ -116,7 +123,8 @@ export const SAMPLE_HORIZON = 90;
 export function sampleAskLine(missing: string[]): string {
   const n = missing.length;
   if (n === 0) return '';
-  if (n === 1) return `a sample, not your number — add ${missing[0]} and it becomes yours`;
+  const verb = (m: string) => (m.startsWith('what counts') ? 'choose' : 'add');
+  if (n === 1) return `a sample, not your number — ${verb(missing[0])} ${missing[0]} and it becomes yours`;
   const list = n === 2 ? `${missing[0]} and ${missing[1]}` : `${missing.slice(0, -1).join(', ')} and ${missing[n - 1]}`;
   return `a sample, not your number — ${n} answers make it yours: ${list}`;
 }
