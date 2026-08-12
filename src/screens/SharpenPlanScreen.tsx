@@ -5,6 +5,7 @@ import React, { useMemo } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
+import { DOORS } from '../constants/doors';
 import { SectionBand } from '../components/SectionBand';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
@@ -32,12 +33,7 @@ export function usePlanCompleteness() {
   }), [op, accounts, A, store.goals, store.monthlyBudgetTarget, store.liabilities, store.employmentStatus]);
 }
 
-// The same three doors Home offers — one wording, everywhere (one concept → one phrase).
-const DOORS = [
-  { icon: '🔗', title: 'Connect your bank ›', sub: 'Read-only: we can look, never touch your money.', route: '/connect' },
-  { icon: '📄', title: 'Import a file from your brokerage ›', sub: 'The CSV export — we read your holdings, nothing is uploaded.', route: '/import-holdings' },
-  { icon: '✍️', title: 'Add something by hand ›', sub: 'Your home, savings, or an account with no login.', route: '/add-account' },
-];
+
 
 export default function SharpenPlanScreen() {
   const router = useRouter();

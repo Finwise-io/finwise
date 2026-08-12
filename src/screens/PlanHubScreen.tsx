@@ -150,7 +150,7 @@ export default function PlanHubScreen() {
                 <Text style={{ color: Colors.textTertiary }}>A sample — {door.count < 3 ? `yours needs ${door.count} more answer${door.count === 1 ? '' : 's'}` : 'not your number'}.</Text>
               </Text>
             </View>
-            <TouchableOpacity accessibilityRole="button" style={styles.doorBtn} onPress={() => router.push('/sharpen')}
+            <TouchableOpacity accessibilityRole="button" style={styles.doorBtn} onPress={() => router.push(`/plan-answers${door.count === 1 ? `?focus=${encodeURIComponent(door.missing[0])}` : ''}` as any)}
               accessibilityLabel={`${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}`}>
               <Text style={styles.doorBtnTxt}>{door.count < 3 ? `${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}` : `See your real ${lens === 'retired' ? 'answer' : 'odds'} — 3 questions`} ›</Text>
             </TouchableOpacity>

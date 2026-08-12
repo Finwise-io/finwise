@@ -470,3 +470,64 @@ test('the deposit sheet says where the money lands, so nothing is decided silent
   fireEvent.press(screen.getByLabelText(/Record a deposit/));
   expect(screen.getByText(/Lands as cash in this account/)).toBeOnTheScreen();
 });
+
+// ── THE THREE QUESTIONS: a line that names an answer lands ON that answer ───────────────────────
+test('the three questions screen asks ONLY what is missing, and shows the odds once they are in', () => {
+  const yr = new Date().getFullYear();
+  // age ✔ and savings ✔ — only spending is missing
+  useStore.setState({
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(yr - 55), targetRetirementAge: '67' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000, target_return: 0.07 }],
+  } as any);
+  mockParams = {};
+  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
+  render(<PlanAnswersScreen />);
+  expect(screen.getByText('One answer left')).toBeOnTheScreen();
+  expect(screen.getByText('WHAT DO YOU SPEND IN A TYPICAL MONTH?')).toBeOnTheScreen();
+  expect(screen.queryByText('HOW OLD ARE YOU?')).toBeNull();            // already answered — not asked again
+  expect(screen.getByText(/already in: 1 account/)).toBeOnTheScreen();  // and credited, never retyped
+  // the payoff sits on the SAME screen — no third hop to find out whether it worked
+  expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
+  fireEvent.changeText(screen.getByLabelText('What you spend in a typical month'), '4500');
+  expect((useStore.getState() as any).onboardingProfile.monthlySpending).toBe('4500');
+});
+
+test('answering the age question stores a believable birth year, and only a believable one', () => {
+  useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'] } } as any);
+  mockParams = {};
+  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
+  render(<PlanAnswersScreen />);
+  const field = screen.getByLabelText('Your age in years');
+  fireEvent.changeText(field, '5');                                     // half-typed
+  expect((useStore.getState() as any).onboardingProfile.birthYear).toBeUndefined();
+  fireEvent.changeText(field, '58');
+  expect((useStore.getState() as any).onboardingProfile.birthYear).toBe(String(new Date().getFullYear() - 58));
+});
+
+test('the Net worth line lands on the question it names — not on a hub', () => {
+  const yr = new Date().getFullYear();
+  useStore.setState({
+    nwSeeded: true, nwSetupChoice: 'self',
+    onboardingProfile: { status: 'employed', incomeSources: ['employment'], birthYear: String(yr - 55), targetRetirementAge: '67' },
+    assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000, target_return: 0.07 }],
+    liabilities: [],
+  } as any);
+  mockParams = {};
+  const NetWorthScreen = require('../screens/NetWorthScreen').default;
+  render(<NetWorthScreen />);
+  // the accessible name says what it opens, and it is the QUESTION, not the Plan tab
+  expect(screen.getByLabelText(/add what you spend and it becomes yours\. Opens that question\./)).toBeOnTheScreen();
+});
+
+test('the route is whitelisted, so the guard can never bounce it Home (the T22 class)', () => {
+  const { MODAL_SEGMENTS } = require('../navigation/routeGuard');
+  expect(MODAL_SEGMENTS).toContain('plan-answers');
+});
+
+test('the three ways in are ONE list — Sharpen and the questions screen cannot word them differently', () => {
+  const fs = require('fs'); const path = require('path');
+  const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
+  expect(read('screens/SharpenPlanScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
+  expect(read('screens/PlanAnswersScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
+  expect(read('screens/SharpenPlanScreen.tsx')).not.toMatch(/Read-only: we can look, never touch your money/);
+});

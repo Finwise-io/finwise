@@ -739,7 +739,14 @@ export default function NetWorthScreen() {
               <Text style={styles.sampleLine}>
                 <Text style={styles.sampleNum}>Sample: {SAMPLE_CHANCE}%</Text> odds of lasting to age {SAMPLE_HORIZON}
               </Text>
-              <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
+              {/* Founder finding 2026-08-11: this line NAMES one missing answer, so it must land on
+                  that answer — not on the Plan hub, and not on the seven-item completeness list two
+                  hops further on. Same rule the fix-it sheet already holds itself to. */}
+              <TouchableOpacity accessibilityRole="button"
+                onPress={(e: any) => { e?.stopPropagation?.(); router.push(`/plan-answers${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any); }}
+                accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
+                <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
+              </TouchableOpacity>
             </View>
           )}
           <View style={[styles.blockBody, { flexDirection: 'row', alignItems: 'center', gap: 4, flexWrap: 'wrap' },
