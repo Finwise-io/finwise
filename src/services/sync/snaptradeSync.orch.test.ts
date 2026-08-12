@@ -97,3 +97,23 @@ test('the real pagination envelope {data, pagination} still lands history (live 
   expect(s.transactions.some((t: any) => t.type === 'DEPOSIT' && t.amount === 250)).toBe(true);
   expect(api.activities).toHaveBeenCalledTimes(1);       // total satisfied on page one → no extra calls
 });
+
+// FOUNDER FINDING 2026-08-11: the provider reported NO connections while the app still held accounts
+// marked connected. Nothing threw, so nothing was recorded — the accounts sat there looking connected
+// with a date that never moved, and "Sync now" appeared to do nothing at all.
+test('a connected account with NO connection at the provider is recorded as unreachable', async () => {
+  const { useStore } = require('../../store/useStore');
+  useStore.getState().resetAll();
+  useStore.setState({
+    assetAccounts: [
+      { asset_id: 'v1', label: 'Vanguard Brokerage', institution: 'Vanguard', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 100, target_return: 0, source: 'connected', last_synced: '2026-08-03T00:00:00Z' },
+      { asset_id: 'm1', label: 'Typed by hand', kind: 'savings', tax_bucket: 'CASH', balance: 50, target_return: 0 },
+    ],
+  } as any);
+  api.connections.mockResolvedValueOnce([]);          // the provider has no connections at all
+  const n = await runSnapTradeSync({ force: true });
+  expect(n).toBe(0);
+  const failures = (useStore.getState() as any).syncFailures;
+  expect(failures.map((f: any) => f.accountId)).toEqual(['v1']);   // only the CONNECTED one
+  expect(failures[0].reason).toMatch(/no connection found/);
+});

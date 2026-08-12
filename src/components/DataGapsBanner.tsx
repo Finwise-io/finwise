@@ -50,15 +50,30 @@ export function DataGapsBanner({ gaps }: { gaps: DataGap[] }) {
                     setBusy(i); setResult(null);
                     try {
                       const { runSnapTradeSync } = require('../services/sync/snaptradeSync');
-                      await runSnapTradeSync({ force: true });
-                      setResult('Updated. Anything still listed here needs a re-login.');
+                      // FOUNDER FINDING 2026-08-11: this ignored the result and always said
+                      // "Updated", even when NOTHING had been refreshed — which is what happened, so
+                      // the message claimed success while both rows stayed exactly where they were.
+                      // The count is what actually came back; say that, and nothing else.
+                      const n = await runSnapTradeSync({ force: true });
+                      setResult(n > 0
+                        ? `Updated ${n} account${n === 1 ? '' : 's'}. Anything still listed below needs a re-login — use Reconnect.`
+                        : "Nothing could be refreshed — your broker didn't answer. That usually means the connection has expired: use Reconnect below.");
                     } catch {
-                      setResult("We couldn't reach it just now — the connection may need a re-login.");
+                      setResult("We couldn't reach it just now — use Reconnect below to sign in again.");
                     } finally { setBusy(null); }
                   }}
                   accessibilityLabel={g.action === 'sync' ? `${g.fixLabel}. Updates this account now.` : g.fixLabel}>
                   <Text style={s.fixTxt}>{busy === i ? 'Syncing…' : `${g.fixLabel} ›`}</Text>
                 </TouchableOpacity>
+                {/* the second door — always present on a connection row, so "needs a re-login" is
+                    never advice without a way to act on it (founder finding 2026-08-11) */}
+                {!!g.alt && (
+                  <TouchableOpacity accessibilityRole="button" style={s.altBtn}
+                    onPress={() => { setOpen(false); router.push(g.alt!.route as any); }}
+                    accessibilityLabel={`${g.alt.label} — sign in to this connection again`}>
+                    <Text style={s.altTxt}>{g.alt.label} ›</Text>
+                  </TouchableOpacity>
+                )}
               </View>
             ))}
           </ScrollView>
@@ -82,6 +97,8 @@ const s = StyleSheet.create({
   gapTitle: { fontSize: 13, fontWeight: '700', color: Colors.textPrimary },
   gapSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   fixBtnBusy: { opacity: 0.6 },
+  altBtn: { borderWidth: 1, borderColor: Colors.primaryDeep, borderRadius: 10, minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 8, paddingHorizontal: 12 },
+  altTxt: { color: Colors.primaryDeep, fontSize: 13, fontWeight: '800' },
   result: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark, marginBottom: 8 },
   fixBtn: { backgroundColor: Colors.primaryDeep, borderRadius: 10, minHeight: 44, alignItems: 'center', justifyContent: 'center', marginTop: 8, paddingHorizontal: 12 },
   fixTxt: { color: Colors.white, fontSize: 13, fontWeight: '800' },

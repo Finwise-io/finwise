@@ -6,6 +6,9 @@ import { useStore } from '../store/useStore';
 import { accountDisplayName, accountDisplayNames, accountLastFour } from '../domain/assets';
 import { dataGaps } from '../domain/gaps';
 
+const mockSync = jest.fn();
+jest.mock('../services/sync/snaptradeSync', () => ({ runSnapTradeSync: (...a: any[]) => mockSync(...a) }));
+
 let mockParams: Record<string, string> = {};
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), setParams: jest.fn() }),
@@ -152,8 +155,7 @@ test('a fixed connection stops complaining — no failure recorded, no unreachab
 });
 
 test('the fix-it sheet runs the sync in place and says what happened', async () => {
-  const sync = jest.fn().mockResolvedValue(1);
-  jest.doMock('../services/sync/snaptradeSync', () => ({ runSnapTradeSync: sync }));
+  mockSync.mockResolvedValue(1);                 // ONE account actually refreshed
   const { DataGapsBanner } = require('../components/DataGapsBanner');
   render(<DataGapsBanner gaps={[{
     kind: 'stale-account', accountId: 'v1', title: 'Vanguard -5738 last updated Aug 3',
@@ -161,8 +163,37 @@ test('the fix-it sheet runs the sync in place and says what happened', async () 
   }]} />);
   fireEvent.press(screen.getByText(/1 number needs more information/));
   await fireEvent.press(screen.getByLabelText(/Sync now\. Updates this account now\./));
-  expect(sync).toHaveBeenCalledWith({ force: true });
-  expect(await screen.findByText(/Updated\. Anything still listed here needs a re-login\./)).toBeOnTheScreen();
+  expect(mockSync).toHaveBeenCalledWith({ force: true });
+  expect(await screen.findByText(/Updated 1 account\./)).toBeOnTheScreen();
+});
+
+// FOUNDER FINDING 2026-08-11: the sheet said "Updated" even when NOTHING had been refreshed, and the
+// rows stayed exactly where they were — a claim of success contradicted by the screen itself.
+test('when nothing could be refreshed, the sheet says SO — it never claims an update it did not make', async () => {
+  mockSync.mockResolvedValue(0);                 // the broker answered with nothing
+  const { DataGapsBanner } = require('../components/DataGapsBanner');
+  render(<DataGapsBanner gaps={[{
+    kind: 'stale-account', accountId: 'v1', title: 'Vanguard -5738 last updated Aug 3',
+    meanwhile: 'Balances may have moved.', fixLabel: 'Sync now', route: '/account-detail?id=v1',
+    action: 'sync', alt: { label: 'Reconnect', route: '/connect' },
+  }]} />);
+  fireEvent.press(screen.getByText(/1 number needs more information/));
+  await fireEvent.press(screen.getByLabelText(/Sync now\. Updates this account now\./));
+  expect(await screen.findByText(/Nothing could be refreshed/)).toBeOnTheScreen();
+  expect(screen.queryByText(/^Updated/)).toBeNull();
+});
+
+test('there is always somewhere to re-log-in — "needs a re-login" is never advice with no door', () => {
+  const { dataGaps } = require('../domain/gaps');
+  const NOW = Date.parse('2026-08-11T12:00:00Z');
+  const [stale] = dataGaps([
+    { asset_id: 'v1', label: 'Brokerage', institution: 'Vanguard', mask: '••5738', source: 'connected', last_synced: '2026-08-03T09:00:00Z', tax_bucket: 'TAXABLE', balance: 1, target_return: 0 },
+  ] as any, null, NOW, []);
+  expect(stale.alt).toEqual({ label: 'Reconnect', route: '/connect' });
+  const { DataGapsBanner } = require('../components/DataGapsBanner');
+  render(<DataGapsBanner gaps={[stale]} />);
+  fireEvent.press(screen.getByText(/1 number needs more information/));
+  expect(screen.getByLabelText(/Reconnect — sign in to this connection again/)).toBeOnTheScreen();
 });
 
 // ── MEASURED VOLATILITY (founder ask 2026-08-11: "where are we getting assumptions?") ───────────

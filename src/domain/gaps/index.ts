@@ -23,6 +23,10 @@ export interface DataGap {
   /** What the button DOES. 'sync' runs the sync in place (a button that says "Sync now" must sync,
    *  founder finding 2026-08-11); 'reconnect' opens the connection flow; absent = plain navigation. */
   action?: 'sync' | 'reconnect';
+  /** A SECOND door, when the first one may not be enough. The approved fix-it sheet (State F) always
+   *  offered "Sync now › Reconnect ›" together: a sync cannot revive a connection the broker has
+   *  dropped, and the founder found himself told to re-log-in with nowhere to do it. */
+  alt?: { label: string; route: string };
 }
 
 const STALE_SYNC_DAYS = 3;
@@ -87,7 +91,7 @@ export function dataGaps(
           kind: 'unreachable-account', accountId: a.asset_id,
           title: `We couldn't reach ${who}`,
           meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don't guess at newer ones. This usually means the connection needs a re-login.`,
-          fixLabel: 'Reconnect', route: `/connect?account=${a.asset_id}`,
+          fixLabel: 'Reconnect', route: '/connect',
           action: 'reconnect',
         });
       } else if (d != null && d > STALE_SYNC_DAYS) {
@@ -98,6 +102,8 @@ export function dataGaps(
           // founder finding 2026-08-11: this used to NAVIGATE to the account page, which has no sync
           // on it — a button that said "Sync now" and synced nothing. It runs the sync in place now.
           fixLabel: 'Sync now', route: `/account-detail?id=${a.asset_id}`, action: 'sync',
+          // …and always a way to re-log-in, because a sync cannot fix a dropped connection
+          alt: { label: 'Reconnect', route: '/connect' },
         });
       }
       // 3) a broker that sends balances but no dividend/interest records

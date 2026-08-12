@@ -52,7 +52,16 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
     disabled: !!c.disabled,
   }));
   if (!connMeta.length) {
+    // FOUNDER FINDING 2026-08-11: the app still holds accounts marked "connected" while the provider
+    // reports NO connections at all — the link was revoked, expired, or the provider-side user was
+    // reset. Nothing throws, so nothing was ever recorded, and those accounts just sat there looking
+    // connected with a date that never moved. Record every one of them as unreachable, so each says
+    // it cannot be refreshed and offers the re-login instead of quietly ageing.
+    const orphaned = ((s.assetAccounts ?? []) as { asset_id: string; source?: string }[])
+      .filter((a) => a.source === 'connected')
+      .map((a) => ({ accountId: a.asset_id, at: new Date().toISOString(), reason: 'no connection found for this account' }));
     s.ingestSnapTradeSync?.([], []);
+    s.setSyncFailures?.(orphaned);
     return 0;
   }
 
