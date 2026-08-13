@@ -1,0 +1,234 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Below the floor v2 — the free routes are real places now</title>
+<style>
+  :root{
+    --primary:#178F6B; --primaryDark:#0F6E56; --primaryDeep:#085041; --primaryLight:#E1F5EE;
+    --amber:#854F0B; --amberLight:#FAEEDA; --amberMid:#FAC775;
+    --white:#FFFFFF; --bgSecondary:#F6F7F5; --bgTertiary:#EEEEE9;
+    --textPrimary:#1A1A18; --textSecondary:#6B6B66; --textTertiary:#76766F;
+    --border:rgba(0,0,0,0.10); --borderStrong:rgba(0,0,0,0.20);
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#E7E9E5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+       color:var(--textPrimary);padding:28px 20px 60px}
+  h1{font-size:19px;margin:0 0 4px}
+  .lede{font-size:14px;color:#44443f;max-width:1180px;line-height:1.55;margin:0 0 6px}
+  .lede b{color:#000}
+  .stage{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px;align-items:flex-start}
+  .col{width:390px}
+  .cap{font-size:13px;font-weight:800;color:var(--primaryDeep);margin:0 0 8px}
+  .cap span{display:block;font-weight:500;color:#55554f;font-size:12px;margin-top:2px}
+  .phone{width:390px;background:var(--bgSecondary);border-radius:38px;border:1px solid rgba(0,0,0,.16);
+         box-shadow:0 10px 34px rgba(0,0,0,.16);overflow:hidden;position:relative}
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;font-size:12.5px;font-weight:700}
+  .top{padding:6px 16px 4px;display:flex;align-items:center;gap:8px}
+  .wordmark{font-size:14px;font-weight:800}
+  .wordmark i{font-style:normal;color:var(--primary)} .wordmark u{text-decoration:none;color:var(--primaryDeep)}
+  .menu{margin-left:auto;font-size:17px;color:var(--textSecondary)}
+  .scroll{padding:12px;background:var(--bgSecondary)}
+  .h1{font-size:24px;font-weight:800;margin:0}
+  .tag{font-size:15px;color:var(--textSecondary);margin:0 0 12px}
+  .card{background:var(--white);border-radius:14px;padding:12px;margin-bottom:8px}
+  .band{background:var(--primaryDeep);color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;
+        text-transform:uppercase;padding:8px 12px;margin:-12px -12px 4px}
+  .l1{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--primaryDeep);padding:14px 0 4px}
+  .lede1{font-size:17px;font-weight:800;line-height:24px;padding:4px 0 0}
+  .body{font-size:13px;line-height:19px;padding:8px 0 0}
+  .works{background:var(--primaryLight);border-left:3px solid var(--primaryDeep);padding:10px 12px;margin:10px -12px 0}
+  .worksT{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--primaryDeep);margin-bottom:3px}
+  .worksB{font-size:15px;font-weight:700;line-height:21px}
+  .ctx{font-size:11px;line-height:17px;color:var(--textSecondary);padding:10px 0 0}
+  .row{display:flex;align-items:flex-start;min-height:44px;border-top:1px solid var(--border);gap:8px;padding:9px 0}
+  .row .l{font-size:13px;font-weight:700}
+  .row .s{font-size:11px;color:var(--textSecondary);margin-top:3px;line-height:16px}
+  .row .tel{font-size:11px;color:var(--primaryDark);font-weight:700;margin-top:4px}
+  .ext{font-size:13px;color:var(--textTertiary);padding-top:2px}
+  .foot{font-size:11px;color:var(--textTertiary);line-height:15px;margin:2px 0 4px}
+  .tabbar{display:flex;background:var(--white);border-top:1px solid var(--border);padding:8px 0 22px}
+  .tab{flex:1;text-align:center;font-size:10px;color:var(--textTertiary)}
+  .tab .g{display:block;font-size:16px;margin-bottom:2px;opacity:.55}
+  .tab.on{color:var(--primaryDeep);font-weight:800} .tab.on .g{opacity:1}
+  .scrim{position:absolute;inset:0;background:rgba(0,0,0,.42);display:flex;align-items:flex-end}
+  .sheet{background:#fff;width:100%;border-radius:18px 18px 0 0;padding:18px 16px 26px}
+  .sheetT{font-size:17px;font-weight:800;line-height:23px}
+  .sheetB{font-size:13px;line-height:19px;color:var(--textSecondary);margin-top:8px}
+  .sheetB b{color:var(--textPrimary)}
+  .btn{display:block;background:var(--primaryDeep);color:#fff;font-size:15px;font-weight:800;text-align:center;
+       padding:13px;margin-top:14px;min-height:44px}
+  .btn2{display:block;background:#fff;color:var(--textPrimary);border:1.5px solid var(--borderStrong);
+        font-size:15px;font-weight:700;text-align:center;padding:13px;margin-top:8px;min-height:44px}
+  .note{font-size:12.5px;color:#44443f;line-height:1.6;background:#fff;border-left:3px solid var(--primary);
+        padding:12px 14px;border-radius:0 8px 8px 0;margin-top:12px}
+  .note b{color:#000}
+  table{width:100%;border-collapse:collapse;font-size:12px;margin-top:8px}
+  th{background:var(--primaryDeep);color:#fff;text-align:left;padding:6px 8px;font-size:11px}
+  td{padding:6px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+</style>
+
+<h1>Below the floor, v2 — the three free routes are real places now</h1>
+<p class="lede">
+  Supersedes v1 (which drew three rows with arrows and no destinations — the same mistake as the mortgage
+  row). <b>All three services verified on the web today, 2026-08-13.</b> Two of them turned out to have
+  something v1 didn't account for: <b>a phone number</b>. For people in their sixties and seventies, in
+  distress, a number to call may beat a website — so the rows carry both.
+</p>
+
+<div class="stage">
+
+<!-- ═══ A · the rows, with real destinations ═══ -->
+<div class="col">
+  <div class="cap">A · Real names, real numbers<span>The rows as they should ship</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Plan</div>
+      <div class="tag">We lay it out. You decide.</div>
+
+      <div class="card">
+        <div class="band">Will my money last?</div>
+        <div class="lede1">Retiring at 65 doesn't work on these numbers — at any spending level.</div>
+        <div class="body">The two years before your Social Security starts would use up everything you have.
+          Spending less doesn't fix it: even at $2,200 a month, the money runs out before 67.</div>
+        <div class="works">
+          <div class="worksT">WHAT DOES WORK</div>
+          <div class="worksB">Waiting until <b>67</b>, when your Social Security starts, and living on about
+            <b>$2,450 a month</b>.</div>
+        </div>
+        <div class="ctx">For the $9,000 a month you spend now, starting at 65, you'd need about
+          <b>$1,810,000</b> saved. You have $20,000.</div>
+      </div>
+
+      <div class="l1">THINGS THAT COST NOTHING</div>
+      <div class="card">
+        <div class="row" style="border-top:none"><div style="flex:1">
+          <div class="l">Check you're claiming everything you're owed</div>
+          <div class="s"><b>BenefitsCheckUp</b>, from the National Council on Aging. Free and confidential —
+            your ZIP code and a few questions, no sign-up. Covers nearly 2,000 programmes for food, medicine,
+            utilities and heating.</div>
+          <div class="tel">☎ 1-800-794-6559 · Mon–Fri, 8am–7pm ET · also in Spanish</div>
+        </div><span class="ext">↗</span></div>
+
+        <div class="row"><div style="flex:1">
+          <div class="l">Free Medicare counselling</div>
+          <div class="s"><b>SHIP</b> — your State Health Insurance Assistance Program. One-to-one, unbiased,
+            no products and no fee. Funded by the federal Administration for Community Living.</div>
+          <div class="tel">Every state and territory has one — we'll take you to yours</div>
+        </div><span class="ext">↗</span></div>
+
+        <div class="row"><div style="flex:1">
+          <div class="l">Free debt counselling</div>
+          <div class="s"><b>NFCC</b> — the National Foundation for Credit Counseling, a non-profit since 1951.
+            A free financial action plan from a certified counsellor. Only worth your time if debt payments are
+            part of the $9,000.</div>
+          <div class="tel">☎ 1-877-360-6322</div>
+        </div><span class="ext">↗</span></div>
+      </div>
+
+      <div class="l1">IF YOU WANT SOMEONE TO TALK IT THROUGH</div>
+      <div class="card">
+        <div class="row" style="border-top:none"><div style="flex:1">
+          <div class="l">A fee-only planner, paid by the hour</div>
+          <div class="s">Paid for their time, not for what they sell you — and they'll see you whatever you
+            have saved. Advisers paid a share of your savings usually won't.</div>
+        </div><span class="ext">↗</span></div>
+      </div>
+
+      <div class="foot">Estimates from about 400 runs of your own numbers through different markets — not advice.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="g">🏠</span>Home</div><div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div><div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab on"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+  <div class="note"><b>↗ not ›.</b> A chevron means another screen in this app. These leave it, and for this
+    audience that should never be a surprise.</div>
+</div>
+
+<!-- ═══ B · the handoff sheet ═══ -->
+<div class="col">
+  <div class="cap">B · The handoff<span>One sheet, three configurations</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll" style="opacity:.45">
+      <div class="h1">Plan</div><div class="tag">We lay it out. You decide.</div>
+      <div class="card"><div class="band">Will my money last?</div>
+        <div class="lede1">Retiring at 65 doesn't work on these numbers — at any spending level.</div>
+        <div class="body">The two years before your Social Security starts would use up everything you have.</div>
+      </div>
+      <div class="l1">THINGS THAT COST NOTHING</div>
+      <div class="card"><div class="row" style="border-top:none"><div style="flex:1">
+        <div class="l">Check you're claiming everything you're owed</div></div><span class="ext">↗</span></div></div>
+    </div>
+    <div class="scrim">
+      <div class="sheet">
+        <div class="sheetT">BenefitsCheckUp</div>
+        <div class="sheetB">
+          A free service from the <b>National Council on Aging</b>. It asks for your ZIP code and a few
+          questions, then shows the programmes you may qualify for.<br><br>
+          <b>We have no relationship with them and we get nothing if you use it.</b> This opens in your browser.
+        </div>
+        <a class="btn">Open BenefitsCheckUp</a>
+        <a class="btn2">☎ Call 1-800-794-6559 instead</a>
+        <a class="btn2" style="border:none;color:var(--textSecondary)">Not now</a>
+      </div>
+    </div>
+    <div class="tabbar" style="opacity:.45">
+      <div class="tab"><span class="g">🏠</span>Home</div><div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div><div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab on"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+  <div class="note"><b>Why a sheet and not a straight jump.</b> Two things have to be said before the app
+    disappears: what the place is, and that <b>we get nothing from sending you there</b>. That belongs at the
+    handoff, not buried in a legal page. And the call button is not decoration — for this audience it may be
+    the one that gets used.</div>
+</div>
+
+<!-- ═══ C · what was verified ═══ -->
+<div class="col" style="width:430px">
+  <div class="cap">C · Verified today<span>Checked on the web, not recalled</span></div>
+  <div class="note">
+    <b>All three checked 2026-08-13.</b> I had these from memory in v1; here is what the live sites actually say.
+    <table>
+      <tr><th>Service</th><th>Verified</th></tr>
+      <tr><td><b>BenefitsCheckUp</b><br>benefitscheckup.org</td>
+          <td>Run by the National Council on Aging. Free and confidential, no registration. ZIP code plus a few
+              questions. Nearly 2,000 programmes — food, medicine, utilities, heating — across all 50 states and
+              DC. Helpline <b>1-800-794-6559</b>, Mon–Fri 8am–7pm ET. Spanish at BuscaBeneficios.org.</td></tr>
+      <tr><td><b>SHIP</b><br>shiphelp.org</td>
+          <td>State Health Insurance Assistance Program. "One-on-one counseling from a trusted, unbiased
+              source." Funded by the Administration for Community Living, US Dept of Health &amp; Human
+              Services. Has a <b>Find Your Local SHIP</b> locator covering all 50 states plus Puerto Rico, Guam
+              and the US Virgin Islands.</td></tr>
+      <tr><td><b>NFCC</b><br>nfcc.org</td>
+          <td>National Foundation for Credit Counseling, non-profit, "a trusted resource since 1951." Over 1,500
+              certified counsellors. Offers a <b>free financial action plan</b>. Phone <b>877-360-6322</b>.
+              Four-star Charity Navigator rating.</td></tr>
+    </table>
+  </div>
+  <div class="note">
+    <b>Two changes the verification forced.</b>
+    <br><br>
+    <b>1 · Phone numbers are now on the rows.</b> Two of the three run staffed helplines and I did not know that
+    when I drew v1. For someone in their late sixties who has just been told they cannot retire, a number to
+    call is likely to beat a web form. It should not be hidden inside the sheet.
+    <br><br>
+    <b>2 · SHIP goes to the locator, not the homepage.</b> Help is state-by-state, so a generic landing page
+    would make the person hunt. Send them to the finder.
+  </div>
+  <div class="note">
+    <b>Still to decide, and still yours.</b>
+    <br>• <b>Link rot.</b> A dead link in a "here's help" list is worse than no list. These need re-checking on
+    a schedule — I would put it in the pre-build checklist rather than trusting them forever.
+    <br>• <b>The fee-only row has no destination yet.</b> I have deliberately not picked one: unlike the three
+    above, adviser directories are membership bodies with commercial interests of their own, and choosing one
+    is a different kind of decision. Say the word and I will research the options and bring you a comparison.
+    <br>• <b>US-only</b>, consistent with the rest of the app.
+  </div>
+</div>
+
+</div>
