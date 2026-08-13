@@ -31,11 +31,18 @@ beforeEach(() => { useStore.getState().resetAll(); });
 test('working verdict: the percent AND the if-clause that names THEIR plan', () => {
   seedWorking();
   render(<PlanHubScreen />);
-  expect(screen.getByText(/WILL MY MONEY LAST\? — to \d+/)).toBeOnTheScreen();
+  // 2026-08-12: the band names the section; the horizon is said once, in the odds sentence
+  expect(screen.getByText('YOUR RETIREMENT PLAN')).toBeOnTheScreen();
+  expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
+  expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
   // founder 2026-08-12: no verdict word — the number is the verdict
   expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Likely|Uncertain|Unlikely/)).toBeNull();
-  expect(screen.getByText(/…if you retire at 67, keep saving \$1,200\/mo, and spend \$4,500\/mo in retirement \(your planned spending — you set it\)/)).toBeOnTheScreen();
+  // 2026-08-12: the if-clause is gone — the inputs sit directly beneath the number and say it
+  // truthfully. The old line also claimed "you set it" of a spending figure the app had derived.
+  expect(screen.queryByText(/your planned spending — you set it/)).toBeNull();
+  expect(screen.getByText('FACTS — SAVE AS YOU GO')).toBeOnTheScreen();
+  expect(screen.getByText('CHOICES — TRY THEM, NOTHING CHANGES YET')).toBeOnTheScreen();
   expect(screen.getByText('What drives this? ›')).toBeOnTheScreen();
 });
 
@@ -45,17 +52,19 @@ test('working: the one next-decision card is the dated Social Security window; t
   // Ava (born 1991) → window opens the year she turns 62 — dated, not vague
   expect(screen.getByText(new RegExp(`Your Social Security claim window opens [A-Z][a-z]{2} ${1991 + 62}`))).toBeOnTheScreen();
   expect(screen.queryByText('When should I claim Social Security?')).toBeNull();
-  // ranked questions, v9 grammar
-  expect(screen.getByText('When can I retire?')).toBeOnTheScreen();
+  // ranked questions — "When can I retire?" moved into section 1 (it IS the retire-at stepper)
+  expect(screen.queryByText('When can I retire?')).toBeNull();
+  expect(screen.getByLabelText('Raise Retire at')).toBeOnTheScreen();
   expect(screen.getByText('Can I afford it?')).toBeOnTheScreen();
   expect(screen.getByText('Is a Roth move worth it?')).toBeOnTheScreen();
-  expect(screen.getByText(/Try what-ifs — a sandbox/)).toBeOnTheScreen();
+  expect(screen.queryByText(/Try what-ifs — a sandbox/)).toBeNull();
 });
 
 test('retired verdict: the present-tense question, the spending frame, and the withdrawal pace', () => {
   seedRetired();
   render(<PlanHubScreen />);
-  expect(screen.getByText(/IS MY MONEY LASTING\? — to \d+/)).toBeOnTheScreen();
+  expect(screen.getByText('IS MY MONEY LASTING?')).toBeOnTheScreen();
+  expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
   expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Holding|Watch closely|Running short/)).toBeNull();
   expect(screen.getByText(/Your \$4,500\/mo spending/)).toBeOnTheScreen();

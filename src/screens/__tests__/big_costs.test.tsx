@@ -52,11 +52,14 @@ test('screen: add via the sheet → row + total render; store carries the entry'
   expect(screen.getByText('Total planned')).toBeOnTheScreen();
 });
 
-test('hub: the approved question row exists on BOTH lenses and routes to /big-costs', () => {
+test('big costs are CAPTURED on the Plan tab itself — no door, and the empty state says what it costs', () => {
+  // founder 2026-08-12: big costs merged into the tab's facts, so the separate door was removed
   const fs = require('fs'); const path = require('path');
-  const src = fs.readFileSync(path.join(__dirname, '..', 'PlanHubScreen.tsx'), 'utf8');
-  expect((src.match(/What big costs are coming\?/g) || []).length).toBeGreaterThanOrEqual(2);
-  expect(src).toMatch(/big-costs/);
+  const inputs = fs.readFileSync(path.join(__dirname, '..', '..', 'components/PlanInputs.tsx'), 'utf8');
+  expect(inputs).toMatch(/BIG ONE-TIME COSTS/);
+  expect(inputs).toMatch(/quietly assumes the roof never needs doing/);
+  const hub = fs.readFileSync(path.join(__dirname, '..', 'PlanHubScreen.tsx'), 'utf8');
+  expect(hub).not.toMatch(/What big costs are coming\?/);
 });
 
 test('sameness: the will-it-last selector passes store bigCosts into the inputs', () => {

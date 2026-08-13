@@ -42,18 +42,20 @@ describe('desktop two-column Plan hub (web only)', () => {
     const left = screen.getByTestId('plan-desktop-left');
     const right = screen.getByTestId('plan-desktop-right');
     // verdict lives left, sandbox lives right — checked by traversal, not position guesswork
-    expect(within(left).getByText(/WILL MY MONEY LAST\? — to \d+/)).toBeTruthy();
+    expect(within(left).getByText('WILL MY MONEY LAST?')).toBeTruthy();
     expect(within(right).getByTestId('desktop-plan-sandbox')).toBeTruthy();
     expect(within(right).getByText(/Sharpen your plan/)).toBeTruthy();
     expect(screen.queryByText('Try what-ifs — a sandbox ›')).toBeNull();   // the door is phone-only
   });
 
-  test('phone keeps the single column and the sandbox DOOR (no desktop artifacts)', () => {
+  test('phone keeps the single column, and the sandbox now lives ON the tab (no door, no artifacts)', () => {
     seedWorking();
     render(<PlanHubScreen />);
     expect(screen.queryByTestId('plan-desktop-columns')).toBeNull();
-    expect(screen.getByText('Try what-ifs — a sandbox ›')).toBeOnTheScreen();
     expect(screen.queryByTestId('desktop-plan-sandbox')).toBeNull();
+    // founder 2026-08-12: four sandboxes became one, and it sits under the number it moves
+    expect(screen.queryByText('Try what-ifs — a sandbox ›')).toBeNull();
+    expect(screen.getByLabelText('Raise Retire at')).toBeOnTheScreen();
   });
 });
 

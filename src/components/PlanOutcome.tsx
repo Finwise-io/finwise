@@ -34,6 +34,10 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
 
   const short = t?.targetAtRetirement != null ? t.targetAtRetirement - t.projectedAtRetirement : null;
   const spare = short != null && short < 0;
+  // The median can clear the target while the odds do not — the spread is what separates them. When
+  // the two disagree, saying "more than you need" beside "adding $43,000 closes it" is a plain
+  // contradiction, so the gap line stands down and the bridge sentence speaks alone.
+  const agrees = short != null && (t!.alreadyThere ? spare : !spare);
 
   return (
     <View style={s.wrap}>
@@ -44,7 +48,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
 
       {/* the one score */}
       <View style={s.gaugeRow} accessible
-        accessibilityLabel={`${oddsLine(lens, chance, horizonAge)}, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
+        accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${horizonAge}: ${chance} percent, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
         <GaugeArc pct={chance} />
         <View style={s.gaugeText}>
           <Text style={s.pct}>{chance}%</Text>
@@ -59,13 +63,13 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <View style={s.sums}>
           <Row label={`On track for${lens === 'retired' ? '' : `, at ${retireAge}`}`} value={maskedMoney(t.projectedAtRetirement)} spoken={spokenMoney(t.projectedAtRetirement)} />
           <Row label="Target nest egg" value={maskedMoney(t.targetAtRetirement)} spoken={spokenMoney(t.targetAtRetirement)} />
-          <Row
+          {agrees && <Row
             label={spare ? 'More than you need' : 'Short'}
             value={maskedMoney(Math.abs(short!))}
             spoken={spokenMoney(Math.abs(short!))}
             strong
             tone={spare ? 'good' : 'warn'}
-          />
+          />}
         </View>
       )}
 

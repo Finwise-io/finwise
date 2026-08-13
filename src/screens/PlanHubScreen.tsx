@@ -1,7 +1,7 @@
 // Plan hub (FCC detailed design v1.1, Plan sheet) — the chief-of-staff desk: the ONE home of the
 // will-it-last number, the big decisions waiting on you, and your saved what-ifs. Nothing here
 // changes the plan by itself — every path ends at an explicit adoption step.
-import React, { useEffect, useMemo } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -19,6 +19,8 @@ import { maskedMoney, spokenMoney, maskDollars } from '../components/useMoney';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { GaugeArc } from '../components/GaugeArc';
 import { SectionBand } from '../components/SectionBand';
+import { PlanOutcome } from '../components/PlanOutcome';
+import { PlanInputs, type PlanDraft } from '../components/PlanInputs';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
@@ -45,8 +47,37 @@ export default function PlanHubScreen() {
   // PIN: the hub's number is THE number — cache it so Home's strip and Insights read the same value.
   useEffect(() => { if (wil.chance != null) store.setLastRetireChance?.(wil.chance); }, [wil.chance]);
 
+  // FACTS SAVE · CHOICES COMMIT (founder 2026-08-12). The committed plan is what the app believes;
+  // the draft is what the person is trying on. The outcome above always reflects the DRAFT, so a
+  // stepper moves the answer in front of them — and nothing is written until they say so.
+  const committed: PlanDraft = useMemo(() => ({
+    retireAge: Math.round(Number(A.retireAge ?? op.targetRetirementAge ?? (lens === 'retired' ? age ?? 65 : 65))),
+    horizonAge: Math.round(Number(A.horizonAge ?? op.horizonAge ?? 90)),
+    extraMonthly: Math.round(Number(A.contribMonthly ?? 0)),
+  }), [A.retireAge, A.horizonAge, A.contribMonthly, op.targetRetirementAge, op.horizonAge, lens, age]);
+  const [draft, setDraft] = useState<PlanDraft>(committed);
+  useEffect(() => { setDraft(committed); }, [committed]);
+  const trying = draft.retireAge !== committed.retireAge || draft.horizonAge !== committed.horizonAge || draft.extraMonthly !== committed.extraMonthly;
+  // the odds the OUTCOME shows: the draft's, whenever one is in play
+  const draftWil = useMemo(
+    () => (trying
+      ? selectWillItLast({ op, accounts, assumptions: { ...A, retireAge: draft.retireAge, horizonAge: draft.horizonAge, contribMonthly: draft.extraMonthly }, bigCosts: store.bigCosts, inflationRate: store.inflationRate, employmentStatus: store.employmentStatus, withBand: true })
+      : wil),
+    [trying, draft, op, accounts, A, store.inflationRate, store.employmentStatus, wil],
+  );
+  const commitDraft = () => {
+    Alert.alert('Use this as your plan?', `Retire at ${draft.retireAge}, plan to ${draft.horizonAge}${draft.extraMonthly ? `, saving ${money(draft.extraMonthly)}/mo more` : ''}.\n\nYour odds become ${draftWil.chance}%.`, [
+      { text: 'Cancel', style: 'cancel' },
+      { text: 'Use as my plan', onPress: () => store.setRetirementAssumptions?.({ retireAge: draft.retireAge, horizonAge: draft.horizonAge, contribMonthly: draft.extraMonthly }) },
+    ]);
+  };
+
   const scenarios = (store.retirementScenarios ?? []) as any[];
   const guaranteedMonthly = retirementIncomeMonthly(op);
+  // what they earn decides whether the required saving is a real ask or an impossible one; the room
+  // is what the app already knows can go somewhere tax-advantaged
+  const annualIncomeForPlan = Math.round(Number(op.baseSalary ?? 0) * (op.salaryFreq === 'monthly' ? 12 : 1)) || undefined;
+  const roomAnnual = undefined;
   const ssChip = A.ssClaimAge != null ? `your plan: claim at ${A.ssClaimAge}` : null;
 
   // ── mock v9 (founder-approved 2026-08-01): the if-clause, the door, the one next decision ──
@@ -111,33 +142,38 @@ export default function PlanHubScreen() {
           the "if" clause that makes it theirs. The percentage IS the uncertainty; naming it too said
           the same thing twice. */}
       {wil.captured && wil.chance != null ? (
-        <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/will-it-last')}
-          accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${wil.horizonAge}: ${wil.chance} percent, an estimate. Opens what drives this.`}>
-          <SectionBand inCard title={`${lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} — to ${wil.horizonAge}`} />
-          <View style={styles.gaugeRow}>
-            <GaugeArc pct={wil.chance} />
-            <View style={{ flex: 1 }}>
-              <View style={styles.chanceRow}>
-                <Text style={styles.chanceWord}>{wil.chance}%</Text>
-              </View>
-              {wil.band && <Text style={styles.bandTxt}>range {wil.band.low}–{wil.band.high}% · estimate</Text>}
-            </View>
-          </View>
+        <View style={styles.card}>
+          <SectionBand inCard title="YOUR RETIREMENT PLAN" />
+          {/* ONE score, then arithmetic — the second gauge was dropped once the engine proved it
+              could read "80% of the way" beside 31% odds (founder 2026-08-12). */}
+          <PlanOutcome
+            inputs={draftWil.inputs ?? null}
+            chance={draftWil.chance!}
+            band={draftWil.band}
+            horizonAge={draftWil.horizonAge}
+            retireAge={draft.retireAge}
+            annualIncome={annualIncomeForPlan}
+            roomAnnual={roomAnnual}
+            lens={lens}
+          />
+          {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
               Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}
               {wplan?.withdrawalRate != null ? ` — a ${(wplan.withdrawalRate * 100).toFixed(1)}%/yr withdrawal, ${wplan.rateBand === 'safe' ? 'within the safe range' : wplan.rateBand === 'moderate' ? 'a bit above the 4% guideline — watch it' : 'above 5% — high risk of running short'}` : ''}.
             </Text>
           ) : (
-            <>
-              {onCourse && <Text style={styles.ifLine}>You could {onCourse}.</Text>}
-              <Text style={styles.ifLine}>
-                …if you retire at {planRetire}{planSave > 0 ? `, keep saving ${maskedMoney(planSave)}/mo` : ''}{planSpend > 0 ? `, and spend ${maskedMoney(planSpend)}/mo in retirement (your planned spending — you set it)` : ''}. Change any of those below.
-              </Text>
-            </>
+            // the outcome block and the inputs directly beneath it now say all of this, and say it
+            // for the DRAFT — the old pair repeated the plan and claimed "you set it" of a spending
+            // figure the app had derived (founder 2026-08-12).
+            null
           )}
-          <Text style={styles.cardLink}>What drives this? ›</Text>
-        </TouchableOpacity>
+          {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
+          <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft} />
+          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/will-it-last')} accessibilityLabel="See what drives this number">
+            <Text style={styles.cardLink}>What drives this? ›</Text>
+          </TouchableOpacity>
+        </View>
       ) : (
         <>
           {/* FIRST DAY — the page previews itself: locked sample gauge + the DYNAMIC door */}
@@ -208,7 +244,7 @@ export default function PlanHubScreen() {
       {/* DECISIONS — every row a complete question, ranked by what's on the mind (mock v9) */}
       {wil.captured && wil.chance != null ? (
         <>
-          <SectionBand title="YOUR OTHER DECISIONS — RANKED FOR YOU" />
+          <SectionBand title="DECISIONS YOU CAN MAKE TODAY" />
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>
@@ -229,14 +265,12 @@ export default function PlanHubScreen() {
                     ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
                     : 'conversions in low-tax years · and what passes on to family'}
                   onPress={() => router.push('/roth')} />
-                <DecisionRow divider title="What big costs are coming?"
-                  sub={(store.bigCosts ?? []).length > 0 ? `${(store.bigCosts ?? []).length} named — the odds count them` : 'a new roof in 2028, a family wedding: name it — the odds account for it'}
-                  onPress={() => router.push('/big-costs' as any)} />
               </>
             ) : (
               <>
-                <DecisionRow title="When can I retire?" sub={`your plan says ${planRetire} — try ${planRetire - 2} or ${planRetire + 2} and watch the ${wil.chance}% move`} onPress={() => router.push('/retirement')} />
-                <DecisionRow divider title="Can I afford it?" sub="college help · the mortgage · keep saving — together, not one at a time" onPress={() => router.push('/multi-goal')} />
+                {/* "When can I retire?" moved into section 1 — it is the retire-at stepper wearing a
+                    question mark, and three copies of one question is how it got confusing. */}
+                <DecisionRow title="Can I afford it?" sub="college help · the mortgage · keep saving — together, not one at a time" onPress={() => router.push('/multi-goal')} />
                 {next?.kind !== 'ss-window' && (
                   <DecisionRow divider title="When should I claim Social Security?" sub={ssChip ?? 'set the age your plan counts on — 62 vs 67 vs 70 in your dollars'} onPress={() => router.push('/ss-timing')} />
                 )}
@@ -248,20 +282,11 @@ export default function PlanHubScreen() {
                     ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
                     : `the window before required withdrawals begin at ${RMD_START_AGE}`}
                   onPress={() => router.push('/roth')} />
-                <DecisionRow divider title="What big costs are coming?"
-                  sub={(store.bigCosts ?? []).length > 0 ? `${(store.bigCosts ?? []).length} named — the odds count them` : 'a roof, a car, a wedding: name the year and amount — the odds account for it'}
-                  onPress={() => router.push('/big-costs' as any)} />
               </>
             )}
           </View>
-          {/* the sandbox door (phone; desktop renders the inline sandbox in the right column) */}
-          {withDoor && (
-          <TouchableOpacity accessibilityRole="button" style={styles.sandbox} activeOpacity={0.85} onPress={() => router.push('/retirement')}
-            accessibilityLabel="Try what-ifs — a sandbox. Nothing changes until you tap Use as my plan.">
-            <Text style={styles.sandT}>Try what-ifs — a sandbox ›</Text>
-            <Text style={styles.sandS}>{lens === 'retired' ? 'Sliders for spending and plan-to age.' : 'Sliders for retire age, saving, spending.'} Nothing changes until you tap "Use as my plan".</Text>
-          </TouchableOpacity>
-          )}
+          {/* the sandbox door is GONE (founder 2026-08-12): the steppers in section 1 ARE the sandbox,
+              sitting under the number they move. Four places to try a change became one. */}
         </>
       ) : (
         <>
@@ -413,6 +438,7 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardKicker: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6 },
   chanceRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 4 },
+  tryingTag: { fontSize: 11, color: Colors.textSecondary, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm },
   chanceWord: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   chancePct: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   bandTxt: { fontSize: 13, color: Colors.textTertiary, marginTop: 2 },
