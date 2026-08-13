@@ -103,6 +103,35 @@ later without a redesign.
 Each row carries **what it is worth** — a dollar figure or a points-on-the-odds figure — never a bare
 topic. (See §6 for which of those the engine can actually produce today.)
 
+**Where each row goes when it is tapped** — all three settled by the founder, 2026-08-12:
+
+| Row | Destination |
+|---|---|
+| Pay off the mortgage early | **Nowhere — it opens in place**, with a control (below) |
+| Convert to a Roth | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. Built and working — do not redesign it. |
+| When to claim Social Security | **Nowhere — it answers in the row** (below) |
+
+Two of the three answer in place and one opens a screen. That is deliberate: Social Security is a
+single comparison and the mortgage is a single amount, while the Roth is a real decision with an
+amount and a tax rate to set.
+
+**The mortgage row: a live control, and it commits.** Founder ruling, 2026-08-12 — the row is not a
+fact to read, it is a thing to do. It carries a stepper for the extra monthly payment; the payoff date
+and the interest saved move as it changes; and committing it makes that payment part of the plan, so
+it shows up in Cash flow as real money going out.
+
+**It must show BOTH sides of the trade, in the person's own numbers.** Money paid into a mortgage is
+money not invested. On a $412,000 balance at 5.5% paying $2,400 a month:
+
+> **Pay off the mortgage early** — $412,000 at 5.5%
+> **Extra each month  [−]  $500  [+]**
+> Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
+> But $500 a month not invested takes your odds from **48% to 43%**.
+> **[ Use as my plan ]**
+
+Never show only the interest saved. On its own it always reads as an obvious win, and at a mortgage
+rate close to the assumed investment return it is close to a wash. *We lay it out. You decide.*
+
 **The Social Security row answers itself in place.** Founder ruling, 2026-08-12: it must not send the
 person to another screen to find out what waiting is worth. The row says the answer:
 
@@ -236,9 +265,33 @@ progress track behind them.
 
 **The app cannot compute today:**
 - goals (helping a child, a wedding) as an input to the odds — not wired
-- a mortgage payoff as an input to the odds — not wired. **The "Pay off the mortgage early" row can
-  carry the balance ($412,000) and the rate, but not a points figure, unless we build that first.**
-  Draw it so it works either way and flag which you assumed.
+
+**The app CAN compute, but only after engine work the founder has approved:**
+
+**The odds effect of paying a mortgage down faster.** The founder ruled on 2026-08-12 that the
+mortgage row must show it (the "48% → 43%" line above). It does not exist yet, and it is not a small
+wire-up — **the retirement simulation currently has no concept of debt at all.** Not one mention, in
+either the simulation or the layer that feeds it. Three things have to be built before that line is
+true:
+
+1. **The extra payment has to be stored.** Today it is an unsaved text box on the Cash flow Debts
+   tab: type a number, see a payoff date, leave the screen, it is gone. It never becomes part of the
+   plan.
+2. **Contributions have to become a schedule rather than one flat number.** Paying $500 a month extra
+   means $6,000 a year less going into savings while the mortgage runs — and the whole payment
+   freeing up once it clears. The simulation takes a single annual contribution figure.
+3. **The simulation has to know a payment ends.**
+
+**Point 3 is a defect that already exists, independent of this row, and it is worth naming.** The app
+asks what someone will spend each month in retirement and then charges that figure, raised by
+inflation, for every year of the plan. If the person included their mortgage in that figure — and
+most people with a mortgage would — the app keeps charging it long after the house is paid off.
+Pat's mortgage clears in 2054 and Pat's plan runs to 2058: four years of a payment that will not
+exist. **Today's odds are therefore pessimistic for anyone whose mortgage ends inside their plan**,
+and no screen currently says so.
+
+This does not change what you draw — draw the row as specified above — but it is why the "48% → 43%"
+line cannot be treated as available. Flag any number you show that depends on it.
 
 ---
 
