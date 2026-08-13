@@ -77,3 +77,21 @@ test('GUARD: no screen reads .label off a guaranteed-income row again', () => {
   }
   expect(offenders).toEqual([]);
 });
+
+// THE WITHDRAWAL RATE BELONGS TO THE DRAW (founder 2026-08-13).
+// It used to be tacked on to the retired summary line, beside the money left OVER — a rate that
+// measures money going out, printed next to money staying in, with the figure it divides ($1,600)
+// nowhere in that sentence. It now sits immediately after that figure.
+test('the withdrawal rate sits with the amount being drawn, not with what is left over', () => {
+  useStore.getState().resetAll();
+  useStore.setState(JUNE as any);
+  const Plan = require('../screens/PlanHubScreen').default;
+  render(<Plan />);
+  // the rate is on the paycheck line, right after the draw
+  expect(screen.getByText(/You're drawing/)).toBeOnTheScreen();
+  expect(screen.getByText(/% of your savings a year/)).toBeOnTheScreen();
+  // and it is NOT on the line about money to spare
+  const spare = screen.getByText(/to spare/);
+  const spareText = (spare.children ?? []).filter((c: any) => typeof c === 'string').join('');
+  expect(spareText).not.toMatch(/% of your savings|withdrawal/);
+});

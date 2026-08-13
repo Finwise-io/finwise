@@ -26,6 +26,14 @@ import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLin
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 
+/** How a withdrawal rate reads in words. Never "safe" — we do not know that, and saying it is a
+ *  promise we cannot make (founder 2026-08-13). The 4% figure is a published guideline, which is a
+ *  fact about the world rather than a claim about this person's money. */
+const rateWords = (band: string | null | undefined) =>
+  band === 'safe' ? 'within the ~4% guideline'
+    : band === 'moderate' ? 'a bit above the 4% guideline — worth watching'
+    : 'above 5% — a high chance of running short';
+
 // saved-scenario dates read like the rest of the app — never raw ISO (audit PH-3)
 const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
 
@@ -165,10 +173,13 @@ export default function PlanHubScreen() {
             lens={lens}
           />
           {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
+          {/* the withdrawal rate USED to be tacked on to the retired line below, beside the money left
+              over — a rate describing money going OUT, printed next to money staying in. It measures
+              the draw (spending less guaranteed income), so it now sits with that draw on the paycheck
+              card further down (founder 2026-08-13). */}
           {lens === 'retired' ? (
             <Text style={styles.ifLine}>
-              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}
-              {wplan?.withdrawalRate != null ? ` — a ${(wplan.withdrawalRate * 100).toFixed(1)}%/yr withdrawal, ${wplan.rateBand === 'safe' ? 'within the safe range' : wplan.rateBand === 'moderate' ? 'a bit above the 4% guideline — watch it' : 'above 5% — high risk of running short'}` : ''}.
+              Your {maskedMoney(planSpend)}/mo spending{onCourse ? ` — ${onCourse}` : ` — ${oddsLine(lens, wil.chance!, wil.horizonAge)}`}.
             </Text>
           ) : (
             // the outcome block and the inputs directly beneath it now say all of this, and say it
@@ -248,10 +259,22 @@ export default function PlanHubScreen() {
             <View style={styles.payRow}><Text style={[styles.payL, styles.payStrong]}>= Guaranteed</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(payMonth.guaranteedTotal))}</Text></View>
             <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Safe draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
             <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/mo</Text></View>
+            {/* THE RATE BELONGS TO THE DRAW, not to what is left over (founder 2026-08-13). It is
+                (spending − guaranteed income) ÷ savings, so it is printed beside the very figure it
+                divides. NOTE: the two "safe" words on this line are replaced with the founder's own
+                approved wording because the line is being rewritten anyway — re-typing a banned word
+                into new code is not defensible. The remaining occurrences across the app still await
+                the sweep he approved. */}
             {planSpend > 0 && (paycheckTotal >= planSpend ? (
-              <Text style={styles.payOk}>✓ covers your {maskedMoney(planSpend)}/mo spending — you're using {maskedMoney(Math.round(drawUsed))} of the {maskedMoney(Math.round(payMonth.safeDraw))} safe draw</Text>
+              <Text style={styles.payOk}>
+                ✓ covers your {maskedMoney(planSpend)}/mo spending. You're drawing {maskedMoney(Math.round(drawUsed))} a month
+                {wplan?.withdrawalRate != null ? ` — ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safeDraw))}.
+              </Text>
             ) : (
-              <Text style={styles.payWarn}>your {maskedMoney(planSpend)}/mo spending runs {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below</Text>
+              <Text style={styles.payWarn}>
+                your {maskedMoney(planSpend)}/mo spending runs {maskedMoney(Math.round(planSpend - paycheckTotal))} above this paycheck — worth a look below
+                {wplan?.withdrawalRate != null ? `. You'd be drawing ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year — ${rateWords(wplan.rateBand)}` : ''}
+              </Text>
             ))}
             <Text style={styles.payNote}>The same paycheck as Home's card — one engine, one set of numbers.</Text>
           </TouchableOpacity>
