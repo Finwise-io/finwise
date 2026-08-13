@@ -89,7 +89,11 @@ export default function RequiredWithdrawalsScreen() {
       <Text style={s.line}>From age {RMD_START_AGE}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
       {preTax > 0 && age != null && !applies && (
         <>
-          <Text style={s.line}>Yours starts in <Text style={s.strong}>{startYear}</Text> (age {RMD_START_AGE}). First-year estimate on today's balance: <Text style={s.strong}>~{maskedMoney(Math.round(rmdAtAge(preTax, RMD_START_AGE)))}</Text> — the real number moves with your balance.</Text>
+          {/* ONE number for the first year (founder 2026-08-12). The header used to divide TODAY's
+              balance by the age-73 divisor while the table below divided the balance GROWN to that
+              year — same source, same formula, two answers to one question. The table's own first
+              row is the answer now, so the two can never disagree. */}
+          <Text style={s.line}>Yours starts in <Text style={s.strong}>{startYear}</Text> (age {RMD_START_AGE}). Estimated first withdrawal: <Text style={s.strong}>~{maskedMoney(Math.round(schedule[0]?.amount ?? rmdAtAge(preTax, RMD_START_AGE)))}</Text> — it moves with your balance between now and then.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => remind(startYear as number)}
             accessibilityLabel={`Remind me when this starts for me, ${startYear}`}>
             <Text style={s.secondaryTxt}>{reminded ? '✓ Reminder set' : `Remind me when this starts (${startYear})`}</Text>
