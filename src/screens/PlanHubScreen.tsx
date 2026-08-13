@@ -239,8 +239,11 @@ export default function PlanHubScreen() {
           <SectionBand title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
           <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
             accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, safe draw ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
+            {/* `source` is the engine's field — Home's PaycheckCard, MonthDetail and PaycheckMonths all
+                read it. This screen read `.label`, which does not exist, so every row rendered its
+                amount with no name beside it (audit D5, 2026-08-12). */}
             {(payMonth.guaranteed ?? []).map((g: any, i: number) => (
-              <View key={i} style={styles.payRow}><Text style={styles.payL}>{g.label}</Text><Text style={styles.payV}>{maskedMoney(Math.round(g.amount))}</Text></View>
+              <View key={i} style={styles.payRow}><Text style={styles.payL}>{g.source}</Text><Text style={styles.payV}>{maskedMoney(Math.round(g.amount))}</Text></View>
             ))}
             <View style={styles.payRow}><Text style={[styles.payL, styles.payStrong]}>= Guaranteed</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(payMonth.guaranteedTotal))}</Text></View>
             <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Safe draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
