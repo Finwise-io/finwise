@@ -46,7 +46,11 @@ export function targetAtRetirement(base: RetirementInputs): number | null {
     annual_contribution: 0,
   });
   const found = smallestThatWorks(0, MAX_TARGET, 5_000, (x) => oddsOf(atRetirement(x)) >= TARGET_ODDS);
-  return found == null ? null : Math.round(found / 10_000) * 10_000;   // a target is not a precise number
+  // A target is not a precise number, so it rounds — but it rounds UP (founder, 2026-08-13). Rounding
+  // to the NEAREST $10,000 could land back BELOW the line the search had just cleared: the audit
+  // measured a printed target of $1,370,000 that delivered 76%, not the 80% its own label promised.
+  // Erring high keeps the sentence true; erring low makes the app over-promise by a whisker.
+  return found == null ? null : Math.ceil(found / 10_000) * 10_000;
 }
 
 /** THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan —
@@ -56,7 +60,9 @@ export function requiredAnnualSaving(base: RetirementInputs): { total: number; e
   const withSaving = (annual: number): RetirementInputs => ({ ...base, annual_contribution: annual });
   const found = smallestThatWorks(0, MAX_SAVING, 500, (x) => oddsOf(withSaving(x)) >= TARGET_ODDS);
   if (found == null) return null;
-  const total = Math.round(found / 500) * 500;
+  // rounds UP, same reason as the target above: the bridge sentence says "raises your odds to 80%",
+  // and rounding to the nearest $500 delivered 79% (audit, 2026-08-12).
+  const total = Math.ceil(found / 500) * 500;
   return { total, extra: Math.max(0, total - (base.annual_contribution ?? 0)) };
 }
 
