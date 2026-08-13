@@ -53,10 +53,12 @@ const JUNE = {
     monthlySpending: '5600',
   },
   retirementAssumptions: { retireAge: 72, horizonAge: 94, contribMonthly: 0, spendMonthly: 5600 },
+  // the pinned, reconciling set (see june_numbers_probe.test.ts): $985,000, the balance whose
+  // maximum draw is the $4,155 her paycheck shows
   assetAccounts: [
-    { asset_id: 'jbrok', label: 'Brokerage', institution: 'Schwab', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 1_100_000, target_return: 0.06 },
-    { asset_id: 'jira', label: 'Traditional IRA', institution: 'Fidelity', kind: 'ira', tax_bucket: 'PRE_TAX', balance: 480000, target_return: 0.06 },
-    { asset_id: 'jcash', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 51000, target_return: 0.01 },
+    { asset_id: 'jira', label: 'Traditional IRA', institution: 'Fidelity', kind: 'ira', tax_bucket: 'PRE_TAX', balance: 420000, target_return: 0.055 },
+    { asset_id: 'jbrok', label: 'Brokerage', institution: 'Schwab', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 448000, target_return: 0.055 },
+    { asset_id: 'jcash', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 117000, target_return: 0.01 },
   ],
   liabilities: [],
   bigCosts: [],

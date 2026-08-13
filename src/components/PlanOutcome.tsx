@@ -32,6 +32,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   const t = useMemo(() => (inputs ? planTarget(inputs, annualIncome, roomAnnual) : null), [inputs, annualIncome, roomAnnual]);
   const levers = useMemo(() => (inputs && t?.impossible ? leverDeltas(inputs) : []), [inputs, t?.impossible]);
 
+  const retired = lens === 'retired';
   const short = t?.targetAtRetirement != null ? t.targetAtRetirement - t.projectedAtRetirement : null;
   const spare = short != null && short < 0;
   // The median can clear the target while the odds do not — the spread is what separates them. When
@@ -58,8 +59,12 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <InfoDot term="nestEggMath" />
       </View>
 
-      {/* the arithmetic — money, not a second score */}
-      {t?.targetAtRetirement != null && (
+      {/* THE ARITHMETIC — money, not a second score. Not for someone already drawing down: a target is
+          a "will I get there" framing, and once you are retired the question is "is this covering me",
+          which the paycheck answers. Adopted when the design handoff came in and confirmed by the
+          founder 2026-08-13; it had never been built, so a retiree saw a target pot AND two different
+          "to spare" figures four lines apart (audit D8). */}
+      {!retired && t?.targetAtRetirement != null && (
         <View style={s.sums}>
           <Row label={`On track for${lens === 'retired' ? '' : `, at ${retireAge}`}`} value={maskedMoney(t.projectedAtRetirement)} spoken={spokenMoney(t.projectedAtRetirement)} />
           <Row label="Target nest egg" value={maskedMoney(t.targetAtRetirement)} spoken={spokenMoney(t.targetAtRetirement)} />
@@ -73,8 +78,10 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         </View>
       )}
 
-      {/* the bridge — the most actionable line on the screen */}
-      {t && !t.impossible && !t.alreadyThere && t.requiredExtraAnnual ? (
+      {/* THE BRIDGE — the most actionable line on the screen, and also a "reach a target by saving"
+          sentence, so it stands down for a retiree along with the target itself. June was being told
+          "nothing more to put away to stay there" about a plan she is no longer paying into. */}
+      {!retired && t && !t.impossible && !t.alreadyThere && t.requiredExtraAnnual ? (
         <Text style={s.bridge}>
           Adding <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}</Text> a year closes it
           {t.yearsToRetire > 0 ? ` over your ${t.yearsToRetire} years to ${retireAge}` : ''} and raises your odds to {TARGET_ODDS}%.
@@ -82,7 +89,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         </Text>
       ) : null}
 
-      {t?.alreadyThere && (
+      {!retired && t?.alreadyThere && (
         <Text style={s.bridge}>You've cleared the {TARGET_ODDS}% mark — nothing more to put away to stay there.</Text>
       )}
 
