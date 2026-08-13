@@ -59,6 +59,22 @@ at retirement. The founder chose this explicitly. 909,152 ÷ 2,000,000 = **45%**
 shortfall is **$1,090,848**. (An earlier draft of this sentence circulated with "short $653,237" —
 that is the gap from the projected-at-retirement figure and is **wrong for this design**. Do not use it.)
 
+**And one more line beneath it: what closes the gap.** Founder ruling, 2026-08-13 (audit D4). The v3
+handoff ended the hero at the shortfall and went straight to the glance, which leaves the screen
+stating a problem and offering nothing. This was the most actionable line on the old design and it
+comes back — now measured against **their** target rather than ours:
+
+> **Saving $84,500 a year over your 7 years to 65 reaches your target.**
+
+**Solve it, do not formula it.** The obvious closed-form annuity calculation gives $82,000 for Pat and
+lands at $1,977,544 — **$22,000 short of the target it just promised to reach.** That is the same
+class of defect as audit D1/D2. Find the smallest yearly saving whose projection actually reaches the
+target and round it **up** — measured: $84,500 lands at $2,021,514, and one $500 step lower lands at
+$1,994,407 and misses.
+
+**When they are already past their target, the sentence changes rather than disappearing** — see §5,
+state 6.
+
 ### 3.2 "Your plan at a glance" — seven equal rows, **collapsed by default**
 
 Directly under the hero. **It starts collapsed.** Opening it reveals seven rows, and
@@ -316,6 +332,22 @@ same size. If that reads confusingly in a side-by-side, say so and I will move o
    screen must say so plainly and pivot to what actually moves the number (retire later, spend less,
    claim later). **It must never promise options and then show none** — that happens in the current
    build.
+6. **Already past their own target** — added 2026-08-13 (audit D4), and not drawn in the v3 handoff.
+   This is not a rare case: it happens the moment someone types a modest number. If Pat typed
+   $800,000, today's $909,152 is **114% of target** while the odds sit at **45%** — a dial pegged past
+   full beside a number under half.
+
+   That is not a contradiction and must not be drawn as one. They are two honest answers to two
+   different questions: *am I hitting my own number* and *will the money last*. Decide and show us:
+   does the dial cap at 100% or overfill? What replaces the shortfall line — "more than you need,
+   by $109,152"? And what does the closing sentence say when there is nothing to close but the odds
+   are still poor? The honest answer there is that saving more is no longer the lever, so it should
+   point at what is.
+
+   Draw the mirror case too, briefly: **on target, poor odds.** Measured on Pat — a $1,500,000 target
+   is reached by saving $24,000 a year, and the odds at that point are **64%**. Someone can hit their
+   number exactly and still not be at 80%. The screen must be able to say both without either one
+   looking like an error.
 
 ---
 
@@ -372,6 +404,12 @@ progress track behind them.
 - goals (helping a child, a wedding) as an input to the odds — not wired
 
 **The app CAN compute, but only after engine work the founder has approved:**
+
+**The yearly saving that reaches a TYPED target** (§3.1's closing sentence). What exists today solves
+for the saving that reaches 80% *odds* — a different question. The new one solves for the saving whose
+projection reaches *their number*, by search rather than by formula, rounded up. Small piece of work,
+and it must carry the same pin as D1/D2: the figure has to actually land at or above the target, and
+one step lower has to miss.
 
 **The odds effect of paying a mortgage down faster.** The founder ruled on 2026-08-12 that the
 mortgage row must show it (the "48% → 43%" line above). It does not exist yet, and it is not a small
