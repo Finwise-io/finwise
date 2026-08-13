@@ -1,0 +1,265 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Below the floor — the honest sentence instead of a number (v1)</title>
+<style>
+  :root{
+    --primary:#178F6B; --primaryDark:#0F6E56; --primaryDeep:#085041; --primaryLight:#E1F5EE;
+    --amber:#854F0B; --amberLight:#FAEEDA; --amberMid:#FAC775;
+    --white:#FFFFFF; --bgSecondary:#F6F7F5; --bgTertiary:#EEEEE9;
+    --textPrimary:#1A1A18; --textSecondary:#6B6B66; --textTertiary:#76766F;
+    --border:rgba(0,0,0,0.10); --borderStrong:rgba(0,0,0,0.20); --bandLight:#DFF2E9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#E7E9E5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;
+       color:var(--textPrimary);padding:28px 20px 60px}
+  h1{font-size:19px;margin:0 0 4px}
+  .lede{font-size:14px;color:#44443f;max-width:1180px;line-height:1.55;margin:0 0 6px}
+  .lede b{color:#000}
+  .stage{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px;align-items:flex-start}
+  .col{width:390px}
+  .cap{font-size:13px;font-weight:800;color:var(--primaryDeep);margin:0 0 8px}
+  .cap span{display:block;font-weight:500;color:#55554f;font-size:12px;margin-top:2px}
+  .phone{width:390px;background:var(--bgSecondary);border-radius:38px;border:1px solid rgba(0,0,0,.16);
+         box-shadow:0 10px 34px rgba(0,0,0,.16);overflow:hidden}
+  .status{height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 26px;
+          font-size:12.5px;font-weight:700}
+  .top{padding:6px 16px 4px;display:flex;align-items:center;gap:8px}
+  .wordmark{font-size:14px;font-weight:800}
+  .wordmark i{font-style:normal;color:var(--primary)} .wordmark u{text-decoration:none;color:var(--primaryDeep)}
+  .menu{margin-left:auto;font-size:17px;color:var(--textSecondary)}
+  .scroll{padding:12px;background:var(--bgSecondary)}
+  .h1{font-size:24px;font-weight:800;margin:0}
+  .tag{font-size:15px;color:var(--textSecondary);margin:0 0 12px}
+  .card{background:var(--white);border-radius:14px;padding:12px;margin-bottom:8px}
+  .band{background:var(--primaryDeep);color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;
+        text-transform:uppercase;padding:8px 12px;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .band.bleed{margin:-12px -12px 4px}
+  .l1{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--primaryDeep);padding:14px 0 4px}
+  .lede1{font-size:17px;font-weight:800;line-height:24px;padding:4px 0 0}
+  .body{font-size:13px;line-height:19px;color:var(--textPrimary);padding:8px 0 0}
+  .works{background:var(--primaryLight);border-left:3px solid var(--primaryDeep);padding:10px 12px;margin:10px -12px 0}
+  .works b{font-weight:800}
+  .worksT{font-size:11px;font-weight:800;letter-spacing:.06em;color:var(--primaryDeep);margin-bottom:3px}
+  .worksB{font-size:15px;font-weight:700;line-height:21px}
+  .ctx{font-size:11px;line-height:17px;color:var(--textSecondary);padding:10px 0 0}
+  .row{display:flex;align-items:center;min-height:44px;border-top:1px solid var(--border);gap:8px}
+  .row .l{font-size:13px;flex:1} .row .s{font-size:11px;color:var(--textSecondary);margin-top:2px;line-height:16px}
+  .row .chev{font-size:20px;color:var(--textTertiary)}
+  .free{font-size:11px;color:var(--textSecondary);line-height:17px;padding:8px 0 0}
+  .foot{font-size:11px;color:var(--textTertiary);line-height:15px;margin:2px 0 4px}
+  .tabbar{display:flex;background:var(--white);border-top:1px solid var(--border);padding:8px 0 22px}
+  .tab{flex:1;text-align:center;font-size:10px;color:var(--textTertiary)}
+  .tab .g{display:block;font-size:16px;margin-bottom:2px;opacity:.55}
+  .tab.on{color:var(--primaryDeep);font-weight:800} .tab.on .g{opacity:1}
+  .strip{background:var(--white);border-radius:14px;padding:12px;margin-bottom:8px}
+  .stripK{font-size:11px;font-weight:800;letter-spacing:.5px;color:var(--textTertiary);margin-bottom:4px}
+  .stripT{font-size:15px;font-weight:700;line-height:21px}
+  .stripL{font-size:13px;font-weight:700;color:var(--primary);margin-top:7px}
+  .hero{background:var(--primaryDeep);color:#fff;padding:14px 12px;margin:-12px -12px 8px;border-radius:14px 14px 0 0}
+  .heroK{font-size:11px;font-weight:800;letter-spacing:.5px;opacity:.8}
+  .heroN{font-size:30px;font-weight:800;margin-top:4px}
+  .note{font-size:12.5px;color:#44443f;line-height:1.6;background:#fff;border-left:3px solid var(--primary);
+        padding:12px 14px;border-radius:0 8px 8px 0;margin-top:12px}
+  .note b{color:#000}
+  .note ol{margin:8px 0 0;padding-left:20px} .note li{margin-bottom:6px}
+  .bad{background:#FCEBEB;border-left-color:#A32D2D}
+  table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:8px}
+  th{background:var(--primaryDeep);color:#fff;text-align:left;padding:6px 8px;font-size:11px;letter-spacing:.4px}
+  td{padding:6px 8px;border-bottom:1px solid var(--border)}
+</style>
+
+<h1>Below the floor — the honest sentence replaces the number, on every surface</h1>
+<p class="lede">
+  Founder ruling 2026-08-13 (audit D6): <b>"if the odds are zero — don't show zero."</b> And option one:
+  <b>the zero never appears anywhere.</b> The odds sentence comes from one shared helper printed by four
+  surfaces, so this cannot be a Plan-tab-only change — otherwise Home would still greet the person with a
+  bare 0%. Order of what we say, founder-approved: <b>the honest sentence first, free routes second, a
+  fee-only hourly planner third.</b>
+</p>
+<p class="lede">
+  <b>The person:</b> 64, wants to retire at 65, spends $9,000 a month, has $20,000 saved, Social Security
+  of $2,400 starting at 67, plan to 90. <b>Every number below is measured</b>, not invented — see the panel
+  at the end.
+</p>
+
+<div class="stage">
+
+<!-- ═══════════ A · Plan tab ═══════════ -->
+<div class="col">
+  <div class="cap">A · Plan tab — the full sentence<span>Where the explanation lives</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Plan</div>
+      <div class="tag">We lay it out. You decide.</div>
+
+      <div class="card">
+        <div class="band bleed">Will my money last?</div>
+
+        <div class="lede1">Retiring at 65 doesn't work on these numbers — at any spending level.</div>
+        <div class="body">
+          The two years before your Social Security starts would use up everything you have.
+          Spending less doesn't fix it: even at $2,200 a month, the money runs out before 67.
+        </div>
+
+        <div class="works">
+          <div class="worksT">WHAT DOES WORK</div>
+          <div class="worksB">Waiting until <b>67</b>, when your Social Security starts, and living on about
+            <b>$2,450 a month</b>.</div>
+        </div>
+
+        <div class="ctx">
+          For the $9,000 a month you spend now, starting at 65, you'd need about <b>$1,810,000</b> saved.
+          You have $20,000. That gap is why no single change closes it.
+        </div>
+      </div>
+
+      <div class="l1">THINGS THAT COST NOTHING</div>
+      <div class="card">
+        <div class="row" style="border-top:none"><div style="flex:1">
+          <div class="l">Check you're claiming everything you're owed</div>
+          <div class="s">Benefits people qualify for and never claim — often worth more than any change to a plan.</div>
+        </div><span class="chev">›</span></div>
+        <div class="row"><div style="flex:1">
+          <div class="l">Free Medicare counselling</div>
+          <div class="s">Every state runs one. No sales, no fee.</div>
+        </div><span class="chev">›</span></div>
+        <div class="row"><div style="flex:1">
+          <div class="l">Free debt counselling</div>
+          <div class="s">If debt payments are part of the $9,000, this is where to start.</div>
+        </div><span class="chev">›</span></div>
+      </div>
+
+      <div class="l1">IF YOU WANT SOMEONE TO TALK IT THROUGH</div>
+      <div class="card">
+        <div class="row" style="border-top:none"><div style="flex:1">
+          <div class="l">A fee-only planner, paid by the hour</div>
+          <div class="s">Paid for their time, not for what they sell you — and they'll see you whatever you
+            have saved. Advisers paid a share of your savings usually won't.</div>
+        </div><span class="chev">›</span></div>
+      </div>
+
+      <div class="foot">Estimates from about 400 runs of your own numbers through different markets — not advice.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="g">🏠</span>Home</div>
+      <div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div>
+      <div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab on"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+  <div class="note"><b>No dial, no percentage.</b> A needle jammed at the far left and a "0%" tell a person
+    nothing they can act on. The sentence tells them exactly what would.</div>
+</div>
+
+<!-- ═══════════ B · Home ═══════════ -->
+<div class="col">
+  <div class="cap">B · Home — the short version<span>Same rule, one line</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span>▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Good morning</div>
+      <div class="tag">Here's where you stand.</div>
+
+      <div class="strip">
+        <div class="hero">
+          <div class="heroK">WHAT YOU HAVE</div>
+          <div class="heroN">$20,000</div>
+        </div>
+        <div class="stripK">WILL MY MONEY LAST?</div>
+        <div class="stripT">Retiring at 65 doesn't work on these numbers. Waiting to 67 and living on
+          about $2,450 a month does.</div>
+        <div class="stripL">See what's behind this ›</div>
+      </div>
+
+      <div class="strip">
+        <div class="stripK">THIS MONTH</div>
+        <div class="stripT">$9,000 out · $2,400 in</div>
+        <div class="stripL">Open cash flow ›</div>
+      </div>
+      <div class="foot">Estimates from about 400 runs of your own numbers — not advice.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab on"><span class="g">🏠</span>Home</div>
+      <div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div>
+      <div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+  <div class="note"><b>Why Home has to change too.</b> The odds sentence comes from one shared helper that
+    four surfaces print. Fix Plan alone and Home still says <b>"0% odds of lasting to age 90"</b> — the person
+    meets the zero anyway, somewhere colder, with no explanation attached.</div>
+</div>
+
+<!-- ═══════════ C · Net worth + the rule ═══════════ -->
+<div class="col" style="width:430px">
+  <div class="cap">C · Net worth, and the rule<span>The fourth surface, and what it costs</span></div>
+  <div class="phone" style="width:390px">
+    <div class="status"><span>9:41</span><span>▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Net worth</div>
+      <div class="tag">Everything you own and owe.</div>
+      <div class="strip">
+        <div class="hero"><div class="heroK">YOUR NET WORTH · AUG 13, 2026</div><div class="heroN">$20,000</div></div>
+        <div class="stripK">YOUR RETIREMENT PLAN</div>
+        <div class="stripT">Retiring at 65 doesn't work on these numbers — waiting to 67 does. ›</div>
+      </div>
+      <div class="foot">Estimates — not advice.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="g">🏠</span>Home</div>
+      <div class="tab on"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div>
+      <div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>The rule, in one line.</b> Below the floor, every surface prints the honest sentence instead of the
+    number — and the number is not shown anywhere, in any size.
+    <ol>
+      <li><b>The floor is 5%.</b> Zero is the obvious trigger, but 1% and 3% are just as useless to read.
+        Say the word if you want it tighter or looser.</li>
+      <li><b>All four surfaces</b> — Plan, Home, Net worth, and the sentence a screen reader speaks.</li>
+      <li><b>Order:</b> the honest sentence, then the free routes, then the fee-only hourly planner.</li>
+    </ol>
+  </div>
+
+  <div class="note bad">
+    <b>Say this out loud, because it is a departure.</b> Everywhere else, this app shows the true number.
+    Here we are replacing a true number with prose. I think it is right — "0%" is accurate and useless,
+    and the sentence is accurate and actionable — but it is the one place we soften something, and it should
+    be a decision made on purpose.
+  </div>
+
+  <div class="note">
+    <b>Every figure here was measured, not invented.</b>
+    <table>
+      <tr><th>What the screen says</th><th>Where it comes from</th></tr>
+      <tr><td>Retiring at 65 fails at any spending level</td><td>Ran it at $9,000 / $3,000 / $2,400 / $2,200 a month — 0% every time</td></tr>
+      <tr><td>Waiting to 67 works</td><td>Retire 67, spend $2,400 → 100%</td></tr>
+      <tr><td>About $2,450 a month</td><td>Solved: the most they can spend from 67 and still clear the 80% line</td></tr>
+      <tr><td>You'd need about $1,810,000</td><td>The engine's 80%-odds pot for $9,000/mo from 65</td></tr>
+      <tr><td>The two-year gap is what binds</td><td>Retire 65 spend $2,400 = 0%; retire 67 same spending = 100%</td></tr>
+    </table>
+    <p style="margin:10px 0 0"><b>New engine work this needs:</b> the earliest age that works, and the
+      spending level that works from it. Neither exists today — the current levers only test retiring two
+      years later and spending $400 less a month, which is why this person got an empty box.</p>
+  </div>
+
+  <div class="note">
+    <b>One thing I have not decided for you.</b> The free routes are drawn as categories — a benefits check,
+    Medicare counselling, debt counselling. Naming the actual organisations makes them useful and is safe
+    ground for non-profits and government programmes, unlike naming a firm. But it is your call whether the
+    app names anyone at all. <b>No commercial referrals and no named advice firms in v1</b> — that is a
+    different regulatory world and would need disclosure.
+  </div>
+</div>
+
+</div>
