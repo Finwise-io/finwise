@@ -394,7 +394,7 @@ export default function HomeScreen() {
             Home, Net worth or Plan. Until the odds exist it goes to the three questions; once they do,
             it goes to the Plan tab where the full picture lives. */}
         <TouchableOpacity accessibilityRole="button" style={styles.box} activeOpacity={0.85}
-          onPress={() => router.push((wil.chance != null ? '/(tabs)/plan' : '/plan-answers') as any)}
+          onPress={() => router.push('/(tabs)/plan' as any)}
          
           accessibilityLabel={wil.chance != null
             ? `Will my money last: ${wil.chance} percent odds of lasting to age ${wil.horizonAge}, an estimate. Opens Plan.`

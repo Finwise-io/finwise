@@ -11,6 +11,7 @@ import { Colors, Spacing, Typography } from '../utils/theme';
 import { SectionBand } from './SectionBand';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { useStore } from '../store/useStore';
+import { DOORS } from '../constants/doors';
 import { accountDisplayNames, earmarkedAmount, retirementEarmarkedValue, primaryCarIdOf, earmarkDefault } from '../domain/assets';
 
 export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly: number }
@@ -18,12 +19,22 @@ export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly
 const THIS_YEAR = new Date().getFullYear();
 const MIN_AGE = 18, MAX_AGE = 100;
 
-export function PlanInputs({ draft, onDraft, onCommit, committed }: {
+export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor }: {
   draft: PlanDraft;
   onDraft: (d: PlanDraft) => void;
   onCommit: () => void;
   committed: PlanDraft;
+  /** the answers the odds are still waiting on — these rows wear MISSING and the choices stand down,
+   *  because there is nothing yet for a choice to change (design: "Section 1 — Missing Age"). */
+  missing?: string[];
+  /** which answer to draw attention to when arriving from Home or Net worth */
+  focus?: string | null;
+  /** the three ways to add what is missing — one wording, shared with Home and Sharpen */
+  onOpenDoor?: (route: string) => void;
 }) {
+  const needsAge = missing.includes('your age');
+  const needsSpend = missing.includes('what you spend');
+  const blocked = missing.length > 0;
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const accounts = store.assetAccounts ?? [];
@@ -57,15 +68,15 @@ export function PlanInputs({ draft, onDraft, onCommit, committed }: {
     <View>
       <SectionBand title="FACTS — SAVE AS YOU GO" />
 
-      <View style={s.field}>
-        <Text style={s.label}>Your age<Chip kind="fact" /></Text>
+      <View style={[s.field, needsAge && s.missingRow, focus === 'your age' && s.focused]}>
+        <Text style={[s.label, needsAge && s.missingLabel]}>Your age{needsAge ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
         <TextInput style={s.input} value={ageText} onChangeText={saveAge} keyboardType="number-pad"
           placeholder="—" placeholderTextColor={Colors.textTertiary} maxLength={3}
           accessibilityLabel="Your age in years" />
       </View>
 
-      <View style={s.field}>
-        <Text style={s.label}>Monthly spending in retirement<Chip kind="fact" /></Text>
+      <View style={[s.field, needsSpend && s.missingRow, focus === 'what you spend' && s.focused]}>
+        <Text style={[s.label, needsSpend && s.missingLabel]}>Monthly spending in retirement{needsSpend ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
         <View style={s.moneyIn}>
           <Text style={s.dollar}>$</Text>
           <TextInput style={s.input} value={spendText} onChangeText={saveSpend} keyboardType="number-pad"
@@ -90,6 +101,15 @@ export function PlanInputs({ draft, onDraft, onCommit, committed }: {
         );
       })}
 
+      {/* THE THREE WAYS IN — the same wording as Home and Sharpen, never re-typed per screen */}
+      <Text style={s.hint}>Missing something? Add it here:</Text>
+      {DOORS.map((d) => (
+        <TouchableOpacity key={d.route} style={s.row} accessibilityRole="button" accessibilityLabel={d.title.replace(' ›', '')}
+          onPress={() => onOpenDoor?.(d.route)}>
+          <Text style={s.rowLabel}>{d.icon}  {d.title}</Text>
+        </TouchableOpacity>
+      ))}
+
       <SectionBand title="BIG ONE-TIME COSTS" value={maskedMoney(bigCosts.reduce((t: number, c: any) => t + c.amount, 0))} />
       {bigCosts.map((c: any) => (
         <View key={c.id} style={s.row} accessible accessibilityLabel={`${c.label}, ${c.year}: ${spokenMoney(Math.round(c.amount))}`}>
@@ -105,6 +125,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed }: {
       </Text>
 
       <SectionBand title="CHOICES — TRY THEM, NOTHING CHANGES YET" />
+      <View style={blocked ? s.dimmed : undefined} pointerEvents={blocked ? 'none' : 'auto'}>
       <Stepper label="Retire at" value={draft.retireAge}
         onChange={(v) => onDraft({ ...draft, retireAge: Math.max(50, Math.min(80, v)) })} />
       <Stepper label="Plan to age" value={draft.horizonAge}
@@ -112,7 +133,11 @@ export function PlanInputs({ draft, onDraft, onCommit, committed }: {
       <Stepper label="Extra saving each month" value={draft.extraMonthly} money step={100}
         onChange={(v) => onDraft({ ...draft, extraMonthly: Math.max(0, v) })} />
 
-      {dirty ? (
+      </View>
+
+      {blocked ? (
+        <Text style={s.hint}>Nothing to try yet — the odds need {missing.join(' and ')} first.</Text>
+      ) : dirty ? (
         <View style={s.commitWrap}>
           <TouchableOpacity style={s.commit} accessibilityRole="button" accessibilityLabel="Use this as my plan" onPress={onCommit}>
             <Text style={s.commitTxt}>Use as my plan</Text>
@@ -126,8 +151,9 @@ export function PlanInputs({ draft, onDraft, onCommit, committed }: {
   );
 }
 
-function Chip({ kind }: { kind: 'fact' | 'draft' }) {
-  return <Text style={kind === 'fact' ? s.factChip : s.draftChip}>  {kind === 'fact' ? 'FACT' : 'DRAFT'}  </Text>;
+function Chip({ kind }: { kind: 'fact' | 'draft' | 'missing' }) {
+  const style = kind === 'fact' ? s.factChip : kind === 'draft' ? s.draftChip : s.missingChip;
+  return <Text style={style}>  {kind.toUpperCase()}  </Text>;
 }
 
 function Stepper({ label, value, onChange, money, step = 1 }: {
@@ -162,6 +188,11 @@ const s = StyleSheet.create({
   muted: { color: Colors.textSecondary },
   factChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bandLight },
   draftChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.primaryDeep, backgroundColor: Colors.primaryLight },
+  missingChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight },
+  missingRow: { backgroundColor: Colors.amberLight },
+  missingLabel: { fontWeight: '700' },
+  focused: { borderLeftWidth: 3, borderLeftColor: Colors.primaryDeep },
+  dimmed: { opacity: 0.4 },
   stepper: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', minHeight: 52, paddingHorizontal: Spacing.md, borderTopWidth: 1, borderTopColor: Colors.border },
   stepRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
   btn: { width: 44, height: 44, borderRadius: 22, borderWidth: 1.5, borderColor: Colors.borderStrong, alignItems: 'center', justifyContent: 'center' },

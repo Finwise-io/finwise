@@ -124,7 +124,10 @@ describe('4 · brand-new user who skips everything (just explore)', () => {
     expect(screen.getByText('Cash flow')).toBeOnTheScreen();           // renders, honest and alive
     cf.unmount();
     render(<PlanHubScreen />);
-    expect(screen.getByText(/See your real odds — 3 questions|answers? left/)).toBeOnTheScreen();   // v9 dynamic door — invitation, not a guess
+    // 2026-08-12: the questions are ON the tab now — the invitation is the can't-compute box plus
+    // the rows themselves, not a door to a second screen
+    expect(screen.getByText(/can't work them out yet/)).toBeOnTheScreen();
+    expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   });
 });
 

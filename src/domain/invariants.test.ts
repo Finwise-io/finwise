@@ -93,7 +93,7 @@ describe('Wealth single-source invariants', () => {
   // FOUNDER RULE 2026-08-11: everything you own counts toward retirement EXCEPT your primary home
   // and your primary car. Cash counts (it is money you can spend); a rental counts (you can sell it).
   // Only the roof you live under and the car you drive are off the table. Any of it is changeable
-  // per account, and the plan-answers screen is where a person changes it.
+  // per account, and the Plan tab is where a person changes it.
   test('retirement earmark defaults: ALL assets except the primary home and the primary car', () => {
     const acct = (kind: string, bucket: AssetAccount['tax_bucket'], balance = 1000): AssetAccount =>
       ({ asset_id: kind, label: kind, kind, tax_bucket: bucket, balance, target_return: 0.07 });

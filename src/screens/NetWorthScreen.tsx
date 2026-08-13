@@ -739,7 +739,7 @@ export default function NetWorthScreen() {
                   that answer — not on the Plan hub, and not on the seven-item completeness list two
                   hops further on. Same rule the fix-it sheet already holds itself to. */}
               <TouchableOpacity accessibilityRole="button"
-                onPress={(e: any) => { e?.stopPropagation?.(); router.push(`/plan-answers${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any); }}
+                onPress={(e: any) => { e?.stopPropagation?.(); router.push(`/(tabs)/plan${nwDoor.count === 1 ? `?focus=${encodeURIComponent(nwDoor.missing[0])}` : ''}` as any); }}
                 accessibilityLabel={`${sampleAskLine(nwDoor.missing)}. Opens ${nwDoor.count === 1 ? 'that question' : 'the questions'}.`}>
                 <Text style={styles.rowSub}>{sampleAskLine(nwDoor.missing)} ›</Text>
               </TouchableOpacity>

@@ -48,7 +48,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
 
       {/* the one score */}
       <View style={s.gaugeRow} accessible
-        accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'} to ${horizonAge}: ${chance} percent, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
+        accessibilityLabel={`${lens === 'retired' ? 'Is my money lasting' : 'Will my money last'}: ${oddsLine(lens, chance, horizonAge)}, an estimate${band ? `. In the worst markets ${band.low} percent, in the best ${band.high} percent` : ''}.`}>
         <GaugeArc pct={chance} />
         <View style={s.gaugeText}>
           <Text style={s.pct}>{chance}%</Text>

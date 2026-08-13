@@ -55,7 +55,7 @@ const screens = {
   NW: () => require('../screens/NetWorthScreen').default,
   Home: () => require('../screens/HomeScreen').default,
   Account: () => require('../screens/AccountDetailScreen').default,
-  Answers: () => require('../screens/PlanAnswersScreen').default,
+  Answers: () => require('../screens/PlanHubScreen').default,   // the questions live on the tab (2026-08-12)
   Performance: () => require('../screens/PerformanceScreen').default,
 };
 
@@ -194,10 +194,21 @@ test('C6 Home, Net worth and the answers screen all speak the SAME odds sentence
     onboardingProfile: WORKER,
     assetAccounts: [savings({ balance: 800000 })], liabilities: [],
   } as any);
+  // read what each surface SAYS — on the tab the sentence is set in two lines, so the spoken label
+  // is where the one wording is checkable (and it is the stronger pin: a screen that shows the
+  // number without saying what it is fails here)
   const said: string[] = [];
   for (const S of [screens.Home(), screens.NW(), screens.Answers()]) {
     render(React.createElement(S));
-    const line = visible().find((s) => /odds of lasting to age \d+/.test(s));
+    const labels: string[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      if (typeof n.props?.accessibilityLabel === 'string') labels.push(n.props.accessibilityLabel);
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    const line = labels.map((l) => l.match(/\d+% odds of lasting to age \d+/)?.[0]).find(Boolean)
+      ?? visible().find((t) => /^\d+% odds of lasting to age \d+/.test(t));
     expect(line).toBeDefined();
     said.push(line!);
     screen.unmount();

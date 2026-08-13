@@ -483,26 +483,26 @@ test('the three questions screen shows ALL three, missing first, prefilled with 
     assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 400000, target_return: 0.07 }],
   } as any);
   mockParams = {};
-  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
-  render(<PlanAnswersScreen />);
-  expect(screen.getByText('One answer left')).toBeOnTheScreen();
-  expect(screen.getByText('WHAT DO YOU SPEND IN A TYPICAL MONTH?')).toBeOnTheScreen();
-  // the answered ones are STILL shown, prefilled, so they can be changed here
-  expect(screen.getByText('HOW OLD ARE YOU?')).toBeOnTheScreen();
+  // 2026-08-12: folded into the Plan tab — ONE component for the complete and the missing states
+  const PlanHubScreen = require('../screens/PlanHubScreen').default;
+  render(<PlanHubScreen />);
+  expect(screen.getByText(/can't work them out yet\. Add what you spend/)).toBeOnTheScreen();
+  // the answered ones are STILL shown, prefilled, so they can be changed in place
   expect(screen.getByLabelText('Your age in years').props.value).toBe('55');
+  expect(screen.getByText('Monthly spending in retirement  MISSING')).toBeOnTheScreen();
   expect(screen.getByText('WHAT COUNTS TOWARD RETIREMENT')).toBeOnTheScreen();
   expect(screen.getByLabelText(/IRA.*Counts toward retirement\. Tap to change\./)).toBeOnTheScreen();
-  // the payoff sits on the SAME screen — no third hop to find out whether it worked
+  // the payoff sits on the SAME screen — the sample until it becomes theirs
   expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
-  fireEvent.changeText(screen.getByLabelText('What you spend in a typical month'), '4500');
-  expect((useStore.getState() as any).onboardingProfile.monthlySpending).toBe('4500');
+  fireEvent.changeText(screen.getByLabelText('Monthly spending in retirement'), '4500');
+  expect((useStore.getState() as any).retirementAssumptions.spendMonthly).toBe(4500);
 });
 
 test('answering the age question stores a believable birth year, and only a believable one', () => {
   useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'] } } as any);
   mockParams = {};
-  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
-  render(<PlanAnswersScreen />);
+  const PlanHubScreen = require('../screens/PlanHubScreen').default;
+  render(<PlanHubScreen />);
   const field = screen.getByLabelText('Your age in years');
   fireEvent.changeText(field, '5');                                     // half-typed
   expect((useStore.getState() as any).onboardingProfile.birthYear).toBeUndefined();
@@ -525,29 +525,32 @@ test('the Net worth line lands on the question it names — not on a hub', () =>
   expect(screen.getByLabelText(/add what you spend and it becomes yours\. Opens that question\./)).toBeOnTheScreen();
 });
 
-test('the route is whitelisted, so the guard can never bounce it Home (the T22 class)', () => {
+test('the questions live on a TAB now, so no route guard can bounce them Home (the T22 class)', () => {
   const { MODAL_SEGMENTS } = require('../navigation/routeGuard');
-  expect(MODAL_SEGMENTS).toContain('plan-answers');
+  expect(MODAL_SEGMENTS).not.toContain('plan-answers');   // the route is gone, not orphaned
+  const fs = require('fs');
+  expect(fs.existsSync(require('path').join(__dirname, '..', 'screens/PlanAnswersScreen.tsx'))).toBe(false);
 });
 
 test('the three ways in are ONE list — Sharpen and the questions screen cannot word them differently', () => {
   const fs = require('fs'); const path = require('path');
   const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
   expect(read('screens/SharpenPlanScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
-  expect(read('screens/PlanAnswersScreen.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
+  expect(read('components/PlanInputs.tsx')).toMatch(/from '\.\.\/constants\/doors'/);
   expect(read('screens/SharpenPlanScreen.tsx')).not.toMatch(/Read-only: we can look, never touch your money/);
 });
 
 // ── ONE SCREEN, WHEREVER YOU TAP IT (founder rule 2026-08-11) ──────────────────────────────────
-test('Home, Net worth and Plan all open the SAME three-questions screen', () => {
+test('Home and Net worth open the SAME place the questions live — the Plan tab itself', () => {
   const fs = require('fs'); const path = require('path');
   const read = (rel: string) => fs.readFileSync(path.join(__dirname, '..', rel), 'utf8');
-  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx', 'screens/PlanHubScreen.tsx']) {
-    expect(read(f)).toMatch(/\/plan-answers/);
+  // one destination now, deep-linked to the missing answer — no second screen to drift from
+  for (const f of ['screens/HomeScreen.tsx', 'screens/NetWorthScreen.tsx']) {
+    expect(read(f)).toMatch(/\/\(tabs\)\/plan/);
+    expect(read(f)).not.toMatch(/plan-answers/);
   }
-  // the hub's ODDS door goes to the questions; its separate "sharpen your whole plan" card still
-  // goes to Sharpen, which is a different job and stays
-  expect(read('screens/PlanHubScreen.tsx')).toMatch(/doorBtn[\s\S]{0,200}plan-answers/);
+  expect(read('screens/NetWorthScreen.tsx')).toMatch(/focus=/);
+  expect(read('screens/PlanHubScreen.tsx')).toMatch(/focusParam/);
 });
 
 // ── WHAT COUNTS TOWARD RETIREMENT (founder rule 2026-08-11) ────────────────────────────────────
@@ -587,9 +590,9 @@ test('tapping a row on the answers screen flips whether it counts', () => {
     assetAccounts: [{ asset_id: 'sav', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 20000, target_return: 0 }],
   } as any);
   mockParams = {};
-  const PlanAnswersScreen = require('../screens/PlanAnswersScreen').default;
-  render(<PlanAnswersScreen />);
-  expect(screen.getByText(/Counting toward retirement: \$20,000/)).toBeOnTheScreen();
+  const PlanHubScreen = require('../screens/PlanHubScreen').default;
+  render(<PlanHubScreen />);
+  expect(screen.getByText('WHAT COUNTS TOWARD RETIREMENT')).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText(/Ally Savings.*Counts toward retirement\. Tap to change\./));
   expect((useStore.getState() as any).assetAccounts[0].retirement_pct).toBe(0);
 });

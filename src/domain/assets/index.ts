@@ -535,7 +535,7 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  *  Cash counts (it is money you can spend), a rental counts (you can sell it), a second car counts.
  *  Only the roof you live under and the car you drive are assumed off the table, because selling
  *  those is not a retirement plan. Any of it can be changed per account — `retirement_pct` always
- *  wins over this default, and the plan-answers screen is where a person changes it.
+ *  wins over this default, and the Plan tab is where a person changes it.
  *
  *  A 529 stays out: that money is legally earmarked for someone else's education, not a choice.
  *  `primaryCarId` names the one vehicle treated as the car you drive (the most valuable one) —

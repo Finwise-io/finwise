@@ -3,7 +3,7 @@
 // changes the plan by itself — every path ends at an explicit adoption step.
 import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
@@ -31,6 +31,10 @@ const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); retur
 
 export default function PlanHubScreen() {
   const router = useRouter();
+  // Home and Net worth deep-link here with the answer they were missing (founder ruling: one screen,
+  // reached three ways — it used to be a separate /plan-answers route, which drifted)
+  const { focus } = (useLocalSearchParams?.() ?? {}) as { focus?: string };
+  const focusParam = typeof focus === 'string' ? focus : null;
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const uid = store.user?.uid ?? 'local';
@@ -169,7 +173,8 @@ export default function PlanHubScreen() {
             null
           )}
           {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
-          <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft} />
+          <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
+            onOpenDoor={(r) => router.push(r as any)} />
           <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/will-it-last')} accessibilityLabel="See what drives this number">
             <Text style={styles.cardLink}>What drives this? ›</Text>
           </TouchableOpacity>
@@ -184,17 +189,23 @@ export default function PlanHubScreen() {
               <GaugeArc locked />
               <Text style={styles.sampleTxt}>
                 <Text style={{ fontWeight: '800', color: Colors.textPrimary }}>{sampleOddsLine(wil.horizonAge)}</Text>{'\n'}
-                <Text style={{ color: Colors.textTertiary }}>A sample — {door.count < 3 ? `yours needs ${door.count} more answer${door.count === 1 ? '' : 's'}` : 'not your number'}.</Text>
+                <Text style={{ color: Colors.textTertiary }}>A sample, not your number — {door.count < 3 ? `yours needs ${door.count} more answer${door.count === 1 ? '' : 's'}, below` : 'answer the three below and it becomes yours'}.</Text>
               </Text>
             </View>
-            <TouchableOpacity accessibilityRole="button" style={styles.doorBtn} onPress={() => router.push(`/plan-answers${door.count === 1 ? `?focus=${encodeURIComponent(door.missing[0])}` : ''}` as any)}
-              accessibilityLabel={`${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}`}>
-              <Text style={styles.doorBtnTxt}>{door.count < 3 ? `${door.count} answer${door.count === 1 ? '' : 's'} left — see your real ${lens === 'retired' ? 'answer' : 'odds'}` : `See your real ${lens === 'retired' ? 'answer' : 'odds'} — 3 questions`} ›</Text>
-            </TouchableOpacity>
-            <Text style={styles.doorSub}>{door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' · ')}{door.count === 3 ? ". That's all." : ''}</Text>
+            {/* the can't-compute box, in place of the odds — the design's "Missing Age" state */}
+            <View style={styles.cantCompute} accessible
+              accessibilityLabel={`Your odds can't be worked out yet. Add ${door.missing.join(' and ')} in the facts below.`}>
+              <Text style={styles.cantComputeTxt}>
+                Your odds — can't work them out yet. Add {door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' and ')} below.
+              </Text>
+            </View>
             {door.credit && (
               <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
             )}
+            {/* THE SAME inputs as the complete state — one component, so the two can never drift.
+                This is what folding /plan-answers into the tab means (founder 2026-08-12). */}
+            <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
+              missing={door.missing} focus={focusParam} onOpenDoor={(r) => router.push(r as any)} />
           </View>
           <View style={[styles.nextCard, { opacity: 0.5 }]} accessible
             accessibilityLabel="Sample of the next-decision card — real ones are dated from your numbers, never invented.">
@@ -438,6 +449,8 @@ const styles = StyleSheet.create({
   card: { backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: Spacing.sm },
   cardKicker: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary, letterSpacing: 0.6 },
   chanceRow: { flexDirection: 'row', alignItems: 'baseline', marginTop: 4 },
+  cantCompute: { borderWidth: 1.5, borderStyle: 'dashed', borderColor: Colors.borderStrong, marginHorizontal: Spacing.md, marginTop: Spacing.sm, padding: Spacing.md },
+  cantComputeTxt: { fontSize: 13, color: Colors.textSecondary, lineHeight: 19 },
   tryingTag: { fontSize: 11, color: Colors.textSecondary, paddingHorizontal: Spacing.md, paddingBottom: Spacing.sm },
   chanceWord: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },
   chancePct: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary },

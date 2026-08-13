@@ -20,7 +20,6 @@ export const MODAL_SEGMENTS = [
   'first-run',                  // FCC: the lens questions (intents + stage), also Settings' revisit target
   'look-back','what-if',        // FCC Invest tab: backward + forward what-ifs
   'will-it-last',               // FCC Plan tab: the one number, opened up
-  'plan-answers',               // the three questions the odds need (age · spend · have)
 ];
 
 export type RouteState = {
