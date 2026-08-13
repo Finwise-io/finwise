@@ -96,9 +96,43 @@ grammar. Keep them short enough to sit on one line beside their answer.
 3. **When to claim Social Security — at 60 and above only**
 
 **Shown only when they apply.** No mortgage on file → no mortgage row. No pre-tax money → no Roth
-row. Under 60 → no Social Security row. Nothing applies → the whole section stands down rather than
-offering someone a decision they cannot make. Draw the row pattern so a fourth decision can slot in
-later without a redesign.
+row (there is nothing to convert, so the question is meaningless). Under 60 → no Social Security row.
+Under 73 → no required-withdrawal row. Already claiming → the Social Security question is removed
+entirely, not answered with a dead end. Nothing applies → the whole section stands down rather than
+offering someone a decision they cannot make. **Absent, never greyed out and never "no mortgage on
+file".** Draw the row pattern so a further decision can slot in later without a redesign.
+
+**Expect a short list.** Pat, 58 with a mortgage and pre-tax savings, sees **two** rows. June, 72 and
+already claiming, sees **three**. Design for two-to-four rows, not for a full menu.
+
+#### The order — a rule, not a sequence
+
+Founder ruling, 2026-08-12. Today there is no rule at all: the rows are hard-coded one after another
+in the order the lines happen to sit in the source file. **This must become a rule the code applies.**
+
+**1. Anything with a real deadline goes first**, because it expires. Today that is the required
+withdrawal, due 31 December. This extends the one ordering principle the app already has — the
+next-decision card already holds that a required withdrawal outranks everything because it is dated.
+
+**2. Everything else holds a FIXED order per lens**, chosen by what is most on the mind at that stage
+of life. It does not re-sort as balances move: a person who learns where a row sits finds it in the
+same place next month. (Ranking by size or by impact was considered and rejected for exactly that
+reason — rows changing position between visits, with the person having done nothing.)
+
+| Still working | Drawing down |
+|---|---|
+| 1. When to claim Social Security *(60+)* | 1. When to claim Social Security *(only if not yet claiming)* |
+| 2. Pay off the mortgage early | 2. Can I spend more? |
+| 3. Is converting to a Roth worth it? | 3. Which account do I draw from first? |
+| | 4. Pay off the mortgage early |
+| | 5. Is converting to a Roth worth it? |
+
+*The placement of Social Security at the top of both columns, and the mortgage row appearing for
+retirees at all, are my reading rather than the founder's words — flag them and he will confirm or
+move them. Everything else in this table is his.*
+
+**3. A row only takes a position if it applies** (rule above). The numbering is the order among those
+present, never a fixed slot with a gap in it.
 
 Each row carries **what it is worth** — a dollar figure, a date, or a points figure — never a bare
 topic. (See §6 for what the engine can actually produce.)
