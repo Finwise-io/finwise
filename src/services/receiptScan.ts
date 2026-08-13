@@ -34,6 +34,8 @@ export function parseReceipt(text: string): { amount?: number; merchant?: string
   const lines = text.split(/\r?\n/).map((l) => l.trim()).filter(Boolean);
   const merchant = lines.find((l) => /[A-Za-z]{3,}/.test(l));   // first word-y line ≈ store name
   const amtRe = /(\d{1,3}(?:,\d{3})*\.\d{2})/;
+  // a date is not money — see stripNonMoney (founder's parking receipt read 30.04.24 as $30.04)
+  const { stripNonMoney } = require('./receiptOCR');
   const toNum = (s: string) => parseFloat(s.replace(/,/g, ''));
   const PAYMENT = /\b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b/i;
   // B46 finding 10 (founder's ACME receipt): supermarket receipts print the true total as
@@ -42,7 +44,7 @@ export function parseReceipt(text: string): { amount?: number; merchant?: string
   // grabbed the item's LIST price. Three rules: STRONG totals (balance/amount-due class) beat
   // bare "total"; once a savings/points section starts, bare "total" stops counting; and an
   // amount that ECHOES a payment line (you paid exactly $4.99) beats "largest number".
-  const STRONG = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance)\b/i;
+  const STRONG = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance|net)\b/i;
   const WEAK = /\btotal\b/i;
   const SUB = /\bsub\s*-?\s*total\b/i;
   const SAVINGS_HDR = /\b(your\s+savings|total\s+savings|savings\s+value|your\s+points|rewards?|cash\s*off|coupons?)\b/i;
@@ -55,7 +57,7 @@ export function parseReceipt(text: string): { amount?: number; merchant?: string
   const payAmounts: number[] = [];
   let inSavings = false;
   for (const l of lines) {
-    const m = l.match(amtRe);
+    const m = stripNonMoney(l).match(amtRe);
     const v = m ? toNum(m[1]) : NaN;
     if (SAVINGS_HDR.test(l)) inSavings = true;
     if (PAYMENT.test(l)) {                                     // cash / change / card lines never count…

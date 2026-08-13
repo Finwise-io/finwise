@@ -64,6 +64,17 @@ export async function parseReceiptWithOCR(imageUri: string): Promise<ParsedRecei
  * Parses raw OCR text from a receipt into structured data.
  * Handles common receipt formats from US grocery, gas, restaurant receipts.
  */
+
+/** A DATE IS NOT MONEY. "30.04.24" (30 April 2024, the way most of the world writes it) matched the
+ *  money pattern as $30.04 and — on a receipt with no TOTAL keyword — beat the real charge because
+ *  it was the largest number on the page. Founder's parking receipt, 2026-08-12: read as $30.04
+ *  when the fee was $22.45. Times are stripped for the same reason (7:54, 08:30). */
+export function stripNonMoney(line: string): string {
+  return line
+    .replace(/\b\d{1,4}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/g, ' ')   // 30.04.24 · 04/30/24 · 2024-04-30
+    .replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g, ' ');              // 08:30 · 7:54
+}
+
 export function parseReceiptText(text: string): ParsedReceipt {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
@@ -80,14 +91,14 @@ export function parseReceiptText(text: string): ParsedReceipt {
   // parsers: STRONG totals (**** BALANCE / amount due) beat bare "total"; a bare "Total" printed
   // inside the savings/points section is a coupon decoy, never the bill; negative lines (discounts)
   // are not charges; and an amount echoing a payment line beats the largest-number fallback.
-  const STRONG_TOTAL = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance)\b/i;
-  const WEAK_TOTAL = /\btotal\b/i;
+  const STRONG_TOTAL = /\b(grand\s*total|amount\s*due|balance\s*due|total\s*due|balance|net)\b/i;
+  const WEAK_TOTAL = /\b(total|fee)\b/i;
   const SUBTOTAL_LINE = /\bsub\s*-?\s*total\b/i;
   const SAVINGS_HDR = /\b(your\s+savings|total\s+savings|savings\s+value|your\s+points|rewards?|cash\s*off|coupons?)\b/i;
   const NEGATIVE_LINE = /-\s*\$?\s*\d/;
   const AMOUNT = /\$?\s*([\d,]+\.[\d]{2})\b/;
   const amountOn = (l: string): number | null => {
-    const m = l.match(AMOUNT);
+    const m = stripNonMoney(l).match(AMOUNT);
     const v = m ? parseFloat(m[1].replace(/,/g, '')) : NaN;
     return Number.isFinite(v) && v > 0 && v < 10000 ? v : null;
   };
