@@ -1,0 +1,373 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>Plan tab — questions, not parameters · your own target nest egg (v1)</title>
+<style>
+  :root{
+    --primary:#178F6B; --primaryDark:#0F6E56; --primaryDeep:#085041; --primaryLight:#E1F5EE;
+    --amber:#854F0B; --amberLight:#FAEEDA; --amberMid:#FAC775;
+    --white:#FFFFFF; --bgSecondary:#F6F7F5; --bgTertiary:#EEEEE9;
+    --textPrimary:#1A1A18; --textSecondary:#6B6B66; --textTertiary:#76766F;
+    --border:rgba(0,0,0,0.10); --borderStrong:rgba(0,0,0,0.20);
+    --bandLight:#DFF2E9; --gainText:#006300; --sepDot:#3A3A36;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#E7E9E5;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',system-ui,sans-serif;color:var(--textPrimary);padding:28px 20px 60px}
+  h1{font-size:19px;margin:0 0 4px}
+  .lede{font-size:14px;color:#44443f;max-width:1180px;line-height:1.55;margin:0 0 6px}
+  .lede b{color:#000}
+  .stage{display:flex;gap:26px;flex-wrap:wrap;margin-top:22px;align-items:flex-start}
+  .col{width:390px}
+  .cap{font-size:13px;font-weight:800;color:var(--primaryDeep);margin:0 0 8px}
+  .cap span{display:block;font-weight:500;color:#55554f;font-size:12px;margin-top:2px}
+
+  /* ── phone ─────────────────────────────────────────────────────────── */
+  .phone{width:390px;background:var(--bgSecondary);border-radius:38px;border:1px solid rgba(0,0,0,.16);
+         box-shadow:0 10px 34px rgba(0,0,0,.16);overflow:hidden}
+  .status{height:44px;background:var(--bgSecondary);display:flex;align-items:center;justify-content:space-between;
+          padding:0 26px;font-size:12.5px;font-weight:700;color:var(--textPrimary)}
+  .status .dots{letter-spacing:2px}
+  .top{background:var(--bgSecondary);padding:6px 16px 4px;display:flex;align-items:center;gap:8px}
+  .wordmark{font-size:14px;font-weight:800;letter-spacing:.01em}
+  .wordmark i{font-style:normal;color:var(--primary)} .wordmark u{text-decoration:none;color:var(--primaryDeep)}
+  .menu{margin-left:auto;font-size:17px;color:var(--textSecondary)}
+  .scroll{padding:12px;background:var(--bgSecondary)}
+  .h1{font-size:24px;font-weight:800;margin:0}
+  .tag{font-size:15px;color:var(--textSecondary);margin:0 0 12px}
+
+  .card{background:var(--white);border-radius:14px;padding:12px;margin-bottom:8px}
+  .band{background:var(--primaryDeep);color:#fff;font-size:11px;font-weight:800;letter-spacing:.5px;
+        text-transform:uppercase;padding:8px 12px;display:flex;align-items:center;gap:6px;margin-bottom:4px}
+  .band.bleed{margin:-12px -12px 4px}
+  .band .tot{margin-left:auto;font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;letter-spacing:0}
+
+  .gaugeRow{display:flex;align-items:center;gap:8px;padding:12px 0 0}
+  .gauge{width:78px;height:48px;flex:none}
+  .pct{font-size:30px;font-weight:800;line-height:1;font-variant-numeric:tabular-nums}
+  .pctSub{font-size:13px;margin-top:-1px}
+  .range{font-size:11px;color:var(--textSecondary);margin-top:3px}
+  .idot{color:var(--textTertiary);font-weight:700;font-size:13px;padding:4px 6px}
+
+  .sums{padding-top:8px}
+  .row{display:flex;align-items:center;min-height:44px;border-top:1px solid var(--border);gap:8px}
+  .row .l{font-size:13px;flex:1}
+  .row .v{font-size:15px;font-variant-numeric:tabular-nums}
+  .row .v.b{font-weight:800}
+  .row .v.warn{color:var(--amber);font-weight:800}
+  .row .v.good{color:var(--primaryDeep);font-weight:800}
+  .mine{font-size:11px;font-weight:700;color:var(--textSecondary);background:var(--bgTertiary);
+        border-radius:4px;padding:2px 6px;margin-left:6px;white-space:nowrap}
+  .bridge{font-size:13px;line-height:19px;padding:8px 0}
+  .bridge b{font-weight:800}
+
+  .fld{display:flex;align-items:center;min-height:44px;padding:0 12px;border-top:1px solid var(--border);gap:8px;margin:0 -12px}
+  .fld .q{font-size:13px;flex:1}
+  .fld .a{font-size:15px;font-weight:800;font-variant-numeric:tabular-nums;text-align:right}
+  .fld.miss{background:var(--amberLight)} .fld.miss .q{font-weight:700}
+  .chip{font-size:11px;font-weight:700;border-radius:4px;padding:2px 6px;margin-left:6px;white-space:nowrap}
+  .chip.fact{color:var(--textSecondary);background:var(--bgTertiary)}
+  .chip.draft{color:var(--primaryDeep);background:var(--primaryLight)}
+  .chip.missing{color:var(--amber);background:var(--amberLight);border:1px solid var(--amberMid)}
+  .hint{font-size:11px;line-height:17px;color:var(--textSecondary);padding:8px 0}
+  .arow{display:flex;align-items:center;min-height:44px;border-top:1px solid var(--border);gap:8px}
+  .arow .l{font-size:13px;flex:1} .arow .v{font-size:15px;font-variant-numeric:tabular-nums}
+  .arow.off .l,.arow.off .v{color:var(--textSecondary)}
+  .step{display:flex;align-items:center;min-height:52px;border-top:1px solid var(--border);gap:12px;padding:0}
+  .step .q{font-size:13px;flex:1}
+  .btn{width:44px;height:44px;border-radius:22px;border:1.5px solid var(--borderStrong);background:#fff;
+       font-size:17px;font-weight:800;display:flex;align-items:center;justify-content:center;flex:none}
+  .sv{font-size:17px;font-weight:800;min-width:56px;text-align:center;font-variant-numeric:tabular-nums}
+  .commit{background:var(--primaryDeep);color:#fff;font-size:15px;font-weight:800;text-align:center;
+          padding:12px;margin:12px -12px 0}
+  .link{font-size:15px;font-weight:600;color:var(--primary);min-height:44px;display:flex;align-items:center}
+  .cantbox{border:1.5px dashed var(--borderStrong);padding:12px;margin-top:8px;font-size:13px;line-height:19px;color:var(--textSecondary)}
+  .nextCard{background:var(--amberLight);border:1.5px solid var(--amberMid);border-radius:14px;padding:12px;margin-bottom:8px}
+  .nk{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--amber);margin-bottom:3px}
+  .nt{font-size:15px;font-weight:800;line-height:20px} .ns{font-size:13px;color:var(--textSecondary);margin-top:3px;line-height:17px}
+  .nc{font-size:13px;font-weight:800;color:var(--amber);margin-top:7px}
+  .dec{display:flex;align-items:center;padding:10px 0;gap:8px}
+  .dec+.dec{border-top:1px solid var(--border)}
+  .dec .t{font-size:15px;font-weight:700} .dec .s{font-size:13px;color:var(--textSecondary);margin-top:2px}
+  .dec .chev{font-size:20px;color:var(--textTertiary)}
+  .meter{height:6px;border-radius:3px;background:var(--bgSecondary);margin-top:8px;overflow:hidden}
+  .meter i{display:block;height:6px;background:var(--primary);border-radius:3px}
+  .foot{font-size:11px;color:var(--textTertiary);line-height:15px;margin:2px 0 4px}
+  .tabbar{display:flex;background:var(--white);border-top:1px solid var(--border);padding:8px 0 22px}
+  .tab{flex:1;text-align:center;font-size:10px;color:var(--textTertiary)}
+  .tab .g{display:block;font-size:16px;margin-bottom:2px;opacity:.55}
+  .tab.on{color:var(--primaryDeep);font-weight:800} .tab.on .g{opacity:1}
+  .note{font-size:12px;color:#55554f;line-height:1.55;background:#fff;border-left:3px solid var(--primary);
+        padding:10px 12px;border-radius:0 8px 8px 0;margin-top:12px}
+  .note b{color:#000}
+  .newflag{display:inline-block;font-size:10px;font-weight:800;letter-spacing:.4px;color:#fff;background:var(--primary);
+           border-radius:3px;padding:1px 5px;margin-left:6px;vertical-align:1px}
+</style>
+
+<h1>Plan tab — the retirement parameters become questions, and the target nest egg becomes yours</h1>
+<p class="lede">
+  Founder ruling, 2026-08-12: <b>“you type it and call it ‘Your target nest egg’… We should not have these
+  retirement parameters — Current Age, Target Retirement Age, Plan to Age, Current Nest Egg / Retirement
+  Assets — as simply parameters versus framing it as a question.”</b>
+  Drawn from the screen as it ships today; only the wording and the target row change.
+  Everything green-flagged <span class="newflag">NEW</span> is the change under review.
+</p>
+
+<div class="stage">
+
+<!-- ══════════════ A · everything answered ══════════════ -->
+<div class="col">
+  <div class="cap">A · Everything answered<span>Pat, 58, working — a target of their own</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="dots">▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Plan</div>
+      <div class="tag">We lay it out. You decide.</div>
+
+      <div class="card">
+        <div class="band bleed">Your retirement plan</div>
+        <div class="band">Will my money last?<span class="tot" style="font-size:11px">ESTIMATE</span></div>
+
+        <div class="gaugeRow">
+          <svg class="gauge" viewBox="0 0 100 62">
+            <path d="M8,56 A42,42 0 0,1 92,56" fill="none" stroke="#EEEEE9" stroke-width="11" stroke-linecap="round"/>
+            <path d="M8,56 A42,42 0 0,1 51.5,14.1" fill="none" stroke="#EDA33B" stroke-width="11" stroke-linecap="round"/>
+            <circle cx="50" cy="56" r="4" fill="#1A1A18"/>
+            <line x1="50" y1="56" x2="52" y2="16" stroke="#1A1A18" stroke-width="3" stroke-linecap="round"/>
+          </svg>
+          <div style="flex:1">
+            <div class="pct">48%</div>
+            <div class="pctSub">odds of lasting to age 90</div>
+            <div class="range">range 18–78% across bad-to-good markets</div>
+          </div>
+          <span class="idot">ⓘ</span>
+        </div>
+
+        <div class="sums">
+          <div class="row"><span class="l">Your target nest egg<span class="mine">YOURS</span></span><span class="v b">$2,000,000</span></div>
+          <div class="row"><span class="l">On track for, at 65</span><span class="v">$1,346,763</span></div>
+          <div class="row"><span class="l">Short</span><span class="v warn">$653,237</span></div>
+        </div>
+        <div class="bridge">
+          Saving <b>$79,000</b> a year over your <b>7 years</b> to 65 reaches your target.
+          That is your number, not ours — <a href="#" style="color:var(--primary)">see what we'd aim for ›</a>
+        </div>
+
+        <div class="band">Facts — save as you go</div>
+        <div class="fld"><span class="q">How old are you?<span class="chip fact">FACT</span></span><span class="a">58</span></div>
+        <div class="fld"><span class="q">What will you spend each month in retirement?<span class="chip fact">FACT</span></span><span class="a">$5,200</span></div>
+        <div class="hint">What your savings actually have to cover. Prefilled from what you spend now.</div>
+        <div class="fld"><span class="q">What's your target nest egg?<span class="newflag">NEW</span><span class="chip fact">FACT</span></span><span class="a">$2,000,000</span></div>
+        <div class="hint">Your own number. Leave it blank and we'll use ours — the pot that would put your odds at 80%.</div>
+
+        <div class="band">What counts toward retirement?<span class="tot">$909,152</span></div>
+        <div class="hint">Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</div>
+        <div class="arow"><span class="l">✓ Vanguard Brokerage</span><span class="v">$355,152</span></div>
+        <div class="arow"><span class="l">✓ Fidelity Traditional IRA</span><span class="v">$420,000</span></div>
+        <div class="arow"><span class="l">✓ Vanguard Roth IRA</span><span class="v">$96,000</span></div>
+        <div class="arow"><span class="l">✓ Ally Savings</span><span class="v">$38,000</span></div>
+        <div class="arow off"><span class="l">— Home · doesn't count</span><span class="v">$620,000</span></div>
+        <div class="hint">Missing something? Add it here:</div>
+        <div class="arow"><span class="l">🔗&nbsp; Connect your bank ›</span></div>
+        <div class="arow"><span class="l">📄&nbsp; Import a file from your brokerage ›</span></div>
+        <div class="arow"><span class="l">✍️&nbsp; Add something by hand ›</span></div>
+
+        <div class="band">What big one-time costs are coming?<span class="tot">$18,000</span></div>
+        <div class="arow"><span class="l">Roof, 2028<span class="chip fact">FACT</span></span><span class="v">$18,000</span></div>
+        <div class="arow"><span class="l" style="color:var(--primary);font-weight:700">＋ Add a big cost ›<span class="newflag">BACK</span></span></div>
+        <div class="hint">Counted in the year you named, grown by inflation to that year.</div>
+
+        <div class="band">Choices — try them, nothing changes yet</div>
+        <div class="step"><span class="q">When do you want to retire?<span class="chip draft">DRAFT</span></span>
+          <span class="btn">−</span><span class="sv">65</span><span class="btn">＋</span></div>
+        <div class="step"><span class="q">How long should the money last?<span class="chip draft">DRAFT</span></span>
+          <span class="btn">−</span><span class="sv">90</span><span class="btn">＋</span></div>
+        <div class="step"><span class="q">How much extra can you save each month?<span class="chip draft">DRAFT</span></span>
+          <span class="btn">−</span><span class="sv">+$0</span><span class="btn">＋</span></div>
+        <div class="hint">No changes to try yet — nothing to commit.</div>
+        <div class="link">What drives this? ›</div>
+      </div>
+
+      <div class="nextCard">
+        <div class="nk">NEXT DECISION · A REAL DATE</div>
+        <div class="nt">Your Social Security claim window opens Aug 2030 (age 62)</div>
+        <div class="ns">No deadline — each year you wait raises the check ~6–8%. See it in your own dollars.</div>
+        <div class="nc">Lay out 62 vs 67 vs 70 ›</div>
+      </div>
+
+      <div class="band">Decisions you can make today</div>
+      <div class="card">
+        <div class="dec"><div style="flex:1"><div class="t">Can I afford it?</div>
+          <div class="s">college help · the mortgage · keep saving — together, not one at a time</div></div><span class="chev">›</span></div>
+        <div class="dec"><div style="flex:1"><div class="t">Is a Roth move worth it?</div>
+          <div class="s">the window before required withdrawals begin at 73</div></div><span class="chev">›</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center"><span style="flex:1;font-size:15px;font-weight:700">Sharpen your plan</span>
+          <span style="font-size:15px;font-weight:700;color:var(--primary)">5 of 6 answered ›</span></div>
+        <div class="meter"><i style="width:83%"></i></div>
+      </div>
+      <div class="foot">Estimates from ~400 market simulations of your own numbers — not advice.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="g">🏠</span>Home</div>
+      <div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div>
+      <div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab on"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>What changed here.</b> Every row is a question a person can answer out loud. The target nest egg is
+    a fact you type, marked <b>YOURS</b>, and the money block reads down to your own gap — target,
+    on track for, short. The sentence under it closes <b>that</b> gap, not ours. The odds stay a separate
+    honest number above, because a pile of money and the chance it survives being spent are two
+    different things.
+  </div>
+</div>
+
+<!-- ══════════════ B · first day ══════════════ -->
+<div class="col">
+  <div class="cap">B · First day, nothing answered<span>The same screen before any answer exists</span></div>
+  <div class="phone">
+    <div class="status"><span>9:41</span><span class="dots">▮▮▮ ᯤ ▮</span></div>
+    <div class="top"><span class="wordmark"><i>Money</i><u>Keel</u></span><span class="menu">☰</span></div>
+    <div class="scroll">
+      <div class="h1">Plan</div>
+      <div class="tag">We lay it out. You decide.</div>
+
+      <div class="card">
+        <div class="band bleed">Will my money last?</div>
+        <div class="gaugeRow">
+          <svg class="gauge" viewBox="0 0 100 62">
+            <path d="M8,56 A42,42 0 0,1 92,56" fill="none" stroke="#EEEEE9" stroke-width="11" stroke-linecap="round"/>
+            <text x="50" y="46" text-anchor="middle" font-size="20">🔒</text>
+          </svg>
+          <div style="flex:1;font-size:13px;line-height:19px;color:var(--textSecondary)">
+            <b style="color:var(--textPrimary)">Sample: 84% odds of lasting to age 90</b><br>
+            A sample, not your number — answer the questions below and it becomes yours.
+          </div>
+        </div>
+        <div class="cantbox">Your odds — can't work them out yet. Add your age, what you spend and what you have below.</div>
+
+        <div class="band">Facts — save as you go</div>
+        <div class="fld miss"><span class="q">How old are you?<span class="chip missing">MISSING</span></span><span class="a" style="color:var(--amber)">Add ›</span></div>
+        <div class="fld miss"><span class="q">What will you spend each month in retirement?<span class="chip missing">MISSING</span></span><span class="a" style="color:var(--amber)">Add ›</span></div>
+        <div class="hint">What your savings actually have to cover.</div>
+        <div class="fld"><span class="q">What's your target nest egg?<span class="newflag">NEW</span></span><span class="a" style="color:var(--textTertiary)">—</span></div>
+        <div class="hint">Optional. Leave it blank and we'll use ours — the pot that would put your odds at 80%. You can change it any time.</div>
+
+        <div class="band">What counts toward retirement?</div>
+        <div class="hint" style="padding-bottom:0">Nothing linked yet — so there is nothing to count.</div>
+        <div class="arow"><span class="l">🔗&nbsp; Connect your bank ›</span></div>
+        <div class="arow"><span class="l">📄&nbsp; Import a file from your brokerage ›</span></div>
+        <div class="arow"><span class="l">✍️&nbsp; Add something by hand ›</span></div>
+
+        <div class="band">What big one-time costs are coming?</div>
+        <div class="hint" style="padding-bottom:0">Nothing here yet — your odds currently assume no big one-time costs. Leave them out and the plan quietly assumes the roof never needs doing.</div>
+        <div class="arow"><span class="l" style="color:var(--primary);font-weight:700">＋ Add a big cost ›<span class="newflag">BACK</span></span></div>
+
+        <div class="band">Choices — try them, nothing changes yet</div>
+        <div style="opacity:.4">
+          <div class="step"><span class="q">When do you want to retire?<span class="chip draft">DRAFT</span></span>
+            <span class="btn">−</span><span class="sv">65</span><span class="btn">＋</span></div>
+          <div class="step"><span class="q">How long should the money last?<span class="chip draft">DRAFT</span></span>
+            <span class="btn">−</span><span class="sv">90</span><span class="btn">＋</span></div>
+          <div class="step"><span class="q">How much extra can you save each month?<span class="chip draft">DRAFT</span></span>
+            <span class="btn">−</span><span class="sv">+$0</span><span class="btn">＋</span></div>
+        </div>
+        <div class="hint">Nothing to try yet — the odds need your age and what you spend and what you have first.</div>
+      </div>
+
+      <div class="nextCard" style="opacity:.5">
+        <div class="nk">SAMPLE — YOUR NEXT DECISION LANDS HERE</div>
+        <div class="nt">Your Social Security claim window opens at 62</div>
+        <div class="ns">Dated and in your dollars, once your numbers are in. Never invented before then.</div>
+      </div>
+
+      <div class="band">Decisions you can make today</div>
+      <div class="card">
+        <div class="dec" style="opacity:.75"><div style="flex:1"><div class="t">When can I retire? 🔒</div>
+          <div class="s">your biggest question — it unlocks with the answers above</div></div></div>
+        <div class="dec"><div style="flex:1"><div class="t">Can I afford it?</div>
+          <div class="s">add a goal — college, the mortgage, helping parents — and see the trade</div></div><span class="chev">›</span></div>
+        <div class="dec"><div style="flex:1"><div class="t">When should I claim Social Security?</div>
+          <div class="s">62 vs 67 vs 70 in your dollars — set the age your plan counts on.</div></div><span class="chev">›</span></div>
+      </div>
+
+      <div class="card">
+        <div style="display:flex;align-items:center"><span style="flex:1;font-size:15px;font-weight:700">Sharpen your plan</span>
+          <span style="font-size:15px;font-weight:700;color:var(--primary)">1 of 6 answered ›</span></div>
+        <div class="meter"><i style="width:17%"></i></div>
+      </div>
+      <div class="foot">No percent is shown until it's yours — we never fake a number.</div>
+    </div>
+    <div class="tabbar">
+      <div class="tab"><span class="g">🏠</span>Home</div>
+      <div class="tab"><span class="g">📊</span>Net worth</div>
+      <div class="tab"><span class="g">📈</span>Performance</div>
+      <div class="tab"><span class="g">💵</span>Cash flow</div>
+      <div class="tab on"><span class="g">🎯</span>Plan</div>
+    </div>
+  </div>
+
+  <div class="note">
+    <b>Empty day.</b> The target question sits there unanswered and says plainly that it is optional —
+    blank means we use ours. Nothing shows a <b>$0</b> any more: the two totals that used to print zero
+    now say what is actually true, that nothing is linked and nothing is entered.
+  </div>
+</div>
+
+<!-- ══════════════ C · the wording table ══════════════ -->
+<div class="col" style="width:430px">
+  <div class="cap">C · Every parameter, before and after<span>The whole class, not just this screen</span></div>
+  <div style="background:#fff;border-radius:14px;padding:14px 16px">
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="background:var(--primaryDeep);color:#fff">
+        <th style="text-align:left;padding:7px 8px;font-size:11px;letter-spacing:.5px">TODAY</th>
+        <th style="text-align:left;padding:7px 8px;font-size:11px;letter-spacing:.5px">PROPOSED</th>
+      </tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Your age</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>How old are you?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Monthly spending in retirement</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>What will you spend each month in retirement?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">— <i>(did not exist)</i></td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>What's your target nest egg?</b> <span class="newflag">NEW</span></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">WHAT COUNTS TOWARD RETIREMENT</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>What counts toward retirement?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">BIG ONE-TIME COSTS</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>What big one-time costs are coming?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Retire at</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>When do you want to retire?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Plan to age</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>How long should the money last?</b></td></tr>
+      <tr><td style="padding:7px 8px;border-bottom:1px solid var(--border)">Extra saving each month</td>
+          <td style="padding:7px 8px;border-bottom:1px solid var(--border)"><b>How much extra can you save each month?</b></td></tr>
+    </table>
+
+    <div style="font-size:12.5px;line-height:1.6;color:#44443f;margin-top:14px">
+      <b style="color:#000">The same words have to land on three more screens</b> — the parameters are asked
+      in four places, and if only the Plan tab changes they will disagree:
+      <ul style="margin:8px 0 0;padding-left:18px">
+        <li><b>Retirement</b> (the cockpit) — “Retire at age”, “Plan to age”, and the compare table’s “Retire at”.</li>
+        <li><b>What drives this?</b> (will it last) — “Retire age”, “Plan to age”.</li>
+        <li><b>What if I save more?</b> — “Your age”, “Retire at”.</li>
+      </ul>
+      <p style="margin:10px 0 0">I would sweep all four in one go, so no two screens ask the same thing
+      differently. Say the word and it's one change, not four.</p>
+    </div>
+
+    <div style="font-size:12.5px;line-height:1.6;color:#44443f;margin-top:14px;border-top:1px solid var(--border);padding-top:12px">
+      <b style="color:#000">Two things this decision settles from the audit.</b>
+      <p style="margin:6px 0 0"><b>D1</b> — “the target isn't the number that gives 80% odds” stops being a
+      defect the moment the target is yours: your number owes nobody 80%. What survives is the
+      <b>suggestion</b> we offer when you leave it blank — that one still has to be honest, and today it
+      rounds itself under its own line.</p>
+      <p style="margin:6px 0 0"><b>D3</b> — “short $46,243 above a $371,000 ask” dissolves: the gap and the
+      saving are both measured against your target now, so they are the same arithmetic.</p>
+    </div>
+  </div>
+</div>
+
+</div>
