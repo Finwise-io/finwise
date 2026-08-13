@@ -117,6 +117,14 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
           <Text style={s.rowValue}>{maskedMoney(c.amount)}</Text>
         </View>
       ))}
+      {/* THE WAY IN. Removed 2026-08-12 when three things moved off the tab — two of them landed in
+          section 1 and this one did not, which left /big-costs built, registered and reachable from
+          nowhere in the app (audit D7). The section warns that leaving costs out distorts the odds;
+          it has to offer the person a way to act on that. */}
+      <TouchableOpacity style={s.row} accessibilityRole="button" accessibilityLabel="Add a big one-time cost"
+        onPress={() => onOpenDoor?.('/big-costs')}>
+        <Text style={[s.rowLabel, s.door]}>＋ Add a big cost ›</Text>
+      </TouchableOpacity>
       {/* say WHY it matters where the choice is made, not in a help screen */}
       <Text style={s.hint}>
         {bigCosts.length === 0
@@ -186,6 +194,7 @@ const s = StyleSheet.create({
   rowLabel: { fontSize: Typography.sizes.sm, color: Colors.textPrimary, flex: 1 },
   rowValue: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   muted: { color: Colors.textSecondary },
+  door: { color: Colors.primary, fontWeight: '700' },
   factChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bandLight },
   draftChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.primaryDeep, backgroundColor: Colors.primaryLight },
   missingChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight },
