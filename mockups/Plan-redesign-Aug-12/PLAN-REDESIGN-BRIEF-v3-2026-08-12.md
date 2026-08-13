@@ -271,16 +271,34 @@ if a state genuinely needs it, and label it as a projection.*
 
 ### June — 72, retired
 
+**Corrected 2026-08-13** — the first version of this brief gave June a paycheck and no portfolio, so
+the v3 handoff borrowed Pat's account total for her. Every figure below is now run against the real
+engine and pinned by `src/__tests__/june_numbers_probe.test.ts`.
+
 | | |
 |---|---|
 | Age / plan to | 72 / 94 |
+| — Fidelity Traditional IRA | $420,000 |
+| — Schwab Brokerage | $448,000 |
+| — Ally Savings | $117,000 |
+| **What counts toward retirement** | **$985,000** |
 | Social Security | $2,600 a month |
 | Pension | $1,400 a month |
 | **= Guaranteed** | **$4,000** |
-| Draw from savings | $4,155 |
+| Draw from savings *(the most she could take, engine at the 80% floor)* | **$4,155** |
 | **Paycheck** | **$8,155 a month** |
-| Spending | $5,600 a month — using $1,600 of the $4,155 draw |
-| **Odds** | **100%** of lasting to 94 |
+| Spending | $5,600 a month — so she draws **$1,600**, which is **1.95%** |
+| Headroom — *"estimated amount you can draw more every month"* | **$2,555** |
+| **Odds** at what she actually spends | **100%** of lasting to 94 |
+| Required withdrawal at 73 | $420,000 ÷ 26.5 = **~$15,849** |
+
+**$4,155 is capacity, not her withdrawal.** She draws $1,600. Those are different questions and the
+screen is right to carry both — but do not describe $4,155 as what she takes out, and do not compute
+a withdrawal rate from it. Her rate is 1.95%.
+
+**Her pre-tax balance is $420,000 on purpose**, so the required-withdrawal figure and the Roth row are
+true for her rather than borrowed from Pat. *(It is a coincidence that Pat's Traditional IRA is the
+same size. If that reads confusingly in a side-by-side, say so and I will move one of them.)*
 
 ---
 
@@ -406,6 +424,33 @@ outlives the retirement date, not only a mortgage.
   what the screen will one day do.
 - **Balances can be hidden.** Every dollar figure must survive being replaced by dots.
 - **Say "says who?"** — where a number came from is part of the design, not a footnote we add later.
+
+### 7.2 Label the numbers. Do not footnote the screen.
+
+**Founder finding, 2026-08-12** (and my omission — this should have been in the first v3): the built
+screen ends with *"Estimates from ~400 market simulations of your own numbers — not advice."* He
+rejected it, and he is right. It sits at the foot of the whole page, so it claims **everything above
+it** came from 400 simulations. On June's screen most of it did not:
+
+- Her Social Security is $2,600 **because she told us $2,600.**
+- Her pension is $1,400 **because she told us.**
+- Her target nest egg is a number **she typed.**
+- Only the odds and the maximum draw come out of the simulation.
+
+A blanket footnote labels a person's own reported facts as model output. There is a second problem
+under it: June is at **100%**, and a footnote whispering "estimates" invites *"so it might not be
+100%?"* while never answering — the range that would answer it is not on her screen.
+
+**So: no page-level disclaimer. Put the note where the number is.**
+
+> *(under the odds)* The odds come from about 400 runs of your own numbers through different markets.
+>
+> *(under the paycheck)* Your Social Security and pension as you gave them. The draw is what those
+> same runs say you could take without running short.
+
+**And never let a disclaimer share a line with an action.** The v3 handoff put *"Have you taken it
+yet? Confirm ›"* and the 400-simulations sentence on one line. A legal note and a button are not the
+same kind of thing and must not sit together.
 
 ### 7.1 The word "safe" is banned on anything to do with money
 

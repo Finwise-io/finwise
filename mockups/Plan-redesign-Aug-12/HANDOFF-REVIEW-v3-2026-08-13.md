@@ -124,15 +124,38 @@ footnote and a button share one line.
 instruction should have been: stop footnoting the screen, label the numbers. The simulation note goes
 under the odds; the paycheck says where its own figures came from.
 
-### N2. June's assets are Pat's number — **partly my gap**
+### N2. June's assets are Pat's number — **my gap, and my first reading of it was wrong**
 
-June's expanded frame shows *"What counts toward retirement? $909,152"* — Pat's figure. Worse, it does
-not reconcile with her own paycheck: a $4,155/month draw on $909,152 is a **5.5% withdrawal rate**,
-and the same screen claims **100% odds** over 22 years. Those two cannot both be true.
+June's expanded frame shows *"What counts toward retirement? $909,152"* — Pat's figure. Her
+required-withdrawal figure (~$15,849) and her Roth row ($420,000 pre-tax) are Pat's numbers too.
 
-The brief gave June a paycheck and no portfolio, so the designer had nothing to use. **I need to give
-her a full, reconciling set of numbers**, and the review of the next pass should check that her draw
-rate, her balance and her odds agree.
+**Correction to my first pass.** I wrote that a $4,155 draw on $909,152 was a 5.5% withdrawal rate
+that could not sit beside 100% odds. That was wrong: **$4,155 is her capacity, not her withdrawal.**
+She actually draws $1,600 a month — **1.95%** — and I have since run it: the odds at her real
+spending are **100%**, exactly as drawn. Capacity and actual are different questions and the screen
+was right to show both.
+
+**The real mismatch is smaller and still needs fixing.** Run against $909,152, the engine's maximum
+draw is **$3,835**, not $4,155. The balance that produces $4,155 is **$985,000**.
+
+**Corrected, reconciling set — now pinned by tests** (`src/__tests__/june_numbers_probe.test.ts`):
+
+| | |
+|---|---|
+| Fidelity Traditional IRA | $420,000 |
+| Schwab Brokerage | $448,000 |
+| Ally Savings | $117,000 |
+| **What counts toward retirement** | **$985,000** |
+| Maximum draw from savings *(engine, 80% floor)* | **$4,155/mo** |
+| Guaranteed (Social Security $2,600 + Pension $1,400) | $4,000/mo |
+| **Paycheck** | **$8,155/mo** |
+| She spends | $5,600/mo → draws **$1,600**, which is **1.95%** |
+| Headroom *(the $2,555 figure)* | $4,155 − $1,600 |
+| Odds at her real spending | **100%** to 94 |
+| Required withdrawal at 73 | $420,000 ÷ 26.5 = **$15,849** |
+
+The pre-tax balance is deliberately $420,000, which makes both the required-withdrawal figure and the
+Roth row true **for her** rather than borrowed from Pat.
 
 ### N3. The mortgage caption states something the engine does not do
 
