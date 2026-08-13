@@ -100,37 +100,47 @@ row. Under 60 → no Social Security row. Nothing applies → the whole section 
 offering someone a decision they cannot make. Draw the row pattern so a fourth decision can slot in
 later without a redesign.
 
-Each row carries **what it is worth** — a dollar figure or a points-on-the-odds figure — never a bare
-topic. (See §6 for which of those the engine can actually produce today.)
+Each row carries **what it is worth** — a dollar figure, a date, or a points figure — never a bare
+topic. (See §6 for what the engine can actually produce.)
 
-**Where each row goes when it is tapped** — all three settled by the founder, 2026-08-12:
+**THE RULE FOR EVERY DECISION ROW (founder, 2026-08-12): a row answers in place unless the decision
+needs more than one thing set.** A single comparison or a single amount belongs in the row. An
+amount *and* a rate, or a list with reasons, earns a screen. Settled row by row:
 
-| Row | Destination |
+| Row | Where it goes |
 |---|---|
-| Pay off the mortgage early | **Nowhere — it opens in place**, with a control (below) |
-| Convert to a Roth | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. Built and working — do not redesign it. |
-| When to claim Social Security | **Nowhere — it answers in the row** (below) |
+| Pay off the mortgage early | **In place**, with a live control |
+| When to claim Social Security (60+) | **In place** — it states the answer |
+| Can I spend more? *(retiree)* | **In place**, with a live control |
+| Have you taken your required withdrawal? *(73+)* | **In place** — confirm without leaving; a quiet link opens the year-by-year table |
+| Which account do I draw from first? *(retiree)* | **Its own screen** — the order, why each account sits where it does, what each choice costs in tax, and the steering control. Today this row drops the person on the whole Cash flow tab and leaves them to find it. |
+| Is converting to a Roth worth it? | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. **Built and working — do not redesign it.** The row carries $420,000 pre-tax as its worth. |
 
-Two of the three answer in place and one opens a screen. That is deliberate: Social Security is a
-single comparison and the mortgage is a single amount, while the Roth is a real decision with an
-amount and a tax rate to set.
+**The mortgage row: a live control, and it commits.** The row is not a fact to read, it is a thing to
+do. A stepper for the extra monthly payment; the payoff date and the interest saved move as it
+changes; committing makes that payment part of the plan, so it appears in Cash flow as real money
+going out.
 
-**The mortgage row: a live control, and it commits.** Founder ruling, 2026-08-12 — the row is not a
-fact to read, it is a thing to do. It carries a stepper for the extra monthly payment; the payoff date
-and the interest saved move as it changes; and committing it makes that payment part of the plan, so
-it shows up in Cash flow as real money going out.
-
-**It must show BOTH sides of the trade, in the person's own numbers.** Money paid into a mortgage is
-money not invested. On a $412,000 balance at 5.5% paying $2,400 a month:
+**It must show BOTH sides.** Money paid into a mortgage is money not invested, and *"saves $143,300 in
+interest"* on its own always reads as an obvious win. At a mortgage rate near the assumed investment
+return it is close to a wash. On $412,000 at 5.5%, paying $2,400 a month:
 
 > **Pay off the mortgage early** — $412,000 at 5.5%
 > **Extra each month  [−]  $500  [+]**
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
-> But $500 a month not invested takes your odds from **48% to 43%**.
+> That is $500 a month not going into savings. Your odds go from **48%** to **43%**.
 > **[ Use as my plan ]**
 
-Never show only the interest saved. On its own it always reads as an obvious win, and at a mortgage
-rate close to the assumed investment return it is close to a wash. *We lay it out. You decide.*
+**Read §6.1 before drawing that odds line.** It is not a penalty we apply to the odds — it is what the
+odds come out as once the money is modelled honestly. The distinction matters and the founder was
+explicit about it.
+
+**Paying it off in full: the app never moves money.** If someone chooses to clear the mortgage
+outright, that cash has to come from somewhere real, and we do not guess which account or pretend a
+transfer happened. Say what will happen instead: *once you have paid it, we will pick it up from your
+connected bank or from a statement you upload — then mark the mortgage paid off here.* Marking it paid
+updates net worth everywhere, from that one act. Design that as a stated outcome, not a form asking
+which account to debit.
 
 **The Social Security row answers itself in place.** Founder ruling, 2026-08-12: it must not send the
 person to another screen to find out what waiting is worth. The row says the answer:
@@ -163,12 +173,39 @@ believe, and say why.
 Someone already drawing down has no "reach a target". For them:
 
 - Left dial: **the odds**, unchanged.
-- Right dial: **their monthly paycheck** — guaranteed income plus safe draw — in place of the target
-  dial. Founder-confirmed.
+- Right dial: **their monthly paycheck** — guaranteed income plus the draw from savings — in place of
+  the target dial. Founder-confirmed.
 - The glance loses rows 2 and 5 (they are already retired; there is no target to reach) and its
   spending row becomes what they spend now.
-- Their decisions are different: *Can I spend more? · Which account do I draw from first? · Have I
-  taken my required withdrawal? · Is a Roth move worth it?* — same "only when it applies" rule.
+- Their decisions: *Can I spend more? · Which account do I draw from first? · Have you taken your
+  required withdrawal? · Is converting to a Roth worth it?* — same "only when it applies" rule, same
+  in-place-or-screen split as the table in §3.3.
+
+**"Can I spend more?" answers in place, with a control.** Today this row opens a general what-if
+screen, and for June — who is at 100% — it says *"+0 points"*, offering a decision that changes
+nothing. Instead:
+
+> **Can I spend more?**
+> **Estimated amount you can draw more every month: $2,555**
+> Spend extra  **[−]  $500  [+]** → $6,100 a month in total.
+> **[ Use as my plan ]**
+
+**The wording "estimated amount you can draw more every month" is the founder's and is not to be
+softened or shortened.** See §7 on the words that are forbidden here.
+
+**No new engine for this.** The app already finds this number: it tries an amount, runs the 400
+futures with that amount coming out each year, and works up to the largest amount that still holds
+the line. That is precisely how the retiree's monthly draw figure is produced today — this row is
+that same number minus what they already spend.
+
+**The line it holds is the person's, not ours.** Founder ruling, 2026-08-12: the odds floor is a
+setting they control, **defaulting to 80%** because that is the line the engine already holds. It is
+one setting used everywhere the app answers a how-much question, so two screens can never hold
+different lines. Show which line is in force wherever a number depends on it, and make it changeable
+without hunting:
+
+> Estimated amount you can draw more every month: **$2,555**
+> *held at odds of 80%* **[ change ]**
 
 ---
 
@@ -206,9 +243,9 @@ if a state genuinely needs it, and label it as a projection.*
 | Social Security | $2,600 a month |
 | Pension | $1,400 a month |
 | **= Guaranteed** | **$4,000** |
-| Safe draw from savings | $4,155 |
+| Draw from savings | $4,155 |
 | **Paycheck** | **$8,155 a month** |
-| Spending | $5,600 a month — using $1,600 of the $4,155 safe draw |
+| Spending | $5,600 a month — using $1,600 of the $4,155 draw |
 | **Odds** | **100%** of lasting to 94 |
 
 ---
@@ -234,6 +271,22 @@ if a state genuinely needs it, and label it as a projection.*
 
 Design to this or the numbers will not exist.
 
+### 6.1 THE ODDS ARE AN OUTPUT. We never reach in and change them.
+
+**Founder ruling, 2026-08-12 — read this before designing anything that shows an odds figure:**
+
+> *"Instead of artificially changing odds — let's look to get the numbers right. Odds are output and
+> we should not modify it."*
+
+There is no such thing in this app as "the mortgage penalty on your odds" or "the effect of X on your
+odds" applied as an adjustment. There is only: **model the person's actual money honestly, run it,
+and report what comes out.** If paying $500 a month extra on a mortgage lowers the odds, that is
+because $500 a month genuinely stopped going into savings — not because we subtracted five points.
+
+Practically, this means the mortgage row's *"48% → 43%"* line is produced by running the plan twice —
+once as it stands, once with the money moved — and printing both results. Never by a formula that
+adjusts a percentage. Anywhere you show an odds figure changing, it must be a second honest run.
+
 **The odds** are 400 seeded market simulations of that person's own plan: grow what they have to
 retirement with a random return each year, subtract big one-time costs in their year, then from
 retirement draw their spending (raised by inflation) less their guaranteed income, apply the tax on
@@ -255,7 +308,7 @@ progress track behind them.
 - the points a single change is worth (retire two years later, spend $400 less, claim at 70) by
   re-running the simulation with that one change
 - what is projected to be left at any age
-- the safe draw and the retirement paycheck
+- the draw from savings and the retirement paycheck
 - **the Social Security check at any claim age**, from the person's own statement amount, on the
   Social Security Administration's published schedule: claiming early costs about 6.67% a year for
   the first three years then 5% a year; waiting past full retirement age adds 8% a year, **and stops
@@ -282,16 +335,26 @@ true:
    freeing up once it clears. The simulation takes a single annual contribution figure.
 3. **The simulation has to know a payment ends.**
 
-**Point 3 is a defect that already exists, independent of this row, and it is worth naming.** The app
-asks what someone will spend each month in retirement and then charges that figure, raised by
-inflation, for every year of the plan. If the person included their mortgage in that figure — and
-most people with a mortgage would — the app keeps charging it long after the house is paid off.
-Pat's mortgage clears in 2054 and Pat's plan runs to 2058: four years of a payment that will not
-exist. **Today's odds are therefore pessimistic for anyone whose mortgage ends inside their plan**,
-and no screen currently says so.
+**Point 3 is a defect that already exists, independent of this row.** The app asks what someone will
+spend each month in retirement and then charges that figure, raised by inflation, for every year of
+the plan. If the person included their mortgage in that figure — and most people with a mortgage
+would — the app keeps charging it long after the house is paid off. Pat's mortgage clears in 2054 and
+Pat's plan runs to 2058: four years of a payment that will not exist. **Today's odds are pessimistic
+for anyone whose mortgage ends inside their plan**, and no screen says so.
 
-This does not change what you draw — draw the row as specified above — but it is why the "48% → 43%"
-line cannot be treated as available. Flag any number you show that depends on it.
+**The founder's fix, and it is a design element you must draw.** When a debt runs past the retirement
+date, do not leave it buried inside one flat spending figure — **say it out loud, on its own line,
+auto-filled from the debt and editable:**
+
+> **Mortgage payment** — $2,400 a month **until 2054** *(from your mortgage — change it if that is
+> wrong)*
+
+The date comes from the loan's own arithmetic. The person can correct either number. The simulation
+then charges it until that year and stops, which is what makes the odds right — no special-casing,
+no adjustment, just the money modelled as it actually behaves (§6.1).
+
+This belongs with the spending row in the glance (§3.2, row 4), and it applies to any debt that
+outlives the retirement date, not only a mortgage.
 
 ---
 
@@ -309,6 +372,37 @@ line cannot be treated as available. Flag any number you show that depends on it
   what the screen will one day do.
 - **Balances can be hidden.** Every dollar figure must survive being replaced by dots.
 - **Say "says who?"** — where a number came from is part of the design, not a footnote we add later.
+
+### 7.1 The word "safe" is banned on anything to do with money
+
+**Founder ruling, 2026-08-12:** *"we should never call anything safe — as we don't know. Always ensure
+legally we are not saying anything binding."*
+
+We are not licensed advisers and every number on this surface is an estimate from a simulation. A
+label that calls an amount *safe* reads as a guarantee, and we cannot make one. This is a legal
+position, not a style preference — there is no exception for a number that "obviously" holds.
+
+The replacements, founder-chosen:
+
+| Was | Is |
+|---|---|
+| Safe to spend | **Left to spend** |
+| Safe draw from savings | **Draw from savings** |
+| within the safe range | **within the ~4% guideline** |
+| Your safety net | **Your cushion** |
+| a safe pace | *(rewrite — name the pace, do not grade it)* |
+| Spent $X of $Y safe this month | *(rewrite against "left to spend")* |
+
+**Scope, measured:** 29 user-visible occurrences across 14 files — Home, Cash flow, Plan, the paycheck
+card, month detail, paycheck months, the retirement cockpit, the draw-steering sheet, tips, and the
+glossary. *"Safe to spend"* is a headline label on Cash flow, not a footnote. This sweeps as one
+change or not at all; a Plan-tab-only fix would leave three screens contradicting each other.
+
+Not in scope: uses with nothing to do with money — *"your data is safe"*, *"I've saved my recovery
+code somewhere safe"*. Those stay.
+
+**Applies to your copy too.** Nothing you write for this redesign may describe an amount as safe,
+secure, guaranteed, protected, or risk-free.
 
 ---
 
