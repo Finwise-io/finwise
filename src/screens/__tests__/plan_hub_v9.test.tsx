@@ -86,7 +86,9 @@ test('retired: the paycheck card carries the SAME engine numbers as Home (guaran
   expect(screen.getByText('Your paycheck')).toBeOnTheScreen();
   expect(screen.getByText(/The same paycheck as Home's card — one engine/)).toBeOnTheScreen();
   // settled Social Security shows as handled, not hidden
-  expect(screen.getByText(/claimed at 67 ✓/)).toBeOnTheScreen();
+  // FOUNDER 2026-08-12: for someone already drawing, the claim question is REMOVED — not shown
+  // settled. A decision you cannot make is not a decision to display.
+  expect(screen.queryByText(/claim Social Security/i)).toBeNull();
 });
 
 test('first day: locked sample gauge + the dynamic door counting ONLY missing answers, crediting accounts', () => {

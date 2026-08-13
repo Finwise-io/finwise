@@ -71,6 +71,7 @@ export function nextDecision(args: {
   age: number | null;
   birthYear?: number | null;
   ssClaimAge?: number | null;         // set = the decision is made (settled)
+  alreadyClaiming?: boolean;          // a cheque is already arriving — the question no longer exists
   preTaxBalance: number;
   preTaxAccountIds: string[];
   transactions: any[];
@@ -93,8 +94,10 @@ export function nextDecision(args: {
       };
     }
   }
-  // 2) the Social Security claim window (only while the decision is unmade)
-  if (args.ssClaimAge == null && args.age != null && args.age < 71) {
+  // 2) the Social Security claim window — only while the decision is UNMADE. Someone already
+  //    drawing has answered it; founder 2026-08-12: for them the question is removed, not answered
+  //    with a dead end.
+  if (!args.alreadyClaiming && args.ssClaimAge == null && args.age != null && args.age < 71) {
     if (args.age >= 62) {
       return {
         kind: 'ss-window',

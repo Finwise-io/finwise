@@ -83,6 +83,9 @@ export default function PlanHubScreen() {
   const annualIncomeForPlan = Math.round(Number(op.baseSalary ?? 0) * (op.salaryFreq === 'monthly' ? 12 : 1)) || undefined;
   const roomAnnual = undefined;
   const ssChip = A.ssClaimAge != null ? `your plan: claim at ${A.ssClaimAge}` : null;
+  // FOUNDER 2026-08-12: "for someone already drawing social security, let's just remove this
+  // question." Not a settled-state screen to land on — the row simply is not offered.
+  const alreadyClaiming = Number(op.ri_ss ?? 0) > 0;
 
   // ── mock v9 (founder-approved 2026-08-01): the if-clause, the door, the one next decision ──
   const planRetire = Math.round(Number(A.retireAge ?? op.targetRetirementAge ?? 67));
@@ -103,6 +106,7 @@ export default function PlanHubScreen() {
   const next = useMemo(() => nextDecision({
     lens, age, birthYear: Number(op.birthYear) || null, ssClaimAge: A.ssClaimAge != null ? Number(A.ssClaimAge) : null,
     preTaxBalance: preTaxBal, preTaxAccountIds: preTaxIds, transactions: store.transactions ?? [], moneyWord: maskedMoney,
+    alreadyClaiming,
   }), [lens, age, op.birthYear, A.ssClaimAge, preTaxBal, store.transactions]);
   // retired: the honest spend-more delta — the SAME engine re-run with +$500/mo, never a guess
   const spendMore = useMemo(() => {
@@ -263,9 +267,9 @@ export default function PlanHubScreen() {
                   sub={spendMore ? maskDollars(`an extra $500/mo would take you to ${spendMore.chance}% (${spendMore.delta >= 0 ? '+' : '−'}${Math.abs(spendMore.delta)} points) — see the trade before deciding`) : 'see what spending a bit more does to your odds first'}
                   onPress={() => router.push('/retirement')} />
                 <DecisionRow divider title="Which account do I draw from first?" sub="the order matters — taxes differ by account" onPress={() => router.push('/(tabs)/cashflow')} />
-                {next?.kind !== 'ss-window' && (
+                {next?.kind !== 'ss-window' && !alreadyClaiming && (
                   <DecisionRow divider title="When should I claim Social Security?"
-                    sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it's handled` : 'not claimed yet? set the age your plan counts on — in your dollars'}
+                    sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it's handled` : 'set the age your plan counts on — in your dollars'}
                     onPress={() => router.push('/ss-timing')} />
                 )}
                 {next?.kind !== 'rmd' && age != null && age >= RMD_START_AGE && (
@@ -282,7 +286,7 @@ export default function PlanHubScreen() {
                 {/* "When can I retire?" moved into section 1 — it is the retire-at stepper wearing a
                     question mark, and three copies of one question is how it got confusing. */}
                 <DecisionRow title="Can I afford it?" sub="college help · the mortgage · keep saving — together, not one at a time" onPress={() => router.push('/multi-goal')} />
-                {next?.kind !== 'ss-window' && (
+                {next?.kind !== 'ss-window' && !alreadyClaiming && (
                   <DecisionRow divider title="When should I claim Social Security?" sub={ssChip ?? 'set the age your plan counts on — 62 vs 67 vs 70 in your dollars'} onPress={() => router.push('/ss-timing')} />
                 )}
                 {age != null && age >= RMD_START_AGE && next?.kind !== 'rmd' && (
@@ -306,7 +310,7 @@ export default function PlanHubScreen() {
             {lens === 'retired' ? (
               <>
                 <DecisionRow title="Your income" sub="add Social Security and your pension — two minutes, and your paycheck view lights up" onPress={() => router.push('/monthly-income')} />
-                <DecisionRow divider title="When should I claim Social Security?" sub="not claimed yet? set the age your plan counts on — 62 vs 67 vs 70 in your dollars" onPress={() => router.push('/ss-timing')} />
+                {!alreadyClaiming && <DecisionRow divider title="When should I claim Social Security?" sub="set the age your plan counts on — 62 vs 67 vs 70 in your dollars" onPress={() => router.push('/ss-timing')} />}
                 <View style={styles.lockRow} accessible accessibilityLabel="Can I spend more? Locked — unlocks with your answers above.">
                   <View style={{ flex: 1 }}>
                     <Text style={styles.rowTitle}>Can I spend more? 🔒</Text>
@@ -323,7 +327,7 @@ export default function PlanHubScreen() {
                   </View>
                 </View>
                 <DecisionRow divider title="Can I afford it?" sub="add a goal — college, the mortgage, helping parents — and see the trade" onPress={() => router.push('/multi-goal')} />
-                <DecisionRow divider title="When should I claim Social Security?" sub="62 vs 67 vs 70 in your dollars — set the age your plan counts on. Worked example until your statement number goes in." onPress={() => router.push('/ss-timing')} />
+                {!alreadyClaiming && <DecisionRow divider title="When should I claim Social Security?" sub="62 vs 67 vs 70 in your dollars — set the age your plan counts on. Worked example until your statement number goes in." onPress={() => router.push('/ss-timing')} />}
               </>
             )}
           </View>
