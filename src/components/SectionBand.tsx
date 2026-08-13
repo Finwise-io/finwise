@@ -8,13 +8,32 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing } from '../utils/theme';
 import { InfoDot } from './UI';
 
-export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0 }: {
+export function SectionBand({ title, value, light, inCard, inset = Spacing.md, infoTerm, trailing = 0, quiet }: {
   title: string; value?: string; light?: boolean; inCard?: boolean; inset?: number; infoTerm?: string;
   /** width of the row's trailing arrow column, so a band total lands on the SAME right edge as a row
    *  value that is followed by a `›` (Net worth's flat ledger). 0 = no arrow column on the rows. */
   trailing?: number;
+  /** THE SECOND HEADING LEVEL (Claude Design v3 hierarchy, founder-approved 2026-08-13).
+   *  One heading style meant every heading became a full-width green bar — seven of them down the
+   *  Plan tab, so nothing was emphasised because everything was. A quiet caps label names a SECTION;
+   *  the filled band is reserved for a group that carries its own total riding the right edge.
+   *  NOTE the colour: v3 specifies the mid brand green for this label, which measures 3.78:1 on the
+   *  app background and fails the 4.5:1 floor for small text. The deep green measures 8.74:1 and is
+   *  the accessible choice — the same lesson the band itself already carries. */
+  quiet?: boolean;
 }) {
   const valuePad = (inCard ? inset : 0) + trailing;
+
+  if (quiet) {
+    return (
+      <View style={[s.quietWrap, inCard && { marginHorizontal: -inset }]}>
+        <Text style={s.quietTitle} numberOfLines={1}>{title}</Text>
+        {!!infoTerm && <InfoDot term={infoTerm as any} color={Colors.primaryDeep} />}
+        <View style={{ flex: 1 }} />
+        {value != null && <Text style={s.quietValue}>{value}</Text>}
+      </View>
+    );
+  }
   return (
     <View style={[s.band, light && s.light, inCard && { marginTop: -inset, marginHorizontal: -inset }]}>
       {/* the dot hugs the title text (founder 2026-08-10): plain siblings + a spacer — no nested
@@ -38,6 +57,16 @@ const s = StyleSheet.create({
     flexDirection: 'row', alignItems: 'center', gap: 6, marginBottom: Spacing.xs,
   },
   light: { backgroundColor: Colors.bandLight },
+  // the quiet level: no fill, deep-green caps, sitting on the page rather than on a bar
+  quietWrap: {
+    alignSelf: 'stretch', flexDirection: 'row', alignItems: 'center', gap: 6,
+    paddingHorizontal: Spacing.md, paddingTop: Spacing.md, paddingBottom: Spacing.xs,
+  },
+  quietTitle: {
+    flex: 0, flexShrink: 1, color: Colors.primaryDeep, fontSize: 11, fontWeight: '800',
+    letterSpacing: 0.5, textTransform: 'uppercase',
+  },
+  quietValue: { color: Colors.textSecondary, fontSize: 11, fontWeight: '700', letterSpacing: 0.5 },
   title: { flex: 1, color: Colors.white, fontSize: 11, fontWeight: '800', letterSpacing: 0.5, textTransform: 'uppercase' },
   textLight: { color: Colors.primaryDeep },
   // Founder 2026-08-11: every money figure on a screen is ONE size (15) and a total is bold, so a

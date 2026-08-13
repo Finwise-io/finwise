@@ -159,7 +159,7 @@ export default function PlanHubScreen() {
           the same thing twice. */}
       {wil.captured && wil.chance != null ? (
         <View style={styles.card}>
-          <SectionBand inCard title="YOUR RETIREMENT PLAN" />
+          <SectionBand inCard quiet title="YOUR RETIREMENT PLAN" />
           {/* ONE score, then arithmetic — the second gauge was dropped once the engine proved it
               could read "80% of the way" beside 31% odds (founder 2026-08-12). */}
           <PlanOutcome
@@ -198,7 +198,7 @@ export default function PlanHubScreen() {
         <>
           {/* FIRST DAY — the page previews itself: locked sample gauge + the DYNAMIC door */}
           <View style={styles.card}>
-            <SectionBand inCard title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} />
+            <SectionBand inCard quiet title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'} />
             <View style={styles.gaugeRow} accessible
               accessibilityLabel={`Sample gauge: ${lens === 'retired' ? 'Holding, 88' : 'Likely, 84'} in 100 — a sample, not your number.`}>
               <GaugeArc locked />
@@ -247,7 +247,7 @@ export default function PlanHubScreen() {
       {/* RETIRED: the paycheck — the SAME engine as Home's card, one set of numbers */}
       {lens === 'retired' && wil.captured && wil.chance != null && payMonth && (
         <>
-          <SectionBand title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
+          <SectionBand quiet title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
           <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
             accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, safe draw ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
             {/* `source` is the engine's field — Home's PaycheckCard, MonthDetail and PaycheckMonths all
@@ -285,7 +285,7 @@ export default function PlanHubScreen() {
       {/* DECISIONS — every row a complete question, ranked by what's on the mind (mock v9) */}
       {wil.captured && wil.chance != null ? (
         <>
-          <SectionBand title="DECISIONS YOU CAN MAKE TODAY" />
+          <SectionBand quiet title="DECISIONS YOU CAN MAKE TODAY" />
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>
@@ -331,7 +331,7 @@ export default function PlanHubScreen() {
         </>
       ) : (
         <>
-          <SectionBand title={lens === 'retired' ? 'START WHERE IT PAYS MOST' : 'DECISIONS YOU CAN MAKE TODAY'} />
+          <SectionBand quiet title={lens === 'retired' ? 'START WHERE IT PAYS MOST' : 'DECISIONS YOU CAN MAKE TODAY'} />
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>

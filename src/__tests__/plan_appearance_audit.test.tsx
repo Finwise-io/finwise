@@ -133,3 +133,42 @@ describe('Plan appearance audit — measured, not asserted', () => {
 
   afterAll(() => { fs.writeFileSync('/tmp/plan-appearance.json', JSON.stringify(report, null, 1)); });
 });
+
+// THE HEADING HIERARCHY (Claude Design v3, founder-approved 2026-08-13, audit D9).
+// One heading style meant every heading became a full-width green bar — seven down the Plan tab, so
+// nothing was emphasised because everything was. The filled band is now reserved for a group that
+// carries its own total riding the right edge; a section title is a quiet caps label.
+describe('heading hierarchy', () => {
+  beforeEach(() => { useStore.getState().resetAll(); useStore.setState(PAT as any); });
+
+  test('a filled band appears ONLY where a total rides it', () => {
+    const Plan = require('../screens/PlanHubScreen').default;
+    const { Colors } = require('../utils/theme');
+    render(<Plan />);
+    const bands: string[] = [];
+    const walk = (n: any) => {
+      if (!n || typeof n === 'string') return;
+      if (n.type === 'View' && n.props?.style && flat(n).backgroundColor === Colors.primaryDeep) {
+        const txt: string[] = [];
+        const grab = (m: any) => { if (typeof m === 'string') txt.push(m); else (m?.children ?? []).forEach(grab); };
+        (n.children ?? []).forEach(grab);
+        bands.push(txt.join(' ').trim());
+      }
+      (n.children ?? []).forEach(walk);
+    };
+    walk(screen.toJSON());
+    // every filled band must carry a money figure; a title alone is not enough to earn one
+    for (const b of bands) expect(b).toMatch(/\$[\d,]+/);
+    // and there must be far fewer than the seven the audit measured
+    expect(bands.length).toBeLessThanOrEqual(3);
+  });
+
+  test('the quiet label is the accessible green, not the mid green that fails on small text', () => {
+    const { Colors } = require('../utils/theme');
+    const { SectionBand } = require('../components/SectionBand');
+    render(<SectionBand quiet title="FACTS — SAVE AS YOU GO" />);
+    const t = screen.getByText('FACTS — SAVE AS YOU GO');
+    expect(flat(t).color).toBe(Colors.primaryDeep);   // 8.74:1 — the mid green measures 3.78:1
+    expect(flat(t).fontSize).toBe(11);
+  });
+});
