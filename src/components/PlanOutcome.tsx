@@ -18,7 +18,7 @@ import { planTarget, leverDeltas, TARGET_ODDS } from '../domain/planning/target'
 import { oddsLine } from '../domain/planning/hub';
 import type { RetirementInputs } from '../domain/retirement';
 
-export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, lens }: {
+export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, roomFromMonthly, lens }: {
   inputs: RetirementInputs | null;
   chance: number;
   band: { low: number; high: number } | null;
@@ -26,6 +26,9 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   retireAge: number;
   annualIncome?: number;
   roomAnnual?: number;
+  /** what they told us they put in each month — the room figure is derived from it, so the sentence
+   *  names it rather than presenting the allowance as a fact we looked up. */
+  roomFromMonthly?: number;
   lens: 'retired' | string;
 }) {
   // the solves are ~a quarter-second of simulation — never on a render, only when a number moves
@@ -86,7 +89,12 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <Text style={s.bridge}>
           Adding <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}</Text> a year closes it
           {t.yearsToRetire > 0 ? ` over your ${t.yearsToRetire} years to ${retireAge}` : ''} and raises your odds to {TARGET_ODDS}%.
-          {roomAnnual ? ` ${maskedMoney(Math.min(roomAnnual, t.requiredExtraAnnual))} of that fits in tax-advantaged room.` : ''}
+          {/* HEDGED ON PURPOSE (founder 2026-08-13). We never see a payroll record — this headroom is
+              the IRS limit minus what they TOLD US they contribute monthly, times twelve. That is
+              wrong for anyone who front-loaded, started or stopped mid-year, changed job, or defers a
+              bonus. Over-contributing to a 401(k) carries a real tax penalty, so the sentence must
+              read as an estimate with its assumption named, never as a fact about their allowance. */}
+          {roomAnnual ? <> About <Text style={s.b}>{maskedMoney(Math.min(roomAnnual, t.requiredExtraAnnual))}</Text> of that should fit in tax-advantaged room{roomFromMonthly ? `, going by the ${maskedMoney(roomFromMonthly)} a month you told us you already put in` : ''}.</> : null}
         </Text>
       ) : null}
 

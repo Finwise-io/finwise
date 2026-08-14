@@ -63,10 +63,22 @@ test('someone ahead of the target is told so in plain words, not a number over 1
 
 test('the bridge sentence names the yearly amount and the tax-advantaged room', () => {
   render(<PlanOutcome inputs={{ ...PAT, start_balance: 500_000 }} chance={52} band={null}
-    horizonAge={90} retireAge={65} roomAnnual={32_500} lens="preretired" />);
+    horizonAge={90} retireAge={65} roomAnnual={32_500} roomFromMonthly={800} lens="preretired" />);
   expect(screen.getByText(/Adding/)).toBeOnTheScreen();
   expect(screen.getByText(/a year closes it/)).toBeOnTheScreen();
-  expect(screen.getByText(/fits in tax-advantaged room/)).toBeOnTheScreen();
+  // HEDGED 2026-08-13 (audit D12). This used to assert "fits in tax-advantaged room" — stated as a
+  // fact about their allowance. We never see a payroll record: the figure is the IRS limit minus
+  // what they TOLD US they contribute, times twelve, which is wrong for anyone who front-loaded or
+  // changed job mid-year. Over-contributing carries a real tax penalty, so it reads as an estimate
+  // with its assumption named.
+  expect(screen.getByText(/should fit in tax-advantaged room/)).toBeOnTheScreen();
+  expect(screen.getByText(/going by the .* a month you told us/)).toBeOnTheScreen();
+});
+
+test('and it says nothing about tax-advantaged room when we were never told a contribution', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 500_000 }} chance={52} band={null}
+    horizonAge={90} retireAge={65} lens="preretired" />);
+  expect(screen.queryByText(/tax-advantaged room/)).toBeNull();
 });
 
 test('when saving cannot be the answer: the honest number once, then the levers that move', () => {

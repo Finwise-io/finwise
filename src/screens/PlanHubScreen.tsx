@@ -12,6 +12,7 @@ import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveLens } from '../domain/profile/lens';
 import { RMD_START_AGE, withdrawalPlan } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
+import { k401Headroom } from '../domain/income/limits';
 import { ageFromProfile } from '../utils/persona';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { InfoDot } from '../components/UI';
@@ -89,7 +90,15 @@ export default function PlanHubScreen() {
   // what they earn decides whether the required saving is a real ask or an impossible one; the room
   // is what the app already knows can go somewhere tax-advantaged
   const annualIncomeForPlan = Math.round(Number(op.baseSalary ?? 0) * (op.salaryFreq === 'monthly' ? 12 : 1)) || undefined;
-  const roomAnnual = undefined;
+  // WIRED 2026-08-13 (audit D12). The bridge sentence has always been able to say how much of the
+  // required saving fits somewhere tax-advantaged — the sentence was written, and the value feeding
+  // it was hard-coded undefined, so nobody ever saw it. The number is not new: the same headroom
+  // already drives Home's "Room left in your 401(k)" insight and the contribution-room screen.
+  // It is an ESTIMATE, not a fact — see the wording note in PlanOutcome.
+  const monthly401k = Math.round(Number(op.c_401k ?? 0));
+  const roomAnnual = monthly401k > 0 && lens !== 'retired'
+    ? k401Headroom(age, monthly401k * 12).remaining || undefined
+    : undefined;
   const ssChip = A.ssClaimAge != null ? `your plan: claim at ${A.ssClaimAge}` : null;
   // FOUNDER 2026-08-12: "for someone already drawing social security, let's just remove this
   // question." Not a settled-state screen to land on — the row simply is not offered.
@@ -174,6 +183,7 @@ export default function PlanHubScreen() {
             retireAge={draft.retireAge}
             annualIncome={annualIncomeForPlan}
             roomAnnual={roomAnnual}
+            roomFromMonthly={monthly401k}
             lens={lens}
           />
           {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
