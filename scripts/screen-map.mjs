@@ -34,6 +34,8 @@ const NO_DOOR_NEEDED = {
 
 /** Founder ruling 2026-08-02: "keep ALL orphans" — they serve age groups this build does not target. */
 const DELIBERATE_KEEPS = {
+  '(tabs)/tips': 'saved for future use (founder 2026-08-13)',
+  '(tabs)/rewards': 'saved for future use (founder 2026-08-13)',
   income: 'kept for a future age group',
   invest: 'superseded by Performance for 55-70',
   'income-detail': 'kept for a future age group',
@@ -304,7 +306,7 @@ const MOVES = [
   ['credit', 'Goals', 'Plan · Prepare', 'Founder added it 2026-08-13, reversing the August menu trim for this audience.'],
   ['idle-cash', 'an insight only', 'Performance', 'Cash earning nothing is a performance question; give it a permanent door.'],
   ['worth-a-look', 'an insight only', 'Cash flow', 'It is a transaction close-up. It belongs with the transactions.'],
-  ['monthly-income', 'Plan-side screens', 'Cash flow', 'FLAGGED, not decided — it is an income screen, but four Plan screens link it.'],
+  ['monthly-income', 'Plan-side screens', 'BOTH — by lens', 'FOUNDER RULED 2026-08-13. For someone RETIRED this is their actual income, so it belongs in Cash flow › Income. For someone still WORKING it is a future number they are planning around, so it belongs in Plan › Retire. Same screen, two homes, decided by the lens the app already switches on.'],
 ];
 
 const DECISIONS = [

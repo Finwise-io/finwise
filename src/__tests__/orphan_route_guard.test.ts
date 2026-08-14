@@ -29,6 +29,8 @@ const NO_INBOUND_LINK_EXPECTED: Record<string, string> = {
  *  from the list above because "unreachable on purpose" and "reached without a tap" are different
  *  things, and the screen map cross-check below needs to tell them apart. */
 const DELIBERATE_KEEPS: Record<string, string> = {
+  '(tabs)/tips': 'saved for future use (founder 2026-08-13) — written for a younger audience',
+  '(tabs)/rewards': 'saved for future use (founder 2026-08-13) — written for a younger audience',
   income: 'kept on purpose (founder 2026-08-02) — serves a future age group',
   invest: 'kept on purpose (founder 2026-08-02) — superseded by Performance for 55-70',
   'income-detail': 'kept on purpose (founder 2026-08-02) — serves a future age group',
@@ -57,8 +59,10 @@ const sourceText = (() => {
  *  These are DEBT, not design. Listed so they are visible and countable rather than silently
  *  excluded; the founder rules on each and it either gets a door or joins the list above. */
 const STRANDED_AWAITING_RULING: Record<string, string> = {
-  '(tabs)/tips': 'trimmed from the menu 2026-08-02 and nothing else links it — found 2026-08-13',
-  '(tabs)/rewards': 'trimmed from the menu 2026-08-02 and nothing else links it — found 2026-08-13',
+  // EMPTY, and that is the point. Tips and Rewards sat here for one day and the founder ruled on
+  // 2026-08-13 to save them for future use, so they moved to the deliberate keeps above. An entry
+  // here means "nobody can reach this and nobody has decided whether that is on purpose" — a
+  // question, not a resting place.
 };
 
 /** Every route the app has — READ FROM THE FILESYSTEM, because routing here is file-based: a file in
