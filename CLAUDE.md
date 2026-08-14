@@ -83,6 +83,20 @@ the founder had approved all of it. Never again.
 - Branch `taxonomy-v1.0.7`. Commit per logical change; push when asked. Keep `docs/finwise-bug-ledger.md` current.
 - Device truth: ML Kit has no arm64-sim slice → verify on a real TestFlight build, not the iOS Simulator.
 
+## SCREEN MAP — regenerate before every build (standing order, 2026-08-13)
+- `node scripts/screen-map.mjs` → `docs/FCC-core-55-70/screen-architecture.html`. Run it as part of
+  the pre-build checklist and read the three lines it prints: what has **no way in**, what appears
+  **only if an insight fires**, and what hangs on a **single door**.
+- The top half of that page is READ FROM THE CODE and must never be hand-edited; the proposed
+  structure lives in the script as a marked constant. A test forces the map and
+  `orphan_route_guard.test.ts` to agree, so a stale committed map fails the suite.
+- Why: `/big-costs` shipped fully built and reachable from nowhere, and Tips and Rewards sat
+  stranded for eleven days. Both were found by accident while looking for something else.
+- Lesson worth keeping: that guard was built too narrow THREE times — it could not see `src/domain`
+  (insight routes), then skipped `(tabs)/` entirely, then turned out to read `_layout` declarations
+  which cover about half the live routes. **Read the disk; the disk is what ships.** A guard that
+  looks in too few places is worse than none, because it reports clean and gets trusted.
+
 ## MOCK-MATCH AUDIT — standing order (2026-08-10, after three false "it matches" reports)
 "Match" = 100% mirror of the approved mock: same elements, words, ORDER, nesting, alignment,
 numbers and flow. A presence check (grep for a component, or a passing text assertion) NEVER

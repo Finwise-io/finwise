@@ -42,6 +42,31 @@ of it can be on screen at once — and what each state hides until asked for —
 
 Design to this. It is settled.
 
+### 3.0 THE PLAN TAB HAS THREE SUB-TABS — added 2026-08-13
+
+The founder reorganised the surface after the brief first went out. **Plan keeps its name** and
+gains three sub-tabs. Everything else in this brief describes **Retire**, which is the first of them
+and the only one being redesigned in this pass.
+
+| Sub-tab | What lives there |
+|---|---|
+| **Retire** | The whole of this brief — the two dials, the glance, the decisions. Plus the retirement cockpit, will-it-last, Social Security timing, Roth conversion, required withdrawals, big costs, **"What if I save more?"** (moved in from the Performance tab, where it has always sat despite being a retirement question) and **contribution room** (which today appears only if an insight fires). |
+| **Goals** | Everything else a person saves for: goals, the college planner, and **"Can I afford it all?"** promoted to its front door. |
+| **Prepare** | Getting your affairs in order: the insurance check, estate & legacy, the tax organiser, **build credit** (founder added it 2026-08-13, reversing the August menu trim for this audience), the **stress test** (folded in — it is an emergency-cash question, not a retirement one) and the **job safety check**. |
+
+**Two things to know when drawing it.**
+
+The split is **lopsided on purpose**. Retire is the entire redesign; Goals and Prepare are existing
+screens being gathered under honest names. Do not pad them for symmetry.
+
+And Prepare is **mostly a renaming of something that already exists** — the Goals screen quietly
+links credit, college, estate, insurance and the tax organiser today. This is not new
+information architecture so much as a name for an accidental hub.
+
+The full picture — where all 48 screens are reachable from today, and where each should live — is
+generated from the code: `docs/FCC-core-55-70/screen-architecture.html`
+(regenerate with `node scripts/screen-map.mjs`).
+
 ### 3.1 The hero — two dials
 
 Side by side:

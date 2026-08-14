@@ -27,6 +27,7 @@ canonical; anything else is stale and should be deleted, not read. Last cleaned:
 | `finwise-bug-ledger.md` | **THE bug tracker** — every bug + its fix/status (B-1..B-95) |
 | `finwise-lessons-learned.md` | Engineering lessons (e.g. L-7 cross-screen agreement) |
 | `finwise-qa-plan.md` | QA plan / process |
+| `FCC-core-55-70/screen-architecture.html` | **THE screen map — GENERATED, never hand-edited.** Every screen, every door into it, and what is unreachable. Regenerate with `node scripts/screen-map.mjs`; the top half is read from the code, the bottom half is a proposal and is labelled as one. |
 
 ## 🔍 Audits (reference — the work they drove is done, in code + tests)
 | File | What it is |

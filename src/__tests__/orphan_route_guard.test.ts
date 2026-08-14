@@ -20,10 +20,15 @@ const NO_INBOUND_LINK_EXPECTED: Record<string, string> = {
   onboarding: 'the by-hand door, reached through the guard',
   'connect-done': 'a deep link back from the broker portal, not a tap',
   _layout: 'the navigation registry, not a screen',
-  // FOUNDER RULING 2026-08-02: "keep ALL orphans" — these serve age groups this build does not
-  // target, and they are kept deliberately rather than left by accident. They were surfaced in
-  // primary-flows-v1 and the founder chose to hold them. Deleting one is a founder call, not a
-  // tidy-up, so the guard records them by name instead of pretending they are linked.
+};
+
+/** FOUNDER RULING 2026-08-02: "keep ALL orphans" — these serve age groups this build does not
+ *  target, and they are kept deliberately rather than left by accident. They were surfaced in
+ *  primary-flows-v1 and the founder chose to hold them. Deleting one is a founder call, not a
+ *  tidy-up, so the guard records them by name instead of pretending they are linked. Kept separate
+ *  from the list above because "unreachable on purpose" and "reached without a tap" are different
+ *  things, and the screen map cross-check below needs to tell them apart. */
+const DELIBERATE_KEEPS: Record<string, string> = {
   income: 'kept on purpose (founder 2026-08-02) — serves a future age group',
   invest: 'kept on purpose (founder 2026-08-02) — superseded by Performance for 55-70',
   'income-detail': 'kept on purpose (founder 2026-08-02) — serves a future age group',
@@ -56,13 +61,19 @@ const STRANDED_AWAITING_RULING: Record<string, string> = {
   '(tabs)/rewards': 'trimmed from the menu 2026-08-02 and nothing else links it — found 2026-08-13',
 };
 
-/** Every route the app registers: the stack screens AND the tab screens. The first version of this
- *  guard skipped anything under (tabs)/, which is exactly where Tips and Rewards were stranded —
- *  the second time this guard was built too narrow to see the thing it exists to find. */
+/** Every route the app has — READ FROM THE FILESYSTEM, because routing here is file-based: a file in
+ *  app/ IS a route whether or not _layout declares a <Stack.Screen> for it (those entries only set
+ *  headers and options).
+ *
+ *  This guard has now been built too narrow three times, and each time it reported clean while the
+ *  thing it exists to find sat in plain sight: first it could not see src/domain (insight routes),
+ *  then it skipped (tabs)/ entirely (where Tips and Rewards were stranded), and then it turned out
+ *  to be reading _layout's declarations — which cover only about half the live routes. Read the
+ *  disk. The disk is what ships. */
 function registeredRoutes(): string[] {
-  const layout = fs.readFileSync(path.join(appDir, '_layout.tsx'), 'utf8');
-  const stack = [...layout.matchAll(/<Stack\.Screen\s+name="([^"]+)"/g)].map((m) => m[1])
-    .filter((n) => !n.startsWith('('));
+  const stack = fs.readdirSync(appDir)
+    .filter((f) => /\.tsx$/.test(f) && f !== '_layout.tsx')
+    .map((f) => f.replace(/\.tsx$/, ''));
   const tabFiles = fs.existsSync(path.join(appDir, '(tabs)'))
     ? fs.readdirSync(path.join(appDir, '(tabs)')).filter((f) => /\.tsx$/.test(f) && f !== '_layout.tsx')
       .map((f) => `(tabs)/${f.replace(/\.tsx$/, '')}`)
@@ -71,16 +82,18 @@ function registeredRoutes(): string[] {
   const meta = fs.readFileSync(path.join(root, 'constants', 'tabs.ts'), 'utf8');
   const inBar = (r: string) => new RegExp(`\\b${r.replace('(tabs)/', '')}\\s*:\\s*\\{`).test(meta);
   return [...stack, ...tabFiles].filter((n) =>
-    !NO_INBOUND_LINK_EXPECTED[n] && !STRANDED_AWAITING_RULING[n] && !inBar(n));
+    !NO_INBOUND_LINK_EXPECTED[n] && !DELIBERATE_KEEPS[n] && !STRANDED_AWAITING_RULING[n] && !inBar(n));
 }
 
 test('every registered screen has a way in', () => {
   const orphans: string[] = [];
   for (const route of registeredRoutes()) {
     const leaf = route.replace('(tabs)/', '');
-    // a link can be written '/route', '/(tabs)/route', or with a ?param suffix
-    const patterns = [`'/${route}'`, `"/${route}"`, `\`/${route}`, `'/${route}?`,
-      `'/(tabs)/${leaf}'`, `"/(tabs)/${leaf}"`, `\`/(tabs)/${leaf}`, `'/(tabs)/${leaf}?`];
+    // A tab route and a stack route can share a leaf name — /invest is a dead legacy screen while
+    // /(tabs)/invest is the live Performance tab. Matching both spellings for both would credit the
+    // dead one with the live one's doors, so each shape is matched only by its own spelling.
+    const forms = route.startsWith('(tabs)/') ? [`/(tabs)/${leaf}`] : [`/${leaf}`];
+    const patterns = forms.flatMap((f) => [`'${f}'`, `"${f}"`, `\`${f}`, `'${f}?`]);
     const linked = sourceText.some(({ rel, src }) =>
       // the screen file for a route does not count as its own way in
       !rel.endsWith(`${leaf}.tsx`) && patterns.some((p) => src.includes(p)));
@@ -105,4 +118,27 @@ test('the big-costs door is back on the Plan tab specifically', () => {
   const inputs = fs.readFileSync(path.join(root, 'components', 'PlanInputs.tsx'), 'utf8');
   expect(inputs).toContain("'/big-costs'");
   expect(inputs).toMatch(/Add a big cost/);
+});
+
+// THE MAP AND THE GUARD MUST AGREE (founder ruling 2026-08-13 — the living screen map).
+//
+// docs/FCC-core-55-70/screen-architecture.html is generated by scripts/screen-map.mjs, and this
+// guard is a second, independent reading of the same question. Forcing them to match does two jobs:
+// it catches a stale committed map, and it catches either reader going narrow — which has now
+// happened twice (the guard could not see the domain layer, then could not see tab routes).
+test('the generated screen map agrees with this guard about what is unreachable', () => {
+  const page = path.join(__dirname, '..', '..', 'docs/FCC-core-55-70/screen-architecture.html');
+  if (!fs.existsSync(page)) throw new Error('screen-architecture.html missing — run: node scripts/screen-map.mjs');
+  const html = fs.readFileSync(page, 'utf8');
+
+  // every box the map marks NO WAY IN, read back out of the page it published
+  const mapSays = new Set(
+    [...html.matchAll(/<div class="bt">\/([^<]+)<\/div>\s*<div class="tag"[^>]*>NO WAY IN/g)].map((m) => m[1]),
+  );
+  const guardSays = new Set([...Object.keys(STRANDED_AWAITING_RULING), ...Object.keys(DELIBERATE_KEEPS)]);
+
+  const onlyMap = [...mapSays].filter((r) => !guardSays.has(r));
+  const onlyGuard = [...guardSays].filter((r) => !mapSays.has(r));
+  expect({ theMapFoundButTheGuardDidNot: onlyMap, theGuardListsButTheMapDoesNot: onlyGuard })
+    .toEqual({ theMapFoundButTheGuardDidNot: [], theGuardListsButTheMapDoesNot: [] });
 });
