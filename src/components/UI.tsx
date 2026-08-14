@@ -164,6 +164,8 @@ export function AmountText({ amount, color, size = 'xl' }: { amount: number; col
 }
 
 // ── InfoDot (§3.3 in-context education) ───────────────────────────────
+const TAP_MIN = 44;          // the tap-target floor this app holds itself to
+const GAP = 6;               // the visible space the dot keeps from the text it follows
 // A small tappable ⓘ next to a term; opens its plain-English GLOSSARY definition. One component, one
 // glossary — so a term is never explained on one screen and left bare on another.
 export function InfoDot({ term, color, size = 13 }: {
@@ -176,22 +178,34 @@ export function InfoDot({ term, color, size = 13 }: {
 }) {
   const [open, setOpen] = useState(false);
   const def = GLOSSARY[term];
+  // enough padding to carry the glyph to a 44pt touch box, whatever size it is drawn at
+  const pad = Math.ceil((TAP_MIN - size) / 2);
   return (
     <>
       {/* a pressable Text, deliberately NOT a Touchable: info dots often sit inside tappable
           cards, and a button nested in a button is invalid DOM on web (the browser re-parents it
           and scrambles the card). Text.onPress works on native and web alike. */}
-      {/* SIZE MATCHES THE LINE IT SITS ON (founder 2026-08-13). It was a flat 13pt everywhere, so it
-          loomed over an 11pt band title and shrank beside a 30pt hero.
-          THE TAP AREA IS A SEPARATE, STILL-OPEN PROBLEM. At 11pt the touchable is roughly 19pt, well
-          under the 44pt rule. hitSlop would fix it without moving a pixel — but it DOES NOT EXIST on
-          Text in React Native 0.85; the typecheck says so, which is how we know rather than guess.
-          The remaining options each cost something: a wrapping Pressable renders a button, and these
-          dots often sit inside tappable cards where a button inside a button is invalid on web; more
-          padding grows the row. Left for a decision and a device check rather than guessed at. */}
+      {/* SIZE MATCHES THE LINE IT SITS ON, AND THE ROW NEVER GROWS FOR IT (founder 2026-08-13).
+          The glyph is drawn at the size of the text beside it — 11pt on a band title, 13 on a row.
+          The TOUCH area has to be ~44pt, and the two are reconciled without moving anything:
+          padding makes the touchable box big, an equal negative margin gives the space straight
+          back to the layout. Net footprint is exactly the glyph, so a row carrying a dot is the
+          same height as one without — the founder's point: a dot that fattens its row looks wrong,
+          and these sit on bands all over the app.
+          Why not hitSlop, which is the obvious tool: it DOES NOT EXIST on Text in React Native 0.85
+          — the typecheck rejects it. Why not a wrapping Pressable: it renders a button, and these
+          dots often sit inside tappable cards where a button in a button is invalid on web, which is
+          why this is a pressable Text in the first place.
+          DEVICE CHECK STILL OWED: a negative margin can be clipped by a parent that hides overflow,
+          and Android does not always deliver touches beyond a parent's bounds. Tap one on a band,
+          one beside a hero, and one inside a card that is itself tappable. */}
       <Text onPress={() => setOpen(true)} suppressHighlighting
         accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}
-        style={{ fontSize: size, color: color || Colors.textTertiary, fontWeight: '700', paddingHorizontal: 6, paddingVertical: 4 }}>ⓘ</Text>
+        style={{
+          fontSize: size, color: color || Colors.textTertiary, fontWeight: '700',
+          paddingVertical: pad, marginVertical: -pad,
+          paddingHorizontal: pad, marginHorizontal: -(pad - GAP),
+        }}>ⓘ</Text>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <TouchableOpacity style={styles.infoBackdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.infoCard} onStartShouldSetResponder={() => true}>

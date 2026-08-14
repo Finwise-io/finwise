@@ -89,6 +89,27 @@ describe('InfoDot sizing', () => {
     expect(flat(screen.getByText('ⓘ')).fontSize).toBe(11);
   });
 
+  test('the touch box reaches 44pt whatever size the glyph is drawn at', () => {
+    const { InfoDot } = require('../UI');
+    for (const size of [11, 13, 15]) {
+      const { unmount } = render(<InfoDot term="netWorth" size={size} />);
+      const f = flat(screen.getByText('ⓘ'));
+      expect(size + f.paddingVertical * 2).toBeGreaterThanOrEqual(44);
+      unmount();
+    }
+  });
+
+  test('and the row never grows for it — padding is given straight back', () => {
+    // The founder's constraint: the visible circle is the height of the text, so a row carrying a
+    // dot is exactly as tall as one without. A dot that fattens its row looks wrong, and these sit
+    // on bands all over the app. Padding buys the touch area; the negative margin returns the space.
+    const { InfoDot } = require('../UI');
+    render(<InfoDot term="netWorth" size={11} />);
+    const f = flat(screen.getByText('ⓘ'));
+    expect(f.paddingVertical + f.marginVertical).toBe(0);          // net vertical footprint: nothing
+    expect(f.paddingHorizontal + f.marginHorizontal).toBe(6);      // net horizontal: the visible gap
+  });
+
   test('and a section band asks for its own title size, not the old flat 13', () => {
     const { SectionBand } = require('../SectionBand');
     render(<SectionBand title="WHAT COUNTS TOWARD RETIREMENT" infoTerm="netWorth" />);
