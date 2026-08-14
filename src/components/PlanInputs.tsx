@@ -195,7 +195,13 @@ const s = StyleSheet.create({
   rowValue: { fontSize: Typography.sizes.base, color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   muted: { color: Colors.textSecondary },
   door: { color: Colors.primary, fontWeight: '700' },
-  factChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bandLight },
+  // FACT is the QUIET one. It sat on bandLight — the light GREEN band tint — which put it in the
+  // same family as the green DRAFT chip two shades away, and those two chips are the only thing
+  // telling a saved answer from one being tried on (audit D11). The design note said so plainly:
+  // "FACT tag: neutral chip… this colour distinction is the primary way a person tells facts from
+  // choices at a glance." It is on the neutral tint now; the contrast is measured in the appearance
+  // suite rather than asserted here, and clears the small-text floor.
+  factChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary },
   draftChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.primaryDeep, backgroundColor: Colors.primaryLight },
   missingChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight },
   missingRow: { backgroundColor: Colors.amberLight },

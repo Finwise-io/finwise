@@ -201,3 +201,37 @@ test('the card no longer announces the tab it is sitting on', () => {
   expect(screen.queryByText('YOUR RETIREMENT PLAN')).toBeNull();
   expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
 });
+
+// THE THREE CHIPS MUST BE TELLABLE APART (audit D11, founder ruling 2026-08-13).
+// FACT means "saved"; DRAFT means "you are only trying this"; MISSING means "we still need it".
+// That distinction is the whole facts-save / choices-commit model, and it was carried by two light
+// greens two shades apart — so the badge told a reader nothing and they had to stop and read it.
+describe('the FACT / DRAFT / MISSING chips', () => {
+  beforeEach(() => { useStore.getState().resetAll(); useStore.setState(PAT as any); });
+
+  test('each sits on a different colour family, not two shades of one', () => {
+    const Plan = require('../screens/PlanHubScreen').default;
+    const { Colors } = require('../utils/theme');
+    render(<Plan />);
+    const bgOf = (t: string) => flat(screen.getAllByText(t)[0]).backgroundColor;
+    const fact = bgOf('FACT'), draft = bgOf('DRAFT');
+    expect(fact).not.toBe(draft);
+    // and not merely different — FACT must be the NEUTRAL one, off the green ramp entirely
+    expect(fact).toBe(Colors.bgTertiary);
+    expect(draft).toBe(Colors.primaryLight);
+    expect(fact).not.toBe(Colors.bandLight);   // the green band tint it used to wear
+  });
+
+  test('the quiet one is still readable — contrast over the small-text floor', () => {
+    // #6B6B66 on #EEEEE9 measures 4.60:1 against a 4.5 floor; recomputed here so a token change
+    // that quietly drops it below the line fails rather than ships.
+    const lum = (hex: string) => {
+      const v = [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255)
+        .map((c) => (c <= 0.03928 ? c / 12.92 : ((c + 0.055) / 1.055) ** 2.4));
+      return 0.2126 * v[0] + 0.7152 * v[1] + 0.0722 * v[2];
+    };
+    const { Colors } = require('../utils/theme');
+    const ratio = (lum(Colors.bgTertiary) + 0.05) / (lum(Colors.textSecondary) + 0.05);
+    expect(ratio).toBeGreaterThanOrEqual(4.5);
+  });
+});
