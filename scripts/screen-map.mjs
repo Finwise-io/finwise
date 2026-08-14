@@ -66,6 +66,17 @@ const tabBar = [...tabMeta.matchAll(/^\s{2}(\w+):\s*\{\s*title:\s*'([^']+)'/gm)]
 // nothing links to it.
 const inBar = (r) => r.startsWith('(tabs)/') && tabBar.some((t) => t.key === r.slice('(tabs)/'.length));
 
+/** THE NAME A PERSON SEES. Route keys were deliberately never renamed when the tabs were — `invest`
+ *  IS the Performance tab and `analytics` IS Net worth (see constants/tabs.ts). Printing the raw key
+ *  makes the page look like the rename was forgotten, so every box shows the human name and keeps
+ *  the route underneath it as the technical detail it is. */
+const titleOf = (route) => {
+  const key = route.replace('(tabs)/', '');
+  const tab = tabBar.find((t) => t.key === key && route.startsWith('(tabs)/'));
+  if (tab) return `${tab.title} tab`;
+  return key.replace(/-/g, ' ').replace(/^./, (c) => c.toUpperCase());
+};
+
 /** The route file itself, whichever folder it lives in. */
 const routeFileOf = (route) => sources.find((s) => s.rel === `app/${route}.tsx`);
 
@@ -155,6 +166,62 @@ const screens = live.map((r) => {
 // code and must never be presented as if it were.
 
 const ALIASES_KEY = 'Second routes & redirects';
+/** WHAT EACH SCREEN DOES, in a sentence a person would say out loud.
+ *  AUTHORED, not generated. The script can pull each screen's opening comment automatically, and it
+ *  does as a fallback — but those are engineer's notes ("Phase B", "Mock C", "GROUPED BY THEME") and
+ *  the founder asked what these screens DO. Anything missing here falls back to the comment and is
+ *  reported at the end of a run, so the list cannot silently rot. */
+const WHAT_IT_DOES = {
+  '(tabs)/home': 'Where you stand today, in two seconds.',
+  insights: 'Ranked nudges drawn from your own numbers, grouped by theme.',
+  sharpen: "What your plan is still missing, and the three ways to fill it in.",
+  '(tabs)/analytics': 'Everything you own minus everything you owe — and where accounts get added.',
+  'account-detail': 'One account: what it holds, what it is worth, what has moved through it.',
+  'add-account': 'Add or edit an account by hand.',
+  bonds: 'Individual bonds and CDs — coupon, maturity, yield.',
+  connect: 'Link a bank or brokerage, read-only.',
+  'import-holdings': 'Read a brokerage CSV export and add what it finds.',
+  itemize: 'Break a lump-sum account into the holdings actually inside it.',
+  'other-investments': 'Crypto, private equity, gold, annuities and other alternatives.',
+  '(tabs)/invest': 'How each holding has done against the market over the same stretch of time.',
+  'holding-detail': 'One ticker: price, graph, what you paid, what it is worth now.',
+  'look-back': 'What would have happened if you had moved money earlier.',
+  'idle-cash': 'Cash sitting still, and what it could be earning.',
+  '(tabs)/cashflow': 'Money in and money out, month by month.',
+  'bill-calendar': 'Every dated bill across the next twelve months, with a running balance.',
+  'month-detail': 'Why one particular month looks the way it does.',
+  expense: 'Add an expense, by hand or by scanning the receipt.',
+  'income-manager': 'Every income source you have entered, in one place.',
+  'monthly-income': 'Social Security, pension and annuity — where a retiree’s income comes from.',
+  'paycheck-months': 'The twelve months behind the retirement paycheck.',
+  'worth-a-look': 'A calm close-up of one flagged transaction.',
+  '(tabs)/plan': 'Will the money last, and the decisions in front of you.',
+  '(tabs)/retirement': 'The cockpit — sliders, and two scenarios side by side.',
+  'will-it-last': 'Opens the hood on the odds: every input, and where each number came from.',
+  'ss-timing': 'Claim Social Security at 62, 67 or 70 — in your own dollars.',
+  roth: 'Convert to a Roth: the tax now, against what it saves later.',
+  'required-withdrawals': 'What the law forces out of pre-tax accounts, and marking it done.',
+  'big-costs': 'One-time costs you know are coming — a roof, a car, a wedding.',
+  'what-if': 'What happens to your odds if you put more away.',
+  'contribution-room': 'How much room is left in your tax-advantaged accounts this year.',
+  '(tabs)/goals': 'Save-by-date goals, and a plan for paying debt down.',
+  'multi-goal': 'Weighing several goals against each other when they cannot all win.',
+  education: 'What college will cost, and whether you are on track for it.',
+  insurance: 'How much life cover would actually protect your family.',
+  estate: 'The documents and beneficiary designations to get in order.',
+  'tax-organizer': 'A year-end summary and document checklist to hand your accountant.',
+  credit: 'Your credit utilisation, your score band, and the habits that move them.',
+  'stress-test': 'Could you absorb a sudden bill — and how long would you last.',
+  jobsafety: 'How long your money holds if the income stops.',
+  '(tabs)/settings': 'Your account, security, connections and data.',
+  '(tabs)/tips': 'LEGACY — short money tips. Written for a younger audience.',
+  '(tabs)/rewards': 'LEGACY — points and streaks. Written for a younger audience.',
+  income: 'LEGACY — the older income-capture screen, replaced by the income manager.',
+  'income-detail': 'LEGACY — a full breakdown of captured income.',
+  invest: 'LEGACY — the pre-FCC investing screen, replaced by Performance.',
+  savings: 'LEGACY — the onboarding "savings engine"; no way in once onboarding is done.',
+};
+
 const PROPOSED = {
   Home: { blurb: 'the two-second glance', screens: ['(tabs)/home', 'insights', 'sharpen'] },
   'Net worth': { blurb: 'everything you own and owe', screens: ['(tabs)/analytics', 'account-detail', 'add-account', 'itemize', 'bonds', 'other-investments', 'import-holdings', 'connect'] },
@@ -184,11 +251,21 @@ const MOVES = [
 ];
 
 const DECISIONS = [
-  ['Tips and Rewards are stranded', 'Nothing links either. Trimmed from the menu 2026-08-02 and left behind.', 'Retire them like /income (recorded keeps), or give them a door.'],
-  ['/savings can only be opened during onboarding', 'Its only link is the onboarding summary, so no existing user can reach it.', 'Give it a door, fold it into Cash flow, or record it as retired.'],
-  ['Where does monthly income belong?', 'An income screen, but four Plan-side screens link to it.', 'Cash flow (my lean) or Plan · Retire.'],
-  ['Does Plan really need three sub-tabs?', 'Retire is the whole redesign; Goals and Prepare are existing screens.', 'Three sub-tabs, or one Retire surface with the rest in the ☰ menu.'],
-  ['Nine screens have exactly one door', 'Each is one deleted link away from being unreachable — how /big-costs broke.', 'Accept it (the guard now catches it), or add second doors to the important ones.'],
+  ['Tips and Rewards are stranded',
+   'TIPS shows short money tips; REWARDS shows points and streaks. Both were written for a younger audience, both were trimmed from the menu on 2026-08-02, and nothing has linked either since. JOB SAFETY — how long your money holds if the income stops — was collateral: Tips was one of its two doors, so Settings is now the only way in.',
+   'Retire all three the way /income was (recorded keeps, with the reason), or give them doors. Job safety already has a proposed home in Prepare.'],
+  ['/savings can only be opened during onboarding',
+   'The "savings engine" from the onboarding summary — a rate-and-target calculator. Its only link is that summary, so once a person finishes onboarding they can never open it again. It is not in the stranded list because a link does exist; it is simply unreachable in practice.',
+   'Give it a door, fold what it does into Cash flow, or record it as retired.'],
+  ['Where does monthly income belong?',
+   'MONTHLY INCOME is where Social Security, a pension and an annuity get entered — the sources behind a retiree’s paycheck. It is linked from four Plan-side screens, but it captures income rather than answering a retirement question.',
+   'Cash flow, which is where income lives (my lean), or keep it in Plan · Retire.'],
+  ['Does Plan really need three sub-tabs?',
+   'Retire is the entire redesign — nine screens. Goals is three, Prepare is six, and both are existing screens being regrouped rather than rebuilt.',
+   'Three sub-tabs, or one Retire surface with Goals and Prepare left in the ☰ menu.'],
+  ['Eight screens have exactly one door',
+   'Big costs, will-it-last, credit, itemize, expense, insights, paycheck-months and settings. Each is one deleted link from being unreachable — precisely how big costs broke last week.',
+   'Accept it, now that the guard catches it the moment it happens, or add a second door to the ones that matter most.'],
 ];
 
 // ── rendering ─────────────────────────────────────────────────────────────────────────────────
@@ -212,11 +289,12 @@ const counts = screens.reduce((a, s) => ({ ...a, [s.health]: (a[s.health] ?? 0) 
 const card = (s) => {
   const [tag, fg, bg] = HEALTH[s.health];
   return `<div class="box" style="background:${bg};border-color:${s.health === 'ok' ? T.line : fg}33">
-    <div class="bt">/${esc(s.route)}</div>
+    <div class="bt">${esc(titleOf(s.route))}</div>
+    <div class="br">/${esc(s.route)}</div>
     ${tag ? `<div class="tag" style="color:${fg}">${tag}${s.keep ? ` · ${esc(s.keep)}` : ''}</div>` : ''}
-    ${s.alias ? `<div class="bp">the same screen as <b>/${esc(s.alias)}</b></div>`
+    ${s.alias ? `<div class="bp">the same screen as <b>${esc(titleOf(s.alias))}</b></div>`
       : s.redirect ? `<div class="bp">forwards to <b>${esc(s.redirect)}</b></div>`
-      : s.purpose ? `<div class="bp">${esc(s.purpose)}</div>` : ''}
+      : `<div class="bp">${esc(WHAT_IT_DOES[s.route] ?? s.purpose)}</div>`}
     <div class="bd">${s.doors.length ? esc(s.doors.join(' · ')) : '&mdash;'}</div>
   </div>`;
 };
@@ -250,7 +328,8 @@ const html = `<!doctype html>
  .gh{font-size:11px;font-weight:800;letter-spacing:.06em;color:${T.deep};text-transform:uppercase}
  .gb{font-size:12px;color:${T.mid};margin-top:2px}
  .box{width:250px;border:1px solid;border-radius:9px;padding:9px 11px}
- .bt{font-size:12.5px;font-weight:800;font-family:ui-monospace,Menlo,monospace}
+ .bt{font-size:12.5px;font-weight:800}
+ .br{font-size:10px;color:${T.light};font-family:ui-monospace,Menlo,monospace;margin-top:1px}
  .tag{font-size:9.5px;font-weight:800;letter-spacing:.05em;margin-top:3px}
  .bp{font-size:11px;color:${T.mid};line-height:1.45;margin-top:4px}
  .bd{font-size:10.5px;color:${T.light};margin-top:6px;border-top:1px solid ${T.line};padding-top:5px;line-height:1.4}
@@ -309,6 +388,25 @@ ${Object.entries(byTab).map(([tab, list]) => `
    <td><b>${esc(to)}</b></td><td>${esc(why)}</td></tr>`).join('')}
 </table>
 
+<h2>D &middot; Every screen — what it does, and whether it moves</h2>
+<p class="sub">The <b>what it does</b> column is written by hand; everything else is measured.
+  <b>${REAL.filter((x) => !MOVES.some((m) => m[0] === x.route) && !PROPOSED['Legacy — awaiting a ruling'].screens.includes(x.route)).length} of ${REAL.length} screens stay exactly where they are</b>,
+  ${MOVES.length} move, and ${PROPOSED['Legacy — awaiting a ruling'].screens.length} are waiting on a ruling.</p>
+<table>
+ <tr><th>Screen</th><th>What it does today</th><th>Lives in</th><th>Moving?</th></tr>
+ ${Object.entries(byTab).flatMap(([tab, list]) => list.map((x) => {
+   const move = MOVES.find((m) => m[0] === x.route);
+   const note = x.alias ? `second route to ${titleOf(x.alias)}`
+     : x.redirect ? 'forwards elsewhere'
+     : move ? `<b>moves</b> &mdash; ${esc(move[3])}`
+     : tab.startsWith('Legacy') ? '<b>awaiting your ruling</b>' : 'stays';
+   return `<tr><td class="mono">${esc(titleOf(x.route))}</td>
+     <td>${esc(WHAT_IT_DOES[x.route] ?? x.purpose)}</td>
+     <td>${esc(tab)}</td>
+     <td${move ? ' style="background:#FDF1DC"' : ''}>${note}</td></tr>`;
+ })).join('')}
+</table>
+
 <h2>C &middot; Decisions for the founder</h2>
 <table>
  <tr><th>The question</th><th>What is true today</th><th>The choice</th></tr>
@@ -332,3 +430,5 @@ console.log(`  no way in     : ${REAL.filter((s) => s.health === 'stranded').map
 console.log(`  only if fires : ${REAL.filter((s) => s.health === 'conditional').map((s) => s.route).join(', ') || 'none'}`);
 console.log(`  single door   : ${REAL.filter((s) => s.health === 'single').map((s) => s.route).join(', ') || 'none'}`);
 if (unplaced.length) console.log(`  NOT PLACED in the proposal: ${unplaced.join(', ')}`);
+const undescribed = REAL.filter((s) => !WHAT_IT_DOES[s.route]).map((s) => s.route);
+if (undescribed.length) console.log(`  NO PLAIN-ENGLISH DESCRIPTION (falling back to the code comment): ${undescribed.join(', ')}`);

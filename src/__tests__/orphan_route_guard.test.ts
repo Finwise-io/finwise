@@ -131,9 +131,11 @@ test('the generated screen map agrees with this guard about what is unreachable'
   if (!fs.existsSync(page)) throw new Error('screen-architecture.html missing — run: node scripts/screen-map.mjs');
   const html = fs.readFileSync(page, 'utf8');
 
-  // every box the map marks NO WAY IN, read back out of the page it published
+  // every box the map marks NO WAY IN, read back out of the page it published. The box shows the
+  // human name first and the route beneath it in `.br` — route keys were never renamed when the tabs
+  // were, so a page that led with `(tabs)/invest` read as if the rename had been forgotten.
   const mapSays = new Set(
-    [...html.matchAll(/<div class="bt">\/([^<]+)<\/div>\s*<div class="tag"[^>]*>NO WAY IN/g)].map((m) => m[1]),
+    [...html.matchAll(/<div class="br">\/([^<]+)<\/div>\s*<div class="tag"[^>]*>NO WAY IN/g)].map((m) => m[1]),
   );
   const guardSays = new Set([...Object.keys(STRANDED_AWAITING_RULING), ...Object.keys(DELIBERATE_KEEPS)]);
 
