@@ -77,3 +77,22 @@ describe('UI primitives', () => {
     expect(screen.getByText(/invested money your retirement draws on/i)).toBeOnTheScreen();
   });
 });
+
+// THE INFO DOT MATCHES THE LINE IT SITS ON (founder 2026-08-13: "info dot should be the same size
+// as text"). It was a flat 13pt everywhere — looming over an 11pt band title, lost beside a hero.
+describe('InfoDot sizing', () => {
+  const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
+
+  test('takes the size it is given', () => {
+    const { InfoDot } = require('../UI');
+    render(<InfoDot term="netWorth" size={11} />);
+    expect(flat(screen.getByText('ⓘ')).fontSize).toBe(11);
+  });
+
+  test('and a section band asks for its own title size, not the old flat 13', () => {
+    const { SectionBand } = require('../SectionBand');
+    render(<SectionBand title="WHAT COUNTS TOWARD RETIREMENT" infoTerm="netWorth" />);
+    const title = flat(screen.getByText('WHAT COUNTS TOWARD RETIREMENT')).fontSize;
+    expect(flat(screen.getByText('ⓘ')).fontSize).toBe(title);
+  });
+});

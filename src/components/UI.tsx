@@ -166,7 +166,14 @@ export function AmountText({ amount, color, size = 'xl' }: { amount: number; col
 // ── InfoDot (§3.3 in-context education) ───────────────────────────────
 // A small tappable ⓘ next to a term; opens its plain-English GLOSSARY definition. One component, one
 // glossary — so a term is never explained on one screen and left bare on another.
-export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string }) {
+export function InfoDot({ term, color, size = 13 }: {
+  term: GlossaryTerm;
+  color?: string;
+  /** MATCH THE TEXT IT SITS BESIDE (founder 2026-08-13: "info dot should be the same size as text").
+   *  It was a flat 13pt everywhere, so it loomed over an 11pt band title and shrank beside a 30pt
+   *  hero. Callers pass the size of the line the dot belongs to; 13 is the common row size. */
+  size?: number;
+}) {
   const [open, setOpen] = useState(false);
   const def = GLOSSARY[term];
   return (
@@ -174,9 +181,17 @@ export function InfoDot({ term, color }: { term: GlossaryTerm; color?: string })
       {/* a pressable Text, deliberately NOT a Touchable: info dots often sit inside tappable
           cards, and a button nested in a button is invalid DOM on web (the browser re-parents it
           and scrambles the card). Text.onPress works on native and web alike. */}
+      {/* SIZE MATCHES THE LINE IT SITS ON (founder 2026-08-13). It was a flat 13pt everywhere, so it
+          loomed over an 11pt band title and shrank beside a 30pt hero.
+          THE TAP AREA IS A SEPARATE, STILL-OPEN PROBLEM. At 11pt the touchable is roughly 19pt, well
+          under the 44pt rule. hitSlop would fix it without moving a pixel — but it DOES NOT EXIST on
+          Text in React Native 0.85; the typecheck says so, which is how we know rather than guess.
+          The remaining options each cost something: a wrapping Pressable renders a button, and these
+          dots often sit inside tappable cards where a button inside a button is invalid on web; more
+          padding grows the row. Left for a decision and a device check rather than guessed at. */}
       <Text onPress={() => setOpen(true)} suppressHighlighting
         accessibilityRole="button" accessibilityLabel={`What is ${def.title}?`}
-        style={{ fontSize: 13, color: color || Colors.textTertiary, fontWeight: '700', paddingHorizontal: 6, paddingVertical: 4 }}>ⓘ</Text>
+        style={{ fontSize: size, color: color || Colors.textTertiary, fontWeight: '700', paddingHorizontal: 6, paddingVertical: 4 }}>ⓘ</Text>
       <Modal visible={open} transparent animationType="fade" onRequestClose={() => setOpen(false)}>
         <TouchableOpacity style={styles.infoBackdrop} activeOpacity={1} onPress={() => setOpen(false)}>
           <View style={styles.infoCard} onStartShouldSetResponder={() => true}>
