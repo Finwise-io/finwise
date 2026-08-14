@@ -183,8 +183,11 @@ requirements note. Recording it here so it cannot be missed at build time.
    the dials *"never move"*. The founder settled it in favour of the note: the dials stay, smaller,
    while the rows are open — because watching the odds respond IS the reason the inputs were moved
    onto the tab. Recorded in brief v3 §3.2.
-2. **"Try all three together ›"** on the bad-odds frame points at the sandbox, which v3 removed. It
-   now leads nowhere.
+2. ~~**"Try all three together ›"** points at the sandbox, which v3 removed.~~ **RULED 2026-08-13 —
+   drop it.** Never built; it existed only in the drawing. The steppers ARE the sandbox now, so the
+   link had no destination — on the screen where the person is in the most trouble. The idea behind
+   it is kept in brief v3 §5 as something the redesign may offer *properly*: today the screen could
+   only honour two of the three changes, since claiming later is not a stepper.
 3. **The Social Security row is never drawn.** No frame shows a worker at 60+ or a retiree who has
    not claimed, so the row — and the exact sentence the brief specifies, *"waiting from 67 to 70 pays
    $624 more a month"* — has no design. It needs one.

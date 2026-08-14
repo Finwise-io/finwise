@@ -389,6 +389,18 @@ same size. If that reads confusingly in a side-by-side, say so and I will move o
    number exactly and still not be at 80%. The screen must be able to say both without either one
    looking like an error.
 
+   **No "try all three together" link.** Founder ruling, 2026-08-13. The v3 handoff ends the bad-odds
+   frame with *"Try all three together — one sandbox ›"*, pointing at the what-if sandbox that was
+   folded into this tab on 2026-08-12 — the steppers **are** the sandbox now. So the link has no
+   destination, on the screen where the person is already in the most trouble. It was never built;
+   it exists only in the drawing. **Drop it.** Each option is tappable on its own.
+
+   **But the idea behind it is worth keeping, done properly.** "What if I did two or three of these
+   at once?" is a real question, and today the screen can only answer part of it: retiring later and
+   spending less are steppers, while claiming Social Security at 70 is not. A link that half-delivers
+   on the worst screen in the app is worse than one fewer option — so if you want to offer combined
+   changes, design it so it can honour all three, and say what it needs.
+
 ---
 
 ## 6. What the engine can and cannot do
