@@ -106,6 +106,61 @@ function purposeOf(route) {
   return (first ?? '').replace(/^\/\/\s*/, '').replace(/\s*\(FCC.*$/, '').trim().slice(0, 120);
 }
 
+/** SUB-TABS LIVE INSIDE A SCREEN, NOT IN THE ROUTER — so a route-based map is blind to them. The
+ *  founder spotted this immediately: Cash flow has four (This month · Income · Spending · Debts) and
+ *  the first version of this page showed none of them, which makes the map look thinner than the app.
+ *
+ *  Which arrays are navigation and which are input controls cannot be told apart automatically — a
+ *  screen's ['weekly','biweekly','monthly'] is a frequency picker, not a sub-tab. So the SCREENS are
+ *  declared here by hand, and the LABELS are then read out of the code, which means adding a tab
+ *  updates this page on the next run. Anything tab-shaped and undeclared is reported at the end. */
+/** `true` = the code's array IS the labels, so read them from source and they stay current.
+ *  An array = the code holds internal keys and computes the labels, so they are written here. */
+const HAS_SUB_TABS = {
+  '(tabs)/cashflow': true,
+  // NetWorthScreen's array is ['type','account'] and the labels are computed in a ternary beside it —
+  // printing the keys would show a reader plumbing instead of what the tabs say.
+  '(tabs)/analytics': ['By class', 'By institution'],
+};
+
+/** Tab-SHAPED arrays that are not navigation, each judged once so the warning below stays worth
+ *  reading. A warning that fires on things already decided is noise, and noise gets muted — which is
+ *  how the orphan guard went unheeded three times. */
+const NOT_SUB_TABS = {
+  AccountDetailScreen: 'asset-class filter chips, not tabs',
+  BudgetScreen: 'the embedded Activity/Budget/Debts strip, shown inside Cash flow rather than on its own',
+  ConnectFlowScreen: 'update-vs-new branch in the connect flow',
+  ExpenseScreen: 'how often the expense repeats',
+  IncomeManagerScreen: 'annual-vs-monthly display toggle',
+  IncomeScreen: 'how often the income arrives',
+  SettingsScreen: 'the Simple / Advisor lens switch',
+};
+/** Not built — the founder's 2026-08-13 split, shown so the proposal is visible beside what exists. */
+const PROPOSED_SUB_TABS = { '(tabs)/plan': ['Retire', 'Goals', 'Prepare'] };
+
+function subTabsOf(route) {
+  const decl = HAS_SUB_TABS[route];
+  if (!decl) return null;
+  if (Array.isArray(decl)) return decl;
+  const screen = sources.find((s) => s.name === backingModule(route));
+  const m = screen?.src.match(/\(\[((?:\s*'[^']+',?)+)\]\s+as const\)\.map/);
+  if (!m) return null;
+  return [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]);
+}
+
+/** Screens holding a tab-shaped array that nobody has declared either way. */
+function undeclaredTabCandidates() {
+  const out = [];
+  for (const s of sources.filter((x) => x.rel.startsWith('src/screens/'))) {
+    const m = s.src.match(/\(\[((?:\s*'[^']+',?)+)\]\s+as const\)\.map/);
+    if (!m) continue;
+    const route = live.find((r) => backingModule(r) === s.name);
+    if (!route || HAS_SUB_TABS[route] || NOT_SUB_TABS[s.name]) continue;
+    out.push(`${s.name}: [${m[1].replace(/\s+/g, ' ').trim()}]`);
+  }
+  return out;
+}
+
 /** Every place a person can be sent to this route. */
 function doorsTo(route) {
   const leaf = route.replace('(tabs)/', '');
@@ -158,7 +213,7 @@ const screens = live.map((r) => {
     : onlyConditional ? 'conditional'
     : doors.length === 1 ? 'single'
     : 'ok';
-  return { route: r, doors, health, alias, redirect, purpose: purposeOf(r), keep: DELIBERATE_KEEPS[r] ?? null };
+  return { route: r, doors, health, alias, redirect, subTabs: subTabsOf(r), purpose: purposeOf(r), keep: DELIBERATE_KEEPS[r] ?? null };
 });
 
 // ── THE AUTHORED HALF — a recommendation, not a measurement ───────────────────────────────────
@@ -295,6 +350,8 @@ const card = (s) => {
     ${s.alias ? `<div class="bp">the same screen as <b>${esc(titleOf(s.alias))}</b></div>`
       : s.redirect ? `<div class="bp">forwards to <b>${esc(s.redirect)}</b></div>`
       : `<div class="bp">${esc(WHAT_IT_DOES[s.route] ?? s.purpose)}</div>`}
+    ${s.subTabs ? `<div class="st">${s.subTabs.map((t) => `<span>${esc(t)}</span>`).join('')}</div>` : ''}
+    ${PROPOSED_SUB_TABS[s.route] ? `<div class="st prop">${PROPOSED_SUB_TABS[s.route].map((t) => `<span>${esc(t)}</span>`).join('')}<i>proposed</i></div>` : ''}
     <div class="bd">${s.doors.length ? esc(s.doors.join(' · ')) : '&mdash;'}</div>
   </div>`;
 };
@@ -332,6 +389,10 @@ const html = `<!doctype html>
  .br{font-size:10px;color:${T.light};font-family:ui-monospace,Menlo,monospace;margin-top:1px}
  .tag{font-size:9.5px;font-weight:800;letter-spacing:.05em;margin-top:3px}
  .bp{font-size:11px;color:${T.mid};line-height:1.45;margin-top:4px}
+ .st{display:flex;flex-wrap:wrap;gap:4px;margin-top:6px;align-items:center}
+ .st span{font-size:9.5px;font-weight:700;background:${T.bg};border:1px solid ${T.line};border-radius:9px;padding:2px 7px}
+ .st.prop span{background:#DFF2E9;border-color:#0850411f;color:${T.deep}}
+ .st i{font-size:9px;font-style:normal;color:${T.light}}
  .bd{font-size:10.5px;color:${T.light};margin-top:6px;border-top:1px solid ${T.line};padding-top:5px;line-height:1.4}
  table{width:100%;border-collapse:collapse;font-size:12.5px;background:#fff;margin-top:10px;
        border-radius:10px;overflow:hidden}
@@ -431,4 +492,6 @@ console.log(`  only if fires : ${REAL.filter((s) => s.health === 'conditional').
 console.log(`  single door   : ${REAL.filter((s) => s.health === 'single').map((s) => s.route).join(', ') || 'none'}`);
 if (unplaced.length) console.log(`  NOT PLACED in the proposal: ${unplaced.join(', ')}`);
 const undescribed = REAL.filter((s) => !WHAT_IT_DOES[s.route]).map((s) => s.route);
+const cands = undeclaredTabCandidates();
+if (cands.length) console.log(`  TAB-SHAPED ARRAYS NOT DECLARED as sub-tabs (check each): ${cands.join(' | ')}`);
 if (undescribed.length) console.log(`  NO PLAIN-ENGLISH DESCRIPTION (falling back to the code comment): ${undescribed.join(', ')}`);
