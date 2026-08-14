@@ -294,6 +294,8 @@ const PROPOSED = {
 };
 
 const MOVES = [
+  ['insights', 'the ☰ menu only', 'Home', 'FOUNDER AGREED 2026-08-13. The app\'s ranked "here is what to look at", currently found only by opening a menu. Home is the two-second glance; this is what it should be glancing at.'],
+  ['sharpen', 'the Plan tab', 'Home', 'FOUNDER AGREED 2026-08-13. What your plan is still missing belongs where a person lands, not one tab in. Home links to neither of these today.'],
   ['what-if', 'Performance', 'Plan · Retire', 'It asks what happens to your retirement odds if you save more. It has never been reachable from Plan.'],
   ['contribution-room', 'an insight only', 'Plan · Retire', 'How much 401(k) room is left is useful whether or not an insight noticed.'],
   ['multi-goal', 'Plan (buried)', 'Plan · Goals', 'It is the screen for weighing college against the mortgage — the front door of Goals, not a link off will-it-last.'],
@@ -357,14 +359,43 @@ const card = (s) => {
 };
 
 const ALIASES = ALIASES_KEY;
-const byTab = {};
-// render in the order a person reads the tab bar, not in whatever order the data arrived
-for (const k of [...Object.keys(PROPOSED), ALIASES]) byTab[k] = [];
-for (const s of screens) {
-  const home = Object.entries(PROPOSED).find(([, v]) => v.screens.includes(s.route))?.[0] ?? ALIASES;
-  byTab[home].push(s);
+
+/** WHERE A PERSON ACTUALLY FINDS THIS SCREEN — measured, and the only thing View A is allowed to be
+ *  grouped by. The first version grouped View A by each screen's PROPOSED home so the two views
+ *  would line up, which put Insights and Sharpen inside a box headed "Home" in a section labelled
+ *  "measured" — and Home links to neither. The founder caught it. A shape that says one thing while
+ *  the small print says another is the same defect I flagged in the design handoff's gauges: the eye
+ *  believes the shape. If the two views no longer line up, THAT GAP IS THE FINDING. */
+const TAB_DOORS = { Home: 'Home', NetWorth: 'Net worth', Performance: 'Performance', CashFlow: 'Cash flow', PlanHub: 'Plan' };
+function reachedFrom(s) {
+  if (s.health === 'bar') return 'The tab bar itself';
+  if (s.health === 'alias' || s.health === 'redirect') return ALIASES;
+  if (!s.doors.length) return 'Nowhere — no way in';
+  const tab = s.doors.find((d) => TAB_DOORS[d]);
+  if (tab) return `From the ${TAB_DOORS[tab]} tab`;
+  if (s.doors.includes('the ☰ menu')) return 'From the ☰ menu';
+  if (s.doors.every((d) => CONDITIONAL.includes(d))) return 'Only when the data offers it';
+  return 'Deeper in — from another screen';
 }
-for (const k of Object.keys(byTab)) if (!byTab[k].length) delete byTab[k];
+const REACH_ORDER = ['The tab bar itself', 'From the Home tab', 'From the Net worth tab',
+  'From the Performance tab', 'From the Cash flow tab', 'From the Plan tab', 'From the ☰ menu',
+  'Deeper in — from another screen', 'Only when the data offers it', 'Nowhere — no way in', ALIASES];
+const REACH_BLURB = {
+  'The tab bar itself': 'always one tap away',
+  'From the ☰ menu': 'found only by opening the menu',
+  'Deeper in — from another screen': 'you have to already be somewhere else',
+  'Only when the data offers it': 'an insight, a nudge or onboarding has to offer it — otherwise a person never meets it',
+  'Nowhere — no way in': 'built, registered, and unreachable',
+};
+// VIEW A groups by where a screen is REACHED FROM — measured. Nothing here is arranged by proposal.
+const byReach = {};
+for (const k of REACH_ORDER) byReach[k] = [];
+for (const s of screens) byReach[reachedFrom(s)].push(s);
+for (const k of Object.keys(byReach)) if (!byReach[k].length) delete byReach[k];
+
+// the every-screen table still needs each screen's PROPOSED home — that is a separate question
+const proposedHome = (route) =>
+  Object.entries(PROPOSED).find(([, v]) => v.screens.includes(route))?.[0] ?? ALIASES;
 
 const html = `<!doctype html>
 <meta charset="utf-8">
@@ -432,12 +463,13 @@ const html = `<!doctype html>
 </div>
 
 <h2>A &middot; As it is today — measured</h2>
-<p class="sub">Grouped by where each screen would live under the proposal, so the two views line up.
-  The bottom line of each box is <b>every door that exists today</b>.</p>
-${Object.entries(byTab).map(([tab, list]) => `
+<p class="sub">Grouped by <b>where a person actually finds it</b> — measured, not proposed. The bottom
+  line of each box lists <b>every</b> door that exists today. Where this view and the proposal below
+  disagree, that gap is the finding.</p>
+${Object.entries(byReach).map(([where, list]) => `
 <div class="group">
-  <div class="gh">${esc(tab)}</div>
-  ${PROPOSED[tab]?.blurb ? `<div class="gb">${esc(PROPOSED[tab].blurb)}</div>` : ''}
+  <div class="gh">${esc(where)} &nbsp;<span style="font-weight:600;opacity:.7">${list.length}</span></div>
+  ${REACH_BLURB[where] ? `<div class="gb">${esc(REACH_BLURB[where])}</div>` : ''}
   <div class="grid">${list.map(card).join('')}</div>
 </div>`).join('')}
 
@@ -455,7 +487,7 @@ ${Object.entries(byTab).map(([tab, list]) => `
   ${MOVES.length} move, and ${PROPOSED['Legacy — awaiting a ruling'].screens.length} are waiting on a ruling.</p>
 <table>
  <tr><th>Screen</th><th>What it does today</th><th>Lives in</th><th>Moving?</th></tr>
- ${Object.entries(byTab).flatMap(([tab, list]) => list.map((x) => {
+ ${screens.map((x) => { const tab = proposedHome(x.route);
    const move = MOVES.find((m) => m[0] === x.route);
    const note = x.alias ? `second route to ${titleOf(x.alias)}`
      : x.redirect ? 'forwards elsewhere'
@@ -465,7 +497,7 @@ ${Object.entries(byTab).map(([tab, list]) => `
      <td>${esc(WHAT_IT_DOES[x.route] ?? x.purpose)}</td>
      <td>${esc(tab)}</td>
      <td${move ? ' style="background:#FDF1DC"' : ''}>${note}</td></tr>`;
- })).join('')}
+ }).join('')}
 </table>
 
 <h2>C &middot; Decisions for the founder</h2>
