@@ -204,7 +204,9 @@ export default function PlanHubScreen() {
           {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
           <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
             onOpenDoor={(r) => router.push(r as any)} />
-          <TouchableOpacity accessibilityRole="button" onPress={() => router.push('/will-it-last')} accessibilityLabel="See what drives this number">
+          {/* a single line of text is a ~20pt target; fingers miss it, and this audience is the
+              reason the 44pt rule exists at all (audit D13) */}
+          <TouchableOpacity style={styles.cardLinkTap} accessibilityRole="button" onPress={() => router.push('/will-it-last')} accessibilityLabel="See what drives this number">
             <Text style={styles.cardLink}>What drives this? ›</Text>
           </TouchableOpacity>
         </View>
@@ -503,7 +505,8 @@ const styles = StyleSheet.create({
   bandFill: { position: 'absolute', top: 0, bottom: 0, backgroundColor: Colors.primaryLight },
   bandMark: { position: 'absolute', top: 0, bottom: 0, width: 3, borderRadius: 1.5, backgroundColor: Colors.primary },
   inviteTxt: { fontSize: 15, color: Colors.textSecondary, lineHeight: 20, marginTop: 6 },
-  cardLink: { fontSize: 15, fontWeight: '600', color: Colors.primary, marginTop: 10 },
+  cardLink: { fontSize: 15, fontWeight: '600', color: Colors.primary },
+  cardLinkTap: { minHeight: 44, justifyContent: 'center', marginTop: 4 },
   decRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   rowTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },

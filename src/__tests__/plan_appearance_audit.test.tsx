@@ -235,3 +235,41 @@ describe('the FACT / DRAFT / MISSING chips', () => {
     expect(ratio).toBeGreaterThanOrEqual(4.5);
   });
 });
+
+// 44pt IS THE FLOOR, AND THIS AUDIENCE IS WHY (audit D13, founder ruling 2026-08-13).
+// "What drives this? ›" was a single 15pt line inside a touchable with no height and no padding —
+// about 20pt of target. Fingers miss that, and steadier hands than this audience's do too.
+test('every tappable row on the Plan tab clears 44pt, counting its content', () => {
+  // SEED FIRST. This test originally sat outside the describe that seeds PAT, so it rendered the
+  // FIRST-DAY screen — where "What drives this? ›" does not exist — and passed without ever looking
+  // at the thing it was written to check. A test that renders the wrong state is worse than no test.
+  useStore.getState().resetAll();
+  useStore.setState(PAT as any);
+  const Plan = require('../screens/PlanHubScreen').default;
+  render(<Plan />);
+  const tooSmall: string[] = [];
+  const walk = (n: any) => {
+    if (!n || typeof n === 'string') return;
+    // NO `&& n.props.style` HERE. The first version required a style prop, so a touchable with none
+    // at all was skipped — and "no style at all" is exactly how a 20pt target comes about. The check
+    // walked straight past the defect it exists to find.
+    if (n.props?.accessibilityRole === 'button') {
+      const f = n.props?.style ? flat(n) : ({} as any);
+      const txt: string[] = [];
+      const grab = (m: any) => { if (typeof m === 'string') txt.push(m); else (m?.children ?? []).forEach(grab); };
+      (n.children ?? []).forEach(grab);
+      const label = txt.join(' ').trim();
+      // A row is tall enough if it declares a fixed height, a minimum, or its padding plus its own
+      // lines reach 44. The first version of this check read only minHeight and padding, and so
+      // reported the stepper buttons — which are declared a flat 44×44 — as 19pt targets. A
+      // measurement that misses how a thing is actually sized invents defects.
+      const lines = Math.max(1, txt.filter((t) => t.trim().length > 3).length);
+      const height = (f.height ?? 0) || (f.minHeight ?? 0)
+        || ((f.paddingVertical ?? f.padding ?? 0) * 2 + lines * 19);
+      if (height < 44 && label && label !== 'ⓘ') tooSmall.push(`${label.slice(0, 40)} ≈ ${height}pt`);
+    }
+    (n.children ?? []).forEach(walk);
+  };
+  walk(screen.toJSON());
+  expect(tooSmall).toEqual([]);
+});
