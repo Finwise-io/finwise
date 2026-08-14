@@ -49,11 +49,16 @@ test('working verdict: the percent AND the if-clause that names THEIR plan', () 
   expect(screen.getByText('What drives this? ›')).toBeOnTheScreen();
 });
 
-test('working: the one next-decision card is the dated Social Security window; the list omits the duplicate', () => {
+test('working: Social Security is not offered to someone decades away from it', () => {
   seedWorking();
   render(<PlanHubScreen />);
-  // Ava (born 1991) → window opens the year she turns 62 — dated, not vague
-  expect(screen.getByText(new RegExp(`Your Social Security claim window opens [A-Z][a-z]{2} ${1991 + 62}`))).toBeOnTheScreen();
+  // SUPERSEDED 2026-08-13. This used to assert that Ava — born 1991, so in her thirties — was shown
+  // "your Social Security claim window opens Aug 2053" as the next decision in front of her. The
+  // founder ruled the window is 60 to 70: before 60 it is not a decision, it is trivia, and after 70
+  // the delayed credit has stopped so there is nothing left to choose. Neither the card nor the row
+  // may appear outside that band. (A 60-to-70 person's version is pinned in
+  // src/domain/planning/__tests__/ss_window.test.ts, which covers both ends.)
+  expect(screen.queryByText(/Social Security claim window/)).toBeNull();
   expect(screen.queryByText('When should I claim Social Security?')).toBeNull();
   // ranked questions — "When can I retire?" moved into section 1 (it IS the retire-at stepper)
   expect(screen.queryByText('When can I retire?')).toBeNull();

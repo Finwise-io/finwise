@@ -149,7 +149,7 @@ grammar. Keep them short enough to sit on one line beside their answer.
 
 1. **Pay off the mortgage early**
 2. **Convert to a Roth**
-3. **When to claim Social Security — at 60 and above only**
+3. **When to claim Social Security — between 60 and 70, and only if they have not claimed**
 
 **Shown only when they apply.** No mortgage on file → no mortgage row. No pre-tax money → no Roth
 row (there is nothing to convert, so the question is meaningless). Under 60 → no Social Security row.
@@ -237,6 +237,23 @@ person to another screen to find out what waiting is worth. The row says the ans
 
 > **When to claim Social Security** — *waiting from 67 to 70 pays **$624 more a month**: $3,224
 > against $2,600*
+
+**The window is 60 to 70** (founder, 2026-08-13). Before 60 it is not a decision, it is trivia. After
+70 the delayed credit has stopped accruing, so waiting buys nothing and there is nothing left to
+choose. 67 was considered as the upper bound and rejected: between 67 and 70 waiting is worth 8% a
+year, which is the most valuable this decision ever gets — and the row only ever shows to someone who
+has NOT claimed, so a 68-year-old seeing it genuinely still has the choice open.
+
+**A THIRD PERSON, so the row can actually be drawn.** Pat is 58 and June is 72 and already claiming —
+between them, neither ever triggers this row, so the v3 handoff drew it nowhere. That was my gap in
+the brief, not the designer's. Draw it against:
+
+> **Ray — 64, still working part-time, has not claimed.** Statement amount $2,600 a month at 67.
+> His row: *waiting from 67 to 70 pays $624 more a month: $3,224 against $2,600.*
+
+Ray is worth having for more than this row: the brief has a 58-year-old and a 72-year-old, and the
+audience is 55 to 70. **The middle was missing** — and the middle is where the biggest decisions
+actually get made.
 
 **Use 67 and 70, never 72.** The delayed credit is 8% a year and it **stops at 70** — waiting past 70
 adds nothing at all. A row offering 72 would imply money that does not exist, and the engine already

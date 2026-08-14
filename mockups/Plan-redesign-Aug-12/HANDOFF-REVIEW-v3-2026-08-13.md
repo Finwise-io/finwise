@@ -188,9 +188,12 @@ requirements note. Recording it here so it cannot be missed at build time.
    link had no destination — on the screen where the person is in the most trouble. The idea behind
    it is kept in brief v3 §5 as something the redesign may offer *properly*: today the screen could
    only honour two of the three changes, since claiming later is not a stepper.
-3. **The Social Security row is never drawn.** No frame shows a worker at 60+ or a retiree who has
-   not claimed, so the row — and the exact sentence the brief specifies, *"waiting from 67 to 70 pays
-   $624 more a month"* — has no design. It needs one.
+3. ~~**The Social Security row is never drawn.**~~ **RULED 2026-08-13.** The window is **60 to 70**,
+   and the reason it was drawn nowhere was MY gap: Pat is 58 and June is 72 and already claiming, so
+   neither persona could trigger it. Brief v3 gains **Ray, 64, still working, not yet claimed** — who
+   also fills the hole in the middle of a 55-to-70 audience. The gate is now built and pinned in the
+   app too: before this the only bound was age < 71, so a 58-year-old was told the next decision in
+   front of them was a claim window opening in four years.
 4. **Decisions are hidden when age is missing** (*"Decisions are hidden until your odds can be
    computed"*). Paying off a mortgage early does not need your age. Hiding an action the person could
    take today looks like a regression.
