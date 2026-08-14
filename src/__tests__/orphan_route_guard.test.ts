@@ -48,24 +48,57 @@ const sourceText = (() => {
   return files.map((f) => ({ rel: path.relative(root, f), src: fs.readFileSync(f, 'utf8') }));
 })();
 
-/** the routes the navigation registry declares */
+/** STRANDED — reachable from nowhere, and nobody has decided whether that is on purpose.
+ *  These are DEBT, not design. Listed so they are visible and countable rather than silently
+ *  excluded; the founder rules on each and it either gets a door or joins the list above. */
+const STRANDED_AWAITING_RULING: Record<string, string> = {
+  '(tabs)/tips': 'trimmed from the menu 2026-08-02 and nothing else links it — found 2026-08-13',
+  '(tabs)/rewards': 'trimmed from the menu 2026-08-02 and nothing else links it — found 2026-08-13',
+};
+
+/** Every route the app registers: the stack screens AND the tab screens. The first version of this
+ *  guard skipped anything under (tabs)/, which is exactly where Tips and Rewards were stranded —
+ *  the second time this guard was built too narrow to see the thing it exists to find. */
 function registeredRoutes(): string[] {
   const layout = fs.readFileSync(path.join(appDir, '_layout.tsx'), 'utf8');
-  return [...layout.matchAll(/<Stack\.Screen\s+name="([^"]+)"/g)].map((m) => m[1])
-    .filter((n) => !n.startsWith('(') && !NO_INBOUND_LINK_EXPECTED[n]);
+  const stack = [...layout.matchAll(/<Stack\.Screen\s+name="([^"]+)"/g)].map((m) => m[1])
+    .filter((n) => !n.startsWith('('));
+  const tabFiles = fs.existsSync(path.join(appDir, '(tabs)'))
+    ? fs.readdirSync(path.join(appDir, '(tabs)')).filter((f) => /\.tsx$/.test(f) && f !== '_layout.tsx')
+      .map((f) => `(tabs)/${f.replace(/\.tsx$/, '')}`)
+    : [];
+  // the five in the tab bar need no link — the bar itself is the way in
+  const meta = fs.readFileSync(path.join(root, 'constants', 'tabs.ts'), 'utf8');
+  const inBar = (r: string) => new RegExp(`\\b${r.replace('(tabs)/', '')}\\s*:\\s*\\{`).test(meta);
+  return [...stack, ...tabFiles].filter((n) =>
+    !NO_INBOUND_LINK_EXPECTED[n] && !STRANDED_AWAITING_RULING[n] && !inBar(n));
 }
 
 test('every registered screen has a way in', () => {
   const orphans: string[] = [];
   for (const route of registeredRoutes()) {
-    // a link can be written '/route', "route", or as a route constant in the doors/menu lists
-    const patterns = [`'/${route}'`, `"/${route}"`, `\`/${route}\``, `/${route}?`, `'/${route}?`];
+    const leaf = route.replace('(tabs)/', '');
+    // a link can be written '/route', '/(tabs)/route', or with a ?param suffix
+    const patterns = [`'/${route}'`, `"/${route}"`, `\`/${route}`, `'/${route}?`,
+      `'/(tabs)/${leaf}'`, `"/(tabs)/${leaf}"`, `\`/(tabs)/${leaf}`, `'/(tabs)/${leaf}?`];
     const linked = sourceText.some(({ rel, src }) =>
       // the screen file for a route does not count as its own way in
-      !rel.endsWith(`${route}.tsx`) && patterns.some((p) => src.includes(p)));
+      !rel.endsWith(`${leaf}.tsx`) && patterns.some((p) => src.includes(p)));
     if (!linked) orphans.push(`/${route} — registered and built, but nothing in the app links to it`);
   }
   expect(orphans).toEqual([]);
+});
+
+test('the stranded list is documented, dated, and stays visible', () => {
+  // Not an exclusion — a debt register. Every entry needs a reason and the date it was found, so
+  // "nobody can reach this" can never quietly become "that is just how it is".
+  for (const [route, why] of Object.entries(STRANDED_AWAITING_RULING)) {
+    expect(why).toMatch(/\d{4}-\d{2}-\d{2}/);
+    expect(why.length).toBeGreaterThan(20);
+    expect(route).toBeTruthy();
+  }
+  // eslint-disable-next-line no-console
+  console.log(`STRANDED, awaiting a founder ruling: ${Object.keys(STRANDED_AWAITING_RULING).join(', ') || 'none'}`);
 });
 
 test('the big-costs door is back on the Plan tab specifically', () => {
