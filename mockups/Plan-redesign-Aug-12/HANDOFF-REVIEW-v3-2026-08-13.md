@@ -178,9 +178,11 @@ requirements note. Recording it here so it cannot be missed at build time.
 
 ## Needs a founder ruling — five open items
 
-1. **Pat's expanded frame drops both dials.** Opening the glance replaces the hero with a one-line
-   summary. The designer's own note says the dials *"never move"* — the HTML contradicts the note. Is
-   the compression deliberate (a good instinct for a long screen) or an error?
+1. ~~**Pat's expanded frame drops both dials.**~~ **RULED 2026-08-13 — keep them, shrink them.**
+   Opening the glance replaced the hero with a one-line summary, while the designer's own note said
+   the dials *"never move"*. The founder settled it in favour of the note: the dials stay, smaller,
+   while the rows are open — because watching the odds respond IS the reason the inputs were moved
+   onto the tab. Recorded in brief v3 §3.2.
 2. **"Try all three together ›"** on the bad-odds frame points at the sandbox, which v3 removed. It
    now leads nowhere.
 3. **The Social Security row is never drawn.** No frame shows a worker at 60+ or a retiree who has

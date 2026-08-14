@@ -122,6 +122,21 @@ The seven, in this order:
 Rows 6 and 7 are the only ones with a level beneath them. That is the hierarchy problem to solve
 visually: seven peers, two of which open.
 
+**When the glance opens, the dials STAY — smaller, but present.** Founder ruling, 2026-08-13.
+
+The v3 handoff drew Pat's expanded frame with **both dials gone**, replaced by a single line of text,
+while its own requirements note said the dials *"never move"*. The drawing and the note disagreed;
+this settles it.
+
+Keeping them is the whole reason the inputs sit on the tab rather than behind a link: a person nudges
+the retirement age **in order to watch the odds respond**. Take the dials away while they edit and
+they are adjusting numbers blind, then scrolling back up to find out what happened. The screen would
+still be tall and they would still be guessing.
+
+So: **shrink them and keep them visible while the rows are open** — the number being changed and the
+number it is being changed *for*, on screen together. How small, and whether they pin to the top or
+simply compress in place, is yours to design.
+
 **Every row is a question, not a parameter.** Founder ruling, 2026-08-12: *"We should not have these
 retirement parameters — Current Age, Target Retirement Age, Plan to Age, Current Nest Egg /
 Retirement Assets — as simply parameters versus framing it as a question. These are simple to
