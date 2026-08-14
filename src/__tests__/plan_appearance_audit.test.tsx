@@ -172,3 +172,32 @@ describe('heading hierarchy', () => {
     expect(flat(t).fontSize).toBe(11);
   });
 });
+
+// EVERY HEADING STARTS ON THE SAME LINE (audit D10, founder ruling 2026-08-13).
+// One heading carried `inCard`, which bleeds a FILLED band to the card edge. A quiet label has no
+// fill, so the flag did nothing but shove its text 12pt left of the six headings beneath it.
+test('all section headings share one left edge', () => {
+  const Plan = require('../screens/PlanHubScreen').default;
+  render(<Plan />);
+  const starts = new Set<number>();
+  const walk = (n: any, inset: number) => {
+    if (!n || typeof n === 'string') return;
+    const f = n.props?.style ? flat(n) : {};
+    const here = inset + (f.paddingHorizontal ?? f.paddingLeft ?? f.padding ?? 0) + (f.marginHorizontal ?? f.marginLeft ?? 0);
+    if (n.type === 'Text' && f.textTransform === 'uppercase') {
+      const t = (n.children ?? []).filter((c: any) => typeof c === 'string').join('').trim();
+      if (t) starts.add(here);
+    }
+    (n.children ?? []).forEach((c: any) => walk(c, here));
+  };
+  walk(screen.toJSON(), 0);
+  expect([...starts]).toHaveLength(1);
+});
+
+test('the card no longer announces the tab it is sitting on', () => {
+  const Plan = require('../screens/PlanHubScreen').default;
+  render(<Plan />);
+  // "YOUR RETIREMENT PLAN" sat directly above "WILL MY MONEY LAST?" saying nearly the same thing
+  expect(screen.queryByText('YOUR RETIREMENT PLAN')).toBeNull();
+  expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
+});

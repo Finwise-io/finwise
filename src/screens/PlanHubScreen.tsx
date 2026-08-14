@@ -159,7 +159,11 @@ export default function PlanHubScreen() {
           the same thing twice. */}
       {wil.captured && wil.chance != null ? (
         <View style={styles.card}>
-          <SectionBand inCard quiet title="YOUR RETIREMENT PLAN" />
+          {/* "YOUR RETIREMENT PLAN" used to sit here, directly above "WILL MY MONEY LAST?" — two
+              headings saying nearly the same thing. The green bars disguised the repetition; once
+              both became quiet labels it was plain. Dropped 2026-08-13: the tab itself will be
+              named Retire, under Plan, so the card does not need to announce what tab it is on.
+              The question underneath is the heading. */}
           {/* ONE score, then arithmetic — the second gauge was dropped once the engine proved it
               could read "80% of the way" beside 31% odds (founder 2026-08-12). */}
           <PlanOutcome

@@ -25,8 +25,16 @@ export function SectionBand({ title, value, light, inCard, inset = Spacing.md, i
   const valuePad = (inCard ? inset : 0) + trailing;
 
   if (quiet) {
+    // ALIGNMENT (audit D10). For a FILLED band, `inCard` means "bleed out to the card's edges". A
+    // quiet label has no fill, so bleeding is meaningless — but the flag still carries the one fact
+    // that matters here: whether a card's own padding already sits to my left.
+    //   inside a card  → the card contributes its padding, so add one more to reach its content edge
+    //   outside a card → nothing to my left, so add both
+    // Either way the text lands on the SAME line as every row and every other heading. Obeying the
+    // flag literally (bleeding) put one heading 12pt left of six others; ignoring it entirely left
+    // the headings that sit outside cards 12pt left of the ones inside them.
     return (
-      <View style={[s.quietWrap, inCard && { marginHorizontal: -inset }]}>
+      <View style={[s.quietWrap, { paddingHorizontal: inCard ? inset : inset * 2 }]}>
         <Text style={s.quietTitle} numberOfLines={1}>{title}</Text>
         {!!infoTerm && <InfoDot term={infoTerm as any} color={Colors.primaryDeep} />}
         <View style={{ flex: 1 }} />

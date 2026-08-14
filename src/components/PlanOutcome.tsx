@@ -43,7 +43,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   return (
     <View style={s.wrap}>
       {/* quiet: a question is a section title, and ESTIMATE is a tag, not a total (v3 hierarchy) */}
-      <SectionBand quiet
+      <SectionBand inCard quiet
         title={lens === 'retired' ? 'IS MY MONEY LASTING?' : 'WILL MY MONEY LAST?'}
         value="ESTIMATE"
       />
@@ -102,7 +102,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
               ? <>Reaching {TARGET_ODDS}% by saving alone would take <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)} a year</Text> — more than you earn. That number is real. Here's what actually moves it:</>
               : <>Saving alone cannot reach {TARGET_ODDS}% from here. That is real. Here's what actually moves it:</>}
           </Text>
-          <SectionBand quiet title="WHAT ACTUALLY MOVES IT" />
+          <SectionBand inCard quiet title="WHAT ACTUALLY MOVES IT" />
           {levers.map((l) => (
             <View key={l.key} style={s.lever} accessible accessibilityLabel={`${l.label}: worth ${l.points} points on your odds.`}>
               <Text style={s.leverLabel}>{l.label}</Text>

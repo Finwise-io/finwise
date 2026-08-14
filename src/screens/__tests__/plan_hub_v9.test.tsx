@@ -31,8 +31,11 @@ beforeEach(() => { useStore.getState().resetAll(); });
 test('working verdict: the percent AND the if-clause that names THEIR plan', () => {
   seedWorking();
   render(<PlanHubScreen />);
-  // 2026-08-12: the band names the section; the horizon is said once, in the odds sentence
-  expect(screen.getByText('YOUR RETIREMENT PLAN')).toBeOnTheScreen();
+  // SUPERSEDED 2026-08-13 (audit D10). This asserted "YOUR RETIREMENT PLAN" sat above "WILL MY MONEY
+  // LAST?" — two headings saying nearly the same thing, which the heavy green bars disguised until
+  // both became quiet labels. The founder dropped the first: the tab itself is named Retire, under
+  // Plan, so the card does not need to announce which tab it is on. The question IS the heading.
+  expect(screen.queryByText('YOUR RETIREMENT PLAN')).toBeNull();
   expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
   expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
   // founder 2026-08-12: no verdict word — the number is the verdict

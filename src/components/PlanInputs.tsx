@@ -66,7 +66,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
 
   return (
     <View>
-      <SectionBand quiet title="FACTS — SAVE AS YOU GO" />
+      <SectionBand inCard quiet title="FACTS — SAVE AS YOU GO" />
 
       <View style={[s.field, needsAge && s.missingRow, focus === 'your age' && s.focused]}>
         <Text style={[s.label, needsAge && s.missingLabel]}>Your age{needsAge ? <Chip kind="missing" /> : <Chip kind="fact" />}</Text>
@@ -132,7 +132,7 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
           : 'Counted in the year you named, grown by inflation to that year.'}
       </Text>
 
-      <SectionBand quiet title="CHOICES — TRY THEM, NOTHING CHANGES YET" />
+      <SectionBand inCard quiet title="CHOICES — TRY THEM, NOTHING CHANGES YET" />
       <View style={blocked ? s.dimmed : undefined} pointerEvents={blocked ? 'none' : 'auto'}>
       <Stepper label="Retire at" value={draft.retireAge}
         onChange={(v) => onDraft({ ...draft, retireAge: Math.max(50, Math.min(80, v)) })} />
