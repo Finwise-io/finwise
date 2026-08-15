@@ -4,7 +4,7 @@
 **Against:** `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md`
 **Reviewed:** all 7 drawn states — Pat collapsed, Pat expanded, June collapsed, June expanded,
 age-missing, day-one, bad-odds.
-**Status:** the structure is right and most of the brief landed. **Eight things block a build**, four
+**Status:** the structure is right and most of the brief landed. **Nine things block a build**, four
 numbers on screen are not true, and five need a founder ruling. Two of the problems are mine, not
 the designer's, and are marked as such.
 
@@ -165,6 +165,21 @@ those rows hides the assumptions the number is standing on, which is exactly wha
 
 Fix: all seven rows, always. Unanswered ones say **Add ›**; assumed ones show the value with a quiet
 **ours until you change it**. Written into brief §5, state 4.
+
+
+### B9. Goals and Prepare have no design at all — **founder-found 2026-08-14, and it is our fault**
+
+*"No design created for Goals and Prepare tabs."* True — and the brief told you not to draw them.
+§3.0 said Retire was *"the only one being redesigned in this pass"*, which was the wrong instruction:
+**a three-tab bar where two tabs open onto nothing designed is not a finished design.** Someone
+tapping Prepare on day one has to land somewhere deliberate.
+
+Brief §3.0.1 now specifies both landing views, and the deliverables list asks for them in a populated
+and an empty state. It also says plainly that this is a genuine expansion of the ask — **if it does
+not fit this pass, say so and we will split it**, rather than one tab arriving drawn and two arriving
+empty.
+
+Not a defect in what you produced. Recorded here because it blocks a build just the same.
 
 ---
 

@@ -54,6 +54,52 @@ and the only one being redesigned in this pass.
 | **Goals** | Everything else a person saves for: goals, the college planner, and **"Can I afford it all?"** promoted to its front door. |
 | **Prepare** | Getting your affairs in order: the insurance check, estate & legacy, the tax organiser, **build credit** (founder added it 2026-08-14, reversing the August menu trim for this audience), the **stress test** (folded in — it is an emergency-cash question, not a retirement one) and the **job safety check**. |
 
+### 3.0.1 GOALS AND PREPARE NEED LANDING SCREENS — founder finding, 2026-08-14
+
+*"No design created for Goals and Prepare tabs."* **Correct, and it is my instruction that caused it,
+not an oversight on your side.** §3.0 said Retire was *"the only one being redesigned in this pass"*,
+which was a reasonable thing to write and the wrong thing to write: **you cannot ship a three-tab bar
+where two of the tabs open onto nothing designed.** A person tapping Prepare on day one must land
+somewhere deliberate.
+
+**This is a genuine expansion of the ask, so scope it honestly rather than absorbing it.** You are not
+redesigning the screens underneath — those exist and work. **You are designing two landing views**,
+each a short list that says what lives there and what state it is in. If that is more than this pass
+can hold, say so and we will split it; do not quietly return one tab drawn and two empty.
+
+**Goals — what a person is saving for, other than retiring.**
+
+> Rows: their goals, each with its target, what is behind it, and whether it is on track · **"Can I
+> afford it all?"** promoted to the front door, because with more than one goal that is the real
+> question · the college planner.
+>
+> **Empty state matters more here than anywhere.** Most people arrive with no goals set. It is an
+> on-ramp — *"Nothing here yet. A goal is anything you're putting money aside for: a car, a wedding,
+> helping a grandchild."* — never a paragraph about what the screen will one day do (§7).
+
+**Prepare — getting your affairs in order.**
+
+> Rows: the insurance check · estate and legacy · the tax organiser · build credit · the stress test
+> · the job-safety check.
+>
+> **These are mostly things a person does once**, so the useful state is *done or not done* rather
+> than a number. A row that says **"not started"** or **"done — March 2026"** tells someone where to
+> spend ten minutes. A row that just says "Estate" tells them nothing.
+>
+> **Prepare is largely a name for something that already exists.** The Goals screen quietly links
+> credit, college, estate, insurance and the tax organiser today. This is naming an accidental hub,
+> not inventing information architecture — so the bar for "does this landing view earn its place" is
+> that it should be easier to use than the pile it replaces.
+
+**Both are lopsided against Retire on purpose.** Retire is the whole redesign; these two are gathered
+existing work. **Do not pad them for symmetry** — three honest rows beat six with three invented.
+
+**One question back to us, and flag your assumption:** does either tab need its own heading, or does
+the sub-tab bar name it well enough? Retire carries a hero; these two may want nothing above the
+first row.
+
+---
+
 **⚠️ DRAW THE SUB-TAB BAR ON EVERY FRAME.** The v3 handoff contains no sub-tabs at all — the words
 "Goals" and "Prepare" do not appear anywhere in it. **That is not a miss on your side: this section
 was written after you had already drawn**, so the instruction did not exist when you worked. It does
@@ -775,22 +821,64 @@ the person rather than printing a fixed menu.
    screen must say so plainly and pivot to what actually moves the number (retire later, spend less,
    claim later). **It must never promise options and then show none** — that happens in the current
    build.
-6. **Already past their own target** — added 2026-08-13 (audit D4), and not drawn in the v3 handoff.
-   This is not a rare case: it happens the moment someone types a modest number. If Pat typed
-   $800,000, today's $909,152 is **114% of target** while the odds sit at **45%** — a dial pegged past
-   full beside a number under half.
+6. **Already past their own target — and its mirror, on target with poor odds.** These are the two
+   hardest states on the surface, and the founder's note on 2026-08-14 is the instruction that
+   matters: **"this is assuming the user knows what these odds mean and how to use it — which is not
+   the case 99% of the time."** Every word below is written to that.
 
-   That is not a contradiction and must not be drawn as one. They are two honest answers to two
-   different questions: *am I hitting my own number* and *will the money last*. Decide and show us:
-   does the dial cap at 100% or overfill? What replaces the shortfall line — "more than you need,
-   by $109,152"? And what does the closing sentence say when there is nothing to close but the odds
-   are still poor? The honest answer there is that saving more is no longer the lever, so it should
-   point at what is.
+   **First, what the odds ARE has to be said on the screen, not in a glossary.** This is where a
+   person meets a percentage that contradicts something else they can see, and if they do not know
+   what it counts, they cannot resolve it. One line, under the number, always:
 
-   Draw the mirror case too, briefly: **on target, poor odds.** Measured on Pat — a $1,500,000 target
-   is reached by saving $24,000 a year, and the odds at that point are **64%**. Someone can hit their
-   number exactly and still not be at 80%. The screen must be able to say both without either one
-   looking like an error.
+   > *We play out your retirement 400 times with different market luck. This counts how many of them
+   > your money lasted through.*
+
+   **STATE 6 — past their own number, odds still poor.** It happens the moment someone types a modest
+   figure. Pat typed **$800,000**; he has **$909,152**, so the target dial reads **114%** while his
+   odds read **48%** — a dial pegged past full beside a number under half.
+
+   > **You've passed the $800,000 you set.** You have $909,152 — $109,152 more.
+   >
+   > **But at $5,200 a month, your money still runs out before 90 in about half the futures we tested.**
+   >
+   > Your target was your guess at how much you'd need. This is the check on whether it is actually
+   > enough — and it isn't yet.
+   >
+   > Putting more away still moves it a long way: another **$24,000 a year** takes you from about
+   > **5 futures in 10 to about 6 in 10**. Retiring later or spending less move it too.
+
+   **⚠️ TWO CORRECTIONS TO THIS BRIEF, FOUND WHILE REWRITING IT — do not use the earlier version.**
+
+   **The odds here are 48%, not 45%.** An earlier draft of this state said 45%. That is Pat's
+   *assets-versus-target* figure against a $2,000,000 target — the other dial. Typing a different
+   target cannot move the odds by a point (§6.1), so his odds in this state are the same 48% they are
+   everywhere else. **On the one state that exists to stop two numbers being confused, the brief
+   confused them.**
+
+   **"Saving is no longer the lever" was wrong, and I have removed it.** The earlier draft told you to
+   write that. Measured: Pat saving nothing sits at **45%**; at $24,000 a year he is at **64%**; at
+   $84,500 a year he is at **90%**. Saving is a very large lever indeed. What is true is narrower —
+   he is past his *target*, so the "save this much to reach your number" sentence has nothing left to
+   close. That is a sentence losing its job, not a lever disappearing, and telling someone their
+   savings no longer matter would have been both false and discouraging.
+
+   **THE MIRROR — on target, and the odds still are not there.** Pat with a **$1,500,000** target:
+   saving **$24,000 a year** projects to **$1,506,263**, which reaches it, and the odds at that point
+   are **64%**. *(Verified on the engine.)*
+
+   > **You'll reach the $1,500,000 you set** — saving $24,000 a year gets you there by 65.
+   >
+   > **Even then, your money runs out before 90 in about 4 futures out of 10.**
+   >
+   > Hitting your own number and the money lasting are two different things. Your number is what you
+   > aimed at; this is what happens when you actually spend it. To have both, the number has to be
+   > higher — or the spending lower.
+
+   **Neither state is an error and neither may be drawn as one.** Two honest answers to two different
+   questions: *am I hitting my own number* and *will the money last*. Decide and show us: does the
+   target dial cap at 100% or overfill? What replaces the shortfall line — *"more than you need, by
+   $109,152"*? **Do not add a warning icon, a red tint, or any treatment that reads as "something has
+   gone wrong here."** Nothing has.
 
    **No "try all three together" link.** Founder ruling, 2026-08-14. The v3 handoff ends the bad-odds
    frame with *"Try all three together — one sandbox ›"*, pointing at the what-if sandbox that was
@@ -982,10 +1070,10 @@ The replacements, founder-chosen:
 | a safe pace | *(rewrite — name the pace, do not grade it)* |
 | Spent $X of $Y safe this month | *(rewrite against "left to spend")* |
 
-**Scope, measured:** 29 user-visible occurrences across 14 files — Home, Cash flow, Plan, the paycheck
-card, month detail, paycheck months, the retirement cockpit, the draw-steering sheet, tips, and the
-glossary. *"Safe to spend"* is a headline label on Cash flow, not a footnote. This sweeps as one
-change or not at all; a Plan-tab-only fix would leave three screens contradicting each other.
+**DONE in the app on 2026-08-14** — 34 user-visible replacements across 16 files, and a build-failing
+guard now stops the word returning in any rendered string. You do not need to sweep anything; you need
+to not reintroduce it. *("Safe to spend" was the retiree headline on Cash flow, so this was a headline
+change, not a footnote one.)*
 
 Not in scope: uses with nothing to do with money — *"your data is safe"*, *"I've saved my recovery
 code somewhere safe"*. Those stay.
@@ -997,10 +1085,10 @@ secure, guaranteed, protected, or risk-free.
 
 ## 8. What went wrong last round — please don't hand these back
 
-> **Read `HANDOFF-REVIEW-v3-2026-08-14.md` in this folder alongside this brief.** It is the review of
+> **Read `HANDOFF-REVIEW-Plan-v3-2026-08-13.md` in this folder alongside this brief.** It is the review of
 > the v3 handoff you sent, checked line by line against the files now saved in
 > `Claude-Design-handoff-received-2026-08-13/ (beside this file)`. Most of the
-> brief landed and the structure is right; the review is the delta, not a re-brief. **Six things
+> brief landed and the structure is right; the review is the delta, not a re-brief. **Eight things
 > block a build and four numbers on screen are not true.** The one to start with:
 >
 > **All six gauge needles point at the wrong number.** Measured from your file: needles at 56%, 97%,
@@ -1038,9 +1126,12 @@ they show where this surface breaks:
    the only one who can show the Social Security row, and the only one whose two dials openly
    disagree), phone width 390. Full screen top to bottom: status bar, header, everything, tab bar.
    No cropped cards.
-2. **A short requirements note** — the heading hierarchy you chose, the collapsed/expanded behaviour
+2. **`Goals.dc.html` and `Prepare.dc.html`** — or two more frames in the same file, whichever suits
+   you. The landing view of each, in a populated state AND an empty one (§3.0.1). Added 2026-08-14
+   after the founder pointed out that a three-tab bar with two undesigned tabs is not a design.
+3. **A short requirements note** — the heading hierarchy you chose, the collapsed/expanded behaviour
    of the glance, and for every number on screen, which of §6 it comes from.
-3. **The collapsed glance is the one to get right.** It is the default state — what a person sees
+4. **The collapsed glance is the one to get right.** It is the default state — what a person sees
    every single time they open the tab. What does it say when it is closed? A summary line? Nothing?
    That single decision is most of the "too much information" problem.
 
