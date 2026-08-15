@@ -30,7 +30,10 @@ export interface InsightInput {
     followUp: boolean;                              // true = user flagged it; keep a quiet "settled?" item
   } | null;
   rmdDue?: { amount: number } | null;               // required withdrawal this year (age 73+, pre-tax > 0)
-  ssWindow?: boolean;                               // Social Security claim window open, no decision adopted
+  // Social Security: null = not this person's decision yet. Otherwise WHICH end of the founder's
+  // 60-to-70 decision window they are in — because at 60 and 61 the window is not open, it is
+  // coming, and the card must not say otherwise. See the ss-window rule below.
+  ssWindow?: 'approaching' | 'open' | null;
   goalsGap?: number | null;                         // $/mo goals need beyond the planned surplus (quantified)
   goalOffTrack?: { label: string; monthsBehind: number } | null;   // r12: worst dated goal running late at its REAL funding rate
 }
@@ -81,8 +84,18 @@ const RULES: Rule[] = [
   (i) => i.goalOffTrack ? { id: 'goal-offtrack', priority: 2, icon: '🗓️', title: 'A goal is running behind its date', body: `${i.goalOffTrack.label} is about ${i.goalOffTrack.monthsBehind} month${i.goalOffTrack.monthsBehind === 1 ? '' : 's'} behind at this month's funding pace — the date, the amount, or the pace can move. Your call.`, route: '/(tabs)/goals' } : null,
   // FCC: goals need more per month than the plan frees up — a quantified fact, no instruction.
   (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/mo more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
-  // FCC: the Social Security claim window is open and no timing has been adopted — logistics, no opinion.
-  (i) => i.ssWindow ? { id: 'ss-window', priority: 2, icon: '🗓️', title: 'Your Social Security window is open', body: `You can claim any time from 62 to 70 — no deadline, but timing changes the check. See it laid out in your dollars.`, route: '/ss-timing' } : null,
+  // FCC: the Social Security claim decision is live and no timing has been adopted — logistics, no opinion.
+  // 2026-08-13: this used to fire from 62 to under-70 while the Plan tab used the founder's 60-to-70
+  // ruling, so the same decision had two different age gates. Both ends were wrong. At 60 and 61 it
+  // belongs on the list — it is the last stretch where the answer can still be planned around — but
+  // the window is NOT open yet, so the card says so instead of claiming it is. And it must include
+  // age 70 itself, which is the most urgent month of all: the delayed credit stops there, so from
+  // then on waiting costs money and buys nothing.
+  (i) => i.ssWindow === 'approaching'
+    ? { id: 'ss-window', priority: 2, icon: '🗓️', title: 'Your Social Security decision is coming up', body: `You can first claim at 62, and every year you wait after that raises the check, up to 70. Worth deciding before it arrives — see it laid out in your dollars.`, route: '/ss-timing' }
+    : i.ssWindow === 'open'
+    ? { id: 'ss-window', priority: 2, icon: '🗓️', title: 'Your Social Security window is open', body: `You can claim any time from 62 to 70 — no deadline, but timing changes the check. See it laid out in your dollars.`, route: '/ss-timing' }
+    : null,
   // founder 2026-07-15: a chief of staff never says 'your work is 17% done' — name the ONE
   // specific next thing and what it buys; the percent stays on the Sharpen screen itself.
   (i) => (i.planPct < 100 && i.planNext) ? { id: 'plan-incomplete', priority: 3, icon: '✨', title: 'One thing would sharpen every number', body: `Next: ${i.planNext.toLowerCase()} — two minutes in Plan.`, route: '/sharpen' } : null,

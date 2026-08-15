@@ -316,7 +316,7 @@ without hunting:
 
 ---
 
-## 4. The two people, with numbers that add up
+## 4. The three people, with numbers that add up
 
 Use these exact figures. They reconcile; please keep them reconciling.
 
@@ -372,6 +372,52 @@ a withdrawal rate from it. Her rate is 1.95%.
 **Her pre-tax balance is $420,000 on purpose**, so the required-withdrawal figure and the Roth row are
 true for her rather than borrowed from Pat. *(It is a coincidence that Pat's Traditional IRA is the
 same size. If that reads confusingly in a side-by-side, say so and I will move one of them.)*
+
+
+### Ray — 64, working part-time, has not claimed Social Security
+
+**Added 2026-08-13.** He exists because the founder ruled the Social Security decision belongs to
+ages **60 to 70**, and neither other persona can show it: Pat is 58 and June is 72 and already
+drawing. That is why the last handoff drew that row nowhere. He also fills the hole in the middle of
+a 55-to-70 audience. Every figure below is run against the real engine and pinned by
+`src/__tests__/ray_numbers_probe.test.ts`.
+
+| | |
+|---|---|
+| Age / retire at / plan to | 64 / 67 / 92 |
+| — Vanguard 401(k) *(pre-tax)* | $310,000 |
+| — Roth IRA | $95,000 |
+| — Savings | $95,000 |
+| **What counts toward retirement** | **$500,000** |
+| **The target he typed** | **$750,000** — so the dial reads **67%**, short **$250,000** |
+| Still putting away | $500 a month |
+| Spending | $4,800 a month |
+| Social Security statement | **$2,600 a month at 67** — not yet claimed |
+| Mortgage | none, paid off |
+
+**His Social Security numbers, which are the point of him:**
+
+| Claim at | Monthly | Total by 90 | His odds |
+|---|---|---|---|
+| 62 | $1,820 | $611,520 | — |
+| **67** | **$2,600** | $717,600 | **73%** |
+| **70** | **$3,224** *(+$624 a month)* | $773,760 | **80%** |
+
+**One decision moves him seven points, from below the mark to exactly on it.** No extra saving, no
+later retirement, no spending cut — he simply waits three years to claim. This is the single best
+argument on the whole surface for why "Decisions you can make today" is a section and not a footnote,
+and it is why the row must be drawn.
+
+**He is also the clearest proof of the two-dial rule in §3.1.** His target dial reads **67%** and his
+odds read **73%** — and he will never reach the target: three more years at $500 a month is $18,000
+against a $250,000 gap. A person looking at those two numbers is looking at two different true
+statements. He is short of the number he picked, and his plan still works, because a guaranteed
+income for life does work the target dial cannot see.
+
+**Draw him in the working lens**, with the decision list: *When should I claim Social Security?* ·
+*Is converting to a Roth worth it?* (he has $310,000 pre-tax) · *When can I retire?* — and **no
+mortgage row**, because he has no mortgage. That absence is deliberate: it shows the list responds to
+the person rather than printing a fixed menu.
 
 ---
 

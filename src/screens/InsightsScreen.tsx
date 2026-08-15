@@ -17,6 +17,8 @@ import { buildInsights, type Insight, type InsightTheme } from '../domain/insigh
 import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
 import { taxBucketSplit, rmdAtAge, RMD_START_AGE, rmdTakenThisYear } from '../domain/decumulation';
+import { SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
+import { EARLIEST_CLAIM_AGE } from '../domain/retirement/ssTiming';
 import { requiredMonthly } from '../domain/goals';
 import { monthlySavings } from '../domain/savings';
 import { usePlanCompleteness } from './SharpenPlanScreen';
@@ -77,9 +79,13 @@ export function useInsights(limit?: number): Insight[] {
     const rmdTaken = rmdTakenThisYear(store.transactions ?? [], preTaxIds);
     const rmdRemaining = Math.max(0, rmdAtAge(preTax, age) - rmdTaken);
     const rmdDue = age >= RMD_START_AGE && preTax > 0 && rmdRemaining > 0 ? { amount: rmdRemaining } : null;
-    // Social Security claim window: open from 62 to 70, no adopted timing, no SS income captured.
+    // Social Security: the founder's decision window is 60 to 70 INCLUSIVE and it is shared with the
+    // Plan tab, so the two surfaces can never again disagree about whose decision this is. Before 60
+    // it is trivia; after 70 there is nothing left to choose. Only for someone who has neither
+    // adopted a timing nor captured Social Security income already.
     const A = store.retirementAssumptions ?? {};
-    const ssWindow = age >= 62 && age < 70 && A.ssClaimAge == null && num(op.ri_ss) === 0;
+    const ssLive = age >= SS_DECISION_FROM && age <= SS_DECISION_TO && A.ssClaimAge == null && num(op.ri_ss) === 0;
+    const ssWindow = !ssLive ? null : age < EARLIEST_CLAIM_AGE ? 'approaching' as const : 'open' as const;
     // Goals vs surplus: what every active goal needs per month, minus what the plan frees up.
     const activeGoals = ((store.goals ?? []) as any[]).filter((g) => (g.saved || 0) < (g.target || 0));
     const needed = activeGoals.reduce((t, g) => t + (requiredMonthly(g) ?? 0), 0);

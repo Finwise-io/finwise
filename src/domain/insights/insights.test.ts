@@ -67,3 +67,40 @@ describe('insight service', () => {
     expect(buildInsights({ ...clean, cashMonths: 1.5 }).find((i) => i.id === 'runway')!.body).toMatch(/1\.5 months/);
   });
 });
+
+// ── Social Security window: ONE age gate across the app (2026-08-13) ──────────────────────────────
+// The founder ruled the decision belongs to ages 60-70. The Plan tab was changed and Insights was
+// not, so the same decision had two different gates — the exact "fixed it in one of six places"
+// class the standing order exists to stop. These pin both ends and the honest wording in between.
+describe('Social Security window — one gate, honest words at each end', () => {
+  const { SS_DECISION_FROM, SS_DECISION_TO } = require('../planning/hub');
+  const card = (ssWindow: any) => buildInsights({ ...clean, ssWindow } as any).find((i) => i.id === 'ss-window');
+
+  test('the founder window is 60 to 70 and Insights reads it from the same place the Plan tab does', () => {
+    expect([SS_DECISION_FROM, SS_DECISION_TO]).toEqual([60, 70]);
+    const src = require('fs').readFileSync(require('path').join(__dirname, '..', '..', 'screens', 'InsightsScreen.tsx'), 'utf8');
+    expect(src).toMatch(/age >= SS_DECISION_FROM && age <= SS_DECISION_TO/);
+    expect(src).not.toMatch(/age >= 62 && age < 70/);        // the old hard-coded gate is gone
+  });
+
+  test('at 60 and 61 it does NOT claim a window is open — it says the decision is coming', () => {
+    const c = card('approaching');
+    expect(c!.title).toBe('Your Social Security decision is coming up');
+    expect(c!.title).not.toMatch(/is open/);
+    expect(c!.body).toMatch(/first claim at 62/);
+  });
+
+  test('from 62 the window is genuinely open and the card says so', () => {
+    expect(card('open')!.title).toBe('Your Social Security window is open');
+  });
+
+  test('outside the window there is no card at all', () => {
+    expect(card(null)).toBeUndefined();
+    expect(card(undefined)).toBeUndefined();
+  });
+
+  test('both variants lead to the same place — the screen that lays 62/67/70 out in dollars', () => {
+    expect(card('approaching')!.route).toBe('/ss-timing');
+    expect(card('open')!.route).toBe('/ss-timing');
+  });
+});
