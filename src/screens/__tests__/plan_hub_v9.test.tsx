@@ -78,11 +78,30 @@ test('retired verdict: the present-tense question, the spending frame, and the w
   expect(screen.getByText(/Your \$4,500\/mo spending/)).toBeOnTheScreen();
 });
 
-test('retired: required withdrawal due-and-untaken IS the next decision, dated Dec 31', () => {
+test('retired: the required withdrawal LEADS the decisions list, wearing its date', () => {
   seedRetired();
   render(<PlanHubScreen />);
-  expect(screen.getByText('NEXT DECISION · DUE DEC 31')).toBeOnTheScreen();
+  // SUPERSEDED 2026-08-14 (founder ruling). This used to assert an amber card ABOVE the decisions
+  // list carrying "NEXT DECISION · DUE DEC 31", while the list below deliberately omitted whatever
+  // that card showed — one decision occupying two positions on one screen, and a list that quietly
+  // changed shape depending on what was due. The founder's finding on Ray's hero settled the
+  // principle (one decision, one place), so the dated obligation is now simply the FIRST row of the
+  // list wearing its deadline — which is what the ordering rule asked for anyway: anything with a
+  // real date goes first, because it expires.
+  expect(screen.queryByText('NEXT DECISION · DUE DEC 31')).toBeNull();
+  expect(screen.getByText('DUE DEC 31')).toBeOnTheScreen();
   expect(screen.getByText(/Required withdrawal: \$[\d,]+ — not yet taken/)).toBeOnTheScreen();
+  // and it is FIRST: the dated row sits above "Can I spend more?"
+  const all = screen.getByText('DECISIONS YOU CAN MAKE TODAY');
+  expect(all).toBeOnTheScreen();
+  expect(screen.getByText('Can I spend more?')).toBeOnTheScreen();
+});
+
+test('one decision, one place: the dated row is not ALSO repeated further down the list', () => {
+  seedRetired();
+  render(<PlanHubScreen />);
+  expect(screen.getAllByText(/Required withdrawal: \$[\d,]+ — not yet taken/)).toHaveLength(1);
+  expect(screen.queryAllByText('Have I taken my required withdrawal?')).toHaveLength(0);
 });
 
 test('retired: the paycheck card carries the SAME engine numbers as Home (guaranteed + safe draw = paycheck)', () => {

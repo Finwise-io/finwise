@@ -335,7 +335,7 @@ the person makes the decision blind to its biggest consequence — which is wors
 > **Extra each month  [−]  $500  [+]**
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
 > That is $500 a month not going into savings, so retirement gets tighter: your money lasts in about
-> **67 futures out of 100** today, and about **65 out of 100** if you do this.
+> **67 future simulations out of 100** today, and about **65 out of 100** if you do this.
 > **[ Use as my plan ]**
 
 **It must show BOTH sides.** *"Saves $143,300 in interest"* on its own always reads as an obvious win,
@@ -481,21 +481,24 @@ Which means **for most people under 73 this card will not appear at all.** That 
 under the standing rule — *dated when real, absent when nothing is due* — and you should not invent a
 filler decision to keep it on screen.
 
-**THE ONE-DOOR RULE NOW ANSWERS THE QUESTION THIS SECTION USED TO ASK.** It used to leave the choice
-open: card of its own, or first row of the decisions list wearing a date? The founder's finding on
-Ray's hero (§4) settles the principle — **one decision, one place on the screen** — and a dated card
-sitting above a decisions list that also ranks the required withdrawal is the same duplication in a
-different jacket.
+**FOUNDER RULED 2026-08-14: THERE IS NO SEPARATE CARD.** The dated obligation is **the first row of
+the decisions list, wearing its deadline**:
 
-**Recommendation: drop the separate card. The dated obligation becomes the first row of the decisions
-list, wearing its date.** It is one element fewer on a screen we have been told is too busy, the
-ordering rule in §3.3 already puts dated things first, and a person then learns one place to look for
-"what should I do" instead of two.
+> **DUE DEC 31**
+> **Required withdrawal: $15,849 — not yet taken**
+> The government requires it from your pre-tax accounts this year. Take it, then mark it taken. ›
 
-> **⚠️ FOUNDER CALL NEEDED, and this one genuinely is one.** That card is **built and shipping** — the
-> app renders *"NEXT DECISION · DUE DEC 31"* today and a test pins it. Removing it is a change to
-> something already approved, so it is not mine to decide. **Draw it both ways if that is cheap**, or
-> draw the recommendation and we will show him. Everything else in this section stands either way.
+**Why it was wrong before.** The card sat above the list, and the list below deliberately *omitted*
+whatever the card was showing — so one decision occupied two positions on one screen, and the list
+quietly changed shape depending on what happened to be due. It is the same defect as the link in Ray's
+hero (§4), in a different jacket: **one decision, one place.**
+
+It also lands where the ordering rule already wanted it. §3.3 says anything with a real deadline goes
+first *because it expires* — so the dated row leading the list is not a compromise, it is the rule
+being followed properly for the first time.
+
+**This is already built.** The card is gone from the app, the dated obligation now leads the list
+wearing `DUE DEC 31` in amber, and a test pins that it appears exactly once. Draw what ships.
 
 ### 3.5 The retiree variant
 
@@ -526,7 +529,7 @@ someone with no finance background."* Draw it like this:
 >
 > Spend extra **[−]  $0  [+]**
 > You'd spend **$5,600** a month — the same as now.
-> > ✓ Your money lasts past 94, in every future we tested.
+> > ✓ Your money lasts past 94, in every future simulation we tested.
 >
 > **[ Use as my plan ]**
 > *Your Social Security and pension don't change, so anything extra comes out of savings.*
@@ -538,18 +541,18 @@ is the engine's own curve, not a rounding. It was the single most useful fact on
 static "80%" label sat directly on top of it. Lead with it.
 
 **Consequence is stated as a count, never a percentage.** At the maximum the sentence reads *"Your
-money lasts in about 4 futures out of 5. In the other 1, it runs out before 94."* Counts land with
+money lasts in about 4 future simulations out of 5. In the other 1, it runs out before 94."* Counts land with
 people who bounce off percentages, and naming the losing case is kinder than leaving her to imagine
 it. The full set, and these are the engine's numbers:
 
 | Spend extra | A month in total | What the screen says |
 |---|---|---|
-| **$0** | $5,600 | ✓ Your money lasts past 94, in every future we tested. |
+| **$0** | $5,600 | ✓ Your money lasts past 94, in every future simulation we tested. |
 | $500 | $6,100 | ✓ Still lasts past 94 — nothing changes. |
 | $1,000 | $6,600 | ✓ Still lasts past 94 — nothing changes. |
 | $1,500 | $7,100 | Lasts in almost every future — about 97 out of 100. |
-| $2,000 | $7,600 | Lasts in about 9 futures out of 10. |
-| $2,555 | $8,155 | ⚠ Lasts in about 4 futures out of 5. In the other 1, it runs out before 94. |
+| $2,000 | $7,600 | Lasts in about 9 future simulations out of 10. |
+| $2,555 | $8,155 | ⚠ Lasts in about 4 future simulations out of 5. In the other 1, it runs out before 94. |
 
 **The draw-and-spend link is said once, or she has to infer it.** *"Your Social Security and pension
 don't change, so anything extra comes out of savings."*
@@ -560,7 +563,7 @@ softened. **He withdrew that on 2026-08-14 by approving frames B and C, which do
 The words that stay are the ones she uses in conversation: spend, month, lasts, runs out.
 
 **No new engine for this.** The app already finds this number: it tries an amount, runs the 400
-futures with that amount coming out each year, and works up to the largest amount that still holds
+future simulations with that amount coming out each year, and works up to the largest amount that still holds
 the line. That is precisely how the retiree's monthly draw figure is produced today — this row is
 that same number minus what they already spend.
 
@@ -613,6 +616,17 @@ extra comes out of savings."*
 
 ### 3.5.1 THE COUNT RULE — it applies to every row, not just this one
 
+**Two naming rules the founder set on 2026-08-14, and they bind everywhere on this surface.**
+
+**Call it the target nest egg.** Not *"the number you set"*, not *"your target"*, not *"your number"* —
+**"your target nest egg"**, because that is what it is. It is already the label in the app and it is
+the wording of the question in §3.2, so the screens agree.
+
+**Count in "future simulations", not "futures".** *"7 future simulations out of 10"*, never *"7 futures
+out of 10"*. On its own the word "futures" reads as though we are making predictions about her life;
+"future simulations" says plainly that these are runs of a model. The extra word is the whole point of
+the sentence.
+
 **Founder-approved 2026-08-14, and it generalises.** Wherever a decision row states what a choice does
 to the chance a plan works, **say it as a count out of a round number, not as a percentage** — and
 where the news is bad, name what happens in the losing case rather than leaving it to be imagined.
@@ -624,7 +638,7 @@ This is not a style note. Our audience is 55 to 70 with no assumed finance backg
 
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
 > That is $500 a month not going into savings, so your retirement gets tighter: your money lasts in
-> about **67 futures out of 100** today, and about **65 out of 100** if you do this.
+> about **67 future simulations out of 100** today, and about **65 out of 100** if you do this.
 
 Same facts, same honesty, no percentage to decode — and it now says *which way is worse*, which the
 percentages never did.
@@ -781,13 +795,13 @@ number he picked *and* below the line. Writing round that with reassurance would
 
 **But the honest reading of Ray is not bleak, which is the point of him.** One decision he can make
 today closes it completely: waiting to claim at 70 instead of 67 takes him from **73% to 80%** — from
-about **7 futures in 10 to 8 in 10** — with no extra saving, no later retirement and no spending cut.
+about **7 future simulations in 10 to 8 in 10** — with no extra saving, no later retirement and no spending cut.
 The gap is real and the answer is one row down the screen.
 
 **So what he actually sees is a statement of position followed by a door**, never a verdict:
 
-> **$500,000 of the $750,000 you set** — short $250,000.
-> Your money lasts in about **7 futures out of 10**. The biggest single thing you could change is when
+> **$500,000 of your $750,000 target nest egg** — short $250,000.
+> Your money lasts in about **7 future simulations out of 10**. The biggest single thing you could change is when
 > you claim Social Security — **it is the first decision below.**
 
 **⚠️ NO LINK IN THE HERO — founder finding, 2026-08-14.** An earlier version of this sentence ended
@@ -907,15 +921,15 @@ the person rather than printing a fixed menu.
    figure. Pat typed **$800,000**; he has **$909,152**, so the target dial reads **114%** while his
    odds read **67%** — a dial pegged past full beside a number that is still short of the line.
 
-   > **You've passed the $800,000 you set.** You have $909,152 — $109,152 more.
+   > **You've passed your $800,000 target nest egg.** You have $909,152 — $109,152 more.
    >
-   > **But at $5,200 a month, your money still runs out before 90 in about 1 future in 3.**
+   > **But at $5,200 a month, your money still runs out before 90 in about 1 future simulation in 3.**
    >
-   > Your target was your guess at how much you'd need. This is the check on whether it is actually
+   > Your target nest egg was your guess at how much you'd need. This is the check on whether it is actually
    > enough — and it isn't yet.
    >
    > Putting more away still moves it a long way: going from the **$12,000 a year** you save now to
-   > **$77,500** would take it from about **7 futures in 10 to almost all of them**. Retiring later or
+   > **$77,500** would take it from about **7 future simulations in 10 to almost all of them**. Retiring later or
    > spending less move it too.
 
    **⚠️ TWO CORRECTIONS TO THIS BRIEF, FOUND WHILE REWRITING IT — do not use the earlier version.**
@@ -937,9 +951,9 @@ the person rather than printing a fixed menu.
    saving **$17,500 a year** projects to **$1,505,001**, which reaches it, and the odds at that point
    are **74%**. *(Verified on the engine.)*
 
-   > **You'll reach the $1,500,000 you set** — saving $17,500 a year gets you there by 65.
+   > **You'll reach your $1,500,000 target nest egg** — saving $17,500 a year gets you there by 65.
    >
-   > **Even then, your money runs out before 90 in about 1 future in 4.**
+   > **Even then, your money runs out before 90 in about 1 future simulation in 4.**
    >
    > Hitting your own number and the money lasting are two different things. Your number is what you
    > aimed at; this is what happens when you actually spend it. To have both, the number has to be
@@ -989,7 +1003,7 @@ adjusts a percentage. Anywhere you show an odds figure changing, it must be a se
 retirement with a random return each year, subtract big one-time costs in their year, then from
 retirement draw their spending (raised by inflation) less their guaranteed income, apply the tax on
 legally forced withdrawals from 73, and ask at the plan-to age — did the money last? 67% means 268 of
-400 futures made it. The range is the same 400 runs re-done with the average return two points lower
+400 future simulations made it. The range is the same 400 runs re-done with the average return two points lower
 and two points higher.
 
 **Critical consequence: the target does not affect the odds.** Typing $2M instead of $5M does not

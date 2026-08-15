@@ -82,8 +82,8 @@ describe('the brief agrees with the engine', () => {
     expect(mirror).toBeGreaterThanOrEqual(1_500_000);
     inBrief(money(mirror));                                                       // $1,505,001
     expect(odds({ ...PAT, annual_contribution: 17_500 })).toBe(74);               // on target, still short of 80
-    inBrief('1 future in 4');                                                     // 74% said as a count
-    inBrief('1 future in 3');                                                     // 67% said as a count
+    inBrief('1 future simulation in 4');                                                     // 74% said as a count
+    inBrief('1 future simulation in 3');                                                     // 67% said as a count
     // the correction that started this file: 45% is never presented as an odds figure
     expect(brief).not.toMatch(/odds (?:sit at|are|read) \*\*45%/);
   });
@@ -99,7 +99,7 @@ describe('the brief agrees with the engine', () => {
     // $500/mo extra on the mortgage = $6,000/yr that stops going into savings
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES - 6_000 })).toBe(65);
-    inBrief('67 futures out of 100'); inBrief('65 out of 100');
+    inBrief('67 future simulations out of 100'); inBrief('65 out of 100');
   });
 
   test("June's paycheck, headroom and the live spend-more curve", () => {
@@ -108,7 +108,9 @@ describe('the brief agrees with the engine', () => {
     inBrief('$8,155'); inBrief('$2,555'); inBrief('$985,000');
     expect(odds({ ...JUNE, retire_monthly_spend_today: 5600 })).toBe(100);   // at rest
     expect(odds({ ...JUNE, retire_monthly_spend_today: 8155 })).toBe(80);    // at the maximum
-    inBrief('4 futures out of 5');
+    inBrief('4 future simulations out of 5');
+    // founder 2026-08-14: "futures" alone reads as a prediction about her life; these are model runs
+    expect(brief).not.toMatch(/\d+ futures out of/);
   });
 
   test("Ray's Social Security figures and the decision that carries him over the line", () => {
@@ -117,7 +119,7 @@ describe('the brief agrees with the engine', () => {
     const at67 = odds({ ...RAY, guaranteed_monthly_income: 2600, guaranteed_start_age: 67 });
     const at70 = odds({ ...RAY, guaranteed_monthly_income: 3224, guaranteed_start_age: 70 });
     expect([at67, at70]).toEqual([73, 80]);
-    inBrief('7 futures out of 10'); inBrief('8 in 10');
+    inBrief('7 future simulations out of 10'); inBrief('8 in 10');
   });
 
   test('the mortgage comparison is drawn in BOTH directions, with the losing case the bigger number', () => {

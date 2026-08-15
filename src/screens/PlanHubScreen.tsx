@@ -251,18 +251,13 @@ export default function PlanHubScreen() {
         </>
       )}
   </>);
-  const nextBlock = (<>
-      {/* THE ONE NEXT DECISION — dated when real, absent when nothing is due */}
-      {wil.captured && wil.chance != null && next && (
-        <TouchableOpacity accessibilityRole="button" style={styles.nextCard} activeOpacity={0.85} onPress={() => router.push(next.route as any)}
-          accessibilityLabel={`Next decision: ${next.title}. ${next.sub}`}>
-          <Text style={styles.nextKicker}>{next.kicker}</Text>
-          <Text style={styles.nextTitle}>{next.title}</Text>
-          <Text style={styles.nextSub}>{next.sub}</Text>
-          <Text style={styles.nextCta}>{next.cta}</Text>
-        </TouchableOpacity>
-      )}
-  </>);
+  // THE DATED DECISION IS NO LONGER A CARD OF ITS OWN (founder ruling, 2026-08-14).
+  // It used to sit above the decisions list in an amber card, while the list below deliberately
+  // omitted whatever the card was showing — so one decision occupied two positions on one screen and
+  // the list quietly changed shape depending on what was due. The founder's finding on Ray's hero
+  // settled the principle: ONE DECISION, ONE PLACE. The dated obligation is now simply the FIRST row
+  // of the list, wearing its deadline, which is also what the ordering rule already asked for
+  // (anything with a real date goes first, because it expires).
   const paycheckBlock = (<>
       {/* RETIRED: the paycheck — the SAME engine as Home's card, one set of numbers */}
       {lens === 'retired' && wil.captured && wil.chance != null && payMonth && (
@@ -309,11 +304,15 @@ export default function PlanHubScreen() {
           <View style={styles.card}>
             {lens === 'retired' ? (
               <>
-                <DecisionRow title="Can I spend more?"
+                {next && (
+                  <DecisionRow due={next.kicker.replace(/^NEXT DECISION · /, '')} title={next.title} sub={next.sub}
+                    onPress={() => router.push(next.route as any)} />
+                )}
+                <DecisionRow divider={!!next} title="Can I spend more?"
                   sub={spendMore ? maskDollars(`an extra $500/mo would take you to ${spendMore.chance}% (${spendMore.delta >= 0 ? '+' : '−'}${Math.abs(spendMore.delta)} points) — see the trade before deciding`) : 'see what spending a bit more does to your odds first'}
                   onPress={() => router.push('/retirement')} />
                 <DecisionRow divider title="Which account do I draw from first?" sub="the order matters — taxes differ by account" onPress={() => router.push('/(tabs)/cashflow')} />
-                {next?.kind !== 'ss-window' && ssIsLive && (
+                {ssIsLive && (
                   <DecisionRow divider title="When should I claim Social Security?"
                     sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it's handled` : 'set the age your plan counts on — in your dollars'}
                     onPress={() => router.push('/ss-timing')} />
@@ -329,13 +328,17 @@ export default function PlanHubScreen() {
               </>
             ) : (
               <>
+                {next && (
+                  <DecisionRow due={next.kicker.replace(/^NEXT DECISION · /, '')} title={next.title} sub={next.sub}
+                    onPress={() => router.push(next.route as any)} />
+                )}
                 {/* "When can I retire?" moved into section 1 — it is the retire-at stepper wearing a
                     question mark, and three copies of one question is how it got confusing. */}
-                <DecisionRow title="Can I afford it?" sub="college help · the mortgage · keep saving — together, not one at a time" onPress={() => router.push('/multi-goal')} />
-                {next?.kind !== 'ss-window' && ssIsLive && (
+                <DecisionRow divider={!!next} title="Can I afford it?" sub="college help · the mortgage · keep saving — together, not one at a time" onPress={() => router.push('/multi-goal')} />
+                {ssIsLive && (
                   <DecisionRow divider title="When should I claim Social Security?" sub={ssChip ?? 'set the age your plan counts on — 62 vs 67 vs 70 in your dollars'} onPress={() => router.push('/ss-timing')} />
                 )}
-                {age != null && age >= RMD_START_AGE && next?.kind !== 'rmd' && (
+                {next?.kind !== 'rmd' && age != null && age >= RMD_START_AGE && (
                   <DecisionRow divider title="Have I taken my required withdrawal?" sub={`✓ on track for ${new Date().getFullYear()}`} onPress={() => router.push('/required-withdrawals')} />
                 )}
                 <DecisionRow divider title="Is a Roth move worth it?"
@@ -440,7 +443,7 @@ export default function PlanHubScreen() {
         <Text style={styles.tagline}>We lay it out. You decide.</Text>
         <View style={styles.deskCols} testID="plan-desktop-columns">
           <View style={styles.deskLeft} testID="plan-desktop-left">
-            {verdictBlock}{nextBlock}{paycheckBlock}{decisionsBlock(false)}
+            {verdictBlock}{paycheckBlock}{decisionsBlock(false)}
           </View>
           <View style={styles.deskRight} testID="plan-desktop-right">
             {wil.captured && wil.chance != null && wil.inputs && (
@@ -461,7 +464,6 @@ export default function PlanHubScreen() {
       <Text style={styles.h1}>Plan</Text>
       <Text style={styles.tagline}>We lay it out. You decide.</Text>
       {verdictBlock}
-      {nextBlock}
       {paycheckBlock}
       {decisionsBlock(true)}
       {scenariosBlock}
@@ -473,11 +475,14 @@ export default function PlanHubScreen() {
   );
 }
 
-function DecisionRow({ title, sub, onPress, divider }: { title: string; sub: string; onPress: () => void; divider?: boolean }) {
+// `due` turns a row into the dated one: it wears its deadline instead of a separate card sitting
+// above the list. Founder ruling 2026-08-14 — one decision, one place on the screen.
+function DecisionRow({ title, sub, onPress, divider, due }: { title: string; sub: string; onPress: () => void; divider?: boolean; due?: string }) {
   return (
     <TouchableOpacity style={[styles.decRow, divider && styles.divider]} activeOpacity={0.7} onPress={onPress}
-      accessibilityRole="button" accessibilityLabel={`${title} — ${sub}`}>
+      accessibilityRole="button" accessibilityLabel={due ? `${title}, ${due} — ${sub}` : `${title} — ${sub}`}>
       <View style={{ flex: 1 }}>
+        {due ? <Text style={styles.rowDue}>{due}</Text> : null}
         <Text style={styles.rowTitle}>{title}</Text>
         <Text style={styles.rowSub}>{sub}</Text>
       </View>
@@ -514,6 +519,7 @@ const styles = StyleSheet.create({
   decRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
   divider: { borderTopWidth: 1, borderTopColor: Colors.border },
   rowTitle: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary },
+  rowDue: { fontSize: 11, fontWeight: '800', letterSpacing: 0.6, color: Colors.amber, marginBottom: 2 },
   rowSub: { fontSize: 13, color: Colors.textSecondary, marginTop: 2 },
   arrow: { fontSize: 20, color: Colors.textTertiary, marginLeft: 8 },
   scRow: { flexDirection: 'row', alignItems: 'center', paddingVertical: 10 },
