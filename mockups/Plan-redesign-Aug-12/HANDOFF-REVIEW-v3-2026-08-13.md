@@ -8,10 +8,18 @@ age-missing, day-one, bad-odds.
 numbers on screen are not true, and five need a founder ruling. Two of the problems are mine, not
 the designer's, and are marked as such.
 
-> ⚠️ **The files are not on disk yet.** They arrived through chat and the copies I hold have
-> character corruption (every em-dash came through mangled). Transcribing them would bake corrupted
-> copy into the spec, so **please save the three original files into this folder.** The mock is the
-> source of truth; this review is the delta, not a substitute.
+> ✅ **The originals are on disk and this review has been re-checked against them** (2026-08-13).
+> They live in `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-13/`
+> — the folder renamed that day so the live set is unmistakable; three older copies of earlier
+> deliveries sit beside it and only one of them holds anything unique (the superseded v2 Plan
+> drawing).
+>
+> The earlier warning here — that I was working from chat copies with every em-dash mangled — is
+> lifted: the files on disk are clean, and I re-measured the geometry rather than trusting the first
+> pass. **B1 is confirmed to the decimal against the original**: needles at 56.3% / 97.4% / 64.5% /
+> 4.6% under printed values of 48% / 100% / 84% / 12%, with the target arcs correctly at 45.2% and
+> 13.3%. The arcs are right and the pointers are wrong, exactly as reported. The mock is the source
+> of truth; this review is the delta, not a substitute.
 
 ---
 
