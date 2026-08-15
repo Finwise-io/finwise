@@ -8,8 +8,8 @@ age-missing, day-one, bad-odds.
 numbers on screen are not true, and five need a founder ruling. Two of the problems are mine, not
 the designer's, and are marked as such.
 
-> ✅ **The originals are on disk and this review has been re-checked against them** (2026-08-13).
-> They live in `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-13/`
+> ✅ **The originals are on disk and this review has been re-checked against them** (2026-08-14).
+> They live in `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-14/`
 > — the folder renamed that day so the live set is unmistakable; three older copies of earlier
 > deliveries sit beside it and only one of them holds anything unique (the superseded v2 Plan
 > drawing).
@@ -186,29 +186,29 @@ requirements note. Recording it here so it cannot be missed at build time.
 
 ## Needs a founder ruling — five open items
 
-1. ~~**Pat's expanded frame drops both dials.**~~ **RULED 2026-08-13 — keep them, shrink them.**
+1. ~~**Pat's expanded frame drops both dials.**~~ **RULED 2026-08-14 — keep them, shrink them.**
    Opening the glance replaced the hero with a one-line summary, while the designer's own note said
    the dials *"never move"*. The founder settled it in favour of the note: the dials stay, smaller,
    while the rows are open — because watching the odds respond IS the reason the inputs were moved
    onto the tab. Recorded in brief v3 §3.2.
-2. ~~**"Try all three together ›"** points at the sandbox, which v3 removed.~~ **RULED 2026-08-13 —
+2. ~~**"Try all three together ›"** points at the sandbox, which v3 removed.~~ **RULED 2026-08-14 —
    drop it.** Never built; it existed only in the drawing. The steppers ARE the sandbox now, so the
    link had no destination — on the screen where the person is in the most trouble. The idea behind
    it is kept in brief v3 §5 as something the redesign may offer *properly*: today the screen could
    only honour two of the three changes, since claiming later is not a stepper.
-3. ~~**The Social Security row is never drawn.**~~ **RULED 2026-08-13.** The window is **60 to 70**,
+3. ~~**The Social Security row is never drawn.**~~ **RULED 2026-08-14.** The window is **60 to 70**,
    and the reason it was drawn nowhere was MY gap: Pat is 58 and June is 72 and already claiming, so
    neither persona could trigger it. Brief v3 gains **Ray, 64, still working, not yet claimed** — who
    also fills the hole in the middle of a 55-to-70 audience. The gate is now built and pinned in the
    app too: before this the only bound was age < 71, so a 58-year-old was told the next decision in
    front of them was a claim window opening in four years.
-4. ~~**Decisions are hidden when age is missing.**~~ **RULED 2026-08-13 — do not hide them.** Paying
+4. ~~**Decisions are hidden when age is missing.**~~ **RULED 2026-08-14 — do not hide them.** Paying
    off a mortgage needs a mortgage; converting to a Roth needs pre-tax money. Neither needs an age,
    and the rows that DO need one now remove themselves (Social Security 60-70, required withdrawal
    73+). The built app already behaves this way — it is the drawing that hides them — so this is a
    brief instruction, not a code change. The locked *"When can I retire? 🔒"* row stays: a lock
    explains itself, an empty section does not. Recorded in brief v3 §5.
-5. ~~**Hide-balances is unresolved.**~~ **RULED 2026-08-13 — hide the number, keep the shape.** The
+5. ~~**Hide-balances is unresolved.**~~ **RULED 2026-08-14 — hide the number, keep the shape.** The
    odds stay fully visible (not a dollar figure). On the target dial the numeral is dotted and the arc
    still fills. I had recommended hiding that dial outright — its percentage is made of two dollar
    figures, and the arc carries the same ratio the numeral does — but the founder chose the shape.

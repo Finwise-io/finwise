@@ -68,7 +68,7 @@ describe('insight service', () => {
   });
 });
 
-// ── Social Security window: ONE age gate across the app (2026-08-13) ──────────────────────────────
+// ── Social Security window: ONE age gate across the app (2026-08-14) ──────────────────────────────
 // The founder ruled the decision belongs to ages 60-70. The Plan tab was changed and Insights was
 // not, so the same decision had two different gates — the exact "fixed it in one of six places"
 // class the standing order exists to stop. These pin both ends and the honest wording in between.

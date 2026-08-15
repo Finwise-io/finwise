@@ -89,7 +89,7 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <Text style={s.bridge}>
           Adding <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}</Text> a year closes it
           {t.yearsToRetire > 0 ? ` over your ${t.yearsToRetire} years to ${retireAge}` : ''} and raises your odds to {TARGET_ODDS}%.
-          {/* HEDGED ON PURPOSE (founder 2026-08-13). We never see a payroll record — this headroom is
+          {/* HEDGED ON PURPOSE (founder 2026-08-14). We never see a payroll record — this headroom is
               the IRS limit minus what they TOLD US they contribute monthly, times twelve. That is
               wrong for anyone who front-loaded, started or stopped mid-year, changed job, or defers a
               bonus. Over-contributing to a 401(k) carries a real tax penalty, so the sentence must

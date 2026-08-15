@@ -1,4 +1,4 @@
-// WHEN IS "WHEN SHOULD I CLAIM?" A DECISION? (founder ruling 2026-08-13: 60 to 70.)
+// WHEN IS "WHEN SHOULD I CLAIM?" A DECISION? (founder ruling 2026-08-14: 60 to 70.)
 //
 // Before this, the only bound was age < 71 — so a 58-year-old opened the Plan tab and was told the
 // next decision in front of them was a Social Security window that opens in four years. The founder

@@ -1,6 +1,6 @@
 // SCREEN ARCHITECTURE MAP — generated, never drawn by hand.
 //
-// Founder, 2026-08-13: "We have built a lot of features but we are missing proper organization."
+// Founder, 2026-08-14: "We have built a lot of features but we are missing proper organization."
 // He is right, and the evidence kept arriving one accident at a time: /big-costs fully built and
 // reachable from nowhere; Tips and Rewards stranded since the August menu trim; "What if I save
 // more?" — a retirement question — reached only from the Performance tab; three screens that exist
@@ -34,8 +34,8 @@ const NO_DOOR_NEEDED = {
 
 /** Founder ruling 2026-08-02: "keep ALL orphans" — they serve age groups this build does not target. */
 const DELIBERATE_KEEPS = {
-  '(tabs)/tips': 'saved for future use (founder 2026-08-13)',
-  '(tabs)/rewards': 'saved for future use (founder 2026-08-13)',
+  '(tabs)/tips': 'saved for future use (founder 2026-08-14)',
+  '(tabs)/rewards': 'saved for future use (founder 2026-08-14)',
   income: 'kept for a future age group',
   invest: 'superseded by Performance for 55-70',
   'income-detail': 'kept for a future age group',
@@ -137,7 +137,7 @@ const NOT_SUB_TABS = {
   IncomeScreen: 'how often the income arrives',
   SettingsScreen: 'the Simple / Advisor lens switch',
 };
-/** Not built — the founder's 2026-08-13 split, shown so the proposal is visible beside what exists. */
+/** Not built — the founder's 2026-08-14 split, shown so the proposal is visible beside what exists. */
 const PROPOSED_SUB_TABS = { '(tabs)/plan': ['Retire', 'Goals', 'Prepare'] };
 
 function subTabsOf(route) {
@@ -296,17 +296,17 @@ const PROPOSED = {
 };
 
 const MOVES = [
-  ['insights', 'the ☰ menu only', 'Home', 'FOUNDER AGREED 2026-08-13. The app\'s ranked "here is what to look at", currently found only by opening a menu. Home is the two-second glance; this is what it should be glancing at.'],
-  ['sharpen', 'the Plan tab', 'Home', 'FOUNDER AGREED 2026-08-13. What your plan is still missing belongs where a person lands, not one tab in. Home links to neither of these today.'],
+  ['insights', 'the ☰ menu only', 'Home', 'FOUNDER AGREED 2026-08-14. The app\'s ranked "here is what to look at", currently found only by opening a menu. Home is the two-second glance; this is what it should be glancing at.'],
+  ['sharpen', 'the Plan tab', 'Home', 'FOUNDER AGREED 2026-08-14. What your plan is still missing belongs where a person lands, not one tab in. Home links to neither of these today.'],
   ['what-if', 'Performance', 'Plan · Retire', 'It asks what happens to your retirement odds if you save more. It has never been reachable from Plan.'],
   ['contribution-room', 'an insight only', 'Plan · Retire', 'How much 401(k) room is left is useful whether or not an insight noticed.'],
   ['multi-goal', 'Plan (buried)', 'Plan · Goals', 'It is the screen for weighing college against the mortgage — the front door of Goals, not a link off will-it-last.'],
-  ['stress-test', 'Plan (top level)', 'Plan · Prepare', 'An emergency-cash question, not a retirement one. Founder agreed 2026-08-13.'],
+  ['stress-test', 'Plan (top level)', 'Plan · Prepare', 'An emergency-cash question, not a retirement one. Founder agreed 2026-08-14.'],
   ['jobsafety', 'Settings only', 'Plan · Prepare', 'Same family as the insurance check, and its other door (Tips) is dead.'],
-  ['credit', 'Goals', 'Plan · Prepare', 'Founder added it 2026-08-13, reversing the August menu trim for this audience.'],
+  ['credit', 'Goals', 'Plan · Prepare', 'Founder added it 2026-08-14, reversing the August menu trim for this audience.'],
   ['idle-cash', 'an insight only', 'Performance', 'Cash earning nothing is a performance question; give it a permanent door.'],
   ['worth-a-look', 'an insight only', 'Cash flow', 'It is a transaction close-up. It belongs with the transactions.'],
-  ['monthly-income', 'Plan-side screens', 'BOTH — by lens', 'FOUNDER RULED 2026-08-13. For someone RETIRED this is their actual income, so it belongs in Cash flow › Income. For someone still WORKING it is a future number they are planning around, so it belongs in Plan › Retire. Same screen, two homes, decided by the lens the app already switches on.'],
+  ['monthly-income', 'Plan-side screens', 'BOTH — by lens', 'FOUNDER RULED 2026-08-14. For someone RETIRED this is their actual income, so it belongs in Cash flow › Income. For someone still WORKING it is a future number they are planning around, so it belongs in Plan › Retire. Same screen, two homes, decided by the lens the app already switches on.'],
 ];
 
 const DECISIONS = [

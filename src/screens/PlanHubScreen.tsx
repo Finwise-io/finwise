@@ -90,7 +90,7 @@ export default function PlanHubScreen() {
   // what they earn decides whether the required saving is a real ask or an impossible one; the room
   // is what the app already knows can go somewhere tax-advantaged
   const annualIncomeForPlan = Math.round(Number(op.baseSalary ?? 0) * (op.salaryFreq === 'monthly' ? 12 : 1)) || undefined;
-  // WIRED 2026-08-13 (audit D12). The bridge sentence has always been able to say how much of the
+  // WIRED 2026-08-14 (audit D12). The bridge sentence has always been able to say how much of the
   // required saving fits somewhere tax-advantaged — the sentence was written, and the value feeding
   // it was hard-coded undefined, so nobody ever saw it. The number is not new: the same headroom
   // already drives Home's "Room left in your 401(k)" insight and the contribution-room screen.
@@ -103,7 +103,7 @@ export default function PlanHubScreen() {
   // FOUNDER 2026-08-12: "for someone already drawing social security, let's just remove this
   // question." Not a settled-state screen to land on — the row simply is not offered.
   const alreadyClaiming = Number(op.ri_ss ?? 0) > 0;
-  // FOUNDER RULING 2026-08-13: "when should I claim?" is a decision between 60 and 70 — before 60 it
+  // FOUNDER RULING 2026-08-14: "when should I claim?" is a decision between 60 and 70 — before 60 it
   // is not yet a decision, and after 70 the delayed credit has stopped, so there is nothing left to
   // choose. The rows had NO age gate at all, so a 58-year-old was offered it.
   const ssIsLive = !alreadyClaiming && age != null && age >= SS_DECISION_FROM && age <= SS_DECISION_TO;
@@ -174,7 +174,7 @@ export default function PlanHubScreen() {
         <View style={styles.card}>
           {/* "YOUR RETIREMENT PLAN" used to sit here, directly above "WILL MY MONEY LAST?" — two
               headings saying nearly the same thing. The green bars disguised the repetition; once
-              both became quiet labels it was plain. Dropped 2026-08-13: the tab itself will be
+              both became quiet labels it was plain. Dropped 2026-08-14: the tab itself will be
               named Retire, under Plan, so the card does not need to announce what tab it is on.
               The question underneath is the heading. */}
           {/* ONE score, then arithmetic — the second gauge was dropped once the engine proved it

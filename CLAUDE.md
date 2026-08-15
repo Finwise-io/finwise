@@ -83,7 +83,7 @@ the founder had approved all of it. Never again.
 - Branch `taxonomy-v1.0.7`. Commit per logical change; push when asked. Keep `docs/finwise-bug-ledger.md` current.
 - Device truth: ML Kit has no arm64-sim slice → verify on a real TestFlight build, not the iOS Simulator.
 
-## SCREEN MAP — regenerate before every build (standing order, 2026-08-13)
+## SCREEN MAP — regenerate before every build (standing order, 2026-08-14)
 - `node scripts/screen-map.mjs` → `docs/FCC-core-55-70/screen-architecture.html`. Run it as part of
   the pre-build checklist and read the three lines it prints: what has **no way in**, what appears
   **only if an insight fires**, and what hangs on a **single door**.

@@ -1,4 +1,4 @@
-// RAY'S FIXTURE NUMBERS MUST RECONCILE (2026-08-13).
+// RAY'S FIXTURE NUMBERS MUST RECONCILE (2026-08-14).
 // The founder ruled the Social Security decision belongs to ages 60-70. Neither existing persona can
 // show it — Pat is 58 and June is 72 and already claiming — so the handoff came back with that row
 // drawn nowhere and the brief carried a name with no numbers behind it. Ray fills the hole in the

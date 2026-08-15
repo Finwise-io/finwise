@@ -138,7 +138,7 @@ describe('insights slot 1 (the sameness pin: Home card = Insights top item)', ()
     const rmd = buildInsights({ ...base, rmdDue: { amount: 12300 } });
     expect(rmd[0].id).toBe('rmd-due');
     expect(rmd[0].body).toContain('$12,300');
-    // 2026-08-13: ssWindow stopped being a yes/no and became WHICH end of the founder's 60-to-70
+    // 2026-08-14: ssWindow stopped being a yes/no and became WHICH end of the founder's 60-to-70
     // window the person is in, so the card at 60 does not tell them a window is open when it is not.
     // This test passed `true` and rightly broke; both variants must reach Home's slot 1.
     expect(buildInsights({ ...base, ssWindow: 'approaching' })[0].id).toBe('ss-window');

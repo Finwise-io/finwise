@@ -1,7 +1,7 @@
 # Home surface — redesign brief v1
 
 **For:** Claude Design
-**Date:** 2026-08-13
+**Date:** 2026-08-14
 **Companion:** `PLAN-REDESIGN-BRIEF-v3-2026-08-12.md` — the Plan tab is being redrawn in parallel.
 Read §7 of that brief (the rules) as if it were repeated here; it is not repeated, and it binds.
 
@@ -97,7 +97,7 @@ WHAT YOU'LL SEE HERE
 
 ## 4. What changes, and why
 
-### 4.1 Insights and Sharpen belong on Home (founder ruling, 2026-08-13)
+### 4.1 Insights and Sharpen belong on Home (founder ruling, 2026-08-14)
 
 Neither is reachable from Home today. **Insights** — the app's ranked "here is what to look at" — can
 only be found by opening the ☰ menu. **Sharpen your plan** — what your plan is still missing — sits
@@ -175,7 +175,7 @@ disclaimer never shares a line with an action.**
 >
 > Both open the same screen. The split exists because the earlier single version told a 60-year-old a
 > window was open when it does not open until 62 — the kind of small untruth this surface cannot
-> afford. *(Founder-approved 2026-08-13, live in the app.)*
+> afford. *(Founder-approved 2026-08-14, live in the app.)*
 
 
 - **The odds** (40%, 100%) — 400 simulations of that person's own plan. The one number every screen
@@ -190,7 +190,7 @@ disclaimer never shares a line with an action.**
 percentage is not a dollar figure and stays visible.
 
 **A percentage derived from dollars is the harder question, and it has now been ruled on** (founder,
-2026-08-13, on the Plan surface): **hide the number, keep the shape.** The numeral is dotted; any bar
+2026-08-14, on the Plan surface): **hide the number, keep the shape.** The numeral is dotted; any bar
 or arc still fills to where it would. Apply the same rule here and flag anything on Home where it
 reads badly. *(Recorded so you know what you are working with: I recommended hiding those shapes
 outright, since the shape carries the same ratio the numeral does and therefore leaks what the dots

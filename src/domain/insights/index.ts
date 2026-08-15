@@ -85,7 +85,7 @@ const RULES: Rule[] = [
   // FCC: goals need more per month than the plan frees up — a quantified fact, no instruction.
   (i) => (i.goalsGap != null && i.goalsGap > 0) ? { id: 'goals-gap', priority: 2, icon: '🎯', title: 'Your goals outpace your surplus', body: `Hitting every goal on time needs about ${money0(i.goalsGap)}/mo more than your plan frees up — see the trade-offs in Plan.`, route: '/(tabs)/goals' } : null,
   // FCC: the Social Security claim decision is live and no timing has been adopted — logistics, no opinion.
-  // 2026-08-13: this used to fire from 62 to under-70 while the Plan tab used the founder's 60-to-70
+  // 2026-08-14: this used to fire from 62 to under-70 while the Plan tab used the founder's 60-to-70
   // ruling, so the same decision had two different age gates. Both ends were wrong. At 60 and 61 it
   // belongs on the list — it is the last stretch where the answer can still be planned around — but
   // the window is NOT open yet, so the card says so instead of claiming it is. And it must include

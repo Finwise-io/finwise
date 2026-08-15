@@ -173,7 +173,7 @@ describe('heading hierarchy', () => {
   });
 });
 
-// EVERY HEADING STARTS ON THE SAME LINE (audit D10, founder ruling 2026-08-13).
+// EVERY HEADING STARTS ON THE SAME LINE (audit D10, founder ruling 2026-08-14).
 // One heading carried `inCard`, which bleeds a FILLED band to the card edge. A quiet label has no
 // fill, so the flag did nothing but shove its text 12pt left of the six headings beneath it.
 test('all section headings share one left edge', () => {
@@ -202,7 +202,7 @@ test('the card no longer announces the tab it is sitting on', () => {
   expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
 });
 
-// THE THREE CHIPS MUST BE TELLABLE APART (audit D11, founder ruling 2026-08-13).
+// THE THREE CHIPS MUST BE TELLABLE APART (audit D11, founder ruling 2026-08-14).
 // FACT means "saved"; DRAFT means "you are only trying this"; MISSING means "we still need it".
 // That distinction is the whole facts-save / choices-commit model, and it was carried by two light
 // greens two shades apart — so the badge told a reader nothing and they had to stop and read it.
@@ -236,7 +236,7 @@ describe('the FACT / DRAFT / MISSING chips', () => {
   });
 });
 
-// 44pt IS THE FLOOR, AND THIS AUDIENCE IS WHY (audit D13, founder ruling 2026-08-13).
+// 44pt IS THE FLOOR, AND THIS AUDIENCE IS WHY (audit D13, founder ruling 2026-08-14).
 // "What drives this? ›" was a single 15pt line inside a touchable with no height and no padding —
 // about 20pt of target. Fingers miss that, and steadier hands than this audience's do too.
 test('every tappable row on the Plan tab clears 44pt, counting its content', () => {

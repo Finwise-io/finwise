@@ -66,7 +66,7 @@ test('the bridge sentence names the yearly amount and the tax-advantaged room', 
     horizonAge={90} retireAge={65} roomAnnual={32_500} roomFromMonthly={800} lens="preretired" />);
   expect(screen.getByText(/Adding/)).toBeOnTheScreen();
   expect(screen.getByText(/a year closes it/)).toBeOnTheScreen();
-  // HEDGED 2026-08-13 (audit D12). This used to assert "fits in tax-advantaged room" — stated as a
+  // HEDGED 2026-08-14 (audit D12). This used to assert "fits in tax-advantaged room" — stated as a
   // fact about their allowance. We never see a payroll record: the figure is the IRS limit minus
   // what they TOLD US they contribute, times twelve, which is wrong for anyone who front-loaded or
   // changed job mid-year. Over-contributing carries a real tax penalty, so it reads as an estimate

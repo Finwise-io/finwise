@@ -42,7 +42,7 @@ of it can be on screen at once — and what each state hides until asked for —
 
 Design to this. It is settled.
 
-### 3.0 THE PLAN TAB HAS THREE SUB-TABS — added 2026-08-13
+### 3.0 THE PLAN TAB HAS THREE SUB-TABS — added 2026-08-14
 
 The founder reorganised the surface after the brief first went out. **Plan keeps its name** and
 gains three sub-tabs. Everything else in this brief describes **Retire**, which is the first of them
@@ -52,9 +52,20 @@ and the only one being redesigned in this pass.
 |---|---|
 | **Retire** | The whole of this brief — the two dials, the glance, the decisions. Plus the retirement cockpit, will-it-last, Social Security timing, Roth conversion, required withdrawals, big costs, **"What if I save more?"** (moved in from the Performance tab, where it has always sat despite being a retirement question) and **contribution room** (which today appears only if an insight fires). |
 | **Goals** | Everything else a person saves for: goals, the college planner, and **"Can I afford it all?"** promoted to its front door. |
-| **Prepare** | Getting your affairs in order: the insurance check, estate & legacy, the tax organiser, **build credit** (founder added it 2026-08-13, reversing the August menu trim for this audience), the **stress test** (folded in — it is an emergency-cash question, not a retirement one) and the **job safety check**. |
+| **Prepare** | Getting your affairs in order: the insurance check, estate & legacy, the tax organiser, **build credit** (founder added it 2026-08-14, reversing the August menu trim for this audience), the **stress test** (folded in — it is an emergency-cash question, not a retirement one) and the **job safety check**. |
 
-**Two things to know when drawing it.**
+**⚠️ DRAW THE SUB-TAB BAR ON EVERY FRAME.** The v3 handoff contains no sub-tabs at all — the words
+"Goals" and "Prepare" do not appear anywhere in it. **That is not a miss on your side: this section
+was written after you had already drawn**, so the instruction did not exist when you worked. It does
+now.
+
+The bar is **chrome, not content** — it sits under the Plan header on every single Retire frame in
+§5, including the day-one and age-missing states, with **Retire** selected. Without it, the person has
+no way to reach Goals or Prepare, and every frame in this brief silently claims Plan has one screen.
+You are still only designing **Retire**; the other two are existing screens gathered under honest
+names. Draw the bar, select the first tab, and leave the other two as labels.
+
+**Two more things to know when drawing it.**
 
 The split is **lopsided on purpose**. Retire is the entire redesign; Goals and Prepare are existing
 screens being gathered under honest names. Do not pad them for symmetry.
@@ -89,7 +100,49 @@ handoff ended the hero at the shortfall and went straight to the glance, which l
 stating a problem and offering nothing. This was the most actionable line on the old design and it
 comes back — now measured against **their** target rather than ours:
 
-> **Saving $84,500 a year over your 7 years to 65 reaches your target.**
+> **Saving $84,500 a year to 65 projects to about $2,021,000 — just past your $2,000,000 target.** ⓘ
+
+**⚠️ THE FIRST DRAFT OF THIS SENTENCE FAILED ON A FOUNDER READING IT, AND IT WILL FAIL ON USERS THE
+SAME WAY.** It read *"Saving $84,500 a year over your 7 years to 65 reaches your target."* Sitting
+directly under *"short $1,090,848"*, it invites one obvious piece of arithmetic — $84,500 × 7 =
+$591,500 — which is barely half the gap. The founder did exactly that and asked how the number could
+possibly be right.
+
+**The number is right. The sentence was wrong.** Measured on the engine:
+
+| Where the $1,090,848 actually closes from | |
+|---|---|
+| Money he puts in — $84,500 × 7 | **$591,500** |
+| Growth on the $909,152 he already has | **$414,605** |
+| Growth on the new money as it goes in | **$106,257** |
+| **Projects to** | **$2,021,514** |
+
+**Nearly half the gap is closed by growth, and the sentence never mentioned that growth exists.**
+
+**The root cause is structural, not wording, so please design around it rather than patching the
+copy.** The hero states *today's* money against a *future* target, and the line beneath offers a
+*yearly* amount. That is three different points in time in two lines, and nothing on screen tells the
+reader they are not meant to reconcile by subtraction. Any sentence that pairs a total gap with a
+per-year figure will be subtracted — treat that as a certainty, not a risk.
+
+**What the sentence must now do — and this is the rule, the exact words are yours:**
+
+1. **Name the projection, not the promise.** "Projects to about $2,021,000", never "reaches your
+   target". We are running 400 simulations of an uncertain future; a sentence that guarantees an
+   outcome is both untrue and something we will not say. *(This is the same standing rule that banned
+   the word "safe" — see §7.1.)*
+2. **Say that growth does roughly half the work, on the screen, not only in a tooltip.** A person who
+   subtracts and finds a mismatch does not conclude "ah, compounding" — they conclude the app cannot
+   add up, on the one screen where trust is the whole product.
+3. **Put the full arithmetic one tap away.** Suggested content for the ⓘ, adjust the wording freely:
+   > *Why $84,500 a year and not $155,000?* Your $1,090,848 gap does not close from saving alone.
+   > Over 7 years you would put in $591,500. The rest — about $521,000 — is growth: roughly $415,000
+   > on the $909,152 you already have, and roughly $106,000 on the new money as you add it. That
+   > assumes 5.5% a year, which is an estimate, not a promise — the odds dial above is where the
+   > range of real outcomes lives.
+
+   *($155,000 is $1,090,848 ÷ 7 — the number the subtraction produces. Opening with the reader's own
+   wrong answer is the fastest way to resolve it.)*
 
 **Solve it, do not formula it.** The obvious closed-form annuity calculation gives $82,000 for Pat and
 lands at $1,977,544 — **$22,000 short of the target it just promised to reach.** That is the same
@@ -122,7 +175,7 @@ The seven, in this order:
 Rows 6 and 7 are the only ones with a level beneath them. That is the hierarchy problem to solve
 visually: seven peers, two of which open.
 
-**When the glance opens, the dials STAY — smaller, but present.** Founder ruling, 2026-08-13.
+**When the glance opens, the dials STAY — smaller, but present.** Founder ruling, 2026-08-14.
 
 The v3 handoff drew Pat's expanded frame with **both dials gone**, replaced by a single line of text,
 while its own requirements note said the dials *"never move"*. The drawing and the note disagreed;
@@ -238,7 +291,7 @@ person to another screen to find out what waiting is worth. The row says the ans
 > **When to claim Social Security** — *waiting from 67 to 70 pays **$624 more a month**: $3,224
 > against $2,600*
 
-**The window is 60 to 70** (founder, 2026-08-13). Before 60 it is not a decision, it is trivia. After
+**The window is 60 to 70** (founder, 2026-08-14). Before 60 it is not a decision, it is trivia. After
 70 the delayed credit has stopped accruing, so waiting buys nothing and there is nothing left to
 choose. 67 was considered as the upper bound and rejected: between 67 and 70 waiting is worth 8% a
 year, which is the most valuable this decision ever gets — and the row only ever shows to someone who
@@ -376,7 +429,7 @@ same size. If that reads confusingly in a side-by-side, say so and I will move o
 
 ### Ray — 64, working part-time, has not claimed Social Security
 
-**Added 2026-08-13.** He exists because the founder ruled the Social Security decision belongs to
+**Added 2026-08-14.** He exists because the founder ruled the Social Security decision belongs to
 ages **60 to 70**, and neither other persona can show it: Pat is 58 and June is 72 and already
 drawing. That is why the last handoff drew that row nowhere. He also fills the hole in the middle of
 a 55-to-70 audience. Every figure below is run against the real engine and pinned by
@@ -428,7 +481,7 @@ the person rather than printing a fixed menu.
 3. **One answer missing** — age absent. The odds cannot be computed at all without it. Everything
    else has a default or is derived. Show what is missing and how to fix it, without pretending.
 
-   **The decisions list does NOT disappear** (founder ruling, 2026-08-13). The v3 handoff ends this
+   **The decisions list does NOT disappear** (founder ruling, 2026-08-14). The v3 handoff ends this
    state with *"Decisions are hidden until your odds can be computed."* That is wrong, and the
    founder's own list is the proof: **paying off the mortgage early needs a mortgage, not an age.
    Converting to a Roth needs pre-tax money, not an age.** Both work perfectly well for someone who
@@ -470,7 +523,7 @@ the person rather than printing a fixed menu.
    number exactly and still not be at 80%. The screen must be able to say both without either one
    looking like an error.
 
-   **No "try all three together" link.** Founder ruling, 2026-08-13. The v3 handoff ends the bad-odds
+   **No "try all three together" link.** Founder ruling, 2026-08-14. The v3 handoff ends the bad-odds
    frame with *"Try all three together — one sandbox ›"*, pointing at the what-if sandbox that was
    folded into this tab on 2026-08-12 — the steppers **are** the sandbox now. So the link has no
    destination, on the screen where the person is already in the most trouble. It was never built;
@@ -595,7 +648,7 @@ outlives the retirement date, not only a mortgage.
   what the screen will one day do.
 - **Balances can be hidden.** Every dollar figure must survive being replaced by dots.
 
-  **The dials under hide-balances** (founder ruling, 2026-08-13): the **odds** stay fully visible —
+  **The dials under hide-balances** (founder ruling, 2026-08-14): the **odds** stay fully visible —
   "48% odds of lasting to age 90" is not money and gives nothing away. On the **target dial, the
   numeral is dotted but the arc still fills** to where it would.
 
@@ -672,9 +725,9 @@ secure, guaranteed, protected, or risk-free.
 
 ## 8. What went wrong last round — please don't hand these back
 
-> **Read `HANDOFF-REVIEW-v3-2026-08-13.md` in this folder alongside this brief.** It is the review of
+> **Read `HANDOFF-REVIEW-v3-2026-08-14.md` in this folder alongside this brief.** It is the review of
 > the v3 handoff you sent, checked line by line against the files now saved in
-> `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-13/`. Most of the
+> `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-14/`. Most of the
 > brief landed and the structure is right; the review is the delta, not a re-brief. **Six things
 > block a build and four numbers on screen are not true.** The one to start with:
 >
@@ -709,7 +762,7 @@ they show where this surface breaks:
 
 ## 9. Deliverables
 
-1. **`Plan.dc.html`** — the states in §5, **all three people** (§4 gained Ray on 2026-08-13 — he is
+1. **`Plan.dc.html`** — the states in §5, **all three people** (§4 gained Ray on 2026-08-14 — he is
    the only one who can show the Social Security row, and the only one whose two dials openly
    disagree), phone width 390. Full screen top to bottom: status bar, header, everything, tab bar.
    No cropped cards.

@@ -171,7 +171,7 @@ const GAP = 6;               // the visible space the dot keeps from the text it
 export function InfoDot({ term, color, size = 13 }: {
   term: GlossaryTerm;
   color?: string;
-  /** MATCH THE TEXT IT SITS BESIDE (founder 2026-08-13: "info dot should be the same size as text").
+  /** MATCH THE TEXT IT SITS BESIDE (founder 2026-08-14: "info dot should be the same size as text").
    *  It was a flat 13pt everywhere, so it loomed over an 11pt band title and shrank beside a 30pt
    *  hero. Callers pass the size of the line the dot belongs to; 13 is the common row size. */
   size?: number;
@@ -185,7 +185,7 @@ export function InfoDot({ term, color, size = 13 }: {
       {/* a pressable Text, deliberately NOT a Touchable: info dots often sit inside tappable
           cards, and a button nested in a button is invalid DOM on web (the browser re-parents it
           and scrambles the card). Text.onPress works on native and web alike. */}
-      {/* SIZE MATCHES THE LINE IT SITS ON, AND THE ROW NEVER GROWS FOR IT (founder 2026-08-13).
+      {/* SIZE MATCHES THE LINE IT SITS ON, AND THE ROW NEVER GROWS FOR IT (founder 2026-08-14).
           The glyph is drawn at the size of the text beside it — 11pt on a band title, 13 on a row.
           The TOUCH area has to be ~44pt, and the two are reconciled without moving anything:
           padding makes the touchable box big, an equal negative margin gives the space straight

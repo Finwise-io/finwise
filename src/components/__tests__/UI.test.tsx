@@ -78,7 +78,7 @@ describe('UI primitives', () => {
   });
 });
 
-// THE INFO DOT MATCHES THE LINE IT SITS ON (founder 2026-08-13: "info dot should be the same size
+// THE INFO DOT MATCHES THE LINE IT SITS ON (founder 2026-08-14: "info dot should be the same size
 // as text"). It was a flat 13pt everywhere — looming over an 11pt band title, lost beside a hero.
 describe('InfoDot sizing', () => {
   const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));

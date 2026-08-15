@@ -18,7 +18,7 @@ import { round2 } from '../_shared/num';
  *  retires the two rival word-sets (Likely/Uncertain/Unlikely and Holding/Watch closely/Running
  *  short) that gave one person two different verdicts on two screens. The LENS still decides the
  *  question asked around it — "will my money last" vs "is my money lasting" — never the verdict. */
-/** The window in which "when should I claim?" is a live question (founder 2026-08-13).
+/** The window in which "when should I claim?" is a live question (founder 2026-08-14).
  *  60 — earlier than that it is not yet a decision, it is trivia.
  *  70 — the delayed credit stops accruing, so waiting longer buys nothing and there is no decision
  *       left to make. Claiming itself opens at 62; between 60 and 62 the row previews a dated window.
@@ -106,7 +106,7 @@ export function nextDecision(args: {
   // 2) the Social Security claim window — only while the decision is UNMADE. Someone already
   //    drawing has answered it; founder 2026-08-12: for them the question is removed, not answered
   //    with a dead end.
-  // FOUNDER RULING 2026-08-13: this is a decision from 60 to 70, and nowhere else. Not in your
+  // FOUNDER RULING 2026-08-14: this is a decision from 60 to 70, and nowhere else. Not in your
   // fifties — "that decision makes sense when someone is 60+" — and not past 70, because the delayed
   // credit stops there, so after 70 there is nothing left to decide. Before this, the only bound was
   // age < 71, so a 58-year-old was told their claim window was the next decision in front of them.

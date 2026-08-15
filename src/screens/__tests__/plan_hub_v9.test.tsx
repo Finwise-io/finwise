@@ -31,7 +31,7 @@ beforeEach(() => { useStore.getState().resetAll(); });
 test('working verdict: the percent AND the if-clause that names THEIR plan', () => {
   seedWorking();
   render(<PlanHubScreen />);
-  // SUPERSEDED 2026-08-13 (audit D10). This asserted "YOUR RETIREMENT PLAN" sat above "WILL MY MONEY
+  // SUPERSEDED 2026-08-14 (audit D10). This asserted "YOUR RETIREMENT PLAN" sat above "WILL MY MONEY
   // LAST?" — two headings saying nearly the same thing, which the heavy green bars disguised until
   // both became quiet labels. The founder dropped the first: the tab itself is named Retire, under
   // Plan, so the card does not need to announce which tab it is on. The question IS the heading.
@@ -52,7 +52,7 @@ test('working verdict: the percent AND the if-clause that names THEIR plan', () 
 test('working: Social Security is not offered to someone decades away from it', () => {
   seedWorking();
   render(<PlanHubScreen />);
-  // SUPERSEDED 2026-08-13. This used to assert that Ava — born 1991, so in her thirties — was shown
+  // SUPERSEDED 2026-08-14. This used to assert that Ava — born 1991, so in her thirties — was shown
   // "your Social Security claim window opens Aug 2053" as the next decision in front of her. The
   // founder ruled the window is 60 to 70: before 60 it is not a decision, it is trivia, and after 70
   // the delayed credit has stopped so there is nothing left to choose. Neither the card nor the row
