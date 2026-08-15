@@ -157,6 +157,27 @@ disclaimer never shares a line with an action.**
 
 ## 6. What the numbers are, and where they come from
 
+> **The people are the same people as the Plan brief, and their figures must not drift.** Take every
+> dollar from **§4 of `PLAN-REDESIGN-BRIEF-v3-2026-08-12.md`** — Pat at 58, June at 72, Ray at 64 —
+> rather than re-deriving anything here. Those figures are run against the real engine and pinned by
+> tests, and the last handoff went wrong precisely because a persona was given numbers that belonged
+> to someone else. One person, one set of numbers, whichever screen they appear on.
+>
+> **Ray is worth a Home frame of his own**, even though his lens matches Pat's. He is 64 and has not
+> claimed Social Security, so the "what needs you" block carries a card Pat's never shows — and if
+> that block is going to prove it reads the person rather than printing a fixed list, he is the one
+> who demonstrates it. **The approved wording for his card, by age band, is:**
+>
+> - **At 60 and 61:** *"Your Social Security decision is coming up — you can first claim at 62, and
+>   every year you wait after that raises the check, up to 70. Worth deciding before it arrives."*
+> - **From 62 onward:** *"Your Social Security window is open — you can claim any time from 62 to 70,
+>   no deadline, but timing changes the check."*
+>
+> Both open the same screen. The split exists because the earlier single version told a 60-year-old a
+> window was open when it does not open until 62 — the kind of small untruth this surface cannot
+> afford. *(Founder-approved 2026-08-13, live in the app.)*
+
+
 - **The odds** (40%, 100%) — 400 simulations of that person's own plan. The one number every screen
   must state identically; Home, Net worth and Plan share a single wording helper by founder ruling.
 - **Net worth · investments** — measured balances, not projections.
@@ -166,8 +187,15 @@ disclaimer never shares a line with an action.**
 - **Cash flow** — this month's dated income and spending.
 
 **Balances can be hidden.** Every dollar figure must survive being replaced by dots. The odds
-percentage is not a dollar figure and stays visible — but a percentage *derived* from dollars is a
-different question, and this screen has several. Say what you assume.
+percentage is not a dollar figure and stays visible.
+
+**A percentage derived from dollars is the harder question, and it has now been ruled on** (founder,
+2026-08-13, on the Plan surface): **hide the number, keep the shape.** The numeral is dotted; any bar
+or arc still fills to where it would. Apply the same rule here and flag anything on Home where it
+reads badly. *(Recorded so you know what you are working with: I recommended hiding those shapes
+outright, since the shape carries the same ratio the numeral does and therefore leaks what the dots
+conceal. The founder chose to keep it. If a coarse fill — "about this far" rather than an exact
+edge — would honour the ruling while giving away less, draw it and say so.)*
 
 ---
 

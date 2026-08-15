@@ -672,6 +672,23 @@ secure, guaranteed, protected, or risk-free.
 
 ## 8. What went wrong last round — please don't hand these back
 
+> **Read `HANDOFF-REVIEW-v3-2026-08-13.md` in this folder alongside this brief.** It is the review of
+> the v3 handoff you sent, checked line by line against the files now saved in
+> `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-13/`. Most of the
+> brief landed and the structure is right; the review is the delta, not a re-brief. **Six things
+> block a build and four numbers on screen are not true.** The one to start with:
+>
+> **All six gauge needles point at the wrong number.** Measured from your file: needles at 56%, 97%,
+> 65% and 5% beneath printed values of 48%, 100%, 84% and 12%. The arcs behind them are correct
+> (45.2% and 13.3% on the target dials), so it is the pointer alone. Your own note says the value is
+> carried by *"needle position and numeral both"* — that is the colourblind-safety argument for
+> having a gauge at all, so a lying needle fails exactly the people it was shaped for. **Give us the
+> angle formula rather than placed coordinates**, and the whole class stops recurring.
+>
+> Two of the review's items are **mine, not yours**, and are marked as such in it: the footer sentence
+> the founder rejected was never written into this brief, and June had no figures of her own so your
+> file understandably borrowed Pat's. Both are fixed here — see §4, which now has three people.
+
 An audit of the built v2 screen against the v2 handoff found these. They are ours, not yours, but
 they show where this surface breaks:
 
@@ -692,8 +709,10 @@ they show where this surface breaks:
 
 ## 9. Deliverables
 
-1. **`Plan.dc.html`** — the states in §5, both people, phone width 390. Full screen top to bottom:
-   status bar, header, everything, tab bar. No cropped cards.
+1. **`Plan.dc.html`** — the states in §5, **all three people** (§4 gained Ray on 2026-08-13 — he is
+   the only one who can show the Social Security row, and the only one whose two dials openly
+   disagree), phone width 390. Full screen top to bottom: status bar, header, everything, tab bar.
+   No cropped cards.
 2. **A short requirements note** — the heading hierarchy you chose, the collapsed/expanded behaviour
    of the glance, and for every number on screen, which of §6 it comes from.
 3. **The collapsed glance is the one to get right.** It is the default state — what a person sees
