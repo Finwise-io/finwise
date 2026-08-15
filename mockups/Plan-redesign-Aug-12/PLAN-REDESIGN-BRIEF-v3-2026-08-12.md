@@ -548,6 +548,20 @@ outlives the retirement date, not only a mortgage.
 - **No fake zeros and no dead ends.** An empty state is an on-ramp, never a brochure paragraph about
   what the screen will one day do.
 - **Balances can be hidden.** Every dollar figure must survive being replaced by dots.
+
+  **The dials under hide-balances** (founder ruling, 2026-08-13): the **odds** stay fully visible —
+  "48% odds of lasting to age 90" is not money and gives nothing away. On the **target dial, the
+  numeral is dotted but the arc still fills** to where it would.
+
+  *Recorded because it should be visible later: I recommended hiding the target dial outright, on the
+  grounds that its percentage is built entirely from two dollar figures and the arc conveys the same
+  ratio the numeral does — so the shape leaks what the dots hide. The founder chose to keep the
+  shape. Design it knowing the arc is doing the talking.*
+
+  **A refinement worth proposing rather than assuming:** if the arc is the only thing left, it does
+  not have to be precise. Filling to a coarse band — roughly a third, roughly half — reads as "about
+  this far along" while giving a shoulder-surfer far less than a needle at exactly 45%. If you think
+  that is right, draw it and say so; if you think precision matters more, say that instead.
 - **Say "says who?"** — where a number came from is part of the design, not a footnote we add later.
 
 ### 7.2 Label the numbers. Do not footnote the screen.

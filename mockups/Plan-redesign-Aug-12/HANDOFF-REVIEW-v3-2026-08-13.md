@@ -200,10 +200,12 @@ requirements note. Recording it here so it cannot be missed at build time.
    73+). The built app already behaves this way — it is the drawing that hides them — so this is a
    brief instruction, not a code change. The locked *"When can I retire? 🔒"* row stays: a lock
    explains itself, an empty section does not. Recorded in brief v3 §5.
-5. **Hide-balances is unresolved.** The v2 note asked product to confirm whether the dial percentages
-   mask along with the dollars; the v3 notes drop the question. The percentages are derived from
-   dollars, so 45% "of your target" leaks the ratio. My view: the **odds** stay visible (not a dollar
-   figure), the **target dial** masks. Needs your call.
+5. ~~**Hide-balances is unresolved.**~~ **RULED 2026-08-13 — hide the number, keep the shape.** The
+   odds stay fully visible (not a dollar figure). On the target dial the numeral is dotted and the arc
+   still fills. I had recommended hiding that dial outright — its percentage is made of two dollar
+   figures, and the arc carries the same ratio the numeral does — but the founder chose the shape.
+   Recorded in brief v3 §7 with that reservation stated, plus a refinement offered to the designer:
+   a coarse arc ("about this far") leaks far less than a needle at exactly 45%.
 
 ---
 
