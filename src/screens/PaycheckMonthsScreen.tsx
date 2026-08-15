@@ -1,6 +1,6 @@
-// Your paycheck, month by month (FCC Phase 2) — the 12 dated months behind the Safe-to-spend hero.
+// Your paycheck, month by month (FCC Phase 2) — the 12 dated months behind the Left-to-spend hero.
 // Tap a month and its rows visibly sum to the number (the month-detail pin): the checks that land
-// that month + the safe draw − the big bills due, plus the regular bills the paycheck exists to pay
+// that month + the draw from savings − the big bills due, plus the regular bills the paycheck exists to pay
 // (listed for completeness, never subtracted twice). Pure renderer — every number comes from the
 // F5 paycheck engine and the F2 dated grid; this screen computes nothing of its own.
 import React, { useState } from 'react';
@@ -31,7 +31,7 @@ export default function PaycheckMonthsScreen() {
         return (
           <View key={m.label} style={styles.monthCard}>
             <TouchableOpacity accessibilityRole="button"
-              accessibilityLabel={`${m.label}: safe to spend ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
+              accessibilityLabel={`${m.label}: left to spend ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}
               style={styles.monthRow} onPress={() => setOpenSlot(open ? -1 : s)}>
               <Text style={styles.monthLabel}>{m.label}</Text>
               {dip && <Text style={styles.dipWord}>bill month</Text>}
@@ -44,17 +44,17 @@ export default function PaycheckMonthsScreen() {
                 {m.guaranteed.map((g, i) => (
                   <Row key={i} label={g.source + (g.day ? ` · day ${g.day}` : '')} value={maskedMoney(g.amount)} />
                 ))}
-                <Row label="Safe draw from savings" value={maskedMoney(m.safeDraw)} />
+                <Row label="Draw from savings" value={maskedMoney(m.safeDraw)} />
                 <Row label="= In" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />
                 <SectionBand title="Big bills this month" />
                 {m.bills.length === 0 && <Text style={styles.line}>No big bills this month</Text>}
                 {m.bills.map((b, i) => (
                   <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={`−${maskedMoney(b.amount)}`} />
                 ))}
-                <Row label="= Safe to spend" value={maskedMoney(m.netSafeToSpend)} bold />
+                <Row label="= Left to spend" value={maskedMoney(m.netSafeToSpend)} bold />
                 {regulars.length > 0 && (
                   <>
-                    <SectionBand title="Regular bills (your safe-to-spend pays these)" />
+                    <SectionBand title="Regular bills (this is what it pays for)" />
                     {regulars.map((b, i) => (
                       <Row key={i} label={b.label + (b.day ? ` · day ${b.day}` : '')} value={maskedMoney(b.amount)} muted />
                     ))}

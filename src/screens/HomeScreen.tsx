@@ -1,6 +1,6 @@
 // Home (FCC detailed design v1.1, Home sheet) — the two-second glance, lens-driven:
 //   working lens → Grow & Track hero (investments, vs the market, freshness stamp)
-//   retired lens → Safe to spend hero (the F5 month-named paycheck)
+//   retired lens → Left to spend hero (the F5 month-named paycheck)
 // then one quiet net-worth line, WHAT NEEDS YOU (top 3 from the ONE insights engine), and the
 // will-it-last strip (reads the one selector's number — Home displays, it never re-derives).
 // Home only displays numbers; the single capture affordance is the '+ Expense' button (M4).

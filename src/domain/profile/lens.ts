@@ -1,5 +1,5 @@
 // The FCC lens resolver (approved detailed design v1.1, Home sheet): ONE stage field decides which
-// hero leads Home and the bottom-tab order — working = "Grow & Track", retired = "Safe to spend".
+// hero leads Home and the bottom-tab order — working = "Grow & Track", retired = "Left to spend".
 // The stage comes from onboarding (`status`) or the explicit first-run / Settings "Your setup" choice
 // (the override). One resolver, read everywhere — never a screen-local copy.
 import { currentRetirementIncomeMonthly } from '../income';

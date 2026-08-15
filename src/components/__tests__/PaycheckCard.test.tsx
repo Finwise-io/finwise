@@ -1,5 +1,5 @@
 // FCC: the retired paycheck hero — pins the card to the F5 engine (real simulation, no stubs),
-// the guaranteed-missing prompt (never a fake $0 guaranteed), the safe-draw explainer, and the
+// the guaranteed-missing prompt (never a fake $0 guaranteed), the draw explainer, and the
 // LENS gating (no flag: the retired lens leads with the paycheck; the working lens never sees it).
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
@@ -26,9 +26,9 @@ beforeEach(() => {
 });
 
 describe('PaycheckCard', () => {
-  it('renders the month-named hero with source-first guaranteed lines and a real safe draw', () => {
+  it('renders the month-named hero with source-first guaranteed lines and a real draw from savings', () => {
     render(<PaycheckCard />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     expect(screen.getByText(/Social Security \(day 3\)/)).toBeOnTheScreen();   // source first, day shown
     expect(screen.getByText('Pension')).toBeOnTheScreen();
     expect(screen.getByText('= Guaranteed')).toBeOnTheScreen();
@@ -37,9 +37,9 @@ describe('PaycheckCard', () => {
     expect(screen.getByText(/This year/)).toBeOnTheScreen();
   });
 
-  it('safe-draw explainer is the ONE glossary InfoDot (pre-48 audit U4 — no bespoke modal)', () => {
+  it('draw explainer is the ONE glossary InfoDot (pre-48 audit U4 — no bespoke modal)', () => {
     render(<PaycheckCard />);
-    fireEvent.press(screen.getByLabelText('What is Safe draw?'));
+    fireEvent.press(screen.getByLabelText('What is Draw from savings?'));
     expect(screen.getByText(/steady monthly amount the math says your savings can support/)).toBeOnTheScreen();
   });
 
@@ -54,17 +54,17 @@ describe('PaycheckCard', () => {
 describe('Cash flow lens gating (no flag — the lens decides)', () => {
   it('retired lens: the paycheck card leads the screen, no switch needed', () => {
     render(<CashFlowScreen />);   // JUNE_OP has status retired → retired lens
-    expect(screen.getByText(/SAFE TO SPEND —/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND —/)).toBeOnTheScreen();
   });
   it('working lens: no paycheck card', () => {
     useStore.setState({ onboardingProfile: { status: 'employed', incomeSources: ['employment'], baseSalary: '8000' } } as any);
     render(<CashFlowScreen />);
-    expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
   });
   it('the explicit Settings choice (lens override) wins over the profile status', () => {
     useStore.setState({ lensOverride: 'working' } as any);   // retired profile, but chose "Still working"
     render(<CashFlowScreen />);
-    expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
   });
 });
 
@@ -87,7 +87,7 @@ describe('PaycheckMonthsScreen', () => {
 
   it('renders 12 dated months; December carries the pension; November is a flagged bill month', () => {
     render(<PaycheckMonthsScreen />);
-    const dec = screen.getByLabelText(/^Dec.*safe to spend/);
+    const dec = screen.getByLabelText(/^Dec.*left to spend/);
     fireEvent.press(dec);
     expect(screen.getByText(/Pension/)).toBeOnTheScreen();
     expect(screen.getByText('$19,200')).toBeOnTheScreen();          // the lump, in full, in December
@@ -96,9 +96,9 @@ describe('PaycheckMonthsScreen', () => {
 
   it('an opened month shows the sum lines (rows → number)', () => {
     render(<PaycheckMonthsScreen />);
-    fireEvent.press(screen.getByLabelText(/^Nov.*safe to spend/));
+    fireEvent.press(screen.getByLabelText(/^Nov.*left to spend/));
     expect(screen.getByText('Property tax · day 15')).toBeOnTheScreen();
-    expect(screen.getByText('= Safe to spend')).toBeOnTheScreen();
+    expect(screen.getByText('= Left to spend')).toBeOnTheScreen();
     expect(screen.getByText('= In')).toBeOnTheScreen();
   });
 });

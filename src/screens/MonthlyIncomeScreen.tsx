@@ -2,7 +2,7 @@
 // door (approved detailed design v1.1; the user-lens walkthrough's worst finding was that this
 // screen didn't exist). Two numbers a retiree knows by heart, ~20 seconds, no bank login.
 // Writes the ri_* fields the F5 paycheck engine reads — LOCKED guaranteed set: ss / pension /
-// annuities / other (withdrawals & required minimums live elsewhere; the safe draw replaces them).
+// annuities / other (withdrawals & required minimums live elsewhere; the draw from savings replaces them).
 import React, { useMemo, useState } from 'react';
 import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';

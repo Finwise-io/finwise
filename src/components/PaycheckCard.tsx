@@ -1,5 +1,5 @@
-// The retired hero (FCC approved design v1.1): "Safe to spend — <MONTH>", built from the
-// F5 paycheck engine. Source-first lines (founder review c4), the safe-draw explainer dot (June's
+// The retired hero (FCC approved design v1.1): "Left to spend — <MONTH>", built from the
+// F5 paycheck engine. Source-first lines (founder review c4), the draw explainer dot (June's
 // "says who?" finding), the bills subtraction visible in bill months, and the guaranteed-missing
 // prompt instead of a fake $0. The retired lens leads with this card — no flag.
 import React, { useState } from 'react';
@@ -22,8 +22,8 @@ export function PaycheckCard() {
   return (
     <View style={styles.card} accessibilityLabel={m.netSafeToSpend < 0
       ? `${maskedMoney(Math.abs(m.netSafeToSpend))} short this month — ${m.bills[0]?.label ?? 'a big bill'} lands in ${m.label}. An estimate.`
-      : `Safe to spend in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>
-      <Text style={styles.kicker}>SAFE TO SPEND — {monthName}</Text>
+      : `Left to spend in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>
+      <Text style={styles.kicker}>LEFT TO SPEND — {monthName}</Text>
       {/* c5: a big-bill month that exceeds income shows the real minus WITH the word 'short' and
           the bill named — never smoothed, never clipped to zero (edge-case audit E4) */}
       {m.netSafeToSpend < 0 ? (
@@ -53,7 +53,7 @@ export function PaycheckCard() {
             <Text style={[styles.rowValue, { fontWeight: '800' }]}>{maskedMoney(m.guaranteedTotal)}</Text>
           </View>
           <View style={styles.rowWrap}>
-            <Text style={styles.rowLabel}>+ Safe draw from savings</Text>
+            <Text style={styles.rowLabel}>+ Draw from savings</Text>
             <InfoDot term="safeDraw" />
             <Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>
           </View>

@@ -427,7 +427,7 @@ const DEFAULT_BADGES: Badge[] = [
   { id: 'streak_30',       label: '30-day streak',   icon: '🌟', earned: false, description: 'Check in 30 days in a row' },
   { id: 'expense_analyzer',label: 'Analyst',         icon: '🔍', earned: false, description: 'Run your first AI expense analysis' },
   { id: 'goal_set',        label: 'Goal setter',     icon: '🎯', earned: false, description: 'Create your first savings goal' },
-  { id: 'emergency_fund',  label: 'Safety net',      icon: '🛡', earned: false, description: 'Fund your emergency fund goal' },
+  { id: 'emergency_fund',  label: 'Cushion',         icon: '🛡', earned: false, description: 'Fund your emergency fund goal' },
   { id: 'debt_free',       label: 'Debt free',       icon: '🦸', earned: false, description: 'Zero debt for 3 months running' },
   { id: 'savings_10k',     label: '$10k saved',      icon: '💰', earned: false, description: 'Reach $10,000 in savings' },
   { id: 'investor',        label: 'Investor',        icon: '📈', earned: false, description: 'Log your first investment' },

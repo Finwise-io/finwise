@@ -2,7 +2,7 @@
 // Pins: reorder by buttons; the RMD step is pinned law at 73+; the comparison is honest ('about
 // the same' when the answer barely moves; the % is deliberately not re-run); Keep persists the
 // ONE stored preference the main preview reads; Reset returns to the math's order; the retiree
-// pace bar reads spent vs the same safe-to-spend pool the paycheck shows.
+// pace bar reads spent vs the same left-to-spend pool the paycheck shows.
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
@@ -92,12 +92,12 @@ test('no spending gap (guaranteed covers spending): the comparison degrades hone
   expect(r.totalTaxes).toBe(0);
 });
 
-test('the retiree pace bar: spent vs the SAME safe-to-spend pool the paycheck shows', () => {
+test('the retiree pace bar: spent vs the SAME left-to-spend pool the paycheck shows', () => {
   useStore.setState({
     expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
   } as any);
   render(<CashFlowScreen />);
-  expect(screen.getByLabelText(/Spending pace: \$1,200 of \$[\d,]+ safe to spend/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Spending pace: \$1,200 of \$[\d,]+ left to spend/)).toBeOnTheScreen();
 });
 
 test('retired month flags carry AMOUNTS (founder mock: named bill with its dollars)', () => {

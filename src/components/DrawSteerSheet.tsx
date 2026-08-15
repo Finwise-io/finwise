@@ -92,7 +92,7 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
         <ScrollView showsVerticalScrollIndicator={false}>
           <Text style={s.title}>Where the draw comes from</Text>
           <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}>
-            <Text style={[s.sub, { flex: 1 }]}>The order the math taps your accounts to fund the safe draw — a starting point. You decide.</Text>
+            <Text style={[s.sub, { flex: 1 }]}>The order the math taps your accounts to fund the draw — a starting point. You decide.</Text>
             <InfoDot term="safeDraw" />
           </View>
           {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today's money.</Text>}

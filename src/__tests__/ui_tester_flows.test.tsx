@@ -108,7 +108,7 @@ describe("FLOW 3 · the retiree's morning: the paycheck stands on her numbers an
       assetAccounts: [{ asset_id: 'ira', label: 'IRA', kind: 'trad_ira', tax_bucket: 'PRE_TAX', balance: 415000 }],
     } as any);
     const first = render(<PaycheckCard />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     expect(screen.getByText('$4,200')).toBeOnTheScreen();          // 2600 SS + 1600 pension
     first.unmount();
 
@@ -237,7 +237,7 @@ describe('EDGE 3 · flipping the lens mid-session never corrupts an adopted plan
 
     (useStore.getState() as any).setLensOverride('retired');
     const retired = render(<CashFlowScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();   // retired main renders clean
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();   // retired main renders clean
     retired.unmount();
 
     (useStore.getState() as any).setLensOverride('working');

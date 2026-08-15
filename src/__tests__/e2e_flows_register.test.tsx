@@ -120,7 +120,7 @@ test('E2E-41 Your setup revisit: working → retired flips the Cash flow main to
   fr.unmount();
   const CashFlowScreen = require('../screens/CashFlowScreen').default;
   render(<CashFlowScreen />);
-  expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+  expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
 });
 
 // ── E2E-42 · import classifies crypto as an ALTERNATIVE, correctable before save ──
@@ -254,11 +254,11 @@ test('E2E-49 switching to married on the Tax organizer lowers the Roth conversio
 });
 
 // ── E2E-50 · the retiree's year at a glance: 12 paycheck months, each spoken ──
-test('E2E-50 paycheck months: twelve dated rows, each a full safe-to-spend sentence', () => {
+test('E2E-50 paycheck months: twelve dated rows, each a full left-to-spend sentence', () => {
   useStore.setState({ onboardingProfile: RETIREE74, assetAccounts: EGG } as any);
   const PaycheckMonthsScreen = require('../screens/PaycheckMonthsScreen').default;
   render(<PaycheckMonthsScreen />);
-  expect(screen.getAllByLabelText(/safe to spend/).length).toBeGreaterThanOrEqual(12);
+  expect(screen.getAllByLabelText(/left to spend/).length).toBeGreaterThanOrEqual(12);
 });
 
 // ── E2E-51 · the worker peeks at the steer sheet: projection mode is bannered ──

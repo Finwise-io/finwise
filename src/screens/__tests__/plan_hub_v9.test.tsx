@@ -90,7 +90,7 @@ test('retired: the paycheck card carries the SAME engine numbers as Home (guaran
   render(<PlanHubScreen />);
   expect(screen.getByText(/WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK/)).toBeOnTheScreen();
   expect(screen.getByText('= Guaranteed')).toBeOnTheScreen();
-  expect(screen.getByText('+ Safe draw from savings')).toBeOnTheScreen();
+  expect(screen.getByText('+ Draw from savings')).toBeOnTheScreen();
   expect(screen.getByText('Your paycheck')).toBeOnTheScreen();
   expect(screen.getByText(/The same paycheck as Home's card — one engine/)).toBeOnTheScreen();
   // settled Social Security shows as handled, not hidden

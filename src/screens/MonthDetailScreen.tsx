@@ -58,8 +58,8 @@ export default function MonthDetailScreen() {
 
       {/* headline + reason (the same cell the bar and — for the current month — the hero show) */}
       <View style={styles.card}
-        accessible accessibilityLabel={`${retired ? 'Safe to spend' : 'Left over'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
-        <SectionBand title={`${retired ? 'SAFE TO SPEND' : 'LEFT OVER'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
+        accessible accessibilityLabel={`${retired ? 'Left to spend' : 'Left over'} in ${title}: ${spokenMoney(headline)}${reason ? `. ${reason}` : ''}${isCurrent ? '. As of today.' : ''}`}>
+        <SectionBand title={`${retired ? 'LEFT TO SPEND' : 'LEFT OVER'}${isCurrent ? ' · AS OF TODAY' : ''}`} />
         <Text style={[styles.headline, headline < 0 && { color: Colors.red }]}>{headline < 0 ? `− ${maskedMoney(Math.abs(headline))} short` : maskedMoney(headline)}</Text>
         {reason && <Text style={styles.reason}>⚑ {reason}</Text>}
       </View>
@@ -70,7 +70,7 @@ export default function MonthDetailScreen() {
         {retired ? (
           <>
             {pm.guaranteed.map((g: any, i: number) => <Row key={i} label={`${g.source}${day(g.day)}`} value={maskedMoney(g.amount)} />)}
-            {pm.safeDraw > 0 && <Row label="Safe draw from savings" value={maskedMoney(pm.safeDraw)} />}
+            {pm.safeDraw > 0 && <Row label="Draw from savings" value={maskedMoney(pm.safeDraw)} />}
             <View style={styles.dividerLine} />
             <Row label="= In" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />
           </>
@@ -92,7 +92,7 @@ export default function MonthDetailScreen() {
         {retired && (
           <>
             <View style={styles.dividerLine} />
-            <Row label="= Safe to spend" value={maskedMoney(pm.netSafeToSpend)} strong />
+            <Row label="= Left to spend" value={maskedMoney(pm.netSafeToSpend)} strong />
           </>
         )}
       </View>
@@ -100,7 +100,7 @@ export default function MonthDetailScreen() {
       {/* regular bills the envelope pays for (never subtracted twice) */}
       <View style={styles.card}>
         <SectionBand title="REGULAR BILLS" />
-        <Text style={styles.cardHdrSub}>{retired ? 'These come out of your safe-to-spend.' : 'Including everyday spending.'}</Text>
+        <Text style={styles.cardHdrSub}>{retired ? "These come out of what's left to spend." : 'Including everyday spending.'}</Text>
         {regulars.length === 0 && <Text style={styles.empty}>No regular bills recorded.</Text>}
         {regulars.map((b: any, i: number) => <Row key={i} label={`${b.label}${day(b.day)}`} value={maskedMoney(b.amount)} />)}
         {isCurrent && bva && (

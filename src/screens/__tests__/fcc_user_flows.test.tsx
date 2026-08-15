@@ -44,7 +44,7 @@ describe('1 · returning WORKING user upgrades from Build 40', () => {
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();
     expect(screen.getByText(/WHAT NEEDS YOU/)).toBeOnTheScreen();
     expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
-    expect(screen.queryByText(/SAFE TO SPEND/)).toBeNull();           // the stale flag flips nothing
+    expect(screen.queryByText(/LEFT TO SPEND/)).toBeNull();           // the stale flag flips nothing
   });
 
   test('their tab order is the working order; new store fields arrived as defaults', () => {
@@ -78,10 +78,10 @@ describe('2 · returning RETIRED user upgrades from Build 40', () => {
 
   test('the paycheck LEADS Home and Cash flow with no switch to flip (the Build-40 fix)', () => {
     const home = render(<HomeScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     expect(screen.getByText(/DRAW COMES FROM/)).toBeOnTheScreen();
   });
 
@@ -145,6 +145,6 @@ describe('5 · semi-retired: partially working AND drawing retirement income', (
       onboardingComplete: true,
     } as any);
     render(<HomeScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
   });
 });

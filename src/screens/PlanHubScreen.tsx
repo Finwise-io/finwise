@@ -269,7 +269,7 @@ export default function PlanHubScreen() {
         <>
           <SectionBand quiet title="WHERE YOUR INCOME COMES FROM — YOUR RETIREMENT PAYCHECK" />
           <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/monthly-income')}
-            accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, safe draw ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
+            accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, draw from savings ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Math.round(paycheckTotal))} a month. Opens your income.`}>
             {/* `source` is the engine's field — Home's PaycheckCard, MonthDetail and PaycheckMonths all
                 read it. This screen read `.label`, which does not exist, so every row rendered its
                 amount with no name beside it (audit D5, 2026-08-12). */}
@@ -277,7 +277,7 @@ export default function PlanHubScreen() {
               <View key={i} style={styles.payRow}><Text style={styles.payL}>{g.source}</Text><Text style={styles.payV}>{maskedMoney(Math.round(g.amount))}</Text></View>
             ))}
             <View style={styles.payRow}><Text style={[styles.payL, styles.payStrong]}>= Guaranteed</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(payMonth.guaranteedTotal))}</Text></View>
-            <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Safe draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
+            <View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term="safeDraw" /></View><Text style={styles.payV}>{maskedMoney(Math.round(payMonth.safeDraw))}</Text></View>
             <View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/mo</Text></View>
             {/* THE RATE BELONGS TO THE DRAW, not to what is left over (founder 2026-08-13). It is
                 (spending − guaranteed income) ÷ savings, so it is printed beside the very figure it

@@ -1,4 +1,4 @@
-// Your safety net — REBUILT 2026-07-17 to the founder-approved mock (design audit: this screen
+// Your cushion — REBUILT 2026-07-17 to the founder-approved mock (design audit: this screen
 // predated the FCC design language). Calm word cards (no smiley radios), the funding gap as the
 // single 34pt hero with its math spelled out in one sentence, honest inputs (no silent $2,500
 // default — the screen ASKS when nothing is logged), and a real action (save the gap as a goal)
@@ -56,7 +56,7 @@ export default function JobSafetyScreen() {
 
   return (
     <KeyboardAwareScreen style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
-      <Text style={s.h1}>Your safety net</Text>
+      <Text style={s.h1}>Your cushion</Text>
       <Text style={s.sub}>If your income stopped, how long would your cash carry you?</Text>
 
       {/* 1 · the stability question — calm word cards, selection = ✓ + weight, saved on tap */}

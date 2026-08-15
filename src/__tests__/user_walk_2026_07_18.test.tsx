@@ -87,7 +87,7 @@ describe('USER WALK · 10 common flows', () => {
   test('W3 · the retiree morning: paycheck leads, guaranteed income from the answers', () => {
     useStore.setState({ onboardingProfile: RETIREE, onboardingComplete: true } as any);
     render(<HomeScreen />);
-    expect(screen.getByText(/SAFE TO SPEND/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND/)).toBeOnTheScreen();
   });
 
   test('W4 · log a $6.50 coffee on Cash flow — two taps, exact cents on the button', () => {

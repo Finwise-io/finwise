@@ -50,7 +50,7 @@ describe('retired lens', () => {
     seedRetired();
     render(<CashFlowScreen />);
     // the hero (PaycheckCard) leads
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     // compute the same engine the screen's hook runs (same params by construction)
     const s = useStore.getState() as any;
     const year = buildPaycheckYear(s.onboardingProfile, {
@@ -82,7 +82,7 @@ describe('retired lens', () => {
     expect(screen.getByText(/Social Security · 3rd/)).toBeOnTheScreen();
     expect(screen.getByText(/Pension · 1st/)).toBeOnTheScreen();
     expect(screen.getByText('= In')).toBeOnTheScreen();
-    expect(screen.getByText('= Safe to spend')).toBeOnTheScreen();
+    expect(screen.getByText('= Left to spend')).toBeOnTheScreen();
     expect(screen.getByText(/Estimates — these move with your live account balances/)).toBeOnTheScreen();
   });
 });
@@ -100,7 +100,7 @@ describe('working lens', () => {
     expect(screen.getByText('In (take-home)')).toBeOnTheScreen();
     expect(screen.getByText(/= Planned surplus/)).toBeOnTheScreen();
     expect(screen.getByText(/Spent .* of .* planned/)).toBeOnTheScreen();
-    expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();   // no retiree hero on the working lens
+    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();   // no retiree hero on the working lens
   });
 
   test('the future-paycheck card is projection-labeled (mandatory copy) and never a promise', () => {

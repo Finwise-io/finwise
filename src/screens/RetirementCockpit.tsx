@@ -491,7 +491,7 @@ export default function RetirementCockpit() {
             const bg = band === 'risk' ? Colors.redLight : band === 'watch' ? Colors.amberLight : Colors.primaryLight;
             const head = band === 'risk' ? '⚠️  Might fall short' : band === 'watch' ? '⚠️  Close — worth tightening' : '✅  Looking good';
             const lasts = dDeplete == null ? `past age ${horizon}` : `to about age ${dDeplete}`;
-            const pace = dPlan.rateBand === 'safe' ? 'a safe pace' : dPlan.rateBand === 'moderate' ? 'a bit high — watch it' : 'a high pace';
+            const pace = dPlan.rateBand === 'safe' ? 'within the ~4% guideline' : dPlan.rateBand === 'moderate' ? 'a bit high — watch it' : 'a high pace';
             return (
               <>
                 <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
@@ -704,7 +704,7 @@ export default function RetirementCockpit() {
             );
           })}
         </View>
-        {returnBasis === 'actual' && <Text style={styles.basisWarn}>⚠ Projecting decades from a single 12-month return is unreliable — benchmark is the safer basis.</Text>}
+        {returnBasis === 'actual' && <Text style={styles.basisWarn}>⚠ Projecting decades from a single 12-month return is unreliable — benchmark is the steadier basis.</Text>}
         {returnBasis === 'scenario' && <Text style={styles.note}>Using the expected return you set in scenario analysis.</Text>}
       </View>
 

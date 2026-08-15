@@ -499,13 +499,13 @@ function RetiredMain({ year, accounts, bva, onWhyOrder }: { year: any; accounts:
       <PaycheckCard />
       {safePool > 0 && (
         <TouchableOpacity accessibilityRole="button" style={styles.card} activeOpacity={0.85} onPress={() => router.push('/month-detail?slot=0' as any)}
-          accessibilityLabel={`Spending pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} safe to spend — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
+          accessibilityLabel={`Spending pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} left to spend — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month's detail.`}>
           <View style={styles.paceTrack}>
             <View style={[styles.paceFill, { width: `${Math.min(100, spentPct)}%`, backgroundColor: spentPct > 100 ? Colors.red : spentPct > monthPct + 10 ? Colors.amber : Colors.primary }]} />
             <View style={[styles.paceMark, { left: `${Math.min(99, monthPct)}%` }]} />
           </View>
           {/* P0 (design audit CF-1): the pace card's numbers are its message — money size, never 12pt gray */}
-          <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} safe this month</Text>
+          <Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} left to spend this month</Text>
           <Text style={styles.paceSub}>{spentPct}% spent, {monthPct}% of the month gone ›</Text>
         </TouchableOpacity>
       )}
@@ -617,7 +617,7 @@ function WorkingMain({ grid, bva, op, liabilities, store }: { grid: any; bva: an
           <Text style={styles.projTag}>PROJECTION — an estimate, not a promise</Text>
           <Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>
           {projection.guaranteed > 0 && <Row label="Social Security · pension" value={`~${maskedMoney(projection.guaranteed)}`} dim />}
-          <Row label="Safe draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
+          <Row label="Draw from savings" value={`~${maskedMoney(projection.draw)}`} dim />
           {wilChance != null && <Text style={styles.note}>Based on your plan's {wilChance}% odds of lasting · see Plan ›</Text>}
         </TouchableOpacity>
       )}

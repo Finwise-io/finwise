@@ -182,19 +182,19 @@ describe('pin 4 — the lens contract on the two hero surfaces', () => {
   test('retired: the paycheck leads Home and Cash flow; the hidden-balances banner shows when masked', () => {
     seed(RETIREE);
     const home = render(<HomeScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.getByText(/SAFE TO SPEND — [A-Z]/)).toBeOnTheScreen();
+    expect(screen.getByText(/LEFT TO SPEND — [A-Z]/)).toBeOnTheScreen();
   });
 
   test('working: the Grow & Track hero leads Home; no paycheck anywhere', () => {
     seed(WORKER);
     const home = render(<HomeScreen />);
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();
-    expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
     home.unmount();
     render(<CashFlowScreen />);
-    expect(screen.queryByText(/SAFE TO SPEND —/)).toBeNull();
+    expect(screen.queryByText(/LEFT TO SPEND —/)).toBeNull();
   });
 });
