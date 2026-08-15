@@ -479,10 +479,23 @@ obligations, chiefly the required withdrawal from 73 onward.
 
 Which means **for most people under 73 this card will not appear at all.** That is correct behaviour
 under the standing rule — *dated when real, absent when nothing is due* — and you should not invent a
-filler decision to keep it on screen. But it does raise a question worth answering in your design:
-**is a card that only appears after 73 still worth having as its own element, or should a dated
-obligation simply be the first row of the decisions list, wearing a date?** Draw whichever you
-believe, and say why.
+filler decision to keep it on screen.
+
+**THE ONE-DOOR RULE NOW ANSWERS THE QUESTION THIS SECTION USED TO ASK.** It used to leave the choice
+open: card of its own, or first row of the decisions list wearing a date? The founder's finding on
+Ray's hero (§4) settles the principle — **one decision, one place on the screen** — and a dated card
+sitting above a decisions list that also ranks the required withdrawal is the same duplication in a
+different jacket.
+
+**Recommendation: drop the separate card. The dated obligation becomes the first row of the decisions
+list, wearing its date.** It is one element fewer on a screen we have been told is too busy, the
+ordering rule in §3.3 already puts dated things first, and a person then learns one place to look for
+"what should I do" instead of two.
+
+> **⚠️ FOUNDER CALL NEEDED, and this one genuinely is one.** That card is **built and shipping** — the
+> app renders *"NEXT DECISION · DUE DEC 31"* today and a test pins it. Removing it is a change to
+> something already approved, so it is not mine to decide. **Draw it both ways if that is cheap**, or
+> draw the recommendation and we will show him. Everything else in this section stands either way.
 
 ### 3.5 The retiree variant
 
@@ -774,8 +787,25 @@ The gap is real and the answer is one row down the screen.
 **So what he actually sees is a statement of position followed by a door**, never a verdict:
 
 > **$500,000 of the $750,000 you set** — short $250,000.
-> Your money lasts in about **7 futures out of 10**. Waiting to claim Social Security at 70 takes that
-> to about **8 in 10** — the biggest single change available to you. **See what waiting is worth ›**
+> Your money lasts in about **7 futures out of 10**. The biggest single thing you could change is when
+> you claim Social Security — **it is the first decision below.**
+
+**⚠️ NO LINK IN THE HERO — founder finding, 2026-08-14.** An earlier version of this sentence ended
+*"See what waiting is worth ›"*. The founder asked where that takes you, and the answer exposed the
+problem: **the Social Security row sits a few centimetres below it on the same screen.** Two doors to
+one place, one above the other, on a screen we have already been told is too busy.
+
+**So the hero names the lever and says where it is; the row is the door.** That still honours the rule
+in §4 that a shortfall is never stated without the nearest thing they can do about it — the fix is
+named *and* located, it just is not linked twice.
+
+**The general rule, because this will happen again:** **the hero never carries a door to something the
+decisions list already opens.** The hero's job is to say where the person stands and name the biggest
+lever. The decisions section owns every action. If a hero sentence wants a link, that is a sign the
+decision belongs in the list and is missing from it.
+
+*(A link that scrolls you a short way down the same page is the worst of the options — this audience
+taps it expecting a new screen and gets what looks like nothing happening.)*
 
 **Three rules this frame must hold, and they apply to anyone short of their target:**
 
@@ -786,9 +816,15 @@ The gap is real and the answer is one row down the screen.
 3. **Never state a shortfall without the nearest thing they can do about it.** A gap on its own is an
    accusation; a gap with a door beside it is a plan.
 
-**Draw him in the working lens**, with the decision list: *When should I claim Social Security?* ·
-*Is converting to a Roth worth it?* (he has $310,000 pre-tax) · *When can I retire?* — and **no
-mortgage row**, because he has no mortgage. That absence is deliberate: it shows the list responds to
+**Draw him in the working lens**, with the decision list: *When should I claim Social Security?* —
+**first, and it answers in place** (§3.3): *waiting from 67 to 70 pays $624 more a month: $3,224
+against $2,600* · *Is converting to a Roth worth it?* (he has $310,000 pre-tax) · *When can I retire?*
+— and **no mortgage row**, because he has no mortgage.
+
+**Note the division of labour between the hero and that row**, because it is the pattern for the whole
+screen: the hero gives the decision's effect on **the odds** (7 in 10 to 8 in 10), the row gives it in
+**dollars** ($624 a month). Two different useful facts about one decision, in the two places each
+belongs — not the same sentence printed twice. That absence is deliberate: it shows the list responds to
 the person rather than printing a fixed menu.
 
 ---
