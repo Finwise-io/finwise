@@ -243,6 +243,38 @@ last?"*, *"What will you spend each month in retirement?"*, *"What's your target
 *"What counts toward retirement?"*, *"What big one-time costs are coming?"* — your wording, that
 grammar. Keep them short enough to sit on one line beside their answer.
 
+#### The target nest egg question: we may fill it in, but we must say so and let them change it
+
+**Founder ruling, 2026-08-14.** *"We can enter a target number, but give them an opportunity to modify
+it. Add this verbiage to the question."*
+
+**This closes a real hole in the shipped app.** Today there is a row labelled **"Target nest egg"**
+with a dollar figure beside it — and **the person never typed it.** The app works it out on its own:
+it is the pot that would put their odds at 80%. So we show someone a number, call it their target, and
+never mention that we picked it. That is the founder's first correction of this whole engagement
+("target nest egg is a number entered by the user"), still live on the tab today.
+
+**The fix is not to leave the row empty.** A blank target is a worse first experience than a sensible
+starting figure — most people genuinely do not have a number in mind. So we fill it in **and say
+whose it is**, in the question itself:
+
+> **What's your target nest egg?**
+> **$1,250,000** — *our starting figure, not yours. Change it to your own number.* ›
+
+*(For Pat that suggestion is **$1,250,000**, the pot that reaches 80% odds on his numbers — verified.
+Note it is well below the **$2,000,000** he actually typed, which is the point: our suggestion and his
+ambition are different things and the screen must never blur them.)*
+
+**Three rules for it:**
+
+1. **The row must read as ours until they touch it**, and as theirs the moment they do. Once they type
+   a number the qualifier disappears — it is their target now and the screen should stop apologising
+   for it.
+2. **Changing it must never move the odds.** §6.1 — the target is a yardstick, not an input to the
+   simulation. Someone lowering their target to feel better must watch the odds refuse to budge.
+3. **Never present it without the qualifier**, anywhere it appears — the glance row, the dial, the
+   hero sentence. A suggestion that loses its label on one screen becomes a promise on that screen.
+
 ### 3.3 "Decisions you can make today" — only what applies to this person
 
 1. **Convert to a Roth**
@@ -1233,6 +1265,6 @@ they show where this surface breaks:
    glance, does that split still make sense, or does everything save immediately? A person editing
    seven rows in a collapsed panel and then hunting for a commit button is a worse experience than
    simply letting the number above them move.
-3. **What the suggested target looks like.** When someone leaves the target blank, we can offer the
-   80%-odds figure. Where does that offer live, and how do we make it obvious it is ours and not
-   theirs?
+3. ~~**What the suggested target looks like.**~~ **ANSWERED by the founder, 2026-08-14** — see §3.2.
+   We fill the row in with the 80%-odds figure and say in the question itself that it is ours and can
+   be changed. Nothing left open here.

@@ -22,6 +22,7 @@ import { simulate, type RetirementInputs } from '../domain/retirement';
 import { solveSafeDraw } from '../domain/paycheck';
 import { ssBenefitAtClaimAge } from '../domain/retirement/ssTiming';
 import { blendedReturn, blendedVolatility } from '../domain/assets';
+import { targetAtRetirement } from '../domain/planning/target';
 
 const BRIEF = path.join(__dirname, '..', '..', 'August 14th Design', 'PLAN-REDESIGN-BRIEF-v3-2026-08-14.md');
 const brief = fs.readFileSync(BRIEF, 'utf8');
@@ -62,6 +63,17 @@ describe('the brief agrees with the engine', () => {
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
     inBrief('**67%** of lasting to 90');
     inBrief('$12,000 a year');                                         // what he saves — was never stated
+  });
+
+  test('the target we SUGGEST is the engine\'s 80% pot, and it differs from what Pat typed', () => {
+    // BASE carries inflation/seed/paths — omitting it silently solves a different simulation and
+    // returned $70,000 instead of $1,250,000. The guard caught that; I would not have.
+    const suggested = targetAtRetirement({ ...BASE, ...PAT, annual_contribution: PAT_SAVES } as any);
+    expect(suggested).toBe(1_250_000);
+    inBrief(money(suggested!));
+    // the whole point of the qualifier: our figure and his ambition are different numbers
+    expect(suggested).toBeLessThan(2_000_000);
+    inBrief('our starting figure, not yours');
   });
 
   test("Pat's closing sentence: the saving that reaches his typed target, and where it lands", () => {
