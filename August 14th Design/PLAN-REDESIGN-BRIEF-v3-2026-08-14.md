@@ -653,6 +653,34 @@ Use these exact figures. They reconcile; please keep them reconciling.
 *If you need it: what Pat is on track to have at 65 is $1,346,763. It is not in the hero. Use it only
 if a state genuinely needs it, and label it as a projection.*
 
+> ### ⚠️ PAT'S 48% IS NOT REPRODUCIBLE FROM PAT'S OWN NUMBERS — founder decision needed
+>
+> **Found 2026-08-14 while answering "how do we stop errors shipping as instructions".** Every figure
+> in June's and Ray's tables is computed from the engine and pinned by a test. **Pat's never were** —
+> and he is the persona this brief opens with.
+>
+> Run his four accounts through the app's own blended-return calculation and they produce **8.65%**.
+> At 8.65%, the engine gives Pat **82% odds**, not 48%. The 48% only appears at a **5.5%** return —
+> an assumption that **appears nowhere in this brief**, in his table or anywhere else.
+>
+> So one of three things is true, and only the founder can say which:
+>
+> 1. **Pat's accounts are wrong for the story** — he is meant to be someone in trouble, and four
+>    growth-heavy accounts are not that. Change the holdings, keep 48%.
+> 2. **48% is wrong** — he is genuinely at 82%, and most of the states in §5 do not apply to him.
+> 3. **There is a return assumption we intend and never wrote down** — in which case write it into his
+>    table, where every other input of his already sits.
+>
+> **Do not resolve this by picking one.** Until it is settled, treat Pat's odds as **provisional**:
+> draw the frames, use 48% as drawn, and expect the number to move. Every *shape* in this brief is
+> unaffected — the two dials disagreeing, the count sentences, the decision rows — because those are
+> about how the screen behaves, not about which value it holds.
+>
+> **The wider point, and it is the reason this box exists:** three errors were caught in this brief
+> in one day, and all three were numbers or claims nobody had checked against the engine. The fix is
+> not more care. It is `src/__tests__/brief_figures_guard.test.ts`, which now recomputes every
+> persona figure and fails the build when the brief and the engine disagree.
+
 ### June — 72, retired
 
 **Corrected 2026-08-13** — the first version of this brief gave June a paycheck and no portfolio, so

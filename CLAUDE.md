@@ -97,6 +97,26 @@ the founder had approved all of it. Never again.
   which cover about half the live routes. **Read the disk; the disk is what ships.** A guard that
   looks in too few places is worse than none, because it reports clean and gets trusted.
 
+## BRIEFS ARE CODE — every figure and behavioural claim is verified (standing order, 2026-08-14)
+Founder question after three errors shipped as instructions in one brief: *"how to avoid this in the
+next brief?"* The answer is not more care — all three were written while reading carefully.
+- **Every number in a design brief is either computed by the engine in a test, or explicitly labelled
+  as founder-stated.** `src/__tests__/brief_figures_guard.test.ts` recomputes them and fails the build
+  when the brief and the engine disagree. A new persona or a new figure gets a line there in the same
+  commit that puts it in the brief.
+- **Any sentence claiming what the app DOES, or what a change is WORTH, must be measured before it is
+  written.** "Saving is no longer the lever" was reasoned, not run — and was false by 45 points.
+  If a sentence contains a causal claim, the number behind it came from an actual run.
+- **Any sentence describing CURRENT behaviour is checked against the shipped code**, never memory.
+  The day-one guidance contradicted what the app already did, and the app was right.
+- **A figure with no recorded provenance is a defect, even when nobody can prove it wrong.** Pat's
+  48% survived four rounds of review because it looked plausible; it does not follow from his own
+  accounts (they blend to 8.65%, which puts him at 82%). Every persona table states its inputs
+  INCLUDING the assumed return, or the headline cannot be reproduced by anyone, including me.
+- Lesson to keep: three guards now exist — orphan routes, the banned word, brief figures — and **each
+  caught a real defect within minutes of being written**, after the same surfaces had been read
+  carefully by hand. Careful reading finds some; a gate finds the rest.
+
 ## MOCK-MATCH AUDIT — standing order (2026-08-10, after three false "it matches" reports)
 "Match" = 100% mirror of the approved mock: same elements, words, ORDER, nesting, alignment,
 numbers and flow. A presence check (grep for a component, or a passing text assertion) NEVER
