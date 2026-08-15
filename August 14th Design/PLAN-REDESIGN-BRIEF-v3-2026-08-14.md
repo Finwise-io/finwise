@@ -345,13 +345,50 @@ Someone already drawing down has no "reach a target". For them:
 screen, and for June — who is at 100% — it says *"+0 points"*, offering a decision that changes
 nothing. Instead:
 
-> **Can I spend more?**
-> **Estimated amount you can draw more every month: $2,555**
-> Spend extra  **[−]  $500  [+]** → $6,100 a month in total.
-> **[ Use as my plan ]**
+**FOUNDER APPROVED 2026-08-14** — mock `spend-more-plain-english-v1-2026-08-14.html`, frames B and C.
+He read the earlier version and said it was *"too complex for a user to understand, particularly
+someone with no finance background."* Draw it like this:
 
-**The wording "estimated amount you can draw more every month" is the founder's and is not to be
-softened or shortened.** See §7 on the words that are forbidden here.
+> **Can I spend more?**
+>
+> ### Yes — about $1,000 a month more, and nothing changes.
+> You spend **$5,600** a month now. At **$6,600** your money still lasts past 94, exactly as it does
+> today.
+>
+> Spend extra **[−]  $0  [+]**
+> You'd spend **$5,600** a month — the same as now.
+> > ✓ Your money lasts past 94, in every future we tested.
+>
+> **[ Use as my plan ]**
+> *Your Social Security and pension don't change, so anything extra comes out of savings.*
+
+**Three things make this work, and all three are load-bearing.**
+
+**The answer comes first, and it is free money.** Her first $1,000 a month costs her nothing — that
+is the engine's own curve, not a rounding. It was the single most useful fact on the row and the old
+static "80%" label sat directly on top of it. Lead with it.
+
+**Consequence is stated as a count, never a percentage.** At the maximum the sentence reads *"Your
+money lasts in about 4 futures out of 5. In the other 1, it runs out before 94."* Counts land with
+people who bounce off percentages, and naming the losing case is kinder than leaving her to imagine
+it. The full set, and these are the engine's numbers:
+
+| Spend extra | A month in total | What the screen says |
+|---|---|---|
+| **$0** | $5,600 | ✓ Your money lasts past 94, in every future we tested. |
+| $500 | $6,100 | ✓ Still lasts past 94 — nothing changes. |
+| $1,000 | $6,600 | ✓ Still lasts past 94 — nothing changes. |
+| $1,500 | $7,100 | Lasts in almost every future — about 97 out of 100. |
+| $2,000 | $7,600 | Lasts in about 9 futures out of 10. |
+| $2,555 | $8,155 | ⚠ Lasts in about 4 futures out of 5. In the other 1, it runs out before 94. |
+
+**The draw-and-spend link is said once, or she has to infer it.** *"Your Social Security and pension
+don't change, so anything extra comes out of savings."*
+
+**These words are gone from this row: draw · odds · held at · floor.** *"Estimated amount you can draw
+more every month"* was the founder's own line and an earlier version of this brief said it must not be
+softened. **He withdrew that on 2026-08-14 by approving frames B and C, which do not contain it.**
+The words that stay are the ones she uses in conversation: spend, month, lasts, runs out.
 
 **No new engine for this.** The app already finds this number: it tries an amount, runs the 400
 futures with that amount coming out each year, and works up to the largest amount that still holds
@@ -402,6 +439,34 @@ the control talks about what she can **spend**. For June those move together one
 guaranteed $4,000 does not change — every extra dollar spent is an extra dollar drawn. Obvious to us,
 invisible to her. One sentence fixes it: *"Your Social Security and pension don't change, so anything
 extra comes out of savings."*
+
+---
+
+### 3.5.1 THE COUNT RULE — it applies to every row, not just this one
+
+**Founder-approved 2026-08-14, and it generalises.** Wherever a decision row states what a choice does
+to the chance a plan works, **say it as a count out of a round number, not as a percentage** — and
+where the news is bad, name what happens in the losing case rather than leaving it to be imagined.
+
+This is not a style note. Our audience is 55 to 70 with no assumed finance background, and a bare
+"48%" leaves two questions unanswered: a percentage *of what*, and is that good?
+
+**Apply it to the mortgage row too**, which currently ends *"Your odds go from 48% to 43%"*:
+
+> Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
+> That is $500 a month not going into savings, so your retirement gets tighter: your money lasts in
+> about **5 futures out of 10** today, and about **4 out of 10** if you do this.
+
+Same facts, same honesty, no percentage to decode — and it now says *which way is worse*, which the
+percentages never did.
+
+**The Social Security row already passes** — *"waiting from 67 to 70 pays $624 more a month: $3,224
+against $2,600"* is dollars, months and ages, with nothing to translate. Use it as the benchmark for
+the others.
+
+**One word still to fix: "pre-tax".** The Roth row reads *"$420,000 pre-tax"*. Flag what you would put
+there instead — *"$420,000 you haven't paid tax on yet"* is longer but needs no glossary. Your call,
+but do not leave it as it is.
 
 ---
 

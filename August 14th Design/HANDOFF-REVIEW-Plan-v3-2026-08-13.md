@@ -136,7 +136,14 @@ at it reads as the result of a decision she has not made. It needs naming at res
 say once that spending more and drawing more are the same act for her, since her guaranteed $4,000
 does not move.
 
-Both fixes are now written into brief §3.5.
+**RESOLVED 2026-08-14 — the whole row was rewritten in plain English and the founder approved it.** He read
+the original and said it was too complex for someone with no finance background, which it was: it asked her to
+work out what "draw" means, why $2,555 is offered while $0 shows, what $5,600 is, and what 80% refers to. The
+approved design leads with the answer — *"Yes, about $1,000 a month more, and nothing changes"* — states
+consequence as a count rather than a percentage, and says once that her guaranteed income does not move so
+anything extra comes from savings. Brief §3.5 carries it verbatim with every sentence in the range, and the
+**count rule now applies to every decision row** (§3.5.1) — the mortgage row changes with it. Mock:
+`mockups/Plan-redesign-Aug-12/spend-more-plain-english-v1-2026-08-14.html`, frames B and C.
 
 ---
 
