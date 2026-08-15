@@ -4,7 +4,7 @@
 **Against:** `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md`
 **Reviewed:** all 7 drawn states — Pat collapsed, Pat expanded, June collapsed, June expanded,
 age-missing, day-one, bad-odds.
-**Status:** the structure is right and most of the brief landed. **Seven things block a build**, four
+**Status:** the structure is right and most of the brief landed. **Eight things block a build**, four
 numbers on screen are not true, and five need a founder ruling. Two of the problems are mine, not
 the designer's, and are marked as such.
 
@@ -144,6 +144,27 @@ consequence as a count rather than a percentage, and says once that her guarante
 anything extra comes from savings. Brief §3.5 carries it verbatim with every sentence in the range, and the
 **count rule now applies to every decision row** (§3.5.1) — the mortgage row changes with it. Mock:
 `mockups/Plan-redesign-Aug-12/spend-more-plain-english-v1-2026-08-14.html`, frames B and C.
+
+
+### B8. Day one: a button that names no question, and four of the seven rows missing — **founder-found, 2026-08-14**
+
+**(a) "Answer the first question ›".** Which question? A first-ever screen is the worst place for a
+button you have to press to find out what it does. It should read **"Add your age ›"**. The frame
+immediately before it gets this right — *"Can't compute your odds without your age. Add your age ›"* —
+so this is an inconsistency inside one file rather than a misunderstanding. **The shipped app is also
+ahead of the mock**: it names the specific missing item, so as drawn this is a step back from live.
+
+**(b) Three questions on day one, seven everywhere else.** Day one lists *How old are you? · What will
+you spend each month? · What counts toward retirement?* The age-missing frame lists all seven. The
+founder asked where plan-to-age and target nest egg went.
+
+The strongest reason to show all seven is not consistency, it is honesty: **four of the missing rows
+are not blank, they are ours.** With nothing answered the app still assumes retire at 65, plan to 90,
+a 6% return and 2.5% inflation — and the sample gauge on that very frame is computed with them. Hiding
+those rows hides the assumptions the number is standing on, which is exactly what §7.2 forbids.
+
+Fix: all seven rows, always. Unanswered ones say **Add ›**; assumed ones show the value with a quiet
+**ours until you change it**. Written into brief §5, state 4.
 
 ---
 

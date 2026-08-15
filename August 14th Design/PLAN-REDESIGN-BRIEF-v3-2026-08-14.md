@@ -327,14 +327,35 @@ must be labelled here, because this is the one screen where a stale rate changes
 *Both routes cost him exactly $2,900 a month and finish on the same date — that is what makes it a
 fair comparison rather than a flattering one.*
 
-**On screen, in the plain grammar of §3.5.1:**
+**THE EXACT TEXT, BOTH DIRECTIONS.** Same sentence shape either way — only the direction words and
+the figures change, so nobody can tell from the layout which answer they are getting.
+
+**When the mortgage rate is ABOVE the yield** *(Pat — 5.5% against 4.63%)*:
 
 > **Your mortgage costs 5.5%. A ten-year Treasury pays 4.63% today.**
-> So a dollar into the mortgage saves you more than the same dollar would earn sitting in Treasuries —
-> about **$3,584 a year** at your current balance. Over the life of the loan, paying the extra leaves
-> you about **$36,577 better off** than putting it in Treasuries instead.
-> *Compared with shares this is a different question: shares might earn more, but might not. Paying
-> the mortgage is the only one of the two that is certain.*
+> So a dollar into your mortgage **saves you more** than the same dollar would earn sitting in
+> Treasuries — about **$3,584 a year** at your balance. Over the life of the loan, paying the extra
+> $500 a month leaves you around **$36,577 better off** than putting it in Treasuries instead.
+> *Shares might earn more than either — or less. Paying the mortgage is the only one that is certain.*
+
+**When the mortgage rate is BELOW the yield** *(a 2021 loan — 3.1% against 4.63%)*:
+
+> **Your mortgage costs 3.1%. A ten-year Treasury pays 4.63% today.**
+> So a dollar into your mortgage **saves you less** than the same dollar would earn sitting in
+> Treasuries — about **$6,304 a year** at your balance. Over the life of the loan, paying the extra
+> $500 a month leaves you around **$40,217 worse off** than putting it in Treasuries instead.
+> *Shares might earn more than either — or less. Paying the mortgage is the only one that is certain.*
+
+**Read those two side by side: the second number is bigger.** Someone holding a cheap 2021 loan loses
+more by paying it down early than Pat gains by paying his down — and "pay off your mortgage" is the
+most repeated piece of advice this audience has ever been given. **This is the state that earns the
+feature.** If you draw only the first frame, we have built something that agrees with received wisdom
+and stays quiet when it is wrong.
+
+**When the two rates are within about a quarter-point of each other, say that instead of picking a
+winner:** *"Your mortgage costs 4.5%. A ten-year Treasury pays 4.63% today. They are close enough that
+neither choice is clearly better — this one comes down to whether you would rather owe less or hold
+more."* A dollar figure implying precision we do not have is worse than no dollar figure.
 
 **Three things this must never do.**
 
@@ -720,6 +741,36 @@ the person rather than printing a fixed menu.
    The current build prints "$0" for what counts and for big costs, which reads as "you have nothing"
    rather than "you haven't told us yet". A locked sample gauge is allowed if it is labelled a
    sample — the app's own sample is *84% odds of lasting to age 90*, never a new invented figure.
+
+   **⚠️ TWO FOUNDER FINDINGS ON THIS FRAME, 2026-08-14 — both must be fixed.**
+
+   **(a) "Answer the first question ›" does not say which question.** The founder read it and asked:
+   *which one?* A button that names no action is a button a person has to press to find out what it
+   does, on the very first screen they ever see. **Name it: "Add your age ›".**
+
+   You already do this correctly one frame earlier — the age-missing state reads *"Can't compute your
+   odds without your age. **Add your age ›**"*, which is exactly right. Day one just did not inherit
+   it. **The shipped app is also ahead of the mock here**: it names the specific missing thing
+   ("Add what you spend"), so as drawn this is a step backwards from live behaviour. Whatever is
+   genuinely first, say it — and if the answer changes as they progress, the button changes with it.
+
+   **(b) The glance shows three questions on day one and seven everywhere else.** Day one lists *How
+   old are you? · What will you spend each month? · What counts toward retirement?* The age-missing
+   frame, one across, lists all seven. **Show all seven, always.** Three reasons, and the third is the
+   one that matters:
+
+   - A person cannot see what the app is going to ask, so they cannot tell how big the job is.
+   - The layout changes shape between states, so what they learn on day one is not where things are
+     on day two. §3.3 already fixed row positions for exactly this reason.
+   - **Four of the hidden rows are not blank — they are OURS.** With nothing answered the app still
+     assumes retire at **65**, plan to **90**, a **6%** return and a **2.5%** inflation rate, and the
+     sample gauge above is computed with them. Hiding those rows hides the assumptions the number on
+     screen is standing on. That is §7.2 — *label the numbers, do not footnote the screen* — and it is
+     the strongest argument here by some distance.
+
+   So day one reads: three rows saying **Add ›** or **Link ›**, and four saying **65 · ours until you
+   change it**, **90 · ours**, and so on — a quiet tag, not an empty row. The person sees the whole
+   shape of what they are being asked, and sees which parts we have filled in on their behalf.
 5. **The odds are bad** — the honest state. When saving alone cannot reach a reasonable outcome, the
    screen must say so plainly and pivot to what actually moves the number (retire later, spend less,
    claim later). **It must never promise options and then show none** — that happens in the current
