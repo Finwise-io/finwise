@@ -200,9 +200,13 @@ grammar. Keep them short enough to sit on one line beside their answer.
 
 ### 3.3 "Decisions you can make today" — only what applies to this person
 
-1. **Pay off the mortgage early**
-2. **Convert to a Roth**
-3. **When to claim Social Security — between 60 and 70, and only if they have not claimed**
+1. **Convert to a Roth**
+2. **When to claim Social Security — between 60 and 70, and only if they have not claimed**
+
+> **The mortgage row has MOVED OFF this tab — founder ruling, 2026-08-14:** *"let's move Pay off the
+> mortgage early to Cash flow · Debt. It does not belong under Retire."* He is right: it is a debt
+> decision a person makes about a debt, and it was only ever here because its side-effect lands on
+> retirement. See **§3.3.1** for where it goes and what has to travel with it.
 
 **Shown only when they apply.** No mortgage on file → no mortgage row. No pre-tax money → no Roth
 row (there is nothing to convert, so the question is meaningless). Under 60 → no Social Security row.
@@ -211,8 +215,10 @@ entirely, not answered with a dead end. Nothing applies → the whole section st
 offering someone a decision they cannot make. **Absent, never greyed out and never "no mortgage on
 file".** Draw the row pattern so a further decision can slot in later without a redesign.
 
-**Expect a short list.** Pat, 58 with a mortgage and pre-tax savings, sees **two** rows. June, 72 and
-already claiming, sees **three**. Design for two-to-four rows, not for a full menu.
+**Expect a very short list — shorter since the mortgage row moved off this tab on 2026-08-14.** Pat,
+58 with a mortgage and pre-tax savings, now sees **one** row: *Is converting to a Roth worth it?* June,
+72 and already claiming, sees **three**. Ray, 64, sees **two**. Design for **one to three** rows and
+draw the one-row state properly — it is Pat's, and Pat is the persona this brief opens with.
 
 #### The order — a rule, not a sequence
 
@@ -231,14 +237,20 @@ reason — rows changing position between visits, with the person having done no
 | Still working | Drawing down |
 |---|---|
 | 1. When to claim Social Security *(60+)* | 1. When to claim Social Security *(only if not yet claiming)* |
-| 2. Pay off the mortgage early | 2. Can I spend more? |
-| 3. Is converting to a Roth worth it? | 3. Which account do I draw from first? |
-| | 4. Pay off the mortgage early |
-| | 5. Is converting to a Roth worth it? |
+| 2. Is converting to a Roth worth it? | 2. Can I spend more? |
+| | 3. Which account do I draw from first? |
+| | 4. Is converting to a Roth worth it? |
 
-*The placement of Social Security at the top of both columns, and the mortgage row appearing for
-retirees at all, are my reading rather than the founder's words — flag them and he will confirm or
-move them. Everything else in this table is his.*
+*(The mortgage row was 2nd and 4th here until 2026-08-14; it now lives on Cash flow · Debt — §3.3.1.
+The placement of Social Security at the top of both columns is my reading rather than the founder's
+words — flag it and he will confirm or move it.)*
+
+**⚠️ THIS LEAVES PAT WITH ONE ROW, AND THAT IS THE HONEST OUTCOME — DO NOT PAD IT.** He is 58, so the
+Social Security row does not reach him for two years, and the mortgage has gone. His decisions section
+holds **one** row: *Is converting to a Roth worth it?* A section with one true row is better than a
+section with two where one is filler, and the empty-looking result is real information — at 58 with a
+mortgage and a plan on track, there genuinely is not much to decide this month. **Draw that state**;
+do not invent a third row to balance the block.
 
 **3. A row only takes a position if it applies** (rule above). The numbering is the order among those
 present, never a fixed slot with a gap in it.
@@ -252,31 +264,45 @@ amount *and* a rate, or a list with reasons, earns a screen. Settled row by row:
 
 | Row | Where it goes |
 |---|---|
-| Pay off the mortgage early | **In place**, with a live control |
+| ~~Pay off the mortgage early~~ | **MOVED to Cash flow · Debt**, 2026-08-14 — §3.3.1 |
 | When to claim Social Security (60+) | **In place** — it states the answer |
 | Can I spend more? *(retiree)* | **In place**, with a live control |
 | Have you taken your required withdrawal? *(73+)* | **In place** — confirm without leaving; a quiet link opens the year-by-year table |
 | Which account do I draw from first? *(retiree)* | **Its own screen** — the order, why each account sits where it does, what each choice costs in tax, and the steering control. Today this row drops the person on the whole Cash flow tab and leaves them to find it. |
 | Is converting to a Roth worth it? | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. **Built and working — do not redesign it.** The row carries $420,000 pre-tax as its worth. |
 
-**The mortgage row: a live control, and it commits.** The row is not a fact to read, it is a thing to
-do. A stepper for the extra monthly payment; the payoff date and the interest saved move as it
-changes; committing makes that payment part of the plan, so it appears in Cash flow as real money
-going out.
+### 3.3.1 THE MORTGAGE DECISION LIVES ON CASH FLOW · DEBT — founder ruling, 2026-08-14
 
-**It must show BOTH sides.** Money paid into a mortgage is money not invested, and *"saves $143,300 in
-interest"* on its own always reads as an obvious win. At a mortgage rate near the assumed investment
-return it is close to a wash. On $412,000 at 5.5%, paying $2,400 a month:
+*"Let's move Pay off the mortgage early to Cash flow · Debt. It does not belong under Retire."*
+
+**Everything specified below still stands — it is the same control, drawn in a different place.** It
+was on the Retire tab only because its side-effect lands on retirement, which is a reason to *carry
+the consequence*, not a reason to put a debt decision on a retirement screen. A person thinking about
+their mortgage goes looking for their mortgage.
+
+**⚠️ THE RETIREMENT CONSEQUENCE MOVES WITH IT — THIS IS THE WHOLE RISK OF THIS CHANGE.** Paying a
+mortgage down faster is money not going into savings, and that is the single most important thing to
+know before doing it. If the control moves to Debt and the retirement effect stays behind on Retire,
+the person makes the decision blind to its biggest consequence — which is worse than where we started.
+**The line comes too**, in the count grammar of §3.5.1:
 
 > **Pay off the mortgage early** — $412,000 at 5.5%
 > **Extra each month  [−]  $500  [+]**
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
-> That is $500 a month not going into savings. Your odds go from **48%** to **43%**.
+> That is $500 a month not going into savings, so retirement gets tighter: your money lasts in about
+> **5 futures out of 10** today, and about **4 out of 10** if you do this.
 > **[ Use as my plan ]**
 
-**Read §6.1 before drawing that odds line.** It is not a penalty we apply to the odds — it is what the
-odds come out as once the money is modelled honestly. The distinction matters and the founder was
-explicit about it.
+**It must show BOTH sides.** *"Saves $143,300 in interest"* on its own always reads as an obvious win.
+At a mortgage rate near the assumed investment return it is close to a wash, and the sentence above is
+what stops the screen selling one side of a trade.
+
+**Read §6.1 before drawing that consequence.** It is not a penalty we apply to the odds — it is what
+the odds come out as once the money is modelled honestly. The founder was explicit about that.
+
+**The control commits.** A stepper for the extra monthly payment; the payoff date and interest saved
+move as it changes; committing makes that payment part of the plan, so it shows in Cash flow as real
+money going out — which is now the same tab it lives on.
 
 **Paying it off in full: the app never moves money.** If someone chooses to clear the mortgage
 outright, that cash has to come from somewhere real, and we do not guess which account or pretend a
@@ -284,6 +310,14 @@ transfer happened. Say what will happen instead: *once you have paid it, we will
 connected bank or from a statement you upload — then mark the mortgage paid off here.* Marking it paid
 updates net worth everywhere, from that one act. Design that as a stated outcome, not a form asking
 which account to debit.
+
+**Two things to confirm when you draw it**, and say which you chose: whether the Debt section shows
+this control on the mortgage row itself or as a section beneath the debt list; and whether Retire
+keeps a quiet pointer to it — *"paying your mortgage down changes this · see Debt ›"* — or says
+nothing. My view is a pointer earns its place, because someone reading their odds on Retire has no
+other way to learn that the biggest lever is on another tab. Your call.
+
+---
 
 **The Social Security row answers itself in place.** Founder ruling, 2026-08-12: it must not send the
 person to another screen to find out what waiting is worth. The row says the answer:
@@ -451,7 +485,7 @@ where the news is bad, name what happens in the losing case rather than leaving 
 This is not a style note. Our audience is 55 to 70 with no assumed finance background, and a bare
 "48%" leaves two questions unanswered: a percentage *of what*, and is that good?
 
-**Apply it to the mortgage row too**, which currently ends *"Your odds go from 48% to 43%"*:
+**Apply it to the mortgage row too** (now on Cash flow · Debt, §3.3.1), which used to end *"Your odds go from 48% to 43%"*:
 
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
 > That is $500 a month not going into savings, so your retirement gets tighter: your money lasts in
@@ -562,11 +596,38 @@ later retirement, no spending cut — he simply waits three years to claim. This
 argument on the whole surface for why "Decisions you can make today" is a section and not a footnote,
 and it is why the row must be drawn.
 
-**He is also the clearest proof of the two-dial rule in §3.1.** His target dial reads **67%** and his
-odds read **73%** — and he will never reach the target: three more years at $500 a month is $18,000
-against a $250,000 gap. A person looking at those two numbers is looking at two different true
-statements. He is short of the number he picked, and his plan still works, because a guaranteed
-income for life does work the target dial cannot see.
+**He is also the clearest proof of the two-dial rule in §3.1** — his target dial reads **67%** while
+his odds read **73%**, two different true statements about one person.
+
+> **⚠️ WHAT FOLLOWS IS ANALYSIS FOR YOU. NONE OF IT IS COPY.** An earlier draft of this paragraph said
+> he *"will never reach the target"* and that his *"odds are fine anyway"*. The founder read it as
+> screen text and called it **too harsh** — and he was right twice over, because the second half was
+> also wrong. Neither sentence may appear in front of Ray, and nothing in his tone may either.
+
+**The arithmetic, for you:** three more years at $500 a month is $18,000 against a $250,000 gap, so
+saving is not the lever here. **And 73% is below the 80% mark the app holds everywhere** — so "his
+plan works anyway" was not a kind framing of a hard truth, it was simply not true. He is short of the
+number he picked *and* below the line. Writing round that with reassurance would be the worse failure.
+
+**But the honest reading of Ray is not bleak, which is the point of him.** One decision he can make
+today closes it completely: waiting to claim at 70 instead of 67 takes him from **73% to 80%** — from
+about **7 futures in 10 to 8 in 10** — with no extra saving, no later retirement and no spending cut.
+The gap is real and the answer is one row down the screen.
+
+**So what he actually sees is a statement of position followed by a door**, never a verdict:
+
+> **$500,000 of the $750,000 you set** — short $250,000.
+> Your money lasts in about **7 futures out of 10**. Waiting to claim Social Security at 70 takes that
+> to about **8 in 10** — the biggest single change available to you. **See what waiting is worth ›**
+
+**Three rules this frame must hold, and they apply to anyone short of their target:**
+
+1. **Never tell someone they will not get there.** It is a projection, not a prophecy, and it is a
+   sentence nobody should read about their own retirement on a Tuesday morning.
+2. **Never soften a number that is below the line.** 73% is below 80% and the screen says so plainly.
+   Comfort that costs accuracy is the one thing this audience cannot afford from us.
+3. **Never state a shortfall without the nearest thing they can do about it.** A gap on its own is an
+   accusation; a gap with a door beside it is a plan.
 
 **Draw him in the working lens**, with the decision list: *When should I claim Social Security?* ·
 *Is converting to a Roth worth it?* (he has $310,000 pre-tax) · *When can I retire?* — and **no
