@@ -130,7 +130,7 @@ Side by side:
 
 | Left dial | Right dial |
 |---|---|
-| **The odds.** "48% — odds of lasting to age 90", with the range beneath. | **Assets vs target.** How far today's money is toward the target *they typed*. |
+| **The odds.** "67% — odds of lasting to age 90", with the range beneath. | **Assets vs target.** How far today's money is toward the target *they typed*. |
 
 Beneath both, **one sentence, this shape**:
 
@@ -146,22 +146,22 @@ handoff ended the hero at the shortfall and went straight to the glance, which l
 stating a problem and offering nothing. This was the most actionable line on the old design and it
 comes back — now measured against **their** target rather than ours:
 
-> **Saving $84,500 a year to 65 projects to about $2,021,000 — just past your $2,000,000 target.** ⓘ
+> **Saving $77,500 a year to 65 projects to about $2,008,000 — just past your $2,000,000 target.** ⓘ
 
 **⚠️ THE FIRST DRAFT OF THIS SENTENCE FAILED ON A FOUNDER READING IT, AND IT WILL FAIL ON USERS THE
-SAME WAY.** It read *"Saving $84,500 a year over your 7 years to 65 reaches your target."* Sitting
-directly under *"short $1,090,848"*, it invites one obvious piece of arithmetic — $84,500 × 7 =
-$591,500 — which is barely half the gap. The founder did exactly that and asked how the number could
+SAME WAY.** It read *"Saving $77,500 a year over your 7 years to 65 reaches your target."* Sitting
+directly under *"short $1,090,848"*, it invites one obvious piece of arithmetic — $77,500 × 7 =
+$542,500 — which is barely half the gap. The founder did exactly that and asked how the number could
 possibly be right.
 
 **The number is right. The sentence was wrong.** Measured on the engine:
 
 | Where the $1,090,848 actually closes from | |
 |---|---|
-| Money he puts in — $84,500 × 7 | **$591,500** |
-| Growth on the $909,152 he already has | **$414,605** |
-| Growth on the new money as it goes in | **$106,257** |
-| **Projects to** | **$2,021,514** |
+| Money he puts in — $77,500 × 7 | **$542,500** |
+| Growth on the $909,152 he already has | **$426,859** |
+| Growth on the new money as it goes in | **$129,685** |
+| **Projects to** | **$2,008,196** |
 
 **Nearly half the gap is closed by growth, and the sentence never mentioned that growth exists.**
 
@@ -173,7 +173,7 @@ per-year figure will be subtracted — treat that as a certainty, not a risk.
 
 **What the sentence must now do — and this is the rule, the exact words are yours:**
 
-1. **Name the projection, not the promise.** "Projects to about $2,021,000", never "reaches your
+1. **Name the projection, not the promise.** "Projects to about $2,008,000", never "reaches your
    target". We are running 400 simulations of an uncertain future; a sentence that guarantees an
    outcome is both untrue and something we will not say. *(This is the same standing rule that banned
    the word "safe" — see §7.1.)*
@@ -181,20 +181,19 @@ per-year figure will be subtracted — treat that as a certainty, not a risk.
    subtracts and finds a mismatch does not conclude "ah, compounding" — they conclude the app cannot
    add up, on the one screen where trust is the whole product.
 3. **Put the full arithmetic one tap away.** Suggested content for the ⓘ, adjust the wording freely:
-   > *Why $84,500 a year and not $155,000?* Your $1,090,848 gap does not close from saving alone.
-   > Over 7 years you would put in $591,500. The rest — about $521,000 — is growth: roughly $415,000
-   > on the $909,152 you already have, and roughly $106,000 on the new money as you add it. That
+   > *Why $77,500 a year and not $155,000?* Your $1,090,848 gap does not close from saving alone.
+   > Over 7 years you would put in $542,500. The rest — about $557,000 — is growth: roughly $427,000
+   > on the $909,152 you already have, and roughly $130,000 on the new money as you add it. That
    > assumes 5.5% a year, which is an estimate, not a promise — the odds dial above is where the
    > range of real outcomes lives.
 
    *($155,000 is $1,090,848 ÷ 7 — the number the subtraction produces. Opening with the reader's own
    wrong answer is the fastest way to resolve it.)*
 
-**Solve it, do not formula it.** The obvious closed-form annuity calculation gives $82,000 for Pat and
-lands at $1,977,544 — **$22,000 short of the target it just promised to reach.** That is the same
-class of defect as audit D1/D2. Find the smallest yearly saving whose projection actually reaches the
-target and round it **up** — measured: $84,500 lands at $2,021,514, and one $500 step lower lands at
-$1,994,407 and misses.
+**Solve it, do not formula it.** A closed-form annuity calculation lands short of the target it just
+promised to reach — the same class of defect as audit D1/D2. Find the smallest yearly saving whose
+projection actually reaches the target and round it **up**. Measured on Pat: **$77,500 lands at
+$2,008,196, and one $500 step lower lands at $1,989,909 and misses.**
 
 **When they are already past their target, the sentence changes rather than disappearing** — see §5,
 state 6.
@@ -315,7 +314,7 @@ amount *and* a rate, or a list with reasons, earns a screen. Settled row by row:
 | Can I spend more? *(retiree)* | **In place**, with a live control |
 | Have you taken your required withdrawal? *(73+)* | **In place** — confirm without leaving; a quiet link opens the year-by-year table |
 | Which account do I draw from first? *(retiree)* | **Its own screen** — the order, why each account sits where it does, what each choice costs in tax, and the steering control. Today this row drops the person on the whole Cash flow tab and leaves them to find it. |
-| Is converting to a Roth worth it? | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. **Built and working — do not redesign it.** The row carries $420,000 pre-tax as its worth. |
+| Is converting to a Roth worth it? | **The existing Roth screen.** Set the amount to convert this year, see the tax cost now at an editable rate, the two later effects (smaller required withdrawals, a bigger tax-free bucket) and the effect on the odds, ending at the shared "Use as my plan" step. **Built and working — do not redesign it.** The row carries Pat's $380,000 pre-tax as its worth. |
 
 ### 3.3.1 THE MORTGAGE DECISION LIVES ON CASH FLOW · DEBT — founder ruling, 2026-08-14
 
@@ -336,7 +335,7 @@ the person makes the decision blind to its biggest consequence — which is wors
 > **Extra each month  [−]  $500  [+]**
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
 > That is $500 a month not going into savings, so retirement gets tighter: your money lasts in about
-> **5 futures out of 10** today, and about **4 out of 10** if you do this.
+> **67 futures out of 100** today, and about **65 out of 100** if you do this.
 > **[ Use as my plan ]**
 
 **It must show BOTH sides.** *"Saves $143,300 in interest"* on its own always reads as an obvious win,
@@ -606,13 +605,13 @@ to the chance a plan works, **say it as a count out of a round number, not as a 
 where the news is bad, name what happens in the losing case rather than leaving it to be imagined.
 
 This is not a style note. Our audience is 55 to 70 with no assumed finance background, and a bare
-"48%" leaves two questions unanswered: a percentage *of what*, and is that good?
+"67%" leaves two questions unanswered: a percentage *of what*, and is that good?
 
-**Apply it to the mortgage row too** (now on Cash flow · Debt, §3.3.1), which used to end *"Your odds go from 48% to 43%"*:
+**Apply it to the mortgage row too** (now on Cash flow · Debt, §3.3.1), which used to end *"Your odds go from 67% to 65%"*:
 
 > Clears **Nov 2045** instead of Oct 2054 — nine years sooner — and saves **$143,300** in interest.
 > That is $500 a month not going into savings, so your retirement gets tighter: your money lasts in
-> about **5 futures out of 10** today, and about **4 out of 10** if you do this.
+> about **67 futures out of 100** today, and about **65 out of 100** if you do this.
 
 Same facts, same honesty, no percentage to decode — and it now says *which way is worse*, which the
 percentages never did.
@@ -621,8 +620,8 @@ percentages never did.
 against $2,600"* is dollars, months and ages, with nothing to translate. Use it as the benchmark for
 the others.
 
-**One word still to fix: "pre-tax".** The Roth row reads *"$420,000 pre-tax"*. Flag what you would put
-there instead — *"$420,000 you haven't paid tax on yet"* is longer but needs no glossary. Your call,
+**One word still to fix: "pre-tax".** The Roth row reads *"$380,000 pre-tax"*. Flag what you would put
+there instead — *"$380,000 you haven't paid tax on yet"* is longer but needs no glossary. Your call,
 but do not leave it as it is.
 
 ---
@@ -637,49 +636,56 @@ Use these exact figures. They reconcile; please keep them reconciling.
 |---|---|
 | Age / retire at / plan to | 58 / 65 / 90 |
 | Spending in retirement | $5,200 a month |
+| **Currently putting away** | **$12,000 a year** ($1,000 a month) |
 | **What counts toward retirement** | **$909,152** |
-| — Vanguard Brokerage | $355,152 |
-| — Fidelity Traditional IRA | $420,000 |
-| — Vanguard Roth IRA | $96,000 |
-| — Ally Savings | $38,000 |
+| — Fidelity Traditional IRA | $380,000 |
+| — **Ally Savings** | **$379,152** |
+| — Vanguard Brokerage | $90,000 |
+| — Vanguard Roth IRA | $60,000 |
+| Expected growth on that mix *(the app works it out from the holdings)* | **5.85% a year**, swing **7.52%** |
 | Home (does **not** count) | $620,000 |
 | **Target nest egg (Pat typed it)** | **$2,000,000** |
 | Assets vs target | **45%** · short **$1,090,848** |
-| **Odds** | **48%** of lasting to 90 · range 18–78% |
+| **Odds** | **67%** of lasting to 90 · range 20–98% |
+| On track to have at 65 | $1,451,000 |
 | Big one-time cost | Roof, 2028 — $18,000 |
 | Mortgage | $412,000 at 5.5% |
-| Pre-tax money (for the Roth row) | $420,000 |
+| Pre-tax money (for the Roth row) | $380,000 |
 
-*If you need it: what Pat is on track to have at 65 is $1,346,763. It is not in the hero. Use it only
-if a state genuinely needs it, and label it as a projection.*
+**Note what changed and why — 2026-08-14.** Pat used to hold $355,152 in a brokerage and $38,000 in
+savings, and the brief printed odds of **48%**. Those two facts could not both be true: that mix grows
+at **8.65%** by the app's own reckoning, which puts him at **82%**. The 48% only existed at a 5.5%
+return nobody had written down. **His holdings changed, not his story** — he is still the person whose
+plan needs work, and now the number follows from what he owns.
 
-> ### ⚠️ PAT'S 48% IS NOT REPRODUCIBLE FROM PAT'S OWN NUMBERS — founder decision needed
+**And the new mix is the more instructive one anyway: $379,152 of his $909,152 is sitting in a savings
+account.** That is 42% of his retirement money earning about 2.4%, which is an extremely common
+position for this age group and one the app already has an insight for. His problem is now visible in
+his own account list rather than hiding in an assumption.
+
+*What Pat is on track to have at 65 — $1,451,000 — is not in the hero. Use it only if a state genuinely
+needs it, and label it as a projection.*
+
+> ### ✅ RESOLVED 2026-08-14 — Pat's odds now follow from Pat's holdings
 >
-> **Found 2026-08-14 while answering "how do we stop errors shipping as instructions".** Every figure
-> in June's and Ray's tables is computed from the engine and pinned by a test. **Pat's never were** —
-> and he is the persona this brief opens with.
+> **This box asked the founder to choose between three options. That was wrong of me** — it was a
+> technical correction dressed up as a product decision, and he said so: *"not sure what you want me
+> to check here."* He was right. The brief is built end to end around Pat being someone whose plan
+> needs work, so the story was never in question; only the numbers were.
 >
-> Run his four accounts through the app's own blended-return calculation and they produce **8.65%**.
-> At 8.65%, the engine gives Pat **82% odds**, not 48%. The 48% only appears at a **5.5%** return —
-> an assumption that **appears nowhere in this brief**, in his table or anywhere else.
+> **What was broken:** the brief said 48% while giving Pat four growth-heavy accounts that blend to
+> **8.65%** and put him at **82%**. It had survived four review passes because 48% looked plausible.
 >
-> So one of three things is true, and only the founder can say which:
+> **What was done:** his holdings were changed so the number is real, his total kept at **$909,152**
+> so every other figure in the brief still reconciles, and **two inputs that had never been written
+> down were added to his table** — the expected growth on his mix, and what he currently saves. That
+> second one mattered more than it looks: the mortgage row redirects money *from saving*, and the
+> brief had never said how much he saves, so that row could not be computed by anyone.
 >
-> 1. **Pat's accounts are wrong for the story** — he is meant to be someone in trouble, and four
->    growth-heavy accounts are not that. Change the holdings, keep 48%.
-> 2. **48% is wrong** — he is genuinely at 82%, and most of the states in §5 do not apply to him.
-> 3. **There is a return assumption we intend and never wrote down** — in which case write it into his
->    table, where every other input of his already sits.
->
-> **Do not resolve this by picking one.** Until it is settled, treat Pat's odds as **provisional**:
-> draw the frames, use 48% as drawn, and expect the number to move. Every *shape* in this brief is
-> unaffected — the two dials disagreeing, the count sentences, the decision rows — because those are
-> about how the screen behaves, not about which value it holds.
->
-> **The wider point, and it is the reason this box exists:** three errors were caught in this brief
-> in one day, and all three were numbers or claims nobody had checked against the engine. The fix is
-> not more care. It is `src/__tests__/brief_figures_guard.test.ts`, which now recomputes every
-> persona figure and fails the build when the brief and the engine disagree.
+> **Everything downstream was recomputed from the engine rather than adjusted by hand** — the closing
+> sentence, the growth breakdown, both hard states, the mirror, and the mortgage line. All of it is
+> now pinned by `src/__tests__/brief_figures_guard.test.ts`, which fails the build if the brief and
+> the engine ever disagree again.
 
 ### June — 72, retired
 
@@ -709,8 +715,8 @@ screen is right to carry both — but do not describe $4,155 as what she takes o
 a withdrawal rate from it. Her rate is 1.95%.
 
 **Her pre-tax balance is $420,000 on purpose**, so the required-withdrawal figure and the Roth row are
-true for her rather than borrowed from Pat. *(It is a coincidence that Pat's Traditional IRA is the
-same size. If that reads confusingly in a side-by-side, say so and I will move one of them.)*
+true for her rather than borrowed from Pat — whose pre-tax balance is $380,000, a different number, as
+it should be.
 
 
 ### Ray — 64, working part-time, has not claimed Social Security
@@ -863,40 +869,41 @@ the person rather than printing a fixed menu.
 
    **STATE 6 — past their own number, odds still poor.** It happens the moment someone types a modest
    figure. Pat typed **$800,000**; he has **$909,152**, so the target dial reads **114%** while his
-   odds read **48%** — a dial pegged past full beside a number under half.
+   odds read **67%** — a dial pegged past full beside a number that is still short of the line.
 
    > **You've passed the $800,000 you set.** You have $909,152 — $109,152 more.
    >
-   > **But at $5,200 a month, your money still runs out before 90 in about half the futures we tested.**
+   > **But at $5,200 a month, your money still runs out before 90 in about 1 future in 3.**
    >
    > Your target was your guess at how much you'd need. This is the check on whether it is actually
    > enough — and it isn't yet.
    >
-   > Putting more away still moves it a long way: another **$24,000 a year** takes you from about
-   > **5 futures in 10 to about 6 in 10**. Retiring later or spending less move it too.
+   > Putting more away still moves it a long way: going from the **$12,000 a year** you save now to
+   > **$77,500** would take it from about **7 futures in 10 to almost all of them**. Retiring later or
+   > spending less move it too.
 
    **⚠️ TWO CORRECTIONS TO THIS BRIEF, FOUND WHILE REWRITING IT — do not use the earlier version.**
 
-   **The odds here are 48%, not 45%.** An earlier draft of this state said 45%. That is Pat's
-   *assets-versus-target* figure against a $2,000,000 target — the other dial. Typing a different
-   target cannot move the odds by a point (§6.1), so his odds in this state are the same 48% they are
-   everywhere else. **On the one state that exists to stop two numbers being confused, the brief
-   confused them.**
+   **The odds here are 67% — his headline number — not 45%.** An earlier draft said 45%, which is
+   Pat's *assets-versus-target* figure against a $2,000,000 target: the other dial. Typing a different
+   target cannot move the odds by a point (§6.1), so his odds in this state are the same as everywhere
+   else. **On the one state that exists to stop two numbers being confused, the brief confused them.**
 
    **"Saving is no longer the lever" was wrong, and I have removed it.** The earlier draft told you to
-   write that. Measured: Pat saving nothing sits at **45%**; at $24,000 a year he is at **64%**; at
-   $84,500 a year he is at **90%**. Saving is a very large lever indeed. What is true is narrower —
+   write that. Measured on Pat's real holdings: saving nothing puts him at **56%**; his actual $12,000
+   a year puts him at **67%**; the $77,500 that reaches his target puts him at **98%**. Saving is a
+   very large lever indeed. What is true is narrower —
    he is past his *target*, so the "save this much to reach your number" sentence has nothing left to
    close. That is a sentence losing its job, not a lever disappearing, and telling someone their
    savings no longer matter would have been both false and discouraging.
 
    **THE MIRROR — on target, and the odds still are not there.** Pat with a **$1,500,000** target:
-   saving **$24,000 a year** projects to **$1,506,263**, which reaches it, and the odds at that point
-   are **64%**. *(Verified on the engine.)*
+   saving **$17,500 a year** projects to **$1,505,001**, which reaches it, and the odds at that point
+   are **74%**. *(Verified on the engine.)*
 
-   > **You'll reach the $1,500,000 you set** — saving $24,000 a year gets you there by 65.
+   > **You'll reach the $1,500,000 you set** — saving $17,500 a year gets you there by 65.
    >
-   > **Even then, your money runs out before 90 in about 4 futures out of 10.**
+   > **Even then, your money runs out before 90 in about 1 future in 4.**
    >
    > Hitting your own number and the money lasting are two different things. Your number is what you
    > aimed at; this is what happens when you actually spend it. To have both, the number has to be
@@ -938,14 +945,14 @@ odds" applied as an adjustment. There is only: **model the person's actual money
 and report what comes out.** If paying $500 a month extra on a mortgage lowers the odds, that is
 because $500 a month genuinely stopped going into savings — not because we subtracted five points.
 
-Practically, this means the mortgage row's *"48% → 43%"* line is produced by running the plan twice —
+Practically, this means the mortgage row's *"67% → 65%"* line is produced by running the plan twice —
 once as it stands, once with the money moved — and printing both results. Never by a formula that
 adjusts a percentage. Anywhere you show an odds figure changing, it must be a second honest run.
 
 **The odds** are 400 seeded market simulations of that person's own plan: grow what they have to
 retirement with a random return each year, subtract big one-time costs in their year, then from
 retirement draw their spending (raised by inflation) less their guaranteed income, apply the tax on
-legally forced withdrawals from 73, and ask at the plan-to age — did the money last? 48% means 192 of
+legally forced withdrawals from 73, and ask at the plan-to age — did the money last? 67% means 268 of
 400 futures made it. The range is the same 400 runs re-done with the average return two points lower
 and two points higher.
 
@@ -983,7 +990,7 @@ and it must carry the same pin as D1/D2: the figure has to actually land at or a
 one step lower has to miss.
 
 **The odds effect of paying a mortgage down faster.** The founder ruled on 2026-08-12 that the
-mortgage row must show it (the "48% → 43%" line above). It does not exist yet, and it is not a small
+mortgage row must show it (the "67% → 65%" line above). It does not exist yet, and it is not a small
 wire-up — **the retirement simulation currently has no concept of debt at all.** Not one mention, in
 either the simulation or the layer that feeds it. Three things have to be built before that line is
 true:

@@ -21,7 +21,7 @@ import path from 'path';
 import { simulate, type RetirementInputs } from '../domain/retirement';
 import { solveSafeDraw } from '../domain/paycheck';
 import { ssBenefitAtClaimAge } from '../domain/retirement/ssTiming';
-import { blendedReturn } from '../domain/assets';
+import { blendedReturn, blendedVolatility } from '../domain/assets';
 
 const BRIEF = path.join(__dirname, '..', '..', 'August 14th Design', 'PLAN-REDESIGN-BRIEF-v3-2026-08-14.md');
 const brief = fs.readFileSync(BRIEF, 'utf8');
@@ -31,8 +31,21 @@ const BASE = { inflation: 0.025, seed: 42, paths: 400, vol_return: 0.0935, mean_
 const odds = (o: Partial<RetirementInputs>) => simulate({ ...BASE, ...o } as RetirementInputs).chance_of_success;
 const projected = (o: Partial<RetirementInputs>) => Math.round(simulate({ ...BASE, ...o } as RetirementInputs).projected_at_retirement);
 
+// PAT'S HOLDINGS ARE THE INPUT, AND HIS RETURN COMES OUT OF THEM — corrected 2026-08-14.
+// The brief used to give him growth-heavy accounts and print 48% odds. Those blend to 8.65%, which
+// puts him at 82%; the 48% only existed at a 5.5% return nobody had written down. His holdings now
+// produce his number, and the two inputs that were never stated — his expected growth and what he
+// currently saves — are in his table where the rest of his inputs already were.
+const PAT_ACCOUNTS = [
+  { asset_id: 'a', kind: 'trad_ira',   tax_bucket: 'PRE_TAX', balance: 380_000 },
+  { asset_id: 'b', kind: 'savings',    tax_bucket: 'CASH',    balance: 379_152 },   // 42% in plain savings
+  { asset_id: 'c', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 90_000  },
+  { asset_id: 'd', kind: 'roth_ira',   tax_bucket: 'ROTH',    balance: 60_000  },
+] as any;
+const PAT_SAVES = 12_000;                          // a year — a STATED input now, not a silent one
 const PAT = { current_age: 58, horizon_age: 90, retire_age: 65, start_balance: 909_152,
-              retire_monthly_spend_today: 5200, guaranteed_monthly_income: 0, guaranteed_start_age: 67 };
+              retire_monthly_spend_today: 5200, guaranteed_monthly_income: 0, guaranteed_start_age: 67,
+              mean_return: blendedReturn(PAT_ACCOUNTS), vol_return: blendedVolatility(PAT_ACCOUNTS) };
 const JUNE = { current_age: 72, horizon_age: 94, retire_age: 72, start_balance: 985_000,
                annual_contribution: 0, guaranteed_monthly_income: 4000, guaranteed_start_age: 72 };
 const RAY  = { current_age: 64, horizon_age: 92, retire_age: 67, start_balance: 500_000,
@@ -42,27 +55,51 @@ const RAY  = { current_age: 64, horizon_age: 92, retire_age: 67, start_balance: 
 const inBrief = (s: string) => expect(brief.includes(s) ? s : `MISSING FROM BRIEF: ${s}`).toBe(s);
 
 describe('the brief agrees with the engine', () => {
+  test("Pat's accounts sum to his balance, and they are what produce his odds", () => {
+    expect(PAT_ACCOUNTS.reduce((t: number, a: any) => t + a.balance, 0)).toBe(909_152);
+    inBrief('$380,000'); inBrief('$379,152'); inBrief('$90,000'); inBrief('$60,000');
+    inBrief(`${(PAT.mean_return * 100).toFixed(2)}%`);                 // 5.85% — stated in his table
+    expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
+    inBrief('**67%** of lasting to 90');
+    inBrief('$12,000 a year');                                         // what he saves — was never stated
+  });
+
   test("Pat's closing sentence: the saving that reaches his typed target, and where it lands", () => {
-    const p = projected({ ...PAT, annual_contribution: 84_500 });
+    const p = projected({ ...PAT, annual_contribution: 77_500 });
     expect(p).toBeGreaterThanOrEqual(2_000_000);                       // it must actually reach it
-    expect(projected({ ...PAT, annual_contribution: 84_000 })).toBeLessThan(2_000_000);   // one step lower misses
-    inBrief(money(p));                                                 // $2,021,514
-    inBrief('$84,500');
+    expect(projected({ ...PAT, annual_contribution: 77_000 })).toBeLessThan(2_000_000);   // one step lower misses
+    inBrief(money(p));                                                 // $2,008,196
+    inBrief('$77,500');
+    // and the growth breakdown that stops the reader subtracting and finding a mismatch
+    const noSaving = projected({ ...PAT, annual_contribution: 0 });
+    inBrief(money(noSaving - 909_152));                                // growth on what he already has
+    inBrief(money(77_500 * 7));                                        // what he puts in
+    inBrief(money(p - noSaving - 77_500 * 7));                         // growth on the new money
   });
 
   test('state 6 and its mirror carry the numbers the engine returns', () => {
-    inBrief(money(projected({ ...PAT, annual_contribution: 24_000 })));           // $1,506,263 reaches $1.5M
-    expect(odds({ ...PAT, annual_contribution: 24_000 })).toBe(64);
-    inBrief('4 futures out of 10');                                               // 64% said as a count
-    // and the correction that started this file: 45% is NOT presented as an odds figure anywhere
+    const mirror = projected({ ...PAT, annual_contribution: 17_500 });
+    expect(mirror).toBeGreaterThanOrEqual(1_500_000);
+    inBrief(money(mirror));                                                       // $1,505,001
+    expect(odds({ ...PAT, annual_contribution: 17_500 })).toBe(74);               // on target, still short of 80
+    inBrief('1 future in 4');                                                     // 74% said as a count
+    inBrief('1 future in 3');                                                     // 67% said as a count
+    // the correction that started this file: 45% is never presented as an odds figure
     expect(brief).not.toMatch(/odds (?:sit at|are|read) \*\*45%/);
   });
 
   test('the claim "saving is no longer the lever" stays deleted — it was false', () => {
     const floor = odds({ ...PAT, annual_contribution: 0 });
-    const ceiling = odds({ ...PAT, annual_contribution: 84_500 });
-    expect(ceiling - floor).toBeGreaterThan(30);        // 45 -> 90: an enormous lever
+    const ceiling = odds({ ...PAT, annual_contribution: 77_500 });
+    expect(ceiling - floor).toBeGreaterThan(30);        // 56 -> 98: an enormous lever
     expect(brief).not.toContain('saving more is no longer the lever');
+  });
+
+  test('the mortgage consequence is a second honest run, not a subtracted penalty', () => {
+    // $500/mo extra on the mortgage = $6,000/yr that stops going into savings
+    expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
+    expect(odds({ ...PAT, annual_contribution: PAT_SAVES - 6_000 })).toBe(65);
+    inBrief('67 futures out of 100'); inBrief('65 out of 100');
   });
 
   test("June's paycheck, headroom and the live spend-more curve", () => {
@@ -99,19 +136,24 @@ describe('the brief agrees with the engine', () => {
 });
 
 // ── the figures we CANNOT yet reproduce, kept visible so they cannot be forgotten ────────────────
-describe('unresolved provenance', () => {
-  test("Pat's 48% does not follow from Pat's own accounts, and the brief says so", () => {
-    const patsOwnReturn = blendedReturn([
+describe('the defect that built this file cannot come back', () => {
+  test("the OLD growth-heavy holdings would have put Pat at 82%, and they are gone", () => {
+    const oldReturn = blendedReturn([
       { asset_id: 'a', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 355_152 },
       { asset_id: 'b', kind: 'trad_ira',   tax_bucket: 'PRE_TAX', balance: 420_000 },
       { asset_id: 'c', kind: 'roth_ira',   tax_bucket: 'ROTH',    balance: 96_000 },
       { asset_id: 'd', kind: 'savings',    tax_bucket: 'CASH',    balance: 38_000 },
     ] as any);
-    // his holdings are growth-heavy; the brief's states were all probed at 5.5%
-    expect(patsOwnReturn).toBeGreaterThan(0.08);
-    const atHisOwnReturn = odds({ ...PAT, annual_contribution: 0, mean_return: patsOwnReturn });
-    expect(atHisOwnReturn).toBeGreaterThan(70);      // ~82%, nowhere near 48%
-    // Until the founder rules, the brief MUST carry the warning rather than presenting 48% as solid.
-    expect(brief).toContain("PAT'S 48% IS NOT REPRODUCIBLE FROM PAT'S OWN NUMBERS");
+    expect(oldReturn).toBeGreaterThan(0.08);                                    // 8.65%
+    expect(odds({ ...PAT, annual_contribution: 0, mean_return: oldReturn })).toBeGreaterThan(70);
+    // The old balance may appear ONLY in the note explaining what changed and why — never as one of
+    // Pat's holdings. (Banning the string outright failed on that note; a rule that cannot tell
+    // history from a live figure is too blunt to keep. Same lesson as the 4.35% assertion above.)
+    for (const m of brief.matchAll(/\$355,152/g)) {
+      const around = brief.slice(Math.max(0, m.index! - 300), m.index! + 300);
+      expect(around).toMatch(/used to hold|What was broken|Note what changed/i);
+    }
+    expect(brief).not.toMatch(/— Vanguard Brokerage \| \$355,152/);
+    expect(brief).toMatch(/RESOLVED 2026-08-14 — Pat's odds now follow from Pat's holdings/);
   });
 });
