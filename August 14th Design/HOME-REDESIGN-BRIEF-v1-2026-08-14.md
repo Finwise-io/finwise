@@ -2,7 +2,7 @@
 
 **For:** Claude Design
 **Date:** 2026-08-14
-**Companion:** `PLAN-REDESIGN-BRIEF-v3-2026-08-12.md` — the Plan tab is being redrawn in parallel.
+**Companion:** `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md` — the Plan tab is being redrawn in parallel.
 Read §7 of that brief (the rules) as if it were repeated here; it is not repeated, and it binds.
 
 ---
@@ -158,7 +158,7 @@ disclaimer never shares a line with an action.**
 ## 6. What the numbers are, and where they come from
 
 > **The people are the same people as the Plan brief, and their figures must not drift.** Take every
-> dollar from **§4 of `PLAN-REDESIGN-BRIEF-v3-2026-08-12.md`** — Pat at 58, June at 72, Ray at 64 —
+> dollar from **§4 of `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md`** — Pat at 58, June at 72, Ray at 64 —
 > rather than re-deriving anything here. Those figures are run against the real engine and pinned by
 > tests, and the last handoff went wrong precisely because a persona was given numbers that belonged
 > to someone else. One person, one set of numbers, whichever screen they appear on.

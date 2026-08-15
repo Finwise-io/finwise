@@ -648,9 +648,12 @@ outlives the retirement date, not only a mortgage.
   what the screen will one day do.
 - **Balances can be hidden.** Every dollar figure must survive being replaced by dots.
 
-  **The dials under hide-balances** (founder ruling, 2026-08-14): the **odds** stay fully visible —
-  "48% odds of lasting to age 90" is not money and gives nothing away. On the **target dial, the
-  numeral is dotted but the arc still fills** to where it would.
+  **The dials under hide-balances.** Founder ruling, 2026-08-14, in his words:
+  **"hide the number, keep the shape."**
+
+  The **odds** stay fully visible — "48% odds of lasting to age 90" is not money and
+  gives nothing away. On the **target dial the numeral is dotted and the arc still fills** to where it
+  would.
 
   *Recorded because it should be visible later: I recommended hiding the target dial outright, on the
   grounds that its percentage is built entirely from two dollar figures and the arc conveys the same
@@ -727,7 +730,7 @@ secure, guaranteed, protected, or risk-free.
 
 > **Read `HANDOFF-REVIEW-v3-2026-08-14.md` in this folder alongside this brief.** It is the review of
 > the v3 handoff you sent, checked line by line against the files now saved in
-> `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-14/`. Most of the
+> `Claude-Design-handoff-received-2026-08-13/ (beside this file)`. Most of the
 > brief landed and the structure is right; the review is the delta, not a re-brief. **Six things
 > block a build and four numbers on screen are not true.** The one to start with:
 >

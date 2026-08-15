@@ -1,7 +1,7 @@
 # Claude Design handoff v3 — received and reviewed
 
 **Received:** 2026-08-13 · `Plan.dc.html` + `Plan-v3-requirements.md` + `Plan-v3-revised-requirements.md`
-**Against:** `PLAN-REDESIGN-BRIEF-v3-2026-08-12.md`
+**Against:** `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md`
 **Reviewed:** all 7 drawn states — Pat collapsed, Pat expanded, June collapsed, June expanded,
 age-missing, day-one, bad-odds.
 **Status:** the structure is right and most of the brief landed. **Six things block a build**, four
@@ -9,7 +9,7 @@ numbers on screen are not true, and five need a founder ruling. Two of the probl
 the designer's, and are marked as such.
 
 > ✅ **The originals are on disk and this review has been re-checked against them** (2026-08-14).
-> They live in `A-instructions for claude/00-CURRENT-handoff-Net-worth-Performance-Plan-2026-08-14/`
+> They live in `Claude-Design-handoff-received-2026-08-13/ (beside this file)`
 > — the folder renamed that day so the live set is unmistakable; three older copies of earlier
 > deliveries sit beside it and only one of them holds anything unique (the superseded v2 Plan
 > drawing).
