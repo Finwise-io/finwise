@@ -39,3 +39,35 @@ test('at what she actually spends, the odds are 100 — capacity and actual are 
 test('her pre-tax balance is the one behind the required-withdrawal figure at 73', () => {
   expect(Math.round(420_000 / 26.5)).toBe(15_849);   // IRS uniform lifetime divisor at 73
 });
+
+// ── THE SPEND-MORE CONTROL: the odds beside it are LIVE, never a fixed 80% (founder, 2026-08-14) ──
+// The v3 handoff printed "→ $5,600 a month in total · held at odds of 80%" at every stepper position.
+// "Held at odds of 80%" describes how the $2,555 was CALCULATED — it is not a property of whatever
+// the control currently reads. At rest June is at 100%, so as drawn the screen showed 80% directly
+// beneath a dial reading 100% for the same plan. These pin the real curve so the build cannot repeat
+// it, and so the design can promise the thing that is actually true: her first $1,000 a month is free.
+describe('spend-more: the odds move with the control', () => {
+  const oddsAtSpend = (spend: number) => simulate({
+    ...SIM, retire_age: 72, start_balance: JUNE_BALANCE, annual_contribution: 0,
+    retire_monthly_spend_today: spend, guaranteed_monthly_income: GUARANTEED, guaranteed_start_age: 72,
+  } as any).chance_of_success;
+
+  test('at rest the control shows what she already spends, at her real odds — not the 80% floor', () => {
+    expect(oddsAtSpend(SPENDING)).toBe(100);
+  });
+
+  test('the first $1,000 a month genuinely costs her nothing', () => {
+    expect(oddsAtSpend(SPENDING + 500)).toBe(100);
+    expect(oddsAtSpend(SPENDING + 1000)).toBe(100);
+  });
+
+  test('past that it declines honestly, reaching the 80% floor exactly at the maximum', () => {
+    expect(oddsAtSpend(SPENDING + 1500)).toBe(97);
+    expect(oddsAtSpend(SPENDING + 2000)).toBe(90);
+    expect(oddsAtSpend(SPENDING + 2555)).toBe(80);       // $8,155 — her whole paycheck
+  });
+
+  test('the maximum position spends exactly her paycheck: guaranteed + the full draw', () => {
+    expect(SPENDING + 2555).toBe(GUARANTEED + 4155);
+  });
+});

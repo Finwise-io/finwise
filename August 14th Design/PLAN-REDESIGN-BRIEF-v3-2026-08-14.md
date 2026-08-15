@@ -367,6 +367,42 @@ without hunting:
 > Estimated amount you can draw more every month: **$2,555**
 > *held at odds of 80%* **[ change ]**
 
+**⚠️ "HELD AT ODDS OF 80%" BELONGS ON THE $2,555 AND NOWHERE ELSE.** The v3 handoff moved it onto the
+running total — *"→ $5,600 a month in total · held at odds of 80%"* — and there it is simply false.
+The founder read that line and asked what the $5,600 meant. Two separate defects sit in it:
+
+**1. At the starting position the odds shown are wrong, and contradict the dial above them.** The
+phrase explains how $2,555 was *calculated* — it is the largest extra draw that still holds an 80%
+floor. It is not a property of whatever the stepper currently reads. Measured on the engine, June's
+odds across the whole range of that control are:
+
+| Spend extra | A month in total | Draw from savings | **Her odds** |
+|---|---|---|---|
+| **$0** *(the default)* | $5,600 | $1,600 | **100%** |
+| $500 | $6,100 | $2,100 | **100%** |
+| $1,000 | $6,600 | $2,600 | **100%** |
+| $1,500 | $7,100 | $3,100 | **97%** |
+| $2,000 | $7,600 | $3,600 | **90%** |
+| $2,555 *(the maximum)* | $8,155 | $4,155 | **80%** |
+
+Only the last row is 80%. At the default the screen would print **80% directly beneath a dial reading
+100%**, for the identical plan — which reads as a broken app, not a nuance.
+
+**The odds beside the running total must be live and must be an output** — §6.1, no exceptions. And
+notice what the real curve gives us for free: **her first $1,000 a month costs her nothing at all.**
+That is a far better answer to "can I spend more?" than a static 80%, and it is true.
+
+**2. At $0 extra, "$5,600 a month in total" is not a result — it is what she already spends, and
+nothing says so.** An arrow into an unchanged number reads as the outcome of a decision she has not
+made. Name it. At zero the line should say something like *"your $5,600 a month today"*; it becomes a
+"→ … in total" only once the stepper has moved.
+
+**And say the draw-and-spend link once, plainly.** The row above talks about what she can **draw**;
+the control talks about what she can **spend**. For June those move together one-for-one, because her
+guaranteed $4,000 does not change — every extra dollar spent is an extra dollar drawn. Obvious to us,
+invisible to her. One sentence fixes it: *"Your Social Security and pension don't change, so anything
+extra comes out of savings."*
+
 ---
 
 ## 4. The three people, with numbers that add up

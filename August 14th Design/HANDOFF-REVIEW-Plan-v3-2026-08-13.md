@@ -4,7 +4,7 @@
 **Against:** `PLAN-REDESIGN-BRIEF-v3-2026-08-14.md`
 **Reviewed:** all 7 drawn states — Pat collapsed, Pat expanded, June collapsed, June expanded,
 age-missing, day-one, bad-odds.
-**Status:** the structure is right and most of the brief landed. **Six things block a build**, four
+**Status:** the structure is right and most of the brief landed. **Seven things block a build**, four
 numbers on screen are not true, and five need a founder ruling. Two of the problems are mine, not
 the designer's, and are marked as such.
 
@@ -113,6 +113,30 @@ The section label ("DECISIONS YOU CAN MAKE TODAY") is 11px bold in brand green `
 The app already learned this exact lesson; the theme file carries the note that the mid brand green
 fails the small-text floor and the deep green is the accessible one. Use **`#085041`**, which
 measures **8.74:1** on the same background.
+
+
+### B7. The spend-more control prints 80% odds beneath a 100% dial — **founder-found, 2026-08-14**
+
+June's frame reads *"→ $5,600 a month in total · held at odds of 80%"*. The founder read it and asked
+what the $5,600 meant. It is two defects in one line.
+
+**The odds are wrong at the default and contradict the same screen.** "Held at odds of 80%" explains
+how the **$2,555** was calculated — the largest extra draw that still holds an 80% floor. The brief
+attaches it to that figure. The mock moved it onto the running total, where it is false everywhere
+except the far end. Measured: at $0 extra she is at **100%**, staying 100% through $1,000 extra, then
+97%, 90%, and only 80% at the maximum. As drawn, the screen prints 80% directly under a dial reading
+100% for the identical plan. **The odds beside a live control must themselves be live — brief §6.1,
+odds are only ever an output.**
+
+The real curve is also a better answer than the static one: **her first $1,000 a month costs her
+nothing.** That is what she came to the row to find out.
+
+**And $5,600 is unlabelled.** At zero extra it is simply what she spends today, but an arrow pointing
+at it reads as the result of a decision she has not made. It needs naming at rest, and the row should
+say once that spending more and drawing more are the same act for her, since her guaranteed $4,000
+does not move.
+
+Both fixes are now written into brief §3.5.
 
 ---
 
