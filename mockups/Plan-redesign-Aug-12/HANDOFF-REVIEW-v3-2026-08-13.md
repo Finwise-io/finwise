@@ -194,9 +194,12 @@ requirements note. Recording it here so it cannot be missed at build time.
    also fills the hole in the middle of a 55-to-70 audience. The gate is now built and pinned in the
    app too: before this the only bound was age < 71, so a 58-year-old was told the next decision in
    front of them was a claim window opening in four years.
-4. **Decisions are hidden when age is missing** (*"Decisions are hidden until your odds can be
-   computed"*). Paying off a mortgage early does not need your age. Hiding an action the person could
-   take today looks like a regression.
+4. ~~**Decisions are hidden when age is missing.**~~ **RULED 2026-08-13 — do not hide them.** Paying
+   off a mortgage needs a mortgage; converting to a Roth needs pre-tax money. Neither needs an age,
+   and the rows that DO need one now remove themselves (Social Security 60-70, required withdrawal
+   73+). The built app already behaves this way — it is the drawing that hides them — so this is a
+   brief instruction, not a code change. The locked *"When can I retire? 🔒"* row stays: a lock
+   explains itself, an empty section does not. Recorded in brief v3 §5.
 5. **Hide-balances is unresolved.** The v2 note asked product to confirm whether the dial percentages
    mask along with the dollars; the v3 notes drop the question. The percentages are derived from
    dollars, so 45% "of your target" leaks the ratio. My view: the **odds** stay visible (not a dollar

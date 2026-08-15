@@ -381,6 +381,24 @@ same size. If that reads confusingly in a side-by-side, say so and I will move o
 2. **June, retired** — the paycheck variant, glance collapsed and open.
 3. **One answer missing** — age absent. The odds cannot be computed at all without it. Everything
    else has a default or is derived. Show what is missing and how to fix it, without pretending.
+
+   **The decisions list does NOT disappear** (founder ruling, 2026-08-13). The v3 handoff ends this
+   state with *"Decisions are hidden until your odds can be computed."* That is wrong, and the
+   founder's own list is the proof: **paying off the mortgage early needs a mortgage, not an age.
+   Converting to a Roth needs pre-tax money, not an age.** Both work perfectly well for someone who
+   has linked their accounts and skipped one question — and hiding them leaves an empty section where
+   two actionable things belong, against this app's own rule that an empty state is an on-ramp.
+
+   The rows that genuinely need an age already remove themselves: Social Security is gated to 60-70,
+   the required withdrawal to 73+. So **show whatever applies and let the rest stay away on its own.**
+
+   Keep one thing from the handoff's instinct: **"When can I retire? 🔒"** is right to be locked,
+   because that one truly cannot be answered without an age. A lock explains itself; an empty section
+   does not.
+
+   *(The designer's counter-argument was fair and is recorded: without odds, a decision can only say
+   what it is worth in dollars and years, not in points. But the points figure is not wired yet for
+   either row, so nothing is actually lost today — and dollars and years are the honest half.)*
 4. **Day one, nothing answered** — no accounts, no answers. **Never show $0 as if it were a fact.**
    The current build prints "$0" for what counts and for big costs, which reads as "you have nothing"
    rather than "you haven't told us yet". A locked sample gauge is allowed if it is labelled a
