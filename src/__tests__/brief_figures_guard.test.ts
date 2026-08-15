@@ -150,6 +150,31 @@ describe('the brief agrees with the engine', () => {
 });
 
 // ── the figures we CANNOT yet reproduce, kept visible so they cannot be forgotten ────────────────
+// ── v4 handoff, 2026-08-14: two number defects found in the returned design ─────────────────────
+describe('handoff v4 defects — pinned so a corrected file can be checked mechanically', () => {
+  const TSY = 0.0463;   // the live ten-year, per the Federal Reserve series
+
+  test('V1 — the below-yield frame changed the balance but kept the old balance\'s figures', () => {
+    // the design draws "$380,000 at 3.1%" while printing $6,304/yr and $40,217, both computed for
+    // the brief's $412,000 example. Either restore the balance or recompute — these are the two
+    // values a corrected frame must land on.
+    expect(Math.round((TSY - 0.031) * 412_000)).toBe(6_304);      // correct AT $412,000
+    expect(Math.round((TSY - 0.031) * 380_000)).toBe(5_814);      // correct AT $380,000
+    expect(6_304).not.toBe(5_814);                                 // so the drawn pair cannot both hold
+  });
+
+  test('V2 — the spend-more bucket overstates at the $2,500 stepper position', () => {
+    const oddsAt = (spend: number) => simulate({
+      ...BASE, ...JUNE, retire_monthly_spend_today: spend,
+    } as RetirementInputs).chance_of_success;
+    expect(oddsAt(5600 + 2000)).toBe(90);        // "9 in 10" — true here
+    expect(oddsAt(5600 + 2500)).toBe(81);        // the design still says "9 in 10" — it is 4 in 5
+    expect(oddsAt(5600 + 2555)).toBe(80);
+    // the bucket boundary has to sit below $2,500, not at $2,555
+    expect(oddsAt(5600 + 2500)).toBeLessThan(85);
+  });
+});
+
 describe('the defect that built this file cannot come back', () => {
   test("the OLD growth-heavy holdings would have put Pat at 82%, and they are gone", () => {
     const oldReturn = blendedReturn([
