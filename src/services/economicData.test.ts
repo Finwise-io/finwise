@@ -6,12 +6,19 @@ import Constants from 'expo-constants';
 import { fetchEconomicData, analyzeExpenses } from './economicData';
 
 const okResponse = (body: any) => ({ ok: true, json: () => Promise.resolve(body) });
+const csvResponse = (text: string) => ({ ok: true, text: () => Promise.resolve(text) });
 
 // 13 months of CPI, latest first: latest 320, a year ago 310 → YoY ≈ 3.23%
 const blsBody = {
   Results: { series: [{ data: Array.from({ length: 14 }, (_, i) => ({ value: String(320 - i * (10 / 12)) })) }] },
 };
-const treasuryBody = { data: [{ record_date: '2026-05-31', security_desc: 'Treasury Bonds', avg_interest_rate_amt: '4.125' }] };
+// TEN-YEAR TREASURY, 2026-08-14: the old Fiscal Data endpoint returns 404 for every request now —
+// the whole dataset, not just our filter — so the live fetch had been failing silently and serving
+// the 4.35% fallback while the real ten-year sat at 4.63%. It was also the wrong number when it did
+// work: an average coupon across outstanding long bonds, not today's market yield. Now the Federal
+// Reserve's own DGS10 series over FRED's CSV endpoint, which needs no key.
+// Non-trading days are written as a lone ".", which is why the parser walks backwards.
+const treasuryBody = ['DATE,DGS10', '2026-08-11,4.70', '2026-08-12,4.68', '2026-08-13,4.63', '2026-08-14,.'].join('\n');
 
 let fetchMock: jest.Mock;
 beforeEach(() => {
@@ -23,23 +30,23 @@ describe('fetchEconomicData', () => {
   test('happy path: live BLS inflation + Treasury yield', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (String(url).includes('bls.gov')) return Promise.resolve(okResponse(blsBody));
-      return Promise.resolve(okResponse(treasuryBody));
+      return Promise.resolve(csvResponse(treasuryBody));
     });
     const econ = await fetchEconomicData();
     const latest = 320, yearAgo = 320 - 12 * (10 / 12);
     expect(econ.inflationRate).toBeCloseTo(((latest - yearAgo) / yearAgo) * 100, 2);
-    expect(econ.treasuryYield).toBe(4.13);                 // rounded to 2dp
+    expect(econ.treasuryYield).toBe(4.63);                 // the last REAL reading, not the '.' row
     expect(econ.fetchedAt).toBeTruthy();
   });
 
   test('BLS failure → inflation falls back to 3.2, treasury stays live', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (String(url).includes('bls.gov')) return Promise.reject(new Error('down'));
-      return Promise.resolve(okResponse(treasuryBody));
+      return Promise.resolve(csvResponse(treasuryBody));
     });
     const econ = await fetchEconomicData();
     expect(econ.inflationRate).toBe(3.2);
-    expect(econ.treasuryYield).toBe(4.13);
+    expect(econ.treasuryYield).toBe(4.63);
   });
 
   test('total outage → both fallbacks, never a rejection', async () => {
@@ -52,7 +59,7 @@ describe('fetchEconomicData', () => {
   test('insufficient BLS history (< 13 months) → fallback', async () => {
     fetchMock.mockImplementation((url: string) => {
       if (String(url).includes('bls.gov')) return Promise.resolve(okResponse({ Results: { series: [{ data: [{ value: '320' }] }] } }));
-      return Promise.resolve(okResponse(treasuryBody));
+      return Promise.resolve(csvResponse(treasuryBody));
     });
     expect((await fetchEconomicData()).inflationRate).toBe(3.2);
   });
@@ -65,7 +72,7 @@ describe('fetchEconomicData', () => {
     expect(down.treasuryIsFallback).toBe(true);
 
     fetchMock.mockImplementation((url: string) =>
-      Promise.resolve(okResponse(String(url).includes('bls.gov') ? blsBody : treasuryBody)));
+      String(url).includes('bls.gov') ? Promise.resolve(okResponse(blsBody)) : Promise.resolve(csvResponse(treasuryBody)));
     const live = await fetchEconomicData();
     expect(live.inflationIsFallback).toBe(false);
     expect(live.treasuryIsFallback).toBe(false);
@@ -73,7 +80,7 @@ describe('fetchEconomicData', () => {
 
   test('a partial outage flags only the failed source', async () => {
     fetchMock.mockImplementation((url: string) =>
-      String(url).includes('bls.gov') ? Promise.reject(new Error('down')) : Promise.resolve(okResponse(treasuryBody)));
+      String(url).includes('bls.gov') ? Promise.reject(new Error('down')) : Promise.resolve(csvResponse(treasuryBody)));
     const econ = await fetchEconomicData();
     expect(econ.inflationIsFallback).toBe(true);
     expect(econ.treasuryIsFallback).toBe(false);
@@ -126,5 +133,46 @@ describe('analyzeExpenses (server-side proxy)', () => {
     (Constants as any).expoConfig.extra.AI_PROXY_URL = 'https://proxy.test/ai';
     fetchMock.mockResolvedValue({ ok: false, status: 502, json: () => Promise.resolve({}) });
     await expect(analyzeExpenses(expenses, 5000, 3)).rejects.toThrow(/AI proxy error/);
+  });
+});
+
+
+// ── the ten-year yield feed, after the 2026-08-14 source swap ────────────────────────────────────
+// This number is about to carry weight: the mortgage decision compares a person's mortgage rate
+// against it, so a wrong or stale yield sends someone the wrong way on a six-figure choice.
+describe('ten-year Treasury yield', () => {
+  const bls = (url: string) => String(url).includes('bls.gov');
+
+  test('it reads the Federal Reserve ten-year series, not the dead Fiscal Data endpoint', async () => {
+    const src = require('fs').readFileSync(require('path').join(__dirname, 'economicData.ts'), 'utf8');
+    expect(src).toContain('fredgraph.csv?id=DGS10');
+    expect(src).not.toContain('avg_interest_rates');      // the endpoint that 404s
+  });
+
+  test('a closed-market day at the end of the file does not become the yield', async () => {
+    fetchMock.mockImplementation((url: string) => bls(url)
+      ? Promise.reject(new Error('down'))
+      : Promise.resolve(csvResponse('DATE,DGS10\n2026-08-13,4.63\n2026-08-14,.\n2026-08-15,.')));
+    const econ = await fetchEconomicData();
+    expect(econ.treasuryYield).toBe(4.63);
+    expect(econ.treasuryIsFallback).toBe(false);
+  });
+
+  test('a feed that changed shape falls back and SAYS it fell back — never a nonsense rate', async () => {
+    fetchMock.mockImplementation((url: string) => bls(url)
+      ? Promise.reject(new Error('down'))
+      : Promise.resolve(csvResponse('DATE,DGS10\n2026-08-13,463')));   // 463%, i.e. the units moved
+    const econ = await fetchEconomicData();
+    expect(econ.treasuryYield).toBe(4.35);
+    expect(econ.treasuryIsFallback).toBe(true);
+  });
+
+  test('nothing but closed days → fallback, flagged, never a crash', async () => {
+    fetchMock.mockImplementation((url: string) => bls(url)
+      ? Promise.reject(new Error('down'))
+      : Promise.resolve(csvResponse('DATE,DGS10\n2026-08-13,.\n2026-08-14,.')));
+    const econ = await fetchEconomicData();
+    expect(econ.treasuryYield).toBe(4.35);
+    expect(econ.treasuryIsFallback).toBe(true);
   });
 });

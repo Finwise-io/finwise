@@ -293,9 +293,65 @@ the person makes the decision blind to its biggest consequence — which is wors
 > **5 futures out of 10** today, and about **4 out of 10** if you do this.
 > **[ Use as my plan ]**
 
-**It must show BOTH sides.** *"Saves $143,300 in interest"* on its own always reads as an obvious win.
-At a mortgage rate near the assumed investment return it is close to a wash, and the sentence above is
-what stops the screen selling one side of a trade.
+**It must show BOTH sides.** *"Saves $143,300 in interest"* on its own always reads as an obvious win,
+and the retirement line above is what stops the screen selling one side of a trade.
+
+#### The rate comparison — founder ruling, 2026-08-14
+
+*"One critical factor is whether the current mortgage rate is higher or lower than the return on
+investment or the 10-year yield. If a person pays off the mortgage versus keeping money in a 10-year
+Treasury — what would be the net saving or cost?"*
+
+**This is the question the decision actually turns on, and the screen has never asked it.** Paying a
+mortgage down is a **guaranteed** return equal to the mortgage rate. So the fair comparison is against
+another guaranteed thing — a Treasury — not against shares. Compare it to shares and you are weighing
+a certainty against a hope, which is how people talk themselves into the wrong answer.
+
+**Both numbers are live in the app.** The mortgage rate sits on the debt record; the ten-year Treasury
+yield comes from the Federal Reserve series the app already fetches. *(That feed was found dead on
+2026-08-14 — the old endpoint 404s and the app had been quietly serving a 4.35% fallback while the
+real yield was 4.63%. Fixed the same day. If it ever falls back again the app knows, and a fallback
+must be labelled here, because this is the one screen where a stale rate changes an answer.)*
+
+**Pat's numbers, computed and reconciling** — his $412,000 at 5.5%, $500 a month extra:
+
+| | |
+|---|---|
+| His mortgage costs | **5.50%** |
+| A ten-year Treasury pays | **4.63%** |
+| **The gap** | **0.87 points** — about **$3,584 a year** on today's balance |
+| Same $500/mo into Treasuries instead, to the original payoff date | $346,678 |
+| Paying the mortgage down, then investing everything it frees up | **$383,255** |
+| **Paying it down leaves him ahead by** | **$36,577** |
+
+*Both routes cost him exactly $2,900 a month and finish on the same date — that is what makes it a
+fair comparison rather than a flattering one.*
+
+**On screen, in the plain grammar of §3.5.1:**
+
+> **Your mortgage costs 5.5%. A ten-year Treasury pays 4.63% today.**
+> So a dollar into the mortgage saves you more than the same dollar would earn sitting in Treasuries —
+> about **$3,584 a year** at your current balance. Over the life of the loan, paying the extra leaves
+> you about **$36,577 better off** than putting it in Treasuries instead.
+> *Compared with shares this is a different question: shares might earn more, but might not. Paying
+> the mortgage is the only one of the two that is certain.*
+
+**Three things this must never do.**
+
+**Never tell them what to do.** State both rates, state the difference in dollars, stop. We are not
+advisers and this is not advice — §7.1 is the standing rule and it applies with force here.
+
+**Never hide it when the answer flips.** If the mortgage rate is *below* the Treasury yield — which is
+true of anyone still holding a 2021 loan at 3% — the same sentence must say so just as plainly:
+*"Your mortgage costs 3.1%. A ten-year Treasury pays 4.63%. Paying it down early costs you about $X a
+year compared with keeping the money in Treasuries."* A comparison that only ever supports paying down
+is not a comparison. **Draw both directions**, and treat the below-the-yield frame as a required state.
+
+**Never quietly do the tax.** Treasury interest is taxed federally, and mortgage interest is only
+deductible for someone who itemises — which, since 2018, most of this audience does not. Both effects
+push the same way, so the honest note is directional, not a calculation: *"Tax usually widens this
+gap rather than closing it, but it depends on your return."* Do not print a number we cannot stand
+behind for an individual.
 
 **Read §6.1 before drawing that consequence.** It is not a penalty we apply to the odds — it is what
 the odds come out as once the money is modelled honestly. The founder was explicit about that.

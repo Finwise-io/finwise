@@ -26,12 +26,23 @@ export const FALLBACK_TREASURY = 4.35;
 const BLS_CPI_SERIES = 'CUUR0000SA0';
 const BLS_API = 'https://api.bls.gov/publicAPI/v1/timeseries/data/';
 
-// Treasury Fiscal Data API — completely free, no key
-const TREASURY_API =
-  'https://api.fiscaldata.treasury.gov/services/api/v1/accounting/od/avg_interest_rates?' +
-  'fields=record_date,security_desc,avg_interest_rate_amt' +
-  '&filter=security_desc:eq:Treasury%20Bonds,Marketable' +
-  '&sort=-record_date&page[size]=1';
+// TEN-YEAR TREASURY YIELD — replaced 2026-08-14 after the old source was found dead.
+//
+// It used to call the Treasury Fiscal Data "average interest rates" dataset. That endpoint now
+// returns 404 for every request — the whole dataset, not just our filter — so the live fetch had
+// been failing silently and the app was serving the 4.35% fallback while the real ten-year sat at
+// 4.63%. Nobody noticed because a fallback is a legitimate outcome of that code path.
+//
+// It was ALSO the wrong number even when it worked. "Average interest rate on marketable Treasury
+// Bonds" is the weighted average coupon across all outstanding long bonds — a historical figure
+// that moves slowly. The ten-year yield is what the market pays today, and today's number is the
+// one a person needs when weighing a mortgage against a risk-free alternative.
+//
+// FRED's CSV endpoint serves series DGS10 — the Federal Reserve's own daily ten-year constant
+// maturity yield — with no API key and no rate limit worth worrying about. Rows read
+// `YYYY-MM-DD,4.63`, and a non-trading day is written as a lone `.`, which is why we walk backwards
+// to the last real reading rather than taking the final line.
+const TREASURY_API = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10';
 
 export async function fetchEconomicData(): Promise<EconomicData> {
   const [inflation, treasury] = await Promise.allSettled([
@@ -67,11 +78,22 @@ async function fetchInflation(): Promise<number> {
 async function fetchTreasuryYield(): Promise<number> {
   const res = await fetch(TREASURY_API);
   if (!res.ok) throw new Error('Treasury API error');
-  const json = await res.json();
+  const csv = await res.text();
 
-  const rate = json?.data?.[0]?.avg_interest_rate_amt;
-  if (!rate) throw new Error('No treasury data');
-  return Math.round(parseFloat(rate) * 100) / 100;
+  // Walk back from the newest row to the last one carrying an actual reading. Markets close for
+  // weekends and holidays and FRED writes those days as ".", so the final line is often not a rate.
+  const rows = csv.trim().split('\n').slice(1);          // drop the header
+  for (let i = rows.length - 1; i >= 0; i--) {
+    const value = rows[i].split(',')[1]?.trim();
+    if (!value || value === '.') continue;
+    const rate = parseFloat(value);
+    // A ten-year yield outside 0-25% means the feed changed shape, not that rates moved. Treat it
+    // as a failure so the caller falls back and flags it, rather than putting nonsense on a screen
+    // somebody is about to make a mortgage decision on.
+    if (!isFinite(rate) || rate <= 0 || rate > 25) throw new Error('Implausible treasury yield');
+    return Math.round(rate * 100) / 100;
+  }
+  throw new Error('No treasury data');
 }
 
 // ── AI expense analysis via Anthropic ────────────────────────────────
