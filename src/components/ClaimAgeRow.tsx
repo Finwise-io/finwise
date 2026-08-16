@@ -25,6 +25,11 @@ export function ClaimAgeRow({ statementMonthly, adoptedAge, onAdopt }: {
   onAdopt?: (age: number) => void;
 }) {
   const [showing, setShowing] = useState<number>(adoptedAge ?? FULL_RETIREMENT_AGE);
+  // NO STATEMENT, NO COMPARISON (adversarial pass, 2026-08-14). Without their own figure this row
+  // would offer "62 · $0 / 67 · $0 / 70 · $0" — three fake zeros dressed as a decision, and a
+  // sentence claiming waiting pays $0 more a month. The screen gates on this too; the component
+  // refuses independently, because a row this wrong must not depend on one caller remembering.
+  if (!(statementMonthly > 0)) return null;
   const at = (age: number) => Math.round(ssBenefitAtClaimAge(statementMonthly, age));
   const delta = at(LATEST_CREDIT_AGE) - at(FULL_RETIREMENT_AGE);
 
