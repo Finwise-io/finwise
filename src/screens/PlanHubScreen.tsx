@@ -24,6 +24,7 @@ import { PlanOutcome } from '../components/PlanOutcome';
 import { PlanInputs, type PlanDraft } from '../components/PlanInputs';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { PlanSubTabs, type PlanSubTab } from '../components/PlanSubTabs';
+import { SpendMoreControl } from '../components/SpendMoreControl';
 import { PlanGoals } from '../components/PlanGoals';
 import { PlanPrepare } from '../components/PlanPrepare';
 import { targetAtRetirement } from '../domain/planning/target';
@@ -324,9 +325,25 @@ export default function PlanHubScreen() {
                   <DecisionRow due={next.kicker.replace(/^NEXT DECISION · /, '')} title={next.title} sub={next.sub}
                     onPress={() => router.push(next.route as any)} />
                 )}
-                <DecisionRow divider={!!next} title="Can I spend more?"
-                  sub={spendMore ? maskDollars(`an extra $500/mo would take you to ${spendMore.chance}% (${spendMore.delta >= 0 ? '+' : '−'}${Math.abs(spendMore.delta)} points) — see the trade before deciding`) : 'see what spending a bit more does to your odds first'}
-                  onPress={() => router.push('/retirement')} />
+                {/* ANSWERED IN PLACE, in plain English (founder-approved 2026-08-14). This used to
+                    be a link to a general what-if screen whose sub-line spoke in points and odds —
+                    "too complex for a user to understand, particularly someone with no finance
+                    background". It leads with the free room now, and every stepper position is a
+                    real run rather than a bucket. */}
+                {wil.inputs && spendRoom > 0 ? (
+                  <View style={[styles.card, !!next && styles.divider]}>
+                    <SpendMoreControl
+                      inputs={wil.inputs}
+                      maxExtra={spendRoom}
+                      horizonAge={wil.horizonAge}
+                      onCommit={(spend) => store.setRetirementAssumptions?.({ spendMonthly: spend })}
+                    />
+                  </View>
+                ) : (
+                  <DecisionRow divider={!!next} title="Can I spend more?"
+                    sub="add what you spend and your income, and this answers itself"
+                    onPress={() => router.push('/monthly-income')} />
+                )}
                 <DecisionRow divider title="Which account do I draw from first?" sub="the order matters — taxes differ by account" onPress={() => router.push('/(tabs)/cashflow')} />
                 {ssIsLive && (
                   <DecisionRow divider title="When should I claim Social Security?"
@@ -473,6 +490,14 @@ export default function PlanHubScreen() {
       </ScrollView>
     );
   }
+
+  // What she has room for — the maximum draw the paycheck engine already computes, minus what her
+  // current spending actually uses. One engine, no second opinion (lesson L-7).
+  const spendRoom = useMemo(() => {
+    if (!payMonth || lens !== 'retired') return 0;
+    const usingFromSavings = Math.max(0, planSpend - (payMonth.guaranteedTotal ?? 0));
+    return Math.max(0, Math.round((payMonth.safeDraw ?? 0) - usingFromSavings));
+  }, [payMonth, planSpend, lens]);
 
   const goalRows = (store.goals ?? []).map((g: any) => ({
     id: g.goal_id, label: g.label, target: g.target_amount ?? 0, saved: g.saved ?? 0,
