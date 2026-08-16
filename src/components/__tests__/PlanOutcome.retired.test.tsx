@@ -53,10 +53,14 @@ describe('the retired lens', () => {
 });
 
 describe('someone still working is unaffected', () => {
-  test('keeps the target, the gap and the sentence that closes it', () => {
+  test('keeps the target dial, the gap and the sentence that closes it', () => {
+    // SUPERSEDED 2026-08-14: this asserted the old three-row arithmetic block ("Target nest egg" /
+    // "On track for, at 65"). The founder ruled the target is a number the PERSON TYPES, and it now
+    // has its own dial beside the odds. What matters for THIS file is unchanged: a working person
+    // still gets the target framing that a retiree does not.
     render(<PlanOutcome inputs={PAT} chance={45} band={{ low: 18, high: 78 }} horizonAge={90}
-      retireAge={65} lens="working" annualIncome={132000} />);
-    expect(screen.getByText('Target nest egg')).toBeOnTheScreen();
-    expect(screen.getByText(/On track for, at 65/)).toBeOnTheScreen();
+      retireAge={65} lens="working" annualIncome={132000} typedTarget={2_000_000} />);
+    expect(screen.getByText('of your target nest egg')).toBeOnTheScreen();
+    expect(screen.getAllByText(/target nest egg/).length).toBeGreaterThan(0);   // dial + hero sentence
   });
 });

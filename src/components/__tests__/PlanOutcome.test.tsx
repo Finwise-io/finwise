@@ -5,11 +5,15 @@ import { PlanOutcome } from '../PlanOutcome';
 import { useStore } from '../../store/useStore';
 import type { RetirementInputs } from '../../domain/retirement';
 
+// PAT'S REAL INPUTS (corrected 2026-08-14). The fixture used to assume 7.7% growth and no saving,
+// which put him ABOVE the 80% line — so the closing sentence, which only speaks to someone still
+// short, never rendered here. His four accounts blend to 5.85% and he puts away $12,000 a year;
+// those are the numbers pinned in brief_figures_guard and the ones every persona figure comes from.
 const PAT: RetirementInputs = {
   current_age: 58, retire_age: 65, horizon_age: 90,
-  start_balance: 909_152, annual_contribution: 0, retire_monthly_spend_today: 5_200,
+  start_balance: 909_152, annual_contribution: 12_000, retire_monthly_spend_today: 5_200,
   guaranteed_monthly_income: 0, guaranteed_start_age: 67,
-  inflation: 0.025, mean_return: 0.077, vol_return: 0.11, paths: 400, seed: 42,
+  inflation: 0.025, mean_return: 0.0585, vol_return: 0.0752, paths: 400, seed: 42,
 };
 // JSX splits "31%" into two nodes — read each Text as the sentence a person actually sees
 const visible = () => {
@@ -40,39 +44,66 @@ test('ONE score: the odds are the only percentage that reads as a verdict', () =
   expect(screen.queryByText(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/)).toBeNull();
 });
 
-test('the three lines subtract to each other, and the shortfall carries the weight', () => {
-  render(<PlanOutcome inputs={{ ...PAT, start_balance: 312_000 }} chance={31} band={null}
-    horizonAge={90} retireAge={65} lens="preretired" />);
-  expect(screen.getByText('On track for, at 65')).toBeOnTheScreen();
-  expect(screen.getByText('Target nest egg')).toBeOnTheScreen();   // founder's words, 2026-08-12
-  expect(screen.getByText('Short')).toBeOnTheScreen();
-  const money = visible().filter((t) => /^\$[\d,]+$/.test(t)).map((t) => Number(t.replace(/[$,]/g, '')));
-  expect(money.length).toBeGreaterThanOrEqual(3);
-  const [onTrack, target, shortfall] = money;   // the three sum rows, in order, before the bridge
-  expect(target - onTrack).toBe(shortfall);          // the arithmetic is real, to the dollar
+// ── SUPERSEDED 2026-08-14 by the approved v4 design ──────────────────────────────────────────────
+// The three tests that stood here pinned the OLD hero: a three-row arithmetic block ("On track for" /
+// "Target nest egg" / "Short") above a bridge sentence reading "Adding $X a year closes it."
+//
+// Three founder rulings replaced all of it. The target is a number the PERSON TYPES, not the
+// 80%-odds pot we derived and labelled as theirs. It gets its own dial beside the odds, because
+// "am I hitting my own number" and "will the money last" are different questions that are allowed
+// to disagree. And the closing sentence must say that GROWTH does nearly half the work — the
+// founder read the old one, did the only subtraction available ($77,500 x 7 = $542,500 against a
+// $1,090,848 gap) and asked how the number could possibly be right. It was; the sentence was not.
+
+test('the two dials answer different questions, and the typed target never moves the odds', () => {
+  const withTarget = { ...PAT, start_balance: 909_152 };
+  render(<PlanOutcome inputs={withTarget} chance={67} band={null} horizonAge={90} retireAge={65}
+    typedTarget={2_000_000} lens="preretired" />);
+  expect(screen.getByText('67%')).toBeOnTheScreen();               // odds — counts simulations
+  expect(screen.getByText('45%')).toBeOnTheScreen();               // target — divides two dollar figures
+  expect(screen.getByText('of your target nest egg')).toBeOnTheScreen();
+  expect(screen.getByText(/short/)).toBeOnTheScreen();
 });
 
-test('someone ahead of the target is told so in plain words, not a number over 100%', () => {
-  render(<PlanOutcome inputs={{ ...PAT, start_balance: 3_000_000 }} chance={98} band={null}
-    horizonAge={90} retireAge={65} lens="preretired" />);
-  expect(screen.getByText('More than you need')).toBeOnTheScreen();
-  expect(screen.queryByText('Short')).toBeNull();
-  expect(screen.getByText(/cleared the 80% mark/)).toBeOnTheScreen();
-  expect(visible().filter((t) => /^\d{1,3}%$/.test(t))).toEqual(['98%']);   // still one score only
+test('past their own target: the numeral passes 100% and "short" becomes "more than you set"', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 909_152 }} chance={67} band={null}
+    horizonAge={90} retireAge={65} typedTarget={800_000} lens="preretired" />);
+  expect(screen.getByText('114%')).toBeOnTheScreen();              // never capped — 114% is true
+  expect(screen.getByText(/more than you set/)).toBeOnTheScreen();
+  expect(screen.queryByText(/— short/)).toBeNull();
 });
 
-test('the bridge sentence names the yearly amount and the tax-advantaged room', () => {
-  render(<PlanOutcome inputs={{ ...PAT, start_balance: 500_000 }} chance={52} band={null}
-    horizonAge={90} retireAge={65} roomAnnual={32_500} roomFromMonthly={800} lens="preretired" />);
-  expect(screen.getByText(/Adding/)).toBeOnTheScreen();
-  expect(screen.getByText(/a year closes it/)).toBeOnTheScreen();
-  // HEDGED 2026-08-14 (audit D12). This used to assert "fits in tax-advantaged room" — stated as a
-  // fact about their allowance. We never see a payroll record: the figure is the IRS limit minus
-  // what they TOLD US they contribute, times twelve, which is wrong for anyone who front-loaded or
-  // changed job mid-year. Over-contributing carries a real tax penalty, so it reads as an estimate
-  // with its assumption named.
-  expect(screen.getByText(/should fit in tax-advantaged room/)).toBeOnTheScreen();
-  expect(screen.getByText(/going by the .* a month you told us/)).toBeOnTheScreen();
+test('while the target is blank we FILL IT IN and say it is ours, never theirs', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 909_152 }} chance={67} band={null}
+    horizonAge={90} retireAge={65} lens="preretired" />);
+  // the defect this fixes shipped for months: a row labelled "Target nest egg" showing a figure the
+  // person never typed, with nothing saying we picked it.
+  expect(screen.getByText(/our starting figure, not yours/)).toBeOnTheScreen();
+  expect(screen.getByText(/Change it to your own number/)).toBeOnTheScreen();
+  expect(screen.queryByText('of your target nest egg')).toBeNull();   // no dial without their number
+});
+
+test('the closing sentence PROJECTS rather than promises, and explains where the growth comes from', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 909_152 }} chance={67} band={null}
+    horizonAge={90} retireAge={65} typedTarget={2_000_000} lens="preretired" />);
+  expect(screen.getByText(/projects to/)).toBeOnTheScreen();
+  expect(screen.queryByText(/reaches your target/)).toBeNull();        // never a promise (§7.1)
+  expect(screen.getByText(/Growth does almost half the work/)).toBeOnTheScreen();
+  expect(screen.getByText(/growing what you already have/)).toBeOnTheScreen();
+  expect(screen.getByText(/an estimate, not a promise/)).toBeOnTheScreen();
+});
+
+test('the simulation note sits under the odds, not as a footnote over the whole page', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 909_152 }} chance={67} band={null}
+    horizonAge={90} retireAge={65} typedTarget={2_000_000} lens="preretired" />);
+  expect(screen.getByText(/about 400 runs of your own numbers/)).toBeOnTheScreen();
+});
+
+test('a retiree sees NO target dial and no saving sentence — wrong question once drawing down', () => {
+  render(<PlanOutcome inputs={{ ...PAT, start_balance: 985_000 }} chance={100} band={null}
+    horizonAge={94} retireAge={72} typedTarget={2_000_000} lens="retired" />);
+  expect(screen.queryByText('of your target nest egg')).toBeNull();
+  expect(screen.queryByText(/projects to/)).toBeNull();
 });
 
 test('and it says nothing about tax-advantaged room when we were never told a contribution', () => {

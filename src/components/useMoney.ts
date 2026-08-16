@@ -35,6 +35,14 @@ export const maskDollars = (text: string, hidden?: boolean) =>
 /** SPOKEN (accessibility) forms — walk row 15 (audit Home·NW #8): a screen reader must say the word
  *  "hidden", never read the dot characters. accessibilityLabel templates use THESE, not the visual
  *  maskers above (a guard test enforces it). Visual output is unchanged. */
+// HIDE THE NUMBER, KEEP THE SHAPE (founder, 2026-08-14). A percentage built out of two dollar
+// figures — today's money divided by their target — is money wearing a different hat, so it dots
+// out with the rest. The ARC beside it still fills to where it would; the founder chose to keep
+// the shape knowing it carries the same ratio. The ODDS percentage is NOT this: it counts
+// simulations, not dollars, and stays visible.
+export const maskedPct = (n: number | null | undefined) =>
+  n == null ? '—' : useStore.getState().hideBalances ? BALANCE_MASK : `${n}%`;
+
 export const spokenMoney = (n: number) => (useStore.getState().hideBalances ? 'hidden' : money(n));
 export const spokenMoney2 = (n: number) => (useStore.getState().hideBalances ? 'hidden' : money2(n));
 export const spokenDollars = (text: string) =>

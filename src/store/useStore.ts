@@ -176,6 +176,10 @@ export type RetirementAssumptions = {
   ssEligible: boolean | null;                // null = not yet asked
   ssMonthly: number | null;                  // estimated Social Security benefit, today's $/mo
   ssClaimAge: number | null;                 // age SS begins (default 67)
+  // THEIRS, not ours (founder, first correction of the redesign): "target nest egg is a number
+  // entered by the user based on what is their target." The app used to derive this and label it
+  // "Target nest egg" anyway. A typed target never moves the odds — see domain/planning/target.ts.
+  targetNestEgg: number | null;              // null until they type one; we suggest while it is null
   actualReturn: number | null;               // self-reported actual portfolio return, trailing 12mo (decimal)
   returnBasis: 'benchmark' | 'actual' | 'scenario' | null;  // which growth rate drives the nest-egg projection
   // F4/F11 (FCC): adopted goal commitments — each appears as a named planned line on Cash flow
@@ -485,7 +489,7 @@ export const useStore = create<AppState>()(
       monthlySnapshots: {},
       nwDaily: {},
       invDaily: {},
-      retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+      retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
       planHistory: [],
@@ -1015,7 +1019,7 @@ export const useStore = create<AppState>()(
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
       allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {},
-        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],
       lastRetireChance: null,
@@ -1037,7 +1041,7 @@ export const useStore = create<AppState>()(
       restartOnboarding: () => set((s) => ({
         onboardingProfile: null, onboardingComplete: false, onboardingPaused: false, onboardingDraft: null,
         selectedGoals: [], retirementPlan: null, retirementScenarios: [], planHistory: [],
-        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, actualReturn: null, returnBasis: null },
+        retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, actualReturn: null, returnBasis: null },
         // clear onboarding-seeded goals (keep hand-added ones) + reset the seed flag so a re-run re-seeds
         goals: s.goals.filter((g) => g.origin !== 'onboarding'), goalsSeeded: false,
         ...(s.nwSeeded ? {

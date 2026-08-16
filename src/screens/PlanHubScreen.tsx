@@ -23,6 +23,9 @@ import { SectionBand } from '../components/SectionBand';
 import { PlanOutcome } from '../components/PlanOutcome';
 import { PlanInputs, type PlanDraft } from '../components/PlanInputs';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
+import { PlanSubTabs, type PlanSubTab } from '../components/PlanSubTabs';
+import { PlanGoals } from '../components/PlanGoals';
+import { PlanPrepare } from '../components/PlanPrepare';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
@@ -39,6 +42,9 @@ const rateWords = (band: string | null | undefined) =>
 const prettySavedDate = (v: any) => { const d = new Date(String(v ?? '')); return isNaN(d.getTime()) ? '' : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); };
 
 export default function PlanHubScreen() {
+  // Plan's three sub-tabs (founder, 2026-08-02). Local state, not routes: they are one tab's
+  // interior, and a person switching between them has not navigated anywhere.
+  const [subTab, setSubTab] = useState<PlanSubTab>('retire');
   const router = useRouter();
   // Home and Net worth deep-link here with the answer they were missing (founder ruling: one screen,
   // reached three ways — it used to be a separate /plan-answers route, which drifted)
@@ -188,6 +194,7 @@ export default function PlanHubScreen() {
             annualIncome={annualIncomeForPlan}
             roomAnnual={roomAnnual}
             roomFromMonthly={monthly401k}
+            typedTarget={A?.targetNestEgg ?? null}
             lens={lens}
           />
           {trying && <Text style={styles.tryingTag}>Trying it out — your plan still says {wil.chance}%.</Text>}
@@ -458,18 +465,30 @@ export default function PlanHubScreen() {
     );
   }
 
+  const goalRows = (store.goals ?? []).map((g: any) => ({
+    id: g.goal_id, label: g.label, target: g.target_amount ?? 0, saved: g.saved ?? 0,
+    targetDate: g.target_year ? String(g.target_year) : null,
+  }));
+
   return (
     <ScrollView style={styles.root} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
         <HiddenBalancesBanner />
       <Text style={styles.h1}>Plan</Text>
       <Text style={styles.tagline}>We lay it out. You decide.</Text>
-      {verdictBlock}
-      {paycheckBlock}
-      {decisionsBlock(true)}
-      {scenariosBlock}
-      {revertBlock}
-      {meterBlock}
-      {footBlock}
+      {/* CHROME, not content — the bar sits on every state including day one and age-missing, so
+          Goals and Prepare are always reachable (brief §3.0). */}
+      <PlanSubTabs active={subTab} onChange={setSubTab} />
+      {subTab === 'goals' ? <PlanGoals goals={goalRows} />
+        : subTab === 'prepare' ? <PlanPrepare />
+        : (<>
+            {verdictBlock}
+            {paycheckBlock}
+            {decisionsBlock(true)}
+            {scenariosBlock}
+            {revertBlock}
+            {meterBlock}
+            {footBlock}
+          </>)}
       <View style={{ height: 40 }} />
     </ScrollView>
   );

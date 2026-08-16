@@ -11,14 +11,15 @@ import React, { useMemo } from 'react';
 import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Typography } from '../utils/theme';
 import { GaugeArc } from './GaugeArc';
+import { TargetGauge } from './TargetGauge';
 import { SectionBand } from './SectionBand';
 import { InfoDot } from './UI';
-import { maskedMoney, spokenMoney } from './useMoney';
-import { planTarget, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
+import { maskedMoney, maskedPct, spokenMoney } from './useMoney';
+import { planTarget, howTheGapCloses, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
 import { oddsLine } from '../domain/planning/hub';
 import type { RetirementInputs } from '../domain/retirement';
 
-export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, roomFromMonthly, lens }: {
+export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annualIncome, roomAnnual, roomFromMonthly, typedTarget, lens }: {
   inputs: RetirementInputs | null;
   chance: number;
   band: { low: number; high: number } | null;
@@ -29,10 +30,18 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
   /** what they told us they put in each month — the room figure is derived from it, so the sentence
    *  names it rather than presenting the allowance as a fact we looked up. */
   roomFromMonthly?: number;
+  /** THEIRS — what the person typed. Null until they do, and it never moves the odds (§6.1). */
+  typedTarget?: number | null;
   lens: 'retired' | string;
 }) {
   // the solves are ~a quarter-second of simulation — never on a render, only when a number moves
-  const t = useMemo(() => (inputs ? planTarget(inputs, annualIncome, roomAnnual) : null), [inputs, annualIncome, roomAnnual]);
+  const t = useMemo(() => (inputs ? planTarget(inputs, annualIncome, roomAnnual, typedTarget) : null),
+                    [inputs, annualIncome, roomAnnual, typedTarget]);
+  // the three parts of the closing sentence — computed once, from the engine, never by hand
+  const gap = useMemo(
+    () => (inputs && t?.savingToTarget ? howTheGapCloses(inputs, t.savingToTarget.total) : null),
+    [inputs, t?.savingToTarget?.total],
+  );
   const levers = useMemo(() => (inputs && t?.impossible ? leverDeltas(inputs) : []), [inputs, t?.impossible]);
 
   const retired = lens === 'retired';
@@ -63,46 +72,75 @@ export function PlanOutcome({ inputs, chance, band, horizonAge, retireAge, annua
         <InfoDot term="nestEggMath" />
       </View>
 
-      {/* THE ARITHMETIC — money, not a second score. Not for someone already drawing down: a target is
-          a "will I get there" framing, and once you are retired the question is "is this covering me",
-          which the paycheck answers. Adopted when the design handoff came in and confirmed by the
-          founder 2026-08-13; it had never been built, so a retiree saw a target pot AND two different
-          "to spare" figures four lines apart (audit D8). */}
-      {!retired && t?.targetAtRetirement != null && (
-        <View style={s.sums}>
-          <Row label={`On track for${lens === 'retired' ? '' : `, at ${retireAge}`}`} value={maskedMoney(t.projectedAtRetirement)} spoken={spokenMoney(t.projectedAtRetirement)} />
-          <Row label="Target nest egg" value={maskedMoney(t.targetAtRetirement)} spoken={spokenMoney(t.targetAtRetirement)} />
-          {agrees && <Row
-            label={spare ? 'More than you need' : 'Short'}
-            value={maskedMoney(Math.abs(short!))}
-            spoken={spokenMoney(Math.abs(short!))}
-            strong
-            tone={spare ? 'good' : 'warn'}
-          />}
+      {/* THE SECOND DIAL — their typed target, beside the odds. Two questions, two answers, and
+          they are allowed to disagree: "am I hitting my own number" and "will the money last" are
+          not the same question, and the screen must say both without either looking wrong.
+          Retirees do not see it: a target is a "will I get there" framing, and once you are drawing
+          down the question is "is this covering me", which the paycheck answers (audit D8). */}
+      {!retired && t?.typedTarget != null && (
+        <View style={s.targetRow} accessible
+          accessibilityLabel={`${t.targetPct} percent of your target nest egg of ${spokenMoney(t.typedTarget)}.`}>
+          <TargetGauge pct={t.targetPct} />
+          <View style={s.gaugeText}>
+            {/* HIDE-BALANCES, founder's words: "hide the number, keep the shape." The arc fills to
+                where it would; the numeral dots out, because it is two dollar figures divided. */}
+            <Text style={s.pct}>{maskedPct(t.targetPct)}</Text>
+            <Text style={s.pctSub}>of your target nest egg</Text>
+          </View>
         </View>
       )}
 
-      {/* THE BRIDGE — the most actionable line on the screen, and also a "reach a target by saving"
-          sentence, so it stands down for a retiree along with the target itself. June was being told
-          "nothing more to put away to stay there" about a plan she is no longer paying into. */}
-      {!retired && t && !t.impossible && !t.alreadyThere && t.requiredExtraAnnual ? (
-        <Text style={s.bridge}>
-          Adding <Text style={s.b}>{maskedMoney(t.requiredExtraAnnual)}</Text> a year closes it
-          {t.yearsToRetire > 0 ? ` over your ${t.yearsToRetire} years to ${retireAge}` : ''} and raises your odds to {TARGET_ODDS}%.
-          {/* HEDGED ON PURPOSE (founder 2026-08-14). We never see a payroll record — this headroom is
-              the IRS limit minus what they TOLD US they contribute monthly, times twelve. That is
-              wrong for anyone who front-loaded, started or stopped mid-year, changed job, or defers a
-              bonus. Over-contributing to a 401(k) carries a real tax penalty, so the sentence must
-              read as an estimate with its assumption named, never as a fact about their allowance. */}
-          {roomAnnual ? <> About <Text style={s.b}>{maskedMoney(Math.min(roomAnnual, t.requiredExtraAnnual))}</Text> of that should fit in tax-advantaged room{roomFromMonthly ? `, going by the ${maskedMoney(roomFromMonthly)} a month you told us you already put in` : ''}.</> : null}
+      {/* THE HERO SENTENCE — today's money against THEIR number. A plain subtraction, never engine
+          output, and it must never be drawn as a contradiction of the odds above it. */}
+      {!retired && t?.typedTarget != null && t.shortOfTarget != null && (
+        <Text style={s.heroLine}>
+          <Text style={s.b}>{maskedMoney(inputs!.start_balance)}</Text> of your <Text style={s.b}>{maskedMoney(t.typedTarget)}</Text> target nest egg
+          {t.shortOfTarget > 0
+            ? <> — short <Text style={s.b}>{maskedMoney(t.shortOfTarget)}</Text></>
+            : <> — <Text style={s.b}>{maskedMoney(-t.shortOfTarget)}</Text> more than you set</>}
         </Text>
-      ) : null}
-
-      {!retired && t?.alreadyThere && (
-        <Text style={s.bridge}>You've cleared the {TARGET_ODDS}% mark — nothing more to put away to stay there.</Text>
       )}
 
-      {/* the honest bad state: say the number once, then turn to what actually moves */}
+      {/* OUR SUGGESTION, while theirs is blank — filled in, and labelled as ours (founder 2026-08-14).
+          A blank target is a worse first experience than a sensible starting figure; what is not
+          acceptable is showing our number and calling it theirs, which is what shipped before. */}
+      {!retired && t?.typedTarget == null && t?.suggestedTarget != null && (
+        <Text style={s.heroLine}>
+          <Text style={s.b}>{maskedMoney(t.suggestedTarget)}</Text>
+          <Text style={s.ours}> — our starting figure, not yours. Change it to your own number.</Text>
+        </Text>
+      )}
+
+      {/* WHAT CLOSES THE GAP — the most actionable line on the screen, and the one the founder
+          read and challenged: "$77,500 x 7 = $542,500, so how does that close $1,090,848?"
+          It does not. GROWTH DOES NEARLY HALF THE WORK, and the first draft never said growth
+          existed. Any sentence pairing a total gap with a per-year figure WILL be subtracted —
+          treat that as a certainty, not a risk — so the breakdown sits right underneath.
+          It also says "projects to", never "reaches": we run 400 simulations of an uncertain
+          future and will not guarantee an outcome (§7.1, the same rule that banned "safe"). */}
+      {!retired && t && !t.alreadyThere && t.savingToTarget && gap && (
+        <>
+          <Text style={s.bridge}>
+            Saving <Text style={s.b}>{maskedMoney(t.savingToTarget.total)} a year</Text> to {retireAge} projects to
+            about <Text style={s.b}>{maskedMoney(Math.round(gap.projectsTo / 1000) * 1000)}</Text>
+            {t.typedTarget != null && gap.projectsTo >= t.typedTarget ? ' — just past your target nest egg.' : '.'}
+          </Text>
+          <Text style={s.gapNote}>
+            Growth does almost half the work: {maskedMoney(gap.putIn)} from saving,
+            {' '}{maskedMoney(gap.growthOnExisting)} growing what you already have, and
+            {' '}{maskedMoney(gap.growthOnNew)} growing the new money as it goes in — an estimate, not a promise.
+          </Text>
+        </>
+      )}
+
+      {/* THE ODDS, LABELLED WHERE THEY SIT — never a page-level disclaimer claiming everything above
+          it came from a simulation, when most of it is what the person told us (§7.2). */}
+      {!retired && t && (
+        <Text style={s.gapNote}>
+          The odds come from about 400 runs of your own numbers through different markets.
+        </Text>
+      )}
+
       {t?.impossible && (
         <>
           <Text style={s.bridge}>
@@ -136,6 +174,10 @@ const s = StyleSheet.create({
   wrap: { backgroundColor: Colors.white },
   gaugeRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.md, gap: Spacing.sm },
   gaugeText: { flex: 1 },
+  gapNote: { fontSize: 11, lineHeight: 17, color: Colors.textSecondary, paddingHorizontal: Spacing.md, paddingTop: 4 },
+  targetRow: { flexDirection: 'row', alignItems: 'center', paddingHorizontal: Spacing.md, paddingTop: Spacing.sm, gap: Spacing.md },
+  heroLine: { fontSize: 15, lineHeight: 22, color: Colors.textPrimary, paddingHorizontal: Spacing.md, paddingTop: Spacing.sm },
+  ours: { color: Colors.textSecondary, fontSize: 13 },
   pct: { fontSize: 30, fontWeight: '800', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   pctSub: { fontSize: 13, color: Colors.textPrimary, marginTop: -2 },
   band: { fontSize: Typography.sizes.xs, color: Colors.textSecondary, marginTop: 3 },

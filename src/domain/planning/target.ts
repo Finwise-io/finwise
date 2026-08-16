@@ -66,8 +66,62 @@ export function requiredAnnualSaving(base: RetirementInputs): { total: number; e
   return { total, extra: Math.max(0, total - (base.annual_contribution ?? 0)) };
 }
 
+// ── THE TYPED TARGET ──────────────────────────────────────────────────────────────────────────
+// FOUNDER CORRECTION, and it reverses the note at the top of this file. The target is NOT ours to
+// derive: "target nest egg is a number entered by the user based on what is their target, and odds
+// are simply calculated based on target nest egg entered by the user." Two different questions,
+// answered separately, and the app must be able to say both without either looking wrong:
+//   the TARGET dial  — am I hitting my own number?
+//   the ODDS dial    — will the money actually last?
+// A typed target CANNOT move the odds. Nothing about naming a number changes whether money survives
+// being spent, so the two dials are independent by construction, not by convention.
+//
+// We still compute the 80%-odds pot, but only as a SUGGESTION offered when the field is blank — and
+// it is labelled as ours wherever it appears (founder, 2026-08-14).
+
+/** The yearly saving whose PROJECTION reaches a typed target. A different question from
+ *  `requiredAnnualSaving`, which solves for 80% ODDS — and the answers differ a lot.
+ *
+ *  SOLVED, NOT FORMULA'D. A closed-form annuity calculation lands short of the very target it just
+ *  promised to reach, because the projection is a simulated median rather than a smooth compounding
+ *  curve. Measured on Pat: the formula gives $82,000 and lands $22,000 SHORT. So: search, then round
+ *  UP — the returned figure must actually reach the target and one step lower must miss. */
+export function savingToReachTarget(base: RetirementInputs, typedTarget: number): { total: number; extra: number } | null {
+  const projectedWith = (annual: number) =>
+    simulate({ ...base, annual_contribution: annual }).projected_at_retirement;
+  const found = smallestThatWorks(0, MAX_SAVING, 500, (x) => projectedWith(x) >= typedTarget);
+  if (found == null) return null;
+  const total = Math.ceil(found / 500) * 500;
+  return { total, extra: Math.max(0, total - (base.annual_contribution ?? 0)) };
+}
+
+/** Where the money to close the gap actually comes from — the breakdown that stops a person
+ *  subtracting and concluding the app cannot add up (founder, 2026-08-14).
+ *
+ *  Pat's own reading of the first draft: "$77,500 x 7 = $542,500, so how does that close $1,090,848?"
+ *  It does not. Growth does nearly half the work, and the sentence never said growth existed. */
+export function howTheGapCloses(base: RetirementInputs, totalAnnualSaving: number): {
+  growthOnExisting: number; putIn: number; growthOnNew: number; projectsTo: number;
+} {
+  const years = Math.max(0, base.retire_age - base.current_age);
+  const noSaving = Math.round(simulate({ ...base, annual_contribution: 0 }).projected_at_retirement);
+  const withSaving = Math.round(simulate({ ...base, annual_contribution: totalAnnualSaving }).projected_at_retirement);
+  const putIn = totalAnnualSaving * years;
+  return {
+    growthOnExisting: noSaving - base.start_balance,
+    putIn,
+    growthOnNew: withSaving - noSaving - putIn,
+    projectsTo: withSaving,
+  };
+}
+
 export interface PlanTarget {
   odds: number;                       // today's odds, the same number every screen shows
+  typedTarget: number | null;         // THEIRS — what they entered, null until they do
+  suggestedTarget: number | null;     // OURS — the 80%-odds pot, offered only while theirs is blank
+  targetPct: number | null;           // today's money ÷ their typed target (never ÷ ours)
+  shortOfTarget: number | null;       // typed target − today's money; negative means past it
+  savingToTarget: { total: number; extra: number } | null;   // reaches THEIR number
   targetAtRetirement: number | null;  // the pot that reaches 80%
   projectedAtRetirement: number;      // what today's plan is on track for, same moment in time
   progressPct: number | null;         // projected ÷ target, 0–100+ (null when no target exists)
@@ -82,16 +136,26 @@ export interface PlanTarget {
 /** One call, everything the second gauge and the bridge sentence need.
  *  `annualIncome` decides the impossible state — a required saving larger than what someone earns
  *  is a real answer, but it is never "the ask" (founder 2026-08-12). */
-export function planTarget(base: RetirementInputs, annualIncome?: number, roomAnnual?: number): PlanTarget {
+export function planTarget(base: RetirementInputs, annualIncome?: number, roomAnnual?: number, typedTarget?: number | null): PlanTarget {
   const sim = simulate(base);
   const odds = sim.chance_of_success;
   const projected = Math.round(sim.projected_at_retirement);
   const alreadyThere = odds >= TARGET_ODDS;
   const target = targetAtRetirement(base);
+  // THEIR number against TODAY'S money — this dial answers "how far along am I", so it compares what
+  // they have now to what they said they want. It is a plain division, never engine output.
+  const typed = typedTarget != null && typedTarget > 0 ? typedTarget : null;
+  const savingToTarget = typed == null ? null : savingToReachTarget(base, typed);
   const saving = alreadyThere ? { total: base.annual_contribution ?? 0, extra: 0 } : requiredAnnualSaving(base);
   const extra = saving?.extra ?? null;
   return {
     odds,
+    typedTarget: typed,
+    // ours is offered ONLY while theirs is blank; the moment they type, our number stops existing
+    suggestedTarget: typed == null ? target : null,
+    targetPct: typed == null ? null : Math.round((base.start_balance / typed) * 100),
+    shortOfTarget: typed == null ? null : typed - base.start_balance,
+    savingToTarget,
     targetAtRetirement: target,
     projectedAtRetirement: projected,
     progressPct: target && target > 0 ? Math.round((projected / target) * 100) : null,

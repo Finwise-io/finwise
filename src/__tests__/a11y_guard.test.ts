@@ -18,11 +18,29 @@ function walk(d: string): string[] {
     return p.endsWith('.tsx') ? [p] : [];
   });
 }
+// FIXED 2026-08-14. This used to be `/<TouchableOpacity\b[^>]*?>/gs`, which stops at the FIRST ">"
+// it meets — and an arrow function in a prop (`onPress={() => ...}`) contains one. So any control
+// whose onPress came before its accessibility props was reported unlabeled even when it carried a
+// perfectly good label, and the fix a person would reach for is to shuffle props around to satisfy
+// a broken matcher. Walk the tag instead, tracking brace depth, and end on a ">" at depth zero.
+function openingTags(src: string, tag: string): string[] {
+  const out: string[] = [];
+  let i = 0;
+  while ((i = src.indexOf('<' + tag, i)) !== -1) {
+    let depth = 0, j = i + tag.length + 1;
+    for (; j < src.length; j++) {
+      const c = src[j];
+      if (c === '{') depth++;
+      else if (c === '}') depth--;
+      else if (c === '>' && depth === 0) break;
+    }
+    out.push(src.slice(i, j + 1));
+    i = j + 1;
+  }
+  return out;
+}
 function unlabeled(src: string): number {
-  const re = /<TouchableOpacity\b[^>]*?>/gs;
-  let m: RegExpExecArray | null, n = 0;
-  while ((m = re.exec(src))) { if (!/accessibility(Label|Role)/.test(m[0])) n++; }
-  return n;
+  return openingTags(src, 'TouchableOpacity').filter((t) => !/accessibility(Label|Role)/.test(t)).length;
 }
 
 test('no file exceeds its unlabeled-control baseline (ratchet down only)', () => {
