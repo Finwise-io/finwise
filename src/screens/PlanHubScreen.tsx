@@ -25,6 +25,9 @@ import { PlanInputs, type PlanDraft } from '../components/PlanInputs';
 import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { PlanSubTabs, type PlanSubTab } from '../components/PlanSubTabs';
 import { SpendMoreControl } from '../components/SpendMoreControl';
+import { ClaimAgeRow } from '../components/ClaimAgeRow';
+import { PlanGlanceRows, buildGlanceRows } from '../components/PlanGlanceRows';
+import { retirementEarmarkedValue } from '../domain/assets';
 import { PlanGoals } from '../components/PlanGoals';
 import { PlanPrepare } from '../components/PlanPrepare';
 import { targetAtRetirement } from '../domain/planning/target';
@@ -254,6 +257,18 @@ export default function PlanHubScreen() {
             {door.credit && (
               <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
             )}
+            {/* ALL SEVEN QUESTIONS, ALWAYS (founder finding, 2026-08-14). The design showed three
+                here and seven everywhere else. Four of the missing ones are not blank — they are
+                OURS: the app assumes retire at 65 and plan to 90, and the sample gauge above is
+                computed with them. Hiding the rows hides what the number is standing on. */}
+            <PlanGlanceRows rows={buildGlanceRows({
+              age, retireAge: A?.retireAge ?? null, horizonAge: A?.horizonAge ?? null,
+              spendMonthly: planSpend || null, targetNestEgg: A?.targetNestEgg ?? null,
+              counted: retirementEarmarkedValue(accounts) || null,
+              bigCosts: (A?.oneOffCosts ?? []).reduce((t: number, c: any) => t + (c.amount || 0), 0) || null,
+              defaults: { retireAge: 65, horizonAge: 90 },
+              onOpen: () => router.push('/sharpen'),
+            })} />
             {/* THE SAME inputs as the complete state — one component, so the two can never drift.
                 This is what folding /plan-answers into the tab means (founder 2026-08-12). */}
             <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
@@ -493,6 +508,9 @@ export default function PlanHubScreen() {
 
   // What she has room for — the maximum draw the paycheck engine already computes, minus what her
   // current spending actually uses. One engine, no second opinion (lesson L-7).
+  // their own statement amount — the only honest input for a claim-age comparison
+  const ssStatement = Number(A?.ssMonthly ?? op?.ri_ss ?? 0) || 0;
+
   const spendRoom = useMemo(() => {
     if (!payMonth || lens !== 'retired') return 0;
     const usingFromSavings = Math.max(0, planSpend - (payMonth.guaranteedTotal ?? 0));
