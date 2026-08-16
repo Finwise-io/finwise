@@ -12,9 +12,11 @@ import { View, Text, StyleSheet } from 'react-native';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from './useMoney';
 import { compareMortgageToTreasury } from '../domain/debt/mortgageVsTreasury';
+import { mortgageOddsEffect } from '../domain/debt/mortgageOdds';
+import type { RetirementInputs } from '../domain/retirement';
 import { InfoDot } from './UI';
 
-export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield, isFallback }: {
+export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield, isFallback, planInputs, nowYear }: {
   balance: number;
   annualRate: number;
   monthlyPayment: number;
@@ -23,8 +25,15 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
   /** the live feed failed and we are on a typical rate — say so, because this is the one screen
    *  where a stale rate changes the answer */
   isFallback?: boolean;
+  /** the plan as committed — without it we cannot say what this does to retirement, and moving the
+   *  decision here without that line was the whole risk of moving it (brief §3.3.1) */
+  planInputs?: RetirementInputs | null;
+  nowYear?: number;
 }) {
   const c = compareMortgageToTreasury({ balance, annualRate, monthlyPayment, extraMonthly, treasuryYield });
+  const effect = planInputs
+    ? mortgageOddsEffect({ base: planInputs, balance, annualRate, monthlyPayment, extraMonthly, nowYear: nowYear ?? new Date().getFullYear() })
+    : null;
   if (!c) return null;
 
   const rates = `Your mortgage costs ${c.mortgagePct}%. A ten-year Treasury pays ${c.treasuryPct}% today.`;
@@ -52,6 +61,20 @@ export function MortgageRateCompare({ balance, annualRate, monthlyPayment, extra
               <Text style={s.b}>{maskedMoney(lifetime)} {c.lifetimeDifference > 0 ? 'better off' : 'worse off'}</Text>{' '}
               than putting it in Treasuries instead.</>
           )}
+        </Text>
+      )}
+
+      {/* THE RETIREMENT CONSEQUENCE TRAVELS WITH THE CONTROL. Moving this decision to the debt
+          surface and leaving this line behind on Retire would let a person decide blind to its
+          biggest effect — worse than where we started (brief §3.3.1).
+          BOTH numbers are full simulation runs (§6.1). Never a subtraction. */}
+      {effect && (
+        <Text style={s.body}
+          accessibilityLabel={`Paying the extra means less going into savings. Your money lasts in about ${effect.before} of 100 futures today, and about ${effect.after} of 100 if you do this.`}>
+          {'\n'}That's {maskedMoney(extraMonthly)} a month not going into savings while the loan runs — and the whole
+          payment freeing up once it clears, {effect.fasterPayoffYear} instead of {effect.payoffYear}. Taken together, your
+          money lasts in about <Text style={s.b}>{effect.before} future simulations out of 100</Text> today, and about{' '}
+          <Text style={s.b}>{effect.after} out of 100</Text> if you do this.
         </Text>
       )}
 

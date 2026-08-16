@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import {
   View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, FlatList,
   Modal, TextInput, KeyboardAvoidingView, Platform, Switch,
@@ -14,6 +14,7 @@ import { budgetVsActual, plannedMonthlySpend, categoryMonthly } from '../domain/
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid } from '../domain/income';
 import { MortgageRateCompare } from '../components/MortgageRateCompare';
+import { willItLastInputs } from '../domain/retirement/willItLast';
 import { FALLBACK_TREASURY } from '../services/economicData';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod, type Debt } from '../domain/debt';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
@@ -95,7 +96,15 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const [debtSheet, setDebtSheet] = useState<{ open: boolean; edit?: Debt }>({ open: false });
   // payoff plan + log-payment
   const [payoffMethod, setPayoffMethod] = useState<PayoffMethod>('avalanche');
-  const [extraPay, setExtraPay] = useState('');
+  // PERSISTED (2026-08-14): typing an extra payment used to vanish on leaving the screen, so it
+  // never became part of the plan and the retirement effect below could not be computed at all.
+  const storedExtra = (useStore.getState() as any).retirementAssumptions?.debtExtraMonthly;
+  const [extraPay, setExtraPayRaw] = useState(storedExtra ? String(storedExtra) : '');
+  const setExtraPay = (v: string) => {
+    setExtraPayRaw(v);
+    const n = Number(String(v).replace(/[^0-9.]/g, ''));
+    (useStore.getState() as any).setRetirementAssumptions?.({ debtExtraMonthly: n > 0 ? n : null });
+  };
   const [payDebt, setPayDebt] = useState<any | null>(null);
   const [payAmt, setPayAmt] = useState('');
   // Activity: month browse, search, add/edit sheet, delete-with-undo
@@ -301,6 +310,14 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const plan = payoffPlan(rawDebts, num(extraPay), payoffMethod);
   // the biggest long-term loan — a mortgage for anyone who has one. Cards are excluded: at 22% the
   // comparison is not a question, and printing one would make it look like one.
+  // the plan as committed, so the retirement consequence can be a real run rather than a guess
+  const planForDebt = useMemo(() => {
+    const st = useStore.getState() as any;
+    return willItLastInputs({ op: st.onboardingProfile, accounts: st.assetAccounts,
+      assumptions: st.retirementAssumptions, bigCosts: st.bigCosts,
+      inflationRate: st.inflationRate, employmentStatus: st.employmentStatus });
+  }, [rawDebts.length, extraPay]);
+
   const bigLoan = rawDebts
     .filter((d: any) => d.remaining_balance > 50_000 && d.interest_rate_apr > 0 && d.interest_rate_apr < 0.12)
     .sort((a: any, b: any) => b.remaining_balance - a.remaining_balance)[0] ?? null;
@@ -695,6 +712,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
                   extraMonthly={num(extraPay)}
                   treasuryYield={(treasuryYield ?? FALLBACK_TREASURY) / 100}
                   isFallback={treasuryIsFallback}
+                  planInputs={planForDebt}
                 />
               )}
             </Card>

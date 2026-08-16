@@ -79,6 +79,26 @@ export interface RetirementInputs {
   /** Big one-time costs (founder-approved 2026-08-02): today's dollars + the calendar year they
    *  land. Each is inflated to its year and subtracted once — before AND after retirement. */
   one_off_costs?: { amount: number; year: number }[];
+  /** PAYMENTS THAT STOP — a mortgage or loan that ends inside the plan (founder, 2026-08-14).
+   *
+   *  The app asks what a person will spend each month and charged that figure, raised by inflation,
+   *  for EVERY year to the horizon. Anyone whose spending answer included a mortgage was being
+   *  charged it long after the house was paid off — Pat's clears in 2054 and his plan runs to 2058,
+   *  four years of a payment that will not exist. Today's odds are pessimistic for all of them and
+   *  no screen says so.
+   *
+   *  The founder's ruling: we TELL the person we include their loan payments for as long as they
+   *  run, and take them from the loan itself. So the spending answer excludes debt, and these are
+   *  charged on top until they end.
+   *
+   *  NOT INFLATED, and that is the point of a separate field rather than a spending adjustment: a
+   *  fixed-rate mortgage payment is the same number of dollars in 2054 as today. Inflating it for
+   *  28 years would overstate it by more than half. */
+  recurring_until?: { annual: number; through_year: number }[];
+  /** Changes to what goes IN, year by year (founder, 2026-08-14). Paying $500 a month extra on a
+   *  mortgage is $6,000 a year NOT going into savings while the loan runs — and the whole payment
+   *  freeing up once it clears. One flat contribution figure can represent neither half. */
+  contribution_adjustments?: { annual: number; from_year: number; through_year?: number }[];
   now_year?: number;                 // calendar year of 'today' (callers pass it; deterministic default)
 }
 
@@ -157,6 +177,20 @@ export function simulate(inp: RetirementInputs) {
     if (off < 0 || off > totalYears) continue;         // past or beyond the horizon: not simulated
     oneOffByYear[off] = (oneOffByYear[off] || 0) + c.amount * Math.pow(1 + inp.inflation, Math.max(0, off));
   }
+  // PAYMENTS THAT STOP — charged flat, never inflated (a fixed mortgage payment does not rise)
+  const recurringByYear: Record<number, number> = {};
+  for (const r of inp.recurring_until ?? []) {
+    if (!(r.annual > 0)) continue;
+    const last = Math.min(totalYears, r.through_year - nowYear);
+    for (let y = 1; y <= last; y++) recurringByYear[y] = (recurringByYear[y] || 0) + r.annual;
+  }
+  // CHANGES TO WHAT GOES IN, by year — reductions while a loan runs, the freed payment afterwards
+  const contribByYear: Record<number, number> = {};
+  for (const a of inp.contribution_adjustments ?? []) {
+    const from = Math.max(0, a.from_year - nowYear);
+    const through = a.through_year != null ? Math.min(totalYears, a.through_year - nowYear) : totalYears;
+    for (let y = from; y <= through; y++) contribByYear[y] = (contribByYear[y] || 0) + a.annual;
+  }
   // per-year balance across paths, only when a band is requested (keeps the hot path lean)
   const yearly: number[][] | null = inp.with_band ? Array.from({ length: totalYears + 1 }, () => [] as number[]) : null;
 
@@ -167,8 +201,11 @@ export function simulate(inp: RetirementInputs) {
     if (yearly) yearly[0].push(bal);
     const g = inp.contribution_growth ?? 0;
     for (let y = 0; y < nAcc; y++) {
-      bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) + inp.annual_contribution * Math.pow(1 + g, y);
+      // what goes in this year: the plan's contribution, plus or minus anything a loan changed
+      const putIn = Math.max(0, inp.annual_contribution * Math.pow(1 + g, y) + (contribByYear[y] || 0));
+      bal = bal * (1 + normal(rng, inp.mean_return, inp.vol_return)) + putIn;
       bal -= oneOffByYear[y + 1] || 0;                 // a roof in 2028 leaves the egg in 2028
+      bal -= recurringByYear[y + 1] || 0;              // …and a loan payment leaves it until it ends
       if (yearly) yearly[y + 1].push(Math.max(0, bal));
     }
     atRetire.push(bal);
@@ -183,7 +220,8 @@ export function simulate(inp: RetirementInputs) {
         const guarNow = age >= claimAge ? guar : 0;   // SS only from the claim age
         const net = Math.max(0, spend - guarNow);
         const growth = 1 + normal(rng, inp.mean_return, inp.vol_return);
-        bal = bal * growth - net - (oneOffByYear[nAcc + y + 1] || 0);
+        // the loan payment is charged flat on top of spending, and stops in its own year
+        bal = bal * growth - net - (oneOffByYear[nAcc + y + 1] || 0) - (recurringByYear[nAcc + y + 1] || 0);
         if (rmdOn) {
           preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
           if (age >= RMD_START_AGE_SIM && preTaxBal > 0) {

@@ -58,6 +58,33 @@ test('a stale rate SAYS it is stale — this is the screen where that changes th
   expect(screen.getByText(/could not reach the rate feed today/)).toBeOnTheScreen();
 });
 
+// ── THE RETIREMENT CONSEQUENCE (added 2026-08-14) ───────────────────────────────────────────────
+// Moving this decision to the debt surface and leaving this line behind on Retire would let someone
+// decide blind to its biggest effect. I did exactly that in the first build; the audit caught it.
+const PLAN = {
+  current_age: 58, retire_age: 65, horizon_age: 90, start_balance: 909_152,
+  annual_contribution: 12_000, retire_monthly_spend_today: 5200,
+  guaranteed_monthly_income: 0, guaranteed_start_age: 67,
+  mean_return: 0.0585, vol_return: 0.0752, inflation: 0.025, seed: 42, paths: 400, now_year: 2026,
+} as any;
+
+test('the retirement consequence TRAVELS with the control', () => {
+  render(<MortgageRateCompare {...ABOVE} planInputs={PLAN} nowYear={2026} />);
+  expect(screen.getByText(/not going into savings while the loan runs/)).toBeOnTheScreen();
+  expect(screen.getByText(/future simulations out of 100/)).toBeOnTheScreen();
+});
+
+test('it names BOTH halves of the trade — the squeeze and the payment freeing up', () => {
+  render(<MortgageRateCompare {...ABOVE} planInputs={PLAN} nowYear={2026} />);
+  expect(screen.getByText(/whole/)).toBeOnTheScreen();
+  expect(screen.getByText(/2045 instead of 2054/)).toBeOnTheScreen();
+});
+
+test('without a plan on file it says nothing rather than guessing', () => {
+  render(<MortgageRateCompare {...ABOVE} />);
+  expect(screen.queryByText(/future simulations out of 100/)).toBeNull();
+});
+
 test('hide balances masks the dollars and leaves the rates — a rate is not a balance', () => {
   useStore.setState({ hideBalances: true } as any);
   render(<MortgageRateCompare {...ABOVE} />);
