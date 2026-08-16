@@ -40,8 +40,13 @@ test('a FACT writes the moment it changes — there is nothing to remember to sa
 
 test('spending in retirement is ASKED, not derived — and it is the figure the odds then use', () => {
   harness();
-  // the screen says what the number is for, in place
-  expect(screen.getByText(/What your savings actually have to cover/)).toBeOnTheScreen();
+  // CHANGED 2026-08-14 (founder ruling: we tell the person we include their mortgage for as long as
+  // it runs). The hint used to read "What your savings actually have to cover. Prefilled from what
+  // you spend now." — and what a person spends now INCLUDES their mortgage, because it is money
+  // leaving their account. Once the app also adds the loan on top, that answer charges it twice.
+  // The question now says what to leave out, at the point of answering.
+  expect(screen.getByText(/Not counting loan or mortgage payments/)).toBeOnTheScreen();
+  expect(screen.getByText(/we add those ourselves, from your loans/)).toBeOnTheScreen();
   fireEvent.changeText(screen.getByLabelText('Monthly spending in retirement'), '6100');
   const { selectWillItLast } = require('../../domain/retirement/willItLast');
   const s: any = useStore.getState();

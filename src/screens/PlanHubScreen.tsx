@@ -141,6 +141,20 @@ export default function PlanHubScreen() {
     [wil.inputs, A?.targetNestEgg],
   );
 
+  // THE LOAN THE APP ADDS ON TOP (founder, 2026-08-14). Taken from the debt itself, not from what
+  // the person remembered to include — which is the point: they answer spending without it.
+  const mortgage = useMemo(() => {
+    const loans = (store.liabilities ?? []).filter((d: any) =>
+      (d.remaining_balance ?? 0) > 50_000 && (d.interest_rate_apr ?? 0) > 0 && (d.interest_rate_apr ?? 0) < 0.12);
+    const biggest = loans.sort((a: any, b: any) => b.remaining_balance - a.remaining_balance)[0];
+    if (!biggest || !(biggest.minimum_monthly_payment > 0)) return null;
+    const i = biggest.interest_rate_apr / 12;
+    if (biggest.minimum_monthly_payment <= biggest.remaining_balance * i) return null;   // never clears
+    let b = biggest.remaining_balance, m = 0;
+    while (b > 0 && m < 1200) { b = b + b * i - biggest.minimum_monthly_payment; m++; }
+    return { monthly: Math.round(biggest.minimum_monthly_payment), payoffYear: new Date().getFullYear() + Math.floor((m - 1) / 12) };
+  }, [store.liabilities]);
+
   const next = useMemo(() => nextDecision({
     lens, age, birthYear: Number(op.birthYear) || null, ssClaimAge: A.ssClaimAge != null ? Number(A.ssClaimAge) : null,
     preTaxBalance: preTaxBal, preTaxAccountIds: preTaxIds, transactions: store.transactions ?? [], moneyWord: maskedMoney,
@@ -226,6 +240,7 @@ export default function PlanHubScreen() {
           {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
           <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
             suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
+            mortgageMonthly={mortgage?.monthly ?? 0} mortgagePayoffYear={mortgage?.payoffYear}
             onOpenDoor={(r) => router.push(r as any)} />
           {/* a single line of text is a ~20pt target; fingers miss it, and this audience is the
               reason the 44pt rule exists at all (audit D13) */}
@@ -264,7 +279,8 @@ export default function PlanHubScreen() {
             <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
               missing={door.missing} focus={focusParam} onOpenDoor={(r) => router.push(r as any)}
               suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
-              assumed={{ retireAge: A?.retireAge == null, horizonAge: A?.horizonAge == null }} />
+              assumed={{ retireAge: A?.retireAge == null, horizonAge: A?.horizonAge == null }}
+              mortgageMonthly={mortgage?.monthly ?? 0} mortgagePayoffYear={mortgage?.payoffYear} />
           </View>
           <View style={[styles.nextCard, { opacity: 0.5 }]} accessible
             accessibilityLabel="Sample of the next-decision card — real ones are dated from your numbers, never invented.">

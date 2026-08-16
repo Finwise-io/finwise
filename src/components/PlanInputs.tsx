@@ -19,7 +19,7 @@ export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly
 const THIS_YEAR = new Date().getFullYear();
 const MIN_AGE = 18, MAX_AGE = 100;
 
-export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor, suggestedTarget, assumed }: {
+export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor, suggestedTarget, assumed, mortgageMonthly = 0, mortgagePayoffYear }: {
   draft: PlanDraft;
   onDraft: (d: PlanDraft) => void;
   onCommit: () => void;
@@ -34,6 +34,10 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   suggestedTarget?: number | null;
   /** which of these values are the APP'S assumption rather than the person's answer */
   assumed?: { retireAge?: boolean; horizonAge?: boolean };
+  /** the loan payment the app adds on top, and the year it stops — stated where they answer, so the
+   *  division of labour is visible rather than something they have to work out */
+  mortgageMonthly?: number;
+  mortgagePayoffYear?: number;
   /** the three ways to add what is missing — one wording, shared with Home and Sharpen */
   onOpenDoor?: (route: string) => void;
 }) {
@@ -98,8 +102,22 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
             accessibilityLabel="Monthly spending in retirement" />
         </View>
       </View>
-      {/* the app asked what they spend TODAY and quietly adjusted it — now it asks the real question */}
-      <Text style={s.hint}>What your savings actually have to cover. Prefilled from what you spend now.</Text>
+      {/* NOT COUNTING DEBT — founder ruling, 2026-08-14: "we are telling the user that we will
+          include the mortgage payment for the left duration." So the app owns loan payments; it
+          takes them from the loan itself and charges them until they end.
+          THIS SENTENCE IS LOad-BEARING. What a person spends today INCLUDES their mortgage, because
+          it is money leaving their account. If they answer that way and we also add the loan on top,
+          we charge it twice — on Pat that is $2,400 a month counted double, pushing his odds well
+          below the truth. The question has to say what to leave out, at the point of answering. */}
+      <Text style={s.hint}>
+        Not counting loan or mortgage payments — we add those ourselves, from your loans, for as long
+        as they run. Everything else your savings have to cover.
+      </Text>
+      {mortgageMonthly > 0 && (
+        <Text style={s.hint}>
+          We're including your {maskedMoney(mortgageMonthly)}/mo mortgage until it's paid off in {mortgagePayoffYear}, from your loan.
+        </Text>
+      )}
 
       {/* THE TARGET NEST EGG — THEIRS. Founder's first correction of this redesign: "target nest egg
           is a number entered by the user based on what is their target." Before this the app derived
