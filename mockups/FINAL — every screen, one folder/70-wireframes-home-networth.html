@@ -1,0 +1,530 @@
+<title>MoneyKeel — APPROVED wireframes: Home & Net worth (detailed design v1.1)</title>
+<style>
+ body{margin:0;padding:32px 20px 64px;background:#e8ece9;color:#1a1a18;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+ @media (prefers-color-scheme: dark){body{background:#161917;color:#eceeea}}
+ .wrap{max-width:1000px;margin:0 auto}
+ .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:#178F6B;text-transform:uppercase}
+ h1{font-size:24px;font-weight:800;margin:6px 0 8px}
+ .lede{font-size:14px;line-height:1.5;opacity:.75;max-width:720px}
+ h2{font-size:18px;font-weight:800;margin:34px 0 6px}
+ h3{font-size:14px;font-weight:700;margin:18px 0 6px;opacity:.85}
+ pre{background:#fff;color:#1a1a18;border-radius:12px;padding:16px 18px;font:12.5px/1.45 ui-monospace,Menlo,monospace;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+ @media (prefers-color-scheme: dark){pre{background:#1f2320;color:#eceeea}}
+</style>
+<div class="wrap">
+<div class="eyebrow">MoneyKeel · source of truth · approved 2026-07-12</div>
+<h1>The approved wireframes — Home & Net worth</h1>
+<p class="lede">Transcribed verbatim from <b>docs/FCC-core-55-70/FCC-core-detailed-design-v1.1-2026-07-06.xlsx</b>
+(tabs "Home" and "Net worth" — the workbook with the founder's ✅ Approve column). This file is the folder copy;
+the workbook remains the canonical approval record. Known founder amendments since approval: the "+ Expense"
+button was removed from Home (2026-07-16) and consent copy names SnapTrade, not Plaid (2026-07-18).</p>
+<h2>Home tab</h2>
+<h3>▶ Home — still-working hero (Grow &amp; Track)  ·  lens: working</h3><pre>+------------------------------+
+| Good morning, Pat   (eye)[=] |
+|                              |
+| YOUR INVESTMENTS             |
+|   $843,700                   |
+|   up $11,200 this month  ▲up |
+|   you +1.4% · market +0.9%   |
+|   ahead by 0.5%              |
+|   prices as of 4:00pm today  |
+| [ See your growth        &gt; ] |
+|                              |
+| Net worth  $1,204,900   ▲up  |
+|                              |
+| WHAT NEEDS YOU (3)           |
+| 1◆ $18,400 cash earning      |
+|    about $0        Invest &gt;  |
+| 2· $9,200 of 401(k) room     |
+|    left this year    Plan &gt;  |
+| 3· $353,800 (42%) sits in    |
+|    one account     Invest &gt;  |
+|                              |
+| WILL MY MONEY LAST? — to 92                |
+| Likely — 84% — estimate      |
+| See the full picture  Plan &gt; |
++------------------------------+
+| [Home] Net worth  Invest     |
+|        Cash flow  Plan       |
+|               +------------+ |
+|               | + Expense  | |
+|               +------------+ |
++------------------------------+</pre>
+<h3>▶ Home — retired hero (Safe to spend)  ·  lens: retired</h3><pre>+------------------------------+
+| Good morning, June  (eye)[=] |
+|                              |
+| SAFE TO SPEND — JULY         |
+|   $5,840 this month          |
+|   estimate                   |
+|   Social Security  $2,600    |
+|   Pension          $1,600    |
+|    = Guaranteed    $4,200    |
+|   + Safe draw      $1,640    |
+|      from your savings  (i)  |
+|   − Big bills this month  $0 |
+|      (shows only when due)   |
+|   This year     ~$71,600     |
+|   varies month to month      |
+| [ See July&#x27;s paycheck    &gt; ] |
+|                              |
+| WHAT NEEDS YOU (2)           |
+| 1◆ Worth a look: $2,400      |
+|    went out of checking  See &gt;  |
+| 2· Required withdrawal of    |
+|    $12,300 due by Dec 31     |
+|                      Plan &gt;  |
+|                              |
+| WILL MY MONEY LAST? — to 92                |
+| Likely — 84% — estimate      |
+| See the full picture  Plan &gt; |
++------------------------------+
+| [Home] Cash flow  Net worth  |
+|        Plan  Invest          |
+|               +------------+ |
+|               | + Expense  | |
+|               +------------+ |
++------------------------------+</pre>
+<h3>▶ Worth a look — transaction detail (F10)  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Back        Worth a look   |
+|                              |
+|      (magnifier icon)        |
+|   $2,400 left your Chase     |
+|   checking on Tue, Jun 30    |
+|                              |
+|   Paid to: APEX SOLUTIONS    |
+|   First time we&#x27;ve seen      |
+|   this payee on this account |
+|                              |
+|   WHY WE&#x27;RE SHOWING THIS     |
+|   Your usual withdrawal from |
+|   this account is about      |
+|   $310. This one is 8 times  |
+|   that. Most large first-    |
+|   time payments are fine —   |
+|   you know best.             |
+|                              |
+| [ Yes, this was me         ] |
+|                              |
+| [ Something&#x27;s off — show me  |
+|   what to do               ] |
+|                              |
+|   We can only look at your   |
+|   accounts — we can never    |
+|   move or block money.       |
+|   Your bank can.             |
++------------------------------+</pre>
+<h3>▶ First run — what did you come for? (sets the lens)  ·  lens: both</h3><pre>+------------------------------+
+| Welcome to FinWise           |
+|                              |
+| What did you come for?       |
+|  (pick all that apply)       |
+|  [ ] Grow my investments     |
+|  [ ] A retirement paycheck   |
+|      I can trust             |
+|  [ ] See everything in       |
+|      one place               |
+|                              |
+| Where are you these days?    |
+|  ( ) Still working           |
+|  ( ) Retired, or nearly      |
+|                              |
+| This sets up your Home and   |
+| your tab order. Change it    |
+| anytime in Settings.         |
+|                              |
+| [ Continue ]                 |
+| [ Skip — just explore ]      |
++------------------------------+</pre>
+<h3>▶ Home — first run (nothing connected yet)  ·  lens: both</h3><pre>+------------------------------+
+| Welcome, Pat        (eye)[=] |
+|                              |
+|  Let&#x27;s get your real         |
+|  numbers in.                 |
+|                              |
+|     ( link illustration )    |
+|                              |
+| [ Connect your first         |
+|   account               &gt;  ] |
+|   Takes about 2 minutes.     |
+|   Read-only: we can look,    |
+|   never touch your money.    |
+|                              |
+| [ Add something by hand  &gt; ] |
+|   Your home, or an account   |
+|   with no login              |
+|                              |
+|  WHAT YOU&#x27;LL SEE HERE        |
+|  · Your whole money picture  |
+|    in one place                 |
+|  · What needs your attention |
+|    — with dollar amounts      |
+|  · Whether your money will   |
+|    last — as honest odds     |
++------------------------------+
+| [Home] Net worth  Invest     |
+|        Cash flow  Plan       |
++------------------------------+</pre>
+<h3>▶ Home — balances hidden (mask everything)  ·  lens: both</h3><pre>+------------------------------+
+| Good morning, Pat (eye-off)  |
+|                          [=] |
+| Balances hidden — tap the    |
+| eye to show                  |
+|                              |
+| YOUR INVESTMENTS             |
+|   ••••                       |
+|   up •••• this month  ▲up    |
+|   you +1.4% · market +0.9%   |
+| prices as of 4:00pm today    |
+| [ See your growth        &gt; ] |
+|                              |
+| Net worth  ••••   ▲up        |
+|                              |
+| WHAT NEEDS YOU (3)           |
+| 1◆ •••• cash earning         |
+|    about $0        Invest &gt;  |
+| 2· •••• of 401(k) room       |
+|    left this year    Plan &gt;  |
+| 3· •••• (42%) sits in one    |
+|    account         Invest &gt;  |
+|                              |
+| WILL MY MONEY LAST? — to 92                |
+| Likely — 84% — estimate      |
+| See the full picture  Plan &gt; |
++------------------------------+
+| [Home] Net worth  Invest     |
+|        Cash flow  Plan       |
++------------------------------+</pre>
+<h3>▶ Home — stale connection + partial data  ·  lens: both</h3><pre>+------------------------------+
+| Good morning, Pat   (eye)[=] |
+| ⓘ Chase hasn&#x27;t updated       |
+|   since Jun 27. Numbers      |
+|   may be behind.             |
+|   [ Fix connection       &gt; ] |
+|                              |
+| YOUR INVESTMENTS             |
+|   $843,700                   |
+|   as of Jun 27 (Chase part)  |
+|   up $11,200 this month ▲up  |
+| [ See your growth        &gt; ] |
+|                              |
+| Net worth $1,204,900  ▲up    |
+|   includes 1 account as of   |
+|   Jun 27                     |
+|                              |
+| WHAT NEEDS YOU (1)           |
+| 1◆ $18,400 cash earning      |
+|    about $0        Invest &gt;  |
+|                              |
+| WILL MY MONEY LAST? — to 92                |
+| Answer 3 quick questions in  |
+| Plan to see your odds        |
+|                      Plan &gt;  |
++------------------------------+
+| [Home] Net worth  Invest     |
+|        Cash flow  Plan       |
++------------------------------+</pre>
+<h3>▶ Idle cash — nudge detail  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Back    Your idle cash     |
+|                              |
+| $18,400 of your cash is      |
+| earning about $0.            |
+|                              |
+| Where it sits                |
+|  Chase checking   $12,400    |
+|   earning ~0.0%              |
+|  Chase savings     $6,000    |
+|   earning ~0.1%              |
+|                              |
+| For comparison (estimates)   |
+|  In high-yield savings       |
+|   (~4.1%): ~$750/yr          |
+|  In a money-market fund      |
+|   (~4.4%): ~$810/yr          |
+|  Rates are examples — banks  |
+|  differ. We never move your  |
+|  money; you decide.          |
+|                              |
+| [ See my cash accounts &gt; ]   |
++------------------------------+</pre>
+<h3>▶ 401(k) room this year — nudge detail  ·  lens: working</h3><pre>+------------------------------+
+| &lt; Back   401(k) room         |
+|                              |
+| $9,200 of room left in your  |
+| workplace retirement account |
+| this year.                   |
+|                              |
+| The yearly limit   $31,000   |
+|  (age 50+ catch-up incl.)    |
+| You have put in    $21,800   |
+| Room left           $9,200   |
+| Months left to use it    6   |
+|  = about $1,530/mo           |
+|                              |
+| Money in a 401(k) grows      |
+| without tax until you take   |
+| it out. Changing what you    |
+| put in happens AT YOUR       |
+| EMPLOYER — we just show      |
+| the math.                    |
+|                              |
+| [ Try it in a what-if &gt; ]    |
++------------------------------+</pre>
+<h3>▶ Onboarding flow map (first run, end to end)  ·  lens: both</h3><pre>STEP 1  What FinWise can do
++------------------------------+
+| Your whole money picture in  |
+| one place. What needs your   |
+| attention — with dollar      |
+| amounts. And whether your    |
+| money will last, as honest   |
+| odds. Read-only: we can      |
+| never move your money.       |
+| [ Continue ]                 |
++------------------------------+
+STEP 2  What did you come for?
+        (pick all that apply)
+STEP 3  Still working / retired
+        -&gt; sets lens + tab order
+STEP 4  routed by answers:
+  retired+paycheck -&gt; Monthly
+    income fast-path (2 numbers,
+    no bank login)
+  otherwise -&gt; Home empty state:
+    Connect / Add by hand /
+    Just explore
+STEP 5  Home with real data, or
+        honest empty states</pre>
+<h2>Net worth tab</h2>
+<h3>▶ Net worth tab — main screen  ·  lens: both</h3><pre>+------------------------------+
+| Net worth          [eye] [+] |
+|                              |
+|         $1,204,900           |
+|    up $23,100 this year      |
+|   [~~~ 12-month trend ~~~]   |
+| Your path ahead (from Plan) &gt;|
+|                              |
+| WHAT YOU OWN    $1,388,900   |
+|  Cash             $46,600 &gt;  |
+|  Stocks / ETFs   $700,500 &gt;  |
+|  Bonds           $113,000 &gt;  |
+|  Alternatives     $30,200 &gt;  |
+|  Real estate     $190,000 &gt;  |
+|  Unclassified    $308,600 &gt;  |
+|   tap to say what&#x27;s inside   |
+| WHAT YOU OWE                 |
+|  Mortgage       -$184,000 &gt;  |
+| Own $1,388,900 - Owe         |
+| $184,000 = $1,204,900        |
+|                              |
+| v Show accounts &amp; detail     |
+| [Class | Institution | Type]  |
+|  Fidelity Brokerage $521,300 |
+|   Connected . today 6:04 am  |
+|  Chase Checking     $12,400  |
+|   Manual . you update it     |
+|  Vanguard           $98,000  |
+|   Imported . Jun 12          |
+|                              |
+| This month&#x27;s cash flow    &gt;  |
+|  In $9,400 . Out $6,100      |
+|                              |
+| [ + Add or connect account ] |
++------------------------------+</pre>
+<h3>▶ Connect flow — choose institution + honest consent  ·  lens: both</h3><pre>+------------------------------+
+| &lt;  Connect an account        |
+|                              |
+| How do you want to add it?   |
+| [ Link it - read only      ] |
+|   updates itself             |
+| [ Add by hand              ] |
+| [ Import from a file       ] |
+|                              |
+| ---- Link it ----            |
+| Find your bank or brokerage  |
+| [ Search: fide|           ]  |
+|  &gt; Fidelity Investments      |
+|  &gt; Fidelity NetBenefits      |
+|    (workplace 401(k)s are    |
+|     usually here)            |
+|                              |
+| Before you continue          |
+|  . Read-only: we can see     |
+|    balances, never move or   |
+|    touch your money.         |
+|  . You sign in with Plaid,   |
+|    a connection service.     |
+|    Your login goes to Plaid, |
+|    not to us. Your account   |
+|    data flows through        |
+|    Plaid&#x27;s servers to reach  |
+|    this app.                 |
+|  . Disconnect any time —     |
+|    your numbers stay yours.  |
+|                              |
+| [   Continue with Plaid   ]  |
+| [ Cancel ]                   |
++------------------------------+</pre>
+<h3>▶ Connect flow — accounts found + merge / reconcile  ·  lens: both</h3><pre>+------------------------------+
+| Fidelity — connected         |
+| Read-only . just now         |
+|                              |
+| We found 3 accounts.         |
+| Choose what to add:          |
+| [x] Brokerage ...4821        |
+|      $521,300                |
+| [x] Roth IRA ...7702         |
+|      $118,900                |
+| [ ] Checking ...1104         |
+|      $2,150                  |
+|                              |
+| ! One looks like an account  |
+|   you already track          |
+|   Your &#x27;Fidelity Brokerage&#x27;  |
+|   (manual, $498,000) matches |
+|   Brokerage ...4821.         |
+|  (o) Same account — update   |
+|      it. Keeps your history. |
+|  ( ) Different — keep both   |
+|                              |
+| Nothing is ever added twice  |
+| without asking you.          |
+|                              |
+| [ Add 2 accounts + update 1 ]|
++------------------------------+</pre>
+<h3>▶ Import from a file v2 — pick, review, merge  ·  lens: both</h3><pre>+------------------------------+
+| &lt;  Import from a file        |
+|                              |
+| Which institution is this    |
+| file from?                   |
+| [ Vanguard               ]   |
+|                              |
+| Review what we read          |
+| Found 5 holdings . 1 skipped |
+|                              |
+|  VTI      240 sh   $62,400   |
+|   [Stocks / ETFs        v]   |
+|  BTC      0.5      $31,000   |
+|   [Alternatives         v]   |
+|  US Trs Bill 8/26  $20,000   |
+|   [Cash — Treasury bill v]   |
+|  GLD      100 sh   $18,700   |
+|   [Alternatives         v]   |
+|  Cash              $  ,   -  |
+|   [Cash                 v]   |
+|  Total            $132,100   |
+|                              |
+| ! You already track a        |
+|   &#x27;Vanguard&#x27; account.        |
+|  (o) Update it (no twin)     |
+|  ( ) Add as a new account    |
+|                              |
+| [    Import 5 holdings    ]  |
++------------------------------+</pre>
+<h3>▶ Account detail — any class  ·  lens: both</h3><pre>+------------------------------+
+| &lt;  Fidelity Brokerage        |
+|  Connected . read-only       |
+|  Updated today 6:04 am       |
+|                              |
+|         $521,300             |
+|  Stocks / ETFs . taxable     |
+|  Holds: VTI . AAPL . +3      |
+|                              |
+| [ Edit ]  [ Disconnect ]     |
+|                              |
+| RECORD ACTIVITY              |
+| [Buy] [Sell] [Deposit]       |
+| [Withdraw] [Transfer]        |
+|                              |
+| ACTIVITY                     |
+|  Jun 26  Buy VTI             |
+|    20 sh @ $260     -$5,200  |
+|  Jun 14  Deposit    +$2,000  |
+|  Jun 02  Dividend     +$310  |
+|  May 30  Sell AAPL  +$4,900  |
+|  See all activity -&gt;         |
+|                              |
+| -- if bond / alternative --  |
+| Value as of Jun 30, 2026     |
+| [ Update value ]             |
+| ! This value is 7 months     |
+|   old — still right?         |
++------------------------------+</pre>
+<h3>▶ Bond editor — add, buy, sell, as-of  ·  lens: both</h3><pre>+------------------------------+
+| Add / edit a bond            |
+|                              |
+| Name  [US Treasury 2030   ]  |
+| Kind: (o) Treasury bill      |
+|       ( ) Treasury / muni /  |
+|           corporate bond     |
+| Institution [Fidelity     ]  |
+| Face value  [$10,000      ]  |
+| Interest rate [4.5 %/yr   ]  |
+| Matures   [Jan 15, 2030   ]  |
+|  under 12 months = counts    |
+|  as cash, else as a bond     |
+| Current value [$9,800     ]  |
+|  Value as of Jun 30, 2026    |
+|  ! 7 months old - update?    |
+| Held in [Taxable][Retirement]|
+|         [Roth]               |
+|                              |
+| RECORD ACTIVITY              |
+| [ Buy more ]   [ Sell ]      |
+|  Jun 12  Buy        $5,000   |
+|  Mar 03  Sell       $2,000   |
+|                              |
+| [        Save bond        ]  |
+| Delete bond                  |
++------------------------------+</pre>
+<h3>▶ Alternative editor — add, buy, sell, as-of  ·  lens: both</h3><pre>+------------------------------+
+| Add / edit an investment     |
+|                              |
+| Type [Crypto][Private eq.]   |
+|      [Hedge fund][Gold]      |
+|      [Annuity][Options]      |
+|      [Other]                 |
+|  Highly volatile — size it   |
+|  accordingly. ~8%/yr         |
+|  historical benchmark.       |
+| Name  [Bitcoin            ]  |
+| Where it&#x27;s held              |
+|       [Coinbase           ]  |
+| Current value [$31,000    ]  |
+|  Value as of Jun 30, 2026    |
+|  ! 8 months old - update?    |
+| Held in [Taxable][Retirement]|
+|         [Roth]               |
+|                              |
+| RECORD ACTIVITY              |
+| [ Buy more ]   [ Sell ]      |
+|  Jun 20  Buy        $2,000   |
+|  Apr 02  Sell       $5,000   |
+|                              |
+| [          Save           ]  |
+| Delete                       |
++------------------------------+</pre>
+<h3>▶ Add or edit an account by hand (dynamic by class)  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Back   Add an account      |
+|                              |
+| What is it?                  |
+| [Cash][Stocks &amp; funds]       |
+| [Bonds][Alternatives]        |
+| [Real estate][Debt]          |
+|                              |
+| -- fields adapt by class --  |
+| e.g. CASH:                   |
+|  Name      [Chase checking ] |
+|  Institution [Chase        ] |
+|  Balance   [$ 12,400       ] |
+|  Interest rate [0.0 %] (opt) |
+|                              |
+| Held in (if investment)      |
+|  [Taxable][401(k)/IRA][Roth] |
+|                              |
+| Retirement earmark  100% (i) |
+|                              |
+|  value as of Jul 6, 2026     |
+|                              |
+| [        Save             ]  |
+|  (stays above the keyboard)  |
++------------------------------+</pre>
+</div>

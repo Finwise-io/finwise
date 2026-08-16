@@ -1,0 +1,146 @@
+<title>MoneyKeel — Income pop-up: stable or variable (for your yes/no)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif; -webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1100px; margin:0 auto;}
+  .eyebrow{font-size:12px; font-weight:800; letter-spacing:.09em; color:var(--accent); text-transform:uppercase;}
+  h1{font-size:26px; font-weight:800; margin:6px 0 8px;}
+  .lede{font-size:14.5px; line-height:1.55; color:var(--ink2); max-width:780px;}
+  .lede b{color:var(--ink);}
+  .row{display:flex; gap:34px; flex-wrap:wrap; margin-top:30px; align-items:flex-start;}
+  .col h2{font-size:16px; font-weight:800; margin:0 0 12px;}
+  .phone{width:393px; background:#0c0d0c; border-radius:54px; padding:9px; box-shadow:0 22px 50px rgba(10,25,18,.28);}
+  .screen{background:#F6F7F5; border-radius:46px; overflow:hidden; color:#1A1A18; position:relative; min-height:760px;}
+  .statusbar{display:flex; justify-content:space-between; align-items:center; padding:14px 28px 4px; font-size:14px; font-weight:700;}
+  .sb i{display:inline-block; background:#1A1A18; border-radius:1.5px; margin-left:5px; vertical-align:middle;}
+  .content{padding:8px 16px 0;}
+  .head .t{font-size:20px; font-weight:800; padding:6px 4px 8px; display:block;}
+  .card{background:#FFFFFF; border-radius:16px; padding:14px 16px; margin-bottom:8px;}
+  .kicker{font-size:11px; font-weight:800; letter-spacing:.06em; color:#6B6B66;}
+  .setupRow{display:flex; align-items:center; justify-content:space-between; padding:10px 0; font-size:15px;}
+  .link{color:#178F6B; font-weight:700;}
+  .dim{opacity:.35;}
+  /* the sheet */
+  .scrim{position:absolute; inset:0; background:rgba(10,15,12,.45); border-radius:46px;}
+  .sheet{position:absolute; left:0; right:0; bottom:0; background:#FFFFFF; border-radius:24px 24px 46px 46px; padding:14px 18px 34px;}
+  .grab{width:44px; height:5px; border-radius:3px; background:#D8D8D2; margin:0 auto 12px;}
+  .sheetT{font-size:19px; font-weight:800;}
+  .q{font-size:15px; margin-top:14px;}
+  .qsub{font-size:11.5px; color:#76766F; margin-top:1px;}
+  .choice{display:flex; flex-direction:column; gap:8px; margin-top:10px;}
+  .opt{min-height:52px; display:flex; align-items:center; padding:0 14px; border:1.5px solid rgba(0,0,0,.12); border-radius:12px; font-size:15px; font-weight:600;}
+  .opt.on{border-color:#178F6B; background:#E1F5EE; font-weight:800; color:#0F6E56;}
+  .input{border:1.5px solid rgba(0,0,0,.2); border-radius:12px; padding:12px 14px; font-size:20px; font-weight:800;
+    font-variant-numeric:tabular-nums; margin-top:8px; background:#F6F7F5;}
+  .input.ph{color:#9E9E99; font-weight:600;}
+  .months{display:grid; grid-template-columns:repeat(4,1fr); gap:6px; margin-top:10px;}
+  .mo{border:1.5px solid rgba(0,0,0,.12); border-radius:10px; padding:7px 6px; text-align:center;}
+  .mo .m{font-size:10.5px; font-weight:800; color:#76766F;}
+  .mo .v{font-size:12.5px; font-weight:700; font-variant-numeric:tabular-nums;}
+  .mo.hot{border-color:#178F6B; background:#E1F5EE;}
+  .btn{display:block; text-align:center; background:#178F6B; color:#fff; font-size:16px; font-weight:800; border-radius:14px; padding:14px; margin-top:14px;}
+  .savedNote{font-size:11.5px; color:#0F6E56; margin-top:10px; font-weight:600;}
+  ul.legend{list-style:none; margin:16px 0 0; padding:0; max-width:360px;}
+  ul.legend li{display:flex; gap:10px; padding:10px 0; border-top:1px solid var(--line); font-size:13.5px; line-height:1.5; color:var(--ink2);}
+  ul.legend li:first-child{border-top:none;}
+  ul.legend b{color:var(--ink);}
+  .dot{flex:none; width:19px; height:19px; border-radius:50%; background:var(--accent); color:#fff; font-size:11px; font-weight:800;
+    display:inline-flex; align-items:center; justify-content:center; margin-top:1px;}
+</style>
+<div class="wrap">
+  <div class="eyebrow">MoneyKeel · Income pop-up · ✅ FINAL v2 — APPROVED 2026-07-19 (founder; + your year-frame direction) · in Build 45</div>
+  <h1>Income as a pop-up — steady or varies, both captured</h1>
+  <p class="lede">Per your direction: Cash flow's first day offers <b>Set up your income ›</b>, which opens this pop-up.
+  First question: <b>how steady is it?</b> Steady = one amount. Varies = a typical month plus a month-by-month
+  fine-tune (the app's existing by-month income table — the same one Plan and taxes read, no duplicate fields).
+  Inputs stay above the keyboard — this pop-up uses the keyboard-safe sheet, and as of today <b>every</b> input
+  screen in the app is covered by a permanent test.</p>
+
+  <div class="row">
+    <div class="col">
+      <h2>Steady income (most people, 10 seconds)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content dim">
+          <span class="head"><span class="t">Cash flow</span></span>
+          <div class="card">
+            <div class="kicker">SET UP YOUR MONTH</div>
+            <div class="setupRow"><span>Your income</span><span class="link">Set up ›</span></div>
+            <div class="setupRow"><span>About what goes out monthly?</span><span class="link">$ —</span></div>
+          </div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Your income</div>
+          <div class="q">How steady is it?</div>
+          <div class="choice">
+            <div class="opt on">✓ Same every month</div>
+            <div class="opt">It varies month to month</div>
+          </div>
+          <div class="q">What lands in your account each month?</div>
+          <div class="qsub">take-home, after tax — a close guess is fine</div>
+          <div class="input ph">$ 6,200</div>
+          <div class="btn">Save my income</div>
+          <div class="savedNote">✓ Saved to your plan — Home, Cash flow, Budget and Plan all use this one answer.</div>
+        </div>
+      </div></div>
+    </div>
+
+    <div class="col">
+      <h2>Variable income (a typical month + fine-tune)</h2>
+      <div class="phone"><div class="screen">
+        <div class="statusbar"><span>9:41</span><span class="sb"><i style="width:17px;height:10px"></i><i style="width:15px;height:10px"></i><i style="width:24px;height:11px;border-radius:3px"></i></span></div>
+        <div class="content dim">
+          <span class="head"><span class="t">Cash flow</span></span>
+          <div class="card"><div class="kicker">SET UP YOUR MONTH</div>
+            <div class="setupRow"><span>Your income</span><span class="link">Set up ›</span></div>
+          </div>
+        </div>
+        <div class="scrim"></div>
+        <div class="sheet">
+          <div class="grab"></div>
+          <div class="sheetT">Your income</div>
+          <div class="q">How steady is it?</div>
+          <div class="choice">
+            <div class="opt">Same every month</div>
+            <div class="opt on">✓ It varies month to month</div>
+          </div>
+          <div class="q">Which 12 months are you entering?</div>
+          <div class="choice" style="flex-direction:row; gap:8px">
+            <div class="opt on" style="flex:1; min-height:44px; font-size:13.5px">✓ Calendar year 2026</div>
+            <div class="opt" style="flex:1; min-height:44px; font-size:13.5px">Next 12 months</div>
+          </div>
+          <div class="q">About how much in a typical month?</div>
+          <div class="qsub">we'll start every month here — then adjust the ones that differ</div>
+          <div class="input ph">$ 5,000</div>
+          <div class="q" style="margin-top:12px">Adjust the months that differ <span class="qsub" style="display:inline">(tap a month)</span></div>
+          <div class="months">
+            <div class="mo"><div class="m">JAN</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">FEB</div><div class="v">5,000</div></div>
+            <div class="mo hot"><div class="m">MAR ’26</div><div class="v">8,500</div></div>
+            <div class="mo"><div class="m">APR</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">MAY</div><div class="v">5,000</div></div>
+            <div class="mo hot"><div class="m">JUN ’26</div><div class="v">2,000</div></div>
+            <div class="mo"><div class="m">JUL</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">AUG</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">SEP</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">OCT</div><div class="v">5,000</div></div>
+            <div class="mo"><div class="m">NOV</div><div class="v">5,000</div></div>
+            <div class="mo hot"><div class="m">DEC ’26</div><div class="v">9,000</div></div>
+          </div>
+          <div class="btn">Save my income</div>
+          <div class="savedNote">✓ Saved month by month — Cash flow's month bars, Plan and taxes read this same table.</div>
+        </div>
+      </div></div>
+      <ul class="legend">
+        <li><span class="dot">1</span><div><b>One question forks the flow:</b> steady = one amount (10 seconds); varies = typical month + tap-to-adjust grid. ✓ + bold marks the choice, never color alone.</div></li>
+        <li><span class="dot">2</span><div><b>Canonical fields only:</b> steady writes the plan's take-home income; variable writes the existing by-month income table — the exact structures Home, Budget, Plan and the tax organizer already read. Nothing duplicated (detailed design gets a v1.3 row on your yes).</div></li>
+        <li><span class="dot">3</span><div><b>Reachable everywhere income is edited</b> — first-day Cash flow, the income manager, and Sharpen — one pop-up, one answer.</div></li>
+      </ul>
+    </div>
+  </div>
+</div>

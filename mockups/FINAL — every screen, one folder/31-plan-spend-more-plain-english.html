@@ -1,0 +1,191 @@
+<title>Can I spend more — plain English v1</title>
+<style>
+  :root{
+    --primary:#178F6B; --primaryDeep:#085041; --primaryLight:#E1F5EE;
+    --amber:#854F0B; --amberLight:#FAEEDA; --red:#A32D2D; --redLight:#FCEBEB;
+    --white:#fff; --bg2:#F6F7F5; --bg3:#EEEEE9;
+    --t1:#1A1A18; --t2:#6B6B66; --t3:#76766F; --bd:rgba(0,0,0,.10); --band:#DFF2E9;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:#DCDDD8;font:15px/1.45 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;color:var(--t1);padding:28px 16px 60px}
+  .wrap{max-width:1180px;margin:0 auto}
+  h1{font-size:24px;margin:0 0 6px}
+  .lede{color:#4a4a46;max-width:76ch;margin:0 0 4px}
+  .lede b{color:var(--t1)}
+  .row{display:flex;gap:22px;flex-wrap:wrap;align-items:flex-start;margin-top:22px}
+  .col{flex:1 1 330px;min-width:320px;max-width:390px}
+  .caption{font-size:12px;font-weight:700;letter-spacing:.4px;text-transform:uppercase;color:#4a4a46;margin:0 0 8px}
+  .caption.bad{color:var(--red)}
+  .caption.good{color:var(--primaryDeep)}
+  .phone{width:390px;max-width:100%;background:var(--bg2);border:1px solid var(--bd);border-radius:26px;overflow:hidden;box-shadow:0 6px 22px rgba(0,0,0,.12)}
+  .status{height:30px;background:var(--bg2);display:flex;align-items:center;justify-content:space-between;padding:0 18px;font-size:11px;font-weight:700;color:var(--t1)}
+  .hdr{padding:8px 16px 12px;background:var(--bg2)}
+  .hdr .t{font-size:20px;font-weight:800}
+  .subtabs{display:flex;gap:6px;padding:0 16px 12px;background:var(--bg2)}
+  .st{flex:1;text-align:center;font-size:12px;font-weight:700;padding:7px 0;border-radius:9px;color:var(--t2);background:var(--bg3)}
+  .st.on{background:var(--primaryDeep);color:#fff}
+  .body{padding:0 16px 18px}
+  .card{background:var(--white);border:1px solid var(--bd);border-radius:14px;padding:14px;margin-bottom:12px}
+  .bandttl{background:var(--primaryDeep);color:#fff;font-size:11px;font-weight:800;letter-spacing:.6px;padding:6px 12px;border-radius:8px;margin:0 0 10px}
+  .quiet{font-size:11px;font-weight:800;letter-spacing:.6px;color:var(--primaryDeep);margin:0 0 8px}
+  .qrow{font-size:17px;font-weight:700;margin:0 0 2px}
+  .ans{font-size:20px;font-weight:800;color:var(--primaryDeep);margin:8px 0 4px;line-height:1.25}
+  .sub{font-size:13px;color:var(--t2);margin:0 0 4px}
+  .stepper{display:flex;align-items:center;gap:10px;margin:12px 0 8px}
+  .btn{width:44px;height:44px;border-radius:12px;border:1px solid var(--bd);background:var(--bg3);font-size:22px;font-weight:700;display:flex;align-items:center;justify-content:center;color:var(--t1)}
+  .amt{flex:1;text-align:center;font-size:22px;font-weight:800}
+  .verdict{display:flex;gap:8px;align-items:flex-start;border-radius:10px;padding:9px 11px;font-size:13px;line-height:1.35;margin-top:2px}
+  .v-ok{background:var(--primaryLight);color:#0b4a3b}
+  .v-watch{background:var(--amberLight);color:#5c360a}
+  .v-edge{background:var(--redLight);color:#7a2222}
+  .v ​b{font-weight:800}
+  .use{margin-top:11px;background:var(--primaryDeep);color:#fff;text-align:center;font-weight:800;font-size:14px;padding:12px;border-radius:11px}
+  .foot{font-size:11px;color:var(--t3);margin-top:8px}
+  .tabbar{display:flex;background:var(--white);border-top:1px solid var(--bd);padding:7px 0 12px}
+  .tb{flex:1;text-align:center;font-size:10px;color:var(--t3)}
+  .tb.on{color:var(--primaryDeep);font-weight:800}
+  .old{font-size:14px;line-height:1.5}
+  .old .bad{background:#FCEBEB;border-bottom:2px solid var(--red);padding:0 2px}
+  .note{background:#fff;border:1px solid var(--bd);border-left:4px solid var(--primaryDeep);border-radius:10px;padding:13px 15px;margin-top:12px;font-size:13.5px;line-height:1.5;max-width:78ch}
+  .note b{color:var(--primaryDeep)}
+  table{border-collapse:collapse;font-size:13px;margin-top:8px;background:#fff}
+  th,td{border:1px solid var(--bd);padding:5px 9px;text-align:left}
+  th{background:var(--bg3);font-size:11px;text-transform:uppercase;letter-spacing:.4px}
+  .free{background:var(--primaryLight);font-weight:700}
+</style>
+<div class="wrap">
+<h1>“Can I spend more?” — in plain English</h1>
+<p class="lede">June, 72. She has no finance background. The founder’s note: <b>too complex to understand.</b>
+Every number below is the engine’s, pinned by <code>june_numbers_probe</code> — nothing here is illustrative.</p>
+
+<div class="row">
+
+  <!-- ─────────────── A. AS DRAWN ─────────────── -->
+  <div class="col">
+    <p class="caption bad">A · as the design draws it today</p>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="hdr"><div class="t">Plan</div></div>
+      <div class="subtabs"><div class="st on">Retire</div><div class="st">Goals</div><div class="st">Prepare</div></div>
+      <div class="body">
+        <div class="card">
+          <p class="quiet">DECISIONS YOU CAN MAKE TODAY</p>
+          <p class="qrow">Can I spend more?</p>
+          <p class="old" style="margin:8px 0 0">
+            <span class="bad">Estimated amount you can draw more every month:</span><br>
+            <b style="font-size:20px">$2,555</b>
+          </p>
+          <div class="stepper">
+            <div class="btn">−</div><div class="amt">$0</div><div class="btn">+</div>
+          </div>
+          <p class="old" style="margin:0">
+            → <span class="bad">$5,600 a month in total</span> ·
+            <span class="bad">held at odds of 80%</span> <span style="color:var(--primary)">change ›</span>
+          </p>
+          <div class="use">Use as my plan</div>
+        </div>
+      </div>
+      <div class="tabbar"><div class="tb">Home</div><div class="tb">Net worth</div><div class="tb">Performance</div><div class="tb">Cash flow</div><div class="tb on">Plan</div></div>
+    </div>
+    <div class="note" style="border-left-color:var(--red)">
+      <b>Four things she has to work out for herself.</b> What “draw” means and how it differs from spend.
+      Why $2,555 is offered but $0 is showing. What $5,600 is — it is what she already spends, but nothing
+      says so. And what “odds of 80%” refers to, when the dial at the top of the same screen says <b>100%</b>.
+    </div>
+  </div>
+
+  <!-- ─────────────── B. PLAIN, AT REST ─────────────── -->
+  <div class="col">
+    <p class="caption good">B · plain English — at rest</p>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="hdr"><div class="t">Plan</div></div>
+      <div class="subtabs"><div class="st on">Retire</div><div class="st">Goals</div><div class="st">Prepare</div></div>
+      <div class="body">
+        <div class="card">
+          <p class="quiet">DECISIONS YOU CAN MAKE TODAY</p>
+          <p class="qrow">Can I spend more?</p>
+
+          <p class="ans">Yes — about $1,000 a month more,<br>and nothing changes.</p>
+          <p class="sub">You spend <b>$5,600</b> a month now. At <b>$6,600</b> your money still lasts
+             past 94, exactly as it does today.</p>
+
+          <div class="stepper">
+            <div class="btn">−</div><div class="amt">$0</div><div class="btn">+</div>
+          </div>
+          <p class="sub" style="margin:0">You’d spend <b>$5,600</b> a month — the same as now.</p>
+          <div class="verdict v-ok">✓ &nbsp;Your money lasts past 94, in every future we tested.</div>
+
+          <div class="use">Use as my plan</div>
+          <p class="foot">Your Social Security and pension don’t change, so anything extra comes out of savings.</p>
+        </div>
+      </div>
+      <div class="tabbar"><div class="tb">Home</div><div class="tb">Net worth</div><div class="tb">Performance</div><div class="tb">Cash flow</div><div class="tb on">Plan</div></div>
+    </div>
+    <div class="note">
+      <b>The answer comes first, and it is free money.</b> Her first $1,000 a month genuinely costs her
+      nothing — that is the engine’s own curve, not a rounding. It was buried under a static “80%” before.
+      The stepper stays for anyone who wants to push further; it is no longer the thing she must decode.
+    </div>
+  </div>
+
+  <!-- ─────────────── C. PLAIN, PUSHED TO THE TOP ─────────────── -->
+  <div class="col">
+    <p class="caption good">C · plain English — pushed to the maximum</p>
+    <div class="phone">
+      <div class="status"><span>9:41</span><span>▮▮▮</span></div>
+      <div class="hdr"><div class="t">Plan</div></div>
+      <div class="subtabs"><div class="st on">Retire</div><div class="st">Goals</div><div class="st">Prepare</div></div>
+      <div class="body">
+        <div class="card">
+          <p class="quiet">DECISIONS YOU CAN MAKE TODAY</p>
+          <p class="qrow">Can I spend more?</p>
+
+          <p class="ans">Yes — about $1,000 a month more,<br>and nothing changes.</p>
+          <p class="sub">You spend <b>$5,600</b> a month now. At <b>$6,600</b> your money still lasts
+             past 94, exactly as it does today.</p>
+
+          <div class="stepper">
+            <div class="btn">−</div><div class="amt">$2,555</div><div class="btn">+</div>
+          </div>
+          <p class="sub" style="margin:0">You’d spend <b>$8,155</b> a month — the most your income and
+             savings can cover.</p>
+          <div class="verdict v-edge">⚠ &nbsp;Your money lasts in about <b>4 futures out of 5</b>. In the
+             other 1, it runs out before 94.</div>
+
+          <div class="use">Use as my plan</div>
+          <p class="foot">Your Social Security and pension don’t change, so anything extra comes out of savings.</p>
+        </div>
+      </div>
+      <div class="tabbar"><div class="tb">Home</div><div class="tb">Net worth</div><div class="tb">Performance</div><div class="tb">Cash flow</div><div class="tb on">Plan</div></div>
+    </div>
+    <div class="note">
+      <b>“4 out of 5” instead of “80%”.</b> Counts are understood by people who bounce off percentages,
+      and the sentence names what happens in the fifth case rather than leaving her to imagine it.
+      No “odds”, no “held at”, no floor to explain.
+    </div>
+  </div>
+
+</div>
+
+<div class="note" style="max-width:none;margin-top:26px">
+  <b>The sentence changes as she moves the control, because the real number does.</b> Measured on the
+  engine — nothing here is a design flourish:
+  <table>
+    <tr><th>Spend extra</th><th>A month in total</th><th>Engine</th><th>What the screen says</th></tr>
+    <tr class="free"><td>$0</td><td>$5,600</td><td>100%</td><td>✓ Your money lasts past 94, in every future we tested.</td></tr>
+    <tr class="free"><td>$500</td><td>$6,100</td><td>100%</td><td>✓ Still lasts past 94 — nothing changes.</td></tr>
+    <tr class="free"><td>$1,000</td><td>$6,600</td><td>100%</td><td>✓ Still lasts past 94 — nothing changes.</td></tr>
+    <tr><td>$1,500</td><td>$7,100</td><td>97%</td><td>Lasts in almost every future — about 97 out of 100.</td></tr>
+    <tr><td>$2,000</td><td>$7,600</td><td>90%</td><td>Lasts in about 9 futures out of 10.</td></tr>
+    <tr><td>$2,555</td><td>$8,155</td><td>80%</td><td>⚠ Lasts in about 4 futures out of 5. In the other 1, it runs out before 94.</td></tr>
+  </table>
+  <p style="margin:10px 0 0"><b>Words removed from this row entirely:</b> draw · odds · held at · floor ·
+  estimated amount you can draw more every month. <b>Words kept:</b> spend, month, lasts, runs out — all
+  four are things she uses in ordinary conversation.</p>
+  <p style="margin:8px 0 0"><b>One thing needing your call:</b> “estimated amount you can draw more every
+  month” is <i>your</i> wording, and brief v3 currently says it must not be softened or shortened. This
+  mock removes it. If the plain version is right, that instruction comes out of the brief — but it is
+  your line, so you take it out, not me.</p>
+</div>
+</div>

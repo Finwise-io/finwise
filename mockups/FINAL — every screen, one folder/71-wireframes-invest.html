@@ -1,0 +1,261 @@
+<title>MoneyKeel — APPROVED wireframes: Invest (detailed design v1.1)</title>
+<style>
+ body{margin:0;padding:32px 20px 64px;background:#e8ece9;color:#1a1a18;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;}
+ @media (prefers-color-scheme: dark){body{background:#161917;color:#eceeea}}
+ .wrap{max-width:1000px;margin:0 auto}
+ .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:#178F6B;text-transform:uppercase}
+ h1{font-size:24px;font-weight:800;margin:6px 0 8px}
+ .lede{font-size:14px;line-height:1.5;opacity:.75;max-width:720px}
+ h3{font-size:14px;font-weight:700;margin:18px 0 6px;opacity:.85}
+ pre{background:#fff;color:#1a1a18;border-radius:12px;padding:16px 18px;font:12.5px/1.45 ui-monospace,Menlo,monospace;overflow-x:auto;box-shadow:0 2px 10px rgba(0,0,0,.08)}
+ @media (prefers-color-scheme: dark){pre{background:#1f2320;color:#eceeea}}
+</style>
+<div class="wrap">
+<div class="eyebrow">MoneyKeel · source of truth · approved 2026-07-12</div>
+<h1>The approved wireframes — Invest tab (all 8 frames)</h1>
+<p class="lede">Transcribed verbatim from <b>docs/FCC-core-55-70/FCC-core-detailed-design-v1.1-2026-07-06.xlsx</b>, "Invest" tab.</p>
+<h3>▶ Invest — main (glance then drill)  ·  lens: working</h3><pre>+------------------------------+
+| Invest              [eye]    |
+| [1M 3M 6M YTD 1Y 3Y]   (1Y)  |
+|                              |
+| TOTAL RETURN (1 year)        |
+|   Up  +$96,400  (+12.9%)     |
+|   Stock market:     +10.1%   |
+|   You&#x27;re ahead by 2.8 points |
+|   [ you --- vs market --- ]  |
+|   Prices updated 2h ago      |
+|                              |
+| WINNERS &amp; LAGGARDS (1 yr)    |
+|  ^ up   NVDA  +$76,200 +41%  |
+|  ^ up   VTI   +$18,900 +12%  |
+|  v down BND     -$600   -3%  |
+|  See all 12 &gt;  By account &gt;  |
+|                              |
+| ! 31% of your invested money |
+|   is in one stock (NVDA)     |
+|                              |
+| LOOK AHEAD: what saving     |
+| more could do (estimate)  &gt; |
+|                              |
+| LOOK BACK: what a past move |
+| would have done (facts)   &gt; |
+|                              |
+| YOUR INVESTMENTS   $843,700  |
+| Stocks / ETFs      $700,500  |
+|  NVDA $261,900  up +41%    &gt; |
+|  VTI  $176,400  up +12%    &gt; |
+| Bonds              $113,000  |
+|  Treasury 4.5% &#x27;36  $95,000  |
+|   value as of Mar 3, 2026  &gt; |
+|  BND fund  $18,000  down-3%&gt; |
+| Alternatives        $30,200  |
+|  Bitcoin $21,200             |
+|   value as of Jun 12       &gt; |
+|  Gold coins $9,000           |
+|   ! value 7 months old     &gt; |
+|                              |
+| [+ Add investment] [Record]  |
++------------------------------+
+| Home NetWorth INVEST Cash Plan|</pre>
+<h3>▶ Holding detail — stock / fund (equity)  ·  lens: both</h3><pre>+------------------------------+
+| &lt; NVIDIA (NVDA)              |
+|   in Fidelity brokerage      |
+|                              |
+| $261,900   Up +$76,200 (+41%)|
+| 360 shares · avg cost $516   |
+| Price $727.50 · updated 2h   |
+|                              |
+| VS THE STOCK MARKET (1 yr)   |
+|  NVDA up +41% · market +10.1%|
+|  Ahead by 30.9 points        |
+|                              |
+| WHAT YOU BOUGHT (lots)       |
+|  200 sh @ $410  Jan 12, 2024 |
+|  160 sh @ $648  Aug 3, 2025  |
+|                              |
+| IF YOU SOLD TODAY  (i)       |
+|  Estimate, not tax advice    |
+|  Held over a year: +$63,500  |
+|   taxed at the lower rate    |
+|  Held under a year: +$12,700 |
+|  Estimated tax: ~$12,600     |
+|                              |
+| LOOK BACK: what if I&#x27;d sold  |
+| a year ago?                &gt; |
+|                              |
+| [Record buy/sell] [History]  |
+| [Edit holding]               |
++------------------------------+</pre>
+<h3>▶ Holding detail — bond  ·  lens: both</h3><pre>+------------------------------+
+| &lt; US Treasury 4.5% of 2036   |
+|   Bonds · Vanguard account   |
+|                              |
+| CURRENT VALUE   $95,000      |
+|  value as of Mar 3, 2026     |
+|  [Update value]              |
+|                              |
+| Face value       $100,000    |
+| Coupon (yearly)  4.5% $4,500 |
+| Matures  Jun 30, 2036        |
+|  (10 years away)             |
+| Yield if held to maturity    |
+|  about 5.1%  (i) Estimate    |
+| Yield on today&#x27;s value 4.7%  |
+|                              |
+| IF INTEREST RATES MOVE  (i)  |
+|  Estimate, not a prediction  |
+|  Rates rise 1% -&gt; value      |
+|   roughly $87,000 - $89,000  |
+|   (down about $7,000)        |
+|  Rates fall 1% -&gt; value      |
+|   roughly $102,000 - $104,000|
+|  Held to maturity, $100,000   |
+|  comes back — if the issuer  |
+|  pays as promised.          |
+|                              |
+| YOUR REPORTED RETURN (12 mo) |
+|  2.1%  [Edit]                |
+|                              |
+| [Record a sale] [History]    |
+| [Edit bond details]          |
++------------------------------+</pre>
+<h3>▶ Holding detail — alternative (crypto, gold, private stakes, annuities, other)  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Gold coins                 |
+|   Alternatives · Commodities |
+|                              |
+| CURRENT VALUE   $9,000       |
+|  value as of Nov 20, 2025    |
+|  [Update value]              |
+|                              |
+| ! This value is 7 months old.|
+|   Still about right?         |
+|   [Yes, keep it]             |
+|   [Update value]             |
+|                              |
+| Type   Gold / commodities    |
+| Typical yearly return for    |
+|  this type: ~8.2%            |
+|  (i) Estimate from history   |
+|                              |
+| YOUR REPORTED RETURN (12 mo) |
+|  not set   [Add]             |
+|                              |
+| LOOK BACK: what if this had  |
+| been in the stock market?  &gt; |
+|                              |
+| [Record a buy]               |
+| [Record a sale] [History]    |
+| [Edit details]               |
++------------------------------+</pre>
+<h3>▶ Look back — what if I&#x27;d moved money?  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Look back                  |
+|  Facts about the PAST only   |
+|                              |
+| What if I&#x27;d moved money      |
+| 12 months ago?               |
+|                              |
+| Amount  [$20,000        ]    |
+| From    [Bond fund (BND) v]  |
+| To      [US stocks (VTI) v]  |
+| When    [12 months ago   v]  |
+|                              |
+| WHAT ACTUALLY HAPPENED       |
+|  Left in BND it became       |
+|   $19,400 (down $600, -3%)   |
+|  Moved to VTI it would be    |
+|   $22,020 (up $2,020, +10.1%)|
+|                              |
+|  Difference: $2,620 more if  |
+|  you had moved. Real past    |
+|  prices; not a prediction of |
+|  what happens next.          |
+|                              |
+| [Try another look-back]      |
++------------------------------+</pre>
+<h3>▶ What if I add more? (forward what-if)  ·  lens: both</h3><pre>+------------------------------+
+| &lt; Invest  What if I add more?|
+|  Estimate, not a promise     |
+|                              |
+| Add each month               |
+|  [------o--------]  $750/mo  |
+| Growing at                   |
+|  [5%] [6%] [7%]   your pick  |
+|                              |
+| By 67 (your retire age)      |
+|  Today&#x27;s path     ~$1.31M    |
+|  With $750 more   ~$1.55M    |
+|   range $1.2M - $1.9M in     |
+|   bad-to-good markets        |
+|                              |
+| Will my money last?  84% -&gt; 89%    |
+|  estimate                    |
+|                              |
+| [ Use this plan ]            |
+|                              |
+| Curious about the past?      |
+| Look back instead          &gt; |
++------------------------------+</pre>
+<h3>▶ Record a transaction + History  ·  lens: both</h3><pre>+------------------------------+
+| Record               X       |
+| [Buy] [Sell] [Deposit]       |
+| [Withdraw] [Transfer]        |
+| [Dividend/Interest]          |
+|                              |
+| Account [Fidelity brokerage] |
+| Ticker  [VTI]   Shares [10]  |
+| Price per share [$285.40]    |
+| Date    [Jun 28, 2026]       |
+|                              |
+| Cash available: $4,120       |
+| This buy costs $2,854 - OK   |
+|                              |
+| [Save]                       |
+|------------------------------|
+| HISTORY                      |
+| Jun 28  Bought 10 VTI @ $285 |
+| Jun 15  Dividend VTI $310    |
+|         (reinvested)         |
+| Jun 1   Coupon $2,250        |
+|         Treasury 4.5% &#x27;36    |
+| May 30  Sold Gold coins      |
+|         part sale  $2,000    |
+| (swipe left to delete)       |
++------------------------------+</pre>
+<h3>▶ Empty, stale, hidden &amp; loading states  ·  lens: both</h3><pre>EMPTY
++------------------------------+
+| Invest                       |
+|                              |
+|   You haven&#x27;t added any      |
+|   investments yet.           |
+|                              |
+|   Add what you own - stocks, |
+|   funds, bonds, crypto, gold |
+|   - and we&#x27;ll track how it&#x27;s |
+|   doing, in plain English.   |
+|                              |
+|   [+ Add an investment]      |
+|   [Import from a file]       |
++------------------------------+
+STALE / MISSING PRICES
++------------------------------+
+| ! Prices may be out of date  |
+|   (5 days old). [Refresh]    |
+| NVDA  $261,900  up +41%      |
+| ZZZT  $12,400 - no current   |
+|  price, showing what you     |
+|  paid. Check the symbol?     |
++------------------------------+
+HIDDEN BALANCES
++------------------------------+
+| Total return (1 year)        |
+|  Up  ••••  (+12.9%)          |
+|  You&#x27;re ahead by 2.8 points  |
+| NVDA  ••••   up +41%       &gt; |
++------------------------------+
+LOADING
++------------------------------+
+| Updating prices...           |
+| [shimmer]  last updated      |
+|  Jun 30, 5:10 pm shown below |
++------------------------------+</pre>
+</div>
