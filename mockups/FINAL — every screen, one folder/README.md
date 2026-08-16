@@ -28,23 +28,40 @@ drawn from shipping code plus approved deltas. Refreshed into the August-10 fold
 | `10-connect-flow.html` | Connecting an institution |
 | `11-bond-alt-editors.html` | **Editors** for bonds, options, crypto, commodities, private equity, hedge funds |
 | `12-networth-quiet-instrument-BUILT.html` | The built look — v5, the visual direction that shipped |
+| `13-networth-CLAUDE-DESIGN-latest.html` | **Claude Design's own delivered file** — their latest net-worth screen |
 
 ## Performance
 
 | File | |
 |---|---|
-| `20-performance-handoff.html` | The August-11 handoff — latest |
-| `21-performance-final.html` | The FINAL of nine drafts |
+| `22-performance-CLAUDE-DESIGN-latest.html` | **Claude Design's own delivered file** — their latest |
+
+*(Our own August-4 `performance-FINAL` draft is deliberately NOT here. Claude Design's August-11
+handoff supersedes it, and two files called "final" for one screen is the exact confusion this
+folder exists to remove.)*
 
 ## Plan
 
 | File | |
 |---|---|
-| `30-plan-hub-v9.html` | The approved hub — v9 of nine |
+| `30-plan-hub-v9-AS-SHIPPED.html` | The hub that is **built and shipping** — v9 of nine |
 | `31-plan-spend-more-plain-english.html` | "Can I spend more?", founder-approved frames B and C |
+| `32-plan-CLAUDE-DESIGN-v3-SUPERSEDED-BY-v4-NOT-ON-DISK.html` | Claude Design's **v3** — see the warning below |
 
-> **The Plan redesign itself is NOT a mock in here.** It lives as a written brief plus Claude Design's
-> drawing, in `August 14th Design/`. That is where the current Plan surface is specified.
+> ### ⚠️ Claude Design's Plan **v4** is not on disk
+>
+> The v4 drawing and its requirements note arrived through chat on 2026-08-14 and **were never saved
+> into the handoff folder**. The Plan file sitting on disk is still **v3** — no sub-tabs, no "future
+> simulations" wording, none of the corrected numbers, none of the formula-driven dials.
+>
+> I nearly filed that v3 file here labelled as v4. It is named for what it actually is instead.
+>
+> **Please save Claude Design's v4 files** (`Plan.dc.html` and `Plan-v4-requirements.md`) into
+> `August 14th Design/Claude-Design-handoff-received-2026-08-13/`, and this folder can carry the real
+> one. Note that even v4 is **not final** — the review found five corrections still outstanding.
+>
+> Meanwhile the current Plan surface is specified by the written brief in `August 14th Design/`, not
+> by any file in this folder.
 
 ## Account and holding
 
