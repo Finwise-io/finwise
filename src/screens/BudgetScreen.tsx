@@ -13,6 +13,8 @@ import { getCategoryIcon, getCategoryBg, EXPENSE_CATEGORIES, CATEGORY_EMOJI_OPTI
 import { budgetVsActual, plannedMonthlySpend, categoryMonthly } from '../domain/budget';
 import { takeHomeMonthly, monthlySavings } from '../domain/savings';   // canonical take-home + planned surplus
 import { incomeMonthlyGrid } from '../domain/income';
+import { MortgageRateCompare } from '../components/MortgageRateCompare';
+import { FALLBACK_TREASURY } from '../services/economicData';
 import { totalDebtMonthly, minimumDebtService, payoffPlan, requiredPayment, debtKind, type PayoffMethod, type Debt } from '../domain/debt';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor (same sheet as Net worth)
 import { money, money2 } from '../domain/_shared/num';
@@ -47,6 +49,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
     liabilities, addLiability, updateLiability, deleteLiability,
     debts, deleteDebt,   // legacy — read only for a one-time migration to liabilities
     customCategories, addCustomCategory, deleteCustomCategory,
+    treasuryYield, treasuryIsFallback,   // the ten-year, for the mortgage rate comparison
   } = useStore() as any;
   // Single source of truth for debt = `liabilities` (Net Worth model). Adapt it to the
   // DebtEntry shape this screen's UI already renders.
@@ -296,6 +299,11 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   const totalMinMonthly = Math.round(minimumDebtService(activeDebts));   // canonical DTI obligation, single source
   const totalInterestMonthly = Math.round(activeDebts.reduce((t, d) => t + (d.remaining_balance || 0) * (d.interest_rate_apr || 0) / 12, 0));
   const plan = payoffPlan(rawDebts, num(extraPay), payoffMethod);
+  // the biggest long-term loan — a mortgage for anyone who has one. Cards are excluded: at 22% the
+  // comparison is not a question, and printing one would make it look like one.
+  const bigLoan = rawDebts
+    .filter((d: any) => d.remaining_balance > 50_000 && d.interest_rate_apr > 0 && d.interest_rate_apr < 0.12)
+    .sort((a: any, b: any) => b.remaining_balance - a.remaining_balance)[0] ?? null;
   const debtFreeLabel = plan.neverPaysOff ? 'never at this rate'
     : plan.months <= 0 ? 'now'
     : (() => { const dt = new Date(); dt.setMonth(dt.getMonth() + plan.months); return dt.toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); })();
@@ -674,6 +682,20 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
               </View>
               {plan.neverPaysOff && (
                 <Text style={[styles.planNote, { color: Colors.red, marginTop: 8 }]}>⚠️ At this payment your balance grows faster than you pay it down. Add an extra payment to start getting ahead.</Text>
+              )}
+              {/* THE QUESTION THE DECISION ACTUALLY TURNS ON (founder, 2026-08-14), and the screen
+                  never asked it: is this loan cheaper or dearer than a risk-free alternative?
+                  Shown against the LARGEST long-term debt, which is the mortgage for anyone who has
+                  one — a credit card at 22% needs no comparison to know the answer. */}
+              {bigLoan && (
+                <MortgageRateCompare
+                  balance={bigLoan.remaining_balance}
+                  annualRate={bigLoan.interest_rate_apr}
+                  monthlyPayment={bigLoan.minimum_monthly_payment}
+                  extraMonthly={num(extraPay)}
+                  treasuryYield={(treasuryYield ?? FALLBACK_TREASURY) / 100}
+                  isFallback={treasuryIsFallback}
+                />
               )}
             </Card>
           )}

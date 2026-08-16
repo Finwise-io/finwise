@@ -309,6 +309,8 @@ type AppState = {
   // Economic data
   inflationRate: number;
   treasuryYield: number;
+  inflationIsFallback: boolean;      // true = the live source was unreachable, this is a typical rate
+  treasuryIsFallback: boolean;
 
   // Actions - Auth
   setUser: (user: UserProfile | null) => void;
@@ -415,7 +417,10 @@ type AppState = {
   setEmergencyMonths: (months: number) => void;
   setMonthlyBudgetTarget: (amount: number) => void;
   setHourlyRate: (rate: number) => void;
-  setEconomicData: (inflation: number, treasury: number) => void;
+  // the FLAGS travel with the numbers (2026-08-14). Without them no screen can tell a live rate
+  // from the typical-rate fallback, and the mortgage comparison is one where a stale figure changes
+  // the answer a person acts on.
+  setEconomicData: (inflation: number, treasury: number, flags?: { inflationIsFallback?: boolean; treasuryIsFallback?: boolean }) => void;
   resetAll: () => void;
 
   // Cloud sync
@@ -537,6 +542,8 @@ export const useStore = create<AppState>()(
       fontScale: 1,
       inflationRate: 3.2,
       treasuryYield: 4.35,
+      inflationIsFallback: false,
+      treasuryIsFallback: false,
 
       // ── Auth actions ─────────────────────────────────────────────
       setUser: (user) => set({ user }),
@@ -1007,8 +1014,12 @@ export const useStore = create<AppState>()(
       setEmergencyMonths: (months) => set({ emergencyMonths: months }),
       setMonthlyBudgetTarget: (amount) => set({ monthlyBudgetTarget: amount }),
       setHourlyRate: (rate) => set({ hourlyRate: rate }),
-      setEconomicData: (inflation, treasury) =>
-        set({ inflationRate: inflation, treasuryYield: treasury }),
+      setEconomicData: (inflation, treasury, flags) =>
+        set({
+          inflationRate: inflation, treasuryYield: treasury,
+          inflationIsFallback: !!flags?.inflationIsFallback,
+          treasuryIsFallback: !!flags?.treasuryIsFallback,
+        }),
 
       resetAll: () => set({
         incomes: [], expenses: [], savings: [], investments: [],

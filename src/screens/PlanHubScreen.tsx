@@ -26,6 +26,7 @@ import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { PlanSubTabs, type PlanSubTab } from '../components/PlanSubTabs';
 import { PlanGoals } from '../components/PlanGoals';
 import { PlanPrepare } from '../components/PlanPrepare';
+import { targetAtRetirement } from '../domain/planning/target';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
@@ -130,6 +131,13 @@ export default function PlanHubScreen() {
   const door = useMemo(() => planDoor(op, accounts), [op, accounts]);
   const preTaxIds = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').map((a: any) => a.asset_id);
   const preTaxBal = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').reduce((t: number, a: any) => t + (a.balance || 0), 0);
+  // OURS, offered only while theirs is blank. Same simulation the odds come from, so the two can
+  // never disagree about what an 80% pot is.
+  const suggestedTarget = useMemo(
+    () => (wil.inputs && A?.targetNestEgg == null ? targetAtRetirement(wil.inputs) : null),
+    [wil.inputs, A?.targetNestEgg],
+  );
+
   const next = useMemo(() => nextDecision({
     lens, age, birthYear: Number(op.birthYear) || null, ssClaimAge: A.ssClaimAge != null ? Number(A.ssClaimAge) : null,
     preTaxBalance: preTaxBal, preTaxAccountIds: preTaxIds, transactions: store.transactions ?? [], moneyWord: maskedMoney,
@@ -214,6 +222,7 @@ export default function PlanHubScreen() {
           )}
           {/* the inputs live HERE, on the tab (founder 2026-08-12) — not behind a link */}
           <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
+            suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
             onOpenDoor={(r) => router.push(r as any)} />
           {/* a single line of text is a ~20pt target; fingers miss it, and this audience is the
               reason the 44pt rule exists at all (audit D13) */}

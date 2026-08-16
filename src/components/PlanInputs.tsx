@@ -19,7 +19,7 @@ export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly
 const THIS_YEAR = new Date().getFullYear();
 const MIN_AGE = 18, MAX_AGE = 100;
 
-export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor }: {
+export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor, suggestedTarget }: {
   draft: PlanDraft;
   onDraft: (d: PlanDraft) => void;
   onCommit: () => void;
@@ -29,6 +29,9 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   missing?: string[];
   /** which answer to draw attention to when arriving from Home or Net worth */
   focus?: string | null;
+  /** OURS — the 80%-odds pot, offered as a starting figure while their field is blank and always
+   *  labelled as ours. Null once they have typed a number of their own. */
+  suggestedTarget?: number | null;
   /** the three ways to add what is missing — one wording, shared with Home and Sharpen */
   onOpenDoor?: (route: string) => void;
 }) {
@@ -46,6 +49,8 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   const [ageText, setAgeText] = useState(age != null ? String(age) : '');
   const spend = Math.round(store.retirementAssumptions?.spendMonthly ?? (Number(op.monthlySpending) || 0));
   const [spendText, setSpendText] = useState(spend ? String(spend) : '');
+  const [targetText, setTargetText] = useState(
+    store.retirementAssumptions?.targetNestEgg ? String(store.retirementAssumptions.targetNestEgg) : '');
 
   // a fact writes through the moment it changes — no draft layer, nothing to remember to save
   const saveAge = (t: string) => {
@@ -57,6 +62,13 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
     setSpendText(t);
     const n = Number(t.replace(/[^0-9]/g, ''));
     if (n > 0) store.setRetirementAssumptions?.({ spendMonthly: n });
+  };
+
+  // saves the moment it changes, like the other facts — no draft, no commit button (open question 2)
+  const saveTarget = (txt: string) => {
+    const n = Number(txt.replace(/[^0-9]/g, ''));
+    setTargetText(txt.replace(/[^0-9]/g, ''));
+    store.setRetirementAssumptions?.({ targetNestEgg: n > 0 ? n : null });
   };
 
   const dirty = draft.retireAge !== committed.retireAge
@@ -86,6 +98,28 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
       </View>
       {/* the app asked what they spend TODAY and quietly adjusted it — now it asks the real question */}
       <Text style={s.hint}>What your savings actually have to cover. Prefilled from what you spend now.</Text>
+
+      {/* THE TARGET NEST EGG — THEIRS. Founder's first correction of this redesign: "target nest egg
+          is a number entered by the user based on what is their target." Before this the app derived
+          it (the pot that reaches 80% odds), labelled it "Target nest egg", and never mentioned we
+          picked it. Typing here cannot move the odds — the two dials answer different questions. */}
+      <View style={[s.field, focus === 'your target nest egg' && s.focused]}>
+        <Text style={s.label}>What's your target nest egg?{targetText ? <Chip kind="fact" /> : null}</Text>
+        <View style={s.moneyIn}>
+          <Text style={s.dollar}>$</Text>
+          <TextInput style={s.input} value={targetText} onChangeText={saveTarget} keyboardType="number-pad"
+            placeholder={suggestedTarget ? String(suggestedTarget) : '—'} placeholderTextColor={Colors.textTertiary}
+            maxLength={10} accessibilityLabel="Your target nest egg" />
+        </View>
+      </View>
+      {/* FILLED IN, AND SAID TO BE OURS (founder, 2026-08-14). A blank target is a worse first
+          experience than a sensible starting figure — most people have no number in mind. What is
+          not acceptable is showing ours and calling it theirs. The moment they type, this goes. */}
+      {!targetText && suggestedTarget != null && (
+        <Text style={s.hint}>
+          {maskedMoney(suggestedTarget)} — our starting figure, not yours. Change it to your own number.
+        </Text>
+      )}
 
       <SectionBand title="WHAT COUNTS TOWARD RETIREMENT" value={maskedMoney(counted)} />
       <Text style={s.hint}>Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</Text>
