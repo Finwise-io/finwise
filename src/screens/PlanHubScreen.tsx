@@ -26,7 +26,6 @@ import { DesktopPlanSandbox } from '../../desktop/platform/DesktopPlanSandbox';
 import { PlanSubTabs, type PlanSubTab } from '../components/PlanSubTabs';
 import { SpendMoreControl } from '../components/SpendMoreControl';
 import { ClaimAgeRow } from '../components/ClaimAgeRow';
-import { PlanGlanceRows, buildGlanceRows } from '../components/PlanGlanceRows';
 import { retirementEarmarkedValue } from '../domain/assets';
 import { PlanGoals } from '../components/PlanGoals';
 import { PlanPrepare } from '../components/PlanPrepare';
@@ -257,22 +256,15 @@ export default function PlanHubScreen() {
             {door.credit && (
               <Text style={styles.doorCredit}>✓ What you have — already in: {door.credit.accounts} {accounts.some((a: any) => a.source === 'connected') ? 'connected ' : ''}account{door.credit.accounts === 1 ? '' : 's'}, {maskedMoney(Math.round(door.credit.total))} counted</Text>
             )}
-            {/* ALL SEVEN QUESTIONS, ALWAYS (founder finding, 2026-08-14). The design showed three
-                here and seven everywhere else. Four of the missing ones are not blank — they are
-                OURS: the app assumes retire at 65 and plan to 90, and the sample gauge above is
-                computed with them. Hiding the rows hides what the number is standing on. */}
-            <PlanGlanceRows rows={buildGlanceRows({
-              age, retireAge: A?.retireAge ?? null, horizonAge: A?.horizonAge ?? null,
-              spendMonthly: planSpend || null, targetNestEgg: A?.targetNestEgg ?? null,
-              counted: retirementEarmarkedValue(accounts) || null,
-              bigCosts: (A?.oneOffCosts ?? []).reduce((t: number, c: any) => t + (c.amount || 0), 0) || null,
-              defaults: { retireAge: 65, horizonAge: 90 },
-              onOpen: () => router.push('/sharpen'),
-            })} />
-            {/* THE SAME inputs as the complete state — one component, so the two can never drift.
-                This is what folding /plan-answers into the tab means (founder 2026-08-12). */}
+            {/* ALL SEVEN QUESTIONS, ALWAYS — founder finding 2026-08-14, and it lives HERE.
+                An earlier attempt added a second component listing the seven above this panel, which
+                made day one ask three of them twice — the same "one question, one place" defect the
+                founder found in Ray's hero, on a different screen. PlanInputs already owns all seven;
+                what it was missing was saying which values are OURS rather than theirs. */}
             <PlanInputs draft={draft} committed={committed} onDraft={setDraft} onCommit={commitDraft}
-              missing={door.missing} focus={focusParam} onOpenDoor={(r) => router.push(r as any)} />
+              missing={door.missing} focus={focusParam} onOpenDoor={(r) => router.push(r as any)}
+              suggestedTarget={A?.targetNestEgg == null ? suggestedTarget : null}
+              assumed={{ retireAge: A?.retireAge == null, horizonAge: A?.horizonAge == null }} />
           </View>
           <View style={[styles.nextCard, { opacity: 0.5 }]} accessible
             accessibilityLabel="Sample of the next-decision card — real ones are dated from your numbers, never invented.">

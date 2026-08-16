@@ -19,7 +19,7 @@ export interface PlanDraft { retireAge: number; horizonAge: number; extraMonthly
 const THIS_YEAR = new Date().getFullYear();
 const MIN_AGE = 18, MAX_AGE = 100;
 
-export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor, suggestedTarget }: {
+export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], focus, onOpenDoor, suggestedTarget, assumed }: {
   draft: PlanDraft;
   onDraft: (d: PlanDraft) => void;
   onCommit: () => void;
@@ -32,6 +32,8 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
   /** OURS — the 80%-odds pot, offered as a starting figure while their field is blank and always
    *  labelled as ours. Null once they have typed a number of their own. */
   suggestedTarget?: number | null;
+  /** which of these values are the APP'S assumption rather than the person's answer */
+  assumed?: { retireAge?: boolean; horizonAge?: boolean };
   /** the three ways to add what is missing — one wording, shared with Home and Sharpen */
   onOpenDoor?: (route: string) => void;
 }) {
@@ -121,7 +123,10 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
         </Text>
       )}
 
-      <SectionBand title="WHAT COUNTS TOWARD RETIREMENT" value={maskedMoney(counted)} />
+      {/* NO FAKE ZEROS (brief §5, and the audit caught it still shipping). "$0" reads as "you have
+          nothing", which is a statement about their life; "—" reads as "you haven't told us yet",
+          which is the truth. The distinction matters most on the very first screen a person sees. */}
+      <SectionBand title="WHAT COUNTS TOWARD RETIREMENT" value={counted > 0 ? maskedMoney(counted) : '—'} />
       <Text style={s.hint}>Everything you own counts, except the home you live in and the car you drive. Tap any row to change it.</Text>
       {accounts.map((a: any) => {
         const counts = earmarkedAmount(a, carId) > 0 || (a.retirement_pct ?? earmarkDefault(a, carId)) > 0;
@@ -144,7 +149,8 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
         </TouchableOpacity>
       ))}
 
-      <SectionBand title="BIG ONE-TIME COSTS" value={maskedMoney(bigCosts.reduce((t: number, c: any) => t + c.amount, 0))} />
+      <SectionBand title="BIG ONE-TIME COSTS"
+        value={bigCosts.length ? maskedMoney(bigCosts.reduce((t: number, c: any) => t + c.amount, 0)) : 'None yet'} />
       {bigCosts.map((c: any) => (
         <View key={c.id} style={s.row} accessible accessibilityLabel={`${c.label}, ${c.year}: ${spokenMoney(Math.round(c.amount))}`}>
           <Text style={s.rowLabel}>{c.label}, {c.year}<Chip kind="fact" /></Text>
@@ -168,9 +174,13 @@ export function PlanInputs({ draft, onDraft, onCommit, committed, missing = [], 
 
       <SectionBand inCard quiet title="CHOICES — TRY THEM, NOTHING CHANGES YET" />
       <View style={blocked ? s.dimmed : undefined} pointerEvents={blocked ? 'none' : 'auto'}>
-      <Stepper label="Retire at" value={draft.retireAge}
+      {/* OURS UNTIL THEY CHANGE IT (founder finding, 2026-08-14). With nothing answered the app
+          still assumes retire at 65 and plan to 90 — and the sample odds above are computed with
+          them. A value we picked, shown without saying so, is the same defect as the target nest egg
+          the app used to derive and label as theirs. */}
+      <Stepper label="Retire at" value={draft.retireAge} ours={assumed?.retireAge}
         onChange={(v) => onDraft({ ...draft, retireAge: Math.max(50, Math.min(80, v)) })} />
-      <Stepper label="Plan to age" value={draft.horizonAge}
+      <Stepper label="Plan to age" value={draft.horizonAge} ours={assumed?.horizonAge}
         onChange={(v) => onDraft({ ...draft, horizonAge: Math.max(draft.retireAge + 1, Math.min(110, v)) })} />
       <Stepper label="Extra saving each month" value={draft.extraMonthly} money step={100}
         onChange={(v) => onDraft({ ...draft, extraMonthly: Math.max(0, v) })} />
@@ -198,12 +208,14 @@ function Chip({ kind }: { kind: 'fact' | 'draft' | 'missing' }) {
   return <Text style={style}>  {kind.toUpperCase()}  </Text>;
 }
 
-function Stepper({ label, value, onChange, money, step = 1 }: {
+function Stepper({ label, value, onChange, money, step = 1, ours }: {
   label: string; value: number; onChange: (v: number) => void; money?: boolean; step?: number;
+  /** true when this value is the app's own default and the person has not chosen it */
+  ours?: boolean;
 }) {
   return (
     <View style={s.stepper}>
-      <Text style={s.label}>{label}<Chip kind="draft" /></Text>
+      <Text style={s.label}>{label}<Chip kind="draft" />{ours ? <Text style={s.oursTag}>  ours until you change it  </Text> : null}</Text>
       <View style={s.stepRow}>
         <TouchableOpacity style={s.btn} accessibilityRole="button" accessibilityLabel={`Lower ${label}`} onPress={() => onChange(value - step)}>
           <Text style={s.btnTxt}>−</Text>
@@ -239,6 +251,9 @@ const s = StyleSheet.create({
   draftChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.primaryDeep, backgroundColor: Colors.primaryLight },
   missingChip: { fontSize: Typography.sizes.xs, fontWeight: '700', color: Colors.amber, backgroundColor: Colors.amberLight },
   missingRow: { backgroundColor: Colors.amberLight },
+  // deliberately NOT amber: amber means "act on this", and an assumption is not a problem. The v4
+  // design used one colour for both on day one, so a default and a gap looked like the same thing.
+  oursTag: { fontSize: 11, fontWeight: '600', color: Colors.textSecondary, backgroundColor: Colors.bgTertiary },
   missingLabel: { fontWeight: '700' },
   focused: { borderLeftWidth: 3, borderLeftColor: Colors.primaryDeep },
   dimmed: { opacity: 0.4 },
