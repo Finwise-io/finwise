@@ -31,7 +31,7 @@ if os.path.exists(OUT):
             for r in range(3, ws.max_row + 1):
                 key = ws.cell(r, 2).value          # column B = Function (the stable key)
                 if key:
-                    prior[key] = [ws.cell(r, c).value for c in (3, 4, 5, 6, 7, 8)]
+                    prior[key] = [ws.cell(r, c).value for c in (1, 3, 4, 5, 6, 7, 8, 9, 10)]
 
 wb = openpyxl.Workbook()
 HDR   = PatternFill("solid", fgColor="085041")
@@ -54,6 +54,12 @@ COLS = [
                                         "'contributions come from the ledger' is a source; "
                                         "'a CONTRIBUTION activity is external money in, a BUY is not' is a rule."),
     ("Probe",              26, "hand", "The test that proves this row by executing the real function."),
+    ("Status",             14, "hand", "CORRECT · DEFECT · UNRESOLVED. What the code does today, judged against what it "
+                                        "should do. Everything left of this column describes the code AS IT IS — including "
+                                        "its bugs — because a probe can only execute what exists."),
+    ("WHAT IT SHOULD BE",  52, "hand", "Only filled where Status is DEFECT. The corrected formula or rule. The difference "
+                                        "between this column and the Formula column IS the work list — so the target never "
+                                        "lives only in someone's head or a commit message."),
     ("Screens",            28, "gen",  "Screens in scope that import it directly."),
     ("Called by",          34, "gen",  "Other calculations that use it."),
     ("Returns",            26, "gen",  "Declared return type."),
@@ -74,16 +80,18 @@ def sheet(name, subset, note):
         cell.comment = openpyxl.comments.Comment(help_, "Calculation module")
     ws.freeze_panes = "C3"
     for i, r in enumerate(subset, start=3):
-        keep = prior.get(r["name"], [None] * 6)
+        keep = prior.get(r["name"], [None] * 9)
         vals = [
             keep[0] or "",                    # engine name (hand)
             r["name"],                        # function (gen)
             keep[1] or "",                    # what it answers (hand)
-            keep[2] or "",                    # formula (hand)
+            keep[2] or "",                    # formula — AS IT IS TODAY (hand)
             keep[3] or "",                    # variables (hand)
             keep[4] or "",                    # source of each (hand)
             keep[5] or "",                    # derivation rule (hand)
-            "",                               # probe (hand, filled as probes land)
+            keep[6] or "",                    # probe (hand)
+            keep[7] or "",                    # status (hand)
+            keep[8] or "",                    # what it SHOULD be (hand)
             r["screens"] or "—",
             r["calledBy"] or "—",
             r["returns"],
@@ -105,9 +113,11 @@ sheet("Calculations", calcs,
       f"CALCULATION INVENTORY · Phase 1 — Net worth, Performance and the 8 screens they open · "
       f"{len(calcs)} calculations · generated from commit {sha} on {today}"
       f"{'  ⚠ TREE WAS DIRTY' if dirty else ''}. "
-      "GREY columns are generated from the code and are overwritten on every regeneration — never edit them. "
-      "CREAM columns are written by hand and preserved across regenerations. "
-      "A row is not documented until its probe passes.")
+      "EVERY FORMULA HERE DESCRIBES THE CODE AS IT IS TODAY, BUGS INCLUDED — you cannot fix what you have not "
+      "described, and a probe can only execute what exists. Where the current behaviour is wrong, Status says DEFECT "
+      "and the corrected version sits in WHAT IT SHOULD BE; the difference between those two columns is the work list. "
+      "GREY columns are generated from the code and overwritten on every regeneration — never edit them. "
+      "CREAM columns are written by hand and preserved. A row is not documented until its probe passes.")
 
 sheet("Formatting helpers", helps,
       f"FORMATTING HELPERS · {len(helps)} · they shape numbers rather than compute them, "
