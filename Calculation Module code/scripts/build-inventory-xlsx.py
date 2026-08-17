@@ -31,7 +31,7 @@ if os.path.exists(OUT):
             for r in range(3, ws.max_row + 1):
                 key = ws.cell(r, 2).value          # column B = Function (the stable key)
                 if key:
-                    prior[key] = [ws.cell(r, c).value for c in (1, 3, 4, 5, 6, 7, 8, 9, 10)]
+                    prior[key] = [ws.cell(r, c).value for c in (1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)]
 
 wb = openpyxl.Workbook()
 HDR   = PatternFill("solid", fgColor="085041")
@@ -57,9 +57,13 @@ COLS = [
     ("Status",             14, "hand", "CORRECT · DEFECT · UNRESOLVED. What the code does today, judged against what it "
                                         "should do. Everything left of this column describes the code AS IT IS — including "
                                         "its bugs — because a probe can only execute what exists."),
-    ("WHAT IT SHOULD BE",  52, "hand", "Only filled where Status is DEFECT. The corrected formula or rule. The difference "
-                                        "between this column and the Formula column IS the work list — so the target never "
-                                        "lives only in someone's head or a commit message."),
+    ("WHAT IT SHOULD BE",  52, "hand", "The correct BEHAVIOUR — the spec. What the number ought to be, stated so it could "
+                                        "be handed to anyone. Only filled where the current behaviour is wrong."),
+    ("Fix needed?",        12, "hand", "Y or N. The filterable flag — sort on this to get the work list in one move. "
+                                        "UNRESOLVED rows are Y: they need a decision before they need code."),
+    ("RECOMMENDED FIX",    52, "hand", "HOW to get there — the action, not the spec. 'What it should be' says the money "
+                                        "must appear in exactly one place; this says which of the two code paths to delete. "
+                                        "Where a founder decision is needed first, this names the decision instead of a change."),
     ("Screens",            28, "gen",  "Screens in scope that import it directly."),
     ("Called by",          34, "gen",  "Other calculations that use it."),
     ("Returns",            26, "gen",  "Declared return type."),
@@ -80,7 +84,7 @@ def sheet(name, subset, note):
         cell.comment = openpyxl.comments.Comment(help_, "Calculation module")
     ws.freeze_panes = "C3"
     for i, r in enumerate(subset, start=3):
-        keep = prior.get(r["name"], [None] * 9)
+        keep = prior.get(r["name"], [None] * 11)
         vals = [
             keep[0] or "",                    # engine name (hand)
             r["name"],                        # function (gen)
@@ -91,7 +95,9 @@ def sheet(name, subset, note):
             keep[5] or "",                    # derivation rule (hand)
             keep[6] or "",                    # probe (hand)
             keep[7] or "",                    # status (hand)
-            keep[8] or "",                    # what it SHOULD be (hand)
+            keep[8] or "",                    # what it SHOULD be — the spec (hand)
+            keep[9] or "",                    # fix needed? Y/N (hand)
+            keep[10] or "",                   # recommended fix — the action (hand)
             r["screens"] or "—",
             r["calledBy"] or "—",
             r["returns"],
