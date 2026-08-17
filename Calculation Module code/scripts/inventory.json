@@ -1,6 +1,6 @@
 {
-  "generatedFrom": "3063b21",
-  "treeDirty": false,
+  "generatedFrom": "57a37b4",
+  "treeDirty": true,
   "generatedAt": null,
   "scope": [
     "NetWorthScreen",
@@ -46,7 +46,7 @@
       "returns": "string",
       "screens": "",
       "calledBy": "money",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "formatMoneyCents",
@@ -57,7 +57,7 @@
       "returns": "string",
       "screens": "",
       "calledBy": "money2",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "money",
@@ -100,7 +100,7 @@
       "signature": "newEntityId(prefix: string): EntityId",
       "returns": "EntityId",
       "screens": "ImportHoldings",
-      "calledBy": "assetsFromOnboarding, debtsFromOnboarding",
+      "calledBy": "assetsFromOnboarding, debtsFromOnboarding, ingestSync",
       "tab": "calculations"
     },
     {
@@ -288,7 +288,7 @@
       "returns": "string",
       "screens": "NetWorth",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "earmarkDefault",
@@ -464,7 +464,7 @@
       "returns": "string",
       "screens": "AccountDetail, NetWorth",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "taxTreatmentOf",
@@ -816,7 +816,7 @@
       "returns": "string",
       "screens": "ImportHoldings",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "importHoldings",
@@ -1105,6 +1105,193 @@
       "tab": "calculations"
     },
     {
+      "name": "analyzeExpenses",
+      "module": "INGEST · economicData",
+      "file": "src/services/economicData.ts",
+      "line": 109,
+      "signature": "analyzeExpenses( expenses: Array<{ category: string; store: string; amount: number }>, monthlyIncome: number, inflationRate: number ): Promise<ExpenseAnalysis>",
+      "returns": "Promise<ExpenseAnalysis>",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "fetchEconomicData",
+      "module": "INGEST · economicData",
+      "file": "src/services/economicData.ts",
+      "line": 47,
+      "signature": "fetchEconomicData(): Promise<EconomicData>",
+      "returns": "Promise<EconomicData>",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "parseReceipt",
+      "module": "INGEST · economicData",
+      "file": "src/services/economicData.ts",
+      "line": 158,
+      "signature": "parseReceipt(_imageUri: string): Promise<",
+      "returns": "Promise<",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "confirmWrapper",
+      "module": "INGEST · ingest",
+      "file": "src/services/sync/ingest.ts",
+      "line": 173,
+      "signature": "confirmWrapper(accounts: AssetAccount[], assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']): AssetAccount[]",
+      "returns": "AssetAccount[]",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "ingestSync",
+      "module": "INGEST · ingest",
+      "file": "src/services/sync/ingest.ts",
+      "line": 31,
+      "signature": "ingestSync( existingAccounts: AssetAccount[], existingSeenKeys: Record<string, true>, payloads: AccountSyncPayload[], nowIso: string = new Date().toISOString(), ): SyncResult",
+      "returns": "SyncResult",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "stAssetId",
+      "module": "INGEST · ingest",
+      "file": "src/services/sync/ingest.ts",
+      "line": 29,
+      "signature": "stAssetId(snapTradeAccountId: string) =>",
+      "returns": "(inferred)",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "fetchPriceSeries",
+      "module": "INGEST · marketData",
+      "file": "src/services/marketData.ts",
+      "line": 71,
+      "signature": "fetchPriceSeries( tickers: string[], provider: PriceProvider = yahooProvider, range?: string, ): Promise<Record<string, PriceSeries>>",
+      "returns": "Promise<Record<string, PriceSeries>>",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "isPlausibleTicker",
+      "module": "INGEST · marketData",
+      "file": "src/services/marketData.ts",
+      "line": 53,
+      "signature": "isPlausibleTicker(ticker: string): boolean",
+      "returns": "boolean",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "priceFreshness",
+      "module": "INGEST · marketData",
+      "file": "src/services/marketData.ts",
+      "line": 60,
+      "signature": "priceFreshness(fetchedAt: string | null | undefined, now: number): PriceFreshness",
+      "returns": "PriceFreshness",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "activityKey",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 243,
+      "signature": "activityKey(accountId: string, a: StActivity): string",
+      "returns": "string",
+      "screens": "",
+      "calledBy": "dedupeActivities, ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "dedupeActivities",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 255,
+      "signature": "dedupeActivities(accountId: string, incoming: StActivity[], seenKeys: Set<string>): StActivity[]",
+      "returns": "StActivity[]",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "mapAccountType",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 71,
+      "signature": "mapAccountType(rawType: string | null | undefined, category?: string | null): WrapperGuess",
+      "returns": "WrapperGuess",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "mapActivityType",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 184,
+      "signature": "mapActivityType(a: StActivity): MappedActivity",
+      "returns": "MappedActivity",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "mapOptionHolding",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 159,
+      "signature": "mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOption | null",
+      "returns": "MappedOption | null",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "mapPosition",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 116,
+      "signature": "mapPosition(p: StPosition): MappedPosition | null",
+      "returns": "MappedPosition | null",
+      "screens": "",
+      "calledBy": "",
+      "tab": "calculations"
+    },
+    {
+      "name": "mergeHistoryFrom",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 282,
+      "signature": "mergeHistoryFrom(existing: string | undefined, activityDates: (string | null | undefined)[]): string | undefined",
+      "returns": "string | undefined",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
+      "name": "netCashSleeve",
+      "module": "INGEST · snaptrade",
+      "file": "src/services/sync/snaptrade.ts",
+      "line": 269,
+      "signature": "netCashSleeve(balancesCash: number | null | undefined, positions: MappedPosition[]): number",
+      "returns": "number",
+      "screens": "",
+      "calledBy": "ingestSync",
+      "tab": "calculations"
+    },
+    {
       "name": "buildNetWorth",
       "module": "networth",
       "file": "src/domain/networth/index.ts",
@@ -1146,7 +1333,7 @@
       "returns": "string",
       "screens": "HoldingDetail, Performance",
       "calledBy": "buildPerformance",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "buildPerformance",
@@ -1278,7 +1465,7 @@
       "returns": "MoneyWeighted | MoneyWeightedMiss",
       "screens": "Performance",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "periodReturn",
@@ -1421,7 +1608,7 @@
       "returns": "string",
       "screens": "NetWorth",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "onCourseSentence",
@@ -1454,7 +1641,7 @@
       "returns": "string",
       "screens": "NetWorth",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "sampleOddsLine",
@@ -1465,7 +1652,7 @@
       "returns": "string",
       "screens": "NetWorth",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     },
     {
       "name": "shortfallAgeFromBand",
@@ -1619,7 +1806,7 @@
       "returns": "string",
       "screens": "AccountDetail, Performance",
       "calledBy": "",
-      "tab": "helpers"
+      "tab": "calculations"
     }
   ]
 }

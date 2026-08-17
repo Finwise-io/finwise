@@ -19,6 +19,18 @@ import { execSync } from 'child_process';
 
 const ROOT = process.cwd();
 const DOMAIN = path.join(ROOT, 'src/domain');
+// THE INGEST LAYER IS IN SCOPE, and leaving it out was a real gap in the first pass.
+// A number is only as good as the variable it is fed, and these files are where RAW broker data
+// becomes a variable: what counts as a contribution, what a position is worth, what the cash sleeve
+// holds. The Vanguard failure was entirely here — the arithmetic downstream was fine, it was told
+// that internal trades were external money. The founder's whole point about derivation rules lives
+// in this layer, so it belongs in the inventory more than anything in src/domain does.
+const INGEST_FILES = [
+  'src/services/sync/snaptrade.ts',
+  'src/services/sync/ingest.ts',
+  'src/services/marketData.ts',
+  'src/services/economicData.ts',
+].map((f) => path.join(ROOT, f)).filter((f) => fs.existsSync(f));
 
 // PHASE 1 SCOPE (founder-agreed 2026-08-16): Net worth, Performance, and the eight screens they
 // open. Cash flow and Plan are deliberately excluded — they are separate surfaces with their own
@@ -37,9 +49,11 @@ const walk = (dir) => fs.readdirSync(dir, { withFileTypes: true }).flatMap((e) =
 
 // ── every exported function in the domain, with where it lives ──────────────────────────────────
 const defs = new Map();          // name -> { name, module, file, line, signature, returns }
-for (const file of walk(DOMAIN)) {
+for (const file of [...walk(DOMAIN), ...INGEST_FILES]) {
   const rel = path.relative(ROOT, file);
-  const mod = path.relative(DOMAIN, file).split(path.sep)[0].replace(/\.ts$/, '');
+  const mod = rel.startsWith('src/services')
+    ? 'INGEST · ' + path.basename(file, '.ts')
+    : path.relative(DOMAIN, file).split(path.sep)[0].replace(/\.ts$/, '');
   const lines = fs.readFileSync(file, 'utf8').split('\n');
   lines.forEach((ln, i) => {
     // `export function name(args): Return {`  and  `export const name = (args): Return =>`
@@ -105,6 +119,9 @@ const bodyOf = (d) => {
   return src.slice(i, j + 1);
 };
 const inScope = new Set(screenUses.keys());
+// every ingest export is an entry point: it runs on every connection refresh, whether or not a
+// screen imports it, and it decides what every downstream number is made of
+for (const [name, d] of defs) if (d.module.startsWith('INGEST')) inScope.add(name);
 const queue = [...inScope];
 const calledBy = new Map();      // callee -> Set(caller)
 while (queue.length) {
@@ -122,8 +139,19 @@ while (queue.length) {
 }
 
 // ── formatters are calculations too, but on their own tab so they do not drown the rest ─────────
-const FORMATTER = /^(money|money2|moneyCompact|currencySymbol|round2|pct|fmt|label|txnLabel|spoken|masked|display|name|title|word|words|sentence|line|text)/i;
-const isFormatter = (d) => FORMATTER.test(d.name) || /string$/i.test(d.returns);
+// A FORMATTER SHAPES A NUMBER FOR READING. It is not "anything that returns a string".
+// The first version used `returns string` as the test, which filed activityKey — a dedupe KEY, and
+// one of the derivation rules that decides whether a trade is counted twice — under formatting.
+// Identity, classification and labelling-that-encodes-a-decision are calculations; only
+// presentation is a helper.
+// EXACT NAMES, not prefixes. A prefix rule filed moneyWeightedReturn as a formatter because it
+// begins with "money" — and that is the money-weighted return, the very method Vanguard's own
+// statement uses and the one that decides whether a deposit counts as performance. Being wrong
+// about which rows even ARE calculations is the worst possible place to be approximate.
+const FORMATTERS = new Set([
+  'money', 'money2', 'moneyCompact', 'currencySymbol', 'round2', 'pctTxt', 'fmtPct', 'spokenMoney',
+]);
+const isFormatter = (d) => FORMATTERS.has(d.name);
 
 const sha = execSync('git rev-parse --short HEAD').toString().trim();
 const dirty = execSync('git status --porcelain').toString().trim().length > 0;
