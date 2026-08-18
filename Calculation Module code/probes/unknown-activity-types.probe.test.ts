@@ -71,3 +71,44 @@ describe('UNRECOGNISED WORDS — read by the SIGN of the amount', () => {
     // original word. That is how this can be confirmed on the founder's real data.
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// FOUNDER CHALLENGE 2026-08-17: "why no cash effect? Option could expire in the money."
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// He is half right, and the half matters. The EXPIRY event itself never moves cash — an
+// out-of-the-money option just dies, and an IN-the-money one is auto-exercised, which arrives as a
+// different line. For a normal share-settled option the exercise cash comes on a PAIRED BUY/SELL
+// row, which we keep (live-verified on E*TRADE, 2026-07-18) — skipping the marker avoids counting
+// it twice. BUT two real cases carry cash ON THE ROW WE SKIP:
+//   · CASH-SETTLED index options (the SPX family) — no shares exist; exercise pays cash directly
+//   · CASH-IN-LIEU on a split or merger — the fractional share paid out as money, on an ADJUSTMENT
+describe('OPTION EXPIRY / EXERCISE — where the founder\'s challenge lands', () => {
+  test('expiry itself: no cash, and skipping it is right', () => {
+    expect(t('OPTIONEXPIRATION', 0).txnType).toBe('SKIP');
+  });
+
+  test('share-settled exercise: the marker is skipped BECAUSE the cash arrives on a paired trade row', () => {
+    expect(t('OPTIONEXERCISE', 0).txnType).toBe('SKIP');
+    expect(t('BUY', -22_000).txnType).toBe('BUY');       // the paired row that carries the money
+  });
+
+  test('DEFECT — a CASH-SETTLED exercise carries its cash on the skipped row, and the money vanishes', () => {
+    // An SPX-style option exercised in the money pays cash directly — there is no share trade.
+    // We skip the row, amount and all. The account balance rises; the ledger says nothing did.
+    const r = t('OPTIONEXERCISE', 12_500);
+    expect(r.txnType).toBe('SKIP');                       // ← $12,500 of real proceeds, dropped
+  });
+
+  test('DEFECT — cash-in-lieu on a split rides an ADJUSTMENT row, which no total ever reads', () => {
+    // A 3-for-2 split leaves half a share; the broker pays it out as cash on an adjustment line.
+    // ADJUST rows are kept as notes but excluded from every sum in the change walk.
+    const r = t('ADJUSTMENT', 47.5);
+    expect(r.txnType).toBe('ADJUST');                     // stored — but counted nowhere
+  });
+
+  test('what the gap costs: realized profit on a cash-settled option never gets recorded', () => {
+    // the position vanishes from the holdings feed, the SKIP swallows the payout, and no SELL row
+    // exists — so realized P/L, the activity list, and the walk all show nothing where money moved.
+    expect(t('OPTIONASSIGNMENT', 8_000).txnType).toBe('SKIP');
+  });
+});
