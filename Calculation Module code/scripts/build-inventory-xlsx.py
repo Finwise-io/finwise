@@ -23,20 +23,36 @@ today = datetime.date.today().isoformat()
 
 # ── preserve anything already annotated, keyed by engine name ───────────────────────────────────
 prior = {}
+# The founder can attach an Excel comment to ANY cell on ANY tab. A regeneration builds a fresh
+# workbook, so without this those comments would be silently destroyed - the worst possible failure
+# for a review channel, because he would not know it happened. Captured by (tab, function-name,
+# column header) so a comment follows its row even when the code moves and the row number changes.
+notes = {}
+MINE = "Calculation module"      # the column-header help text this script writes; not his
 if os.path.exists(OUT):
     wbp = openpyxl.load_workbook(OUT)
+    for _tab in wbp.sheetnames:
+        _ws = wbp[_tab]
+        _hdr = {c: _ws.cell(2, c).value for c in range(1, _ws.max_column + 1)}
+        for _row in _ws.iter_rows():
+            for _cell in _row:
+                if _cell.comment and _cell.comment.author != MINE:
+                    _key = _ws.cell(_cell.row, 2).value if _cell.row > 2 else "__header__"
+                    notes[(_tab, str(_key), _hdr.get(_cell.column))] = (_cell.comment.text, _cell.comment.author)
     for tab in ("Calculations", "Formatting helpers"):
         if tab in wbp.sheetnames:
             ws = wbp[tab]
+            hdrs = {c: ws.cell(2, c).value for c in range(1, ws.max_column + 1)}   # keyed by NAME, never by number
             for r in range(3, ws.max_row + 1):
                 key = ws.cell(r, 2).value          # column B = Function (the stable key)
                 if key:
-                    prior[key] = [ws.cell(r, c).value for c in (1, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12)]
+                    prior[key] = {hdrs.get(c): ws.cell(r, c).value for c in range(1, ws.max_column + 1)}
 
 wb = openpyxl.Workbook()
 HDR   = PatternFill("solid", fgColor="085041")
 GEN   = PatternFill("solid", fgColor="EEEEE9")     # generated — do not edit
-HAND  = PatternFill("solid", fgColor="FFF6E5")     # you fill these
+HAND  = PatternFill("solid", fgColor="FFF6E5")     # I fill these
+YOURS = PatternFill("solid", fgColor="E8F0FB")     # the founder fills these - never overwritten
 WHITE = Font(color="FFFFFF", bold=True, size=10)
 BOLD  = Font(bold=True, size=10)
 WRAP  = Alignment(wrap_text=True, vertical="top")
@@ -80,6 +96,15 @@ COLS = [
     ("RECOMMENDED FIX",    52, "hand", "HOW to get there — the action, not the spec. 'What it should be' says the money "
                                         "must appear in exactly one place; this says which of the two code paths to delete. "
                                         "Where a founder decision is needed first, this names the decision instead of a change."),
+    ("YOUR COMMENT / QUESTION", 46, "you",
+                                       "YOURS. Write anything here - a question, a disagreement, "
+                                        "'this is not what I meant', 'where does this number show up'. "
+                                        "Nothing I run ever writes to this column or clears it; it survives every "
+                                        "regeneration. You can also attach an Excel comment to ANY cell on any tab "
+                                        "and I will read it - comments are preserved too."),
+    ("YOUR VERDICT",       16, "you",  "YOURS. For rows where Fix needed? is Y: FIX / LEAVE / LATER, or your own word. "
+                                        "This is the column I work from - it is your answer to my recommendation, and "
+                                        "I will not start a fix that does not have one."),
     ("Screens",            28, "gen",  "Screens in scope that import it directly."),
     ("Called by",          34, "gen",  "Other calculations that use it."),
     ("Returns",            26, "gen",  "Declared return type."),
@@ -100,20 +125,25 @@ def sheet(name, subset, note):
         cell.comment = openpyxl.comments.Comment(help_, "Calculation module")
     ws.freeze_panes = "C3"
     for i, r in enumerate(subset, start=3):
-        keep = prior.get(r["name"], [None] * 11)
+        keep = prior.get(r["name"], {})
+        def kept(header):
+            """Whatever was in that NAMED column last time — empty if the column did not exist."""
+            return keep.get(header) or ""
         vals = [
-            keep[0] or "",                    # engine name (hand)
-            r["name"],                        # function (gen)
-            keep[1] or "",                    # what it answers (hand)
-            keep[2] or "",                    # formula — AS IT IS TODAY (hand)
-            keep[3] or "",                    # variables (hand)
-            keep[4] or "",                    # source of each (hand)
-            keep[5] or "",                    # derivation rule (hand)
-            keep[6] or "",                    # probe (hand)
-            keep[7] or "",                    # status (hand)
-            keep[8] or "",                    # what it SHOULD be — the spec (hand)
-            keep[9] or "",                    # fix needed? Y/N (hand)
-            keep[10] or "",                   # recommended fix — the action (hand)
+            kept("Engine name"),
+            r["name"],                                              # generated
+            kept("What it answers"),
+            kept("Formula — the actual rules") or kept("Formula"),  # the column was renamed; carry both
+            kept("Input variables (raw → ours)") or kept("Input variables"),
+            kept("Where each comes from — file, feed, field") or kept("Source of each"),
+            kept("DERIVATION RULE"),
+            kept("Probe"),
+            kept("Status"),
+            kept("WHAT IT SHOULD BE"),
+            kept("Fix needed?"),
+            kept("RECOMMENDED FIX"),
+            kept("YOUR COMMENT / QUESTION"),                        # never written by me
+            kept("YOUR VERDICT"),                                   # never written by me
             r["screens"] or "—",
             r["calledBy"] or "—",
             r["returns"],
@@ -122,7 +152,7 @@ def sheet(name, subset, note):
         for c, v in enumerate(vals, start=1):
             cell = ws.cell(i, c, v)
             cell.alignment, cell.border = WRAP, THIN
-            cell.fill = HAND if COLS[c - 1][2] == "hand" else GEN
+            cell.fill = {"hand": HAND, "you": YOURS}.get(COLS[c - 1][2], GEN)
             if c == 2:
                 cell.font = BOLD
     return ws
@@ -139,7 +169,7 @@ sheet("Calculations", calcs,
       "described, and a probe can only execute what exists. Where the current behaviour is wrong, Status says DEFECT "
       "and the corrected version sits in WHAT IT SHOULD BE; the difference between those two columns is the work list. "
       "GREY columns are generated from the code and overwritten on every regeneration — never edit them. "
-      "CREAM columns are written by hand and preserved. A row is not documented until its probe passes.")
+      "CREAM columns are written by hand and preserved. THE TWO BLUE COLUMNS ARE YOURS - write your questions and your verdict there, and nothing I run will ever touch them. You can also attach an Excel comment to ANY cell on any tab; comments survive regeneration and I read them. A row is not documented until its probe passes.")
 
 sheet("Formatting helpers", helps,
       f"FORMATTING HELPERS · {len(helps)} · they shape numbers rather than compute them, "
@@ -237,6 +267,20 @@ for c, (t, w) in enumerate([("#", 6), ("Question", 60), ("Why it matters", 50), 
     ws.column_dimensions[openpyxl.utils.get_column_letter(c)].width = w
     cell = ws.cell(2, c, t); cell.fill, cell.font, cell.border = HDR, WHITE, THIN
 
+# ── restore the founder's comments onto the rebuilt sheets ─────────────────────────────────────
+_restored = 0
+for _tab in wb.sheetnames:
+    _ws = wb[_tab]
+    _hdr = {c: _ws.cell(2, c).value for c in range(1, _ws.max_column + 1)}
+    _rowOf = {str(_ws.cell(r, 2).value): r for r in range(3, _ws.max_row + 1)}
+    for (_t, _key, _col), (_text, _author) in notes.items():
+        if _t != _tab: continue
+        _c = next((c for c, h in _hdr.items() if h == _col), None)
+        _r = _rowOf.get(_key)
+        if _c and _r:
+            _ws.cell(_r, _c).comment = openpyxl.comments.Comment(_text, _author or "Founder")
+            _restored += 1
+
 wb.save(OUT)
 
 # ── COVERAGE LINE — printed every regeneration, so "is it done?" never needs a hand count ───────
@@ -271,4 +315,5 @@ if _fail:
 else:
     print(f"  every documented row meets the standard (answers listed · real rules · real source · raw → ours)")
 print(f"  {len(calcs)} calculations · {len(helps)} helpers · commit {sha}{'  (DIRTY TREE)' if dirty else ''}")
+print(f"  restored {_restored} of {len(notes)} of your cell comments")
 print(f"  preserved annotations for {len([k for k in prior if any(prior[k])])} rows")
