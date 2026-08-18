@@ -1,43 +1,57 @@
-# Real downloads — drop institution files here
+# Institution files — drop them here
 
-**Nothing in this folder is committed to git.** The ignore rule is in `.gitignore`; only this
-README is tracked. These are real statements with real balances, and they stay on this machine.
+Files here are **gitignored by default** (real statements must never be committed). But if a file
+carries no real balances — sample exports, format documentation, or numbers you typed in yourself —
+say so and it gets moved to `fixtures/` and **committed**, where it becomes a permanent test.
+That is much better than untracked: a committed file is one a guard test can run forever.
 
-## What to download, most useful first
+## The one thing that must be exact
 
-**1 · Holdings / positions, one per institution** — Vanguard, E*TRADE, Fidelity, Schwab, Chase.
-Usually *Download* or *Export* on the holdings page; CSV if offered.
+**The header row and the description / security-name text, character for character as the
+institution writes them.** That is the entire value. Everything else can be invented.
 
-This is the file that settles classification. The app currently finds each column by pattern
-because no two institutions agree on names, and those patterns were written from format
-documentation rather than from files. A real header row either confirms them or shows what was
-missed. The **description text** matters most of all — for a CD or a bond it is the only place the
-maturity and the coupon appear, so it is what tells a CD apart from a share.
+The app finds each column by pattern because no two institutions agree on names, and those patterns
+were written from format documentation rather than from files. A real header row confirms them or
+shows what was missed. The description text matters even more: for a CD or a bond it is the only
+place the maturity and the coupon appear, so it is the only thing that tells a CD from a share.
+"KEYBANK NA 4.00% CD 08/24/26" is the data. Whether the balance beside it is real does not matter.
 
-**2 · Transaction history, Vanguard first, the longest window offered.**
+## Made-up numbers: fine, with one condition
 
-This is the more valuable of the two, because it is where the unexplained $1.4m of contributions
-would be visible. The app says money arrived in an account where the statement says nothing moved,
-and every other explanation has been ruled out by running the code. This file would show what
-activities actually exist and how Vanguard words each one.
+**Make them internally consistent.** Shares × price should equal the value; the rows should add to
+any total row the file carries.
 
-**3 · Anything that exports differently** — QFX/OFX, or a PDF where no CSV is offered. Worth having
-one of each to see how the same holding is described on a different road.
+Not pedantry — it is the difference between a finding and a false alarm. If the app reads a file and
+its total does not match the file's, that is either a parsing bug worth hours or a typo in the
+sample, and with inconsistent numbers I cannot tell which. I would burn a day chasing the wrong one.
 
-## What to redact, and what NOT to
+Round numbers are ideal. Ten shares at $100 is easier to check by hand than 13.472 at $88.31.
 
-**Redact:** account numbers, and your name and address if they appear in the header.
+## What each file needs written next to it
 
-**Do NOT redact:** the description or security-name text, the tickers, or the column headers.
-Those are the entire point — the labels are what I need to read.
+Institution, and which export it is ("Vanguard · holdings download" / "Fidelity · transaction
+history"). A CSV alone does not say where it came from, and the whole point is knowing whose
+labels these are.
 
-Balances and dollar amounts are best left real. They are what make it possible to check that the
-app's total matches the institution's, which is the acceptance test. If you would rather not, scale
-every number in a file by the same factor and say so — the labels still do their job.
+## What a synthetic file CANNOT settle
 
-## What happens to them
+**The $1.4m of phantom contributions.** The app says money arrived in an account where the statement
+says nothing moved, and the remaining suspect is that the account's internal id changed between
+connections — so every activity re-imported as new. Only the real activity history from that real
+account can show that. A sample file with invented numbers cannot, because the bug is about which
+rows arrived twice, not about how a row is worded.
 
-They become fixtures: a test that runs the real header row and the real description text through
-the live code and pins what it produces. Committed as a *shape* — headers and representative
-description text, no balances — so the classification rules can never drift away from the files
-they were built for. The originals stay here, untracked.
+Two different jobs. Sample files fix classification and parsing. The Vanguard bug needs the real thing,
+whenever you are willing to pull it.
+
+## Most useful first
+
+1. **Holdings / positions exports** — Vanguard, Fidelity, Schwab, E*TRADE, Chase. Settles
+   classification, which is the work in flight.
+2. **Transaction / activity exports** — same institutions. Settles how each one words a deposit, a
+   dividend, a transfer.
+3. **Anything shaped differently** — QFX/OFX, or a PDF where no CSV exists. One of each is enough to
+   see how the same holding is described on another road.
+
+Coverage beats depth. Five institutions with three rows each is worth more than one institution with
+three hundred, because the disagreement between institutions is the thing being tested.

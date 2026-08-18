@@ -39,3 +39,6 @@ android/
 # real balances and account numbers; they stay on this machine only.
 Calculation Module/real-downloads/*
 !Calculation Module/real-downloads/README.md
+# …except fixtures/, which holds files with NO real balances — sample exports and
+# hand-typed numbers. Those are committed on purpose, so guard tests can run them.
+!Calculation Module/real-downloads/fixtures/
