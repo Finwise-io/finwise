@@ -48,6 +48,16 @@ if os.path.exists(OUT):
                 if key:
                     prior[key] = {hdrs.get(c): ws.cell(r, c).value for c in range(1, ws.max_column + 1)}
 
+# Rows on the free-text tabs, captured BEFORE the rebuild so they are not silently wiped.
+freeform = {}
+if os.path.exists(OUT):
+    for _tab in ("Open questions", "Field dictionary"):
+        if _tab in wbp.sheetnames:
+            _ws = wbp[_tab]
+            freeform[_tab] = [[_ws.cell(_r, _c).value for _c in range(1, _ws.max_column + 1)]
+                              for _r in range(3, _ws.max_row + 1)
+                              if any(_ws.cell(_r, _c).value for _c in range(1, _ws.max_column + 1))]
+
 wb = openpyxl.Workbook()
 HDR   = PatternFill("solid", fgColor="085041")
 GEN   = PatternFill("solid", fgColor="EEEEE9")     # generated — do not edit
@@ -105,6 +115,11 @@ COLS = [
     ("YOUR VERDICT",       16, "you",  "YOURS. For rows where Fix needed? is Y: FIX / LEAVE / LATER, or your own word. "
                                         "This is the column I work from - it is your answer to my recommendation, and "
                                         "I will not start a fix that does not have one."),
+    ("Build order",        22, "gen",  "Which layer this sits in. Layer 1 reads raw data and computes from that alone; "
+                                        "each layer above is built from the one below. The sheet is SORTED by this, so "
+                                        "nothing appears before the things it is built from — read it top to bottom and "
+                                        "every ingredient has already been explained by the time you reach the total."),
+    ("Built from",         34, "gen",  "The calculations directly beneath this one. Empty means it reads raw data only."),
     ("Screens",            28, "gen",  "Screens in scope that import it directly."),
     ("Called by",          34, "gen",  "Other calculations that use it."),
     ("Returns",            26, "gen",  "Declared return type."),
@@ -144,6 +159,8 @@ def sheet(name, subset, note):
             kept("RECOMMENDED FIX"),
             kept("YOUR COMMENT / QUESTION"),                        # never written by me
             kept("YOUR VERDICT"),                                   # never written by me
+            r.get("layer", ""),
+            r.get("builtFrom", "—"),
             r["screens"] or "—",
             r["calledBy"] or "—",
             r["returns"],
@@ -157,7 +174,47 @@ def sheet(name, subset, note):
                 cell.font = BOLD
     return ws
 
-calcs = [r for r in rows if r["tab"] == "calculations"]
+# ── BUILD ORDER — nothing appears before the things it is built from ───────────────────────────
+# Founder, 2026-08-17: "if you have a formula calculating total NW, prior to that list all the
+# formula which help you get all the numbers you need to calculate NW."
+#
+# The scanner records who CALLS each function. Inverting that gives what each function DEPENDS ON,
+# and the depth of that dependency chain is the layer. Layer 1 reads raw data and computes from it
+# alone; layer 2 is built from layer 1; a grand total sits at the top with everything beneath it
+# already explained. Read the sheet top to bottom and no number arrives before its ingredients.
+def build_layers(rs):
+    names = {r["name"] for r in rs}
+    deps = {n: set() for n in names}                       # what each one is built FROM
+    for r in rs:
+        for caller in [c.strip() for c in (r["calledBy"] or "").split(",") if c.strip()]:
+            if caller in names:
+                deps[caller].add(r["name"])                # the caller is built from this one
+    layer, settled = {}, False
+    for n in names: layer[n] = 0
+    for _ in range(60):                                     # enough passes for any real depth
+        settled = True
+        for n in names:
+            want = max((layer[d] + 1 for d in deps[n]), default=0)
+            if want != layer[n] and want < 60:              # the cap also breaks any accidental cycle
+                layer[n], settled = want, False
+        if settled: break
+    return layer, deps
+
+LAYERS, DEPS = build_layers([r for r in rows if r["tab"] == "calculations"])
+LAYER_NOTE = {
+    0: "1 · reads raw data",
+    1: "2 · built from layer 1",
+    2: "3 · built from layer 2",
+    3: "4 · built from layer 3",
+    4: "5 · built from layer 4",
+}
+for r in rows:
+    lv = LAYERS.get(r["name"], 0)
+    r["layer"] = LAYER_NOTE.get(lv, f"{lv + 1} · built from layer {lv}")
+    r["builtFrom"] = ", ".join(sorted(DEPS.get(r["name"], set()))) or "—"
+
+calcs = sorted([r for r in rows if r["tab"] == "calculations"],
+               key=lambda r: (LAYERS.get(r["name"], 0), r["module"], r["name"]))
 helps = [r for r in rows if r["tab"] == "helpers"]
 wb.remove(wb.active)
 
@@ -267,6 +324,16 @@ for c, (t, w) in enumerate([("#", 6), ("Question", 60), ("Why it matters", 50), 
     ws.column_dimensions[openpyxl.utils.get_column_letter(c)].width = w
     cell = ws.cell(2, c, t); cell.fill, cell.font, cell.border = HDR, WHITE, THIN
 
+# ── put the free-text tabs back ────────────────────────────────────────────────────────────────
+for _tab, _rows in freeform.items():
+    _ws = wb[_tab]
+    for _i, _vals in enumerate(_rows, start=3):
+        for _c, _v in enumerate(_vals, start=1):
+            _cell = _ws.cell(_i, _c, _v)
+            _cell.alignment = WRAP
+if freeform:
+    print(f"  carried {sum(len(v) for v in freeform.values())} rows across the free-text tabs")
+
 # ── restore the founder's comments onto the rebuilt sheets ─────────────────────────────────────
 _restored = 0
 for _tab in wb.sheetnames:
@@ -316,4 +383,8 @@ else:
     print(f"  every documented row meets the standard (answers listed · real rules · real source · raw → ours)")
 print(f"  {len(calcs)} calculations · {len(helps)} helpers · commit {sha}{'  (DIRTY TREE)' if dirty else ''}")
 print(f"  restored {_restored} of {len(notes)} of your cell comments")
+# the Raw inputs tab is built by its own script, which must run AFTER this one saves
+import subprocess
+subprocess.run(["python3", os.path.join(ROOT, "Calculation Module code/scripts/raw-inputs-tab.py")], check=True)
+
 print(f"  preserved annotations for {len([k for k in prior if any(prior[k])])} rows")
