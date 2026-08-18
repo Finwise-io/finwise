@@ -34,3 +34,8 @@ android/
 
 # Excel lock/temp files
 ~$*
+
+# REAL INSTITUTION DOWNLOADS — never committed. These are actual statements with
+# real balances and account numbers; they stay on this machine only.
+Calculation Module/real-downloads/*
+!Calculation Module/real-downloads/README.md
