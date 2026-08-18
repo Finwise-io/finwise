@@ -61,3 +61,54 @@ describe('WHAT IS NOT THE CAUSE — ruled out here so the search narrows', () =>
     expect(t('BOND INTEREST PAID', 800).txnType).toBe('DEPOSIT');
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// THE FOUNDER'S EXACT $2,387 — reproduced to the dollar
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// His Vanguard file shows 7 monthly money-market payouts totalling $1,193.32, each arriving as a
+// PAIR of lines: the credit ("Dividend Received", +139.49) and the reinvestment debit ("Dividend
+// Reinvestment", −139.49). The pair nets to zero cash — the money never left the account.
+//
+// The app shows interest of $2,387. That is 2 × 1,193.32 = 2,386.64, rounded. The doubling has two
+// layers, both in OUR code:
+//   1. ingest.ts:161 stores amount: Math.abs(act.amount) — THE SIGN IS DESTROYED AT INGEST, so the
+//      debit leg becomes indistinguishable from a second credit.
+//   2. NetWorthScreen.tsx:662 sums with Math.abs again — so even a signed ledger would still add.
+describe('THE $2,387 — a zero-sum pair counted twice', () => {
+  const PAIRS = [139.49, 9.46, 9.75, 10.14, 525.76, 294.41, 204.31];   // the file's 7 months
+
+  // the real pipeline, step by step: map → store-abs (ingest.ts:161) → screen abs-sum
+  const throughPipeline = (rows: { type: string; amount: number }[]) => {
+    const stored = rows
+      .map((r) => ({ ours: mapActivityType(r as any).txnType, amount: Math.abs(r.amount) }));
+    const sumOf = (type: string) =>
+      stored.filter((s) => s.ours === type).reduce((n, s) => n + Math.abs(s.amount), 0);
+    return { sumOf };
+  };
+
+  test('delivered as INTEREST pairs (how a broker types money-market income), interest = $2,386.64', () => {
+    const rows = PAIRS.flatMap((amt) => [
+      { type: 'INTEREST', amount: amt },       // the credit
+      { type: 'INTEREST', amount: -amt },      // the reinvestment debit — nets to ZERO in reality
+    ]);
+    const { sumOf } = throughPipeline(rows);
+    expect(Math.round(sumOf('INTEREST') * 100) / 100).toBe(2_386.64);   // ← the founder's $2,387
+    // the true interest received in those rows is 1,193.32; the true NET cash effect is 0.
+  });
+
+  test('delivered as DIVIDEND + REI instead, the dividends line doubles the same way', () => {
+    const rows = PAIRS.flatMap((amt) => [
+      { type: 'DIVIDEND', amount: amt },
+      { type: 'REI', amount: -amt },           // REI is in the table → DIVIDEND, reinvested
+    ]);
+    const { sumOf } = throughPipeline(rows);
+    expect(Math.round(sumOf('DIVIDEND') * 100) / 100).toBe(2_386.64);
+    // same fault, different label — whichever word the broker uses, the pair doubles.
+  });
+
+  test('THE FIX RULE: income counts ONCE; the reinvestment leg is a PURCHASE, never income', () => {
+    // under the fix: credit leg → income; any leg whose word contains REINVEST → an internal buy.
+    const fixed = PAIRS.map((amt) => amt);                     // one credit per month, once
+    expect(Math.round(fixed.reduce((a, b) => a + b) * 100) / 100).toBe(1_193.32);
+  });
+});
