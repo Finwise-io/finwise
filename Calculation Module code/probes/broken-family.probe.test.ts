@@ -103,13 +103,13 @@ describe('INGEST_POSITION_CLASS', () => {
 });
 
 // ════════════════════════════════════════════════════════════════════════════════════════════════
-// INGEST_ACTIVITY_TYPE  ·  src/services/sync/snaptrade.ts:184
+// TRANSLATE_BROKER_WORD  ·  src/services/sync/snaptrade.ts:184
 // Answers: "is this broker activity money arriving, money leaving, or an internal move?"
 // DERIVATION RULE — THE ONE THAT BROKE VANGUARD: only CONTRIBUTION is external money in and only
 // WITHDRAWAL is external money out. A BUY or SELL is an INTERNAL move and must never be counted as
 // either, because deposits feed the personal-return figure and faking them corrupts it.
 // ════════════════════════════════════════════════════════════════════════════════════════════════
-describe('INGEST_ACTIVITY_TYPE', () => {
+describe('TRANSLATE_BROKER_WORD', () => {
   test('the mapping table is right — trades are trades, not cash flows', () => {
     const t = (type: string, extra: any = {}) => mapActivityType({ type, ...extra } as any).txnType;
     expect(t('BUY')).toBe('BUY');
