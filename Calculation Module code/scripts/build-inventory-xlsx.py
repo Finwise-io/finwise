@@ -357,6 +357,11 @@ wb.save(OUT)
 import re as _re
 _ws = openpyxl.load_workbook(OUT)["Calculations"]
 _VAGUE = _re.compile(r"^(accounts?|derived|the account record|debt records?|lots)\.?$", _re.I)
+# Internal terms that exist because of how the CODE is organised, not because of anything a person
+# would recognise about their own money. The founder read "wrapper" and asked what it meant; he was
+# right, and by then it was in 22 cells. A word list is how that stops happening again.
+_JARGON = ["wrapper", "payload", "earmark", "residual", "dedupe", "sleeve", "idempot", "arity"]
+_GENCOLS = {"Function", "Build order", "Built from", "Screens", "Called by", "Returns", "Source"}
 _done, _blank, _fail = 0, 0, []
 for _r in range(3, _ws.max_row + 1):
     _fn = _ws.cell(_r, 2).value
@@ -371,6 +376,28 @@ for _r in range(3, _ws.max_row + 1):
     if _VAGUE.match(_f.strip()) or len(_f) < 40:               _why.append("source does not name file/feed/field")
     if len(_d) < 60:                                           _why.append("formula not written as real rules")
     if "→" not in _e:                                          _why.append("variables not written raw → ours")
+
+    # A hand column that merely REPEATS a generated one is not documentation. 332 cells were polluted
+    # this way when two columns were inserted and the preserve logic shifted everything by position;
+    # four rows counted as "documented" on that junk alone, inflating the coverage line I reported.
+    _gen = {str(_ws.cell(_r, _c).value) for _c in range(1, _ws.max_column + 1)
+            if _ws.cell(_r, 2).value and _ws.cell(2, _c).value in _GENCOLS}
+    for _col in range(1, 13):
+        if _ws.cell(2, _col).value in _GENCOLS: continue      # column 2 IS Function — skip generated
+        _v = _ws.cell(_r, _col).value
+        if isinstance(_v, str) and _v and _v in _gen:
+            _why.append(f"column '{_ws.cell(2, _col).value}' just repeats a generated column")
+            break
+
+    # and no internal jargon in anything WE wrote
+    for _col in range(1, 15):
+        if _ws.cell(2, _col).value in _GENCOLS: continue
+        _v = str(_ws.cell(_r, _col).value or "").lower()
+        _hit = next((_j for _j in _JARGON if _j in _v), None)
+        if _hit:
+            _why.append(f"internal jargon: '{_hit}'")
+            break
+
     if _why: _fail.append((_r, _fn, _why))
 
 print(f"{OUT}")
