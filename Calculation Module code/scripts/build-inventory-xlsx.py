@@ -238,6 +238,37 @@ for c, (t, w) in enumerate([("#", 6), ("Question", 60), ("Why it matters", 50), 
     cell = ws.cell(2, c, t); cell.fill, cell.font, cell.border = HDR, WHITE, THIN
 
 wb.save(OUT)
+
+# ── COVERAGE LINE — printed every regeneration, so "is it done?" never needs a hand count ───────
+# The founder asked "have you fixed all rows, or just one?" after a standard changed. A standard
+# that is not machine-checked gets applied to the row someone happened to open. This checks EVERY
+# documented row against the four rules that standard is made of.
+import re as _re
+_ws = openpyxl.load_workbook(OUT)["Calculations"]
+_VAGUE = _re.compile(r"^(accounts?|derived|the account record|debt records?|lots)\.?$", _re.I)
+_done, _blank, _fail = 0, 0, []
+for _r in range(3, _ws.max_row + 1):
+    _fn = _ws.cell(_r, 2).value
+    _a, _c, _d, _e, _f = (str(_ws.cell(_r, _col).value or "") for _col in (1, 3, 4, 5, 6))
+    if not any((_a, _c, _d, _e, _f)):
+        _blank += 1
+        continue
+    _done += 1
+    _why = []
+    if not _a or " " in _a or "?" in _a:                      _why.append("engine name is not a name")
+    if "·" not in _c and ":" not in _c and "Answer" not in _c: _why.append("possible answers not listed")
+    if _VAGUE.match(_f.strip()) or len(_f) < 40:               _why.append("source does not name file/feed/field")
+    if len(_d) < 60:                                           _why.append("formula not written as real rules")
+    if "→" not in _e:                                          _why.append("variables not written raw → ours")
+    if _why: _fail.append((_r, _fn, _why))
+
 print(f"{OUT}")
+print(f"  COVERAGE: {_done} of {_done + _blank} rows documented · {_blank} not yet written")
+if _fail:
+    print(f"  ⚠ {len(_fail)} DOCUMENTED ROWS FAIL THE STANDARD:")
+    for _r, _fn, _why in _fail:
+        print(f"      row {_r:>4}  {_fn:<26}  {'; '.join(_why)}")
+else:
+    print(f"  every documented row meets the standard (answers listed · real rules · real source · raw → ours)")
 print(f"  {len(calcs)} calculations · {len(helps)} helpers · commit {sha}{'  (DIRTY TREE)' if dirty else ''}")
 print(f"  preserved annotations for {len([k for k in prior if any(prior[k])])} rows")
