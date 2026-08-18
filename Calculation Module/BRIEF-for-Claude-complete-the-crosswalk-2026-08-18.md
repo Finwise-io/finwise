@@ -17,7 +17,8 @@ your research onto our actual product. **Column J — "WHAT WE NEED to trust thi
 work list.** Everything below is about finishing the parts I could not.
 
 **Please keep your original rows and wording intact.** Where you disagree with something I added,
-change it and say why in the row — I would rather have the correction than the politeness.
+change it and say why in the row — I would rather have the correction than the politeness. That
+applies with double force to the formulas: see the warning immediately below.
 
 ---
 
@@ -47,16 +48,53 @@ real Vanguard activity file:
 
 ---
 
-## What I need you to do
+## ⚠ READ THIS BEFORE ANYTHING ELSE — do not trust the formulas in this sheet
 
-### 1 · Fill the gaps in the Metric Matrix (columns A–F) for the 25 rows I added
+**Several formulas in column C are wrong, and more carry flawed assumptions.** Do not treat any of
+them as given. The founder's instruction, verbatim:
+
+> *"I do not want Claude to work with wrong formulas or assume all formulas stated are correct as
+> they are not, and many include flawed assumptions such unexplainable amount sits under change in
+> investment value."*
+
+That example is the clearest one in the file, so start there. **Wealth generated = EMV − BMV − NCF**
+is a correct identity that produces a *residual* — whatever is left once everything else is
+accounted for. Our app prints that residual as **"change in investment value"**, which claims it
+measured a market movement. It measured nothing. Every error anywhere else in the ledger lands in
+that line wearing that label: with nothing actually moved, a $500 phantom deposit becomes a $500
+"market loss" that is indistinguishable from a real one.
+
+**A correct formula, honestly applied, still produced a number that lied to the user.** That is the
+class of problem to hunt for.
+
+**Column K — RECOMMENDATION — is my first pass at this.** Red cells are ones where I believe the
+formula itself is wrong or incomplete as written; green means the arithmetic stands and any problem
+is in the inputs. I have flagged **13 of 25**. Please challenge every one of my calls in both
+directions — the ones I marked red that are actually fine, and more importantly the green ones I
+have missed.
+
+### 1 · Verify every formula, and correct the ones that are wrong
+
+For each row of the Metric Matrix:
+
+- **Is the formula in column C correct as stated?** If not, write the correct one.
+- **Does it carry an assumption that is unstated or unsafe?** Name it. The residual-labelled-as-
+  market-movement case is the template: the arithmetic was fine and the meaning was false.
+- **Is it the right metric for the question a 55–70-year-old is actually asking?** A formula can be
+  textbook-correct and still be the wrong thing to put on the screen.
+- **Where two formulas compete** (simple return vs Simple Dietz vs Modified Dietz vs IRR), say which
+  we should use, when, and what to show when the chosen one is not meaningful.
+
+Put your verdict in column K, replacing mine where you disagree, and say why in the row.
+
+### 2 · Fill the gaps in the Metric Matrix (columns A–F) for the 25 rows I added
 
 I wrote our columns G–J for them, but several of my A–F entries are thinner than yours. In
 particular I would value your judgement on **Inputs required** and **Notes / trap** for: net worth
 trend series · one-account class split · capital-gains lot treatment · option position detail ·
 portfolio vs benchmark trend.
 
-### 2 · The question I most want answered: **the canonical transaction taxonomy**
+### 3 · The question I most want answered: **the canonical transaction taxonomy**
 
 Your Gaps tab says: *"Build a canonical transaction taxonomy with four axes: direction (in/out),
 externality (external flow vs internal move), income vs principal, and realised vs unrealised."*
@@ -80,18 +118,18 @@ option exercise / expiry / assignment, **separating share-settled from cash-sett
 **Include an explicit rule for what to do with a word that matches nothing.** Our answer is "record
 it, show it, count it in no total" — tell me if you would do differently.
 
-### 3 · A decision table for the three cost-basis definitions
+### 4 · A decision table for the three cost-basis definitions
 
 Your Gaps tab names them (lot-with-fees / average-with-commission / derived-price×units) and says to
 store a provenance tag. Please turn that into a table: which providers give which · what each is
 worth for capital-gains reporting · and what a UI should say when it only holds the weakest one.
 
-### 4 · Sanity-check my column J entries
+### 5 · Sanity-check my column J and column K entries
 
 Especially where I claim something needs **nothing**. If a metric I have marked BUILT is resting on
 an assumption I have not noticed, that is the most useful thing you can tell me.
 
-### 5 · Two specific questions
+### 6 · Two specific questions
 
 - **The snapshot store.** Your Gaps tab says to snapshot holdings and cash daily and treat that as
   the system of record. We currently store **one number per day for total net worth**, pruned at 400
@@ -102,6 +140,23 @@ an assumption I have not noticed, that is the most useful thing you can tell me.
   show nothing than mislead, but "nothing" is its own kind of confusing.
 
 ---
+
+## How to read the status column
+
+I removed the word "BUILT" from this sheet on 2026-08-18, because it claimed more than the evidence
+supported. The levels now say how much is actually known:
+
+| Status | Means |
+|---|---|
+| **CHECKED vs REAL DATA** | Compared against a real institution file or statement. The only level that shows a number is *right* rather than merely self-consistent. **Only one metric reaches it.** |
+| **PINNED** | A test runs the real code and confirms it does what the row says. Proves the *description*, not that the behaviour is right. |
+| **YOUR CALL** | Pinned, but resting on a threshold or table *we* chose. Not a defect — a decision worth review. |
+| **DEFECT** | Believed wrong. Columns J and K say why. |
+| **NOT BUILT** | Does not exist. |
+
+**Worth dwelling on:** of the eight metrics we compared against the founder's real Vanguard file,
+**seven were wrong.** Only the ending value reconciled. That is the base rate to hold in mind when
+reading anything in this sheet marked merely PINNED.
 
 ## Conventions to keep
 
