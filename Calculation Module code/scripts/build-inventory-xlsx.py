@@ -413,5 +413,6 @@ print(f"  restored {_restored} of {len(notes)} of your cell comments")
 # the Raw inputs tab is built by its own script, which must run AFTER this one saves
 import subprocess
 subprocess.run(["python3", os.path.join(ROOT, "Calculation Module code/scripts/raw-inputs-tab.py")], check=True)
+subprocess.run(["python3", os.path.join(ROOT, "Calculation Module code/scripts/institution-matrix-tab.py")], check=True)
 
 print(f"  preserved annotations for {len([k for k in prior if any(prior[k])])} rows")
