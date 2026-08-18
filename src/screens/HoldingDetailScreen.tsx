@@ -8,6 +8,9 @@ import { SectionBand } from '../components/SectionBand';
 import Svg, { Polyline } from 'react-native-svg';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
+// THE CALCULATION MODULE — say plainly when a window reaches further back than our price history.
+// Founder 2026-08-18: a chip may name a longer period than we can actually see.
+import { coverageFor } from '../../Calculation Module code/engines/coverage';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { maskedMoney, maskedMoney2, maskedPrice3, spokenMoney } from '../components/useMoney';
@@ -69,6 +72,16 @@ export default function HoldingDetailScreen() {
     () => (position ? buildPerformance([position], priceOf, period)[0] : null),
     [position, priceCache, period],
   );
+  // How far back THIS holding's price history reaches, against the window the chip asks for.
+  // A holding's return is limited by its own prices, not by the app's net-worth record.
+  const coverage = useMemo(() => {
+    const pts = (position ? priceOf(position.ticker)?.points ?? [] : []) as { date: string }[];
+    const start = new Date();
+    const back: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
+    if (period === 'YTD') start.setMonth(0, 1); else start.setMonth(start.getMonth() - (back[period] ?? 12));
+    return coverageFor(pts.map((x) => ({ date: x.date })), start.toISOString().slice(0, 10),
+                       new Date().toISOString().slice(0, 10));
+  }, [position, priceCache, period]);
 
   // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen
   // flashed as an "error" while the (correct) deletion exited. Leaving = render nothing, quietly.
@@ -177,6 +190,11 @@ export default function HoldingDetailScreen() {
                     </TouchableOpacity>
                   ))}
                 </View>
+                {/* FOUNDER 2026-08-18: when the price history does not reach back as far as the chip
+                    asks for, say so rather than answering a shorter window under the longer label. */}
+                {coverage.sentence !== '' && (
+                  <Text style={s.coverageLine} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
+                )}
               </>
             )}
             <View style={s.tblTop}>
@@ -331,6 +349,8 @@ const s = StyleSheet.create({
   tTotal: { borderTopWidth: 1, borderTopColor: Colors.border, marginTop: 4 },
   chipRow: { flexDirection: 'row', gap: 6, marginTop: 8 },
   chip: { flex: 1, minHeight: 44, alignItems: 'center', justifyContent: 'center', borderRadius: Radii.md, borderWidth: 1, borderColor: Colors.border, backgroundColor: Colors.cardBg },
+  // the coverage sentence: quiet, on the design scale, and it wraps rather than truncating.
+  coverageLine: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 8 },
   chipOn: { borderColor: Colors.textPrimary, backgroundColor: Colors.textPrimary },
   chipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   chipTxtOn: { color: Colors.cardBg },

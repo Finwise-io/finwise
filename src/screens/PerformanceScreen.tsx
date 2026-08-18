@@ -27,6 +27,9 @@ import {
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { userCapGainsRates } from '../domain/income';
 import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
+// THE CALCULATION MODULE — say plainly when a window reaches further back than our record.
+// Founder 2026-08-18: the memory limit was a code comment; nobody using the app was ever told.
+import { coverageFor } from '../../Calculation Module code/engines/coverage';
 import { InfoDot, EstimateTag } from '../components/UI';
 import { priceFreshness, isPlausibleTicker } from '../services/marketData';
 import { HeroAmount } from '../components/HeroAmount';
@@ -153,6 +156,12 @@ export default function PerformanceScreen() {
     d.setMonth(d.getMonth() - (months[p] ?? 12));
     return d.toISOString().slice(0, 10);
   };
+  // How far back our record actually reaches, against the window the chosen chip asks for.
+  const coverage = useMemo(() => {
+    const dates = Object.keys((store.invDaily ?? {}) as Record<string, number>)
+      .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).map((date) => ({ date }));
+    return coverageFor(dates, periodStartKey(period), new Date().toISOString().slice(0, 10));
+  }, [store.invDaily, period]);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   const freshLine = (() => {
     const f = priceFreshness(store.pricesFetchedAt, Date.now());
@@ -302,6 +311,11 @@ export default function PerformanceScreen() {
               </TouchableOpacity>
             ))}
           </View>
+          {/* FOUNDER 2026-08-18: a chip may name a longer window than our record covers. Say so,
+              rather than answering a shorter period under the longer label. Silent when covered. */}
+          {coverage.sentence !== '' && (
+            <Text style={styles.coverageLine} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
+          )}
 
           {/* FINAL mock (mockup-vf/performance-FINAL, founder-approved 2026-08-04): the SUMMARY trio
               and the VALUE WALK. Both read the same rows/breakdown the hero below uses, so the two
@@ -1229,6 +1243,9 @@ const styles = StyleSheet.create({
 
   periodRow: { flexDirection: 'row', flexWrap: 'wrap', gap: 6, marginTop: 12 },
   periodPill: { flex: 1, alignItems: 'center', paddingVertical: 7, borderRadius: Radii.pill, backgroundColor: Colors.cardBg },
+  // the coverage sentence: quiet, wraps rather than truncating — a limit stated in half a sentence
+  // is worse than not stating it at all.
+  coverageLine: { fontSize: 11, color: Colors.textTertiary, lineHeight: 16, marginTop: 8, marginHorizontal: 2 },
   periodPillOn: { backgroundColor: Colors.primary },
   periodT: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },
   periodTOn: { color: Colors.white },

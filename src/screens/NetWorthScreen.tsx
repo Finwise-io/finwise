@@ -9,6 +9,11 @@ import { selectWillItLast } from '../domain/retirement/willItLast';
 import { simulate } from '../domain/retirement';
 import { onCourseSentence, shortfallAgeFromBand, planDoor, sampleAskLine, oddsLine, sampleOddsLine } from '../domain/planning/hub';
 import { resolveLens } from '../domain/profile/lens';
+// THE CALCULATION MODULE — how far back our record goes, said in words to the person.
+// Founder question 2026-08-18: the retention rule was a comment for a developer; nobody using the
+// app was told it has a memory limit. A figure that never says what it is measured FROM is how
+// "+2.0%" stood for a year in which the account actually fell 4.2%.
+import { coverageFor, measuredFromLabel } from '../../Calculation Module code/engines/coverage';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { ChangeWalkSheet } from '../components/ChangeWalkSheet';
 import { dataGaps } from '../domain/gaps';
@@ -619,11 +624,15 @@ export default function NetWorthScreen() {
     // B45 founder finding ("up $0 this year"): the label must tell the truth about the SPAN. A young
     // history's baseline isn't January — it's the first snapshot ("since Jul 19") — and an unchanged
     // value reads "no change", never "up $0".
-    const sinceLabel = !janPoint ? '' : janPoint.month.slice(5, 7) === '01' && janPoint.month.length === 7
-      ? 'this year'
-      : `since ${janPoint.month.length === 7
-          ? new Date(`${janPoint.month}-15T12:00:00`).toLocaleDateString('en-US', { month: 'short' })
-          : new Date(`${janPoint.month}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+    // WHAT THE FIGURE IS REALLY MEASURED FROM, and one plain sentence where the window asked for
+    // reaches further back than anything we hold. A month-only point is read as its first day.
+    const historyDates = series.map((pt) => ({ date: pt.month.length === 7 ? `${pt.month}-01` : pt.month }));
+    const windowStart = `${new Date().getFullYear()}-01-01`;
+    const coverage = coverageFor(historyDates, windowStart, new Date().toISOString().slice(0, 10));
+    const measuredFrom = measuredFromLabel(historyDates, windowStart);
+    // FOUNDER DECISION 2026-08-18: the label now ALWAYS names the date it is measured from, with the
+    // year, rather than saying "this year" when the record began in July. The engine writes it.
+    const sinceLabel = !janPoint ? '' : measuredFrom;
     // founder rule 2026-08-04: the change PERCENT is measured on cash + investments only —
     // property moves only when retyped, so a total-NW percent is noise. Appears only once the
     // invDaily history exists (never back-guessed).
@@ -710,6 +719,13 @@ export default function NetWorthScreen() {
             {/* the mock's second line: the TRUE date the change is measured from — never "as of today".
                 Founder 2026-08-10: the date reads as a plain line, not another bold figure. */}
             {sinceDate != null && <Text style={styles.glanceSince}>since {sinceDate}</Text>}
+            {/* FOUNDER 2026-08-18: say what the app can actually remember. The date above already
+                names the start; this says plainly when that start is LATER than the window a person
+                would assume — "this year" answered from July is the fault that let +2.0% stand for a
+                year the account fell 4.2%. Silent when the record covers the window. */}
+            {coverage.sentence !== '' && (
+              <Text style={styles.glanceCoverage} accessibilityLabel={coverage.sentence}>{coverage.sentence}</Text>
+            )}
             {/* the stale-connection warning moved OFF the hero (founder 2026-08-10) — the missing-data
                 banner below already names stale accounts with a fix button; saying it twice is noise.
                 The trend sparkline is gone too (founder 2026-08-10: "the green line at the bottom —
@@ -1183,6 +1199,9 @@ const styles = StyleSheet.create({
   glanceDelta: { fontSize: 13, fontWeight: '800', marginTop: 4 },
   // founder note 1 (2026-08-10): the since-date is a plain line, not another bold figure
   glanceSince: { fontSize: 13, fontWeight: '400', color: Colors.textSecondary, marginTop: 4 },
+  // the coverage sentence: quieter than the date above it, and it wraps rather than truncating —
+  // a limit stated in half a sentence is worse than not stating it.
+  glanceCoverage: { fontSize: 11, fontWeight: '400', color: Colors.textTertiary, marginTop: 6, lineHeight: 16 },
   glanceLink: { fontSize: 13, fontWeight: '700', color: Colors.primary, marginTop: 10, minHeight: 44, paddingTop: 12 },
   ownHdr: { fontSize: 13, fontWeight: '800', color: Colors.textTertiary, letterSpacing: 0.5, marginTop: Spacing.md, marginBottom: 6 },
   chev: { fontSize: 17, color: Colors.textTertiary, marginLeft: 6 },

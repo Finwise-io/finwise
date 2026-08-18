@@ -11,7 +11,16 @@
 // TWO SENTENCES CLOSE IT. One names the date a figure is measured FROM. The other states plainly
 // how far back the record reaches, wherever a person asks for a window we cannot cover.
 
-import { firstDate, onOrBefore, type SnapshotDay } from './snapshots';
+// It needs only DATES, not whole snapshots — which means it works with the history the app keeps
+// today AND with the new per-account store, so the sentence can appear before that store lands.
+export interface Dated { date: string }
+const firstDate = (days: Dated[]): string | null =>
+  days.length ? days.reduce((a, b) => (a.date < b.date ? a : b)).date : null;
+const onOrBefore = (days: Dated[], date: string): Dated | null => {
+  let best: Dated | null = null;
+  for (const d of days) if (d.date <= date && (!best || d.date > best.date)) best = d;
+  return best;
+};
 
 export interface Coverage {
   /** The earliest date we hold anything at all. */
@@ -48,7 +57,7 @@ export function dayWords(iso: string | null): string {
  * The sentence is written for someone with no finance background and no interest in how the app
  * stores anything. It says what we have, not what we do.
  */
-export function coverageFor(days: SnapshotDay[], from: string, today: string): Coverage {
+export function coverageFor(days: Dated[], from: string, today: string): Coverage {
   const start = firstDate(days);
   const dailyCut = new Date(today);
   dailyCut.setFullYear(dailyCut.getFullYear() - 2);
@@ -78,7 +87,7 @@ export function coverageFor(days: SnapshotDay[], from: string, today: string): C
  * A figure that never says what it is measured from is the thing that let "+2.0%" stand for a year
  * in which the account actually fell 4.2%.
  */
-export function measuredFromLabel(days: SnapshotDay[], from: string): string {
+export function measuredFromLabel(days: Dated[], from: string): string {
   const start = firstDate(days);
   if (!start) return '';
   const actual = start > from ? start : from;
@@ -87,6 +96,6 @@ export function measuredFromLabel(days: SnapshotDay[], from: string): string {
 
 /** Is there any record at all on or before this date? Used to suppress a figure rather than show a
  *  number measured over some other period with a misleading label. */
-export function canAnswer(days: SnapshotDay[], from: string): boolean {
+export function canAnswer(days: Dated[], from: string): boolean {
   return onOrBefore(days, from) != null;
 }

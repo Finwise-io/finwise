@@ -1,9 +1,7 @@
 // Saying how far back the record goes — in words, to the person, not in a code comment.
 import { coverageFor, measuredFromLabel, canAnswer, monthWords, dayWords } from '../coverage';
-import type { SnapshotDay } from '../snapshots';
 
-const day = (date: string): SnapshotDay =>
-  ({ date, origin: 'observed', writtenAt: `${date}T12:00:00Z`, holdings: [], accounts: [] });
+const day = (date: string) => ({ date });
 const TODAY = '2026-08-18';
 
 describe('WHEN THE RECORD COVERS THE WINDOW — say nothing', () => {
