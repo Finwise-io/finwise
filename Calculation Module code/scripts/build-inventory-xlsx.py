@@ -43,12 +43,28 @@ WRAP  = Alignment(wrap_text=True, vertical="top")
 THIN  = Border(*[Side(style="thin", color="DDDDDD")] * 4)
 
 COLS = [
-    ("Engine name",        22, "hand", "The name we will call it by. One concept, one name."),
+    ("Engine name",        24, "hand", "The name we will call it by. One concept, one name — and the name must match the "
+                                        "concept, not the file it happens to live in. Where the same question is answered in "
+                                        "more than one place, each gets a name saying WHICH DOOR it serves "
+                                        "(…_FROM_FILE, …_FROM_BROKER), because that is how you find the one that is wrong."),
     ("Function",           26, "gen",  "The exported function in the code today."),
-    ("What it answers",    40, "hand", "In plain English. What question does this number answer?"),
-    ("Formula",            46, "hand", "The arithmetic, written out."),
-    ("Input variables",    36, "hand", "Every variable that goes in."),
-    ("Source of each",     36, "hand", "Where each variable comes from."),
+    ("What it answers",    44, "hand", "In plain English — the question AND the list of possible answers. "
+                                        "'Which asset class is this?' is not enough: the row must name the classes. "
+                                        "If a reader cannot tell from this cell what the answer could be, the cell is wrong."),
+    ("Formula — the actual rules",  64, "hand",
+                                       "The rules as they are applied to REAL data, in order, written so you could follow them "
+                                        "by hand against a downloaded file. Literal words, tickers and patterns — not an "
+                                        "abstract chain of internal field names. 'label rule → maturity → kind' says nothing; "
+                                        "'name contains CD, CERTIFICATE OF DEPOSIT, T-BILL or TREASURY BILL → Bonds & CDs' is a rule."),
+    ("Input variables (raw → ours)", 40, "hand",
+                                       "Every variable that goes in, written as THE INSTITUTION'S FIELD → what we call it. "
+                                        "The left side is what a person would see in their own download; the right side is "
+                                        "our name for it."),
+    ("Where each comes from — file, feed, field", 56, "hand",
+                                       "The actual origin: WHICH file or feed, WHICH field in it, and HOW that field is "
+                                        "identified when institutions name it differently. 'The account record' is not a "
+                                        "source — the account record is where it ended up. Name the download column, the "
+                                        "payload path, or the screen and box it was typed into."),
     ("DERIVATION RULE",    52, "hand", "The rule applied to RAW data to produce each variable. "
                                         "This is the column that would have caught the Vanguard failure: "
                                         "'contributions come from the ledger' is a source; "
@@ -130,6 +146,76 @@ sheet("Formatting helpers", helps,
       "but they are listed because a rounding or masking rule can change what a person reads.")
 
 # ── the two supporting tabs ─────────────────────────────────────────────────────────────────────
+# ── the worked-example tab: how a real line in a real download becomes a class ──────────────────
+ws = wb.create_sheet("How a line becomes a class")
+ws.sheet_properties.tabColor = "1B4D8F"
+ws.merge_cells("A1:G1")
+ws.cell(1, 1, "HOW A LINE BECOMES A CLASS — every row below is a real holding as an institution actually "
+              "sends it, run through the live code. The last two columns are what the app decides, and they do "
+              "not always agree: a holding you UPLOAD and the same holding from a CONNECTED broker go through "
+              "two different classifiers. Where they differ, the row is a defect and it is named as one. "
+              "Proved by probes/classification-crosspath.probe.test.ts.").font = Font(bold=True, size=11, color="1B4D8F")
+ws.cell(1, 1).alignment = WRAP; ws.row_dimensions[1].height = 60
+CLS_COLS = [("What you hold", 30), ("Ticker as sent", 16), ("Name / description as sent", 44),
+            ("Which rule fires", 46), ("Class from a FILE you upload", 22),
+            ("Class from a CONNECTED broker", 22), ("Agree?", 26)]
+for c, (t, w) in enumerate(CLS_COLS, start=1):
+    ws.column_dimensions[openpyxl.utils.get_column_letter(c)].width = w
+    cell = ws.cell(2, c, t); cell.fill, cell.font, cell.alignment, cell.border = HDR, WHITE, WRAP, THIN
+BAD = PatternFill("solid", fgColor="FBE3E3")
+OK  = PatternFill("solid", fgColor="EAF3EC")
+CLS_ROWS = [
+ ("A share in a company", "AAPL", "APPLE INC", "nothing else matches → the default is Stocks / ETFs",
+  "Stocks / ETFs", "Stocks / ETFs", "yes"),
+ ("A stock-market ETF", "VTI", "VANGUARD TOTAL STOCK MARKET ETF", "nothing else matches → the default is Stocks / ETFs",
+  "Stocks / ETFs", "Stocks / ETFs", "yes"),
+ ("A money-market fund", "VMFXX", "VANGUARD FEDERAL MONEY MARKET FUND",
+  "the ticker is on the money-market list, AND the name contains MONEY MARKET → Stocks / ETFs "
+  "(founder rule 2026-08-04: it pays dividends, so it must be measured)", "Stocks / ETFs", "Stocks / ETFs", "yes"),
+ ("Uninvested cash at the broker", "—", "SETTLEMENT FUND / SWEEP",
+  "the name contains SWEEP or SETTLEMENT → Cash. This is the only thing that counts as cash.",
+  "Cash", "Cash", "yes"),
+ ("A brokered CD", "06418AAA1", "KEYBANK NA 4.00% CD 08/24/26",
+  "the description contains CD → Bonds & CDs. Note it arrives with an equity type code and a CUSIP, "
+  "not a ticker — the words in the description are the only thing that identifies it.",
+  "Bonds & CDs", "Bonds & CDs", "yes"),
+ ("A Treasury bill", "912797TZ8", "US TREASURY BILL 02/12/27",
+  "the description contains TREASURY or T-BILL → Bonds & CDs", "Bonds & CDs", "Bonds & CDs", "yes"),
+ ("A short-Treasury ETF", "SGOV", "ISHARES 0-3 MONTH TREASURY BOND ETF",
+  "the ticker is on the T-bill ETF list (SGOV, BIL) → Bonds & CDs", "Bonds & CDs", "Bonds & CDs", "yes"),
+ ("A corporate bond", "—", "APPLE INC 3.85% DUE 2043",
+  "a percentage followed by DUE or a year → Bonds & CDs. This pattern is what catches a bond whose "
+  "description never uses the word 'bond'.", "Bonds & CDs", "Bonds & CDs", "yes"),
+ ("Bitcoin held at the broker", "BTC", "BITCOIN",
+  "the broker's own type code says crypto → Alternatives", "Alternatives", "Alternatives", "yes"),
+ ("A gold fund", "GLD", "SPDR GOLD SHARES",
+  "FILE: the ticker is on the commodity list → Alternatives. BROKER: no commodity rule exists, so it "
+  "falls through to the equity default.", "Alternatives", "Stocks / ETFs", "NO — defect"),
+ ("A spot-bitcoin ETF", "IBIT", "ISHARES BITCOIN TRUST",
+  "FILE: the ticker is on the crypto list → Alternatives. BROKER: it arrives with the ordinary equity "
+  "type code, and only the type code is checked.", "Alternatives", "Stocks / ETFs", "NO — defect"),
+ ("An option contract", "AAPL250117C00220000", "AAPL JAN 17 25 CALL 220",
+  "FILE: the symbol matches the standard option shape (root + date + C/P + strike) → Alternatives. "
+  "BROKER: options normally arrive on a separate feed and are handled correctly there; one written into "
+  "the ordinary positions list is read as a share.", "Alternatives", "Stocks / ETFs", "NO — defect"),
+ ("A currency fund", "FXE", "INVESCO CURRENCYSHARES EURO TRUST",
+  "NEITHER path catches it. The only currency rule looks for the word CURRENCY standing alone, and "
+  "brokers shorten the name to CURRENCYSHARES — one word. There is no currency ticker list, unlike "
+  "crypto and commodities.", "Stocks / ETFs", "Stocks / ETFs", "NO — both wrong"),
+ ("A gold mining company", "GOLD", "BARRICK GOLD CORP",
+  "the name contains GOLD, but also CORP — a company word, so the commodity rule is deliberately "
+  "skipped and it stays a share. This one is RIGHT and worth keeping.", "Stocks / ETFs", "Stocks / ETFs", "yes"),
+ ("A whole account with nothing itemised", "—", "e.g. a 401(k) with no holdings listed",
+  "no positions, no explicit class → Unclassified. It is NOT assumed to be stocks — the honest answer "
+  "is that we do not know what is inside it.", "Unclassified", "Unclassified", "yes"),
+]
+for i, row in enumerate(CLS_ROWS, start=3):
+    for c, v in enumerate(row, start=1):
+        cell = ws.cell(i, c, v)
+        cell.alignment, cell.border = WRAP, THIN
+        cell.fill = BAD if row[6].startswith("NO") else OK
+ws.freeze_panes = "A3"
+
 ws = wb.create_sheet("Field dictionary")
 ws.sheet_properties.tabColor = "854F0B"
 ws.merge_cells("A1:E1")
