@@ -77,3 +77,7 @@ userlens-qa-2026-06-12.md, asset-taxonomy-analysis.md.
 - `desktop/docs/MK-desktop-audit-v1-2026-08-03.xlsx` — living audit/findings/decisions file
 - `desktop/docs/desktop-plan-v1-2026-08-03.xlsx` — the phased plan + timeline
 - `desktop/mockups/` — desktop mock folder (mock-first)
+
+## Security
+
+- [`Security/`](../Security/README.md) — credential and token protection, verified against the shipping code. Read §6 of the posture document before adding any data provider.
