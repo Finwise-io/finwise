@@ -22,7 +22,7 @@ difference between a rule per institution and a rule per concept.
 
 | | |
 |---|---|
-| Current version | **FDX API 6.4** (Spring 2025 release; the 6.x line ran 6.0–6.5) |
+| Current version | **FDX API 6.4** — confirmed from FDX's own Spring 2025 release announcement. (A third-party tracker refers to a 6.5; that claim traces to one source and I could not confirm it against FDX directly, so treat 6.4 as the verified figure.) |
 | Scope | ~600 data elements across banking, investments, tax and insurance |
 | Governance | Financial Data Exchange, a non-profit industry body |
 | Regulatory link | Its **Consensus Standard Data Format (CSDF) v1** is explicitly built for "demonstrating indicia of compliance with data formatting requirements in the CFPB's Personal Financial Data Rights Rulemaking" — i.e. **Section 1033 open banking** |
@@ -172,9 +172,29 @@ So our rule — *read the maturity out of the description text* — is not a wor
 providers. **It is the state of the industry standard**, at least in the publicly readable subset.
 That is worth knowing before anyone proposes to "just use the maturity field" on a future road.
 
-**Unconfirmed and worth confirming:** whether *full* FDX 6.4 (members-only) carries fixed-income
-detail that Plaid's scoped subset omits. FDX's own 6.4 announcement makes no mention of
-investment or fixed-income additions.
+### Verified directly, not inferred
+
+I pulled the raw Core Exchange reference pages and searched them rather than trusting a summary:
+
+- **`maturityDate` appears in v6.3 and v6.4 — every single occurrence is in a LOAN context**
+  (`STUDENTLOAN`, `MORTGAGE`, the loan entity's own payoff date). Never on a holding, never on a
+  security.
+- **`couponRate` appears zero times** in either version.
+- v6.4 changed nothing here: `holdingType`, `holdingSubType`, `faceValue`, `securityIds`, `taxLots`,
+  `DIVIDENDREINVEST`, `RETURNOFCAPITAL` and `JRNLFUND` are all present and unchanged.
+
+**How a bond is recognised instead**, quoted verbatim from the `faceValue` definition:
+
+> "Required for bonds. Face value at the time the data was retrieved. **If this isn't present, Plaid
+> assumes the holding isn't a bond and falls back to `marketValue`.**"
+
+So even the standard identifies a bond by *the presence of a field*, not by a declared maturity. Our
+own approach — `holdingType: BOND`/`CD` where given, `faceValue` where present, and the description
+text for the maturity and coupon — is the same shape the standard itself uses.
+
+**Still unconfirmed:** whether the *full* members-only FDX 6.4 spec carries fixed-income detail that
+Plaid's scoped subset omits. FDX's own 6.4 announcement makes no mention of investment or
+fixed-income additions. This is the single question worth an observer membership.
 
 ---
 
