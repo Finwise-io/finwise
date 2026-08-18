@@ -8,6 +8,11 @@
 import type { AssetAccount } from '../../domain/assets';
 import type { Transaction } from '../../domain/transactions';
 import { newEntityId } from '../../domain/_shared/ids';
+// THE CALCULATION MODULE. Classification and amounts come from the engines, so the app and the
+// standalone bench compute identically. The guard in
+// "Calculation Module code/engines/__tests__/no-stale-code.test.ts" fails the build if this file
+// ever goes back to the old paths.
+import { toLedgerRow } from '../../../Calculation Module code/engines/ledger';
 import {
   mapAccountType, mapPosition, mapOptionHolding, mapActivityType, activityKey, netCashSleeve,
   type StAccount, type StPosition, type StOptionHolding, type StActivity, mergeHistoryFrom } from './snaptrade';
@@ -136,31 +141,38 @@ export function ingestSync(
       const k = activityKey(st.id, act);
       if (seenKeys[k]) continue;
       seenKeys[k] = true;
-      const m = mapActivityType(act);
-      if (m.txnType === 'SKIP') continue;
-      // LIVE-VERIFIED 2026-07-19 (real E*TRADE): brokers sign units on sells (−100) while our
-      // ledger + realized-P/L FIFO expect POSITIVE shares with BUY/SELL carrying direction — raw
-      // units would make every connected sale invisible to realized P/L. Shares are stored |units|.
-      const units = act.units != null ? Math.abs(act.units) : undefined;
-      // On EVERY trade row the broker's signed `amount` is the true cash — normalize price so
-      // shares×price equals it exactly. This one rule covers options (per-contract price ×100
-      // multiplier), bonds (priced per $100 of face — raw price would overstate gains 100×), and
-      // folds real fees into basis/proceeds the way the broker's own records do.
-      const isTrade = m.txnType === 'BUY' || m.txnType === 'SELL';
-      const price = isTrade && act.amount != null && units
-        ? Math.abs(act.amount) / units
-        : act.price ?? undefined;
+      // THE CALCULATION MODULE decides what this row is and which way its money went. The old code
+      // guessed an unrecognised word from the sign of the amount, which put $1,064,493 of
+      // contributions on an account where nothing came in, and it stored Math.abs(amount), which
+      // doubled a reinvestment pair into $2,387 of interest against $1,193 received.
+      const row = toLedgerRow({
+        word: act.type,
+        amount: act.amount,
+        units: act.units,
+        price: act.price,
+        date: act.trade_date ?? act.settlement_date ?? nowIso,
+        ticker: act.symbol?.raw_symbol ?? act.symbol?.symbol,
+        description: act.description,
+        isOption: !!act.option_symbol || !!act.option_type,
+      }, 'NEGATIVE_IS_OUT');   // SnapTrade signs a buy negative — declared once, per road.
+
+      // A marker carrying no money and no units explains nothing and is not written down. A row
+      // that DOES carry money always is — including a cash-settled option exercise, which the old
+      // code dropped along with its proceeds.
+      if (row.isEmptyMarker) continue;
+
       newTransactions.push({
         id: newEntityId('txn'),
-        date: (act.trade_date ?? act.settlement_date ?? nowIso).slice(0, 10),
-        type: m.txnType === 'ADJUST' ? 'ADJUSTMENT' : m.txnType,
+        date: row.date ?? nowIso.slice(0, 10),
+        type: row.type,
         account_id: assetId as any,   // absorbed-twin ids are pre-existing entity ids
-        ticker: act.symbol?.raw_symbol ?? act.symbol?.symbol ?? undefined,
-        shares: units,
-        price,
-        amount: act.amount != null ? Math.abs(act.amount) : undefined,
-        reinvested: m.reinvested,
-        note: [m.note, act.description].filter(Boolean).join(' · ') || undefined,
+        ticker: row.ticker,
+        shares: row.shares,
+        price: row.price,
+        amount: row.amount,
+        reinvested: row.reinvested,
+        note: [row.note, row.recognised ? undefined : `broker word: ${row.sourceWord}`]
+          .filter(Boolean).join(' · ') || undefined,
         source: 'connected',
         created_at: nowIso,
       } as Transaction);

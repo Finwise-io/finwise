@@ -40,7 +40,8 @@ const SUPERSEDED: Superseded[] = [
     engine: 'Calculation Module code/engines/events.ts → classifyEvent()',
     why: 'On the founder\'s real Vanguard file the guess produced $1,064,493 of contributions on an '
        + 'account where nothing came in. classifyEvent returns UNKNOWN instead, which counts in nothing.',
-    known: ['src/services/sync/ingest.ts'],
+    known: [],   // MIGRATED 2026-08-18 — ingest.ts now calls toLedgerRow(). Struck off: any return
+                 // to the old path fails this test by name.
   },
   {
     what: 'Math.abs on a transaction amount — destroys the direction at import',
@@ -48,7 +49,7 @@ const SUPERSEDED: Superseded[] = [
     engine: 'Calculation Module code/engines/money.ts → readMoney()',
     why: 'The founder saw $2,387 of interest against $1,193 received: a credit and its reinvestment '
        + 'debit both added because the minus sign was gone before anything summed them.',
-    known: ['src/services/sync/ingest.ts'],
+    known: [],   // MIGRATED 2026-08-18 — direction now comes from readMoney().
   },
 ];
 
@@ -90,8 +91,10 @@ describe('NO STALE CODE — the app must reach the engines, not the paths they r
     const outstanding = SUPERSEDED.flatMap((s) =>
       s.known.map((k) => `${k}  →  ${s.engine.split('→')[1].trim()}`));
     // This is not a failure. It is the honest count, visible on every run.
-    console.log(`\n  ${outstanding.length} call site(s) still on the old path:\n` +
-                outstanding.map((o) => `    ${o}`).join('\n') + '\n');
+    console.log(outstanding.length
+      ? `\n  ${outstanding.length} call site(s) still on the old path:\n` +
+        outstanding.map((o) => `    ${o}`).join('\n') + '\n'
+      : '\n  MIGRATION LEDGER CLEAR — no app code is on a superseded path.\n');
     expect(outstanding.length).toBeGreaterThanOrEqual(0);
   });
 });
