@@ -212,6 +212,6 @@ describe('PERF_PERIOD_RETURN', () => {
 
   test('it takes a NAMED period only — an arbitrary window is not something it can answer', () => {
     const { PERIODS } = require('../../src/domain/performance');
-    expect(PERIODS).toEqual(['1M', '3M', '6M', 'YTD', '1Y', '3Y']);
+    expect(PERIODS).toEqual(['1M', '3M', '6M', 'YTD', '1Y', '2Y']);
   });
 });

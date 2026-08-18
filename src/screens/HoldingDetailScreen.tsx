@@ -23,7 +23,7 @@ import { userCapGainsRates } from '../domain/income';
 import type { AssetAccount } from '../domain/assets';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 1000) / 10)}%`);
-const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '3Y': '3 years' };
+const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '2Y': '2 years' };
 
 /** The hero sparkline — the period's daily closes, nothing smoothed or invented. */
 function PriceGraph({ pts, up }: { pts: { date: string; close: number }[]; up: boolean }) {

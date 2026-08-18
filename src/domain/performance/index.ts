@@ -28,8 +28,8 @@ export interface Position {
 /** A daily close series, oldest→newest, for return math. */
 export interface PriceSeries { ticker: string; points: { date: string; close: number }[]; }
 
-export type Period = '1M' | '3M' | '6M' | 'YTD' | '1Y' | '3Y';
-export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '3Y'];
+export type Period = '1M' | '3M' | '6M' | 'YTD' | '1Y' | '2Y';
+export const PERIODS: Period[] = ['1M', '3M', '6M', 'YTD', '1Y', '2Y'];
 
 // ---- cost basis & value (lot math) ----
 export function totalShares(p: Position): number {
@@ -85,7 +85,7 @@ export function startDateFor(period: Period, now: Date): Date {
     case '3M': d.setMonth(d.getMonth() - 3); break;
     case '6M': d.setMonth(d.getMonth() - 6); break;
     case '1Y': d.setFullYear(d.getFullYear() - 1); break;
-    case '3Y': d.setFullYear(d.getFullYear() - 3); break;
+    case '2Y': d.setFullYear(d.getFullYear() - 2); break;
     case 'YTD': return new Date(now.getFullYear(), 0, 1);
   }
   return d;
@@ -111,7 +111,10 @@ export function periodReturn(series: PriceSeries | null | undefined, period: Per
   if (end == null || start == null || start <= 0) return null;
   // annualize multi-year so 3Y is comparable to 1Y
   const raw = end / start - 1;
-  if (period === '3Y') return Math.round((Math.pow(end / start, 1 / 3) - 1) * 1e4) / 1e4;
+  // FOUNDER DECISION 2026-08-18: two years is the longest window offered, because two years is
+  // exactly how much daily history the app keeps. Offering three would draw a line from a date
+  // we have no record of. Multi-year returns are still shown per year, so 2Y sits fairly beside 1Y.
+  if (period === '2Y') return Math.round((Math.pow(end / start, 1 / 2) - 1) * 1e4) / 1e4;
   return Math.round(raw * 1e4) / 1e4;
 }
 

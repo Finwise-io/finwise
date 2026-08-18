@@ -49,9 +49,11 @@ describe('performance — period returns', () => {
     expect(periodReturn(series('X', []), '1Y', now)).toBeNull();
     expect(periodReturn(null, '1Y', now)).toBeNull();
   });
-  test('3Y annualizes', () => {
-    const s3 = series('Z', [['2022-06-01', 100], ['2025-06-01', 133.1]]);  // +33.1% over 3y ≈ 10%/yr
-    expect(periodReturn(s3, '3Y', now)).toBeCloseTo(0.10, 3);
+  test('a multi-year window is shown PER YEAR, so it sits fairly beside the 1-year figure', () => {
+    // FOUNDER DECISION 2026-08-18: two years is the longest window offered, because two years is
+    // exactly how much daily history the app keeps.
+    const s2 = series('Z', [['2023-06-01', 100], ['2025-06-01', 121]]);   // +21% over 2y = 10%/yr
+    expect(periodReturn(s2, '2Y', now)).toBeCloseTo(0.10, 3);
   });
 });
 

@@ -225,7 +225,7 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
   test('each chip states its own return, or an em-dash when that window has no data', () => {
     render(<PerformanceScreen />);
     expect(screen.getByLabelText(/Show 1Y performance, [−+]?\d/)).toBeOnTheScreen();
-    expect(screen.getByLabelText(/Show 3Y performance/)).toBeOnTheScreen();
+    expect(screen.getByLabelText(/Show 2Y performance/)).toBeOnTheScreen();
   });
 
   test('the category table sums the ledger income and labels its columns', () => {

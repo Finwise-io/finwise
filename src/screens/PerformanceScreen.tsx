@@ -148,12 +148,12 @@ export default function PerformanceScreen() {
   // ONE definition of a period's start — the walk, the ledger filter and the gap checks all use it
   const periodStartKey = (p: string): string => {
     const d = new Date();
-    const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '3Y': 36 };
+    const months: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
     if (p === 'YTD') return `${d.getFullYear()}-01-01`;
     d.setMonth(d.getMonth() - (months[p] ?? 12));
     return d.toISOString().slice(0, 10);
   };
-  const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '3Y': 'past 3 years' };
+  const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   const freshLine = (() => {
     const f = priceFreshness(store.pricesFetchedAt, Date.now());
     return store.pricesFetchedAt ? `${f.stale ? 'Prices may be out of date — ' : 'Prices updated '}${f.label}` : null;
