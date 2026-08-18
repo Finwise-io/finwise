@@ -180,7 +180,7 @@ describe('uberGroupRows — the Net-worth screen grouping', () => {
   const rows = [
     { key: 'cash', label: 'Cash', color: '#1baf7a', total: 8838 },
     { key: 'bonds', label: 'Bonds & CDs', color: '#4a3aa7', total: 5819 },
-    { key: 'stocks_etf', label: 'Stocks / ETFs', color: '#2a78d6', total: 348495 },
+    { key: 'stocks_etf', label: 'Stocks / Funds', color: '#2a78d6', total: 348495 },
     { key: 'real_estate', label: 'Real estate', color: '#eda100', total: 450000 },
   ];
   test('three groups in order, each summing its classes', () => {

@@ -295,7 +295,7 @@ test('the line under an account counts its holdings — it no longer repeats the
     { ticker: 'VTI', asset_class: 'stock_etf' }, { ticker: 'AAPL', asset_class: 'stock_etf' },
   ]), 'stocks_etf')).toBe('2 holdings in this account');
   // cash: one account, one cash line — said plainly. Cash is CASH ONLY (founder rule 2026-08-04),
-  // so a money-market fund is never named here: it belongs to Stocks / ETFs, where its dividends
+  // so a money-market fund is never named here: it belongs to Stocks / Funds, where its dividends
   // are measured.
   expect(classPortionLabel(acct([]), 'cash')).toBe('cash in this account');
   expect(classPortionLabel(acct([{ ticker: 'VMFXX', name: 'VANGUARD MONEY MARKET', asset_class: 'cash' }]), 'cash'))
@@ -333,7 +333,7 @@ test('a money-market or CD position lands in the right class the moment it syncs
       { position_id: 'p2', ticker: 'CD1', name: 'ALLY BANK CD 4.2% 2027', asset_class: 'cash', last_price: 1, lots: [{ shares: 40000, cost_per_share: 1 }] },
     ],
   } as any)!;
-  expect(b.stocks_etf).toBe(50000);      // money-market fund pays dividends → Stocks / ETFs
+  expect(b.stocks_etf).toBe(50000);      // money-market fund pays dividends → Stocks / Funds
   expect(b.bonds).toBe(40000);           // the CD pays interest → Bonds & CDs
   expect(b.cash).toBe(10000);            // only the sweep sleeve is cash
   expect(Object.values(b).reduce((t: number, v: any) => t + v, 0)).toBe(100000);   // still exact

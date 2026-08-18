@@ -128,7 +128,7 @@ All from the real-device test of build #33 (`docs/finwise-device-test-build33.xl
 | B-76 | LOW | Budget | Two "Set monthly limits" buttons | duplicate bottom button | removed the dupe (fde8f76) |
 | B-77 | MED | Forms | Keyboard hid the bottom field on short sheets | KeyboardAvoidingView padding can't lift when content fits | iOS `automaticallyAdjustKeyboardInsets` (75bc54d) |
 | B-78 | MED | Net Worth | Alternatives showed as "Other"; "By account" showed classes | rows used KIND label; group toggle mislabeled | `ASSET_CLASS_LABEL[assetClassOf(a)]` + true "By institution" view (9161626) |
-| B-79 | LOW | Net Worth | "Portfolio performance" not taxonomy "Stocks/ETFs" (repeat) | missed first pass | row → "Stocks / ETFs — performance vs benchmark" (808f788) |
+| B-79 | LOW | Net Worth | "Portfolio performance" not taxonomy "Stocks/ETFs" (repeat) | missed first pass | row → "Stocks / Funds — performance vs benchmark" (808f788) |
 | B-80 | HIGH | Net Worth | Entering an institution on an option overwrote the ticker/label ("options→chase") | Alternatives editor had NO institution field — user typed it into the only field (label) | added "Where it's held (institution)" field (808f788) |
 | B-81 | HIGH | Performance | Cost/share + Shares rejected decimals; share count showed float drift | inputs parsed on every keystroke and wrote the number back to the controlled value | raw-text buffer `lotRaw`; share count `maximumFractionDigits:4` (2b0ad24) |
 | B-82 | MED | Import | CSV preview blank for CDs/bonds/money-market | preview rendered only the ticker | show ticker‖description‖symbol + asset class per row (1417670) |

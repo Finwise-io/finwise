@@ -22,7 +22,7 @@ user‑facing word on every surface. The single source is **`ASSET_CLASS_LABEL`*
 
 | class | label (standard finance term) |
 |---|---|
-| `cash` | Cash | `bonds` | Bonds | `stocks_etf` | Stocks / ETFs | `alternatives` | Alternatives |
+| `cash` | Cash | `bonds` | Bonds | `stocks_etf` | Stocks / Funds | `alternatives` | Alternatives |
 | `real_estate` | **Real estate** (real property) |
 | `personal_property` | **Personal property** (movable possessions — NOT the colloquial "belongings") |
 | `mixed` | Unclassified |
@@ -56,7 +56,7 @@ Net worth includes the primary home; investable & nest egg do **not**.
 ## 2. Asset classes — definitions
 
 - **Cash & cash equivalents** (#3): checking, savings, HYSA, money‑market, T‑bills, short CDs. *"Savings" is NOT a balance category — a savings account is just a cash instrument.* **Emergency fund** = a sized subset = **3–6 × monthly essentials**, held in cash; **0% earmarked to the nest egg** by default.
-- **Stocks / ETFs (equities)** (#5): individual stocks + equity ETFs/index/mutual funds, across all wrappers. *"Brokerage" is a taxable account wrapper, not an asset class.* Employee stock options = **income (equity comp)** → become equities on exercise; traded options = **alternatives** (future).
+- **Stocks / Funds (equities)** (#5): individual stocks + equity ETFs/index/mutual funds, across all wrappers. *"Brokerage" is a taxable account wrapper, not an asset class.* Employee stock options = **income (equity comp)** → become equities on exercise; traded options = **alternatives** (future).
 - **Bonds / fixed income** (#6): individual bonds + bond funds/ETFs + Treasuries/munis/corporates. **Detected by `assetClass='bonds'`, not by maturity date.** Interest income computed for **every** holding (individual: `face × coupon`; fund: `value × yield`) — no silent $0.
 - **Alternatives**: crypto, commodities, private equity, hedge funds, annuities (balance), traded options.
 - **Real estate** (#8): `use ∈ {primary, rental, secondary, land}`. Always in net worth (equity = value − its linked mortgage); **never** in investable/nest egg. **Rental** → rent as income + keep‑vs‑sell toggle (below).

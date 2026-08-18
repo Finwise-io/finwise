@@ -120,7 +120,7 @@ test('the hero donut is grouped by ASSET CLASS, not the old section axis (#19)',
   } as any);
   render(<NetWorthScreen />);
   expect(screen.getAllByText(/CASH/i).length).toBeGreaterThan(0);   // group bar (the duplicate class header is gone by design)
-  expect(screen.getAllByText('Stocks / ETFs').length).toBeGreaterThan(0); // class row
+  expect(screen.getAllByText('Stocks / Funds').length).toBeGreaterThan(0); // class row
   expect(screen.getByText(/WHAT YOU OWN/)).toBeOnTheScreen();  // the FCC group header
   expect(screen.getByText(/Own .* − Owe /)).toBeOnTheScreen();   // FINAL mock: the math sits ABOVE the hero
 });
@@ -161,7 +161,7 @@ test('#10: a 401(k) with unspecified holdings is "Unclassified", NOT assumed Sto
   } as any);
   render(<NetWorthScreen />);
   expect(screen.getByText('Unclassified')).toBeOnTheScreen();              // honest class row — the spec fix
-  expect(screen.queryByText('Stocks / ETFs')).toBeNull();                  // NOT pretended to be stocks
+  expect(screen.queryByText('Stocks / Funds')).toBeNull();                  // NOT pretended to be stocks
   expect(screen.getByText(/tap an account to say what's inside/)).toBeOnTheScreen();  // the nudge, on the class row
 });
 

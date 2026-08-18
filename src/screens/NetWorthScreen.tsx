@@ -51,7 +51,7 @@ const CLASS_META: { key: AssetClass; label: string; color: string }[] =
 // leaves it Unclassified (mixed); the rest set an explicit class so the split is accurate.
 const WRAPPER_CLASS_CHOICES: { key: AssetClass | 'auto'; label: string }[] = [
   { key: 'auto', label: 'Mixed / not sure' },
-  { key: 'stocks_etf', label: 'Stocks / ETFs' },
+  { key: 'stocks_etf', label: 'Stocks / Funds' },
   { key: 'bonds', label: 'Bonds' },
   { key: 'cash', label: 'Cash' },
   { key: 'alternatives', label: 'Alternatives' },
@@ -145,7 +145,7 @@ const SECTION_LABEL: Record<string, string> = {
 const secLabel = (s: string) => SECTION_LABEL[s] ?? s;
 const WIZ_HINT: Record<string, string> = {
   Cash: 'Checking, savings, emergency fund.',
-  Investments: 'Brokerage & other taxable accounts — stocks/ETFs, bonds, crypto.',
+  Investments: 'Brokerage & other taxable accounts — stocks and funds, bonds, crypto.',
   Retirement: '401(k), IRAs, HSA.',
   Property: 'Home & other real estate, vehicles, valuables.',
   Debts: 'Mortgage, loans, credit cards — with their rates.',
@@ -982,7 +982,7 @@ const CASH_OPTS = ['checking', 'savings', 'hysa', 'money_market', 'cd', 'cash_mg
 const ALT_OPTS = ['crypto', 'commodities', 'annuities', 'options'];
 const PROP_OPTS = ['vehicle', 'other_asset'];
 const INSIDE_OPTS: { key: AssetClass | 'mixed'; label: string }[] = [
-  { key: 'mixed', label: 'Mixed / not sure' }, { key: 'stocks_etf', label: 'Stocks / ETFs' }, { key: 'bonds', label: 'Bonds' }, { key: 'cash', label: 'Cash' },
+  { key: 'mixed', label: 'Mixed / not sure' }, { key: 'stocks_etf', label: 'Stocks / Funds' }, { key: 'bonds', label: 'Bonds' }, { key: 'cash', label: 'Cash' },
 ];
 
 function AssetSheet({ state, onClose }: { state: { open: boolean; section?: string; edit?: AssetAccount }; onClose: () => void }) {
@@ -1025,7 +1025,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       patch = { ...patch, asset_class: cls, kind: cls === 'bonds' ? 'fixed_income' : sub, tax_bucket: cls === 'cash' ? 'CASH' : 'TAXABLE', maturity_date: maturity || undefined, label: lbl(assetKind(sub)?.label ?? 'Cash') };
     } else if (step === 'stocks' || step === 'bonds') {
       const wa = wrapperAccount(wrapper);
-      patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / ETFs' : 'Bonds') };
+      patch = { ...patch, asset_class: step === 'stocks' ? 'stocks_etf' : 'bonds', kind: wa.kind, tax_bucket: wa.tax_bucket, label: lbl(step === 'stocks' ? 'Stocks / Funds' : 'Bonds') };
     } else if (step === 'alts') {
       const wa = wrapperAccount(wrapper);
       patch = { ...patch, asset_class: 'alternatives', kind: sub, tax_bucket: wa.tax_bucket, label: lbl(assetKind(sub)?.label ?? 'Alternatives') };
@@ -1064,7 +1064,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
       ],
     );
   };
-  const TITLES: Record<AddStep, string> = { pick: 'Add to net worth', cash: 'Cash & equivalents', stocks: 'Stocks / ETFs', bonds: 'Bonds', alts: 'Alternatives', realestate: 'Real estate', property: 'Personal property', retirement: 'Retirement account', brokerage: 'Brokerage account', quick: 'Quick add', edit: 'Edit account' };
+  const TITLES: Record<AddStep, string> = { pick: 'Add to net worth', cash: 'Cash & equivalents', stocks: 'Stocks / Funds', bonds: 'Bonds', alts: 'Alternatives', realestate: 'Real estate', property: 'Personal property', retirement: 'Retirement account', brokerage: 'Brokerage account', quick: 'Quick add', edit: 'Edit account' };
   const Chips = ({ ids }: { ids: string[] }) => (
     <View style={sh.chips}>{ids.map((id) => (
       <TouchableOpacity key={id} accessibilityRole="button" accessibilityLabel={assetKind(id)?.label ?? id} style={[sh.chip, sub === id && sh.chipOn]} onPress={() => setSub(id)}><Text style={sh.chipTxt}>{assetKind(id)?.label ?? id}</Text></TouchableOpacity>
@@ -1101,7 +1101,7 @@ function AssetSheet({ state, onClose }: { state: { open: boolean; section?: stri
           {step === 'property' && <Chips ids={PROP_OPTS} />}
           {(step === 'stocks' || step === 'bonds' || step === 'alts') && (<>
             <Text style={sh.clsLabel}>Held in</Text><Wrappers opts={WRAPPER_OPTS} />
-            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / ETFs screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, PE, hedge funds, commodities, annuities, options.'}</Text>
+            <Text style={sh.note}>{step === 'bonds' ? 'Enter a total value below — or track each bond (coupon, maturity) on the Bonds screen.' : step === 'stocks' ? 'Enter a total value below — or track specific tickers (shares, cost) on the Stocks / Funds screen.' : 'Enter a total value below — or track each holding on the Alternatives screen. Crypto, PE, hedge funds, commodities, annuities, options.'}</Text>
             {/* NW-16: make the "track specifics" path actionable — route to the holdings detail screen */}
             <TouchableOpacity accessibilityRole="button" accessibilityLabel="Add specific holdings" onPress={() => { onClose(); router.push(step === 'stocks' ? '/performance' : step === 'bonds' ? '/bonds' : '/other-investments'); }}>
               <Text style={sh.specifics}>＋ Add specific holdings instead →</Text>

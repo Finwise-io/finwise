@@ -22,7 +22,7 @@ NET WORTH (tab)
 │
 ├─ "Explore your holdings" box
 │    ├─ 📄 Import holdings (brokerage CSV) ───────────► Import screen ✅
-│    ├─ 📈 Stocks / ETFs — performance ✅(renamed) ──► Performance screen
+│    ├─ 📈 Stocks / Funds — performance ✅(renamed) ──► Performance screen
 │    ├─ 📜 Bonds — coupons, maturity, yield ─────────► Bonds screen ✅
 │    └─ 🪙 Alternatives — crypto, PE, … ─────────────► Alternatives screen ✅
 │
@@ -45,7 +45,7 @@ INSIGHTS (tab)
 
 ## 1.1 The main screen (top → bottom)
 
-1. **Donut + net worth** — a ring split by *asset class* (Cash / Stocks & ETFs / Bonds / Alternatives /
+1. **Donut + net worth** — a ring split by *asset class* (Cash / Stocks / Funds / Bonds / Alternatives /
    Real estate / Personal property), with your net worth in the middle (turns red if negative). A legend
    lists each class with its dollar value and %. Debts show as a red legend row.
    - **✅ Hide balances:** if the eye/Settings toggle is on, the center figure and **every** dollar on this
@@ -83,7 +83,7 @@ A toggle sits above the Investments list:
 [ By class ]   [ By institution ]
 ```
 
-- **By class** — groups by *what it is*: Stocks & ETFs, Bonds, Alternatives, Cash, etc.
+- **By class** — groups by *what it is*: Stocks / Funds, Bonds, Alternatives, Cash, etc.
   Each group header has an **ⓘ InfoDot** explaining the class ✅ *(B-88)*. Each row shows the account name;
   the sub-line shows its institution.
   - **Fix:** an alternative (crypto/PE) used to show as **"Other"** — it now shows under **"Alternatives"**
@@ -100,8 +100,8 @@ Tapping any row opens the **edit-account sheet** (name / institution / type / ba
 
 ## 1.4 The four holding sub-screens
 
-### 📈 Stocks / ETFs  (Performance screen)
-- **✅ Renamed** from "Portfolio performance" to **"Stocks / ETFs — performance vs benchmark"** *(B-79)*.
+### 📈 Stocks / Funds  (Performance screen)
+- **✅ Renamed** from "Portfolio performance" to **"Stocks / Funds — performance vs benchmark"** *(B-79)*.
 - Lists each holding: ticker, name, market value, **share count**, and return since purchase.
   - **✅ Share count** is now clean (no float-drift like "965.0000001") *(B-81)*.
 - **Add a holding** → enter ticker, then one or more *lots* (Shares · Cost/share · Date).
@@ -142,7 +142,7 @@ goals, holdings, surplus, retirement — to `••••`. Toggling it re-rende
 ## 1.6 InfoDots (the ⓘ dots) ✅ *(B-88)*
 Tappable "what does this mean?" dots, all reading from one glossary so a term means the same thing
 everywhere. Now attached to: the Net Worth **By-class group headers** (each asset class), and the **Bonds**,
-**Alternatives**, and **Contribution-room** titles. New terms added: Cash, Stocks & ETFs, Bonds,
+**Alternatives**, and **Contribution-room** titles. New terms added: Cash, Stocks / Funds, Bonds,
 Alternatives, Real estate, Personal property, Gross income, Contribution room.
 
 ---

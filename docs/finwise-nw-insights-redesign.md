@@ -58,7 +58,7 @@ NET WORTH (by asset class)                    [ By class ▾ | By institution ]
 
   Explore your holdings
    📥 Import a brokerage file
-   📈 Stocks / ETFs        $2.50M   (was "Portfolio performance")
+   📈 Stocks / Funds        $2.50M   (was "Portfolio performance")
    📜 Bonds                $0.00
    🪙 Alternatives         $2.10K
    ─ holdings ─

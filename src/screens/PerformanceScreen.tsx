@@ -449,7 +449,7 @@ export default function PerformanceScreen() {
               return (r?.position?.kind ?? r?.position?.asset_class ?? 'stocks_etf') as string;
             };
             const buckets: { key: string; label: string; color: string; earned: number; ret: string }[] = [
-              { key: 'stocks_etf', label: 'Stocks & ETFs', color: ClassMarkColors.stocks_etf, earned: 0, ret: portReturn == null ? '—' : pct(portReturn) },
+              { key: 'stocks_etf', label: 'Stocks / Funds', color: ClassMarkColors.stocks_etf, earned: 0, ret: portReturn == null ? '—' : pct(portReturn) },
               { key: 'bonds', label: 'Bonds & CDs', color: ClassMarkColors.bonds, earned: 0, ret: '—' },
               { key: 'cash', label: 'Sweep cash', color: ClassMarkColors.cash, earned: 0, ret: '—' },
             ];
@@ -622,7 +622,7 @@ export default function PerformanceScreen() {
 
           {/* YOUR INVESTMENTS — every class in one place, grouped, collapsible */}
           <Text style={styles.groupHdrTop} onLayout={(e) => { invListY.current = e.nativeEvent.layout.y; }}>YOUR INVESTMENTS   <Text>{maskedMoney(investTotalAll)}</Text></Text>
-          {([['Stocks / ETFs', equitiesTotal, 'eq'], [ASSET_CLASS_LABEL.bonds, bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
+          {([['Stocks / Funds', equitiesTotal, 'eq'], [ASSET_CLASS_LABEL.bonds, bondsTotal, 'bond'], ['Alternatives', altsTotal, 'alt'], ['Accounts — add holdings for live tracking', untrackedTotal, 'acct']] as const).map(([label, total, kind]) => {
             if (kind === 'eq' && rows.length === 0) return null;
             if (kind === 'bond' && bondAccts.length === 0) return null;
             if (kind === 'alt' && altAccts.length === 0) return null;

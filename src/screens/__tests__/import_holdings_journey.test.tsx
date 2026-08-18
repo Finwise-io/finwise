@@ -150,7 +150,7 @@ test('Import v2: a misclassified row is correctable before saving (tap cycles th
   const { getByText, getByLabelText } = render(<ImportHoldingsScreen />);
   fireEvent.press(getByText('Choose a file'));
   await waitFor(() => expect(getByLabelText('Which institution is this file from')).toBeTruthy());
-  fireEvent.press(getByLabelText(/AAPL classified as Stocks \/ ETFs — tap to change/));   // → bonds
+  fireEvent.press(getByLabelText(/AAPL classified as Stocks \/ Funds — tap to change/));   // → bonds
   fireEvent.changeText(getByLabelText('Which institution is this file from'), 'Fidelity');
   fireEvent.press(getByLabelText(/Import \d+ holdings?/));
 

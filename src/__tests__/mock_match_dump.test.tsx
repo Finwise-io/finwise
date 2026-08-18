@@ -269,7 +269,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const own = strings.indexOf('WHAT YOU OWN');
     const owe = strings.indexOf('WHAT YOU OWE');
     // assets legend, biggest first, immediately under the section total
-    expect(strings.slice(own, owe).join(' ')).toMatch(/Real estate 55 % Stocks \/ ETFs 43 % Cash 1 % Bonds & CDs 1 %/);
+    expect(strings.slice(own, owe).join(' ')).toMatch(/Real estate 55 % Stocks \/ Funds 43 % Cash 1 % Bonds & CDs 1 %/);
     // debts get the same shape in the warning family
     expect(strings.slice(owe).join(' ')).toMatch(/Home mortgage 99 % Chase Visa 1 %/);
     // and the donut's centre content is gone with it
@@ -282,7 +282,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const s = dumpStrings();
     const inv = s.indexOf('▾ 📈 Investments');
     const rest = s.slice(inv);
-    expect(rest.indexOf('Stocks / ETFs')).toBeLessThan(rest.indexOf('Bonds & CDs'));   // 348,495 before 5,819
+    expect(rest.indexOf('Stocks / Funds')).toBeLessThan(rest.indexOf('Bonds & CDs'));   // 348,495 before 5,819
   });
 
   test('the cushion carries its own progress bar, and it is never the only signal', () => {

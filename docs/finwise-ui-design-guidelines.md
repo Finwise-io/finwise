@@ -201,7 +201,7 @@ reachable from any term. **Do** define on first use. **Don't** assume the user k
 "diversification."
 **Implementation (one source of truth):** every definition lives in `src/domain/glossary.ts` (`GLOSSARY`)
 and is surfaced via `<InfoDot term="…">` — so a term reads identically everywhere. Coverage now includes the
-**asset classes** (Cash, Stocks & ETFs, Bonds, Alternatives, Real estate, Personal property), **Gross
+**asset classes** (Cash, Stocks / Funds, Bonds, Alternatives, Real estate, Personal property), **Gross
 income**, and **Contribution room**; dots are attached to the Net Worth *By‑class* group headers and the
 Bonds / Alternatives / Contribution‑room titles. **Adding a term:** add it to `GLOSSARY`, then `<InfoDot>`
 it — never write a definition inline on a screen.

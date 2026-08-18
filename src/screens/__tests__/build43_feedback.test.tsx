@@ -101,7 +101,7 @@ test('APPROVED split · slices sum EXACTLY to the broker total; manual accounts 
   expect(b.bonds).toBe(110000);
   // CHANGED 2026-08-11: the founder's cash-only rule (2026-08-04) now applies at the LIVE
   // classification point, not just in the one-time migration. The broker tags VMFXX 'cash'; it is a
-  // money-market FUND that pays dividends, so it belongs to Stocks / ETFs where that income is
+  // money-market FUND that pays dividends, so it belongs to Stocks / Funds where that income is
   // measured. Only the uninvested sweep sleeve is cash.
   expect(b.cash).toBe(6800);                         // the sweep sleeve alone
   expect(b.stocks_etf).toBe(1400 + 48700);           // LCTX + VMFXX (the money-market fund)
@@ -249,7 +249,7 @@ test('R2-approved-v4 · class rows collapse by default; tapping expands; a lone 
   ] } as any);
   render(<NetWorthScreen />);
   expect(screen.queryByText(/Fidelity Brokerage/)).toBeNull();                  // collapsed by default
-  fireEvent.press(screen.getByLabelText(/Stocks \/ ETFs.*Expands/));
+  fireEvent.press(screen.getByLabelText(/Stocks \/ Funds.*Expands/));
   expect(screen.getByText(/Fidelity Brokerage/)).toBeOnTheScreen();             // expanded on tap
 });
 

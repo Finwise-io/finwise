@@ -37,7 +37,7 @@ test('AGREEMENT: table rows sum exactly to investmentsTotal — same accounts, s
   const sum = rows.reduce((t, r) => t + r.total, 0);
   expect(sum).toBe(investmentsTotal(ACCOUNTS as any));
   expect(sum).toBe(105000);                                   // stocks 100,000 + bonds 5,000; checking excluded
-  expect(rows.map((r) => r.label)).toEqual(['Bonds & CDs', 'Stocks / ETFs']);   // liquidity order, canonical labels
+  expect(rows.map((r) => r.label)).toEqual(['Bonds & CDs', 'Stocks / Funds']);   // liquidity order, canonical labels
 });
 
 test('web renders columns: glance LEFT (net worth · gauge · cash flow), chief-of-staff + table RIGHT', () => {

@@ -17,7 +17,7 @@ import {
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
 const CLS_PICKS: { id: string; label: string; icon: string; cls: ItemClass; kind?: string }[] = [
-  { id: 'stocks_etf', label: 'Stock / ETF', icon: '📈', cls: 'stocks_etf' },
+  { id: 'stocks_etf', label: 'Stock / Fund', icon: '📈', cls: 'stocks_etf' },
   { id: 'bonds', label: 'Bond', icon: '📜', cls: 'bonds' },
   { id: 'options', label: 'Option', icon: '⚖️', cls: 'alternatives', kind: 'options' },
   { id: 'crypto', label: 'Crypto', icon: '🪙', cls: 'alternatives', kind: 'crypto' },
@@ -25,7 +25,7 @@ const CLS_PICKS: { id: string; label: string; icon: string; cls: ItemClass; kind
 ];
 
 function holdingSub(h: ItemHolding): string {
-  if (h.cls === 'stocks_etf') return 'Stock / ETF';
+  if (h.cls === 'stocks_etf') return 'Stock / Fund';
   if (h.cls === 'bonds') return h.maturityDate ? `Bond · matures ${h.maturityDate}` : 'Bond';
   if (h.cls === 'cash') return 'Cash';
   return h.kind === 'options' ? 'Option' : h.kind === 'crypto' ? 'Crypto' : 'Alternative';

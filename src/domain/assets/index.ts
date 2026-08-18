@@ -22,7 +22,7 @@ export type AssetClass = 'cash' | 'bonds' | 'stocks_etf' | 'alternatives' | 'rea
 export const ASSET_CLASS_LABEL: Record<AssetClass, string> = {
   cash: 'Cash',
   bonds: 'Bonds & CDs',   // pre-48 audit A7: every approved mock names the class with its CDs
-  stocks_etf: 'Stocks / ETFs',
+  stocks_etf: 'Stocks / Funds',
   alternatives: 'Alternatives',
   real_estate: 'Real estate',
   personal_property: 'Personal property',
@@ -137,7 +137,7 @@ export const ASSET_KINDS: { id: string; label: string; icon: string; bucket: Tax
   { id: 'cash_mgmt', label: 'Cash management', icon: '💳', bucket: 'CASH', section: 'Cash', ret: 0.035 },
   // Investments (taxable) — common first, then alternatives, then specialty
   { id: 'brokerage', label: 'Brokerage', icon: '📊', bucket: 'TAXABLE', section: 'Investments', ret: 0.08 },
-  { id: 'stocks_etf', label: 'Stocks / ETFs', icon: '📈', bucket: 'TAXABLE', section: 'Investments', ret: 0.104 },
+  { id: 'stocks_etf', label: 'Stocks / Funds', icon: '📈', bucket: 'TAXABLE', section: 'Investments', ret: 0.104 },
   { id: 'fixed_income', label: 'Fixed income', icon: '📜', bucket: 'TAXABLE', section: 'Investments', ret: 0.042 },
   { id: 'crypto', label: 'Crypto', icon: '🪙', bucket: 'TAXABLE', section: 'Investments', ret: 0.08 },
   { id: 'private_equity', label: 'Private equity', icon: '🏢', bucket: 'TAXABLE', section: 'Investments', ret: 0.13 },
@@ -185,7 +185,7 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
 // FOUNDER RULE 2026-08-04 (supersedes the money-market=cash rule and the 12-month CD split):
 // CASH means cash only — a sweep/settlement balance. Instruments that pay dividends or interest
 // live in the MEASURED buckets, or the change/return math silently loses their income:
-// money-market funds → Stocks / ETFs (funds paying dividends) · CDs / T-bills → Bonds & CDs.
+// money-market funds → Stocks / Funds (funds paying dividends) · CDs / T-bills → Bonds & CDs.
 const SWEEP_RE = /\b(sweep|settlement)\b/i;
 const MONEY_MARKET_RE = /\b(money[\s-]?market|mmkt|mmf)\b/i;
 // The rule matched on the fund's NAME, so a broker that sends only a ticker (VMFXX, SPAXX…) put its
@@ -422,7 +422,7 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
     const v = p.last_price != null ? sh * p.last_price : 0;
     // FOUNDER RULE 2026-08-04, applied HERE 2026-08-11: cash means cash only. A broker tags VMFXX as
     // 'cash' and a CD as 'cash' too; the name decides instead — money-market funds pay dividends
-    // (Stocks / ETFs), CDs and T-bills pay interest (Bonds & CDs). This used to live ONLY in the
+    // (Stocks / Funds), CDs and T-bills pay interest (Bonds & CDs). This used to live ONLY in the
     // one-time migration over stored data, so a position synced AFTER the migration ran landed back
     // in Cash — the same defect as the founder's original CD-under-Cash finding, mirrored in time.
     const byName = incomeBearingClassOf(`${p.ticker ?? ''} ${p.name ?? p.description ?? ''}`);
@@ -487,7 +487,7 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
   const opts = (((a as any).option_holdings ?? []) as any[]).length;
 
   switch (cls) {
-    // Cash is CASH ONLY (founder rule 2026-08-04): money-market funds live under Stocks / ETFs and
+    // Cash is CASH ONLY (founder rule 2026-08-04): money-market funds live under Stocks / Funds and
     // CDs / T-bills under Bonds & CDs, because they pay dividends and interest that must be measured.
     // So a cash slice is the sweep balance — one line, said plainly.
     case 'cash': return 'cash in this account';

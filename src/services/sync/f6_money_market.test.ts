@@ -3,7 +3,7 @@
 //
 // FOUNDER RULE 2026-08-04 says the opposite: "CASH means cash only — a sweep/settlement balance.
 // Instruments that pay dividends or interest live in the MEASURED buckets, or the change/return
-// math silently loses their income: money-market funds → Stocks / ETFs."
+// math silently loses their income: money-market funds → Stocks / Funds."
 //
 // That rule IS implemented in three places — the classifier here, the file importer, and the
 // re-classifier that migrates existing data. It is the CONNECTED path, the one the founder actually
@@ -60,7 +60,7 @@ test('the kind mapping says STOCKS but the kind metadata still says CASH — two
 
 test('so one holding answers "which class am I?" two different ways', () => {
   const holding = { kind: 'money_market', label: 'VMFXX', balance: 50_000 } as any;
-  const byClass = assetClassOf(holding);                       // Stocks / ETFs
+  const byClass = assetClassOf(holding);                       // Stocks / Funds
   const bySection = assetKind(holding.kind)!.section;           // Cash
   expect(byClass).toBe('stocks_etf');
   expect(bySection).toBe('Cash');

@@ -137,7 +137,7 @@ describe('USER WALK · 10 common flows', () => {
     (useStore.getState() as any).addAsset({ label: 'Ally Savings', kind: 'savings', tax_bucket: 'CASH', balance: 12000, target_return: 0.04, source: 'manual' });
     render(<NetWorthScreen />);
     // approved v4 (2026-07-19): class rows are collapsed by default — the user taps a class open
-    fireEvent.press(screen.getByLabelText(/Stocks \/ ETFs.*Expands/));
+    fireEvent.press(screen.getByLabelText(/Stocks \/ Funds.*Expands/));
     // no Cash tap needed: the group is open by default and (founder gap 3) its accounts render
     // directly, without a duplicate class header — tapping here would COLLAPSE the group.
     // approved v6: the connected account SPLITS — its stocks under Stocks/ETFs AND its cash
