@@ -409,6 +409,23 @@ for _r in range(3, _ws.max_row + 1):
 
 print(f"{OUT}")
 print(f"  COVERAGE: {_done} of {_done + _blank} rows documented · {_blank} not yet written")
+
+# ── THE RATCHET — documented rows may only ever go UP ────────────────────────────────────────────
+# On 2026-08-18 a cleanup script silently deleted four fully-documented rows, and the coverage line
+# fell from 109 to 105. I read that drop as junk being removed and said so in a commit message. It
+# was real work, recovered later from git only because the founder's next question happened to land
+# on one of the rows. A number that can fall without anyone noticing is not a check.
+_HIGH = os.path.join(ROOT, "Calculation Module code/scripts/.coverage-high-water")
+_prev = int(open(_HIGH).read().strip()) if os.path.exists(_HIGH) else 0
+if _done < _prev:
+    raise SystemExit(
+        f"\n  ⛔ COVERAGE WENT BACKWARDS: {_prev} documented rows before, {_done} now.\n"
+        f"     {_prev - _done} row(s) lost their annotation. Nothing here should ever delete work.\n"
+        f"     Recover them with:  git show <earlier-commit>:'Calculation Module/calculation-inventory-v1.xlsx'\n"
+        f"     If the drop is genuinely intended, edit {os.path.basename(_HIGH)} deliberately.\n")
+if _done > _prev:
+    open(_HIGH, "w").write(str(_done))
+    print(f"  high-water mark now {_done} (was {_prev}) — it can never fall without failing this run")
 if _fail:
     print(f"  ⚠ {len(_fail)} DOCUMENTED ROWS FAIL THE STANDARD:")
     for _r, _fn, _why in _fail:
