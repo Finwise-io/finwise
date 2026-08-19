@@ -101,9 +101,15 @@ interface Mapping { match: RegExp; event: CanonicalEvent; source: string; seen: 
 
 // Ordered: the FIRST match wins, so the specific must precede the general. "Dividend Reinvestment"
 // has to be tested before "Dividend", or every reinvestment is booked as income twice.
+//
+// WORDS MAY ARRIVE RUN TOGETHER. Found by testing the founder's own challenge — that an engine coded
+// to one institution is bound to fail. FDX writes its values as single tokens: DIVIDENDREINVEST,
+// RETURNOFCAPITAL, MARGININTEREST. A rule needing a word boundary or a space matched Vanguard's
+// "Dividend Reinvestment" and missed the standard's own spelling of the same event. Patterns now
+// accept both, because the point is to recognise the EVENT however it is spelled — not one dialect.
 const MAPPINGS: Mapping[] = [
   // ── reinvestment, before any plain income word ────────────────────────────────────────────────
-  { match: /\breinvest/i, event: 'REINVEST_PURCHASE', source: 'Vanguard "Reinvestment"; FDX DIVIDENDREINVEST, REINVESTOFINCOME', seen: true },
+  { match: /reinvest/i, event: 'REINVEST_PURCHASE', source: 'Vanguard "Reinvestment"; FDX DIVIDENDREINVEST, REINVESTOFINCOME', seen: true },
   { match: /^REI$/i, event: 'REINVEST_PURCHASE', source: 'SnapTrade REI', seen: true },
 
   // ── the sweep and journal events behind the phantom contributions ─────────────────────────────
@@ -112,20 +118,20 @@ const MAPPINGS: Mapping[] = [
   { match: /\bjournal\b/i, event: 'INTERNAL_TRANSFER', source: 'FDX journal events', seen: false },
 
   // ── maturity payouts: your own money returning ────────────────────────────────────────────────
-  { match: /redemption|return of (capital|principal)|\bmatur(ed|ity)\b|called bond/i,
+  { match: /redemption|return\s?of\s?(capital|principal)|\bmatur(ed|ity)\b|called\s?bond/i,
     event: 'RETURN_OF_CAPITAL', source: 'Vanguard "Corp Action (Redemption)"; E*TRADE REDEMPTION; FDX RETURNOFCAPITAL', seen: true },
 
   // ── options, before generic buy/sell ──────────────────────────────────────────────────────────
-  { match: /option ?expir|^OPTIONEXPIRATION$/i, event: 'OPTION_EXPIRY', source: 'E*TRADE OPTIONEXPIRATION; FDX OPTIONEXPIRATION', seen: true },
-  { match: /option ?(exercise|assignment)|^OPTION(EXERCISE|ASSIGNMENT)$/i, event: 'OPTION_EXERCISE', source: 'E*TRADE OPTIONEXERCISE / OPTIONASSIGNMENT', seen: true },
+  { match: /option\s?expir/i, event: 'OPTION_EXPIRY', source: 'E*TRADE OPTIONEXPIRATION; FDX OPTIONEXPIRATION', seen: true },
+  { match: /option\s?(exercise|assignment)/i, event: 'OPTION_EXERCISE', source: 'E*TRADE OPTIONEXERCISE / OPTIONASSIGNMENT', seen: true },
 
   // ── costs, before income (a "fee reversal" must not read as income) ───────────────────────────
-  { match: /margin ?interest|^MARGININTEREST$/i, event: 'MARGIN_INTEREST', source: 'FDX MARGININTEREST; E*TRADE bills it as MISC', seen: true },
+  { match: /margin\s?interest/i, event: 'MARGIN_INTEREST', source: 'FDX MARGININTEREST; E*TRADE bills it as MISC', seen: true },
   { match: /\bfee\b|\bcommission\b|service charge|^SRVCHG$/i, event: 'FEE', source: 'Fidelity/Vanguard "Fee"; FDX FEE, SRVCHG', seen: true },
   { match: /\btax\b|withh?eld/i, event: 'TAX_WITHHELD', source: 'FDX TAX; E*TRADE TAX', seen: true },
 
   // ── income ────────────────────────────────────────────────────────────────────────────────────
-  { match: /capital ?gain|^(LT|ST)?CG(LONG|SHORT)?$/i, event: 'CAPITAL_GAIN_DISTRIBUTION', source: 'OFX CGLONG/CGSHORT; FDX capital-gain subtypes', seen: false },
+  { match: /capital\s?gain|^(LT|ST)?CG(LONG|SHORT)?$/i, event: 'CAPITAL_GAIN_DISTRIBUTION', source: 'OFX CGLONG/CGSHORT; FDX capital-gain subtypes', seen: false },
   { match: /\bdividend\b|^DIV$/i, event: 'DIVIDEND', source: 'Vanguard "Dividend"; Fidelity DIVIDEND; FDX DIVIDEND', seen: true },
   { match: /\binterest\b/i, event: 'INTEREST', source: 'Vanguard "Interest"; Fidelity "INTEREST as of …"; FDX INTEREST', seen: true },
 
@@ -134,8 +140,8 @@ const MAPPINGS: Mapping[] = [
     event: 'SECURITIES_IN', source: 'E*TRADE EXCHANGE RECEIVED IN / EXTERNAL_ASSET_TRANSFER_IN', seen: true },
 
   // ── external money ────────────────────────────────────────────────────────────────────────────
-  { match: /^CONTRIBUTION$|wire in|^DIRECTDEP$|^DEP(OSIT)?$/i, event: 'CASH_IN', source: 'E*TRADE CONTRIBUTION / WIRE IN; FDX CONTRIBUTION, DEPOSIT', seen: true },
-  { match: /^WITHDRAWAL$|wire out|^DIRECTDEBIT$/i, event: 'CASH_OUT', source: 'E*TRADE WITHDRAWAL / WIRE OUT; FDX WITHDRAWAL', seen: true },
+  { match: /^contribution\b|wire\s?in\b|^directdep|^dep(osit)?\b/i, event: 'CASH_IN', source: 'E*TRADE CONTRIBUTION / WIRE IN; FDX CONTRIBUTION, DEPOSIT', seen: true },
+  { match: /^withdrawal\b|wire\s?out\b|^directdebit/i, event: 'CASH_OUT', source: 'E*TRADE WITHDRAWAL / WIRE OUT; FDX WITHDRAWAL', seen: true },
 
   // ── trades ────────────────────────────────────────────────────────────────────────────────────
   { match: /^BUY|purchase|^PURCHASED?(TO(OPEN|CLOSE|COVER))?$/i, event: 'BUY', source: 'Vanguard "Buy"; FDX PURCHASED', seen: true },
