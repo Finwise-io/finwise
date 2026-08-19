@@ -1,0 +1,2109 @@
+{
+ "generated": "2026-08-18",
+ "engines": [
+  {
+   "engine": "EXPENSE_COMMENTARY",
+   "fn": "analyzeExpenses",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "What is worth saying about this spending?  Answer: a short written analysis, or nothing when the service is un",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/services/economicData.ts:109",
+   "feeds_from": []
+  },
+  {
+   "engine": "ECONOMIC_FIGURES",
+   "fn": "fetchEconomicData",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "What are inflation and the 10-year Treasury yield?  Answer: both figures, when each was fetched, AND whether e",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/services/economicData.ts:47",
+   "feeds_from": []
+  },
+  {
+   "engine": "READ_A_RECEIPT",
+   "fn": "parseReceipt",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "What is on this receipt?  Answer: the merchant, the total and a suggested category \u2014 or nothing when it cannot",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/services/economicData.ts:158",
+   "feeds_from": []
+  },
+  {
+   "engine": "CONFIRM_TAX_TYPE",
+   "fn": "confirmWrapper",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "The person told us what an account really is \u2014 how is that recorded?  Answer: that account, with its type and ",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/services/sync/ingest.ts:185",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACCOUNT_IDENTITY",
+   "fn": "stAssetId",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "What do we call this connected account internally?  Answer: one id \u2014 the broker's own account id with 'st-' in",
+   "probe": "probes/sync-identity.probe.test.ts",
+   "source": "src/services/sync/ingest.ts:34",
+   "feeds_from": []
+  },
+  {
+   "engine": "FETCH_PRICES",
+   "fn": "fetchPriceSeries",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "What are these holdings worth?  Answer: a price history per ticker \u2014 with any that failed simply ABSENT.",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/services/marketData.ts:71",
+   "feeds_from": []
+  },
+  {
+   "engine": "TICKER_PLAUSIBLE",
+   "fn": "isPlausibleTicker",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "Could this be a real tradeable ticker?  Answers: yes \u00b7 no.",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/services/marketData.ts:53",
+   "feeds_from": []
+  },
+  {
+   "engine": "PRICE_FRESHNESS",
+   "fn": "priceFreshness",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Market data",
+   "screens": "\u2014",
+   "answers": "How old is the price we are showing?  Answer: a phrase \u2014 \"just now\", \"3h ago\", \"2 days ago\", \"not updated yet\"",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/services/marketData.ts:60",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACTIVITY_IDENTITY",
+   "fn": "activityKey",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "What identifies this activity so it is not recorded twice?  Answer: one text key.",
+   "probe": "Calculation Module code/probes/broken-family.probe.test.ts",
+   "source": "src/services/sync/snaptrade.ts:243",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACCOUNT_TAX_TYPE_GUESS",
+   "fn": "mapAccountType",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "What kind of account is this, and how is it taxed?",
+   "probe": "probes/sync-identity.probe.test.ts",
+   "source": "src/services/sync/snaptrade.ts:71",
+   "feeds_from": []
+  },
+  {
+   "engine": "TRANSLATE_BROKER_WORD",
+   "fn": "mapActivityType",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "A line arrived from the broker. Is this money you paid IN, money you took OUT, or something that happened insi",
+   "probe": "probes/unknown-activity-types.probe.test.ts",
+   "source": "src/services/sync/snaptrade.ts:184",
+   "feeds_from": []
+  },
+  {
+   "engine": "OPTION_HOLDING",
+   "fn": "mapOptionHolding",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "What is this option position worth, and what do we call it?  Answer: a readable label, the number of contracts",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/services/sync/snaptrade.ts:159",
+   "feeds_from": []
+  },
+  {
+   "engine": "CLASS_FROM_BROKER",
+   "fn": "mapPosition",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "For a holding arriving from a CONNECTED broker: what class is it, and what is it worth?",
+   "probe": "",
+   "source": "src/services/sync/snaptrade.ts:116",
+   "feeds_from": []
+  },
+  {
+   "engine": "HISTORY_DEPTH",
+   "fn": "mergeHistoryFrom",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "How far back does this source's activity history go?  Answer: the earliest date it has ever sent us, or nothin",
+   "probe": "probes/sync-identity.probe.test.ts",
+   "source": "src/services/sync/snaptrade.ts:282",
+   "feeds_from": []
+  },
+  {
+   "engine": "UNINVESTED_CASH",
+   "fn": "netCashSleeve",
+   "layer": 1,
+   "status": "UNRESOLVED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "How much genuinely uninvested cash does this account hold?  Answer: a dollar figure, never negative.",
+   "probe": "",
+   "source": "src/services/sync/snaptrade.ts:269",
+   "feeds_from": []
+  },
+  {
+   "engine": "CURRENCY",
+   "fn": "activeCurrency",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Foundation",
+   "screens": "\u2014",
+   "answers": "Which currency is the app showing?  Answer: the whole currency record \u2014 its code, its symbol and how it groups",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/_shared/money.ts:49",
+   "feeds_from": []
+  },
+  {
+   "engine": "MONEY_IN_WORDS",
+   "fn": "formatMoney",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Foundation",
+   "screens": "\u2014",
+   "answers": "How is an amount written?  Answer: whole dollars with separators and a currency symbol \u2014 or the masking charac",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/_shared/money.ts:58",
+   "feeds_from": []
+  },
+  {
+   "engine": "MONEY_IN_WORDS_WITH_CENTS",
+   "fn": "formatMoneyCents",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Foundation",
+   "screens": "\u2014",
+   "answers": "How is an amount written where cents matter?  Answer: the same, to two decimal places.",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/_shared/money.ts:74",
+   "feeds_from": []
+  },
+  {
+   "engine": "NEW_ID",
+   "fn": "newEntityId",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Foundation",
+   "screens": "ImportHoldings",
+   "answers": "What do we call this new thing?  Answer: one id, unique, prefixed with the kind of thing it is.",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/_shared/ids.ts:6",
+   "feeds_from": []
+  },
+  {
+   "engine": "READ_A_NUMBER",
+   "fn": "toNum",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Foundation",
+   "screens": "\u2014",
+   "answers": "What number did the person actually type?  Answer: a number \u2014 and ZERO when nothing usable was typed.",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/_shared/num.ts:4",
+   "feeds_from": []
+  },
+  {
+   "engine": "IS_ALTERNATIVE",
+   "fn": "isAlternative",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Is this account an alternative holding?  Answers: yes \u00b7 no.",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/domain/alternatives/index.ts:15",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACCOUNT_NAMES",
+   "fn": "accountDisplayNames",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "AccountDetail, NetWorth, Performance",
+   "answers": "What do we call each account on screen when two look alike?  Answer: a name per account, with duplicates numbe",
+   "probe": "probes/account-breakdown.probe.test.ts",
+   "source": "src/domain/assets/index.ts:394",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACCOUNT_TYPE_FACTS",
+   "fn": "assetKind",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "AccountDetail, NetWorth, Performance",
+   "answers": "What do we know about this kind of account?  Answer: its label, the heading it appears under, its tax bucket a",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:165",
+   "feeds_from": []
+  },
+  {
+   "engine": "ACCOUNT_SHARE_OF_TOTAL",
+   "fn": "buildAssetsState",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "How much of everything sits in each account, and what return do they blend to?  Answer: a share of the total p",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:678",
+   "feeds_from": []
+  },
+  {
+   "engine": "SLICE_WORDING",
+   "fn": "classPortionLabel",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "What do we say about this slice of an account?  Answer: a short phrase \u2014 \"cash in this account\", \"2 CDs\", and ",
+   "probe": "probes/account-breakdown.probe.test.ts",
+   "source": "src/domain/assets/index.ts:480",
+   "feeds_from": []
+  },
+  {
+   "engine": "CLASS_FROM_NAME_TEXT",
+   "fn": "incomeBearingClassOf",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "Reading the NAME alone, is this cash, a money-market fund, or a CD / T-bill?",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:202",
+   "feeds_from": []
+  },
+  {
+   "engine": "ITEMISED_TOTAL",
+   "fn": "itemizedTotal",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "Itemize",
+   "answers": "What do the named holdings inside this account add up to?  Answer: a dollar figure.",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/itemize.ts:28",
+   "feeds_from": []
+  },
+  {
+   "engine": "MATURITY_MEANS_BOND",
+   "fn": "maturityClass",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "Does having a maturity date make this a bond?  Answers: Bonds & CDs \u00b7 Cash.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:215",
+   "feeds_from": []
+  },
+  {
+   "engine": "HOW_A_HOME_IS_USED",
+   "fn": "realEstateUseOf",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "Is this the home they live in, a rental, a second home or land?  Answer: one of those four.",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:262",
+   "feeds_from": []
+  },
+  {
+   "engine": "WHERE_THE_VALUE_CAME_FROM",
+   "fn": "sourceWording",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "AccountDetail, NetWorth",
+   "answers": "Where did this account's value come from, and when?  Answer: one short line \u2014 \"Connected \u00b7 2026-08-18\", \"Impor",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:726",
+   "feeds_from": []
+  },
+  {
+   "engine": "TAX_TREATMENT",
+   "fn": "taxTreatmentOf",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "AccountDetail",
+   "answers": "How is this account taxed?  Answers: taxable \u00b7 tax-deferred (tax due when you take it out) \u00b7 tax-free (Roth).",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:253",
+   "feeds_from": []
+  },
+  {
+   "engine": "NET_WORTH_GROUPING",
+   "fn": "uberGroupRows",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "How are the classes grouped on the Net worth screen?  Answer: a list of groups, each with its own classes and ",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:794",
+   "feeds_from": []
+  },
+  {
+   "engine": "HAND_VALUE_AGE",
+   "fn": "valueFreshness",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "AccountDetail, Performance",
+   "answers": "How old is this hand-entered value?  Answers: the date it was set, how many months ago that was, and whether i",
+   "probe": "probes/account-breakdown.probe.test.ts",
+   "source": "src/domain/assets/index.ts:95",
+   "feeds_from": []
+  },
+  {
+   "engine": "TAX_TYPE_TO_ACCOUNT",
+   "fn": "wrapperAccount",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "The person picked how this account is taxed \u2014 what does that make it?  Answer: an account type and a tax treat",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:223",
+   "feeds_from": []
+  },
+  {
+   "engine": "BOND_COUPON",
+   "fn": "annualCoupon",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "How much income does this bond pay in a year?  Answer: a dollar figure.",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:21",
+   "feeds_from": []
+  },
+  {
+   "engine": "BOND_FACTS",
+   "fn": "bondInfo",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "What are this holding's bond facts?  Answer: face, coupon, maturity and yields \u2014 or nothing if it is not a bon",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:16",
+   "feeds_from": []
+  },
+  {
+   "engine": "BOND_YEARS_LEFT",
+   "fn": "yearsToMaturity",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "How long until this bond pays back?  Answer: a number of years, never negative.",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:24",
+   "feeds_from": []
+  },
+  {
+   "engine": "SPENDING_BY_KIND",
+   "fn": "spendBuckets",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What is spent each month, split by kind?  Answer: three figures \u2014 fixed, non-monthly, flexible \u2014 and their tot",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/budget/index.ts:72",
+   "feeds_from": []
+  },
+  {
+   "engine": "DEBT_TYPE_FACTS",
+   "fn": "debtKind",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "NetWorth",
+   "answers": "What do we know about this kind of debt?  Answer: its label and how it is normally repaid \u2014 or nothing when th",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/debt/index.ts:197",
+   "feeds_from": []
+  },
+  {
+   "engine": "DEBT_SHAPE_DEFAULT",
+   "fn": "defaultPaymentType",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "How is this KIND of debt normally repaid?  Answers: revolving (a balance you carry) \u00b7 installment (a fixed pay",
+   "probe": "probes/debt.probe.test.ts",
+   "source": "src/domain/debt/index.ts:35",
+   "feeds_from": []
+  },
+  {
+   "engine": "DEBT_TYPE_FROM_NAME",
+   "fn": "inferDebtType",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What kind of debt is this, judging by what they called it?  Answers: mortgage \u00b7 home equity line \u00b7 car loan \u00b7 ",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/debt/index.ts:228",
+   "feeds_from": []
+  },
+  {
+   "engine": "WHAT_IS_MISSING",
+   "fn": "dataGaps",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Insights",
+   "screens": "NetWorth, Performance",
+   "answers": "What is missing or stale in this picture?  Answer: a list of gaps \u2014 accounts that have not updated, connection",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/domain/gaps/index.ts:57",
+   "feeds_from": []
+  },
+  {
+   "engine": "NW_CHANGE_WALK",
+   "fn": "buildChangeWalk",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Net worth",
+   "screens": "NetWorth, Performance",
+   "answers": "My net worth changed since last time \u2014 what actually caused it?",
+   "probe": "",
+   "source": "src/domain/history.ts:144",
+   "feeds_from": []
+  },
+  {
+   "engine": "NW_CHANGE_PCT",
+   "fn": "investableChangePct",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "What is my return on cash and investments since the baseline?  Answer: a percentage to one decimal, or no answ",
+   "probe": "",
+   "source": "src/domain/history.ts:118",
+   "feeds_from": []
+  },
+  {
+   "engine": "SNAPSHOT_READ_ONE",
+   "fn": "normalizeSnapshot",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "Is this stored snapshot usable, and what does it say?  Answers: a clean snapshot, or nothing at all when it ca",
+   "probe": "probes/history-snapshots.probe.test.ts",
+   "source": "src/domain/history.ts:77",
+   "feeds_from": []
+  },
+  {
+   "engine": "FILE_DECODE",
+   "fn": "decodeCsvBase64",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "ImportHoldings",
+   "answers": "What is the text of the file that was picked?  Answer: the file as text.",
+   "probe": "probes/classification-crosspath.probe.test.ts",
+   "source": "src/domain/import/holdingsImport.ts:61",
+   "feeds_from": []
+  },
+  {
+   "engine": "IMPORT_ACCOUNT_MATCH",
+   "fn": "matchImportAccount",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "ImportHoldings",
+   "answers": "Which existing account should this file update?  Answer: one account, or none \u2014 in which case a new one is cre",
+   "probe": "probes/classification-crosspath.probe.test.ts",
+   "source": "src/domain/import/holdingsImport.ts:254",
+   "feeds_from": []
+  },
+  {
+   "engine": "FILE_PARSE",
+   "fn": "parseCsv",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "What are the rows and cells in this file?  Answer: a grid of text.",
+   "probe": "probes/classification-crosspath.probe.test.ts",
+   "source": "src/domain/import/holdingsImport.ts:74",
+   "feeds_from": []
+  },
+  {
+   "engine": "OTHER_INCOME",
+   "fn": "extraIncome",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What else comes in?  Answer: four figures \u2014 taxable monthly, non-taxable monthly, one-off taxable, and one-off",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:161",
+   "feeds_from": []
+  },
+  {
+   "engine": "FILING_STATUS",
+   "fn": "filingStatusOf",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How does this person file?  Answers: single \u00b7 married \u00b7 head of household.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:333",
+   "feeds_from": []
+  },
+  {
+   "engine": "RENTALS",
+   "fn": "rentalList",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What rental properties are there, and what does each bring in?  Answer: a list, each with monthly income and m",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:129",
+   "feeds_from": []
+  },
+  {
+   "engine": "VESTING_YEAR",
+   "fn": "rowVestYear",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "Which year does this line vest in?  Answer: a calendar year.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:74",
+   "feeds_from": []
+  },
+  {
+   "engine": "TAXABLE_INCOME_SINGLE",
+   "fn": "taxableIncome",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What income is actually taxed?  Answer: a dollar figure, never below zero.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:17",
+   "feeds_from": []
+  },
+  {
+   "engine": "TAXABLE_INCOME",
+   "fn": "taxableIncomeFor",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What income is taxed, given how this person files?  Answer: a dollar figure, never below zero.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:88",
+   "feeds_from": []
+  },
+  {
+   "engine": "CAP_GAINS_RATES",
+   "fn": "userCapGainsRates",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "HoldingDetail, Performance",
+   "answers": "What capital-gains rates apply to this person?  Answer: two rates \u2014 long-term and short-term.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:390",
+   "feeds_from": []
+  },
+  {
+   "engine": "NET_WORTH",
+   "fn": "buildNetWorth",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "What is this household worth?  Answer: one dollar figure, which can be negative.",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/domain/networth/index.ts:12",
+   "feeds_from": []
+  },
+  {
+   "engine": "ALLOCATION_BY_HOLDING_KIND",
+   "fn": "allocation",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "How is my invested money spread?  Answers: a slice per account type plus one for cash, each with a dollar figu",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:229",
+   "feeds_from": []
+  },
+  {
+   "engine": "WHAT_DROVE_THE_RETURN",
+   "fn": "attribution",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Which holdings moved my portfolio, and by how much?",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:218",
+   "feeds_from": []
+  },
+  {
+   "engine": "BENCHMARK_FOR_KIND",
+   "fn": "benchmarkTicker",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "What should this holding be compared against?  Answers: a fund ticker \u2014 SPY for shares and funds, AGG for bond",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:152",
+   "feeds_from": []
+  },
+  {
+   "engine": "HOLDING_CAP_GAINS",
+   "fn": "capGains",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "If I sold this today, how much of the gain is long-term and how much short-term?  Answer: two dollar figures a",
+   "probe": "probes/holding-period.probe.test.ts",
+   "source": "src/domain/performance/index.ts:55",
+   "feeds_from": []
+  },
+  {
+   "engine": "CAP_GAINS_TAX",
+   "fn": "capGainsTax",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "What tax would that gain cost?  Answer: a dollar figure, never negative.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:69",
+   "feeds_from": []
+  },
+  {
+   "engine": "HOLDING_COST_BASIS",
+   "fn": "costBasis",
+   "layer": 1,
+   "status": "DEFECT",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "What did I pay for this in total?  Answer: a dollar figure.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:38",
+   "feeds_from": []
+  },
+  {
+   "engine": "HOLDING_FIRST_BOUGHT",
+   "fn": "earliestPurchaseDate",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "When did I first buy this?  Answer: a date, or no answer when no lot carries one.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:131",
+   "feeds_from": []
+  },
+  {
+   "engine": "PRICE_FACTOR_OVER_WINDOW",
+   "fn": "factorOverMonths",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "By what multiple did this price move over the last N months?  Answers: a multiple such as 1.10 for a 10% rise ",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/lookBack.ts:19",
+   "feeds_from": []
+  },
+  {
+   "engine": "PERSONAL_RETURN_POSSIBLE",
+   "fn": "historyIsComplete",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "Can a personal return honestly be worked out for these accounts?  Answers: yes \u00b7 no.",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/moneyWeighted.ts:60",
+   "feeds_from": []
+  },
+  {
+   "engine": "PERSONAL_RETURN_ANSWERED",
+   "fn": "isMoneyWeighted",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Did the personal return produce a number, or a reason it could not?  Answers: yes \u00b7 no.",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/moneyWeighted.ts:110",
+   "feeds_from": []
+  },
+  {
+   "engine": "PRICE_LATEST",
+   "fn": "latestClose",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "What is the most recent price we hold for this?  Answer: a price, or no answer when we have none.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:102",
+   "feeds_from": []
+  },
+  {
+   "engine": "BENCHMARK_RETURN_BLENDED",
+   "fn": "portfolioBenchReturn",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "What would the matching benchmarks have done over the same period?  Answers: a percentage, or nothing.",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:278",
+   "feeds_from": []
+  },
+  {
+   "engine": "PORTFOLIO_RETURN",
+   "fn": "portfolioPeriodReturn",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "How did everything I hold do over the chosen period?  Answers: a percentage, or nothing when no holding has bo",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:268",
+   "feeds_from": []
+  },
+  {
+   "engine": "REALISED_GAIN",
+   "fn": "realizedFromLedger",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "HoldingDetail",
+   "answers": "How much profit have I actually taken?  Answers: realised gain all-time, realised gain this year, how many sal",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/realized.ts:14",
+   "feeds_from": []
+  },
+  {
+   "engine": "PERIOD_START_DATE",
+   "fn": "startDateFor",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "HoldingDetail",
+   "answers": "Which date does the chosen period start from?  Answer: a date. Periods offered: 1M \u00b7 3M \u00b7 6M \u00b7 YTD \u00b7 1Y \u00b7 3Y.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:81",
+   "feeds_from": []
+  },
+  {
+   "engine": "CONCENTRATION",
+   "fn": "topHoldingConcentration",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Is too much of my money in one holding?  Answers: the ticker and its percentage \u2014 or nothing, when there is no",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:208",
+   "feeds_from": []
+  },
+  {
+   "engine": "HOLDING_SHARES",
+   "fn": "totalShares",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "How many shares of this do I own?  Answer: a number of shares.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:35",
+   "feeds_from": []
+  },
+  {
+   "engine": "PERSONAL_FLOWS",
+   "fn": "userFlows",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "Which movements count as MY money going in or coming out?",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/moneyWeighted.ts:27",
+   "feeds_from": []
+  },
+  {
+   "engine": "ODDS_SENTENCE",
+   "fn": "oddsLine",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "How do we state the odds in words?  Answer: one sentence \u2014 \"82% odds of lasting to age 92\".",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:30",
+   "feeds_from": []
+  },
+  {
+   "engine": "ARE_YOU_ON_COURSE",
+   "fn": "onCourseSentence",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "In one sentence, how is this plan doing?  Answer: a sentence \u2014 or NOTHING when the odds have not been worked o",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:165",
+   "feeds_from": []
+  },
+  {
+   "engine": "SAMPLE_ASK_SENTENCE",
+   "fn": "sampleAskLine",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "What do we ask for to turn the sample into their own number?  Answer: one sentence naming exactly what is miss",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:152",
+   "feeds_from": []
+  },
+  {
+   "engine": "SAMPLE_ODDS_SENTENCE",
+   "fn": "sampleOddsLine",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "What do we show before a person has answered enough?  Answer: one sentence beginning with the word Sample.",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:34",
+   "feeds_from": []
+  },
+  {
+   "engine": "AGE_THE_MONEY_RUNS_OUT",
+   "fn": "shortfallAgeFromBand",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "If the plan falls short, at what age?  Answer: an age, or nothing when it does not fall short.",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:162",
+   "feeds_from": []
+  },
+  {
+   "engine": "COST_OF_LIVING",
+   "fn": "colFactor",
+   "layer": 1,
+   "status": "YOUR CALL",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "How much more or less does life cost where they plan to live?  Answer: a multiplier, and the place it matched.",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/col.ts:53",
+   "feeds_from": []
+  },
+  {
+   "engine": "POT_AT_RETIREMENT",
+   "fn": "projectNestEgg",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth, WhatIf",
+   "answers": "What will the pot be worth at retirement?  Answer: a dollar figure, with a range around it.",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/index.ts:294",
+   "feeds_from": []
+  },
+  {
+   "engine": "WILL_IT_LAST",
+   "fn": "simulate",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth, WhatIf",
+   "answers": "Will my money last?",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/index.ts:160",
+   "feeds_from": []
+  },
+  {
+   "engine": "SS_CLAIM_FACTOR",
+   "fn": "ssClaimFactor",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "How much does claiming at this age change the cheque?  Answer: a multiplier \u2014 0.70 at 62, 1.00 at 67, 1.24 at ",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/ssTiming.ts:12",
+   "feeds_from": []
+  },
+  {
+   "engine": "SWING_FROM_RETURN",
+   "fn": "volOf",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "How much might a year's return swing, judged from the return alone?  Answer: a figure between 5% and 20%.",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/retirement/willItLast.ts:19",
+   "feeds_from": []
+  },
+  {
+   "engine": "CASH_EFFECT_OF_A_ROW",
+   "fn": "cashEffect",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "AccountDetail, Performance",
+   "answers": "How much did this one ledger row move the cash in the account?  Answer: a dollar figure \u2014 positive in, negativ",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/transactions/index.ts:227",
+   "feeds_from": []
+  },
+  {
+   "engine": "LEDGER_ROW_NAME",
+   "fn": "txnLabel",
+   "layer": 1,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "AccountDetail, Performance",
+   "answers": "What do we call this kind of row on screen?  Answer: a short readable name.",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/transactions/index.ts:224",
+   "feeds_from": []
+  },
+  {
+   "engine": "SYNC_ONE_ACCOUNT",
+   "fn": "ingestSync",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "A broker just sent us data \u2014 what changes?  Answer: the updated accounts, any new ledger rows, an updated reco",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/services/sync/ingest.ts:36",
+   "feeds_from": [
+    "ACTIVITY_IDENTITY",
+    "ACCOUNT_TAX_TYPE_GUESS",
+    "OPTION_HOLDING",
+    "HISTORY_DEPTH",
+    "UNINVESTED_CASH",
+    "NEW_ID",
+    "ACCOUNT_IDENTITY"
+   ]
+  },
+  {
+   "engine": "ALREADY_SEEN_CHECK",
+   "fn": "dedupeActivities",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "Which of these activities are new since the last sync?  Answer: the new ones, plus the updated set of keys alr",
+   "probe": "",
+   "source": "src/services/sync/snaptrade.ts:255",
+   "feeds_from": [
+    "ACTIVITY_IDENTITY"
+   ]
+  },
+  {
+   "engine": "ASSET_CLASS_OF_ACCOUNT",
+   "fn": "assetClassOf",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "AccountDetail, NetWorth, Performance",
+   "answers": "What kind of thing is this account \u2014 cash, a bond, shares, or something else?",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:236",
+   "feeds_from": [
+    "CLASS_FROM_NAME_TEXT"
+   ]
+  },
+  {
+   "engine": "ACCOUNTS_FROM_SETUP",
+   "fn": "assetsFromOnboarding",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "What accounts should exist from the setup answers?  Answer: one account per thing they told us about \u2014 or none",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/assets/index.ts:690",
+   "feeds_from": [
+    "NEW_ID",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "EXPECTED_RETURN_BY_KIND",
+   "fn": "benchmarkReturn",
+   "layer": 2,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "AccountDetail, Performance",
+   "answers": "What return do we assume for this kind of account?  Answer: a yearly rate, e.g. 0.024 for savings.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:569",
+   "feeds_from": [
+    "ACCOUNT_TYPE_FACTS"
+   ]
+  },
+  {
+   "engine": "KIND_IS_CASH",
+   "fn": "isCashKind",
+   "layer": 2,
+   "status": "DEFECT",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "Does this account type sit under the Cash heading on screen?  Answers: yes \u00b7 no.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:164",
+   "feeds_from": [
+    "ACCOUNT_TYPE_FACTS"
+   ]
+  },
+  {
+   "engine": "ITEMISED_REMAINDER",
+   "fn": "itemizeRemainder",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "Itemize",
+   "answers": "How much of the typed total is still unaccounted for?  Answer: a dollar figure, which may be NEGATIVE.",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/itemize.ts:32",
+   "feeds_from": [
+    "ITEMISED_TOTAL"
+   ]
+  },
+  {
+   "engine": "BOND_YIELD_TO_MATURITY",
+   "fn": "approxYTM",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "What will this bond earn me a year if I hold it to the end?  Answer: a rate, or no answer for a bond that has ",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:33",
+   "feeds_from": [
+    "BOND_COUPON",
+    "BOND_YEARS_LEFT"
+   ]
+  },
+  {
+   "engine": "BOND_CURRENT_YIELD",
+   "fn": "currentYield",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "What is this bond paying me, measured against what it is worth today?  Answer: a rate, or no answer if it has ",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:29",
+   "feeds_from": [
+    "BOND_COUPON"
+   ]
+  },
+  {
+   "engine": "PLANNED_SPENDING",
+   "fn": "plannedMonthlySpend",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "NetWorth",
+   "answers": "What does this person plan to spend each month?  Answer: a dollar figure.",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/budget/index.ts:45",
+   "feeds_from": [
+    "SPENDING_BY_KIND",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "DEBTS_FROM_SETUP",
+   "fn": "debtsFromOnboarding",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What debts should exist from the setup answers?  Answer: the debts described, or none.",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/debt/index.ts:240",
+   "feeds_from": [
+    "DEBT_TYPE_FROM_NAME",
+    "NEW_ID",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "DEBT_SHAPE",
+   "fn": "paymentShape",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "How is THIS debt repaid?  Answers: revolving \u00b7 installment \u00b7 due in full (a dated bill, not a monthly repaymen",
+   "probe": "probes/debt.probe.test.ts",
+   "source": "src/domain/debt/index.ts:38",
+   "feeds_from": [
+    "DEBT_SHAPE_DEFAULT"
+   ]
+  },
+  {
+   "engine": "SNAPSHOT_READ_ALL",
+   "fn": "readHistory",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "What history do we hold?  Answer: every usable monthly snapshot, oldest first.",
+   "probe": "probes/history-snapshots.probe.test.ts",
+   "source": "src/domain/history.ts:107",
+   "feeds_from": [
+    "SNAPSHOT_READ_ONE"
+   ]
+  },
+  {
+   "engine": "CLASS_FROM_FILE",
+   "fn": "classifyHolding",
+   "layer": 2,
+   "status": "DEFECT",
+   "part": "Accounts & connections",
+   "screens": "\u2014",
+   "answers": "For a line in a FILE you upload: which class is it?",
+   "probe": "probes/classification-crosspath.probe.test.ts",
+   "source": "src/domain/import/holdingsImport.ts:154",
+   "feeds_from": [
+    "CLASS_FROM_NAME_TEXT"
+   ]
+  },
+  {
+   "engine": "EMPLOYER_MATCH",
+   "fn": "employerMatchMonthly",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How much does the employer add each month?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:242",
+   "feeds_from": [
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "EQUITY_ROW_VALUE",
+   "fn": "equityRowValue",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What is one line of a vesting schedule worth?  Answer: a dollar figure, never negative.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:68",
+   "feeds_from": [
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "RENTAL_INCOME_A_YEAR",
+   "fn": "rentalNetAnnual",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What do the rentals net over a year?  Answer: a dollar figure, which can be negative.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:142",
+   "feeds_from": [
+    "RENTALS"
+   ]
+  },
+  {
+   "engine": "RETIREMENT_INCOME",
+   "fn": "retirementIncomeMonthly",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How much retirement income arrives monthly?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:213",
+   "feeds_from": [
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "STATE_TAX_RATE",
+   "fn": "stateRateOf",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What state tax rate applies?  Answer: a rate between 0 and 15%.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:337",
+   "feeds_from": [
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "TAX_OWED_SINGLE",
+   "fn": "taxOwed",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What federal tax is owed?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:29",
+   "feeds_from": [
+    "TAXABLE_INCOME_SINGLE"
+   ]
+  },
+  {
+   "engine": "TAX_OWED",
+   "fn": "taxOwedFor",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What tax is owed, federal and state together?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:94",
+   "feeds_from": [
+    "TAXABLE_INCOME"
+   ]
+  },
+  {
+   "engine": "LOOK_BACK",
+   "fn": "lookBack",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "LookBack",
+   "answers": "What if I had moved this money?  Answers: what it became where it sat, what it would have become moved, and th",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/lookBack.ts:32",
+   "feeds_from": [
+    "PRICE_FACTOR_OVER_WINDOW"
+   ]
+  },
+  {
+   "engine": "HOLDING_MARKET_VALUE",
+   "fn": "marketValue",
+   "layer": 2,
+   "status": "YOUR CALL",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "What is this holding worth right now?  Answer: a dollar figure.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:45",
+   "feeds_from": [
+    "HOLDING_SHARES"
+   ]
+  },
+  {
+   "engine": "PERSONAL_RETURN",
+   "fn": "moneyWeightedReturn",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Did my money actually grow, and by how much a year \u2014 counting the fact that I did not put it all in at once?",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/moneyWeighted.ts:80",
+   "feeds_from": [
+    "PERSONAL_RETURN_POSSIBLE",
+    "PERSONAL_FLOWS"
+   ]
+  },
+  {
+   "engine": "PERIOD_RETURN",
+   "fn": "periodReturn",
+   "layer": 2,
+   "status": "DEFECT",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "What did this holding do over the chosen period?  Answer: a percentage, or no answer when there is not enough ",
+   "probe": "",
+   "source": "src/domain/performance/index.ts:107",
+   "feeds_from": [
+    "PRICE_LATEST",
+    "PERIOD_START_DATE"
+   ]
+  },
+  {
+   "engine": "RETURN_SINCE_A_DATE",
+   "fn": "periodReturnSince",
+   "layer": 2,
+   "status": "UNRESOLVED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "What did this do between a given date and today?  Answers: a percentage, or nothing when the price history doe",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:122",
+   "feeds_from": [
+    "PRICE_LATEST"
+   ]
+  },
+  {
+   "engine": "PORTFOLIO_TREND_LINE",
+   "fn": "portfolioTrend",
+   "layer": 2,
+   "status": "DEFECT",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "How has my portfolio moved over the period, against its benchmark?  Answers: 13 dated points, each with your v",
+   "probe": "probes/performance-portfolio.probe.test.ts",
+   "source": "src/domain/performance/index.ts:242",
+   "feeds_from": [
+    "PERIOD_START_DATE",
+    "HOLDING_SHARES"
+   ]
+  },
+  {
+   "engine": "RETIREMENT_SPENDING",
+   "fn": "retirementSpendMonthly",
+   "layer": 2,
+   "status": "YOUR CALL",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "What will be spent each month in retirement?  Answer: a dollar figure in today's dollars.",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/index.ts:48",
+   "feeds_from": [
+    "COST_OF_LIVING",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "SS_BENEFIT_AT_AGE",
+   "fn": "ssBenefitAtClaimAge",
+   "layer": 2,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "What would the monthly cheque be if claimed at this age?  Answer: a whole dollar figure.",
+   "probe": "probes/retirement-engine.probe.test.ts",
+   "source": "src/domain/retirement/ssTiming.ts:25",
+   "feeds_from": [
+    "SS_CLAIM_FACTOR"
+   ]
+  },
+  {
+   "engine": "CAN_HOLD_TICKERS",
+   "fn": "accountAllowsTicker",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "Performance",
+   "answers": "Can shares be tracked in this account?  Answers: yes \u00b7 no.",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:116",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "ACCOUNT_SPLIT",
+   "fn": "accountClassBreakdown",
+   "layer": 3,
+   "status": "CHECKED vs REAL DATA",
+   "part": "Net worth",
+   "screens": "AccountDetail, NetWorth",
+   "answers": "This one brokerage account holds several different things \u2014 how much of it is each?",
+   "probe": "probes/account-breakdown.probe.test.ts",
+   "source": "src/domain/assets/index.ts:416",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT",
+    "CLASS_FROM_NAME_TEXT"
+   ]
+  },
+  {
+   "engine": "ITEMISE_AN_ACCOUNT",
+   "fn": "buildItemizedAccounts",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "Itemize",
+   "answers": "This typed lump is really several holdings \u2014 what does the account become?  Answer: the account with its named",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/assets/itemize.ts:48",
+   "feeds_from": [
+    "ITEMISED_REMAINDER"
+   ]
+  },
+  {
+   "engine": "RETIREMENT_SHARE_DEFAULT",
+   "fn": "earmarkDefault",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "How much of this account counts toward retirement, before anyone changes it?  Answer: 0% or 100%.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:543",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT",
+    "HOW_A_HOME_IS_USED"
+   ]
+  },
+  {
+   "engine": "TOTAL_INVESTMENTS",
+   "fn": "investmentsTotal",
+   "layer": 3,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "Performance",
+   "answers": "How much do I have invested?  Answer: one dollar figure.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:306",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "IS_PHYSICAL_ASSET",
+   "fn": "isRealAsset",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "Is this something physical you own rather than money you could spend?  Answers: yes \u00b7 no.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:268",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "MONTHLY_SAVING",
+   "fn": "monthlyContributionsFromOnboarding",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "How much goes in each month?  Answer: a dollar figure.",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/assets/index.ts:710",
+   "feeds_from": [
+    "EMPLOYER_MATCH",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "PRIMARY_CAR",
+   "fn": "primaryCarIdOf",
+   "layer": 3,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "Which car is \"the car you drive\"?  Answer: one account id, or none if no vehicles are held.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:552",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "IF_RATES_MOVE",
+   "fn": "bondRateSensitivity",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "AccountDetail",
+   "answers": "What happens to this bond if interest rates move?  Answer: two outcomes \u2014 one for rates rising a point, one fo",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:97",
+   "feeds_from": [
+    "BOND_YIELD_TO_MATURITY"
+   ]
+  },
+  {
+   "engine": "IS_BOND",
+   "fn": "isBond",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "Performance",
+   "answers": "Is this holding a bond or CD?  Answers: yes \u00b7 no.",
+   "probe": "probes/bonds-and-freshness.probe.test.ts",
+   "source": "src/domain/bonds/index.ts:13",
+   "feeds_from": [
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "DEBT_MINIMUM_TOTAL",
+   "fn": "minimumDebtService",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What must I pay across all debts to stay current?  Answer: a dollar figure.",
+   "probe": "probes/debt.probe.test.ts",
+   "source": "src/domain/debt/index.ts:55",
+   "feeds_from": [
+    "DEBT_SHAPE"
+   ]
+  },
+  {
+   "engine": "DEBT_REQUIRED_PAYMENT",
+   "fn": "requiredPayment",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What must I pay on this each month?  Answer: a dollar figure, which may be zero.",
+   "probe": "probes/debt.probe.test.ts",
+   "source": "src/domain/debt/index.ts:44",
+   "feeds_from": [
+    "DEBT_SHAPE"
+   ]
+  },
+  {
+   "engine": "TREND_SERIES",
+   "fn": "trendPoints",
+   "layer": 3,
+   "status": "DEFECT",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "What points does the net-worth graph draw?  Answer: a dated list of net-worth values, oldest first \u2014 or an emp",
+   "probe": "probes/history-snapshots.probe.test.ts",
+   "source": "src/domain/history.ts:43",
+   "feeds_from": [
+    "SNAPSHOT_READ_ALL"
+   ]
+  },
+  {
+   "engine": "FILE_IMPORT",
+   "fn": "importHoldings",
+   "layer": 3,
+   "status": "DEFECT",
+   "part": "Accounts & connections",
+   "screens": "ImportHoldings",
+   "answers": "What holdings are in this file?  Answer: a list of holdings with shares, cost, value, date and class \u2014 plus ho",
+   "probe": "probes/classification-crosspath.probe.test.ts",
+   "source": "src/domain/import/holdingsImport.ts:183",
+   "feeds_from": [
+    "CLASS_FROM_FILE",
+    "FILE_PARSE"
+   ]
+  },
+  {
+   "engine": "RETIREMENT_INCOME_NOW",
+   "fn": "currentRetirementIncomeMonthly",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How much retirement income is arriving TODAY?  Answer: a dollar figure, and zero for someone not yet retired.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:191",
+   "feeds_from": [
+    "RETIREMENT_INCOME"
+   ]
+  },
+  {
+   "engine": "EFFECTIVE_TAX_RATE",
+   "fn": "effectiveRateOnGrossFor",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What share of my income actually goes in tax?  Answer: a percentage, or zero on no income.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:107",
+   "feeds_from": [
+    "TAX_OWED"
+   ]
+  },
+  {
+   "engine": "GROSS_FROM_TAKE_HOME",
+   "fn": "grossFromNet",
+   "layer": 3,
+   "status": "DEFECT",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "Someone told us their take-home \u2014 what must they be earning before tax?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/tax.ts:47",
+   "feeds_from": [
+    "TAX_OWED_SINGLE"
+   ]
+  },
+  {
+   "engine": "EQUITY_THIS_YEAR",
+   "fn": "rsuAnnual",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How much equity vests this year?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:114",
+   "feeds_from": [
+    "EQUITY_ROW_VALUE",
+    "VESTING_YEAR",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "HOLDING_UNREALISED_GAIN",
+   "fn": "unrealizedGain",
+   "layer": 3,
+   "status": "DEFECT",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "How much am I up or down on this?  Answer: a dollar figure, positive or negative.",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:49",
+   "feeds_from": [
+    "HOLDING_COST_BASIS",
+    "HOLDING_MARKET_VALUE"
+   ]
+  },
+  {
+   "engine": "NET_WORTH_ROWS",
+   "fn": "resolveNetWorthRows",
+   "layer": 3,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "Performance, WhatIf",
+   "answers": "What rows make up the net-worth picture?  Answer: the accounts and debts to show, resolved from whatever the p",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/snapshot.ts:121",
+   "feeds_from": [
+    "ACCOUNTS_FROM_SETUP",
+    "DEBTS_FROM_SETUP"
+   ]
+  },
+  {
+   "engine": "ALLOCATION_BY_CLASS",
+   "fn": "assetAllocation",
+   "layer": 4,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "How much money sits in each of the seven classes?  Answer: a dollar figure for each of Cash \u00b7 Bonds & CDs \u00b7 St",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:517",
+   "feeds_from": [
+    "ACCOUNT_SPLIT",
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "TOTAL_CASH",
+   "fn": "cashTotal",
+   "layer": 4,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "How much actual cash do I have?  Answer: one dollar figure.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:286",
+   "feeds_from": [
+    "ACCOUNT_SPLIT",
+    "ASSET_CLASS_OF_ACCOUNT"
+   ]
+  },
+  {
+   "engine": "RETIREMENT_SHARE_AMOUNT",
+   "fn": "earmarkedAmount",
+   "layer": 4,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "How many dollars of this account count toward retirement?  Answer: a dollar figure.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:558",
+   "feeds_from": [
+    "RETIREMENT_SHARE_DEFAULT"
+   ]
+  },
+  {
+   "engine": "TOTAL_INVESTABLE",
+   "fn": "investableAssets",
+   "layer": 4,
+   "status": "CHECKED vs REAL DATA",
+   "part": "Net worth",
+   "screens": "NetWorth",
+   "answers": "How much money could actually fund something?  Answer: one dollar figure.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:311",
+   "feeds_from": [
+    "IS_PHYSICAL_ASSET"
+   ]
+  },
+  {
+   "engine": "DEBT_ACTUAL_TOTAL",
+   "fn": "totalDebtMonthly",
+   "layer": 4,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What am I actually paying across all debts?  Answer: a dollar figure.",
+   "probe": "probes/debt.probe.test.ts",
+   "source": "src/domain/debt/index.ts:49",
+   "feeds_from": [
+    "DEBT_REQUIRED_PAYMENT"
+   ]
+  },
+  {
+   "engine": "SALARY_BY_MONTH",
+   "fn": "salaryGrossByMonth",
+   "layer": 4,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What is the gross salary in each month of the year?  Answer: twelve figures.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:46",
+   "feeds_from": [
+    "GROSS_FROM_TAKE_HOME",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "HOLDING_TOTAL_ROI",
+   "fn": "totalROI",
+   "layer": 4,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "\u2014",
+   "answers": "How much am I up on this in percentage terms, since I bought it?  Answer: a percentage, or no answer when noth",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:74",
+   "feeds_from": [
+    "HOLDING_COST_BASIS",
+    "HOLDING_UNREALISED_GAIN"
+   ]
+  },
+  {
+   "engine": "WHICH_VIEW",
+   "fn": "resolveLens",
+   "layer": 4,
+   "status": "PINNED",
+   "part": "Setup",
+   "screens": "NetWorth",
+   "answers": "Which version of the app should this person see?  Answers: the saver view \u00b7 the retiree view.",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/domain/profile/lens.ts:17",
+   "feeds_from": [
+    "RETIREMENT_INCOME_NOW"
+   ]
+  },
+  {
+   "engine": "EXPECTED_RETURN_BLENDED",
+   "fn": "blendedReturn",
+   "layer": 5,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "What return should I expect on everything I hold together?  Answer: one yearly rate.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:653",
+   "feeds_from": [
+    "EXPECTED_RETURN_BY_KIND",
+    "RETIREMENT_SHARE_AMOUNT",
+    "PRIMARY_CAR"
+   ]
+  },
+  {
+   "engine": "EXPECTED_SWING_BLENDED",
+   "fn": "blendedVolatility",
+   "layer": 5,
+   "status": "YOUR CALL",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "How much does a year's return typically swing around that average?  Answer: one yearly figure, e.g. 0.15 meani",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:612",
+   "feeds_from": [
+    "RETIREMENT_SHARE_AMOUNT",
+    "PRIMARY_CAR"
+   ]
+  },
+  {
+   "engine": "REPORTED_RETURN",
+   "fn": "portfolioActualReturn",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "What return did the person say they actually earned over the past year?  Answer: one rate, or NOTHING when nob",
+   "probe": "probes/assets-remaining.probe.test.ts",
+   "source": "src/domain/assets/index.ts:106",
+   "feeds_from": [
+    "RETIREMENT_SHARE_AMOUNT"
+   ]
+  },
+  {
+   "engine": "NEST_EGG",
+   "fn": "retirementEarmarkedValue",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Net worth",
+   "screens": "\u2014",
+   "answers": "What is my retirement pot worth?  Answer: one dollar figure.",
+   "probe": "probes/assets-classification.probe.test.ts",
+   "source": "src/domain/assets/index.ts:563",
+   "feeds_from": [
+    "RETIREMENT_SHARE_AMOUNT",
+    "PRIMARY_CAR"
+   ]
+  },
+  {
+   "engine": "DEBT_PAYMENTS_ACTUAL",
+   "fn": "actualDebtPayment",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "\u2014",
+   "answers": "What is actually going out on debt each month?  Answer: a dollar figure.",
+   "probe": "probes/debt-budget-txn.probe.test.ts",
+   "source": "src/domain/debt/index.ts:59",
+   "feeds_from": [
+    "DEBT_ACTUAL_TOTAL"
+   ]
+  },
+  {
+   "engine": "SPLIT_BY_HOW_IT_IS_TAXED",
+   "fn": "taxBucketSplit",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "\u2014",
+   "answers": "How is the retirement money split by the tax that will be owed on it?  Answer: three dollar figures \u2014 pre-tax,",
+   "probe": "probes/sync-and-networth.probe.test.ts",
+   "source": "src/domain/decumulation/index.ts:10",
+   "feeds_from": [
+    "RETIREMENT_SHARE_AMOUNT"
+   ]
+  },
+  {
+   "engine": "MONTHS_WORKED",
+   "fn": "salaryActiveMonths",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "How many months of the year is there actually pay?  Answer: a count from 0 to 12.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:306",
+   "feeds_from": [
+    "SALARY_BY_MONTH"
+   ]
+  },
+  {
+   "engine": "SALARY_A_YEAR",
+   "fn": "salaryAnnual",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What is the salary for the year?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:310",
+   "feeds_from": [
+    "SALARY_BY_MONTH"
+   ]
+  },
+  {
+   "engine": "PERFORMANCE_TABLE",
+   "fn": "buildPerformance",
+   "layer": 5,
+   "status": "PINNED",
+   "part": "Performance",
+   "screens": "HoldingDetail, Performance",
+   "answers": "What is the full picture for every holding?  Answers: one row each \u2014 price, value, cost, gain, return since pu",
+   "probe": "probes/performance-lot-math.probe.test.ts",
+   "source": "src/domain/performance/index.ts:176",
+   "feeds_from": [
+    "BENCHMARK_FOR_KIND",
+    "HOLDING_COST_BASIS",
+    "HOLDING_FIRST_BOUGHT",
+    "PRICE_LATEST",
+    "HOLDING_MARKET_VALUE",
+    "PERIOD_RETURN",
+    "RETURN_SINCE_A_DATE",
+    "PERIOD_START_DATE",
+    "HOLDING_TOTAL_ROI",
+    "HOLDING_UNREALISED_GAIN"
+   ]
+  },
+  {
+   "engine": "DEBT_PICTURE",
+   "fn": "buildDebtState",
+   "layer": 6,
+   "status": "PINNED",
+   "part": "Debt",
+   "screens": "NetWorth",
+   "answers": "What is the whole debt picture?  Answer: everything owed, what must be paid monthly, what is actually being pa",
+   "probe": "probes/feeds-and-seeds.probe.test.ts",
+   "source": "src/domain/debt/index.ts:214",
+   "feeds_from": [
+    "DEBT_PAYMENTS_ACTUAL",
+    "DEBT_MINIMUM_TOTAL"
+   ]
+  },
+  {
+   "engine": "TIPS_A_YEAR",
+   "fn": "tipsAnnual",
+   "layer": 6,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What do tips come to over the year?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:204",
+   "feeds_from": [
+    "MONTHS_WORKED",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "WHAT_THE_PLAN_STILL_NEEDS",
+   "fn": "planDoor",
+   "layer": 6,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "Is there enough to show this person their own odds?  Answer: the list of what is still missing \u2014 empty when th",
+   "probe": "probes/planning-words.probe.test.ts",
+   "source": "src/domain/planning/hub.ts:44",
+   "feeds_from": [
+    "NEST_EGG"
+   ]
+  },
+  {
+   "engine": "TOTAL_INCOME",
+   "fn": "totalGrossAnnual",
+   "layer": 7,
+   "status": "PINNED",
+   "part": "Cash flow",
+   "screens": "\u2014",
+   "answers": "What is the whole household income for the year, before tax?  Answer: a dollar figure.",
+   "probe": "probes/income-tax.probe.test.ts",
+   "source": "src/domain/income/onboarding.ts:316",
+   "feeds_from": [
+    "RETIREMENT_INCOME_NOW",
+    "OTHER_INCOME",
+    "RENTAL_INCOME_A_YEAR",
+    "EQUITY_THIS_YEAR",
+    "SALARY_A_YEAR",
+    "TIPS_A_YEAR",
+    "READ_A_NUMBER"
+   ]
+  },
+  {
+   "engine": "WILL_IT_LAST_INPUTS",
+   "fn": "willItLastInputs",
+   "layer": 8,
+   "status": "DEFECT",
+   "part": "Plan & retirement",
+   "screens": "NetWorth, WhatIf",
+   "answers": "What goes into working out the odds?  Answer: one complete set of inputs \u2014 ages, the pot, what goes in, the re",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/retirement/willItLast.ts:47",
+   "feeds_from": [
+    "EXPECTED_RETURN_BLENDED",
+    "EXPECTED_SWING_BLENDED",
+    "EFFECTIVE_TAX_RATE",
+    "FILING_STATUS",
+    "MONTHLY_SAVING",
+    "REPORTED_RETURN",
+    "NEST_EGG",
+    "RETIREMENT_INCOME",
+    "RETIREMENT_SPENDING",
+    "SS_BENEFIT_AT_AGE",
+    "STATE_TAX_RATE",
+    "SPLIT_BY_HOW_IT_IS_TAXED",
+    "TOTAL_INCOME",
+    "SWING_FROM_RETURN"
+   ]
+  },
+  {
+   "engine": "WILL_IT_LAST_RESULT",
+   "fn": "selectWillItLast",
+   "layer": 9,
+   "status": "PINNED",
+   "part": "Plan & retirement",
+   "screens": "NetWorth",
+   "answers": "What are the odds, and can we honestly show them?  Answer: the chance, a best-to-worst range, and whether ther",
+   "probe": "probes/willitlast-assembly.probe.test.ts",
+   "source": "src/domain/retirement/willItLast.ts:121",
+   "feeds_from": [
+    "NEST_EGG",
+    "RETIREMENT_SPENDING",
+    "WILL_IT_LAST",
+    "WILL_IT_LAST_INPUTS"
+   ]
+  }
+ ]
+}

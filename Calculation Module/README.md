@@ -11,6 +11,19 @@
 | **4 · Architecture** | The whole app as modules and layers, plus the folder-move plan and its guards |
 | 5–11 | The research it rests on: transaction taxonomy, field crosswalk, asset classes, cost basis, the snapshot store, gaps, SnapTrade |
 
+## The engine architecture
+
+**[calc-module-architecture-v1-2026-08-18.html](calc-module-architecture-v1-2026-08-18.html)** — all
+158 engines stacked by build order: layer 1 touches raw data and nothing else, each layer above is
+built only from the ones beneath, and the retirement odds sit alone at the top. Each box shows what
+feeds it, its family, and how much we know — pinned, needs a fix, your call, or checked against real
+data. Click a family to follow it through the layers.
+
+Live version: https://claude.ai/code/artifact/aa27abb3-7466-47d2-811b-68460c33a64b
+
+Generated from the inventory — rebuild with `calc-architecture.py` then `render-calc-architecture.py`.
+(The app-level module map lives on tab 4 of the master file; this page is the detailed one.)
+
 ## Rebuilding it
 
     bash "Calculation Module code/scripts/rebuild-master.sh"
