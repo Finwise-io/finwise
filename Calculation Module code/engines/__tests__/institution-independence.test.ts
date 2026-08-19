@@ -120,3 +120,46 @@ describe('NO RULE KEYS ON AN INSTITUTION', () => {
     expect(classifyEvent.length).toBe(1);
   });
 });
+
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// WHEN MORE THAN ONE RULE MATCHES — founder question, 2026-08-18
+// ════════════════════════════════════════════════════════════════════════════════════════════════
+// "Should it not be that ONE should match, not all?" Two different questions live in that, and both
+// deserve an answer.
+//
+// THE FIRST: why require every wording above to agree? Because we cannot predict WHICH one arrives.
+// Any single transaction carries one wording; across institutions, and across the same institution
+// over time, any of them might turn up. Each must independently produce the right answer, and "all
+// agree" is simply the property that they do.
+//
+// THE SECOND is sharper, and it found a real fragility. Some words satisfy MORE THAN ONE rule, and
+// which one wins is decided purely by their order in the list. Reorder them and the answer silently
+// changes — no error, no failing type, just a different number on the screen. Three cases exist
+// today, and each would flip into a bug that has already cost us once. They are pinned here BY NAME
+// so the ordering can never be "tidied" without this failing.
+describe('WHERE TWO RULES BOTH MATCH, THE SPECIFIC ONE MUST WIN', () => {
+  test('"Dividend Reinvestment" is a PURCHASE, not a dividend', () => {
+    // both /reinvest/ and /dividend/ match. If the general one won, the income would be counted
+    // twice — which is exactly the founder's $2,387 against $1,193 actually received.
+    expect(ev('Dividend Reinvestment')).toBe('REINVEST_PURCHASE');
+    expect(touches('REINVEST_PURCHASE', 'income')).toBe(false);
+  });
+
+  test('"Capital Gain Reinvestment" is a PURCHASE, not a distribution', () => {
+    expect(ev('Capital Gain Reinvestment')).toBe('REINVEST_PURCHASE');
+  });
+
+  test('"Margin Interest" is a COST, not income', () => {
+    // both /margin interest/ and /interest/ match. If the general one won, money the person PAID
+    // would be added to what they earned.
+    expect(ev('MARGIN INTEREST')).toBe('MARGIN_INTEREST');
+    expect(touches('MARGIN_INTEREST', 'costs')).toBe(true);
+    expect(touches('MARGIN_INTEREST', 'income')).toBe(false);
+  });
+
+  test('the general rules still work on their own', () => {
+    expect(ev('Dividend')).toBe('DIVIDEND');
+    expect(ev('Interest Received')).toBe('INTEREST');
+    expect(ev('Capital Gain Distribution')).toBe('CAPITAL_GAIN_DISTRIBUTION');
+  });
+});
