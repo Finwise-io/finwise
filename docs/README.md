@@ -81,3 +81,7 @@ userlens-qa-2026-06-12.md, asset-taxonomy-analysis.md.
 ## Security
 
 - [`Security/`](../Security/README.md) — credential and token protection, verified against the shipping code. Read §6 of the posture document before adding any data provider.
+
+## Architecture
+
+- [`docs/architecture/`](architecture/README.md) — the app as eleven modules in four layers, the folder move and its guards. Generated from the code by `module-map.mjs`.
