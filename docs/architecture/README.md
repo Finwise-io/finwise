@@ -8,7 +8,13 @@
 
 ## The map is generated, never hand-edited
 
-    node "Calculation Module code/scripts/module-map.mjs"
+    node "Calculation Module code/scripts/architecture-map.mjs"
+
+It reads every file off disk AND the master calculation file, so the page can answer three things a
+hand-drawn diagram cannot keep answering: what exists, what is proved, and what is still wrong. The
+numbers in the document came from that command; regenerate rather than typing a correction.
+
+The earlier `module-map.mjs` is superseded by it and kept only for the plain file-count view.
 
 It reads every file off disk and reports the modules, their file counts and their dependency edges.
 The numbers in the document came from that command, so a hand-edit would be a number nobody can

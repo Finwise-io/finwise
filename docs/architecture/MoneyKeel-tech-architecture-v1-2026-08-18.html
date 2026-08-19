@@ -131,15 +131,15 @@
 
 <div class="wrap">
   <header class="mast">
-    <div class="eyebrow"><span>MoneyKeel</span><span>Technical architecture</span><span>v1</span></div>
+    <div class="eyebrow"><span>MoneyKeel</span><span>Technical architecture</span><span>v2 · generated</span></div>
     <h1>The app, arranged by what it does</h1>
     <p class="standfirst">
       Eleven modules, four layers, and one rule underneath: a module owns its own answers. Read from
       the bottom and nothing arrives before the thing it is built from.
     </p>
     <div class="stamp">
-      <span>18 August 2026</span><span>·</span><span>368 files read off disk</span><span>·</span>
-      <span>2,205 tests green</span>
+      <span>18 August 2026</span><span>·</span><span>406 files read off disk</span><span>·</span>
+      <span>2,258 tests green</span>
     </div>
   </header>
 
@@ -161,8 +161,16 @@
       <div class="layer-h"><b>3 · Features</b><span>what the app does</span>
         <em>Each owns its own maths, and may use the foundation.</em></div>
       <div class="mods">
-        <div class="mod"><span class="name">net-worth</span><span class="cnt">7 source · 9 tests</span>
-          <div class="does">What you own and owe, how it is classified, and the record of what it was worth.</div></div>
+        <div class="mod"><span class="name">net-worth</span><span class="cnt">8 source · 8 tests · 41 engines documented</span><div class="does">What you own and owe, how it is classified, and the record of what it was worth.</div><div class="does" style="color:var(--red);margin-top:6px">5 needing a fix or a decision</div></div>
+        <div class="mod"><span class="name">performance</span><span class="cnt">9 source · 8 tests · 35 engines documented</span><div class="does">Returns, gains, bonds and yields, the look-back.</div><div class="does" style="color:var(--red);margin-top:6px">6 needing a fix or a decision</div></div>
+        <div class="mod"><span class="name">plan</span><span class="cnt">21 source · 15 tests · 16 engines documented</span><div class="does">The retirement simulation, Social Security timing, the odds and the sentences about them.</div><div class="does" style="color:var(--red);margin-top:6px">1 needing a fix or a decision</div></div>
+        <div class="mod"><span class="name">cash-flow</span><span class="cnt">11 source · 8 tests · 27 engines documented</span><div class="does">Income, tax, spending, the ledger.</div><div class="does" style="color:var(--red);margin-top:6px">1 needing a fix or a decision</div></div>
+        <div class="mod"><span class="name">accounts</span><span class="cnt">10 source · 6 tests · 16 engines documented</span><div class="does">Connecting a broker, importing a file, and one account’s own page.</div><div class="does" style="color:var(--red);margin-top:6px">6 needing a fix or a decision</div></div>
+        <div class="mod"><span class="name">debt</span><span class="cnt">4 source · 4 tests · 10 engines documented</span><div class="does">What is owed, what it costs, and how long until it clears.</div></div>
+        <div class="mod"><span class="name">goals</span><span class="cnt">2 source · 2 tests</span><div class="does">What someone is saving toward, and whether they are on track.</div></div>
+        <div class="mod"><span class="name">insights</span><span class="cnt">4 source · 3 tests · 1 engines documented</span><div class="does">What is worth telling someone, and what is missing from their picture.</div></div>
+        <div class="mod"><span class="name">setup</span><span class="cnt">10 source · 8 tests · 1 engines documented</span><div class="does">The questions asked at the start, and which ones each person needs.</div></div>
+      </div></div>
         <div class="mod"><span class="name">performance</span><span class="cnt">9 source · 8 tests</span>
           <div class="does">Returns, gains, bonds and yields, the look-back.</div></div>
         <div class="mod"><span class="name">plan</span><span class="cnt">21 source · 16 tests</span>
@@ -186,8 +194,7 @@
       <div class="layer-h"><b>2 · Calculation Module</b><span>the engines</span>
         <em>Pure. No screens, no store. Runs outside the app.</em></div>
       <div class="mods">
-        <div class="mod"><span class="name">engines/</span><span class="cnt">6 built · 105 formulas documented</span>
-          <div class="does">money · events · ledger · classify · snapshots · coverage. Each is the single answer to one question, and the app must reach them rather than its own old copies.</div></div>
+        <div class="mod"><span class="name">engines/</span><span class="cnt">6 built · 158 formulas documented</span><div class="does">classify · coverage · events · ledger · money · snapshots. Each is the single answer to one question. It depends on NOTHING — generated from the code, and the reason the module runs outside the app.</div></div>
         <div class="mod"><span class="name">probes/</span><span class="cnt">20 files</span>
           <div class="does">Every documented formula proved by running the real code, several against real institution files.</div></div>
       </div>

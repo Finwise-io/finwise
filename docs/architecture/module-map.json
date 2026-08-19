@@ -1,0 +1,183 @@
+{
+  "generated": "2026-08-19",
+  "modules": [
+    {
+      "module": "shared-ui",
+      "source": 86,
+      "tests": 143,
+      "engines": [],
+      "dependsOn": [
+        "foundation(246)",
+        "plan(88)",
+        "net-worth(69)",
+        "cash-flow(67)"
+      ],
+      "documented": 0,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "plan",
+      "source": 21,
+      "tests": 15,
+      "engines": [],
+      "dependsOn": [
+        "foundation(27)",
+        "shared-ui(27)",
+        "net-worth(11)",
+        "cash-flow(9)"
+      ],
+      "documented": 16,
+      "needsFix": 1,
+      "yourCall": 2
+    },
+    {
+      "module": "foundation",
+      "source": 14,
+      "tests": 7,
+      "engines": [],
+      "dependsOn": [
+        "net-worth(3)",
+        "performance(2)",
+        "cash-flow(2)",
+        "shared-ui(1)"
+      ],
+      "documented": 5,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "cash-flow",
+      "source": 11,
+      "tests": 8,
+      "engines": [],
+      "dependsOn": [
+        "foundation(16)",
+        "setup(7)",
+        "shared-ui(4)",
+        "net-worth(3)"
+      ],
+      "documented": 27,
+      "needsFix": 1,
+      "yourCall": 1
+    },
+    {
+      "module": "setup",
+      "source": 10,
+      "tests": 8,
+      "engines": [],
+      "dependsOn": [
+        "foundation(12)",
+        "cash-flow(5)",
+        "shared-ui(3)",
+        "plan(2)"
+      ],
+      "documented": 1,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "performance",
+      "source": 9,
+      "tests": 8,
+      "engines": [],
+      "dependsOn": [
+        "foundation(17)",
+        "shared-ui(16)",
+        "net-worth(13)",
+        "cash-flow(6)"
+      ],
+      "documented": 35,
+      "needsFix": 6,
+      "yourCall": 4
+    },
+    {
+      "module": "net-worth",
+      "source": 8,
+      "tests": 8,
+      "engines": [],
+      "dependsOn": [
+        "foundation(20)",
+        "shared-ui(14)",
+        "plan(6)",
+        "debt(4)"
+      ],
+      "documented": 41,
+      "needsFix": 5,
+      "yourCall": 10
+    },
+    {
+      "module": "accounts",
+      "source": 10,
+      "tests": 6,
+      "engines": [],
+      "dependsOn": [
+        "foundation(15)",
+        "shared-ui(11)",
+        "net-worth(7)",
+        "cash-flow(3)"
+      ],
+      "documented": 16,
+      "needsFix": 6,
+      "yourCall": 1
+    },
+    {
+      "module": "calculation-module",
+      "source": 6,
+      "tests": 9,
+      "engines": [
+        "classify",
+        "coverage",
+        "events",
+        "ledger",
+        "money",
+        "snapshots"
+      ],
+      "dependsOn": [],
+      "documented": 0,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "debt",
+      "source": 4,
+      "tests": 4,
+      "engines": [],
+      "dependsOn": [
+        "foundation(8)",
+        "shared-ui(2)",
+        "plan(2)"
+      ],
+      "documented": 10,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "insights",
+      "source": 4,
+      "tests": 3,
+      "engines": [],
+      "dependsOn": [
+        "net-worth(3)"
+      ],
+      "documented": 1,
+      "needsFix": 0,
+      "yourCall": 0
+    },
+    {
+      "module": "goals",
+      "source": 2,
+      "tests": 2,
+      "engines": [],
+      "dependsOn": [
+        "foundation(6)",
+        "shared-ui(4)",
+        "plan(3)",
+        "net-worth(1)"
+      ],
+      "documented": 0,
+      "needsFix": 0,
+      "yourCall": 0
+    }
+  ]
+}
