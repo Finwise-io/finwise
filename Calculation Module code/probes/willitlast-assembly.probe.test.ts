@@ -28,27 +28,28 @@ describe('WILL_IT_LAST_INPUTS — where the whole workbook meets', () => {
     expect(willItLastInputs(args({ op: { monthlySpending: 6_000 } }))).toBeNull();
   });
 
-  test('DEFECT: a legacy target is IGNORED for anyone still working', () => {
-    // I wrote this test expecting the money promised to someone else to come off the pot. It does —
-    // but ONLY once a person is retired. For someone still working it never reaches the odds at all.
-    const plain = willItLastInputs(args())!;
-    const withLegacy = willItLastInputs(args({ op: { birthYear: 1962, monthlySpending: 6_000, legacyTarget: 200_000 } }))!;
-    expect(withLegacy.start_balance).toBe(plain.start_balance);        // ← unchanged, not reduced
-
-    // and it makes no difference to the answer a person is shown
-    const a = selectWillItLast(args());
-    const b = selectWillItLast(args({ op: { birthYear: 1962, monthlySpending: 6_000, targetRetirementAge: 65, horizonAge: 92, legacyTarget: 200_000 } }));
-    expect(b.chance).toBe(a.chance);
+  // FIXED 2026-08-18. These pin the fix so the old behaviour cannot return.
+  test('money promised to someone else comes off the pot — WHETHER OR NOT they have retired', () => {
+    const withLegacy = (o: any) => willItLastInputs(args({ op: {
+      birthYear: 1962, monthlySpending: 6_000, targetRetirementAge: 65, horizonAge: 92, legacyTarget: 200_000 }, ...o }))!;
+    expect(withLegacy({}).start_balance).toBe(willItLastInputs(args())!.start_balance - 200_000);
+    expect(withLegacy({ employmentStatus: 'retired' }).start_balance)
+      .toBe(willItLastInputs(args({ employmentStatus: 'retired' }))!.start_balance - 200_000);
   });
 
-  test('…while the SAME person, once retired, sees it applied in full', () => {
-    const a = selectWillItLast(args({ employmentStatus: 'retired' }));
-    const b = selectWillItLast(args({ employmentStatus: 'retired',
-      op: { birthYear: 1962, monthlySpending: 6_000, targetRetirementAge: 65, horizonAge: 92, legacyTarget: 200_000 } }));
-    expect(b.chance!).toBeLessThan(a.chance!);   // a real, large drop — 26% to 8% on this plan
-    // So the odds fall sharply on the day someone retires, purely because a promise they made years
-    // earlier finally started counting. For a 55-to-70 audience, where leaving something behind is a
-    // common goal, that is the wrong way round: the plan should reflect the promise from the start.
+  test('so the odds no longer LURCH on the day a person retires', () => {
+    // before the fix: 38% while working with or without a legacy, then 26% → 8% on retiring. The
+    // years when the plan could still be changed were exactly the years it said nothing.
+    const working = selectWillItLast(args({ op: {
+      birthYear: 1962, monthlySpending: 6_000, targetRetirementAge: 65, horizonAge: 92, legacyTarget: 200_000 } }));
+    const noLegacy = selectWillItLast(args());
+    expect(working.chance!).toBeLessThan(noLegacy.chance!);   // it counts NOW, while it can be acted on
+  });
+
+  test('a legacy larger than the pot cannot make the spendable money negative', () => {
+    const i = willItLastInputs(args({ op: {
+      birthYear: 1962, monthlySpending: 6_000, targetRetirementAge: 65, horizonAge: 92, legacyTarget: 5_000_000 } }))!;
+    expect(i.start_balance).toBe(0);
   });
 
   test('the person\'s own choices override every default', () => {

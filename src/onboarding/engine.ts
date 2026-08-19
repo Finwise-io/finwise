@@ -63,7 +63,12 @@ const GOAL_DEF: Record<Track, GoalOption> = {
 const STAGE_ONLY: Partial<Record<Track, Status[]>> = {
   retire_acc: ['employed', 'partial', 'student'],
   retire_dec: ['retired', 'partial'],
-  legacy: ['retired'],
+  // FOUNDER FIX 2026-08-18: leaving something behind was offered ONLY to someone who picked
+  // "Retired". Anyone still working had no way to state a legacy target anywhere in the app — not
+  // in setup, not on Plan, not under Estate. For a 55-to-70 audience, where many are working,
+  // retiring soon and thinking hard about what they pass on, that excluded exactly the people who
+  // could still act on the answer. A student is left out because the question is not theirs yet.
+  legacy: ['retired', 'employed', 'partial'],
 };
 function validFor(track: Track, status: Status | null): boolean {
   const only = STAGE_ONLY[track];
@@ -138,6 +143,10 @@ export const OPTIONAL_STEPS = new Set<StepId>([
   'flexBuckets', 'savingsRateTarget',
   'retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater',
   'invitePartner', 'networthIntro',   // verifyEmail removed as a step (now a post-signup popup + Settings nudge)
+  // 2026-08-18: leaving something behind is now offered to working people too, and the amount is
+  // genuinely optional — someone can want to leave something without yet knowing the figure. The
+  // setup screen's own promise is that "nothing is required, and you can add it anytime".
+  'legacyTarget',
 ]);
 
 // Income captured as a focused, one-type-per-screen sub-flow, ending in a recap.
@@ -226,7 +235,12 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
     case 'debt':
       return { must: hasSpend ? ['debts'] : ['debts', 'monthlySavingsCapacity'], optional: [] };
     case 'legacy':
-      return { must: ['legacyTarget'], optional: [] };
+      // OPTIONAL, not required (2026-08-18). The question still appears — optional steps are shown
+      // — but it does not count against the required-question budget, which opening this option to
+      // working people would otherwise push over. It is also the honest classification: someone can
+      // want to leave something behind without yet knowing the number, and the setup screen's own
+      // promise is that "nothing is required, and you can add it anytime".
+      return { must: [], optional: ['legacyTarget'] };
     case 'networth':
       return { must: ['networthIntro'], optional: [] };   // hand-off — net worth is built in-app from accounts + debts
     case 'property':

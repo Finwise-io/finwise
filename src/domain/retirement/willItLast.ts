@@ -82,11 +82,17 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
     current_age: age,
     retire_age: isRetired ? age : Math.max(age + 1, planRetireAge),
     horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
-    start_balance: isRetired ? spendableEgg : nestEgg,
+    // FOUNDER FIX 2026-08-18: money someone means to leave behind comes off the spendable pot
+    // ALWAYS, not only once they have retired. It used to be `isRetired ? spendableEgg : nestEgg`,
+    // so a person still working saw identical odds with and without a legacy target — 38% either
+    // way on a test plan — and then watched the number fall the day they retired, because a promise
+    // made years earlier finally started counting. The years when the plan can still be CHANGED
+    // were exactly the years it said nothing.
+    start_balance: spendableEgg,
     // PRD F9#12: the odds are RMD-tax-aware — the pre-tax slice + the user's own effective rate
     pre_tax_share: (() => {
       const sp = taxBucketSplit(a.accounts ?? []);
-      const eggForShare = isRetired ? spendableEgg : nestEgg;
+      const eggForShare = spendableEgg;   // the same pot the odds run on — see start_balance above
       return eggForShare > 0 ? Math.min(1, sp.preTax / eggForShare) : 0;
     })(),
     rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(op)), filingStatusOf(op), stateRateOf(op)))),
