@@ -389,10 +389,17 @@ for _r in range(3, _ws.max_row + 1):
             _why.append(f"column '{_ws.cell(2, _col).value}' just repeats a generated column")
             break
 
-    # and no internal jargon in anything WE wrote
+    # and no internal jargon in anything WE wrote.
+    # ONE EXEMPTION, and it is principled: the "raw → ours" column exists to name the actual code
+    # identifier on its right-hand side. `payloads` there is not jargon leaking into prose — it is
+    # the parameter's real name, which is the whole point of that half of the column. Only the LEFT
+    # side, the plain-English half, is checked. Same reasoning as exempting the generated columns.
     for _col in range(1, 15):
         if _ws.cell(2, _col).value in _GENCOLS: continue
-        _v = str(_ws.cell(_r, _col).value or "").lower()
+        _raw = str(_ws.cell(_r, _col).value or "")
+        if "raw → ours" in str(_ws.cell(2, _col).value or ""):
+            _raw = "\n".join(line.split("→")[0] for line in _raw.split("\n"))
+        _v = _raw.lower()
         _hit = next((_j for _j in _JARGON if _j in _v), None)
         if _hit:
             _why.append(f"internal jargon: '{_hit}'")
