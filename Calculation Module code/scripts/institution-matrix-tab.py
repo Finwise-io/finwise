@@ -294,9 +294,11 @@ ws = wb.create_sheet("Institution matrix", 3)
 ws.sheet_properties.tabColor = "6B2D8F"
 ws.merge_cells("A1:J1")
 ws.cell(1, 1, "INSTITUTION MATRIX — every raw input we need, against what each institution actually calls it. "
-              "EVERY CELL SAYS HOW WE KNOW: ✓ seen on this machine (your file / a live connection) · "
-              "○ their published documentation · — documented as absent · ? NEVER SEEN — a red cell is a file "
-              "worth downloading, never a thing to guess. The red cells ARE the download shopping list.").font = Font(bold=True, size=11, color="6B2D8F")
+              "EVERY CELL SAYS HOW WE KNOW: ✓ seen on this machine · ○ their published documentation · "
+              "— documented as absent · ? NEVER SEEN, and a red cell is a file worth getting rather than a "
+              "thing to guess.  ⚠ A FILE AND A CONNECTION ARE DIFFERENT ROADS. The sample files show how an "
+              "institution WORDS things; they are NOT what its API returns, and a ✓ in a file column says "
+              "nothing about the connection column beside it. Read each column on its own.").font = Font(bold=True, size=11, color="6B2D8F")
 ws.cell(1, 1).alignment = WRAP; ws.row_dimensions[1].height = 58
 for i, (t, w) in enumerate(COLS, start=1):
     ws.column_dimensions[openpyxl.utils.get_column_letter(i)].width = w

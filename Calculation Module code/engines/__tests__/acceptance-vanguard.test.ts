@@ -1,4 +1,14 @@
-// THE ACCEPTANCE TEST — the founder's real Vanguard file, through the NEW engines.
+// THE ACCEPTANCE TEST — a real Vanguard activity FILE, through the NEW engines.
+//
+// WHAT THIS PROVES, AND WHAT IT DOES NOT. Founder correction 2026-08-18: the sample files show how
+// an institution WORDS things; they are not what its API returns. So this test proves the engines
+// handle Vanguard's VOCABULARY correctly — 'Sweep out', 'Corp Action (Redemption)', 'Reinvestment'
+// — and that the totals come out right when they do.
+//
+// It does NOT prove what the SnapTrade connection sends for the same account. If the connection uses
+// different words, they would fall through to UNKNOWN — which is the safe failure, counted in no
+// total, and visible on screen. That is the whole point of the unknown rule: being wrong about the
+// vocabulary costs a visible gap, never an invented number.
 //
 // The old code produced $1,064,493 of contributions and $424,818 of withdrawals on an account where
 // nothing came in or out, and reported the leftover as a $661,063 "change in investment value".

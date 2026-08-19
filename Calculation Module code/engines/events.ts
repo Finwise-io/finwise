@@ -1,7 +1,7 @@
 // ENGINE — what kind of event is this broker line?
 //
 // THE DEFECT THIS REPLACES. When the app met a word it did not recognise, it guessed from the sign
-// of the amount: money in must be a deposit. On the founder's real Vanguard file that produced
+// of the amount: money in must be a deposit. On a real Vanguard activity FILE that produced
 // $1,064,493 of contributions and $424,818 of withdrawals on an account where nothing came in or
 // went out — the same ~$220k of Treasury bills, rolled three times, counted as new money on every
 // roll, because 'Sweep out', 'Sweep in' and 'Corp Action (Redemption)' were not in the table.
@@ -12,8 +12,20 @@
 //
 // The vocabulary is FDX's, because that is the standard US institutions are converging on under the
 // CFPB's open-banking rule — DIVIDEND_REINVESTED, RETURN_OF_CAPITAL and the journal events all exist
-// there as first-class values. Every mapping below is either a word we have SEEN in a real file or
-// one taken from a published spec; nothing is imagined.
+// there as first-class values. Every mapping below is either a word we have SEEN or one taken from a
+// published spec; nothing is imagined.
+//
+// WHERE EACH WORD WAS SEEN MATTERS, and the founder was right to draw the line (2026-08-18): a
+// DOWNLOADED FILE and a CONNECTION are different roads with different vocabularies. The sample files
+// show how an institution WORDS things; they are not what its API returns. So each mapping records
+// its source, and the two are never treated as interchangeable:
+//   · "Vanguard file"  — seen in a downloaded export. Proves the FILE road only.
+//   · "E*TRADE live"   — observed on a real connection. Proves the CONNECTION road.
+//   · "FDX" / "spec"   — published documentation. Proves neither until observed.
+//
+// A rule matching on words is deliberately robust to this: it catches "Sweep out" whether that
+// phrasing arrives from a file or a feed, and an unrecognised word is UNKNOWN either way. But no
+// claim about what a connection sends may rest on a file alone.
 import type { Money } from './money';
 
 /** Whether money crossed the boundary of the person's own accounts. This is the axis that decides

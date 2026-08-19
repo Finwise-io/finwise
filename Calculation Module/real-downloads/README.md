@@ -1,5 +1,11 @@
 # Institution files — drop them here
 
+> **These files show how an institution WORDS things. They are not what its API returns.**
+> Founder, 2026-08-18. A downloaded export and a live connection are different roads with different
+> fields and often different vocabularies — Vanguard's export carries no cost column at all, while
+> its connection sends an average purchase price. So a finding from a file proves something about
+> the FILE road only. Anything claimed about a connection has to be observed on a connection.
+
 Files here are **gitignored by default** (real statements must never be committed). But if a file
 carries no real balances — sample exports, format documentation, or numbers you typed in yourself —
 say so and it gets moved to `fixtures/` and **committed**, where it becomes a permanent test.
