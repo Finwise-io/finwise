@@ -649,8 +649,12 @@ export const useStore = create<AppState>()(
         return { assetAccounts: recomputeBalances(accounts, s.priceCache), transactions: [...txns, ...s.transactions] };
       }),
       updatePosition: (accountId, positionId, patch) => set((s) => {
+        // B7: a class the person sets themselves outranks every automatic rule and survives every
+        // sync — stamp it, and clear any pending class-change flag (their answer resolves it).
+        const stamped = patch.asset_class != null
+          ? { ...patch, class_source: 'user' as const, class_flag: undefined } : patch;
         const accounts = s.assetAccounts.map((a) => a.asset_id === accountId
-          ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...patch } : p) } : a);
+          ? { ...a, positions: (a.positions ?? []).map((p) => p.position_id === positionId ? { ...p, ...stamped } : p) } : a);
         return { assetAccounts: recomputeBalances(accounts, s.priceCache) };
       }),
       deletePosition: (accountId, positionId) => set((s) => {

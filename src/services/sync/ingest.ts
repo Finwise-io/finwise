@@ -13,6 +13,7 @@ import { newEntityId } from '../../domain/_shared/ids';
 // "Calculation Module code/engines/__tests__/no-stale-code.test.ts" fails the build if this file
 // ever goes back to the old paths.
 import { toLedgerRow } from '../../../Calculation Module code/engines/ledger';
+import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
 import {
   mapAccountType, mapPosition, mapOptionHolding, activityKey, netCashSleeve,
   type StAccount, type StPosition, type StOptionHolding, type StActivity, mergeHistoryFrom } from './snaptrade';
@@ -70,20 +71,39 @@ export function ingestSync(
     const optionRows = (p.optionPositions ?? []).map((o) => mapOptionHolding(o)).filter((m): m is NonNullable<typeof m> => !!m);
     const positions = mapped
       .filter((m) => !m.cashEquivalent)                          // money-market lives in the sleeve
-      .map((m, i) => ({
-        position_id: prior?.positions?.find((x: any) => x.ticker === m.ticker)?.position_id ?? newEntityId('pos'),
-        ticker: m.ticker,
-        name: m.name,                                            // readable security name (CUSIPs aren't)
-        kind: m.assetClass === 'bonds' ? 'fixed_income' : m.assetClass === 'alternatives' ? 'crypto' : m.assetClass === 'cash' ? 'money_market' : 'stocks_etf',
-        asset_class: m.assetClass === 'bonds' ? 'bond' as const : m.assetClass === 'alternatives' ? 'other' as const : m.assetClass === 'cash' ? 'cash' as const : 'stock_etf' as const,
-        lots: m.lots.map((l) => ({
-          lot_id: newEntityId('lot'),
-          shares: l.shares,
-          cost_per_share: l.cost_per_share ?? 0,
-          purchase_date: l.purchase_date ?? '',
-        })),
-        last_price: m.price ?? undefined,                        // broker's daily mark (no live feed needed)
-      }));
+      .map((m, i) => {
+        const priorPos = prior?.positions?.find((x: any) => x.ticker === m.ticker);
+        const prevCls = priorPos?.asset_class == null ? null
+          : priorPos.asset_class === 'bond' ? 'bonds' as const
+          : priorPos.asset_class === 'other' ? 'alternatives' as const
+          : priorPos.asset_class === 'cash' ? 'cash' as const : 'stocks_etf' as const;
+        // B7: the ONE classifier, full evidence — the person's own answer outranks everything and
+        // survives this sync; otherwise a class change between syncs keeps the previous class and
+        // FLAGS it rather than moving the money quietly.
+        const verdict = classifyHoldingClass({
+          name: m.name, ticker: m.ticker, brokerTag: m.brokerTag,
+          cashEquivalent: m.cashEquivalent, hasSecurityIdentity: true,
+          userAnswer: priorPos?.class_source === 'user' ? prevCls : null,
+          previousClass: prevCls,
+        });
+        const cls = verdict.cls;
+        return {
+          position_id: priorPos?.position_id ?? newEntityId('pos'),
+          ticker: m.ticker,
+          name: m.name,                                          // readable security name (CUSIPs aren't)
+          kind: cls === 'bonds' ? 'fixed_income' : cls === 'alternatives' ? 'crypto' : cls === 'cash' ? 'money_market' : 'stocks_etf',
+          asset_class: cls === 'bonds' ? 'bond' as const : cls === 'alternatives' ? 'other' as const : cls === 'cash' ? 'cash' as const : 'stock_etf' as const,
+          class_source: priorPos?.class_source,                  // the person's answer survives
+          class_flag: verdict.flagged ?? priorPos?.class_flag,   // a kept flag stays until resolved
+          lots: m.lots.map((l) => ({
+            lot_id: newEntityId('lot'),
+            shares: l.shares,
+            cost_per_share: l.cost_per_share ?? 0,
+            purchase_date: l.purchase_date ?? '',
+          })),
+          last_price: m.price ?? undefined,                      // broker's daily mark (no live feed needed)
+        };
+      });
 
     const next: AssetAccount = {
       ...(prior ?? {}),

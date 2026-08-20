@@ -5,7 +5,8 @@
 // DR-5/DR-10: validates at the edge (ticker required, shares > 0, money parsed to Number USD).
 // DR-6: ids are assigned by the caller via newEntityId, never derived from the file.
 
-import { incomeBearingClassOf, type AssetClass } from '../assets';
+import { type AssetClass } from '../assets';
+import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
 
 export interface ImportedHolding {
   symbol: string;          // raw identifier from the file (may contain spaces, e.g. an option or CD)
@@ -130,42 +131,11 @@ function cleanTicker(v: string): string | null {
   return t;
 }
 
-// FOUNDER RULE 2026-08-04: money-market fund tickers → Stocks/ETFs (they pay dividends — measured);
-// T-bill ETFs → Bonds & CDs. Cash means cash only.
-const MMF_TICKERS = new Set(['VMFXX', 'VMRXX', 'SPAXX', 'SPRXX', 'SWVXX', 'SNVXX', 'FDRXX', 'FZFXX', 'TTTXX']);
-const TBILL_ETF_TICKERS = new Set(['SGOV', 'BIL']);
-// Crypto trusts/ETFs and spot-commodity funds → alternatives, not equities (PRD F1 #19).
-// COIN (Coinbase) is deliberately absent — that's a stock.
-const CRYPTO_TICKERS = new Set(['BTC', 'ETH', 'GBTC', 'ETHE', 'IBIT', 'FBTC', 'BITO', 'ARKB', 'HODL']);
-const COMMODITY_TICKERS = new Set(['GLD', 'SLV', 'IAU', 'SGOL', 'GLDM', 'PPLT', 'PALL', 'USO', 'UNG', 'DBC', 'PDBC']);
-// A commodity word inside a COMPANY name (Barrick Gold Corp, First Majestic Silver) is a mining stock,
-// not a commodity holding — company-shaped names stay equities.
-const COMPANY_WORDS = /\b(corp|corporation|inc|ltd|plc|mining|miners?|resources|company)\b/i;
-
-/** Classify a holding by asset class from its symbol + name (the importer sets asset_class explicitly,
- *  which overrides the kind/tax_bucket derivation). */
-// OCC-style option symbols — how brokerages export options: ROOT + YYMMDD + C/P + strike×1000,
-// e.g. 'AAPL250117C00220000' (spaces/padding vary), or date-style 'AAPL 01/17/2026 220 C'.
-// PRD Capability-map G2 (founder, 2026-06-30; closed 2026-07-18): option rows file under
-// ALTERNATIVES, never as stocks — same lesson crypto/currency/commodities learned in F1 #19.
-const OCC_OPTION = /^[A-Z.]{1,6}\d{6}[CP]\d{5,8}$/;
-const DATE_STYLE_OPTION = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\s+[\d.]+\s*[CP]\b/i;
-
+/** B7 (founder brief 2026-08-20): classification lives in the ONE engine — this road only adapts.
+ *  All the evidence this function used to hold (money-market tickers, OCC option symbols, crypto
+ *  and commodity lists, the company-word guard) moved into the engine verbatim, behavior kept. */
 export function classifyHolding(symbol: string, name = ''): AssetClass {
-  const s = `${symbol} ${name}`.trim();
-  const sym = symbol.trim().toUpperCase();
-  if (MMF_TICKERS.has(sym)) return 'stocks_etf';                        // money-market fund = a dividend-paying fund
-  if (TBILL_ETF_TICKERS.has(sym)) return 'bonds';
-  { const byLabel = incomeBearingClassOf(s); if (byLabel && byLabel !== 'cash') return byLabel; }  // CD/T-bill → bonds · MM → stocks
-  if (OCC_OPTION.test(sym.replace(/\s+/g, ''))) return 'alternatives'; // options (OCC symbol)
-  if (DATE_STYLE_OPTION.test(s)) return 'alternatives';                // options (date-style symbol)
-  if (/\b(put|call)s?\b/i.test(s)) return 'alternatives';              // options (named)
-  if (CRYPTO_TICKERS.has(sym) || /\b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b/i.test(s)) return 'alternatives';
-  if (COMMODITY_TICKERS.has(sym)) return 'alternatives';
-  if (/\b(gold|silver|platinum|palladium|commodit(y|ies))\b/i.test(s) && !COMPANY_WORDS.test(s)) return 'alternatives';
-  if (/\b(currency|currencies|forex)\b/i.test(s)) return 'alternatives';
-  if (/\b(bond|note|treasury|t-note|muni|debenture)\b/i.test(s)) return 'bonds';   // fixed income
-  return 'stocks_etf';                                                  // default: an equity ticker
+  return classifyHoldingClass({ ticker: symbol, name, hasSecurityIdentity: true }).cls;
 }
 
 /** Find the real positions header — the first row that has BOTH a symbol/ticker AND a quantity/shares

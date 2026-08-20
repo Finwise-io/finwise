@@ -1,6 +1,7 @@
 // Asset Ledger module (spec service 2). Owns `assets/{uid}`.
 // Tracks balances + tax bucket + target return; provides total value & allocation.
 import type { UserId, EntityId } from '../_shared/ids';
+import { nameEvidence } from '../../../Calculation Module code/engines/holding-class';
 import { newEntityId } from '../_shared/ids';
 import { toNum, round2 } from '../_shared/num';
 import { getUserDoc, setUserDoc } from '../_shared/firestore';
@@ -186,27 +187,10 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
 // CASH means cash only — a sweep/settlement balance. Instruments that pay dividends or interest
 // live in the MEASURED buckets, or the change/return math silently loses their income:
 // money-market funds → Stocks / Funds (funds paying dividends) · CDs / T-bills → Bonds & CDs.
-const SWEEP_RE = /\b(sweep|settlement)\b/i;
-const MONEY_MARKET_RE = /\b(money[\s-]?market|mmkt|mmf)\b/i;
-// The rule matched on the fund's NAME, so a broker that sends only a ticker (VMFXX, SPAXX…) put its
-// money-market fund straight back into Cash — the founder's own gap #2, surviving in the one place
-// the name never appears. These are the widely-held sweep/money-market funds at the big brokers;
-// the name rule above still catches everything else.
-const MONEY_MARKET_TICKERS = new Set([
-  'VMFXX', 'VMRXX', 'VUSXX', 'VMSXX',                    // Vanguard
-  'SPAXX', 'FDRXX', 'FZFXX', 'FZDXX', 'SPRXX',           // Fidelity
-  'SWVXX', 'SNVXX', 'SNSXX', 'SWGXX',                    // Schwab
-  'TTTXX', 'MVRXX', 'GOFXX', 'FGXXX',                    // Merrill / BlackRock / Goldman
-]);
-const CD_TBILL_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?)\b/i;
+// B7 (founder brief 2026-08-20): the words, the ticker lists and the ordering live in the ONE
+// engine now — this is the same name-first question, asked of account labels.
 export function incomeBearingClassOf(label?: string): AssetClass | null {
-  const t = (label ?? '').trim();
-  if (SWEEP_RE.test(t)) return 'cash';                 // uninvested brokerage cash IS cash
-  if (MONEY_MARKET_RE.test(t)) return 'stocks_etf';
-  // a bare ticker carries no words to match — check the known money-market symbols too
-  if (t.split(/[\s·—-]+/).some((w) => MONEY_MARKET_TICKERS.has(w.toUpperCase()))) return 'stocks_etf';
-  if (CD_TBILL_RE.test(t)) return 'bonds';
-  return null;
+  return nameEvidence(label);
 }
 
 /** FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY maturity-dated instrument

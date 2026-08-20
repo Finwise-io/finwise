@@ -21,6 +21,8 @@ export interface Position {
   label?: string;               // display name, e.g. 'Apple Inc.'
   kind?: string;                // ASSET_KINDS id, for benchmark mapping
   asset_class?: 'stock_etf' | 'bond' | 'other' | 'cash';   // explicit class (import/sync sets it; wins over kind); 'cash' = money-market funds a broker didn't flag (live-verified 2026-07-19)
+  class_source?: 'user';        // B7: the person set the class themselves — it survives every sync
+  class_flag?: { was: string; evidenceSays: string };   // B7: a sync wanted to move the class; kept + flagged instead
   last_price?: number;          // broker's daily mark (connected accounts — no live feed needed)
   lots: Lot[];
 }

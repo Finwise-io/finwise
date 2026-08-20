@@ -32,38 +32,32 @@ describe('THE SAME HOLDING, THREE DOORS', () => {
     }
   });
 
-  test('DEFECT — a COMMODITY fund: alternatives from a file, equities from the broker', () => {
+  // The three DEFECT pins below documented the doors DISAGREEING. B7 (founder brief 2026-08-20)
+  // built the ONE classifier both doors now call, so they pin AGREEMENT instead — same holdings,
+  // same answers, whichever way the data arrives.
+  test('FIXED BY B7 — a COMMODITY fund is alternatives through BOTH doors', () => {
     expect(classifyHolding('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
-    expect(st('GLD', 'SPDR GOLD SHARES')).toBe('stocks_etf');          // ← the same holding, a different answer
+    expect(st('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
     expect(classifyHolding('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
-    expect(st('SLV', 'ISHARES SILVER TRUST')).toBe('stocks_etf');
+    expect(st('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
   });
 
-  test('DEFECT — a CRYPTO fund: the broker path knows only its own type code', () => {
-    // IBIT is a spot-bitcoin ETF. The file path knows the ticker and the word; the broker path
-    // classifies on `type.code`, and a crypto ETF arrives with the ordinary equity code 'cs'.
+  test('FIXED BY B7 — a CRYPTO fund is alternatives even when the broker tags it an equity', () => {
+    // IBIT arrives with the ordinary equity code 'cs'; name evidence now outranks the tag.
     expect(classifyHolding('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
-    expect(st('IBIT', 'ISHARES BITCOIN TRUST')).toBe('stocks_etf');
-    expect(st('BTC', 'BITCOIN', 'crypto')).toBe('alternatives');       // only when the broker SAYS crypto
+    expect(st('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
+    expect(st('BTC', 'BITCOIN', 'crypto')).toBe('alternatives');
   });
 
-  test('DEFECT — an OPTION written into a positions row is read as a share', () => {
-    // Options normally arrive on their own endpoint and are mapped to alternatives there. A broker
-    // that puts one in the ordinary positions list has it classified as equities.
+  test('FIXED BY B7 — an OPTION in a positions row is alternatives through BOTH doors', () => {
     expect(classifyHolding('AAPL250117C00220000', '')).toBe('alternatives');
-    expect(st('AAPL250117C00220000', 'AAPL JAN 17 25 CALL 220')).toBe('stocks_etf');
+    expect(st('AAPL250117C00220000', 'AAPL JAN 17 25 CALL 220')).toBe('alternatives');
   });
 
-  // CORRECTED BY THE PROBE, and the correction is worse news than what I first wrote.
-  // I expected the file path to catch a currency fund. It does not, unless the word "currency"
-  // stands alone. Brokers shorten the name, and "CURRENCYSHARES" is one word — so the rule misses.
-  test('DEFECT — a CURRENCY fund is missed by BOTH paths when the broker shortens the name', () => {
-    expect(classifyHolding('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('stocks_etf');   // ← missed
-    expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('stocks_etf');                // ← missed
-    // only the full legal name, where "Currency" stands alone, matches:
-    expect(classifyHolding('FXE', 'Invesco CurrencyShares Euro Currency Trust')).toBe('alternatives');
-    // and there is no currency ticker list at all, unlike crypto and commodities:
-    expect(classifyHolding('FXY', 'INVESCO CURRENCYSHARES JAPANESE YEN')).toBe('stocks_etf');
+  test('FIXED BY B7 — the CURRENCYSHARES gap is closed (the shortened one-word name, and the seen tickers)', () => {
+    expect(classifyHolding('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
+    expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
+    expect(classifyHolding('FXY', 'INVESCO CURRENCYSHARES JAPANESE YEN')).toBe('alternatives');
   });
 
   test('the file path protects a MINING STOCK from the commodity rule; the point is it HAS the rule', () => {

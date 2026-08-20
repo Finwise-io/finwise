@@ -3,6 +3,7 @@
 // Every rule that guards money accuracy is pinned in snaptrade.test.ts.
 import type { TxnType } from '../../domain/transactions';
 import { importKey } from '../../../Calculation Module code/engines/ledger';
+import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
 
 // ── SnapTrade shapes (the subset we consume; field names per their API reference) ──────────────
 export interface StAccount {
@@ -105,33 +106,23 @@ export interface MappedPosition {
   price: number | null;
   costPerShare: number | null;
   assetClass: MappedAssetClass;
+  brokerTag: string;              // the broker's own type code, passed through for the continuity check
   cashEquivalent: boolean;
   lots: { purchase_date: string | null; shares: number; cost_per_share: number | null }[];
 }
-// FOUNDER RULE 2026-08-04 (supersedes the 2026-07-19 money-market=cash mapping): cash = cash ONLY
-// (the sweep/settlement balance). Money-market FUNDS pay dividends → they class as Stocks/ETFs and
-// are measured; T-bill ETFs → bonds. The sleeve dedupe below still keys on the broker's
-// cash_equivalent flag, so nothing double-counts.
-const TBILL_ETF_TICKERS = new Set(['SGOV', 'BIL']);
-
+// B7 (founder brief 2026-08-20): classification lives in the ONE engine — name first, broker tag
+// as fallback only. This road only gathers the evidence. (Supersedes the inline 2026-08-04 rule
+// and the B47 finding-5 fixed-income patterns — both moved into the engine, behavior kept.)
 export function mapPosition(p: StPosition): MappedPosition | null {
   const sym = flatSymbol(p);
   const shares = p.units ?? 0;
   if (!sym || shares === 0) return null;
   const code = (sym.type?.code ?? '').toLowerCase();
   const tick = (sym.raw_symbol || sym.symbol || '').toUpperCase();
-  // B47 finding 5 (Vanguard): brokered CDs arrive WITHOUT the 'bnd' type code and fell through to
-  // equities — a CD under Stocks/ETFs. Fixed-income shapes are recognized by description too:
-  // CDs, Treasuries/T-bills, and coupon-with-maturity patterns land in Bonds & CDs (the same
-  // bucket the founder's E*TRADE CDs always used).
-  const desc = (sym.description ?? '').toUpperCase();
-  const looksFixedIncome = code === 'cd'
-    || /\bCD\b|CERTIFICATE OF DEP|TREASURY|T[- ]BILL/.test(desc)
-    || /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/.test(desc);
-  const assetClass: MappedAssetClass =
-    code === 'bnd' || looksFixedIncome || TBILL_ETF_TICKERS.has(tick) ? 'bonds'
-    : code === 'crypto' ? 'alternatives'
-    : 'stocks_etf';                                     // cs/et/oef/cef/adr, money-market funds, unknown → equities (founder rule: cash = cash only)
+  const assetClass: MappedAssetClass = classifyHoldingClass({
+    name: sym.description, ticker: tick, brokerTag: code,
+    cashEquivalent: !!p.cash_equivalent, hasSecurityIdentity: true,
+  }).cls;
   const lots = (p.tax_lots ?? [])
     .filter((l) => (l.quantity ?? 0) > 0)
     .map((l) => ({ purchase_date: l.original_purchase_date ?? null, shares: l.quantity as number, cost_per_share: l.purchased_price ?? null }));
@@ -143,6 +134,7 @@ export function mapPosition(p: StPosition): MappedPosition | null {
     price: p.price ?? null,
     costPerShare: p.average_purchase_price ?? null,
     assetClass,
+    brokerTag: code,
     cashEquivalent: !!p.cash_equivalent,
     // no broker lots → ONE synthetic lot from the average price (gain-since-purchase stays exact;
     // per-lot history honestly absent rather than invented)
