@@ -4,6 +4,7 @@
 // the ONE transactions engine (recordTransaction) — balances update by the same tested rules
 // everywhere, and hand-recorded rows are never questioned by the F10 watch (no source field).
 import React, { useMemo, useState } from 'react';
+import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -102,16 +103,18 @@ export default function AccountDetailScreen() {
     // real and is still counted — at the ACCOUNT level, in the Income figure above, where it belongs.
     const rowsFor = !tk ? [] : ledger.filter((t) => (t.type === 'DIVIDEND' || t.type === 'INTEREST')
       && !!t.ticker && String(t.ticker).toUpperCase() === tk);
-    const div = rowsFor.filter((t) => t.type === 'DIVIDEND').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
-    const int = rowsFor.filter((t) => t.type === 'INTEREST').reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+    // ONE flows engine (Track 1 step 3) — abs-summing here made a reversal add, the $2,387 class
+    const tkFlows = personalFlowTotals(rowsFor);
+    const div = tkFlows.dividends.toNumber(2);
+    const int = tkFlows.interest.toNumber(2);
     const parts: string[] = [];
     if (div > 0) parts.push(`${maskedMoney(Math.round(div))} dividends`);
     if (int > 0) parts.push(`${maskedMoney(Math.round(int))} interest`);
     return parts.join(' · ');
   };
   // header trio numbers — the account's own ledger; no estimate ever fills a blank
-  const acctIncome = ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST')
-    .reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+  const acctFlows = personalFlowTotals(ledger.filter((t) => t.type === 'DIVIDEND' || t.type === 'INTEREST'));
+  const acctIncome = acctFlows.dividends.add(acctFlows.interest).toNumber(2);
   const acctCost = ((account.positions ?? []) as any[]).reduce((n, p) =>
     n + ((p.lots ?? []) as any[]).reduce((m: number, l: any) => m + (l.shares || 0) * (l.cost_per_share || 0), 0), 0);
   const acctReturn = acctCost > 0 ? ((account.balance || 0) - acctCost) / acctCost : null;

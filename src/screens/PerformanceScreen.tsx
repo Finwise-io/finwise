@@ -9,6 +9,7 @@ import { SectionBand } from '../components/SectionBand';
 import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
 import { buildChangeWalk } from '../domain/history';
+import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { Colors, Spacing, Radii, ChartPalette, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -316,9 +317,9 @@ export default function PerformanceScreen() {
           {rows.length > 0 && (() => {
             const windowStart = periodStartKey(period);
             const led = ((store.transactions ?? []) as any[]).filter((t) => !windowStart || String(t.date ?? '').slice(0, 10) >= windowStart);
-            const sumOf = (type: string) => led.filter((t) => t.type === type).reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
-            const contributions = sumOf('DEPOSIT');
-            const withdrawals = sumOf('WITHDRAWAL');
+            const flows = personalFlowTotals(led);   // ONE flows engine (Track 1 step 3)
+            const contributions = flows.contributions.toNumber(2);
+            const withdrawals = flows.withdrawals.toNumber(2);
             const ending = investTotalAll;
             const beginning = ending - periodDollar - contributions + withdrawals;
             const walk = buildChangeWalk({
@@ -396,13 +397,12 @@ export default function PerformanceScreen() {
             }
             if (byAcct.size < 2) return null;                    // one account → the all-accounts walk already says it
             return [...byAcct.entries()].map(([id, a]) => {
-              const sumFor = (type: string) => led.filter((t) => t.account_id === id && t.type === type)
-                .reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
-              const contributions = sumFor('DEPOSIT'), withdrawals = sumFor('WITHDRAWAL');
+              const acctFlows = personalFlowTotals(led.filter((t) => t.account_id === id));
+              const contributions = acctFlows.contributions.toNumber(2), withdrawals = acctFlows.withdrawals.toNumber(2);
               const w = buildChangeWalk({
                 beginning: a.ending - a.gain - contributions + withdrawals, ending: a.ending,
                 fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
-                contributions, withdrawals, dividends: sumFor('DIVIDEND'), interest: sumFor('INTEREST'),
+                contributions, withdrawals, dividends: acctFlows.dividends.toNumber(2), interest: acctFlows.interest.toNumber(2),
               });
               const isOpen = !!openAcctWalk[id];
               return (

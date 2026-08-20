@@ -113,3 +113,33 @@ describe('EVERY event declares what it may touch — no total can be reached ano
     for (const r of external) expect(r.externality).toBe('EXTERNAL');
   });
 });
+
+// ── Track 1 step 3: audit item 32 — direction comes from the words, never one-size-fits-IN ──
+describe('in-kind transfers carry their own direction', () => {
+  const ev = (w: string) => classifyEvent(w).event;
+  test('outbound in-kind is SECURITIES_OUT — booked IN, a transfer away read as a contribution', () => {
+    expect(ev('EXCHANGE DELIVERED OUT')).toBe('SECURITIES_OUT');
+    expect(ev('EXTERNAL_ASSET_TRANSFER_OUT')).toBe('SECURITIES_OUT');
+  });
+  test('inbound stays SECURITIES_IN', () => {
+    expect(ev('EXCHANGE RECEIVED IN')).toBe('SECURITIES_IN');
+    expect(ev('EXTERNAL_ASSET_TRANSFER_IN')).toBe('SECURITIES_IN');
+  });
+  test('an in-kind row with NO direction word is UNKNOWN — recorded, counted in nothing (rule R2)', () => {
+    expect(ev('In-kind transfer')).toBe('UNKNOWN');
+  });
+});
+
+// ── audit item 31: the sheet's committed basis rules are now representable ──
+describe('cost basis and realised gain joined the totals axis', () => {
+  test('a reinvested distribution RAISES basis (Metrics K14) — taxed once, never taxed again as gain', () => {
+    expect(touches('REINVEST_PURCHASE', 'costBasis')).toBe(true);
+    expect(touches('REINVEST_PURCHASE', 'income')).toBe(false);
+  });
+  test('a buy creates basis; a sell realises gain; income events touch neither', () => {
+    expect(touches('BUY', 'costBasis')).toBe(true);
+    expect(touches('SELL', 'realisedGain')).toBe(true);
+    expect(touches('DIVIDEND', 'costBasis')).toBe(false);
+    expect(touches('INTEREST', 'realisedGain')).toBe(false);
+  });
+});

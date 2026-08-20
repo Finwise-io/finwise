@@ -154,6 +154,42 @@ export function toLedgerRow(raw: RawActivity, convention: SignConvention): Ledge
 }
 
 /** Which rows a given total may read. The ONLY place a screen should ask. */
+// ── PERSONAL FLOWS — the stored ledger summed through ONE table (Track 1 step 3) ───────────────
+// Screens used to re-derive these inline with Math.abs on every amount, which is the $2,387 class
+// again: a reversal ADDS instead of cancelling. This is the single place the app's stored rows
+// (legacy TxnType vocabulary) become walk totals — exact decimals, signs respected, and any type
+// not in the table counts in NOTHING (the UNKNOWN rule, applied to the store).
+const STORED_TYPE_BUCKET: Record<string, 'contributions' | 'withdrawals' | 'dividends' | 'interest' | 'fees' | 'debtPrincipal' | 'none'> = {
+  DEPOSIT: 'contributions',
+  WITHDRAWAL: 'withdrawals',
+  DIVIDEND: 'dividends',           // reinvested or cash — income earned counts ONCE either way
+  INTEREST: 'interest',
+  COUPON: 'interest',
+  FEE: 'fees',
+  DEBT_PAYMENT: 'debtPrincipal',
+  // internal moves, baseline captures and markers reach no flow total, by design:
+  BUY: 'none', SELL: 'none', TRANSFER: 'none', TRANSFER_IN_KIND: 'none',
+  OPENING_POSITION: 'none', OPENING_CASH: 'none', ADJUSTMENT: 'none',
+};
+export interface StoredFlowRow { type?: string | null; amount?: number | string | null }
+export interface PersonalFlowTotals {
+  contributions: Dec; withdrawals: Dec; dividends: Dec; interest: Dec; fees: Dec; debtPrincipal: Dec;
+}
+export function personalFlowTotals(rows: StoredFlowRow[]): PersonalFlowTotals {
+  const t: PersonalFlowTotals = {
+    contributions: Dec.ZERO, withdrawals: Dec.ZERO, dividends: Dec.ZERO,
+    interest: Dec.ZERO, fees: Dec.ZERO, debtPrincipal: Dec.ZERO,
+  };
+  for (const r of rows ?? []) {
+    const bucket = STORED_TYPE_BUCKET[String(r.type ?? '')] ?? 'none';
+    if (bucket === 'none') continue;
+    const d = Dec.parse(r.amount);
+    if (d == null) continue;                      // no amount is NOTHING, never zero-with-meaning
+    t[bucket] = t[bucket].add(d);                 // signed: a stored reversal cancels, never adds
+  }
+  return t;
+}
+
 // ── THE IMPORT KEY — one identity per imported row, owned here, shared by every road ───────────
 // (Track 1 step 2, founder brief 2026-08-20 §F.) Re-importing an overlapping window can never
 // double money: a row's identity is the composite of everything that makes it THAT row — never the

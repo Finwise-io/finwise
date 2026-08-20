@@ -21,6 +21,7 @@ import { Colors, Spacing, Radii, ClassMarkColors, ChartPalette, DebtRamp } from 
 import { money } from '../domain/_shared/num';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { trendPoints, investableChangePct, buildChangeWalk } from '../domain/history';
+import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
 import { connectionFreshness } from '../services/sync';
 import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { buildAssetsState, ASSET_KINDS, ASSET_SECTIONS, assetKind, assetClassOf, cashTotal, AssetAccount, TaxBucket, assetAllocation, investableAssets, ASSET_CLASS_LABEL, type AssetClass, wrapperAccount, maturityClass, accountDisplayNames, accountClassBreakdown, classPortionLabel, type AddWrapper, sourceWording, CASH_GROUP_LABEL, isCashKind, uberGroupRows, type UberGroup } from '../domain/assets';
@@ -668,13 +669,16 @@ export default function NetWorthScreen() {
     // reports and the SAME ledger the account pages show — the rows sum to the headline by design.
     const inWindow = (t: any) => !janPoint || String(t.date ?? '').slice(0, 10) >= String(janPoint.month).slice(0, 10);
     const led = ((store.transactions ?? []) as any[]).filter(inWindow);
-    const sumOf = (type: string) => led.filter((t) => t.type === type).reduce((n, t) => n + Math.abs(Number(t.amount) || 0), 0);
+    // ONE flows engine (Track 1 step 3) — the abs-sum this replaces made a reversal ADD instead of
+    // cancel, the $2,387 class at the screen layer.
+    const flows = personalFlowTotals(led);
     const changeWalk = janPoint && changeThisYear != null ? buildChangeWalk({
       beginning: janPoint.nw, ending: nw.net_worth,
       fromLabel: sinceLabel.replace(/^since /, '') || 'the start',
       toLabel: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
-      contributions: sumOf('DEPOSIT'), withdrawals: sumOf('WITHDRAWAL'),
-      dividends: sumOf('DIVIDEND'), interest: sumOf('INTEREST'), debtPrincipal: sumOf('DEBT_PAYMENT'),
+      contributions: flows.contributions.toNumber(2), withdrawals: flows.withdrawals.toNumber(2),
+      dividends: flows.dividends.toNumber(2), interest: flows.interest.toNumber(2),
+      debtPrincipal: flows.debtPrincipal.toNumber(2),
     }) : null;
 
     body = (

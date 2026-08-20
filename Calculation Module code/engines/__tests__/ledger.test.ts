@@ -86,3 +86,41 @@ describe('TRADE PRICING — the broker\'s own cash figure is the truth', () => {
     expect(V('SELL', 5000, { units: -100 }).shares).toBe(100);
   });
 });
+
+// ── Track 1 step 3: the stored ledger sums through ONE table, signs respected ──
+describe('personalFlowTotals — the walk totals no screen may re-derive', () => {
+  const { personalFlowTotals } = require('../ledger');
+
+  test('a deposit and its recorded reversal cancel to TRUE zero, never add', () => {
+    const t = personalFlowTotals([
+      { type: 'DEPOSIT', amount: 5000 },
+      { type: 'DEPOSIT', amount: -5000 },   // the reversal the abs-sum used to double
+    ]);
+    expect(t.contributions.isZero()).toBe(true);
+  });
+
+  test('each bucket takes only its own types; internal moves and captures take nothing', () => {
+    const t = personalFlowTotals([
+      { type: 'DEPOSIT', amount: 1000 }, { type: 'WITHDRAWAL', amount: 400 },
+      { type: 'DIVIDEND', amount: '139.49' }, { type: 'INTEREST', amount: '2636.34' },
+      { type: 'COUPON', amount: '1625' }, { type: 'FEE', amount: 100 },
+      { type: 'DEBT_PAYMENT', amount: 250 },
+      { type: 'BUY', amount: 224454.11 }, { type: 'SELL', amount: 219363.66 },
+      { type: 'TRANSFER', amount: 9999 }, { type: 'OPENING_CASH', amount: 88888 },
+      { type: 'ADJUSTMENT', amount: 7 },
+    ]);
+    expect(t.contributions.toString()).toBe('1000');
+    expect(t.withdrawals.toString()).toBe('400');
+    expect(t.dividends.toString()).toBe('139.49');
+    expect(t.interest.toString()).toBe('4261.34');   // interest + coupon, one bucket
+    expect(t.fees.toString()).toBe('100');
+    expect(t.debtPrincipal.toString()).toBe('250');
+  });
+
+  test('a type not in the table counts in NOTHING — the UNKNOWN rule, applied to the store', () => {
+    const t = personalFlowTotals([{ type: 'SOMETHING_NEW', amount: 123456 }, { type: null, amount: 5 }]);
+    for (const k of ['contributions', 'withdrawals', 'dividends', 'interest', 'fees', 'debtPrincipal'] as const) {
+      expect(t[k].isZero()).toBe(true);
+    }
+  });
+});

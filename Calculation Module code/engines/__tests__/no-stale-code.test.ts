@@ -51,6 +51,14 @@ const SUPERSEDED: Superseded[] = [
        + 'debit both added because the minus sign was gone before anything summed them.',
     known: [],   // MIGRATED 2026-08-18 — direction now comes from readMoney().
   },
+  {
+    what: 'an inline flow total on a screen — Math.abs over stored transaction amounts',
+    pattern: /Math\.abs\(Number\(t\.amount\)/,
+    engine: 'Calculation Module code/engines/ledger.ts → personalFlowTotals()',
+    why: 'Three screens re-derived walk totals inline with Math.abs, so a reversal ADDED instead of '
+       + 'cancelling — the $2,387 class at the screen layer. One table, one engine, exact decimals.',
+    known: [],   // MIGRATED 2026-08-20 — NetWorth walk + both Performance walks now call the engine.
+  },
 ];
 
 const files = walk(path.join(ROOT, 'src'));

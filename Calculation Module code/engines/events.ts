@@ -52,8 +52,11 @@ export interface EventRule {
   event: CanonicalEvent;
   externality: Externality;
   kind: Kind;
-  /** Which running totals this event may touch. UNKNOWN touches none, by design. */
-  totals: ReadonlyArray<'contributions' | 'withdrawals' | 'income' | 'costs' | 'units'>;
+  /** Which running totals this event may touch. UNKNOWN touches none, by design.
+   *  costBasis and realisedGain joined the axis 2026-08-20 (audit item 31): the sheet's committed
+   *  rule — a reinvested distribution RAISES cost basis (Metrics K14) — was unrepresentable while
+   *  the vocabulary stopped at units. */
+  totals: ReadonlyArray<'contributions' | 'withdrawals' | 'income' | 'costs' | 'units' | 'costBasis' | 'realisedGain'>;
   /** Direction where the event itself determines it, regardless of how the source signed it. */
   direction?: 'IN' | 'OUT';
   why?: string;
@@ -66,17 +69,17 @@ const R = (event: CanonicalEvent, externality: Externality, kind: Kind,
 export const EVENTS: Record<CanonicalEvent, EventRule> = {
   CASH_IN:        R('CASH_IN', 'EXTERNAL', 'PRINCIPAL', ['contributions'], 'IN'),
   CASH_OUT:       R('CASH_OUT', 'EXTERNAL', 'PRINCIPAL', ['withdrawals'], 'OUT'),
-  SECURITIES_IN:  R('SECURITIES_IN', 'EXTERNAL', 'PRINCIPAL', ['contributions', 'units'], 'IN',
+  SECURITIES_IN:  R('SECURITIES_IN', 'EXTERNAL', 'PRINCIPAL', ['contributions', 'units', 'costBasis'], 'IN',
     'Valued at market on the transfer date. Booked at zero, the whole position appears as gain the moment it lands.'),
   SECURITIES_OUT: R('SECURITIES_OUT', 'EXTERNAL', 'PRINCIPAL', ['withdrawals', 'units'], 'OUT',
     'Shares moved to another firm or gifted. If only cash counts as a withdrawal, this reads as a total loss.'),
-  BUY:            R('BUY', 'INTERNAL', 'PRINCIPAL', ['units']),
-  SELL:           R('SELL', 'INTERNAL', 'PRINCIPAL', ['units']),
+  BUY:            R('BUY', 'INTERNAL', 'PRINCIPAL', ['units', 'costBasis']),
+  SELL:           R('SELL', 'INTERNAL', 'PRINCIPAL', ['units', 'realisedGain']),
   DIVIDEND:       R('DIVIDEND', 'INTERNAL', 'INCOME', ['income'], 'IN'),
   CAPITAL_GAIN_DISTRIBUTION: R('CAPITAL_GAIN_DISTRIBUTION', 'INTERNAL', 'INCOME', ['income'], 'IN'),
   INTEREST:       R('INTEREST', 'INTERNAL', 'INCOME', ['income'], 'IN'),
-  REINVEST_PURCHASE: R('REINVEST_PURCHASE', 'INTERNAL', 'PRINCIPAL', ['units'], 'OUT',
-    'The BUYING half of a reinvested distribution. The income was already counted on its own line; counting this too is the founder\'s $2,387.'),
+  REINVEST_PURCHASE: R('REINVEST_PURCHASE', 'INTERNAL', 'PRINCIPAL', ['units', 'costBasis'], 'OUT',
+    'The BUYING half of a reinvested distribution. The income was already counted on its own line; counting this too is the founder\'s $2,387. It RAISES cost basis (Metrics K14) — taxed once as income, that money must not be taxed again as gain at the sale.'),
   RETURN_OF_CAPITAL: R('RETURN_OF_CAPITAL', 'INTERNAL', 'PRINCIPAL', ['units'], 'IN',
     'A bond or CD maturing. The money was always yours — it changed form. Booked as a deposit it invents money you never paid in.'),
   SWEEP:          R('SWEEP', 'INTERNAL', 'PRINCIPAL', [],
@@ -135,9 +138,14 @@ const MAPPINGS: Mapping[] = [
   { match: /\bdividend\b|^DIV$/i, event: 'DIVIDEND', source: 'Vanguard "Dividend"; Fidelity DIVIDEND; FDX DIVIDEND', seen: true },
   { match: /\binterest\b/i, event: 'INTEREST', source: 'Vanguard "Interest"; Fidelity "INTEREST as of …"; FDX INTEREST', seen: true },
 
-  // ── in-kind movement, before plain transfer ───────────────────────────────────────────────────
-  { match: /exchange (received in|delivered out)|external asset transfer|in.?kind/i,
+  // ── in-kind movement, before plain transfer. AUDIT ITEM 32: one pattern used to send BOTH
+  // directions to SECURITIES_IN — an outbound transfer booked as a contribution (the $1.4m class).
+  // Direction now comes from the words themselves; an in-kind row carrying NO direction word is
+  // UNKNOWN (recorded, shown, counts in nothing) — never defaulted (rule R2). ─────────────────────
+  { match: /exchange received in|external.?asset.?transfer.?in\b|in.?kind.*(received|\bin\b)/i,
     event: 'SECURITIES_IN', source: 'E*TRADE EXCHANGE RECEIVED IN / EXTERNAL_ASSET_TRANSFER_IN', seen: true },
+  { match: /exchange delivered out|external.?asset.?transfer.?out\b|in.?kind.*(delivered|\bout\b)/i,
+    event: 'SECURITIES_OUT', source: 'E*TRADE EXCHANGE DELIVERED OUT / EXTERNAL_ASSET_TRANSFER_OUT', seen: true },
 
   // ── external money ────────────────────────────────────────────────────────────────────────────
   { match: /^contribution\b|wire\s?in\b|^directdep|^dep(osit)?\b/i, event: 'CASH_IN', source: 'E*TRADE CONTRIBUTION / WIRE IN; FDX CONTRIBUTION, DEPOSIT', seen: true },
@@ -179,7 +187,7 @@ export function classifyEvent(word: string | null | undefined): Classified {
 }
 
 /** Does this event add to that total? The single place any screen may ask. */
-export function touches(e: CanonicalEvent, total: 'contributions' | 'withdrawals' | 'income' | 'costs' | 'units'): boolean {
+export function touches(e: CanonicalEvent, total: 'contributions' | 'withdrawals' | 'income' | 'costs' | 'units' | 'costBasis' | 'realisedGain'): boolean {
   return EVENTS[e].totals.includes(total);
 }
 

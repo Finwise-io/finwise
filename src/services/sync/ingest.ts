@@ -14,7 +14,7 @@ import { newEntityId } from '../../domain/_shared/ids';
 // ever goes back to the old paths.
 import { toLedgerRow } from '../../../Calculation Module code/engines/ledger';
 import {
-  mapAccountType, mapPosition, mapOptionHolding, mapActivityType, activityKey, netCashSleeve,
+  mapAccountType, mapPosition, mapOptionHolding, activityKey, netCashSleeve,
   type StAccount, type StPosition, type StOptionHolding, type StActivity, mergeHistoryFrom } from './snaptrade';
 
 export interface AccountSyncPayload {

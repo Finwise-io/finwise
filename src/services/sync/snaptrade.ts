@@ -176,6 +176,12 @@ export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOp
 }
 
 // ── activities → our ledger types (design v2 §4 table) ─────────────────────────────────────────
+// ⚠️ INDICTED EXHIBIT — no production code imports this any more (Track 1 step 3, 2026-08-20).
+// ingest.ts classifies through the Calculation Module (toLedgerRow → classifyEvent); this function
+// remains ONLY as the proven cause in probes/vanguard-identity-diagnostic.probe.test.ts — its
+// default branch guesses an unknown word from the sign of the amount, which minted $1,064,493.33
+// of phantom contributions on the founder's real account. The no-stale-code guard fails any new
+// call site by name.
 export interface MappedActivity {
   txnType: TxnType | 'ADJUST' | 'SKIP';   // ADJUST = position note, NO cash effect; SKIP = not ingested
   reinvested?: boolean;
