@@ -130,8 +130,9 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(taxOwedFor(120000, 'married')).toBeLessThan(taxOwedFor(120000, 'single'));
     expect(taxOwedFor(120000, 'hoh')).toBeLessThan(taxOwedFor(120000, 'single'));
     expect(taxOwedFor(120000, 'hoh')).toBeGreaterThan(taxOwedFor(120000, 'married'));
-    // the state rate is a flat add-on, capped
-    expect(taxOwedFor(100000, 'single', 0.05) - taxOwedFor(100000, 'single', 0)).toBeCloseTo(5000, 0);
+    // the state rate is a flat add-on ON TAXABLE INCOME (E10, 2026-08-20) — the deduction is
+    // never taxed: 5% × (100,000 − 16,100) = 4,195
+    expect(taxOwedFor(100000, 'single', 0.05) - taxOwedFor(100000, 'single', 0)).toBeCloseTo(4195, 0);
     // capital gains: the 0/15/20 ladder moves with income AND status
     expect(ltcgRateFor(40000, 'single')).toBe(0);
     expect(ltcgRateFor(120000, 'single')).toBe(0.15);

@@ -372,7 +372,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
   const total = taxable.reduce((t, g) => t + g, 0);
   if (total <= 0) return new Array(12).fill(flat);
   const { progressiveMonthlyTax } = require('./tax');
-  const tax = progressiveMonthlyTax(taxable, filingStatusOf(op), stateRateOf(op));
+  const tax = progressiveMonthlyTax(taxable, filingStatusOf(op), stateRateOf(op), over65CountOf(op));
   return taxable.map((g, i) => (g > 0 ? Math.min(0.6, Math.max(0, tax[i] / g)) : flat));
 }
 
@@ -399,11 +399,20 @@ export function taxableByCalendarMonth(op: OnboardingProfile | null, now: Date =
   });
 }
 
+/** E8 (founder brief 2026-08-20): how many people on the return are 65+. The app captures the
+ *  person's birth year only — a spouse's age is unknown, so a joint return counts the person
+ *  alone. The error direction slightly overstates tax: conservative for a plan. */
+export function over65CountOf(op: OnboardingProfile | null): number {
+  const y = toNum((op ?? ({} as any)).birthYear);
+  if (!y) return 0;
+  return new Date().getFullYear() - y >= 65 ? 1 : 0;
+}
+
 export function effectiveRate(op: OnboardingProfile | null): number {
   const a = op ?? {};
   if (a.taxMode === 'manual') return Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
   const { effectiveRateOnGrossFor } = require('./tax');
-  return effectiveRateOnGrossFor(taxableAnnual(op), filingStatusOf(op), stateRateOf(op));
+  return effectiveRateOnGrossFor(taxableAnnual(op), filingStatusOf(op), stateRateOf(op), over65CountOf(op));
 }
 
 /** PRD F3#17 — the user's OWN capital-gains rates (long: 0/15/20 ladder by filing status;
@@ -413,7 +422,8 @@ export function userCapGainsRates(op: OnboardingProfile | null): { lt: number; s
   const gross = totalGrossAnnual(op);
   const status = filingStatusOf(op);
   const state = stateRateOf(op);
-  return { lt: ltcgRateFor(gross, status) + state, st: marginalBracketFor(gross, status) + state };
+  const over65 = over65CountOf(op);
+  return { lt: ltcgRateFor(gross, status, over65) + state, st: marginalBracketFor(gross, status, over65) + state };
 }
 
 /** A representative 12-month cash-flow grid (Jan→Dec) that honors lumpiness:

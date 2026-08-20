@@ -56,9 +56,11 @@ describe('FILING_STATUS', () => {
     expect(h).toBeGreaterThan(m);
   });
 
-  test('state tax is ONE flat rate the person enters, capped at 15%', () => {
+  test('state tax is ONE flat rate the person enters, on TAXABLE income (E10), capped at 15%', () => {
     const fed = taxOwedFor(100_000, 'single', 0);
-    expect(taxOwedFor(100_000, 'single', 0.05) - fed).toBeCloseTo(5_000, 0);   // 5% of GROSS
+    // E10 (founder brief 2026-08-20): the old code applied the rate to GROSS, taxing the standard
+    // deduction itself. 5% of taxable (100,000 − 16,100) = 4,195, never 5,000.
+    expect(taxOwedFor(100_000, 'single', 0.05) - fed).toBeCloseTo(4_195, 0);
     expect(taxOwedFor(100_000, 'single', 0.99)).toBe(taxOwedFor(100_000, 'single', 0.15));  // capped
     expect(taxOwedFor(100_000, 'single', -1)).toBe(fed);                                     // floored
   });

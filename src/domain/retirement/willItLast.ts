@@ -8,7 +8,7 @@ import { retirementEarmarkedValue, blendedReturn, blendedVolatility, portfolioAc
 import { taxBucketSplit } from '../decumulation';
 import { effectiveRateOnGrossFor } from '../income/tax';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../income';
-import { retirementIncomeMonthly, guaranteedOutsideStreams } from '../income';
+import { retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf } from '../income';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
@@ -117,7 +117,7 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
       const eggForShare = spendableEgg;   // the same pot the odds run on — see start_balance above
       return eggForShare > 0 ? Math.min(1, sp.preTax / eggForShare) : 0;
     })(),
-    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(op)), filingStatusOf(op), stateRateOf(op)))),
+    rmd_tax_rate: Math.min(0.6, Math.max(0.1, effectiveRateOnGrossFor(Math.max(30000, totalGrossAnnual(op)), filingStatusOf(op), stateRateOf(op), over65CountOf(op)))),
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: A.salaryGrowth ?? 0,
     retire_monthly_spend_today: planSpend,
