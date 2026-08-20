@@ -42,3 +42,6 @@ Calculation Module/real-downloads/*
 # …except fixtures/, which holds files with NO real balances — sample exports and
 # hand-typed numbers. Those are committed on purpose, so guard tests can run them.
 !Calculation Module/real-downloads/fixtures/
+
+# the built engine bench embeds the REAL Vanguard ledger as a preset — never committed
+Calculation Module code/bench/MoneyKeel-engine-bench.html

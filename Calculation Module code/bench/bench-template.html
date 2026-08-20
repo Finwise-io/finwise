@@ -1,0 +1,159 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>MoneyKeel Engine Bench</title>
+<style>
+  :root {
+    --green: #085041; --green-soft: #eaf3ec; --ink: #1b1f1d; --sub: #5c6660;
+    --line: #e2e6e3; --bad: #a32d2d; --bad-soft: #fbe3e3; --good: #1d6b46; --card: #ffffff; --bg: #f4f6f4;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font: 15px/1.5 -apple-system, "Segoe UI", Roboto, sans-serif; color: var(--ink); background: var(--bg); }
+  header { background: var(--green); color: #fff; padding: 18px 26px; position: sticky; top: 0; z-index: 5; }
+  header h1 { margin: 0; font-size: 19px; }
+  header p { margin: 4px 0 0; opacity: .85; font-size: 13px; max-width: 900px; }
+  nav { background: #fff; border-bottom: 1px solid var(--line); padding: 8px 22px; display: flex; flex-wrap: wrap; gap: 6px; position: sticky; top: 74px; z-index: 4; }
+  nav a { font-size: 12.5px; color: var(--green); text-decoration: none; border: 1px solid var(--line); border-radius: 14px; padding: 3px 10px; background: #fff; }
+  nav a:hover { background: var(--green-soft); }
+  main { max-width: 1060px; margin: 0 auto; padding: 22px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; margin: 0 0 22px; overflow: hidden; scroll-margin-top: 130px; }
+  .card > h2 { margin: 0; padding: 14px 18px 4px; font-size: 16.5px; }
+  .engine { padding: 0 18px; font-size: 11.5px; color: var(--sub); letter-spacing: .3px; }
+  .what { padding: 8px 18px 2px; font-size: 13.5px; color: var(--sub); max-width: 940px; }
+  .body { display: flex; flex-wrap: wrap; gap: 0; }
+  .inputs { flex: 1 1 380px; padding: 14px 18px 18px; min-width: 320px; }
+  .results { flex: 1 1 420px; padding: 14px 18px 18px; background: #fafbfa; border-left: 1px solid var(--line); min-width: 340px; }
+  label { display: block; font-size: 12.5px; color: var(--sub); margin: 10px 0 3px; }
+  input[type=text], input[type=number], select, textarea {
+    width: 100%; padding: 7px 9px; border: 1px solid var(--line); border-radius: 7px; font: inherit; font-size: 14px; background: #fff;
+  }
+  textarea { min-height: 92px; font-family: ui-monospace, Menlo, monospace; font-size: 12.5px; white-space: pre; }
+  input:focus, select:focus, textarea:focus { outline: 2px solid #0850413a; border-color: var(--green); }
+  .check { display: flex; align-items: center; gap: 8px; margin-top: 12px; font-size: 13.5px; }
+  .check input { width: auto; }
+  .hint { font-size: 11.5px; color: var(--sub); margin-top: 2px; }
+  .preset { margin-top: 12px; font-size: 13px; color: var(--green); background: var(--green-soft); border: 1px solid #cfe2d5; border-radius: 7px; padding: 6px 12px; cursor: pointer; }
+  .rrow { display: flex; gap: 12px; padding: 7px 0; border-bottom: 1px dashed var(--line); align-items: baseline; }
+  .rrow:last-child { border-bottom: none; }
+  .rlabel { flex: 0 0 46%; font-size: 12.5px; color: var(--sub); }
+  .rval { flex: 1; font-size: 14px; font-weight: 600; word-break: break-word; }
+  .rnote { font-size: 11.5px; color: var(--sub); font-weight: 400; margin-top: 1px; }
+  .bad .rval { color: var(--bad); }
+  .good .rval { color: var(--good); }
+  footer { text-align: center; color: var(--sub); font-size: 12px; padding: 18px 0 40px; }
+  .err { color: var(--bad); background: var(--bad-soft); border-radius: 7px; padding: 8px 10px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>MoneyKeel — the engine bench</h1>
+  <p>Type a number, watch every figure recompute — through the REAL engine code the app ships, compiled straight from the same files. Nothing here is a copy or a mock-up of the math. Built __BUILT_STAMP__.</p>
+</header>
+<nav id="nav"></nav>
+<main id="main"></main>
+<footer>Runs entirely on this machine. The Vanguard preset, where present, is embedded from the local file and this page is never committed to git.</footer>
+
+<script>
+/*__BUNDLE__*/
+</script>
+<script>
+(function () {
+  const { CARDS } = window.BENCH;
+  const main = document.getElementById('main');
+  const nav = document.getElementById('nav');
+
+  function esc(s) { const d = document.createElement('span'); d.textContent = String(s ?? ''); return d.innerHTML; }
+
+  function renderResults(card, holder, values) {
+    let rows;
+    try { rows = card.compute(values); }
+    catch (e) { holder.innerHTML = '<div class="err">This combination broke the engine: ' + esc(e && e.message) + '</div>'; return; }
+    holder.innerHTML = rows.map((r) =>
+      '<div class="rrow ' + (r.bad ? 'bad' : '') + (r.good ? ' good' : '') + '">' +
+        '<div class="rlabel">' + esc(r.label) + '</div>' +
+        '<div class="rval">' + esc(r.value) + (r.note ? '<div class="rnote">' + esc(r.note) + '</div>' : '') + '</div>' +
+      '</div>').join('');
+  }
+
+  for (const card of CARDS) {
+    const el = document.createElement('section');
+    el.className = 'card'; el.id = card.id;
+    el.innerHTML =
+      '<h2>' + esc(card.title) + '</h2>' +
+      '<div class="engine">ENGINE: ' + esc(card.engine) + '</div>' +
+      '<div class="what">' + esc(card.what) + '</div>' +
+      '<div class="body"><div class="inputs"></div><div class="results"></div></div>';
+    const inputs = el.querySelector('.inputs');
+    const results = el.querySelector('.results');
+    const values = {};
+    const controls = {};
+
+    const recompute = () => renderResults(card, results, values);
+
+    for (const f of card.fields) {
+      values[f.key] = f.default;
+      let ctl;
+      if (f.type === 'select') {
+        ctl = document.createElement('select');
+        for (const o of f.options || []) {
+          const opt = document.createElement('option');
+          opt.value = o.value; opt.textContent = o.label;
+          if (String(o.value) === String(f.default)) opt.selected = true;
+          ctl.appendChild(opt);
+        }
+        ctl.addEventListener('change', () => { values[f.key] = ctl.value; recompute(); });
+      } else if (f.type === 'checkbox') {
+        const wrap = document.createElement('div'); wrap.className = 'check';
+        ctl = document.createElement('input'); ctl.type = 'checkbox'; ctl.checked = !!f.default;
+        ctl.addEventListener('change', () => { values[f.key] = ctl.checked; recompute(); });
+        const lab = document.createElement('span'); lab.textContent = f.label;
+        wrap.appendChild(ctl); wrap.appendChild(lab);
+        inputs.appendChild(wrap);
+        controls[f.key] = ctl;
+        continue;
+      } else if (f.type === 'textarea') {
+        ctl = document.createElement('textarea');
+        ctl.value = String(f.default);
+        ctl.addEventListener('input', () => { values[f.key] = ctl.value; recompute(); });
+      } else {
+        ctl = document.createElement('input');
+        ctl.type = f.type === 'number' ? 'text' : 'text';   // text keeps "$1,234.56" typeable
+        ctl.inputMode = f.type === 'number' ? 'decimal' : 'text';
+        ctl.value = String(f.default);
+        ctl.addEventListener('input', () => { values[f.key] = ctl.value; recompute(); });
+      }
+      const lab = document.createElement('label');
+      lab.textContent = f.label;
+      inputs.appendChild(lab);
+      inputs.appendChild(ctl);
+      if (f.hint) { const h = document.createElement('div'); h.className = 'hint'; h.textContent = f.hint; inputs.appendChild(h); }
+      controls[f.key] = ctl;
+    }
+
+    if (card.preset) {
+      const btn = document.createElement('button');
+      btn.className = 'preset'; btn.textContent = card.preset.label;
+      btn.addEventListener('click', () => {
+        for (const [k, v] of Object.entries(card.preset.values)) {
+          values[k] = v;
+          const c = controls[k];
+          if (c) { if (c.type === 'checkbox') c.checked = !!v; else c.value = String(v); }
+        }
+        recompute();
+      });
+      inputs.appendChild(btn);
+    }
+
+    main.appendChild(el);
+    recompute();
+
+    const a = document.createElement('a');
+    a.href = '#' + card.id; a.textContent = card.title.split('—')[0].trim();
+    nav.appendChild(a);
+  }
+})();
+</script>
+</body>
+</html>
