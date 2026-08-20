@@ -27,11 +27,92 @@ export interface Field {
   wide?: boolean;
 }
 export interface ResultRow { label: string; value: string; note?: string; bad?: boolean; good?: boolean }
+export interface FileDrop {
+  label: string; hint: string;
+  /** Parse the file's text into a values patch for the card, plus a note about what was read. */
+  apply(text: string, filename: string): { values: Record<string, any>; note: string };
+}
 export interface Card {
   id: string; title: string; engine: string; what: string;
   fields: Field[];
   compute(v: Record<string, any>): ResultRow[];
   preset?: { label: string; values: Record<string, any> };
+  fileDrop?: FileDrop;
+}
+
+// ── reading ANY institution CSV — quote-aware, BOM-stripped, columns found by NAME ─────────────
+// No two institutions agree on column names, so the reader hunts for the meaning: the word column
+// (Transaction Type · Action · Type), the description, and the amount (Net Amount · Amount ·
+// Principal Amount). A file whose columns cannot be found says so, honestly, instead of guessing.
+function splitCsvLine(line: string): string[] {
+  const out: string[] = []; let cur = ''; let inQ = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (inQ) {
+      if (ch === '"') { if (line[i + 1] === '"') { cur += '"'; i++; } else inQ = false; }
+      else cur += ch;
+    } else if (ch === '"') inQ = true;
+    else if (ch === ',') { out.push(cur); cur = ''; }
+    else cur += ch;
+  }
+  out.push(cur);
+  return out.map((c) => c.replace(/^\uFEFF/, '').trim());
+}
+const findCol = (headers: string[], names: string[]): number => {
+  const h = headers.map((x) => x.toLowerCase().replace(/[^a-z ]/g, '').trim());
+  for (const n of names) { const i = h.indexOf(n); if (i >= 0) return i; }
+  for (const n of names) { const i = h.findIndex((x) => x.includes(n)); if (i >= 0) return i; }
+  return -1;
+};
+
+/** An ACTIVITY file (any institution) → "word | description | amount" lines for the ledger card. */
+export function parseActivityFile(text: string, filename = 'the file'): { values: Record<string, any>; note: string } {
+  const lines = text.split(/\r?\n/).map(splitCsvLine);
+  for (let h = 0; h < Math.min(lines.length, 30); h++) {
+    const word = findCol(lines[h], ['transaction type', 'action', 'activity type', 'type']);
+    const amt = findCol(lines[h], ['net amount', 'amount', 'principal amount']);
+    if (word < 0 || amt < 0 || lines[h].length < 3) continue;
+    const desc = findCol(lines[h], ['transaction description', 'description', 'memo']);
+    const rows: string[] = [];
+    for (let r = h + 1; r < lines.length; r++) {
+      const c = lines[r];
+      if (c.length <= Math.max(word, amt)) continue;
+      const w = c[word]; const a = c[amt];
+      if (!w || !a || Dec.parse(a) == null) continue;
+      rows.push(`${w} | ${desc >= 0 ? (c[desc] ?? '') : ''} | ${a}`);
+    }
+    if (rows.length) {
+      return { values: { rows: rows.join('\n') },
+        note: `${rows.length} activity row(s) read from ${filename} — word column “${lines[h][word]}”, amount column “${lines[h][amt]}”. Edit any line freely.` };
+    }
+  }
+  return { values: {}, note: `Could not find activity columns in ${filename}. The reader looks for a word column (Transaction Type · Action · Type) and an amount column (Net Amount · Amount · Principal Amount) in the first 30 lines — nothing matched with money in it.` };
+}
+
+/** A HOLDINGS file (any institution) → "symbol | name | value" lines for the classifier card. */
+export function parseHoldingsFile(text: string, filename = 'the file'): { values: Record<string, any>; note: string } {
+  const lines = text.split(/\r?\n/).map(splitCsvLine);
+  for (let h = 0; h < Math.min(lines.length, 30); h++) {
+    const val = findCol(lines[h], ['total value', 'current value', 'market value', 'value']);
+    const sym = findCol(lines[h], ['symbol', 'ticker']);
+    const name = findCol(lines[h], ['investment name', 'security name', 'description', 'name']);
+    if (val < 0 || (sym < 0 && name < 0)) continue;
+    const rows: string[] = [];
+    for (let r = h + 1; r < lines.length; r++) {
+      const c = lines[r];
+      if (c.length <= val) continue;
+      const v = c[val];
+      if (!v || Dec.parse(v) == null) continue;
+      if ((sym >= 0 && c[sym]) || (name >= 0 && c[name])) {
+        rows.push(`${sym >= 0 ? c[sym] ?? '' : ''} | ${name >= 0 ? c[name] ?? '' : ''} | ${v}`);
+      }
+    }
+    if (rows.length) {
+      return { values: { rows: rows.join('\n') },
+        note: `${rows.length} holding(s) read from ${filename} — name “${name >= 0 ? lines[h][name] : '—'}”, symbol “${sym >= 0 ? lines[h][sym] : '—'}”, value “${lines[h][val]}”. Edit any line freely.` };
+    }
+  }
+  return { values: {}, note: `Could not find holdings columns in ${filename}. The reader looks for a value column (Total Value · Current Value · Market Value) plus a symbol or name column in the first 30 lines.` };
 }
 
 const money = (n: number) => (n < 0 ? '−$' : '$') + Math.abs(n).toLocaleString('en-US', { maximumFractionDigits: 2, minimumFractionDigits: n % 1 ? 2 : 0 });
@@ -64,6 +145,11 @@ export const CARDS: Card[] = [
         hint: 'Negative = money left the account (the usual broker convention).' },
     ],
     preset: VG ? { label: 'Load the real Vanguard file (31 rows)', values: { rows: VG } } : undefined,
+    fileDrop: {
+      label: 'Or drop ANY downloaded activity file here (CSV) — or click to choose',
+      hint: 'Vanguard, Fidelity, E*TRADE, Schwab… the reader finds the word and amount columns by name, whatever the institution calls them. Nothing leaves this machine.',
+      apply: parseActivityFile,
+    },
     compute(v) {
       const parsed = rows3(v.rows);
       const rows: LedgerRow[] = parsed.map((r) => toLedgerRow({ word: r.a, description: r.b, amount: r.c }, 'NEGATIVE_IS_OUT'));
@@ -369,6 +455,46 @@ export const CARDS: Card[] = [
         ...(s.gap > 0 ? [{ label: 'To close the gap', value: `about ${money(s.suggested_extra_monthly)}/mo more`, note: 'the 4%-rule framing on net spending' }] : []),
         { label: 'What is NOT in the guaranteed income', value: 'your own withdrawals and required minimum distributions — the simulation computes those; typing them in would let the pot fund itself (B5)' },
       ];
+    },
+  },
+
+  {
+    id: 'classifyfile', title: 'A whole holdings file, classified line by line',
+    engine: 'CLASSIFY_HOLDING (B7) · RECONCILE_ACCOUNT_TOTAL',
+    what: 'Drop any holdings download — or type made-up lines — and watch every line land in its class by the ONE classifier: the institution’s words first, never a guess. Then the class totals, exactly, and the check against a stated total if you give one.',
+    fields: [
+      { key: 'rows', label: 'Holdings — one per line: symbol | name | value', type: 'textarea', wide: true,
+        default: 'VMFXX | VANGUARD FEDERAL MONEY MARKET INVESTOR CL | 837.94\n912797VW4 | U S TREASURY BILL 0 11/10/26 07/14/26 | 225019.43\nSNDL | SNDL INC | 4410\nGLD | SPDR GOLD SHARES | 12000\nZZZZ | SOMETHING I MADE UP | 5000' },
+      { key: 'stated', label: 'The broker’s stated total (optional — leave 0 to skip the check)', type: 'number', default: 0 },
+    ],
+    fileDrop: {
+      label: 'Drop ANY holdings file here (CSV) — or click to choose',
+      hint: 'The reader finds the name, symbol and value columns by their headers. Edit the parsed lines freely afterward.',
+      apply: parseHoldingsFile,
+    },
+    compute(v) {
+      const parsed = rows3(v.rows);
+      const words: Record<string, string> = { cash: 'Cash', stocks_etf: 'Stocks / Funds', bonds: 'Bonds & CDs', alternatives: 'Alternatives' };
+      const totals: Record<string, Dec> = { cash: Dec.ZERO, stocks_etf: Dec.ZERO, bonds: Dec.ZERO, alternatives: Dec.ZERO };
+      const out: ResultRow[] = [];
+      const lines: ResultRow[] = [];
+      for (const r of parsed) {
+        const verdict = classifyHoldingClass({ ticker: r.a, name: r.b, hasSecurityIdentity: !!(r.a || r.b) });
+        const val = Dec.parse(r.c) ?? Dec.ZERO;
+        totals[verdict.cls] = totals[verdict.cls].add(val);
+        lines.push({ label: `${r.a || '—'} · ${r.b || '(no name)'}`, value: `${words[verdict.cls]} · ${dec(val)}`, note: `${verdict.source}: ${verdict.why}` });
+      }
+      const sum = Dec.sum(Object.values(totals));
+      for (const k of ['cash', 'stocks_etf', 'bonds', 'alternatives']) {
+        if (!totals[k].isZero()) out.push({ label: words[k], value: dec(totals[k]) });
+      }
+      out.push({ label: 'Everything summed, exactly', value: dec(sum) });
+      const stated = Dec.parse(v.stated);
+      if (stated != null && !stated.isZero()) {
+        const rr = reconcileAccountTotal(parsed.map((r) => r.c), 0, v.stated);
+        out.push({ label: 'Against the stated total', value: rr.ok ? 'MATCHES to the cent' : `differs by ${dec(rr.difference)}`, good: rr.ok, bad: !rr.ok, note: rr.sentence });
+      }
+      return [...out, ...lines.slice(0, 60)];
     },
   },
 

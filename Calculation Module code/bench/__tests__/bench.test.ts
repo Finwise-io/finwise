@@ -50,3 +50,37 @@ describe('the engine bench', () => {
     for (const card of CARDS) expect(card.engine.length).toBeGreaterThan(3);
   });
 });
+
+// ── the file readers: ANY institution's columns, found by name — and honest when absent ──
+describe('the file drop', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const { parseActivityFile, parseHoldingsFile } = require('../bench-entry');
+  const DL = path.join(__dirname, '../../../Calculation Module/real-downloads');
+
+  test('a made-up file with unfamiliar column names still parses — and unknown words count in nothing', () => {
+    const r = parseActivityFile('Date,Activity Type,Memo,Principal Amount\n1/2/26,Wire In,opening,50000\n3/2/26,Mystery,who knows,777', 'random.csv');
+    expect(r.values.rows.split('\n')).toHaveLength(2);
+    expect(r.note).toContain('Activity Type');
+  });
+
+  test('a file with no recognisable columns says so instead of guessing', () => {
+    const r = parseActivityFile('a,b,c\n1,2,3', 'junk.csv');
+    expect(r.values.rows).toBeUndefined();
+    expect(r.note).toContain('Could not find');
+  });
+
+  const vg = path.join(DL, 'tes-vk.csv');
+  (fs.existsSync(vg) ? test : test.skip)('the real Vanguard file: 31 activity rows AND 7 holdings from the same file', () => {
+    const text = fs.readFileSync(vg, 'utf8');
+    expect(parseActivityFile(text, 'tes-vk.csv').values.rows.split('\n')).toHaveLength(31);
+    expect(parseHoldingsFile(text, 'tes-vk.csv').values.rows.split('\n')).toHaveLength(7);
+  });
+
+  const fid = path.join(DL, 'Fidelity-activity.csv');
+  (fs.existsSync(fid) ? test : test.skip)('the real Fidelity file: the Action/Amount columns are found', () => {
+    const r = parseActivityFile(fs.readFileSync(fid, 'utf8'), 'Fidelity-activity.csv');
+    expect(r.values.rows.split('\n').length).toBeGreaterThan(0);
+    expect(r.note).toContain('Action');
+  });
+});
