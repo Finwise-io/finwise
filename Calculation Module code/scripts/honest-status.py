@@ -9,7 +9,7 @@
 #
 #   CHECKED vs REAL DATA — compared against an institution's own file or statement. The only level
 #                          that proves the number is RIGHT rather than merely consistent.
-#   PINNED               — a test runs the real code and confirms it does what the row says. This
+#   DOCUMENTED               — a test runs the real code and confirms it does what the row says. This
 #                          proves the DESCRIPTION is true. It does NOT prove the behaviour is right.
 #   YOUR CALL            — pinned, but resting on a number or rule WE chose, which a reasonable
 #                          person could choose differently. Not a defect; a decision you should see.
@@ -45,7 +45,7 @@ YOUR_CALL = {
 }
 STATUS = {
  "CHECKED vs REAL DATA": "compared against the founder's own Vanguard file or statement — the only level that proves the number is RIGHT",
- "PINNED":               "a test runs the real code and confirms it does what this row says. Proves the DESCRIPTION, not that the behaviour is right",
+ "DOCUMENTED":               "a test runs the real code and confirms it does what this row says. Proves the DESCRIPTION, not that the behaviour is right",
  "YOUR CALL":            "pinned, but resting on a number or rule WE chose. Not a defect — a decision worth your eye. Column J says which",
  "DEFECT":               "I believe this is wrong. Column J says what it needs",
  "NOT BUILT":            "does not exist in the app",
@@ -54,7 +54,7 @@ STATUS = {
 wb = openpyxl.load_workbook(XW); ws = wb["1. Metric Matrix"]
 from openpyxl.styles import PatternFill, Font, Alignment
 FILL = {"CHECKED vs REAL DATA": PatternFill("solid", fgColor="D6EAD9"),
-        "PINNED":               PatternFill("solid", fgColor="EAF3EC"),
+        "DOCUMENTED":               PatternFill("solid", fgColor="EAF3EC"),
         "YOUR CALL":            PatternFill("solid", fgColor="FFF2CC"),
         "DEFECT":               PatternFill("solid", fgColor="FBE3E3"),
         "NOT BUILT":            PatternFill("solid", fgColor="EEEEE9")}
@@ -69,7 +69,7 @@ for r in range(5, ws.max_row + 1):
     elif str(cur).strip() == "NOT BUILT": new = "NOT BUILT"
     elif m in CHECKED:              new = "CHECKED vs REAL DATA"
     elif m in YOUR_CALL:            new = "YOUR CALL"
-    else:                           new = "PINNED"
+    else:                           new = "DOCUMENTED"
     ws.cell(r, 9, new); ws.cell(r, 9).fill = FILL[new]; ws.cell(r, 9).alignment = WRAP
     # append the specific judgement to column J so "which call?" is answerable in place
     if new == "YOUR CALL":

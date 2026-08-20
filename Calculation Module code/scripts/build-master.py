@@ -143,6 +143,56 @@ for r in range(3, src.max_row + 1):
     row += 1
 engines_written = row - 3
 
+# ── E12 (founder brief 2026-08-20): PINNED certified documentation, not correctness — and it was
+# 73% of the file, so the word carried false comfort. Renamed DOCUMENTED on both tabs. ──────────
+def _honest(v):
+    return "DOCUMENTED" if str(v or "").strip() == "PINNED" else v
+for _r in range(3, ws.max_row + 1):
+    ws.cell(_r, 11, _honest(ws.cell(_r, 11).value))
+for _r in range(5, mm.max_row + 1):
+    mm.cell(_r, 9, _honest(mm.cell(_r, 9).value))
+
+# ── E2: ONE status per calculation. Ten rows carried opposite statuses on the two tabs — several
+# DOCUMENTED-with-no-fix on the Engines tab while the Metrics tab called them DEFECT. A reader
+# could not tell which tab to believe. Rule: where a metric cites exactly ONE engine, the SEVERER
+# claim wins on both tabs — an engine can be documented-as-described AND wrong — and the engine's
+# "Fix needed?" flag follows. A guard then FAILS the build if any disagreement survives. ─────────
+_SEV = {"DEFECT": 6, "UNRESOLVED": 5, "NOT BUILT": 4, "YOUR CALL": 3, "DOCUMENTED": 2, "CHECKED vs REAL DATA": 1}
+_eng_row = {}
+for _r in range(3, ws.max_row + 1):
+    if ws.cell(_r, 3).value: _eng_row[str(ws.cell(_r, 3).value).strip()] = _r
+def _cited(text):
+    toks = str(text or "").replace("·", " ").replace("/", " ").replace(",", " ").replace("(", " ").replace(")", " ").split()
+    return [t for t in toks if t.isupper() and "_" in t and t in _eng_row]
+_reconciled = 0
+# to a FIXED POINT: three metrics can share one engine, so a defect learned from the second row
+# must flow back to the first — one pass is order-dependent, repeated passes are not
+for _pass in range(5):
+    _changed = 0
+    for _r in range(5, mm.max_row + 1):
+        _engines = _cited(mm.cell(_r, 8).value)
+        _mstat = str(mm.cell(_r, 9).value or "").strip()
+        if len(_engines) != 1 or _mstat not in _SEV: continue
+        _er = _eng_row[_engines[0]]
+        _estat = str(ws.cell(_er, 11).value or "").strip()
+        if _estat not in _SEV or _estat == _mstat: continue
+        _win = _mstat if _SEV[_mstat] >= _SEV[_estat] else _estat
+        mm.cell(_r, 9, _win); ws.cell(_er, 11, _win)
+        if _win in ("DEFECT", "UNRESOLVED"): ws.cell(_er, 13, "Y")
+        ws.cell(_er, 11).fill = (BAD if _win in ("DEFECT", "UNRESOLVED") else CALL if _win == "YOUR CALL" else OK)
+        _changed += 1
+    _reconciled += _changed
+    if not _changed: break
+# the guard: no single-engine disagreement may survive to the written file
+for _r in range(5, mm.max_row + 1):
+    _engines = _cited(mm.cell(_r, 8).value)
+    _mstat = str(mm.cell(_r, 9).value or "").strip()
+    if len(_engines) != 1 or _mstat not in _SEV: continue
+    _estat = str(ws.cell(_eng_row[_engines[0]], 11).value or "").strip()
+    if _estat in _SEV and _estat != _mstat:
+        raise SystemExit(f"⛔ STATUS DISAGREEMENT survived reconciliation: {mm.cell(_r,1).value} says {_mstat}, engine {_engines[0]} says {_estat}")
+print(f"   E2: {_reconciled} status disagreement(s) reconciled — severer claim won; guard passed")
+
 # ── the WORK LIST: everything needing a fix or a decision, in one place ──────────────────────────
 wl = master.create_sheet("3. Work list", 3)
 wl.sheet_properties.tabColor = "A32D2D"
@@ -164,10 +214,21 @@ for r in range(3, ws.max_row + 1):
     if ws.cell(r, 13).value == "Y":
         items.append((ws.cell(r, 3).value, ws.cell(r, 11).value, ws.cell(r, 12).value,
                       ws.cell(r, 14).value, ws.cell(r, 16).value, ws.cell(r, 2).value))
+# E4 (founder brief 2026-08-20): the list used to be generated from ENGINE rows only, which hid
+# 19 metric-level defects — including the doubled interest. The Metrics tab is swept too: a row
+# whose status says DEFECT / UNRESOLVED / NOT BUILT is work, whether or not any engine row agrees.
+_engine_items = {str(i[0]).strip() for i in items if i[0]}
+for r in range(5, mm.max_row + 1):
+    _st = str(mm.cell(r, 9).value or "").strip()
+    if _st not in ("DEFECT", "UNRESOLVED", "NOT BUILT"): continue
+    _engines = _cited(mm.cell(r, 8).value)
+    if len(_engines) == 1 and _engines[0] in _engine_items: continue     # already listed via its engine
+    items.append((mm.cell(r, 1).value, f"{_st} (metric)",
+                  mm.cell(r, 10).value, mm.cell(r, 11).value, None, mm.cell(r, 1).value))
 for i, (eng, kind, should, rec, verdict, metric) in enumerate(items, start=1):
     for c, v in enumerate([i, eng, kind, should, rec, verdict, metric], start=1):
         cell = wl.cell(i + 2, c, v); cell.alignment, cell.border = WRAP, THIN
-        if c == 3: cell.fill = BAD if kind == "DEFECT" else CALL
+        if c == 3: cell.fill = BAD if str(kind).startswith("DEFECT") else CALL
         if c == 6: cell.fill = YOURS
 wl.freeze_panes = "B3"
 
@@ -189,7 +250,7 @@ rows = [
      f"{len(items)} rows needing a fix or a decision, gathered in one place with a column for your verdict."),
     ("How to read 'How much we know'",
      "CHECKED vs REAL DATA — compared against a real institution file. The only level showing a number "
-     "is RIGHT rather than merely self-consistent.  ·  PINNED — a test proves the row DESCRIBES the code, "
+     "is RIGHT rather than merely self-consistent.  ·  DOCUMENTED — a test proves the row DESCRIBES the code, "
      "not that the behaviour is right.  ·  YOUR CALL — resting on a threshold or table we chose.  ·  "
      "DEFECT — believed wrong.  ·  UNRESOLVED — needs your decision."),
     ("The two blue columns", "Yours. Nothing regenerating this file ever writes to them."),

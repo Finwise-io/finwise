@@ -205,7 +205,7 @@ ADD = [
  ("PERFORMANCE SCREEN", None, None, None, None, None, None, None, None, None),
  ("Portfolio period return", "Account", "Σ(holding return × value) ÷ Σ(value)", "Per-holding returns + values", "DERIVED",
   "Money-weighted across holdings, not an equal average. A holding with no return is dropped from BOTH the numerator and the weights.",
-  "Performance", "PORTFOLIO_RETURN", "BUILT",
+  "Performance", "VALUE_WEIGHTED_RETURN", "BUILT",
   "An arbitrary date range. It answers six named periods only, so it can never sit beside a statement window — though the engine that takes any two dates already exists, exported and unused."),
  ("Winners and detractors", "Position", "Weight × the holding's own return", "Values + returns", "DERIVED",
   "Contributions should sum to roughly the portfolio return.", "Performance", "WHAT_DROVE_THE_RETURN", "BUILT",

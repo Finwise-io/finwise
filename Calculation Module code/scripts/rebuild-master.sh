@@ -16,6 +16,8 @@ echo "── 2/4  building the inventory"
 python3 "Calculation Module code/scripts/build-inventory-xlsx.py"
 echo "── 3/4  reading the architecture off disk"
 node "Calculation Module code/scripts/architecture-map.mjs" | tail -3
+echo "── 3b/4  rewriting numeric tab references to names (E6)"
+python3 "Calculation Module code/scripts/name-refs-sweep.py"
 echo "── 4/4  merging into the master"
 python3 "Calculation Module code/scripts/build-master.py"
 echo "── done"

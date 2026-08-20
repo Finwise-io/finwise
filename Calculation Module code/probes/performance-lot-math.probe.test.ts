@@ -79,9 +79,9 @@ describe('HOLDING_CAP_GAINS / CAP_GAINS_TAX', () => {
     expect(g.totalGain).toBe(1000);
   });
 
-  test('twelve whole months is the line', () => {
-    expect(capGains(P(lot(10, 100, '2025-08-17')), 150, NOW).longGain).toBe(500);
-    expect(capGains(P(lot(10, 100, '2025-09-17')), 150, NOW).shortGain).toBe(500);
+  test('MORE than one year is the line, day-precise (E7 — was: twelve calendar months)', () => {
+    expect(capGains(P(lot(10, 100, '2025-08-16')), 150, NOW).longGain).toBe(500);   // a year and a day
+    expect(capGains(P(lot(10, 100, '2025-09-17')), 150, NOW).shortGain).toBe(500);  // well inside a year
   });
 
   test('a lot with no cost is SKIPPED, not treated as free shares', () => {
@@ -91,6 +91,18 @@ describe('HOLDING_CAP_GAINS / CAP_GAINS_TAX', () => {
 
   test('no price means no gain figure at all', () => {
     expect(capGains(P(lot(10, 100)), null, NOW)).toEqual({ longGain: 0, shortGain: 0, totalGain: 0 });
+  });
+
+  test('E7: the line is DAY-precise — 335 days is SHORT, whatever the calendar months say', () => {
+    // the old rule counted calendar months: bought Jan 31, checked Jan 1 read as 12 months and
+    // went LONG-term at 335 days — always the lower tax. Day-precise now, and exactly one year
+    // is still short (the IRS line is MORE than one year).
+    const jan1 = new Date(2026, 0, 1);
+    expect(capGains(P(lot(10, 100, '2025-01-31')), 150, jan1).shortGain).toBe(500);
+    const exactYear = new Date(2026, 0, 31);
+    expect(capGains(P(lot(10, 100, '2025-01-31')), 150, exactYear).shortGain).toBe(500);
+    const dayAfter = new Date(2026, 1, 1);
+    expect(capGains(P(lot(10, 100, '2025-01-31')), 150, dayAfter).longGain).toBe(500);
   });
 
   test('an unparseable purchase date is treated as SHORT-term — the cautious side', () => {

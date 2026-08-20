@@ -30,7 +30,10 @@ const MODULES = {
   'insights':    [/domain\/insights/, /domain\/gaps/, /domain\/completeness/, /milestones/],
   'setup':       [/onboarding/, /domain\/profile/],
   'calculation-module': [/Calculation Module code\/engines/],
-  'foundation':  [/domain\/_shared/, /utils\//, /store\//, /services\/firebase/, /services\/marketData/, /services\/economicData/],
+  // E5 (founder brief 2026-08-20): the six market-data engines had NO module — they hid inside
+  // foundation while the master called their part "Market data", so the two counts could not close.
+  'market-data': [/services\/marketData/, /services\/economicData/],
+  'foundation':  [/domain\/_shared/, /utils\//, /store\//, /services\/firebase/],
 };
 const moduleOf = (rel) => Object.entries(MODULES).find(([, p]) => p.some((x) => x.test(rel)))?.[0] ?? 'shared-ui';
 
@@ -70,7 +73,7 @@ const doc = JSON.parse(execSync(`python3 -c '${py.replace(/'/g, "'\\''")}'`).toS
 // map a module to the master file's "part of the app" wording
 const PART = { 'net-worth': 'Net worth', performance: 'Performance', plan: 'Plan & retirement',
   'cash-flow': 'Cash flow', accounts: 'Accounts & connections', debt: 'Debt', goals: 'Goals',
-  insights: 'Insights', setup: 'Setup', foundation: 'Foundation' };
+  insights: 'Insights', setup: 'Setup', foundation: 'Foundation', 'market-data': 'Market data' };
 
 const report = Object.entries(mods)
   .map(([m, v]) => ({
@@ -92,3 +95,15 @@ for (const r of report) {
     `   ${String(r.documented).padStart(10)}  ${String(r.needsFix).padStart(9)}  ${String(r.yourCall).padStart(9)}   ${r.dependsOn.join(' ')}`);
 }
 console.log(`\n  written to ${path.relative(ROOT, OUT)}`);
+
+// ── E5 GUARD: the architecture's documented count must equal the master's engine rows — a build
+// where the two disagree is describing two different apps, and it FAILS rather than publishes.
+const masterTotal = Object.values(doc).reduce((t, d) => t + d.engines, 0);
+const mappedTotal = report.reduce((t, r) => t + r.documented, 0);
+const unmappedParts = Object.keys(doc).filter((p) => !Object.values(PART).includes(p));
+if (mappedTotal !== masterTotal || unmappedParts.length) {
+  console.error(`\n  ⛔ COUNT MISMATCH: master documents ${masterTotal} engines, the architecture maps ${mappedTotal}.`);
+  if (unmappedParts.length) console.error(`     Parts with no module: ${unmappedParts.join(', ')}`);
+  process.exit(1);
+}
+console.log(`  counts CLOSE: ${masterTotal} engines documented = ${mappedTotal} mapped, no part without a module.`);

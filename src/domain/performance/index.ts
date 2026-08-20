@@ -51,8 +51,14 @@ export function marketValue(p: Position, price: number | null | undefined): numb
 export function unrealizedGain(p: Position, price: number | null | undefined): number {
   return price == null ? 0 : round2(marketValue(p, price) - costBasis(p));
 }
-/** Unrealized capital gains split by holding period — long-term (held ≥ 1 year) vs short-term.
- *  Computed per lot from its purchase date; lots without a cost basis are skipped. */
+/** Unrealized capital gains split by holding period — long-term (held MORE than one year, the
+ *  IRS line, day-precise) vs short-term. Computed per lot from its purchase date; lots without a
+ *  cost basis are skipped.
+ *  E7 (founder brief 2026-08-20): the old rule counted CALENDAR MONTHS — bought Jan 31, sold
+ *  Jan 1 was 335 days yet read as long-term, always erring toward the LOWER tax. Day-precise now:
+ *  long-term begins the day AFTER the one-year anniversary; exactly one year is still short.
+ *  An unparseable purchase date stays SHORT-term — the cautious side (understating a tax bill is
+ *  the worse mistake). */
 export interface CapGains { longGain: number; shortGain: number; totalGain: number; }
 export function capGains(p: Position, price: number | null | undefined, now: Date = new Date()): CapGains {
   if (price == null) return { longGain: 0, shortGain: 0, totalGain: 0 };
@@ -61,8 +67,18 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
     if (!(lot.cost_per_share > 0) || !(lot.shares > 0)) continue;
     const gain = lot.shares * (price - lot.cost_per_share);
     const bought = new Date(lot.purchase_date);
-    const heldMonths = isNaN(bought.getTime()) ? 0 : (now.getFullYear() - bought.getFullYear()) * 12 + (now.getMonth() - bought.getMonth());
-    if (heldMonths >= 12) lg += gain; else sg += gain;
+    let longTerm = false;
+    if (!isNaN(bought.getTime())) {
+      // compare CALENDAR DAYS, not instants — a date-only string parses as UTC while `now` is
+      // local, and mixing the two moved the line by a timezone's worth of hours
+      const anniversary = new Date(bought);
+      anniversary.setUTCFullYear(anniversary.getUTCFullYear() + 1);
+      const annKey = anniversary.toISOString().slice(0, 10);
+      const p2 = (n: number) => String(n).padStart(2, '0');
+      const nowKey = `${now.getFullYear()}-${p2(now.getMonth() + 1)}-${p2(now.getDate())}`;
+      longTerm = nowKey > annKey;
+    }
+    if (longTerm) lg += gain; else sg += gain;
   }
   return { longGain: round2(lg), shortGain: round2(sg), totalGain: round2(lg + sg) };
 }
