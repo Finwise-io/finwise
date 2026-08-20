@@ -33,6 +33,7 @@ function recomputeBalances(accs: AssetAccount[], cache: Record<string, PriceSeri
 }
 import { debtsFromOnboarding, type Debt } from '../domain/debt';
 import { ingestSync as ingestSyncPure, type AccountSyncPayload } from '../services/sync/ingest';
+import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapshots, type SnapshotDay } from '../../Calculation Module code/engines/snapshots';
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
@@ -255,6 +256,7 @@ type AppState = {
   monthlySnapshots: Record<string, any>;         // 'YYYY-MM' → frozen month-end metrics (net worth, income, spend, savings, debt)
   nwDaily: Record<string, number>;               // 'YYYY-MM-DD' → net worth chart point (founder 2026-07-19: graph within days); pruned to DAILY_KEEP
   invDaily: Record<string, number>;              // 'YYYY-MM-DD' → cash+investments point — the NW change-% denominator (founder rule 2026-08-04)
+  snapshotDays: SnapshotDay[];                   // Track 1 step 6: the full daily record (per-account, per-holding, units+price apart) — what "beginning" is READ from instead of back-solved
   retirementAssumptions: RetirementAssumptions;   // user overrides for the retirement projection (null fields → derive from data)
   estatePlan: Record<string, boolean>;            // estate checklist: item id → done
   retirementScenarios: RetirementScenario[];      // saved what-if scenarios
@@ -498,6 +500,7 @@ export const useStore = create<AppState>()(
       monthlySnapshots: {},
       nwDaily: {},
       invDaily: {},
+      snapshotDays: [],
       retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
       retirementScenarios: [],
@@ -831,6 +834,12 @@ export const useStore = create<AppState>()(
       captureDailyNw: (dateKey: string, nw: number, investable?: number) => set((s: any) => ({
         nwDaily: pruneDaily({ ...(s.nwDaily ?? {}), [dateKey]: nw }),
         ...(investable != null ? { invDaily: pruneDaily({ ...(s.invDaily ?? {}), [dateKey]: investable }) } : {}),
+        // Track 1 step 6: the FULL record rides the same once-a-day write — per account and per
+        // holding, units and price kept apart, append-only with same-day supersede. This is the
+        // record the old code never kept, which is why a beginning value had to be back-solved.
+        snapshotDays: pruneSnapshots(
+          recordSnapshotDay(s.snapshotDays ?? [], buildDayFromAccounts(s.assetAccounts ?? [], dateKey, new Date().toISOString())),
+          dateKey),
       })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
       adoptPlan: (patch, label) => set((s) => ({
@@ -1037,7 +1046,7 @@ export const useStore = create<AppState>()(
       addBigCost: (c) => set((st: any) => ({ bigCosts: [...(st.bigCosts ?? []), { id: `bc_${(st.bigCosts?.length ?? 0) + 1}_${c.year}`, ...c }] })),
       updateBigCost: (id, patch) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).map((x: any) => x.id === id ? { ...x, ...patch } : x) })),
       deleteBigCost: (id) => set((st: any) => ({ bigCosts: (st.bigCosts ?? []).filter((x: any) => x.id !== id) })),
-      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {},
+      allocatedByMonth: {}, allocPromptSkipped: {}, monthlySnapshots: {}, nwDaily: {}, invDaily: {}, snapshotDays: [],
         retirementAssumptions: { retireAge: null, horizonAge: null, contribMonthly: null, spendMonthly: null, guaranteedMonthly: null, risk: null, expectedReturn: null, inflation: null, ssEligible: null, ssMonthly: null, ssClaimAge: null, targetNestEgg: null, debtExtraMonthly: null, actualReturn: null, returnBasis: null },
       estatePlan: {},
         retirementScenarios: [], planHistory: [],

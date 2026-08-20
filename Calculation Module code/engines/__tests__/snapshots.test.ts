@@ -149,3 +149,36 @@ describe('ORIGIN — a reconstruction is not a record', () => {
     // so a screen can label a rebuilt history honestly rather than presenting it as observed fact
   });
 });
+
+// ── Track 1 step 6: the day builder — the write the old code never made ──
+describe('buildDayFromAccounts', () => {
+  const { buildDayFromAccounts } = require('../snapshots');
+  const CONNECTED = {
+    asset_id: 'vg', source: 'connected', balance: 362088.59, cash_balance: 837.94,
+    positions: [
+      { ticker: 'SNDL', last_price: 1.26, lots: [{ shares: 3500, cost_per_share: 2 }] },
+      { ticker: 'LCTX', last_price: null, lots: [{ shares: 100, cost_per_share: 1.5 }] },   // unpriced
+    ],
+  };
+  const CASH_ACCOUNT = { asset_id: 'chk', source: 'manual', asset_class: 'cash', balance: 12000, positions: [] };
+
+  test('units and price are kept APART, and an unpriced holding records its basis — never $0', () => {
+    const day = buildDayFromAccounts([CONNECTED, CASH_ACCOUNT], '2026-08-20', '2026-08-20T12:00:00Z');
+    const sndl = day.holdings.find((h: any) => h.securityKey === 'SNDL')!;
+    expect(sndl.units).toBe(3500);
+    expect(sndl.price).toBe(1.26);
+    expect(sndl.value).toBe(4410);
+    const lctx = day.holdings.find((h: any) => h.securityKey === 'LCTX')!;
+    expect(lctx.price).toBeNull();
+    expect(lctx.value).toBe(150);                        // basis, honestly labelled by the null price
+  });
+
+  test('the sleeve is the connected account\'s cash; a manual cash account records its balance; the broker\'s stated total is kept as the outside check', () => {
+    const day = buildDayFromAccounts([CONNECTED, CASH_ACCOUNT], '2026-08-20', '2026-08-20T12:00:00Z');
+    expect(day.accounts.find((a: any) => a.accountId === 'vg')!.cash).toBe(837.94);
+    expect(day.accounts.find((a: any) => a.accountId === 'vg')!.statedTotal).toBe(362088.59);
+    expect(day.accounts.find((a: any) => a.accountId === 'chk')!.cash).toBe(12000);
+    expect(day.accounts.find((a: any) => a.accountId === 'chk')!.statedTotal).toBeNull();
+    expect(day.origin).toBe('observed');
+  });
+});

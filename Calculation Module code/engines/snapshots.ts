@@ -65,6 +65,56 @@ export const holdingId = (s: Pick<HoldingSnapshot, 'date' | 'accountId' | 'secur
 export const accountId = (s: Pick<AccountSnapshot, 'date' | 'accountId'>): string =>
   `${s.date}|${s.accountId}`;
 
+
+// ── building a day from what the app holds right now ────────────────────────────────────────────
+/** The shape this builder needs from a stored account — structural, so the engine imports nothing
+ *  from the app. Numbers are recorded VERBATIM as the institution gave them (a JSON round-trip
+ *  keeps them identical); every SUM over them runs through the decimal engine at read time. */
+export interface AccountLike {
+  asset_id: string;
+  balance?: number;
+  cash_balance?: number | null;
+  source?: string;
+  asset_class?: string;
+  positions?: Array<{
+    ticker?: string;
+    last_price?: number | null;
+    lots?: Array<{ shares?: number; cost_per_share?: number }>;
+  }> | null;
+}
+
+/** Today's SnapshotDay, observed from the live account state. This is the write the old code never
+ *  made — the reason "beginning" had to be back-solved. securityKey falls back to the ticker until
+ *  a resolved security id exists on stored positions. */
+export function buildDayFromAccounts(accounts: AccountLike[], date: string, writtenAt: string): SnapshotDay {
+  const holdings: HoldingSnapshot[] = [];
+  const accts: AccountSnapshot[] = [];
+  for (const a of accounts ?? []) {
+    const ps = a.positions ?? [];
+    for (const p of ps) {
+      const units = (p.lots ?? []).reduce((t, l) => t + (l.shares || 0), 0);
+      if (!(units > 0) || !p.ticker) continue;
+      const basis = (p.lots ?? []).reduce((t, l) => t + (l.shares || 0) * (l.cost_per_share || 0), 0);
+      holdings.push({
+        date, accountId: a.asset_id, securityKey: p.ticker, symbol: p.ticker,
+        units, price: p.last_price ?? null,
+        // the broker's mark when there is one; the honest cost fallback when there is not —
+        // the same rule pricing uses everywhere (never $0 for an unpriced holding)
+        value: p.last_price != null ? Math.round(units * p.last_price * 100) / 100 : Math.round(basis * 100) / 100,
+        currency: 'USD',
+      });
+    }
+    accts.push({
+      date, accountId: a.asset_id,
+      // uninvested cash: the sleeve on a connected account; the whole balance of a cash account
+      cash: a.cash_balance ?? (a.asset_class === 'cash' || (!ps.length && a.source !== 'connected') ? (a.balance ?? 0) : 0),
+      statedTotal: a.source === 'connected' ? (a.balance ?? null) : null,
+      currency: 'USD',
+    });
+  }
+  return { date, holdings, accounts: accts, origin: 'observed', writtenAt };
+}
+
 // ── retention ───────────────────────────────────────────────────────────────────────────────────
 /** Two years of daily rows. Founder decision: two years is enough, and it is why the Performance
  *  screen offers no window longer than two years — a window longer than the record would draw a

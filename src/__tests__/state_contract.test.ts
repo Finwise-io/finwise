@@ -179,3 +179,28 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect(doc).toMatch(/never leaves your device|zero dollar signs/i);
   });
 });
+
+// ── Track 1 step 6: the snapshot store — beginning values are READ, never back-solved ──
+describe('the daily snapshot record', () => {
+  const { useStore } = require('../store/useStore');
+  test('the once-a-day write records the FULL day, and a same-day rewrite supersedes it', () => {
+    useStore.setState({
+      assetAccounts: [{
+        asset_id: 'vg', source: 'connected', balance: 100000, cash_balance: 500,
+        positions: [{ position_id: 'p1', ticker: 'VTI', last_price: 250, lots: [{ lot_id: 'l1', shares: 100, cost_per_share: 200, purchase_date: '2024-01-01' }] }],
+      }] as any,
+    });
+    useStore.getState().captureDailyNw('2026-08-20', 100000, 100000);
+    let days = (useStore.getState() as any).snapshotDays;
+    expect(days).toHaveLength(1);
+    expect(days[0].holdings[0]).toMatchObject({ securityKey: 'VTI', units: 100, price: 250, value: 25000 });
+    expect(days[0].accounts[0]).toMatchObject({ cash: 500, statedTotal: 100000 });
+
+    // the account changes and the same day is captured again — superseded, not duplicated
+    useStore.setState({ assetAccounts: [{ asset_id: 'vg', source: 'connected', balance: 99000, cash_balance: 400, positions: [] }] as any });
+    useStore.getState().captureDailyNw('2026-08-20', 99000, 99000);
+    days = (useStore.getState() as any).snapshotDays;
+    expect(days).toHaveLength(1);
+    expect(days[0].accounts[0].cash).toBe(400);
+  });
+});
