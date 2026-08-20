@@ -145,6 +145,9 @@ How much should I trust this number?
 
 ## Open questions for the founder — decisions I could not make as the CFA
 
+All of these were answered by the founder on 2026-08-20 — the verdicts live in METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx and BRIEF-decisions-and-fixes-2026-08-20.md. Questions touching a cut metric (brief §C) are void. Kept for the record only.
+
+
 1. Real-vs-nominal default: should every projection screen lead with today's-money and offer future dollars on tap, or the reverse — one rule for all screens?
 2. May the person's own basket inflation rate (once 12 months of their categorised spending exist) replace the headline rate in their projections, or is it display-only beside the headline?
 3. The two flow thresholds must stop being ambiguous (audit item 4): tab 1 K15 says 1% of beginning value, in the context "above this, use Modified Dietz instead of simple return"; tab 9 row 15 says 10%, in the context "above this, refuse even the Dietz rate". Pick one number in one named place — or keep both as two named tiers, each doing its stated job. Which?

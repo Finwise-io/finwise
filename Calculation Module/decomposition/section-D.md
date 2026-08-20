@@ -88,22 +88,6 @@ What the person is really asking: How much do I need?
 
 ---
 
-### Funded ratio
-What the person is really asking: Am I on track, in one number?
-
-#### P1 — Assets vs liabilities view
-
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Spending path, income streams, or a discount rate | Not built as a metric: tab 2 carries no funded-ratio engine (checked 2026-08-19). The present-value machinery half-exists in code — capitalNeeded() discounts spending net of guaranteed income, plus a bequest, at a real return (retirement/index.ts:32-43, used at onboarding) — so the ratio would be pot ÷ that figure, with realReturn as the discount rate nobody has yet named on a screen. Until wired — and until spending and income are captured — the metric does not appear; the odds (R84) stay the one on-track figure. (Open question 10.) |
-| B degraded | Stated spending and typed income | The ratio is a plan-shaped number; caption its two weakest ingredients, same honesty as the odds. |
-| C shape-per-road | same as Target number P3-C — income and spending only ever arrive typed | Name the source documents; nothing external will ever confirm them. |
-| D time-bounded | The horizon must ride the label | "Funded to 90" and "funded to 100" are different plans — same rule as the odds sentence, where the age is never left off (R77). |
-| E related events | Big one-off costs | Enter the spending side as dated lumps in their own years, never smeared into the annual figure. |
-| F account-type / confidence | Discount rate and tax | The ratio moves hard with the discount rate — show it at two stated rates, a range rather than one clean number (K63's rule; audit item 29). Count the pre-tax slice at an after-tax value, or say plainly that the ratio ignores tax. |
-
----
-
 ### Probability of success
 What the person is really asking: Will my money last?
 
@@ -654,6 +638,9 @@ What the person is really asking: When could I stop?
 ---
 
 ## Open questions for the founder — decisions I could not make as the CFA
+
+All of these were answered by the founder on 2026-08-20 — the verdicts live in METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx and BRIEF-decisions-and-fixes-2026-08-20.md. Questions touching a cut metric (brief §C) are void. Kept for the record only.
+
 
 1. Should "withdrawals" and "RMDs" come out of the typed retirement-income list (tab 2 R106), since counting them as guaranteed income lets the pot pay itself in the odds and inflates the floor?
 2. RMD start age: adopt the birth-year rule (73 for those born before 1960, 75 for 1960 and later) in place of the hard-coded 73 (two copies: decumulation/index.ts:103 and retirement/index.ts:147), and exempt Roth 401(k)s?

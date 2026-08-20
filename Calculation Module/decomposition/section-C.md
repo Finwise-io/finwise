@@ -245,41 +245,6 @@ Am I saving or dipping in?
 
 ---
 
-### Savings rate
-What share am I keeping?
-
-#### P1 — Gross basis
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Gross unknown (take-home-only entry). | For a married filer, gross via the current work-back is overstated (see Income P1-A), which UNDERSTATES the gross-basis rate. Until fixed: show the take-home-basis rate instead (which needs no gross), and label the gross-basis rate "needs your filing status". |
-| B degraded | Spending stated, not measured. | The rate is a PLANNED rate. Both engines today are plan-based (src/domain/savings/index.ts:35,42); the label must say so until measured months exist. |
-| C shape-per-road | 401(k) invisible in bank data. | The spine's trap: a bank feed sees net pay, so the largest saving many people make never appears in deposits. The 401(k) figure comes from the plan answers (or a pay stub); a savings rate computed from bank data alone must say "excludes your 401(k)". |
-| D time-bounded | Monthly vs annual rate. | The flat figure is DERIVED as the 12-month average of the by-month surplus (src/domain/savings/index.ts:29), so lumpy months and the flat rate can never disagree. A single hot month is never annualised into a rate. |
-| E related events | Employer match; debt principal. | On the gross basis, employer contributions go in BOTH numerator and denominator (spine row 49 use 3) — see P3-E for the verified gap in the built rate. Debt principal paydown is NOT counted as saving today (surplus is after debt — docs/finwise-taxonomy-spec.md §6, agreed 2026-06-22) — it builds net worth but is not in this figure; the screen says so. Open question 2. |
-| F account-type / confidence | Which basis is quoted. | Three definitions, wildly different answers (spine row 49). Every rate on screen carries its basis in words: "of before-tax income" / "of take-home pay". A savings rate without its basis is meaningless — the spine's own verdict. |
-
-#### P2 — Net basis
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Take-home unknown (only gross given). | Take-home is modelled through the tax tables (Income P2-A) — the net-basis rate inherits that estimate and its label. |
-| B degraded | Same as P1-B. | Same as P1-B. |
-| C shape-per-road | Same as P1-C. | Same as P1-C — on the net basis the 401(k) sits OUTSIDE the denominator too; the same behaviour scores higher than on gross. Show both, never silently switch. |
-| D time-bounded | Same as P1-D. | Same as P1-D. |
-| E related events | Same as P1-E. | Same as P1-E. |
-| F account-type / confidence | Same as P1-F. | Same as P1-F. |
-
-#### P3 — Including employer match and pension accrual
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Match not captured; pension accrual unknowable. | Match: one onboarding answer, % of contribution or flat (src/domain/income/onboarding.ts:242) — ask, don't guess. A traditional pension's annual accrual value is not computable from anything the app holds; name it as excluded rather than inventing an accrual. |
-| B degraded | Match stated as "up to X%" but contribution unknown. | The match is bounded, not known. Use the match on the ACTUAL contribution; if the contribution is missing, refuse the match line and ask for the 401(k) deferral. |
-| C shape-per-road | Same as P1-C. | Same as P1-C. |
-| D time-bounded | Same as P1-D. | Same as P1-D. |
-| E related events | Match in numerator and denominator. | Add employer money to BOTH the saved amount and gross income (spine row 49 use 3) — adding it only to the numerator flatters the rate. Verified: the built rate does exactly that — savingsRateTotal adds the match to the numerator (src/domain/savings/index.ts:44) over totalGrossAnnual, which contains no employer money (src/domain/income/onboarding.ts:316). The taxonomy spec §6 wrote the same numerator-only formula, so the spec and the engine agree with each other and both disagree with the spine. The spine's finance is right: the match is compensation — income AND saving. Fix: add the match to the denominator too (rate = (savings + 401(k) + match) ÷ (gross + match)), and amend the spec's one line to match. |
-| F account-type / confidence | Retiree drawing down. | A negative rate in retirement is the plan WORKING, not failing. For the retiree lens, replace the savings-rate framing with the withdrawal rate (section D, spine row 65) — colouring a planned drawdown red is bad advice dressed as arithmetic. |
-
----
-
 ### Runway / emergency reserve
 How long could I last?
 
@@ -350,41 +315,6 @@ Am I on plan?
 
 ---
 
-### Safe to spend
-Can I buy this?
-
-#### P1 — Today
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | No bill list exists (no declared recurring items, no due dates). | REFUSE the number. This metric reads as permission, and a missed bill makes it confidently wrong in the most expensive direction (spine row 52 trap). Screen: "To show what's safe to spend we need your regular bills — add them or connect the account they're paid from." |
-| B degraded | Bills known, due dates not. | Assume every known bill lands before the next income — the cautious floor. Label: "assuming all your bills come before your next payday." Never assume bills land late. |
-| C shape-per-road | Worker vs retiree. | The retiree version EXISTS and is the paycheck engine: guaranteed checks that land this month + the level safe draw − big dated bills (src/domain/paycheck/index.ts:153, netSafeToSpend). The worker version is not built; its inputs are balance, declared bills and income timing — build it on the same dated-grid engine, not as a new formula. |
-| D time-bounded | "Today" vs the month. | Today's figure = current balance − bills due before the next income lands. The month figure is the paycheck month. Name the horizon on the number itself ("safe until Sep 1"). |
-| E related events | A bill was missed by the list. | The number must RETRACT visibly when a new bill is learned — a quiet correction teaches the person the old number lied. How loudly it retracts is open question 6. |
-| F account-type / confidence | It is a floor, not a promise. | Always the conservative reading: known bills only, stated as such — "after the 6 bills we know about". For a retiree, the draw-rate flag stays informational (above 4.5% a year → 'high' — the engine's threshold, deliberately looser than the classic 4% guideline; inform, never advise — src/domain/paycheck/index.ts:129). |
-
-#### P2 — Before the next payday
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Payday unknown. | Ask once (income frequency and day). Without it, fall back to end-of-month as the horizon and say so. Never guess a payday from nothing. |
-| B degraded | Same as P1-B. | Same as P1-B. |
-| C shape-per-road | Same as P1-C. | For the retiree, "payday" is the guaranteed-check day(s) the person entered; the paycheck engine already places them by day (GuaranteedRow carries day). |
-| D time-bounded | Days remaining. | Balance − bills due in the window; optionally ÷ days remaining for a per-day figure. Both carry the same known-bills caveat. |
-| E related events | Same as P1-E. | Same as P1-E. |
-| F account-type / confidence | Same as P1-F. | Same as P1-F. |
-
-#### P3 — Without touching goals
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | No goals set. | The figure equals P1/P2 — say "no goals set aside" rather than showing two identical numbers unexplained. |
-| B degraded | Goal earmarks not tied to an account. | An earmark against no specific balance is a plan, not a reservation. Subtract this month's allocated amount from the spendable surplus (src/domain/budget/index.ts:110, never below zero) and label goal money "set aside on paper". |
-| C shape-per-road | Same as P1-C. | Same as P1-C. |
-| D time-bounded | Same as P2-D. | Same as P2-D. |
-| E related events | Spending a goal's money anyway. | Allowed — it is their money — but the screen shows the trade: "this dips $400 into your Ireland trip fund." A silent dip defeats the purpose the person chose. |
-| F account-type / confidence | Same as P1-F. | Same as P1-F. |
-
----
-
 ### Cash flow forecast
 What will my balance be?
 
@@ -417,21 +347,6 @@ What will my balance be?
 | D time-bounded | Years out. | At year scale this stops being a cash-flow forecast and becomes the plan (section D's simulation — 500 paths by default, src/domain/retirement/index.ts:161). Hand off rather than extend the daily engine — one long-range model in the app, not two that disagree. |
 | E related events | Life events. | Retirement date, downsizing, payments that end — long range without them is arithmetic on a life that won't happen. Pull them from the plan; never keep a separate copy. |
 | F account-type / confidence | Same as P1-F. | Same as P1-F — and never show a long-range path as one clean line; the band is the answer (same honesty rule as portfolio longevity). |
-
----
-
-### Age of money
-How far ahead am I living?
-
-#### P1 — Buffer quality
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | No dated ledger of BOTH income arriving and spending leaving (today's state — this needs a bank feed or complete logging). | Refuse the metric. The same worry — "am I living on last month's money?" — is answered honestly today by the essentials runway (Runway P2), which needs only balances. Offer that instead of a fake age. |
-| B degraded | Partial logging (some spending logged, income not, or vice versa). | Still refuse: age of money is average days between a dollar arriving and being spent (YNAB's measure, spine row 54); with one side missing the average is unanchored. This is a measured-behaviour metric — there is no stated-data version of it. |
-| C shape-per-road | Bank feed (future) vs logged. | Only a road that carries dated BOTH-side records qualifies. When the feed lands, compute from matched inflow/outflow dates; logged-only months stay excluded and the label says which months counted. |
-| D time-bounded | What the number means, and when. | Above 30 days means this month's bills are paid with last month's income. It reports the PAST (the spine's trap) — pair it with the forward-looking low point (Cash flow forecast P2) so the person never mistakes it for a forecast. |
-| E related events | Transfers between own accounts. | Moving cash to savings is not spending it; a transfer must not end a dollar's age. Same both-legs netting rule as Net cash flow P1-C — get this wrong and the metric rewards shuffling money. |
-| F account-type / confidence | Whether to ship it at all. | Motivating for some, opaque to many (spine row 54). Recommendation: do not ship until the bank feed exists AND the founder picks it over runway as the buffer story — one buffer metric, not two competing ones. Open question 4. |
 
 ---
 
@@ -505,31 +420,6 @@ What share of income goes to tax?
 
 ---
 
-### Personal inflation
-Is my own cost of living rising?
-
-#### P1 — My basket
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Under ~24 months of categorised spending (the metric needs this year AND last on the same categories). | Refuse the personal figure. Show the published rate instead, clearly labelled as the national figure, with its fallback flag if the feed was down (src/services/economicData.ts:47 marks a stated fallback). "After two years of records we can show YOUR inflation, not the country's." |
-| B degraded | Categories churned or recategorised between the years. | The comparison is only valid on a same-category basis. Exclude categories that did not exist or were substantially recategorised in either year, and name the coverage: "based on 78% of your spending, the categories present in both years." |
-| C shape-per-road | Coverage changed between the years (manual year vs connected year, future). | A coverage jump masquerades as inflation. Compare only months with comparable coverage — same rule as Total spending P2-C, applied across years. |
-| D time-bounded | This year's spend ÷ last year's, same categories. | Full-year over full-year (or matching 12-month windows), one-offs excluded on BOTH sides (spine row 57). Never a 3-month personal inflation — too few observations per category to mean anything. |
-| E related events | One-offs and life changes. | A move, a new car, a wedding are level shifts, not inflation. Flagged one-offs are excluded; a known life change is named beside the figure rather than deflated away. |
-| F account-type / confidence | The retiree basket. | Healthcare and insurance run well above headline inflation and weigh heavier in a retiree's basket (spine row 57 trap) — which is exactly why the PLAN should prefer the personal rate once it exists, and say when it is still using the published one. |
-
-#### P2 — Versus the published index
-| Condition | Case | Calculation or refusal |
-|---|---|---|
-| A missing | Personal rate refused (see P1-A). | Nothing to compare — show the published rate alone. A comparison needs both sides to exist. |
-| B degraded | Published feed down. | The stored fallback carries its flag (Engines row 4: the Treasury endpoint has already been silently dead once — the flag matters more than the number). The comparison says "against the last published figure we have, from <date>". |
-| C shape-per-road | Same as P1-C. | Same as P1-C. |
-| D time-bounded | Same period both sides. | Your 12 months against the SAME 12 months of the index — never your fiscal year against a calendar-year print. |
-| E related events | Same as P1-E. | Same as P1-E. |
-| F account-type / confidence | What the gap means. | "Your costs rose 6.1%; the national figure was 3.2%" is a fact about the person's basket, not an error to fix. One line of interpretation, no advice. |
-
----
-
 ### Income replacement rate
 Am I living on what I planned to?
 
@@ -546,6 +436,9 @@ Am I living on what I planned to?
 ---
 
 ## Open questions for the founder — decisions I could not make as the CFA
+
+All of these were answered by the founder on 2026-08-20 — the verdicts live in METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx and BRIEF-decisions-and-fixes-2026-08-20.md. Questions touching a cut metric (brief §C) are void. Kept for the record only.
+
 
 1. Budget rollover (Budget vs actual P3): should an underspent category's leftover roll into next month at all, and if so — capped at one month, and does OVERspend roll too?
 2. Savings rate (P1-E): does debt principal paydown count as saving? Today the surplus is measured after debt and principal is excluded from "saved" — defensible either way, but it must be one written rule on screen.
