@@ -12,7 +12,7 @@ import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { taxBucketSplit, rmdAtAge, RMD_START_AGE } from '../domain/decumulation';
+import { taxBucketSplit, rmdAtAge, rmdStartAgeFor } from '../domain/decumulation';
 import { rothConversionCost } from '../domain/planning';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../domain/income';
 import { ageFromProfile } from '../utils/persona';
@@ -55,11 +55,11 @@ export default function RothScreen() {
 
   // later effects (r38): the ONE rmdAtAge path, pre-tax balance projected to 73 with the shared return
   const growTo73 = (bal: number) => {
-    if (age == null || age >= RMD_START_AGE) return bal;
+    if (age == null || age >= rmdStartAgeFor(age)) return bal;
     const r = Math.max(0, Math.min(0.12, A.expectedReturn ?? 0.055));
-    return bal * Math.pow(1 + r, RMD_START_AGE - age);
+    return bal * Math.pow(1 + r, rmdStartAgeFor(age) - age);
   };
-  const rmdAgeUsed = Math.max(RMD_START_AGE, age ?? RMD_START_AGE);
+  const rmdAgeUsed = Math.max(rmdStartAgeFor(age), age ?? rmdStartAgeFor(age));
   const rmdSmaller = Math.max(0, Math.round(rmdAtAge(growTo73(preTax), rmdAgeUsed) - rmdAtAge(growTo73(Math.max(0, preTax - amt)), rmdAgeUsed)));
 
   // will-it-last impact (r39): before = the hub's selector untouched; after = the tax cash leaves
@@ -92,7 +92,7 @@ export default function RothScreen() {
       <ScrollView automaticallyAdjustKeyboardInsets style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
         <Text style={s.h1}>Roth conversion</Text>
         <View style={s.card}>
-          <Text style={s.line}>A Roth conversion moves money from a pre-tax retirement account (401(k), traditional IRA) into a Roth account. You pay income tax on the amount now. After that, it grows tax-free and skips the required withdrawals that start at {RMD_START_AGE}.</Text>
+          <Text style={s.line}>A Roth conversion moves money from a pre-tax retirement account (401(k), traditional IRA) into a Roth account. You pay income tax on the amount now. After that, it grows tax-free and skips the required withdrawals that start at {rmdStartAgeFor(age)}.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => router.push('/(tabs)/analytics' as any)}
             accessibilityLabel="Add your retirement accounts on the Net worth tab">
             <Text style={s.secondaryTxt}>Add your retirement accounts ›</Text>
@@ -161,9 +161,9 @@ export default function RothScreen() {
           {/* the two later effects (r38) */}
           <View style={s.card}>
             <SectionBand title="WHAT IT BUYS LATER" />
-            <Text style={s.line}>Required withdrawals at {RMD_START_AGE}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)} a year smaller</Text></Text>
+            <Text style={s.line}>Required withdrawals at {rmdStartAgeFor(age)}: about <Text style={s.strong}>{maskedMoney(rmdSmaller)} a year smaller</Text></Text>
             <Text style={s.line}>Tax-free bucket: {maskedMoney(Math.round(rothNow))} → <Text style={s.strong}>{maskedMoney(Math.round(rothNow + amt))}</Text></Text>
-            <Text style={s.note}>From {RMD_START_AGE} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
+            <Text style={s.note}>From {rmdStartAgeFor(age)} the government requires yearly withdrawals from pre-tax accounts — converting shrinks that requirement.</Text>
           </View>
 
           {/* the will-it-last impact (r39) — honest when it barely moves */}

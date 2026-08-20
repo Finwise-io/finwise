@@ -34,9 +34,13 @@ describe('E1 — Social Security at 71 (all standard claim ages passed)', () => 
     } as any);
     render(<SsTimingScreen />);
     fireEvent.changeText(screen.getByLabelText(/Monthly amount from your Social Security statement/), '2600');
-    // one live option: claim now, at the clamped age-70 factor (124% of 2600 = 3224)
+    // one live option: claim now, at the clamped age-70 factor. B2 (2026-08-20): the factor
+    // anchors at THEIR full retirement age — a 71-year-old was born ~1955, FRA 66y2m, so the
+    // delayed credit runs 46 months, not 36. The old hard-coded 67 underpaid exactly this person.
+    const { ssBenefitAt } = require('../domain/retirement/ssTiming');
+    const expected = ssBenefitAt(2600, 70, new Date().getFullYear() - 71);
     expect(screen.getByText(/at 71 \(now\)/)).toBeOnTheScreen();
-    expect(screen.getByText('$3,224')).toBeOnTheScreen();
+    expect(screen.getByText(`$${expected.toLocaleString()}`)).toBeOnTheScreen();
     expect(screen.getByText(/waiting longer adds nothing/i)).toBeOnTheScreen();
     expect(screen.getByLabelText('Use claim at 71 as my plan')).toBeOnTheScreen();   // a real button exists
     expect(screen.queryByText(/at 62/)).toBeNull();   // choices that no longer exist are never shown

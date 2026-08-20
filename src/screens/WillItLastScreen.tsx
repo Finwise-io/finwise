@@ -59,10 +59,9 @@ export default function WillItLastScreen() {
     <ScrollView style={s.root} contentContainerStyle={s.content} showsVerticalScrollIndicator={false}>
       {/* the headline — the one selector, the one number */}
       <View style={s.card} accessible
-        accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.chance} percent, an estimate${wil.band ? `. In the worst futures ${wil.band.low} percent, in the best ${wil.band.high} percent` : ''}.`}>
+        accessibilityLabel={`Will my money last to ${wil.horizonAge}: ${wil.chance} percent, an estimate.`}>
         <SectionBand title={`WILL MY MONEY LAST? — TO ${wil.horizonAge}`} />
         <Text style={s.headline}>{wil.chance}% <EstimateTag /></Text>
-        {wil.band && <Text style={s.bandTxt}>range {wil.band.low}–{wil.band.high}% across bad-to-good markets</Text>}
       </View>
 
       {/* what the number means — plain English, grade-6 target */}

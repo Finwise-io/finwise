@@ -4,6 +4,7 @@
 // what the list did to the odds. Empty state = the honest default: no entries means the plan
 // quietly assumes no big one-time costs.
 import React, { useMemo, useState } from 'react';
+import { displayOdds } from '../domain/retirement/willItLast';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity, TextInput, Alert } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { useStore } from '../store/useStore';
@@ -31,7 +32,7 @@ export default function BigCostsScreen() {
     [op, accounts, A, costs, store.inflationRate, store.employmentStatus]);
   const withoutChance = useMemo(() => {
     if (!withCosts.captured || withCosts.chance == null || !withCosts.inputs || costs.length === 0) return null;
-    return simulate({ ...withCosts.inputs, one_off_costs: [] }).chance_of_success;
+    return displayOdds(simulate({ ...withCosts.inputs, one_off_costs: [] }).chance_of_success);
   }, [withCosts, costs.length]);
 
   const total = costs.reduce((t, c) => t + (c.amount || 0), 0);

@@ -85,11 +85,11 @@ describe('SELECT_WILL_IT_LAST — and its refusal', () => {
     expect(r.chance).toBeNull();
   });
 
-  test('the best-to-worst range re-runs at a lower and higher return, and always contains the answer', () => {
+  test('B6: the best-to-worst range is gone, and the displayed odds land on fives', () => {
     const r = selectWillItLast(args({ withBand: true }));
-    expect(r.band).not.toBeNull();
-    expect(r.band!.low).toBeLessThanOrEqual(r.chance!);
-    expect(r.band!.high).toBeGreaterThanOrEqual(r.chance!);
+    expect(r.band).toBeNull();
+    expect(r.chance! % 5).toBe(0);
+    expect(Math.abs(r.chance! - r.chanceExact!)).toBeLessThanOrEqual(2.5);   // rounding, nothing more
   });
 });
 

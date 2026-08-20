@@ -216,6 +216,27 @@ export function retirementIncomeMonthly(op: OnboardingProfile | null): number {
     .reduce((t, k) => t + toNum((a as any)['ri_' + k]) / (RI_CAD_DIV[(a as any)['ri_' + k + '_freq']] ?? 1), 0);
 }
 
+/** B1 + B5 (founder brief 2026-08-20): the PLAN's guaranteed-income input, as separate streams of
+ *  OUTSIDE money only. Social Security defaults to INFLATING (COLA); pensions, annuities and other
+ *  income default FLAT — most private pensions are, and the error direction of that default is
+ *  conservative. A per-source override (`ri_<k>_inflates`) wins when the person has set it.
+ *  Withdrawals and RMDs are EXCLUDED here by design: they are what the simulation computes —
+ *  counting them as income lets the pot fund itself, and the odds rise the more a person spends.
+ *  The paycheck DISPLAY still lists every line via retirementIncomeMonthly above. */
+export interface GuaranteedStream { kind: 'ss' | 'pension' | 'annuity' | 'other'; monthly: number; inflates: boolean }
+export function guaranteedOutsideStreams(op: OnboardingProfile | null): GuaranteedStream[] {
+  const a = (op ?? {}) as any;
+  const per = (k: string) => toNum(a['ri_' + k]) / (RI_CAD_DIV[a['ri_' + k + '_freq']] ?? 1);
+  const flag = (k: string, dflt: boolean) => (typeof a['ri_' + k + '_inflates'] === 'boolean' ? a['ri_' + k + '_inflates'] : dflt);
+  const rows: GuaranteedStream[] = [
+    { kind: 'ss', monthly: per('ss'), inflates: flag('ss', true) },
+    { kind: 'pension', monthly: per('pension'), inflates: flag('pension', false) },
+    { kind: 'annuity', monthly: per('annuities'), inflates: flag('annuities', false) },
+    { kind: 'other', monthly: per('other'), inflates: flag('other', false) },
+  ];
+  return rows.filter((r) => r.monthly > 0);
+}
+
 /** Scholarships/grants placed in the calendar months they actually land (Jan→Dec) — NOT averaged.
  *  A yearly award is split across the months chosen; a monthly award repeats every month. */
 export function scholarshipByCalendarMonth(op: OnboardingProfile | null): number[] {

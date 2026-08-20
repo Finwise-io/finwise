@@ -12,7 +12,7 @@ import { Colors, Spacing, Radii } from '../utils/theme';
 import { ageFromProfile } from '../utils/persona';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
-import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, RMD_START_AGE } from '../domain/decumulation';
+import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, rmdStartAgeFor } from '../domain/decumulation';
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
 import { modalAnimation } from '../hooks/reducedMotion';
 
@@ -29,7 +29,7 @@ export default function RequiredWithdrawalsScreen() {
 
   const preTaxAccts = useMemo(() => accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX'), [accounts]);
   const preTax = taxBucketSplit(accounts).preTax;          // the SAME bucket rule Net worth's by-type view uses
-  const applies = age != null && age >= RMD_START_AGE;
+  const applies = age != null && age >= rmdStartAgeFor(age);
 
   const required = applies ? rmdAtAge(preTax, age as number) : 0;
   const taken = useMemo(
@@ -42,7 +42,7 @@ export default function RequiredWithdrawalsScreen() {
     () => (age != null && preTax > 0 ? rmdSchedule(preTax, age, A.expectedReturn ?? 0.055, 12) : []),
     [preTax, age, A.expectedReturn],
   );
-  const startYear = age != null ? nowYear + Math.max(0, RMD_START_AGE - age) : null;
+  const startYear = age != null ? nowYear + Math.max(0, rmdStartAgeFor(age) - age) : null;
 
   // mark-as-taken sheet
   const [markOpen, setMarkOpen] = useState(false);
@@ -86,14 +86,14 @@ export default function RequiredWithdrawalsScreen() {
   const explainer = (
     <View style={s.card}>
       <SectionBand title="WHAT THIS IS" />
-      <Text style={s.line}>From age {RMD_START_AGE}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
+      <Text style={s.line}>From age {rmdStartAgeFor(age)}, the law requires a yearly withdrawal from pre-tax retirement accounts (401(k), traditional IRA). <InfoDot term="rmd" /></Text>
       {preTax > 0 && age != null && !applies && (
         <>
           {/* ONE number for the first year (founder 2026-08-12). The header used to divide TODAY's
               balance by the age-73 divisor while the table below divided the balance GROWN to that
               year — same source, same formula, two answers to one question. The table's own first
               row is the answer now, so the two can never disagree. */}
-          <Text style={s.line}>Yours starts in <Text style={s.strong}>{startYear}</Text> (age {RMD_START_AGE}). Estimated first withdrawal: <Text style={s.strong}>~{maskedMoney(Math.round(schedule[0]?.amount ?? rmdAtAge(preTax, RMD_START_AGE)))}</Text> — it moves with your balance between now and then.</Text>
+          <Text style={s.line}>Yours starts in <Text style={s.strong}>{startYear}</Text> (age {rmdStartAgeFor(age)}). Estimated first withdrawal: <Text style={s.strong}>~{maskedMoney(Math.round(schedule[0]?.amount ?? rmdAtAge(preTax, rmdStartAgeFor(age))))}</Text> — it moves with your balance between now and then.</Text>
           <TouchableOpacity accessibilityRole="button" style={s.secondaryBtn} onPress={() => remind(startYear as number)}
             accessibilityLabel={`Remind me when this starts for me, ${startYear}`}>
             <Text style={s.secondaryTxt}>{reminded ? '✓ Reminder set' : `Remind me when this starts (${startYear})`}</Text>
@@ -129,7 +129,7 @@ export default function RequiredWithdrawalsScreen() {
             <Text style={s.bigLine}>Required {maskedMoney(Math.round(required))}</Text>
             <Text style={s.line}>Taken so far {maskedMoney(Math.round(taken))} · <Text style={[s.strong, still > 0 && s.warnTxt]}>Still to take {maskedMoney(Math.round(still))}</Text> by Dec 31</Text>
             {still <= 0 && <Text style={s.doneTxt}>✓ Done for {nowYear} — nothing left to take.</Text>}
-            {age === RMD_START_AGE && (
+            {age === rmdStartAgeFor(age) && (
               // PRD F9#16 (SECURE 2.0): the very FIRST one may wait until April 1 next year —
               // stated as a fact with the trade-off, never a recommendation
               <Text style={s.note}>First-year rule: because this is your first required withdrawal, the law lets it wait until April 1, {nowYear + 1} — but then you'd take two in {nowYear + 1}, which can mean more tax that year. Your call; your tax preparer knows your picture.</Text>
@@ -151,7 +151,7 @@ export default function RequiredWithdrawalsScreen() {
       {/* getting-ready checklist leads for the under-73 visitor (r49/r51) */}
       {preTax > 0 && (
         <View style={s.card}>
-          <SectionBand title={`GETTING READY${applies ? '' : ' FOR ' + RMD_START_AGE}`} />
+          <SectionBand title={`GETTING READY${applies ? '' : ' FOR ' + rmdStartAgeFor(age)}`} />
           {checks.map((c) => (
             <TouchableOpacity accessibilityRole="button" key={c.key} style={s.checkRow} onPress={() => openCheck(c)}
               accessibilityLabel={`${c.label}: ${c.done ? 'done' : 'not yet'}${c.key === 'health' ? '. Opens a short note.' : '. Opens its screen.'}`}>

@@ -97,10 +97,10 @@ describe('pin 2 — will-it-last: one selector, three surfaces, one percent', ()
     const joined = allText(r).join(' ');
     // and no screen may put one of the retired words back beside the number
     expect(joined).not.toMatch(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/);
-    const said = labels.find((l) => /my money last/i.test(l) && /\d{1,3} percent/.test(l));
+    const said = labels.find((l) => /my money last/i.test(l) && /\d{1,3}( percent|%)/.test(l));
     r.unmount();
     expect(said).toBeTruthy();
-    return said!.match(/(\d{1,3}) percent/)![1];
+    return said!.match(/(\d{1,3})( percent|%)/)![1];
   };
 
   test('retiree: Home strip = Plan hub = Cash flow strip', () => {
@@ -142,15 +142,17 @@ describe('pin 2b — SS adoption feeds the claim-age-adjusted check into the odd
     const { accounts } = resolveNetWorthRows('local', s.onboardingProfile, false, s.assetAccounts, []);
     const args = { op: s.onboardingProfile, accounts, assumptions: {} as any };
     const base = willItLastInputs(args)!;
-    // exactly how SsTimingScreen builds a compare row for claim age 62
+    // exactly how SsTimingScreen builds a compare row for claim age 62 (B1: withSsStream, so the
+    // flat streams ride along; B6: the hub DISPLAYS the rounded form of the same exact figure)
+    const { withSsStream } = require('../../domain/retirement');
+    const { displayOdds } = require('../../domain/retirement/willItLast');
     const ssRowChance = simulate({
-      ...base,
-      guaranteed_monthly_income: ssBenefitAtClaimAge(2600, 62),
-      guaranteed_start_age: 62,
+      ...withSsStream(base, ssBenefitAtClaimAge(2600, 62), 62),
       horizon_age: Math.max(base.retire_age + 1, 92),
     }).chance_of_success;
     const hub = selectWillItLast({ ...args, assumptions: { ssEligible: true, ssMonthly: 2600, ssClaimAge: 62, guaranteedMonthly: ssBenefitAtClaimAge(2600, 62) } });
-    expect(hub.chance).toBe(ssRowChance);
+    expect(hub.chanceExact).toBe(ssRowChance);
+    expect(hub.chance).toBe(displayOdds(ssRowChance));
   });
 });
 

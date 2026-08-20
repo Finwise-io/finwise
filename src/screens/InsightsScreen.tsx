@@ -16,7 +16,7 @@ import { plannedMonthlySpend } from '../domain/budget';
 import { buildInsights, type Insight, type InsightTheme } from '../domain/insights';
 import { maskDollars, spokenDollars } from '../components/useMoney';
 import { buildPerformance, topHoldingConcentration } from '../domain/performance';
-import { taxBucketSplit, rmdAtAge, RMD_START_AGE, rmdTakenThisYear } from '../domain/decumulation';
+import { taxBucketSplit, rmdAtAge, rmdStartAgeFor, rmdTakenThisYear } from '../domain/decumulation';
 import { SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { EARLIEST_CLAIM_AGE } from '../domain/retirement/ssTiming';
 import { requiredMonthly } from '../domain/goals';
@@ -78,7 +78,7 @@ export function useInsights(limit?: number): Insight[] {
     const preTaxIds = accounts.filter((a: any) => a.tax_bucket === 'PRE_TAX').map((a: any) => a.asset_id);
     const rmdTaken = rmdTakenThisYear(store.transactions ?? [], preTaxIds);
     const rmdRemaining = Math.max(0, rmdAtAge(preTax, age) - rmdTaken);
-    const rmdDue = age >= RMD_START_AGE && preTax > 0 && rmdRemaining > 0 ? { amount: rmdRemaining } : null;
+    const rmdDue = age >= rmdStartAgeFor(age) && preTax > 0 && rmdRemaining > 0 ? { amount: rmdRemaining } : null;
     // Social Security: the founder's decision window is 60 to 70 INCLUSIVE and it is shared with the
     // Plan tab, so the two surfaces can never again disagree about whose decision this is. Before 60
     // it is trivia; after 70 there is nothing left to choose. Only for someone who has neither

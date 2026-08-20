@@ -3,6 +3,7 @@
 // projected nest egg at retirement and the will-it-last chance, before → after, every figure an
 // estimate. Prefillable (?addMonthly=) so the 401(k)-room nudge lands here with its number.
 import React, { useMemo, useState } from 'react';
+import { displayOdds } from '../domain/retirement/willItLast';
 import { ScrollView, View, Text, StyleSheet, TouchableOpacity } from 'react-native';
 import { SectionBand } from '../components/SectionBand';
 import { useLocalSearchParams } from 'expo-router';
@@ -69,8 +70,9 @@ export default function WhatIfScreen() {
     return {
       retired: false as const,
       retireAge: inputs.retire_age,
-      before: { egg: projectNestEgg(inputs).will_have, chance: simulate(inputs).chance_of_success },
-      after: { egg: projectNestEgg(withExtra).will_have, chance: simulate(withExtra).chance_of_success },
+      // B6: displayed odds round to 5 — the SAME figure the hub shows (one number everywhere)
+      before: { egg: projectNestEgg(inputs).will_have, chance: displayOdds(simulate(inputs).chance_of_success) },
+      after: { egg: projectNestEgg(withExtra).will_have, chance: displayOdds(simulate(withExtra).chance_of_success) },
     };
   }, [inputs, addMonthly]);
 

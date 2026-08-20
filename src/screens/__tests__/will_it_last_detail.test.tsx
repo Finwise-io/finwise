@@ -31,7 +31,10 @@ test('the headline equals the hub selector to the digit, with the range and the 
   // the verdict word was removed 2026-08-12 — the percentage stands alone
   expect(screen.getByText(new RegExp(`${hub.chance}%`))).toBeOnTheScreen();
   expect(screen.queryByText(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/)).toBeNull();
-  expect(screen.getByText(new RegExp(`range ${hub.band!.low}–${hub.band!.high}%`))).toBeOnTheScreen();
+  // B6 (2026-08-20): the best-to-worst range is GONE — a sensitivity test wearing a
+  // distribution's clothes; the odds stand alone, rounded to 5.
+  expect(screen.queryByText(/range \d+–\d+% across bad-to-good markets/)).toBeNull();
+  expect(hub.chance! % 5).toBe(0);
   expect(screen.getByText(new RegExp(`In ${hub.chance} of every 100 futures`))).toBeOnTheScreen();
   // every driver names its source and is a labeled road to change it
   expect(screen.getByLabelText(/What you have \(nest egg\).*your live account balances/)).toBeOnTheScreen();

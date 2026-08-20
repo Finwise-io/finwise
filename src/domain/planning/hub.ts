@@ -4,7 +4,7 @@
 //   nextDecision   — the ONE amber card: the single most urgent dated decision, absent when none is
 import type { AssetAccount } from '../assets';
 import { retirementEarmarkedValue } from '../assets';
-import { RMD_START_AGE, rmdAtAge, rmdTakenThisYear } from '../decumulation';
+import { rmdStartAgeFor, rmdAtAge, rmdTakenThisYear } from '../decumulation';
 import { round2 } from '../_shared/num';
 
 /** THE ONE way the odds are said, anywhere they are said (founder rule 2026-08-11: "we should have
@@ -89,7 +89,7 @@ export function nextDecision(args: {
 }): NextDecision | null {
   const now = args.now ?? new Date();
   // 1) a required withdrawal due THIS year and not yet taken outranks everything — it has a deadline
-  if (args.age != null && args.age >= RMD_START_AGE && args.preTaxBalance > 0) {
+  if (args.age != null && args.age >= rmdStartAgeFor(args.age) && args.preTaxBalance > 0) {
     const due = rmdAtAge(args.preTaxBalance, args.age);
     const taken = rmdTakenThisYear(args.transactions ?? [], args.preTaxAccountIds, now.getFullYear());
     if (due > 0 && taken < due) {

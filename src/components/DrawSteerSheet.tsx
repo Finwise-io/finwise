@@ -14,7 +14,7 @@ import { maskedMoney, spokenMoney } from './useMoney';
 import { InfoDot } from './UI';
 import {
   taxBucketSplit, withdrawalOrder, drawOrderOutcome, rmdAtAge,
-  DEFAULT_DRAW_ORDER, RMD_START_AGE, type DrawBucket,
+  DEFAULT_DRAW_ORDER, rmdStartAgeFor, type DrawBucket,
 } from '../domain/decumulation';
 import { plannedMonthlySpend } from '../domain/budget';
 import { currentRetirementIncomeMonthly } from '../domain/income';
@@ -98,13 +98,13 @@ export function DrawSteerSheet({ visible, onClose, projectionMode }: {
           {projectionMode && <Text style={s.projBanner}>This is how your future draw would work — a projection, not today's money.</Text>}
 
           {/* pinned required-withdrawal step (r48) — law, not preference */}
-          {age >= RMD_START_AGE && split.preTax > 0 && (
+          {age >= rmdStartAgeFor(age) && split.preTax > 0 && (
             <View style={[s.row, s.pinnedRow]} accessible
               accessibilityLabel={`Required withdrawal, first: ${spokenMoney(Math.round(rmdAtAge(split.preTax, age)))}. The law makes you take this from pre-tax accounts whether you need it or not. This step cannot move.`}>
               <Text style={s.rowNum}>⚖</Text>
               <View style={{ flex: 1 }}>
                 <Text style={s.rowLabel}>Required withdrawal — first</Text>
-                <Text style={s.rowWhy}>The law takes this from pre-tax first, from {RMD_START_AGE}. It stays on top.</Text>
+                <Text style={s.rowWhy}>The law takes this from pre-tax first, from {rmdStartAgeFor(age)}. It stays on top.</Text>
               </View>
               <Text style={s.rowVal}>{maskedMoney(Math.round(rmdAtAge(split.preTax, age)))}</Text>
             </View>

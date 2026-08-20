@@ -6,7 +6,7 @@ import type { UserId } from './_shared/ids';
 import { toNum } from './_shared/num';
 
 import { profileFromOnboarding, toReadModel, ProfileReadModel } from './profile';
-import { incomeFromOnboarding, buildIncomeState, IncomeState, retirementIncomeMonthly } from './income';
+import { incomeFromOnboarding, buildIncomeState, IncomeState, retirementIncomeMonthly, guaranteedOutsideStreams } from './income';
 import { assetsFromOnboarding, buildAssetsState, monthlyContributionsFromOnboarding, retirementEarmarkedValue, AssetsState, AssetAccount, blendedReturn } from './assets';
 import { debtsFromOnboarding, buildDebtState, DebtState, Debt } from './debt';
 import { buildNetWorth, NetWorthState } from './networth';
@@ -75,8 +75,10 @@ export function buildSnapshot(
   const capacity = toNum(a.monthlySavingsCapacity) || Math.max(0, budget.projected_to_save - investMo);
   const goals = buildGoalsState(uid, goalsFromOnboarding(uid, op).goals, capacity);
 
-  // guaranteed retirement income (Social Security/pension/etc.) — cadence-normalized; 0 outside retired flow
-  const guaranteedMonthly = retirementIncomeMonthly(a);
+  // B5: the PLAN's guaranteed income is OUTSIDE money only (SS/pension/annuity — never
+  // withdrawals or RMDs, which the simulation computes); B1: SS inflates, the rest stay flat.
+  const outsideStreams = guaranteedOutsideStreams(op);
+  const guaranteedMonthly = outsideStreams.reduce((t, st) => t + st.monthly, 0);
 
   const retirement = buildRetirementState(uid, {
     current_age: profile.current_age ?? 35,
@@ -89,6 +91,7 @@ export function buildSnapshot(
     annual_contribution: effectiveAnnualContribution(op),
     retire_monthly_spend_today: retirementSpendMonthly(a) || budget.monthly_spending,
     guaranteed_monthly_income: guaranteedMonthly,
+    guaranteed_streams: outsideStreams.map((st) => ({ kind: st.kind, monthly: st.monthly, inflates: st.inflates })),
     inflation: (econ.inflationRate || 2.4) / 100,
     // walk row 10 (audit PRD #5): the ONE expected-return figure — the same blendedReturn the
     // cockpit and will-it-last read; the snapshot's own average_target_return stays display-only.

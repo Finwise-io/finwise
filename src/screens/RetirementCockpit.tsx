@@ -6,6 +6,7 @@
 // Screen 2 "Scenario analysis": what-if sliders → projected-nest-egg hero (deterministic, live) +
 //   Monte-Carlo confidence + percentile band (on release) + save/compare scenarios.
 import React, { useEffect, useMemo, useRef, useState } from 'react';
+import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Switch, Modal, KeyboardAvoidingView, Platform, type LayoutChangeEvent } from 'react-native';
 import Svg, { Path, Line, Circle, G, Rect, Text as SvgText } from 'react-native-svg';
 import { useRouter } from 'expo-router';
@@ -17,13 +18,13 @@ import { moneyCompact, currencySymbol } from '../domain/_shared/money';
 import { maskedMoney } from '../components/useMoney';
 import { simulate, projectNestEgg, solveRetireAge, retirementSpendMonthly } from '../domain/retirement';
 import { colFactor } from '../domain/retirement/col';
-import { ssBenefitAtClaimAge } from '../domain/retirement/ssTiming';
+import { ssBenefitAt } from '../domain/retirement/ssTiming';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, RMD_START_AGE } from '../domain/decumulation';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, rmdStartAgeFor } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
 import { marginalBracket } from '../domain/income/tax';
-import { totalGrossAnnual, retirementIncomeMonthly } from '../domain/income';
+import { totalGrossAnnual, retirementIncomeMonthly, guaranteedOutsideStreams } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot, TRYING_IT_OUT } from '../components/UI';
 import { modalAnimation } from '../hooks/reducedMotion';
@@ -79,8 +80,11 @@ export default function RetirementCockpit() {
   // an explicit "Not eligible" still zeroes it.
   // Keep full precision (DR-5): round only at DISPLAY via money(). Rounding the monthly figure here
   // and then ×12 dropped a few $/yr vs Money's totalGrossAnnual (e.g. $24,333.33→$24,333 → −$4/yr).
-  const guaranteedDefault = retirementIncomeMonthly(op);
-  const ssDefault = guaranteedDefault;
+  // B5: outside money only — withdrawals/RMDs are what the simulation computes
+  const outside = guaranteedOutsideStreams(op);
+  const ssBase = outside.find((st) => st.kind === 'ss');
+  const flatStreams = outside.filter((st) => st.kind !== 'ss');
+  const guaranteedDefault = outside.reduce((t, st) => t + st.monthly, 0);
   const hasPension = num(op.ri_pension) > 0;
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
   const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
@@ -90,9 +94,13 @@ export default function RetirementCockpit() {
   const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? guaranteedDefault > 0 : A.ssEligible;
   const claimAge = A.ssClaimAge ?? 67;
-  // Same rule as willItLastInputs: ssMonthly is the age-67 statement; the plan pays the
-  // claim-age-adjusted check (agreement-pinned so the cockpit can never drift from the hub).
-  const ssIncome = ssEligibleEffective ? (A.ssMonthly != null ? ssBenefitAtClaimAge(A.ssMonthly, claimAge) : ssDefault) : 0;
+  // Same rule as willItLastInputs (agreement-pinned): B2 — ssMonthly is the statement amount at
+  // the person's OWN full retirement age, and the factor anchors there, not at a hard-coded 67.
+  const ssIncome = ssEligibleEffective
+    ? (A.ssMonthly != null ? ssBenefitAt(A.ssMonthly, claimAge, num(op.birthYear) || null) : (ssBase?.monthly ?? 0))
+    : 0;
+  // what the guaranteed-income ROW shows: every outside stream, SS + the flat ones (B1/B5)
+  const guarRowMonthly = ssIncome + flatStreams.reduce((t, st) => t + st.monthly, 0);
 
   // ---- YOUR PLAN (committed) — drives Screen 1; NOT the scenario sliders ----
   const planRetireAge = A.retireAge ?? retireDefault;
@@ -111,16 +119,24 @@ export default function RetirementCockpit() {
     current_age: age,
     retire_age: isRetired ? age : Math.max(age + 1, planRetireAge),
     horizon_age: Math.max((isRetired ? age : planRetireAge) + 1, horizon),
-    start_balance: isRetired ? spendableEgg : nestEgg,   // retired: draw down only what's not reserved for legacy
+    // B3 (brief 2026-08-20): money someone means to leave behind comes off the spendable pot
+    // ALWAYS — the same fix willItLast carries. The years the plan can still be changed must not
+    // be the years it says nothing about a legacy promise.
+    start_balance: spendableEgg,
     annual_contribution: (isRetired ? 0 : planSave) * 12,
     contribution_growth: planSalaryGrowth,
     retire_monthly_spend_today: planSpend,
-    guaranteed_monthly_income: ssIncome,
+    // B1: streams — Social Security inflates from its claim age; pension/annuity stay flat
+    guaranteed_streams: [
+      ...(ssIncome > 0 ? [{ kind: 'ss' as const, monthly: ssIncome, inflates: true, start_age: claimAge }] : []),
+      ...flatStreams.map((st) => ({ kind: st.kind, monthly: st.monthly, inflates: st.inflates })),
+    ],
+    guaranteed_monthly_income: ssIncome + flatStreams.reduce((t, st) => t + st.monthly, 0),
     guaranteed_start_age: claimAge,
     inflation: planInfl,
     mean_return: planGrowth,
     vol_return: volOf(planGrowth),
-    paths: 400, seed: 42,
+    paths: 1000, seed: 42,   // B6: at 400 draws an 85% result carries ±3.5 points
     ...over,
   });
 
@@ -133,7 +149,7 @@ export default function RetirementCockpit() {
   // Screen 1 RIGHT hero confidence — Monte Carlo on the PLAN (summary % only; the band chart is gated on Screen 2)
   const [planChance, setPlanChance] = useState<number | null>(null);
   useEffect(() => {
-    const c = simulate(planInputs()).chance_of_success;
+    const c = displayOdds(simulate(planInputs()).chance_of_success);
     setPlanChance(c);
     useStore.getState().setLastRetireChance(c);   // cache for the Insights "retirement needs attention" card (avoids re-running the sim there)
   }, [age, nestEgg, planRetireAge, planSave, planSpend, planInfl, planGrowth, ssIncome, claimAge, horizon]);
@@ -182,7 +198,7 @@ export default function RetirementCockpit() {
   const dPlan = withdrawalPlan(planSpend, ssIncome, spendableEgg);
   const dDeplete = depletionAge({ age, horizon, nestEgg: spendableEgg, netWithdrawalNow: dPlan.netWithdrawal, returnRate: planGrowth, inflation: planInfl });
   const dOrder = withdrawalOrder(dSplit, age);
-  const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, RMD_START_AGE));   // first-year RMD on pre-tax balances
+  const dRmd = rmdAtAge(dSplit.preTax, Math.max(age, rmdStartAgeFor(age)));   // first-year RMD on pre-tax balances
   const rateColor = dPlan.rateBand === 'safe' ? Colors.primary : dPlan.rateBand === 'moderate' ? Colors.amber : Colors.red;
 
   // ---- TAX-SMART MOVES ----
@@ -260,7 +276,7 @@ export default function RetirementCockpit() {
   const scProjLabel = scRetired ? `In ${scHorizonYears} years` : `At retirement (${rAge})`;
   const scDelta = scProjected - nestEgg;
   const scDeplete = scRetired ? depletionAge({ age, horizon, nestEgg, netWithdrawalNow: Math.max(0, (spendMo - ssIncome) * 12), returnRate: retPct / 100, inflation: inflPct / 100 }) : null;
-  const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(s.chance_of_success); setScBand(s.band); };
+  const runMC = () => { const s = simulate(scInputs({ with_band: true })); setScChance(displayOdds(s.chance_of_success)); setScBand(s.band); };
   const invalidateMC = () => { if (scChance != null || scBand != null) { setScChance(null); setScBand(null); } };  // input changed → require re-run
   const scLevel = scChance == null ? Colors.textTertiary : scChance >= 80 ? Colors.primary : scChance >= 60 ? Colors.amber : Colors.red;
   const useAsPlan = () => { commit({ retireAge: rAge, contribMonthly: saveMo, spendMonthly: spendMo, expectedReturn: retPct / 100, inflation: inflPct / 100, salaryGrowth: salGrow / 100, horizonAge: horizonSand, returnBasis: 'scenario' }); setScreen('current'); };
@@ -405,7 +421,7 @@ export default function RetirementCockpit() {
               ['Saving / month', maskedMoney(A.assumptions?.contribMonthly ?? 0), maskedMoney(B.assumptions?.contribMonthly ?? 0)],
               ['Spending / month', maskedMoney(A.assumptions?.spendMonthly ?? 0), maskedMoney(B.assumptions?.spendMonthly ?? 0)],
               ['Expected return', `${Math.round((A.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`, `${Math.round((B.assumptions?.expectedReturn ?? 0) * 1000) / 10}%`],
-              ['Odds it lasts', `${rA.chance_of_success}%`, `${rB.chance_of_success}%`],
+              ['Odds it lasts', `${displayOdds(rA.chance_of_success)}%`, `${displayOdds(rB.chance_of_success)}%`],
               ['At retirement (median)', maskedMoney(Math.round(rA.projected_at_retirement)), maskedMoney(Math.round(rB.projected_at_retirement))],
             ];
             return (
@@ -573,7 +589,7 @@ export default function RetirementCockpit() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}{s.bucket === 'rmd' ? ' this year' : ''}</Text></Text>
                       {s.bucket === 'rmd' && (
-                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisor(Math.max(age, RMD_START_AGE)).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, RMD_START_AGE)}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
+                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisor(Math.max(age, rmdStartAgeFor(age))).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, rmdStartAgeFor(age))}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
                       )}
                       <Text style={styles.orderWhy}>{s.why}</Text>
                     </View>
@@ -587,9 +603,9 @@ export default function RetirementCockpit() {
           {/* RMDs + healthcare */}
           <View style={styles.card}>
             <Text style={styles.liK}>Heads-up</Text>
-            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> {age >= RMD_START_AGE
+            {dSplit.preTax > 0 && <Text style={styles.note}>📅 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Required Minimum Distributions</Text> {age >= rmdStartAgeFor(age)
               ? <>apply to you now — the IRS requires a withdrawal of about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> this year</>
-              : <>start at {RMD_START_AGE}; on today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
+              : <>start at {rmdStartAgeFor(age)}; on today's pre-tax balance that's about <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>{money(dRmd)}</Text> in the first year</>} from pre-tax — taxed as income whether you need it or not. The success-chance figure tracks balances <Text style={{ fontStyle: 'italic' }}>before tax</Text>, so set aside a bit for the tax.</Text>}
             <Text style={[styles.note, { marginTop: dSplit.preTax > 0 ? 8 : 0 }]}>🏥 <Text style={{ fontWeight: '700', color: Colors.textPrimary }}>Healthcare:</Text> {age >= 65
               ? "you're on Medicare — budget for premiums + out-of-pocket (often $6–7k/person/yr), and watch IRMAA surcharges if your income is high."
               : 'Medicare starts at 65; budget for premiums + out-of-pocket (often $6–7k/person/yr). Retiring earlier? Plan for private coverage until then.'}</Text>
@@ -767,12 +783,12 @@ export default function RetirementCockpit() {
         <View style={{ flex: 1 }}>
           <Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text>
           <Text style={styles.ssSub}>{
-            ssIncome > 0
-              ? `${money(ssIncome)}/mo${claimAge > age ? ` starting at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
+            guarRowMonthly > 0
+              ? `${money(guarRowMonthly)}/mo${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`
               : A.ssEligible === false ? 'Not eligible — tap to change' : 'Are you eligible? Tap to set up ›'
           }</Text>
         </View>
-        <Text style={[styles.ssPill, ssIncome === 0 && A.ssEligible === false && { backgroundColor: Colors.bgTertiary, color: Colors.textSecondary }]}>{ssIncome > 0 ? 'Eligible ✓' : A.ssEligible === false ? 'None' : 'Set up'}</Text>
+        <Text style={[styles.ssPill, guarRowMonthly === 0 && A.ssEligible === false && { backgroundColor: Colors.bgTertiary, color: Colors.textSecondary }]}>{guarRowMonthly > 0 ? 'Eligible ✓' : A.ssEligible === false ? 'None' : 'Set up'}</Text>
       </TouchableOpacity>
 
       {/* SCENARIO BUTTON */}
@@ -782,7 +798,7 @@ export default function RetirementCockpit() {
 
       <EarmarkSheet open={earmarkOpen} onClose={() => setEarmarkOpen(false)} assets={assets} nestEgg={nestEgg}
         onSet={(id, pct) => store.updateAsset(id, { retirement_pct: pct })} onDone={() => setEarmarkOpen(false)} />
-      <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssDefault} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
+      <SsEditor open={ssOpen} onClose={() => setSsOpen(false)} A={A} ssDefault={ssBase?.monthly ?? 0} onApply={(patch) => { commit(patch); setSsOpen(false); }} />
       <TtmEditor account={ttmEdit} onClose={() => setTtmEdit(null)} benchmark={ttmEdit ? benchmarkReturn(ttmEdit.kind) : 0}
         onApply={(ret) => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: ret }); setTtmEdit(null); }}
         onClear={() => { if (ttmEdit) store.updateAsset(ttmEdit.asset_id, { actual_ttm: null }); setTtmEdit(null); }} />
@@ -977,7 +993,7 @@ function SsEditor({ open, onClose, A, ssDefault, onApply }: { open: boolean; onC
         {eligible && (
           <>
             <View style={styles.acc}>
-              <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>Today's dollars, per month</Text></View>
+              <View style={{ flex: 1 }}><Text style={styles.accName}>Estimated benefit</Text><Text style={styles.accBal}>The monthly figure on your statement — at your full retirement age — in today's dollars</Text></View>
               <View style={styles.pctBox}><Text style={styles.pctU}>{currencySymbol()}</Text><TextInput style={[styles.pctIn, { width: 78 }]} keyboardType="decimal-pad" value={amt} onChangeText={setAmt} placeholder="0" placeholderTextColor={Colors.textTertiary} /></View>
             </View>
             <View style={styles.acc}>

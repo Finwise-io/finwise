@@ -2,6 +2,7 @@
 // Monte Carlo probability-of-success ("chance of success", Boldin-style), netting
 // guaranteed income out of required spending. Pure + seedable for tests.
 import type { UserId } from '../_shared/ids';
+import { rmdStartAgeFromAge, rmdDivisor as engineRmdDivisor } from '../../../Calculation Module code/engines/rmd';
 import { round2, toNum } from '../_shared/num';
 import type { OnboardingProfile } from '../onboardingProfile';
 import { colFactor } from './col';
@@ -69,6 +70,13 @@ export interface RetirementInputs {
   retire_monthly_spend_today: number;// desired retirement spend, today's dollars
   guaranteed_monthly_income: number; // Social Security / pension (0 if unknown), today's $
   guaranteed_start_age?: number;     // age guaranteed income begins (SS claim age); defaults to retire_age
+  /** B1 (founder brief 2026-08-20): guaranteed income as separate STREAMS — Social Security
+   *  inflates (COLA); most private pensions and annuities are FLAT, and inflating a flat pension
+   *  for 30 years at 2.5% roughly doubles it (the largest single arithmetic error in the plan
+   *  engine). When present this replaces guaranteed_monthly_income/guaranteed_start_age.
+   *  B5: OUTSIDE money only — never portfolio withdrawals or RMDs, which would let the pot fund
+   *  itself. */
+  guaranteed_streams?: { kind?: 'ss' | 'pension' | 'annuity' | 'other'; monthly: number; inflates: boolean; start_age?: number }[];
   inflation: number;                 // annual, decimal (default from economic data)
   contribution_growth?: number;      // annual raise applied to contributions (decimal, default 0)
   mean_return: number;               // annual nominal, decimal
@@ -142,20 +150,8 @@ function pctOfSorted(sorted: number[], p: number): number {
   return sorted[idx];
 }
 
-// SECURE 2.0 / IRS Uniform Lifetime Table — mirrored from decumulation (import would cycle);
-// state_contract pins the two in agreement.
-const RMD_START_AGE_SIM = 73;
-const ULT_SIM: [number, number][] = [[73, 26.5], [75, 24.6], [80, 20.2], [85, 16.0], [90, 12.2], [95, 8.9], [100, 6.4]];
-function rmdDivisorSim(age: number): number {
-  if (age <= ULT_SIM[0][0]) return ULT_SIM[0][1];
-  for (let i = 1; i < ULT_SIM.length; i++) {
-    if (age <= ULT_SIM[i][0]) {
-      const [a0, d0] = ULT_SIM[i - 1], [a1, d1] = ULT_SIM[i];
-      return d0 + ((age - a0) / (a1 - a0)) * (d1 - d0);
-    }
-  }
-  return ULT_SIM[ULT_SIM.length - 1][1];
-}
+// B4 (founder brief 2026-08-20): the RMD rule lives in the ONE dated, sourced table — the
+// Calculation Module's rmd engine. The mirror this file used to carry is gone.
 
 export function simulate(inp: RetirementInputs) {
   const paths = inp.paths ?? 500;
@@ -164,12 +160,23 @@ export function simulate(inp: RetirementInputs) {
   const rng = mulberry32(inp.seed ?? 12345);
   const inflFactor = Math.pow(1 + inp.inflation, nAcc);
   const spendAtRetire = inp.retire_monthly_spend_today * 12 * inflFactor;       // nominal $ at retirement
-  const guarAtRetire = inp.guaranteed_monthly_income * 12 * inflFactor;
-  const claimAge = Math.max(inp.guaranteed_start_age ?? inp.retire_age, inp.retire_age); // SS starts here (≥ retirement)
+  // B1: each stream inflates to retirement ONLY if it actually rises; a flat pension stays flat.
+  // The legacy single figure keeps its old (inflating) behaviour for callers not yet migrated.
+  const streams = (inp.guaranteed_streams ?? [
+    { monthly: inp.guaranteed_monthly_income, inflates: true, start_age: inp.guaranteed_start_age },
+  ]).map((st) => ({
+    startAge: Math.max(st.start_age ?? inp.retire_age, inp.retire_age),
+    inflates: st.inflates,
+    annualAtRetire: (st.monthly || 0) * 12 * (st.inflates ? inflFactor : 1),
+  }));
+  const guarAtRetire = streams.reduce((t, st) => t + st.annualAtRetire, 0);
 
   const totalYears = nAcc + nDec;                      // year 0 = today, …, year totalYears = horizon
   // big one-time costs by sim-year offset, inflated from today's dollars to their year
   const nowYear = inp.now_year ?? 2026;
+  // B4: the person's own RMD start age (birth year ≈ now − current age), from the one table
+  const birthYearSim = nowYear - inp.current_age;
+  const rmdStartSim = rmdStartAgeFromAge(inp.current_age, nowYear);
   const oneOffByYear: Record<number, number> = {};
   for (const c of inp.one_off_costs ?? []) {
     if (!(c.amount > 0)) continue;
@@ -209,7 +216,8 @@ export function simulate(inp: RetirementInputs) {
       if (yearly) yearly[y + 1].push(Math.max(0, bal));
     }
     atRetire.push(bal);
-    let spend = spendAtRetire, guar = guarAtRetire, survived = true, depleted = false;
+    let spend = spendAtRetire, survived = true, depleted = false;
+    let streamVals = streams.map((st) => st.annualAtRetire);
     // RMD drag: track the pre-tax slice so the forced withdrawal + its tax can leave the egg
     const rmdOn = (inp.pre_tax_share ?? 0) > 0;
     let preTaxBal = rmdOn ? bal * Math.min(1, Math.max(0, inp.pre_tax_share!)) : 0;
@@ -217,21 +225,24 @@ export function simulate(inp: RetirementInputs) {
     for (let y = 0; y < nDec; y++) {
       if (!depleted) {
         const age = inp.retire_age + y;
-        const guarNow = age >= claimAge ? guar : 0;   // SS only from the claim age
+        // each stream pays only once its own start age is reached (SS from its claim age)
+        const guarNow = streams.reduce((t, st, i) => t + (age >= st.startAge ? streamVals[i] : 0), 0);
         const net = Math.max(0, spend - guarNow);
         const growth = 1 + normal(rng, inp.mean_return, inp.vol_return);
         // the loan payment is charged flat on top of spending, and stops in its own year
         bal = bal * growth - net - (oneOffByYear[nAcc + y + 1] || 0) - (recurringByYear[nAcc + y + 1] || 0);
         if (rmdOn) {
           preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
-          if (age >= RMD_START_AGE_SIM && preTaxBal > 0) {
-            const rmd = preTaxBal / rmdDivisorSim(age);
+          if (age >= rmdStartSim && preTaxBal > 0) {
+            const rmd = preTaxBal / Math.max(1, engineRmdDivisor(age, birthYearSim));
             preTaxBal -= rmd;                          // forced OUT of pre-tax (net stays in the egg)
             bal -= rmd * rmdRate;                      // …but its TAX leaves the egg for real
           }
         }
         if (bal < 0) { bal = 0; survived = false; depleted = true; }
-        spend *= (1 + inp.inflation); guar *= (1 + inp.inflation);
+        spend *= (1 + inp.inflation);
+        // B1: only the streams that actually rise, rise — a flat pension is flat forever
+        streamVals = streamVals.map((v, i) => (streams[i].inflates ? v * (1 + inp.inflation) : v));
       }
       if (yearly) yearly[nAcc + y + 1].push(Math.max(0, bal));
     }
@@ -261,6 +272,25 @@ export function simulate(inp: RetirementInputs) {
     gap: round2(gap),
     suggested_extra_monthly: round2(extraMonthly),
     band,
+  };
+}
+
+/** The Social Security stream inside an input set, when streams are in use. */
+export function ssStreamOf(inp: RetirementInputs): { monthly: number; start_age?: number } | null {
+  const st = (inp.guaranteed_streams ?? []).find((x) => x.kind === 'ss');
+  return st ? { monthly: st.monthly, start_age: st.start_age } : null;
+}
+
+/** An input set with its Social Security stream replaced — the ONE way a decision screen patches
+ *  a claim scenario, so the flat streams ride along untouched and the legacy fields stay in step
+ *  for anything still reading them. */
+export function withSsStream(inp: RetirementInputs, monthly: number, claimAge: number): RetirementInputs {
+  const others = (inp.guaranteed_streams ?? []).filter((x) => x.kind !== 'ss');
+  return {
+    ...inp,
+    guaranteed_streams: [{ kind: 'ss', monthly, inflates: true, start_age: claimAge }, ...others],
+    guaranteed_monthly_income: monthly + others.reduce((t, x) => t + x.monthly, 0),
+    guaranteed_start_age: claimAge,
   };
 }
 
@@ -295,23 +325,31 @@ export function projectNestEgg(inp: RetirementInputs): NestEggProjection {
   const r = inp.mean_return, f = inp.inflation;
   const nAcc = Math.max(0, inp.retire_age - inp.current_age);
   const nDec = Math.max(0, inp.horizon_age - inp.retire_age);
-  const claimAge = Math.max(inp.guaranteed_start_age ?? inp.retire_age, inp.retire_age);
-
   // accumulate: current balance compounds; each year's contribution (growing with raises) compounds for the years left
   const g = inp.contribution_growth ?? 0;
   let have = inp.start_balance * Math.pow(1 + r, nAcc);
   for (let y = 0; y < nAcc; y++) have += inp.annual_contribution * Math.pow(1 + g, y) * Math.pow(1 + r, nAcc - y - 1);
 
   // need: present value (at retirement) of the inflation-growing net withdrawal stream
+  // B1: same stream rule as simulate() — flat streams stay flat, only inflating ones rise
   const inflFactor = Math.pow(1 + f, nAcc);
+  const streams = (inp.guaranteed_streams ?? [
+    { monthly: inp.guaranteed_monthly_income, inflates: true, start_age: inp.guaranteed_start_age },
+  ]).map((st) => ({
+    startAge: Math.max(st.start_age ?? inp.retire_age, inp.retire_age),
+    inflates: st.inflates,
+    annual: (st.monthly || 0) * 12 * (st.inflates ? inflFactor : 1),
+  }));
   let spend = inp.retire_monthly_spend_today * 12 * inflFactor;
-  let guar = inp.guaranteed_monthly_income * 12 * inflFactor;
+  let streamVals = streams.map((st) => st.annual);
   let need = 0;
   for (let y = 0; y < nDec; y++) {
-    const guarNow = (inp.retire_age + y) >= claimAge ? guar : 0;
+    const ageNow = inp.retire_age + y;
+    const guarNow = streams.reduce((t, st, i) => t + (ageNow >= st.startAge ? streamVals[i] : 0), 0);
     const net = Math.max(0, spend - guarNow);
     need += net / Math.pow(1 + r, y);          // discount back to the retirement year
-    spend *= (1 + f); guar *= (1 + f);
+    spend *= (1 + f);
+    streamVals = streamVals.map((v, i) => (streams[i].inflates ? v * (1 + f) : v));
   }
   return { will_have: round2(have), will_need: round2(need), shortfall: round2(Math.max(0, need - have)) };
 }

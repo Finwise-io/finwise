@@ -76,7 +76,7 @@ describe('state contract (FCC-state-contract.md)', () => {
 
   test('PRD F9#12 — the RMD tax drag is real in BOTH drawdown models (and off when no pre-tax)', () => {
     const { simulate } = require('../domain/retirement');
-    const { depletionAge, RMD_START_AGE } = require('../domain/decumulation');
+    const { depletionAge, rmdStartAgeFor } = require('../domain/decumulation');
     const base = {
       current_age: 70, retire_age: 70, horizon_age: 95, start_balance: 800000,
       annual_contribution: 0, contribution_growth: 0, retire_monthly_spend_today: 5200,
@@ -90,10 +90,13 @@ describe('state contract (FCC-state-contract.md)', () => {
     const dNo = depletionAge(dBase);
     const dDrag = depletionAge({ ...dBase, preTaxShare: 0.8, rmdTaxRate: 0.24 });
     expect((dDrag ?? 200)).toBeLessThanOrEqual(dNo ?? 200);       // and never extend the money
-    // the mirrored IRS table stays in agreement with the canonical one
+    // B4: the mirror is GONE — one dated, sourced table in the Calculation Module; the domain
+    // adapter and the simulation both read it, so agreement holds by construction.
     const { rmdDivisor } = require('../domain/decumulation');
-    expect(RMD_START_AGE).toBe(73);
-    expect(Math.abs(rmdDivisor(75) - 24.6)).toBeLessThan(0.01);
+    const engine = require('../../Calculation Module code/engines/rmd');
+    expect(rmdStartAgeFor(74, 2026)).toBe(73);                       // born ~1952
+    expect(rmdStartAgeFor(60, 2026)).toBe(75);                       // born ~1966 (SECURE 2.0 §107)
+    expect(Math.abs(rmdDivisor(75) - engine.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
   });
 
   test('PRD F2#11 — progressive monthly withholding: EXACT annual identity + honest bonus months + manual stays flat', () => {

@@ -2,6 +2,7 @@
 // laid out in YOUR dollars. You set how long you expect to live; we never crown a winner. Everything is
 // a sandbox until the Use-this-plan sheet; Back discards silently (nothing was at risk).
 import React, { useMemo, useState } from 'react';
+import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform, Alert } from 'react-native';
 import { useRouter } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -9,9 +10,9 @@ import { requestNotificationPermission, scheduleSsWindowReminder } from '../serv
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { money } from '../domain/_shared/num';
 import { currencySymbol } from '../domain/_shared/money';
-import { simulate } from '../domain/retirement';
+import { simulate, withSsStream } from '../domain/retirement';
 import { willItLastInputs } from '../domain/retirement/willItLast';
-import { ssBenefitAtClaimAge, ssLifetimeTotal, claimWindow, FULL_RETIREMENT_AGE } from '../domain/retirement/ssTiming';
+import { ssBenefitAt, ssLifetimeTotal, claimWindow, fraLabel, fullRetirementAge, FULL_RETIREMENT_AGE } from '../domain/retirement/ssTiming';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { ageFromProfile } from '../utils/persona';
 import { UseThisPlanSheet, type PlanChange } from '../components/UseThisPlanSheet';
@@ -59,12 +60,15 @@ export default function SsTimingScreen() {
 
   // three seeded runs — the SAME engine and inputs the hub uses, patched per claim age
   const rows = useMemo(() => claimAges.map((claimAge) => {
-    const monthly = ssBenefitAtClaimAge(effStmt, claimAge);
-    const lifetime = ssLifetimeTotal(effStmt, claimAge, liveTo);
+    const birthYear = num(op.birthYear) || null;
+    const monthly = ssBenefitAt(effStmt, claimAge, birthYear);   // B2: anchored at THEIR full retirement age
+    const lifetime = ssLifetimeTotal(effStmt, claimAge, liveTo, birthYear);
     const passed = age != null && age > claimAge;
     let chance: number | null = null;
     if (baseInputs && !usingExample) {
-      chance = simulate({ ...baseInputs, guaranteed_monthly_income: monthly, guaranteed_start_age: claimAge, horizon_age: Math.max(baseInputs.retire_age + 1, liveTo) }).chance_of_success;
+      // B1: withSsStream replaces only the Social Security stream — the flat pension/annuity
+      // streams ride along unchanged instead of being overwritten by an SS-only figure.
+      chance = displayOdds(simulate({ ...withSsStream(baseInputs, monthly, claimAge), horizon_age: Math.max(baseInputs.retire_age + 1, liveTo) }).chance_of_success);   // B6: one rounding, everywhere
     }
     return { claimAge, monthly, lifetime, chance, passed };
   }), [effStmt, liveTo, baseInputs, usingExample, age]);
@@ -73,7 +77,7 @@ export default function SsTimingScreen() {
   const adopted = A.ssClaimAge as number | null;
 
   const changesFor = (claimAge: number): PlanChange[] => {
-    const monthly = ssBenefitAtClaimAge(effStmt, claimAge);
+    const monthly = ssBenefitAt(effStmt, claimAge, num(op.birthYear) || null);
     const out: PlanChange[] = [
       { label: 'Claim age', from: adopted != null ? `age ${adopted}` : 'not set', to: `age ${claimAge}` },
       { label: 'Monthly check (today\'s dollars)', from: A.guaranteedMonthly != null ? maskedMoney(A.guaranteedMonthly) : 'not set', to: maskedMoney(monthly) },
@@ -85,7 +89,7 @@ export default function SsTimingScreen() {
     ssClaimAge: claimAge,
     ssMonthly: effStmt,
     ssEligible: true,
-    guaranteedMonthly: ssBenefitAtClaimAge(effStmt, claimAge),
+    guaranteedMonthly: ssBenefitAt(effStmt, claimAge, num(op.birthYear) || null),
     ...(liveTo !== A.horizonAge ? { horizonAge: liveTo } : {}),
   });
 
@@ -114,12 +118,14 @@ export default function SsTimingScreen() {
 
       {/* statement amount — the one number everything is computed from */}
       <View style={styles.card}>
-        <Text style={styles.label}>Your statement amount at {FULL_RETIREMENT_AGE}</Text>
+        {/* B2: a statement shows the benefit at THEIR full retirement age — 66 and 2–10 months for
+            anyone born 1955–1959 — so the ask names that age, never a hard-coded 67. */}
+        <Text style={styles.label}>Your statement amount at your full retirement age ({fraLabel(num(op.birthYear) || null)})</Text>
         <View style={styles.inputRow}>
           <Text style={styles.currency}>{currencySymbol()}</Text>
           <TextInput style={styles.input} keyboardType="number-pad" placeholder={String(exampleStmt)}
             placeholderTextColor={Colors.textTertiary} value={statement} onChangeText={setStatement}
-            accessibilityLabel={`Monthly amount from your Social Security statement at age ${FULL_RETIREMENT_AGE}`} />
+            accessibilityLabel={`Monthly amount from your Social Security statement at your full retirement age, ${fraLabel(num(op.birthYear) || null)}`} />
           <Text style={styles.perMo}>/mo</Text>
         </View>
         <Text style={styles.finder}>It's on your Social Security statement — ssa.gov/myaccount or the mailed copy. No rush; the example numbers stay until you have it.</Text>

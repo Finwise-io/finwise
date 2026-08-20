@@ -10,7 +10,7 @@
 // Both quantities are measured AT RETIREMENT. Comparing money-you-have-today against a
 // money-you'll-need-later target would read "48% of the way" for someone genuinely 78% of the way,
 // which is the exact contradiction this design exists to avoid.
-import { simulate, type RetirementInputs } from '../retirement';
+import { simulate, ssStreamOf, withSsStream, type RetirementInputs } from '../retirement';
 
 /** 80% is not a round number picked for looks — it is where the odds stop being a coin toss and
  *  the plan holds in four futures out of five. */
@@ -194,9 +194,11 @@ export function leverDeltas(base: RetirementInputs, opts: { spendCutMonthly?: nu
       apply: { retire_monthly_spend_today: Math.max(0, base.retire_monthly_spend_today - cut) } },
   ];
   // claiming later only exists as a lever if there is a benefit to claim and it is not already claimed
-  if ((base.guaranteed_monthly_income ?? 0) > 0 && from < claim) {
+  const ssNow = ssStreamOf(base)?.monthly ?? base.guaranteed_monthly_income ?? 0;
+  if (ssNow > 0 && from < claim) {
+    const uplifted = withSsStream(base, Math.round(ssNow * ssUpliftFactor(from, claim)), claim);
     candidates.push({ key: 'claim-later', label: `Claim Social Security at ${claim}`,
-      apply: { guaranteed_start_age: claim, guaranteed_monthly_income: Math.round(base.guaranteed_monthly_income * ssUpliftFactor(from, claim)) } });
+      apply: { guaranteed_streams: uplifted.guaranteed_streams, guaranteed_start_age: uplifted.guaranteed_start_age, guaranteed_monthly_income: uplifted.guaranteed_monthly_income } });
   }
   return candidates
     .map((c) => ({ ...c, points: oddsOf({ ...base, ...c.apply }) - baseOdds }))

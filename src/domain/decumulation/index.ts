@@ -2,6 +2,7 @@
 // Tax-bucket split of the nest egg, net withdrawal + rate vs the 4% guideline, deterministic
 // depletion age, a tax-efficient withdrawal order, and required minimum distributions (RMDs).
 import type { AssetAccount } from '../assets';
+import { rmdStartAgeFromAge, rmdDivisor as engineRmdDivisor } from '../../../Calculation Module code/engines/rmd';
 import { earmarkedAmount } from '../assets';
 import { round2 } from '../_shared/num';
 
@@ -57,7 +58,7 @@ export function depletionAge(o: { age: number; horizon: number; nestEgg: number;
     bal = bal * growth - net;
     if (rmdOn) {
       preTaxBal = Math.max(0, Math.min(bal, preTaxBal * growth - net * (bal > 0 ? preTaxBal / Math.max(bal, preTaxBal) : 1)));
-      if (a >= RMD_START_AGE && preTaxBal > 0) {
+      if (a >= rmdStartAgeFor(a) && preTaxBal > 0) {
         const rmd = rmdAtAge(preTaxBal, a);
         preTaxBal -= rmd;
         bal -= rmd * rate;
@@ -90,7 +91,7 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
     ? userOrder.map((b) => base.find((x) => x.bucket === b)!)
     : base;
   const steps: OrderStep[] = seq.filter((s) => split[s.bucket] > 0).map((s) => ({ ...s, amount: split[s.bucket] }));
-  if (age >= RMD_START_AGE && split.preTax > 0) {
+  if (age >= rmdStartAgeFor(age) && split.preTax > 0) {
     const pre = steps.find((s) => s.bucket === 'preTax');
     if (pre) pre.why = 'The rest, beyond your required withdrawal — taxed as income.';
     return [{ bucket: 'rmd', label: 'Required withdrawal (RMD) — first', amount: rmdAtAge(split.preTax, age),
@@ -99,25 +100,19 @@ export function withdrawalOrder(split: BucketSplit, age = 0, userOrder?: DrawBuc
   return steps;
 }
 
-// ---- Required Minimum Distributions (SECURE 2.0: begin at 73) ----
-export const RMD_START_AGE = 73;
-// IRS Uniform Lifetime Table divisors (post-2022). Interpolated between listed ages.
-const ULT: Record<number, number> = {
-  73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1, 80: 20.2,
-  81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7,
-  89: 12.9, 90: 12.2, 92: 10.8, 95: 8.9, 100: 6.4,
-};
-export function rmdDivisor(age: number): number {
-  if (age < RMD_START_AGE) return 0;
-  if (ULT[age]) return ULT[age];
-  const ages = Object.keys(ULT).map(Number).sort((a, b) => a - b);
-  if (age >= ages[ages.length - 1]) return ULT[ages[ages.length - 1]];
-  let lo = ages[0], hi = ages[ages.length - 1];
-  for (const k of ages) { if (k <= age) lo = k; if (k >= age) { hi = k; break; } }
-  const t = (age - lo) / (hi - lo || 1);
-  return Math.round((ULT[lo] + t * (ULT[hi] - ULT[lo])) * 10) / 10;
+// ---- Required Minimum Distributions ----
+// B4 (founder brief 2026-08-20): the rule lives in ONE dated, sourced table — the Calculation
+// Module's rmd engine. The start age follows the birth-year rule (73 born 1951–1959, 75 born
+// 1960+); Roth 401(k)s are exempt BY CONSTRUCTION here — taxBucketSplit puts every ROTH-bucket
+// account outside the pre-tax base this math runs on (pinned by test).
+/** The start age for a person known only by AGE (birth year ≈ this year − age). */
+export function rmdStartAgeFor(age?: number | null, nowYear = new Date().getFullYear()): number {
+  return age == null ? 73 : rmdStartAgeFromAge(age, nowYear);
 }
-/** Required minimum distribution from pre-tax balances at a given age (0 before 73). */
+export function rmdDivisor(age: number, nowYear = new Date().getFullYear()): number {
+  return engineRmdDivisor(age, nowYear - age);
+}
+/** Required minimum distribution from pre-tax balances at a given age (0 before the start age). */
 export function rmdAtAge(preTaxBalance: number, age: number): number {
   const d = rmdDivisor(age);
   return d > 0 ? round2(preTaxBalance / d) : 0;
@@ -141,7 +136,7 @@ export interface RmdYearRow {
 export function rmdSchedule(preTaxNow: number, ageNow: number, expReturn: number, years = 15, nowYear = new Date().getFullYear()): RmdYearRow[] {
   const rows: RmdYearRow[] = [];
   if (preTaxNow <= 0) return rows;
-  const startAge = Math.max(RMD_START_AGE, ageNow);
+  const startAge = Math.max(rmdStartAgeFor(ageNow, nowYear), ageNow);
   let bal = preTaxNow;
   // walk row 9: the SAME growth step every projection uses — no schedule-only clamp, no inline math
   const { growOneYear } = require('../retirement');
@@ -186,7 +181,7 @@ export function drawOrderOutcome(
   if (need0 <= 0) return { lastsToAge: null, totalTaxes: 0 };
   for (let age = o.age; age <= o.horizon; age++) {
     let need = need0;
-    if (age >= RMD_START_AGE && bal.preTax > 0) {
+    if (age >= rmdStartAgeFor(o.age) && bal.preTax > 0) {
       const rmd = rmdAtAge(bal.preTax, age);
       const take = Math.min(rmd, bal.preTax);
       bal.preTax -= take;

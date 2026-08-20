@@ -48,3 +48,30 @@ describe('claimWindow', () => {
     expect(claimWindow(null, 6)).toBeNull();
   });
 });
+
+// ── B2 (founder brief 2026-08-20): the full-retirement-age table by birth year ──
+describe('the FRA table — the oldest third of the audience is not born 1960+', () => {
+  const { fullRetirementAge, ssClaimFactorFor } = require('./ssTiming');
+
+  test('the statutory schedule: 66 through 1954, two months per year 1955–1959, 67 from 1960', () => {
+    expect(fullRetirementAge(1954)).toBe(66);
+    expect(fullRetirementAge(1956)).toBeCloseTo(66 + 4 / 12, 10);
+    expect(fullRetirementAge(1957)).toBeCloseTo(66.5, 10);
+    expect(fullRetirementAge(1959)).toBeCloseTo(66 + 10 / 12, 10);
+    expect(fullRetirementAge(1960)).toBe(67);
+    expect(fullRetirementAge(null)).toBe(67);       // no birth year → the 1960+ default
+  });
+
+  test('born 1957 (FRA 66y6m): claiming at 67 is six months of DELAYED credit, not the anchor', () => {
+    expect(ssClaimFactorFor(67, 1957)).toBeCloseTo(1 + 6 * (2 / 3) / 100, 10);   // 1.04
+  });
+
+  test('born 1957 claiming at 62: 54 months early = 36×5⁄9% + 18×5⁄12% = 27.5% reduction', () => {
+    expect(ssClaimFactorFor(62, 1957)).toBeCloseTo(1 - 0.275, 10);
+  });
+
+  test('born 1960+ reproduces the old anchored-at-67 factors exactly', () => {
+    expect(ssClaimFactorFor(62, 1965)).toBeCloseTo(0.70, 10);
+    expect(ssClaimFactorFor(70, 1965)).toBeCloseTo(1.24, 10);
+  });
+});

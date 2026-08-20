@@ -2,6 +2,7 @@
 // will-it-last number, the big decisions waiting on you, and your saved what-ifs. Nothing here
 // changes the plan by itself — every path ends at an explicit adoption step.
 import React, { useEffect, useMemo, useState } from 'react';
+import { displayOdds } from '../domain/retirement/willItLast';
 import { View, Text, ScrollView, StyleSheet, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useRouter, useLocalSearchParams } from 'expo-router';
 import { useStore } from '../store/useStore';
@@ -10,7 +11,7 @@ import { money } from '../domain/_shared/num';
 import { resolveNetWorthRows } from '../domain/snapshot';
 import { selectWillItLast } from '../domain/retirement/willItLast';
 import { resolveLens } from '../domain/profile/lens';
-import { RMD_START_AGE, withdrawalPlan } from '../domain/decumulation';
+import { rmdStartAgeFor, withdrawalPlan } from '../domain/decumulation';
 import { retirementIncomeMonthly } from '../domain/income';
 import { k401Headroom } from '../domain/income/limits';
 import { ageFromProfile } from '../utils/persona';
@@ -163,8 +164,8 @@ export default function PlanHubScreen() {
   // retired: the honest spend-more delta — the SAME engine re-run with +$500/mo, never a guess
   const spendMore = useMemo(() => {
     if (lens !== 'retired' || wil.chance == null || !wil.inputs) return null;
-    const bumped = simulate({ ...wil.inputs, retire_monthly_spend_today: (wil.inputs.retire_monthly_spend_today || 0) + 500 }).chance_of_success;
-    return { chance: bumped, delta: bumped - wil.chance };
+    const bumped = displayOdds(simulate({ ...wil.inputs, retire_monthly_spend_today: (wil.inputs.retire_monthly_spend_today || 0) + 500 }).chance_of_success);
+    return { chance: bumped, delta: bumped - (wil.chanceExact ?? wil.chance) };
   }, [lens, wil.chance, wil.inputs]);
   // retired: the paycheck numbers — the ONE model Home's card uses (never re-derived)
   const { year: payYear } = useCashflowModel();
@@ -373,7 +374,7 @@ export default function PlanHubScreen() {
                     sub={A.ssClaimAge != null ? `claimed at ${A.ssClaimAge} ✓ — settled, shown so you know it's handled` : 'set the age your plan counts on — in your dollars'}
                     onPress={() => router.push('/ss-timing')} />
                 )}
-                {next?.kind !== 'rmd' && age != null && age >= RMD_START_AGE && (
+                {next?.kind !== 'rmd' && age != null && age >= rmdStartAgeFor(age) && (
                   <DecisionRow divider title="Have I taken my required withdrawal?" sub={`✓ on track for ${new Date().getFullYear()} — the details live one tap away`} onPress={() => router.push('/required-withdrawals')} />
                 )}
                 <DecisionRow divider title="Is a Roth move worth it?"
@@ -394,13 +395,13 @@ export default function PlanHubScreen() {
                 {ssIsLive && (
                   <DecisionRow divider title="When should I claim Social Security?" sub={ssChip ?? 'set the age your plan counts on — 62 vs 67 vs 70 in your dollars'} onPress={() => router.push('/ss-timing')} />
                 )}
-                {next?.kind !== 'rmd' && age != null && age >= RMD_START_AGE && (
+                {next?.kind !== 'rmd' && age != null && age >= rmdStartAgeFor(age) && (
                   <DecisionRow divider title="Have I taken my required withdrawal?" sub={`✓ on track for ${new Date().getFullYear()}`} onPress={() => router.push('/required-withdrawals')} />
                 )}
                 <DecisionRow divider title="Is a Roth move worth it?"
                   sub={Number(A?.rothConversionThisYear) > 0
                     ? `✓ to do with your brokerage: convert ${maskedMoney(Number(A.rothConversionThisYear))} before Dec 31, ${new Date().getFullYear()}`
-                    : `the window before required withdrawals begin at ${RMD_START_AGE}`}
+                    : `the window before required withdrawals begin at ${rmdStartAgeFor(age)}`}
                   onPress={() => router.push('/roth')} />
               </>
             )}
