@@ -4,7 +4,7 @@ import { cashflowYear, upcomingBills } from './cashflow';
 import { incomeMonthlyGrid, totalGrossAnnual, tipsAnnual, salaryAnnual } from './income';
 import { savingsByMonth } from './budget';
 import { loanPayment, debtToIncome, creditUtilization, type Debt } from './debt';
-import { buildPerformance, capGains, capGainsTax, type Position, type PriceSeries } from './performance';
+import { buildPerformance, capGains, type Position, type PriceSeries } from './performance';
 import { simulate, solveRetireAge, projectNestEgg } from './retirement';
 import type { OnboardingProfile } from './onboardingProfile';
 
@@ -107,12 +107,11 @@ describe('Tech-professional scenarios', () => {
     // return — they can't be benchmarked against a live index the way ETFs and stocks are.
   });
 
-  test('2. "What tax would I owe if I sold?" (long- vs short-term)', () => {
+  test('2. long- vs short-term gain split (the estimated-tax line was cut, brief §C Q12)', () => {
     const p = pos('NVDA', 'stocks_etf', [[10, 100, '2024-01-01'], [10, 100, '2026-03-01']]);  // half LT, half ST
     const cg = capGains(p, 200, JUN);
     expect(cg.longGain).toBeCloseTo(1000, 0);
     expect(cg.shortGain).toBeCloseTo(1000, 0);
-    expect(capGainsTax(cg.longGain, cg.shortGain, 0.15, 0.32)).toBeCloseTo(150 + 320, 0);
   });
 
   test('3. "Can I retire at 50?"', () => {

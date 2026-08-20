@@ -123,7 +123,7 @@ describe('insights slot 1 (the sameness pin: Home card = Insights top item)', ()
       cashMonths: 0,                                       // would fire priority-1 runway
       toxicDebt: { label: 'Card', apr: 0.24 },             // would fire priority-1 toxic-debt
       k401Remaining: 5000, hasEarnedIncome: true, retireChance: 40,
-      cashDragPct: 50, topAccountPct: 80, planPct: 50, beatBy: -0.1, investRate: 0.01,
+      topAccountPct: 80, planPct: 50, beatBy: -0.1, investRate: 0.01,
       worthALook: { amount: 2400, account: 'Chase checking', more: 1, followUp: false },
     });
     expect(out[0].id).toBe('worth-a-look');
@@ -134,7 +134,7 @@ describe('insights slot 1 (the sameness pin: Home card = Insights top item)', ()
 
   test('rmd-due / ss-window / goals-gap fire with quantified copy', () => {
     const { buildInsights } = require('../domain/insights');
-    const base = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: false, retireChance: 90, cashDragPct: 0, topAccountPct: 0, planPct: 100, beatBy: null, investRate: null };
+    const base = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: false, retireChance: 90, topAccountPct: 0, planPct: 100, beatBy: null, investRate: null };
     const rmd = buildInsights({ ...base, rmdDue: { amount: 12300 } });
     expect(rmd[0].id).toBe('rmd-due');
     expect(rmd[0].body).toContain('$12,300');

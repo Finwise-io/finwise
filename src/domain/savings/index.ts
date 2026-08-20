@@ -31,16 +31,6 @@ export function monthlySavings(op: OnboardingProfile | null, debts: Debt[] = [])
   return round2(months.reduce((t, m) => t + m.amount, 0) / 12);
 }
 
-/** Cash savings rate (%) = monthly savings ÷ take-home. The everyday "are you living below your means". */
-export function savingsRateCash(op: OnboardingProfile | null, debts: Debt[] = []): number {
-  const th = takeHomeMonthly(op);
-  return th > 0 ? round2((monthlySavings(op, debts) / th) * 100) : 0;
-}
-
-/** Total savings rate with retirement (%) = (monthly savings + 401(k) + match) ÷ gross. Retirement-
- *  readiness number; plan-based (401k can't be seen in transactions). */
-export function savingsRateTotal(op: OnboardingProfile | null, debts: Debt[] = []): number {
-  const grossMo = totalGrossAnnual(op) / 12;
-  const retire = toNum((op as any)?.c_401k) + employerMatchMonthly(op);   // 401(k) employee + employer match
-  return grossMo > 0 ? round2(((monthlySavings(op, debts) + retire) / grossMo) * 100) : 0;
-}
+// The savings-rate functions were CUT by the founder 2026-08-20 (brief §C, Q29): a benchmark aimed
+// at 30-year-olds; no decision turns on it. The replacement is the expense-to-income ratio (TTM,
+// take-home basis) — a Track-5 follow-up build, mock-first. monthlySavings (the FLOW) stays.

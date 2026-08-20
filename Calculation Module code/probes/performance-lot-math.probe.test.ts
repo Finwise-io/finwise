@@ -5,7 +5,7 @@
 // what I am up. If these are wrong nothing above them can be right.
 import {
   totalShares, costBasis, avgCost, marketValue, unrealizedGain,
-  capGains, capGainsTax, totalROI, latestClose, earliestPurchaseDate,
+  capGains, totalROI, latestClose, earliestPurchaseDate,
 } from '../../src/domain/performance';
 
 const lot = (shares: number, cost: number, date = '2020-01-15') =>
@@ -91,11 +91,6 @@ describe('HOLDING_CAP_GAINS / CAP_GAINS_TAX', () => {
 
   test('no price means no gain figure at all', () => {
     expect(capGains(P(lot(10, 100)), null, NOW)).toEqual({ longGain: 0, shortGain: 0, totalGain: 0 });
-  });
-
-  test('losses never create a positive tax bill', () => {
-    expect(capGainsTax(-1000, -500)).toBe(0);
-    expect(capGainsTax(1000, 500)).toBe(270);     // 1000×0.15 + 500×0.24
   });
 
   test('an unparseable purchase date is treated as SHORT-term — the cautious side', () => {

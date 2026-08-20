@@ -151,17 +151,17 @@ describe('state contract (FCC-state-contract.md)', () => {
     useStore.getState().resetAll();
     const future = new Date(Date.now() + 7 * 86400000).toISOString();
     const past = new Date(Date.now() - 1 * 86400000).toISOString();
-    useStore.getState().dismissInsight('cash-drag', future);
-    expect(useStore.getState().dismissedInsights['cash-drag']).toBe(future);   // persisted store state
+    useStore.getState().dismissInsight('concentration', future);
+    expect(useStore.getState().dismissedInsights['concentration']).toBe(future);   // persisted store state
     // the ONE filter rule the hook applies:
     const hiddenUntil = useStore.getState().dismissedInsights as Record<string, string>;
     const nowIso = new Date().toISOString();
     const notDismissed = (i: { id: string }) => i.id === 'worth-a-look' || !hiddenUntil[i.id] || hiddenUntil[i.id] <= nowIso;
-    expect(notDismissed({ id: 'cash-drag' })).toBe(false);                     // hidden while snoozed
+    expect(notDismissed({ id: 'concentration' })).toBe(false);                     // hidden while snoozed
     expect(notDismissed({ id: 'worth-a-look' })).toBe(true);                   // exempt — has its own resolution
-    useStore.getState().dismissInsight('cash-drag', past);
+    useStore.getState().dismissInsight('concentration', past);
     const hidden2 = useStore.getState().dismissedInsights as Record<string, string>;
-    expect(hidden2['cash-drag'] <= nowIso).toBe(true);                         // expired → shows again
+    expect(hidden2['concentration'] <= nowIso).toBe(true);                         // expired → shows again
   });
 
   test('UX Type r7 — every FCC-mandated glossary term exists with plain-English body', () => {

@@ -5,7 +5,7 @@
 // the canonical selectors (take-home = after tax + 401k; surplus = after debt; etc.).
 export type GlossaryTerm =
   | 'rmd' | 'surplus' | 'nestEgg' | 'unclassified' | 'earmarked'
-  | 'takeHome' | 'investable' | 'emergencyFund' | 'savingsRate' | 'netWorth' | 'nwChange'
+  | 'takeHome' | 'investable' | 'emergencyFund' | 'netWorth' | 'nwChange'
   // asset classes (what your money is invested in) + income — added so the same plain-English meaning
   // shows wherever these appear (Net Worth classes, holdings, Income).
   | 'cash' | 'stocks' | 'bonds' | 'alternatives' | 'realEstate' | 'personalProperty'
@@ -38,7 +38,6 @@ export const GLOSSARY: Record<GlossaryTerm, { title: string; body: string }> = {
   unclassified: { title: 'Unclassified', body: 'An account whose holdings we don’t know yet — counted in your total, but not shown as stocks/bonds until you set the mix.' },
   rmd:          { title: 'Required withdrawals (RMD)', body: 'Required Minimum Distribution — the amount the IRS requires you to withdraw from pre-tax retirement accounts each year starting at age 73.' },
   emergencyFund:{ title: 'Emergency fund', body: 'Cash set aside for the unexpected — a common target is 3–6 months of your essential spending.' },
-  savingsRate:  { title: 'Savings rate', body: 'The share of your take-home pay you set aside each month. Around 20% is a healthy benchmark.' },
   cash:         { title: 'Cash', body: 'Money in checking, savings, or a brokerage sweep — cash only. Money-market funds and CDs pay dividends or interest, so they count under Stocks / Funds and Bonds & CDs, where their earnings are measured.' },
   stocks:       { title: 'Stocks / Funds', body: 'Shares of companies, or funds — ETFs and mutual funds — that bundle many stocks together. Higher long-term growth, with more ups and downs along the way.' },
   bonds:        { title: 'Bonds', body: 'Loans to a government or company that pay you interest (a coupon) and return the face value at maturity. Steadier than stocks; you can also sell them before maturity.' },

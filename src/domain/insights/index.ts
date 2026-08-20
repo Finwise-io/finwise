@@ -14,8 +14,6 @@ export interface InsightInput {
   k401Remaining: number;                            // 401(k) headroom this year
   hasEarnedIncome: boolean;                         // has W-2 wages this year (401(k) needs earned income)
   retireChance: number | null;                      // Monte-Carlo % the plan lasts
-  cashDragPct: number;                              // % of investable assets sitting in cash
-  cashAmount?: number;                              // the same cash in DOLLARS (dollar-first wording, walk row 9)
   topAccountPct: number;                            // largest single investment ACCOUNT as % of investable
   topAccountAmount?: number;                        // that account's DOLLARS (dollar-first wording, walk row 9)
   topHolding?: { ticker: string; pct: number; value?: number } | null; // largest single HOLDING at 25%+ (topHoldingConcentration — same rule Invest main shows)
@@ -69,9 +67,8 @@ const RULES: Rule[] = [
   // B-48: a 401(k) needs earned income — don't nudge a retiree / no-wage user to contribute.
   (i) => (i.k401Remaining > 1000 && i.hasEarnedIncome) ? { id: 'k401-room', priority: 2, icon: '💼', title: 'Room left in your 401(k)', body: `About ${money0(i.k401Remaining)} of this year's tax-advantaged room looks unused — an estimate from what you told us you contribute, not from your payroll.`, route: '/contribution-room' } : null,
   (i) => (i.beatBy != null && i.beatBy < -0.02) ? { id: 'behind-bench', priority: 2, icon: '📉', title: 'Trailing your benchmark', body: `Your portfolio is ${Math.abs(Math.round(i.beatBy * 100))} pts behind its benchmark — review your holdings.`, route: '/performance' } : null,
-  // FCC: routes to the designed idle-cash landing (the fact + where it sits + comparison math) — no more dead-end.
-  // walk row 9 (home-v2 mock, audit Home·NW #1): dollars FIRST — the dollar is the persuasion device
-  (i) => i.cashDragPct > 30 ? { id: 'cash-drag', priority: 2, icon: '💵', title: 'A lot is sitting in cash', body: `${i.cashAmount != null ? `${money0(i.cashAmount)} (${Math.round(i.cashDragPct)}%) of your investable money sits` : `${Math.round(i.cashDragPct)}% of your investable money is`} in cash earning little — see what it could earn.`, route: '/idle-cash' } : null,
+  // Cash drag CUT by the founder 2026-08-20 (brief §C, Q24): an opinion multiplied by an assumed
+  // return. Months-of-cash (the runway rule above) is the kept cash fact.
   // FCC: HOLDING-level concentration — the same 25%+ fact Invest main shows, surfaced as an insight.
   (i) => i.topHolding ? { id: 'holding-concentration', priority: 2, icon: '🎯', title: 'A lot rides on one stock', body: `${i.topHolding.value != null ? `${money0(i.topHolding.value)} (${i.topHolding.pct}%) of your invested money rides` : `${i.topHolding.pct}% of your invested money is`} on one stock (${i.topHolding.ticker}) — a fact worth knowing, not advice.`, route: '/(tabs)/invest' } : null,
   // B-45: this measures the largest ACCOUNT, not a single ticker — word it honestly.

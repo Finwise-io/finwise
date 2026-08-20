@@ -64,11 +64,8 @@ export function capGains(p: Position, price: number | null | undefined, now: Dat
   }
   return { longGain: round2(lg), shortGain: round2(sg), totalGain: round2(lg + sg) };
 }
-/** Estimated tax if sold now: long-term gains at the LT rate, short-term at the ordinary rate.
- *  Losses don't create a positive tax. */
-export function capGainsTax(longGain: number, shortGain: number, ltRate = 0.15, ordinaryRate = 0.24): number {
-  return round2(Math.max(0, longGain) * ltRate + Math.max(0, shortGain) * ordinaryRate);
-}
+// capGainsTax was CUT by the founder 2026-08-20 (brief §C, Q12) with the embedded-tax
+// metric: an estimate on an unrealised gain cannot be calculated honestly.
 
 /** Total return since purchase = gain / cost basis (decimal). null price or zero basis → null. */
 export function totalROI(p: Position, price: number | null | undefined): number | null {

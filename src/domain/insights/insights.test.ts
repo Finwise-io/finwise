@@ -1,6 +1,6 @@
 import { buildInsights, type InsightInput } from './index';
 
-const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, planNext: null, beatBy: 0.01, investRate: 0.2 };
+const clean: InsightInput = { cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, topAccountPct: 20, planPct: 100, planNext: null, beatBy: 0.01, investRate: 0.2 };
 
 describe('insight service', () => {
   test('healthy state → no insights', () => {
@@ -22,7 +22,7 @@ describe('insight service', () => {
   });
   test('each insight has title + body + route + a theme (for grouping)', () => {
     // force-fire as many rules as possible so we cover every id's theme mapping.
-    const all = buildInsights({ cashMonths: 0.5, toxicDebt: { label: 'Card', apr: 0.24 }, k401Remaining: 9000, hasEarnedIncome: true, retireChance: 40, cashDragPct: 50, topAccountPct: 60, planPct: 50, beatBy: -0.05, investRate: 0.05 });
+    const all = buildInsights({ cashMonths: 0.5, toxicDebt: { label: 'Card', apr: 0.24 }, k401Remaining: 9000, hasEarnedIncome: true, retireChance: 40, topAccountPct: 60, planPct: 50, beatBy: -0.05, investRate: 0.05 });
     all.forEach((i) => {
       expect(i.title.length).toBeGreaterThan(0);
       expect(i.body.length).toBeGreaterThan(0);

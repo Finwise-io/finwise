@@ -1583,7 +1583,6 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   const totalSaveYr = saveYr + k401Yr;            // all savings incl. 401(k) — a deficit NETS against it (no floor)
   const keep = grossYr > 0 ? Math.round((netYr / grossYr) * 100) : 0;        // take-home per $100
   const taxPct = grossYr > 0 ? Math.round((taxYr / grossYr) * 100) : 0;       // effective tax rate
-  const saveRateNet = netYr > 0 ? Math.round((totalSaveYr / netYr) * 100) : 0;     // total savings rate of take-home
   const savePctGross = grossYr > 0 ? Math.max(0, Math.round((totalSaveYr / grossYr) * 100)) : 0;
   const C401 = Colors.primaryDark;
   const spendPct = grossYr > 0 ? Math.round((spendYr / grossYr) * 100) : 0;
@@ -1620,7 +1619,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
     <Callout text={`You keep ${currencySymbol()}${keep} of every ${currencySymbol()}100 you earn`}
       sub={saveYr < 0
         ? `~${taxPct}% goes to tax — and you're spending more than you keep. Trim a category.`
-        : `~${taxPct}% goes to tax · you save ${Math.max(0, saveRateNet)}% of take-home${saveRateNet >= 20 ? ' — above the 20% goal' : ''}.`}
+        : `~${taxPct}% goes to tax.`}
       warn={saveYr < 0} />
 
     {/* stacked monthly column chart, $ or % */}

@@ -210,19 +210,20 @@ test('E2E-46 allocate surplus to a goal → saved rises and the month is funded'
 });
 
 // ── E2E-47 · an insight's provenance: the math behind the number, on demand ──
-test('E2E-47 open the idle-cash insight → the provenance sheet lists the accounts and the math', () => {
+// (the idle-cash insight this test used was CUT by the founder 2026-08-20, brief §C Q24;
+//  the provenance sheet itself is a kept feature, proven on the concentration card instead)
+test('E2E-47 open the account-concentration insight → the provenance sheet lists the accounts and the math', () => {
   useStore.setState({
     onboardingProfile: WORKER,
     assetAccounts: [
-      { asset_id: 'c1', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 90000 },
-      { asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 60000 },
+      { asset_id: 'c1', label: 'Savings', kind: 'savings', tax_bucket: 'CASH', balance: 20000 },
+      { asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 130000 },
     ],
   } as any);
   const InsightsScreen = require('../screens/InsightsScreen').default;
   render(<InsightsScreen />);
-  fireEvent.press(screen.getAllByLabelText(/A lot is sitting in cash/)[0]);
+  fireEvent.press(screen.getAllByLabelText(/Concentrated in one account/)[0]);
   expect(screen.getByText('Where this comes from')).toBeOnTheScreen();
-  expect(screen.getAllByText(/Cash share|Cash total/).length).toBeGreaterThan(0);
 });
 
 // ── E2E-48 · the 401(k)-room landing → try it in the what-if, pre-filled ──

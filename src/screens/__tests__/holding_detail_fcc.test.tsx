@@ -82,7 +82,7 @@ test("vs-the-market card: table rows, same-dates window words, ahead/behind in W
   expect(screen.getByText('price changes only — dividends not included')).toBeOnTheScreen();
 });
 
-test('the tax card: long + short gains SUM to the header gain, labeled an estimate', () => {
+test('the gains card: long + short gains SUM to the header gain (estimated-tax line cut, brief §C Q12)', () => {
   render(<HoldingDetailScreen />);
   const st = useStore.getState() as any;
   const row = buildPerformance([NVDA_POS as any], (t: string) => st.priceCache[t], '1Y')[0];
@@ -91,8 +91,7 @@ test('the tax card: long + short gains SUM to the header gain, labeled an estima
   expect(Math.round(cg.longGain + cg.shortGain)).toBe(Math.round(row.gain));   // the identity the card relies on
   expect(screen.getByText('Gain — long-term (held over 1 yr)')).toBeOnTheScreen();
   expect(screen.getByText('Gain — short-term (under 1 yr)')).toBeOnTheScreen();
-  expect(screen.getByText(/~ Tax at your own rate \(\d+%\)/)).toBeOnTheScreen();
-  expect(screen.getByText('an estimate from your filing status — not advice')).toBeOnTheScreen();
+  expect(screen.queryByText(/~ Tax at your own rate/)).toBeNull();   // the cut line stays gone
 });
 
 test('lots list: date leads, shares-at-price follows — the approved table grammar (pre-48 audit A6)', () => {
@@ -185,7 +184,7 @@ test('engine: holding-concentration insight fires from the SAME shared rule the 
   const top = topHoldingConcentration(rows)!;
   expect(top.ticker).toBe('NVDA');
   expect(top.pct).toBeGreaterThanOrEqual(25);
-  const ins = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: top } as any);
+  const ins = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: top } as any);
   const hit = ins.find((i) => i.id === 'holding-concentration')!;
   // walk row 9 (home-v2): dollar-first — the value leads, the percent follows in parentheses
   expect(hit.body).toMatch(new RegExp(`^\\$[\\d,]+ \\(${top.pct}%\\) of your invested money rides on one stock \\(NVDA\\)`));

@@ -18,11 +18,10 @@ import { realizedFromLedger } from '../domain/performance/realized';
 import { InfoDot } from '../components/UI';
 import { priceFreshness } from '../services/marketData';
 import {
-  buildPerformance, totalShares, costBasis, capGains, capGainsTax, benchmarkTicker,
+  buildPerformance, totalShares, costBasis, capGains, benchmarkTicker,
   PERIODS, startDateFor, type Period, type Position, type PerformanceRow,
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
-import { userCapGainsRates } from '../domain/income';
 import type { AssetAccount } from '../domain/assets';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 1000) / 10)}%`);
@@ -125,10 +124,10 @@ export default function HoldingDetailScreen() {
     return prev > 0 ? { d: last - prev, p: (last - prev) / prev } : null;
   }, [series]);
 
-  // r26: the tax card — per-lot long/short split; the two gains sum to the header gain by construction
+  // r26: per-lot long/short split; the two gains sum to the header gain by construction.
+  // The estimated-tax line was CUT by the founder 2026-08-20 (brief §C, Q12): embedded tax on an
+  // unrealised gain can't be calculated honestly — the three tax buckets in dollars replace it.
   const cg = hasPrice ? capGains(position, row.price) : null;
-  const cgRates = userCapGainsRates(store.onboardingProfile ?? null);   // PRD F3#17: THEIR rates, not 15/24 flat
-  const tax = cg ? capGainsTax(cg.longGain, cg.shortGain, cgRates.lt, cgRates.st) : null;
 
   // r29: dividends received — this ticker's DIVIDEND rows in the ONE ledger
   const dividends = useMemo(() => {
@@ -277,10 +276,6 @@ export default function HoldingDetailScreen() {
           <SectionBand title="IF YOU SOLD TODAY" />
           <View style={s.tRow}><Text style={s.tL}>Gain — long-term (held over 1 yr)</Text><Text style={s.tV}>{cg.longGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.longGain))}</Text></View>
           {cg.shortGain !== 0 && <View style={s.tRow}><Text style={s.tL}>Gain — short-term (under 1 yr)</Text><Text style={s.tV}>{cg.shortGain >= 0 ? '+' : '−'}{maskedMoney2(Math.abs(cg.shortGain))}</Text></View>}
-          {tax != null && tax > 0 && (
-            <View style={s.tRow}><Text style={s.tL}>~ Tax at your own rate ({Math.round(cgRates.lt * 100)}%)</Text><Text style={s.tV}>{maskedMoney(Math.round(tax))}</Text></View>
-          )}
-          <Text style={s.note}>an estimate from your filing status — not advice</Text>
         </View>
       )}
 

@@ -243,7 +243,6 @@ const WHAT_IT_DOES = {
   '(tabs)/invest': 'How each holding has done against the market over the same stretch of time.',
   'holding-detail': 'One ticker: price, graph, what you paid, what it is worth now.',
   'look-back': 'What would have happened if you had moved money earlier.',
-  'idle-cash': 'Cash sitting still, and what it could be earning.',
   '(tabs)/cashflow': 'Money in and money out, month by month.',
   'bill-calendar': 'Every dated bill across the next twelve months, with a running balance.',
   'month-detail': 'Why one particular month looks the way it does.',
@@ -282,7 +281,7 @@ const WHAT_IT_DOES = {
 const PROPOSED = {
   Home: { blurb: 'the two-second glance', screens: ['(tabs)/home', 'insights', 'sharpen'] },
   'Net worth': { blurb: 'everything you own and owe', screens: ['(tabs)/analytics', 'account-detail', 'add-account', 'itemize', 'bonds', 'other-investments', 'import-holdings', 'connect'] },
-  Performance: { blurb: 'how it is doing', screens: ['(tabs)/invest', 'holding-detail', 'look-back', 'idle-cash'] },
+  Performance: { blurb: 'how it is doing', screens: ['(tabs)/invest', 'holding-detail', 'look-back'] },
   'Cash flow': { blurb: 'money in, money out', screens: ['(tabs)/cashflow', 'bill-calendar', 'month-detail', 'expense', 'income-manager', 'monthly-income', 'paycheck-months', 'worth-a-look'] },
   'Plan · Retire': { blurb: 'the long game', screens: ['(tabs)/plan', '(tabs)/retirement', 'will-it-last', 'ss-timing', 'roth', 'required-withdrawals', 'big-costs', 'what-if', 'contribution-room'] },
   'Plan · Goals': { blurb: 'everything else you are saving for', screens: ['(tabs)/goals', 'multi-goal', 'education'] },
@@ -304,7 +303,6 @@ const MOVES = [
   ['stress-test', 'Plan (top level)', 'Plan · Prepare', 'An emergency-cash question, not a retirement one. Founder agreed 2026-08-14.'],
   ['jobsafety', 'Settings only', 'Plan · Prepare', 'Same family as the insurance check, and its other door (Tips) is dead.'],
   ['credit', 'Goals', 'Plan · Prepare', 'Founder added it 2026-08-14, reversing the August menu trim for this audience.'],
-  ['idle-cash', 'an insight only', 'Performance', 'Cash earning nothing is a performance question; give it a permanent door.'],
   ['worth-a-look', 'an insight only', 'Cash flow', 'It is a transaction close-up. It belongs with the transactions.'],
   ['monthly-income', 'Plan-side screens', 'BOTH — by lens', 'FOUNDER RULED 2026-08-14. For someone RETIRED this is their actual income, so it belongs in Cash flow › Income. For someone still WORKING it is a future number they are planning around, so it belongs in Plan › Retire. Same screen, two homes, decided by the lens the app already switches on.'],
 ];

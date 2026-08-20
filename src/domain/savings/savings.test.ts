@@ -1,5 +1,5 @@
 // Term #10 — the two savings rates, pinned by their identities (robust to the income engine).
-import { takeHomeMonthly, monthlySavings, savingsRateCash, savingsRateTotal } from './index';
+import { takeHomeMonthly, monthlySavings } from './index';
 import { plannedMonthlySpend } from '../budget';
 import { totalGrossAnnual } from '../income';
 import { round2 } from '../_shared/num';
@@ -18,20 +18,5 @@ describe('savings rates', () => {
     expect(monthlySavings(op, [])).toBe(round2(takeHomeMonthly(op) - plannedMonthlySpend(op)));
   });
 
-  test('cash savings rate = monthly savings ÷ take-home', () => {
-    expect(savingsRateCash(op)).toBeCloseTo((monthlySavings(op) / takeHomeMonthly(op)) * 100, 1);
-  });
-
-  test('debt payments reduce the cash savings rate (debt payoff is not saving)', () => {
-    const debts: Debt[] = [{
-      debt_id: 'd' as any, label: 'Card', debt_type: 'CREDIT_CARD',
-      remaining_balance: 5000, interest_rate_apr: 0.2, minimum_monthly_payment: 800,
-    }];
-    expect(savingsRateCash(op, debts)).toBeLessThan(savingsRateCash(op, []));
-  });
-
-  test('total-with-retirement adds 401(k) to the numerator, over gross', () => {
-    const grossMo = totalGrossAnnual(op) / 12;
-    expect(savingsRateTotal(op)).toBeCloseTo(((monthlySavings(op) + 500) / grossMo) * 100, 1);
-  });
+  // The savings-rate tests left with the functions — CUT by the founder 2026-08-20 (brief §C, Q29).
 });

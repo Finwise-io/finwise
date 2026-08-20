@@ -39,13 +39,13 @@
 
 <h1>Screen architecture</h1>
 <p class="sub">
-  <b>48 screens</b>, plus 3 aliases and redirects. The top half is <b>measured from the code</b> — every route, every
+  <b>47 screens</b>, plus 3 aliases and redirects. The top half is <b>measured from the code</b> — every route, every
   inbound link, read from <code>app/</code> and <code>src/</code>. The bottom half is <b>a
   recommendation</b> and is labelled as one. Regenerate any time with
   <code>node scripts/screen-map.mjs</code>.
 </p>
-<p class="stamp">Generated 2026-08-16 · 5 with no way in ·
-  7 with a single door · 4 conditional</p>
+<p class="stamp">Generated 2026-08-20 · 5 with no way in ·
+  7 with a single door · 3 conditional</p>
 
 <div class="legend">
   <span class="chip" style="background:#DFF2E9;color:#085041">IN THE TAB BAR</span>
@@ -78,7 +78,7 @@
     <div class="bp">Everything you own minus everything you owe — and where accounts get added.</div>
     <div class="st"><span>By class</span><span>By institution</span></div>
     
-    <div class="bd">the completeness engine · onboarding · AccountDetail · ConnectFlow · Home · IdleCash · RequiredWithdrawals · Roth · SnapTradeConnect · WhatIf · WillItLast</div>
+    <div class="bd">the completeness engine · onboarding · AccountDetail · ConnectFlow · Home · RequiredWithdrawals · Roth · SnapTradeConnect · WhatIf · WillItLast</div>
   </div><div class="box" style="background:#DFF2E9;border-color:#08504133">
     <div class="bt">Cash flow tab</div>
     <div class="br">/(tabs)/cashflow</div>
@@ -421,21 +421,13 @@
   </div></div>
 </div>
 <div class="group">
-  <div class="gh">Only when the data offers it &nbsp;<span style="font-weight:600;opacity:.7">4</span></div>
+  <div class="gh">Only when the data offers it &nbsp;<span style="font-weight:600;opacity:.7">3</span></div>
   <div class="gb">an insight, a nudge or onboarding has to offer it — otherwise a person never meets it</div>
   <div class="grid"><div class="box" style="background:#FAEEDA;border-color:#854F0B33">
     <div class="bt">Contribution room</div>
     <div class="br">/contribution-room</div>
     <div class="tag" style="color:#854F0B">ONLY IF IT FIRES</div>
     <div class="bp">How much room is left in your tax-advantaged accounts this year.</div>
-    
-    
-    <div class="bd">an insight card</div>
-  </div><div class="box" style="background:#FAEEDA;border-color:#854F0B33">
-    <div class="bt">Idle cash</div>
-    <div class="br">/idle-cash</div>
-    <div class="tag" style="color:#854F0B">ONLY IF IT FIRES</div>
-    <div class="bp">Cash sitting still, and what it could be earning.</div>
     
     
     <div class="bd">an insight card</div>
@@ -544,16 +536,15 @@
    <td><b>Plan · Goals</b></td><td>It is the screen for weighing college against the mortgage — the front door of Goals, not a link off will-it-last.</td></tr><tr><td class="mono">/stress-test</td><td>Plan (top level)</td>
    <td><b>Plan · Prepare</b></td><td>An emergency-cash question, not a retirement one. Founder agreed 2026-08-14.</td></tr><tr><td class="mono">/jobsafety</td><td>Settings only</td>
    <td><b>Plan · Prepare</b></td><td>Same family as the insurance check, and its other door (Tips) is dead.</td></tr><tr><td class="mono">/credit</td><td>Goals</td>
-   <td><b>Plan · Prepare</b></td><td>Founder added it 2026-08-14, reversing the August menu trim for this audience.</td></tr><tr><td class="mono">/idle-cash</td><td>an insight only</td>
-   <td><b>Performance</b></td><td>Cash earning nothing is a performance question; give it a permanent door.</td></tr><tr><td class="mono">/worth-a-look</td><td>an insight only</td>
+   <td><b>Plan · Prepare</b></td><td>Founder added it 2026-08-14, reversing the August menu trim for this audience.</td></tr><tr><td class="mono">/worth-a-look</td><td>an insight only</td>
    <td><b>Cash flow</b></td><td>It is a transaction close-up. It belongs with the transactions.</td></tr><tr><td class="mono">/monthly-income</td><td>Plan-side screens</td>
    <td><b>BOTH — by lens</b></td><td>FOUNDER RULED 2026-08-14. For someone RETIRED this is their actual income, so it belongs in Cash flow › Income. For someone still WORKING it is a future number they are planning around, so it belongs in Plan › Retire. Same screen, two homes, decided by the lens the app already switches on.</td></tr>
 </table>
 
 <h2>D &middot; Every screen — what it does, and whether it moves</h2>
 <p class="sub">The <b>what it does</b> column is written by hand; everything else is measured.
-  <b>31 of 48 screens stay exactly where they are</b>,
-  11 move, and 6 are waiting on a ruling.</p>
+  <b>31 of 47 screens stay exactly where they are</b>,
+  10 move, and 6 are waiting on a ruling.</p>
 <table>
  <tr><th>Screen</th><th>What it does today</th><th>Lives in</th><th>Moving?</th></tr>
  <tr><td class="mono">Net worth tab</td>
@@ -625,10 +616,7 @@
      <td>stays</td></tr><tr><td class="mono">Holding detail</td>
      <td>One ticker: price, graph, what you paid, what it is worth now.</td>
      <td>Performance</td>
-     <td>stays</td></tr><tr><td class="mono">Idle cash</td>
-     <td>Cash sitting still, and what it could be earning.</td>
-     <td>Performance</td>
-     <td style="background:#FDF1DC"><b>moves</b> &mdash; Cash earning nothing is a performance question; give it a permanent door.</td></tr><tr><td class="mono">Import holdings</td>
+     <td>stays</td></tr><tr><td class="mono">Import holdings</td>
      <td>Read a brokerage CSV export and add what it finds.</td>
      <td>Net worth</td>
      <td>stays</td></tr><tr><td class="mono">Income</td>

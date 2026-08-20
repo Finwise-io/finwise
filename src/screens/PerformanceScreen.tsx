@@ -21,11 +21,10 @@ import { maskedMoney, spokenMoney } from '../components/useMoney';
 import { searchTickers } from '../constants/tickers';
 import {
   buildPerformance, portfolioPeriodReturn, portfolioBenchReturn, benchmarkTicker, totalShares, costBasis,
-  attribution, allocation, portfolioTrend, capGains, capGainsTax, topHoldingConcentration,
+  attribution, allocation, portfolioTrend, topHoldingConcentration,
   PERIODS, type Period, type Position, type Lot, type TrendPoint,
 } from '../domain/performance';
 import { txnLabel, cashEffect, availableCash, type Transaction, type TxnType } from '../domain/transactions';
-import { userCapGainsRates } from '../domain/income';
 import { moneyWeightedReturn, isMoneyWeighted } from '../domain/performance/moneyWeighted';
 // THE CALCULATION MODULE — say plainly when a window reaches further back than our record.
 // Founder 2026-08-18: the memory limit was a code comment; nobody using the app was ever told.
@@ -115,12 +114,6 @@ export default function PerformanceScreen() {
   const totalValue = investedValue + cashTotal;
   const attr = useMemo(() => attribution(rows), [rows]);
   const alloc = useMemo(() => allocation(rows, cashTotal), [rows, cashTotal]);
-  const cg = useMemo(() => {
-    let lg = 0, sg = 0;
-    rows.forEach((r) => { const c = capGains(r.position, r.price); lg += c.longGain; sg += c.shortGain; });
-    const rates = userCapGainsRates(store.onboardingProfile ?? null);   // PRD F3#17: bracket-derived
-    return { longGain: lg, shortGain: sg, total: lg + sg, tax: capGainsTax(lg, sg, rates.lt, rates.st) };
-  }, [rows, store.onboardingProfile]);
   const trend = useMemo(() => portfolioTrend(positions, priceOf, period), [owned, priceCache, period]);
   const trendChange = trend.length > 1 ? { you: trend[trend.length - 1].value / trend[0].value - 1, bench: trend[0].bench > 0 ? trend[trend.length - 1].bench / trend[0].bench - 1 : 0 } : null;
   // FCC glance-then-drill: the period's DOLLAR gain (same rows as the %), winners & laggards,

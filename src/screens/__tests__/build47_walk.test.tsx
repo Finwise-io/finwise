@@ -129,14 +129,14 @@ test('row 18: when the holding-level concentration fires, the account-level card
   const { buildInsights } = require('../../domain/insights');
   const both = buildInsights({
     cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
-    cashDragPct: 10, topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2,
+    topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2,
     topHolding: { ticker: 'NVDA', pct: 42, value: 42000 },
   } as any);
   expect(both.some((i: any) => i.id === 'holding-concentration')).toBe(true);
   expect(both.some((i: any) => i.id === 'concentration')).toBe(false);
   const solo = buildInsights({
     cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
-    cashDragPct: 10, topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: null,
+    topAccountPct: 60, topAccountAmount: 60000, planPct: 100, beatBy: 0.01, investRate: 0.2, topHolding: null,
   } as any);
   expect(solo.some((i: any) => i.id === 'concentration')).toBe(true);
 });
@@ -646,7 +646,7 @@ test('A3: the bonus editor carries the 12 month chips writing bonusMonth (no mor
 test('C4a: a dated goal funded below its needed pace fires the months-behind insight, quantified', () => {
   const { buildInsights } = require('../../domain/insights');
   const hit = buildInsights({ cashMonths: 6, toxicDebt: null, k401Remaining: 0, hasEarnedIncome: true, retireChance: 90,
-    cashDragPct: 10, topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2,
+    topAccountPct: 20, planPct: 100, beatBy: 0.01, investRate: 0.2,
     goalOffTrack: { label: 'College fund', monthsBehind: 4 } } as any).find((i: any) => i.id === 'goal-offtrack');
   expect(hit.body).toMatch(/^College fund is about 4 months behind at this month's funding pace/);
   expect(hit.theme).toBe('protect');

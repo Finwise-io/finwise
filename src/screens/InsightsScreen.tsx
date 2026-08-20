@@ -123,8 +123,6 @@ export function useInsights(limit?: number): Insight[] {
       k401Remaining: k401Headroom(age, num(op.c_401k) * 12).remaining,
       hasEarnedIncome: salaryAnnual(op) > 0,
       retireChance: typeof store.lastRetireChance === 'number' ? store.lastRetireChance : null,   // cached by the Retire cockpit; null until viewed
-      cashDragPct: investable > 0 ? (cash / investable) * 100 : 0,
-      cashAmount: cash,                                   // walk row 9: dollar-first wording
       topAccountPct: investable > 0 ? (topAccount / investable) * 100 : 0,
       topAccountAmount: topAccount,                       // walk row 9: dollar-first wording
       topHolding,
