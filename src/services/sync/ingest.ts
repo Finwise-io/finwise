@@ -14,6 +14,7 @@ import { newEntityId } from '../../domain/_shared/ids';
 // ever goes back to the old paths.
 import { toLedgerRow } from '../../../Calculation Module code/engines/ledger';
 import { classifyHoldingClass } from '../../../Calculation Module code/engines/holding-class';
+import { reconcileAccountTotal } from '../../../Calculation Module code/engines/reconcile';
 import {
   mapAccountType, mapPosition, mapOptionHolding, activityKey, netCashSleeve,
   type StAccount, type StPosition, type StOptionHolding, type StActivity, mergeHistoryFrom } from './snaptrade';
@@ -148,6 +149,24 @@ export function ingestSync(
       // Depth only ever deepens — a later shallow page can't shorten it (mergeHistoryFrom).
       history_from: mergeHistoryFrom(prior?.history_from,
         (p.activities ?? []).map((act: any) => act.trade_date ?? act.settlement_date ?? null)),
+      // E11 ASSERTION 1 — holdings + options + the cash sleeve vs the broker's own stated total.
+      // Exact: a mismatch is a NAMED difference stored on the account, never a tolerance.
+      recon_break: (() => {
+        const reported = st.balance?.total?.amount ?? null;
+        const usd = st.balance?.total?.currency == null || st.balance?.total?.currency === 'USD';
+        if (!usd || reported == null || reported <= 0 || p.positions == null) return undefined;
+        const values = positions.map((pos) => {
+          const sh = (pos.lots ?? []).reduce((x: number, l: any) => x + (l.shares || 0), 0);
+          return pos.last_price != null ? sh * pos.last_price
+            : (pos.lots ?? []).reduce((x: number, l: any) => x + (l.shares || 0) * (l.cost_per_share || 0), 0);
+        });
+        const r = reconcileAccountTotal(
+          [...values, ...optionRows.map((o) => o.value || 0)],
+          netCashSleeve(p.balancesCash, mapped) || 0,
+          reported,
+        );
+        return r.ok ? undefined : { difference: r.difference.toString(), at: nowIso.slice(0, 10) };
+      })(),
       status: st.status ?? 'open',
     };
 

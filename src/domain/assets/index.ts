@@ -88,6 +88,7 @@ export interface AssetAccount {
   // income figure silently understates. Set to the EARLIEST activity date the source has ever
   // supplied for this account; year-scale income figures label themselves with it.
   history_from?: string;          // 'YYYY-MM-DD' — earliest activity row this source has provided
+  recon_break?: { difference: string; at: string };   // E11 assertion 1: holdings+cash ≠ the broker's stated total — the EXACT difference, kept and shown, never absorbed by a tolerance
 }
 
 /** Manual-value freshness (FCC): how old a hand-entered value is, and whether it needs a nudge.
