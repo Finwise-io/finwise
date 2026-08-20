@@ -26,13 +26,13 @@ describe("THE FOUNDER'S VANGUARD ROWS, one at a time", () => {
     expect(income.event).toBe('DIVIDEND');
     expect(purchase.event).toBe('REINVEST_PURCHASE');
     expect(purchase.reinvested).toBe(true);
-    expect(totalOf([income, purchase], 'income')).toBe(139.49);   // ONCE, not twice
+    expect(totalOf([income, purchase], 'income').toString()).toBe('139.49');   // ONCE, not twice — exact
   });
 
   test('a fee reduces rather than adds', () => {
     const r = V('Fee', -100);
     expect(r.event).toBe('FEE');
-    expect(r.signedAmount).toBe(-100);
+    expect(r.signedAmount.toString()).toBe('-100');
     expect(r.direction).toBe('OUT');
   });
 });
@@ -41,14 +41,14 @@ describe('THE UNCLASSIFIED RULE — an unknown word can never reach a total', ()
   const r = V('PROMOTIONAL CREDIT', 5000);
 
   test('it is written down, with the money and the original word intact', () => {
-    expect(r.amount).toBe(5000);
+    expect(r.amount.toString()).toBe('5000');
     expect(r.sourceWord).toBe('PROMOTIONAL CREDIT');
     expect(r.recognised).toBe(false);
   });
 
   test('it counts in NOTHING — this is the fix for the phantom contributions', () => {
     for (const t of ['contributions', 'withdrawals', 'income', 'costs'] as const) {
-      expect(totalOf([r], t)).toBe(0);
+      expect(totalOf([r], t).isZero()).toBe(true);
     }
   });
 
@@ -62,14 +62,14 @@ describe("THE FOUNDER'S OPTION CHALLENGE — money on a row we would otherwise s
   test('an expiry with no money is a marker', () => {
     const r = V('OPTIONEXPIRATION', 0);
     expect(r.event).toBe('OPTION_EXPIRY');
-    expect(r.amount).toBe(0);
+    expect(r.amount.isZero()).toBe(true);
   });
 
   test('a CASH-SETTLED exercise KEEPS its money instead of dropping it', () => {
     // "option could expire in the money" — the old code returned SKIP and the proceeds vanished
     const r = V('OPTIONEXERCISE', 12500);
     expect(r.event).toBe('OPTION_EXERCISE');
-    expect(r.amount).toBe(12500);              // ← no longer dropped
+    expect(r.amount.toString()).toBe('12500');              // ← no longer dropped
     expect(r.type).toBe('ADJUSTMENT');         // visible, and counted in no external total
   });
 });

@@ -14,6 +14,7 @@
 // reach contributions the way it did on the founder's account.
 import { classifyEvent, EVENTS, type CanonicalEvent } from './events';
 import { readMoney, signed, type SignConvention, type Money } from './money';
+import { Dec } from './decimal';
 
 /** The app's existing transaction vocabulary, kept so screens keep working during the migration. */
 export type LegacyTxnType =
@@ -77,10 +78,10 @@ export interface LedgerRow {
   type: LegacyTxnType;
   /** The canonical event — the field new code should read. */
   event: CanonicalEvent;
-  /** Size only, matching the app's existing positive-amount convention. */
-  amount: number;
-  /** The amount WITH direction: IN positive, OUT negative. Sums use this. */
-  signedAmount: number;
+  /** Size only, EXACT, matching the app's existing positive-amount convention. */
+  amount: Dec;
+  /** The amount WITH direction: IN positive, OUT negative — EXACT. Sums use this. */
+  signedAmount: Dec;
   direction: Money['direction'];
   shares?: number;
   price?: number;
@@ -120,8 +121,8 @@ export function toLedgerRow(raw: RawActivity, convention: SignConvention): Ledge
   // Treasury bill bought for $224,454.11 against 227,000 of face works out at $0.9888 per unit of
   // face. Rounded to $0.99 and multiplied back, it comes to $224,730 — $276 of invented gain on one
   // row. Money rounds to the cent because money IS cents; a price is a ratio and keeps its precision.
-  const price = isTrade && money.amount > 0 && units
-    ? round8(money.amount / Math.abs(units))
+  const price = isTrade && !money.amount.isZero() && units
+    ? money.amount.divRound(Dec.of(String(Math.abs(units)))).toNumber(8)
     : numberOrUndefined(raw.price);
 
   const optionWord = raw.isOption
@@ -144,7 +145,7 @@ export function toLedgerRow(raw: RawActivity, convention: SignConvention): Ledge
     // A zero-amount, zero-unit marker carries nothing. The caller decides whether to keep it; what
     // matters is that a row carrying MONEY is never silently dropped, which was the founder's
     // option challenge — a cash-settled exercise has its proceeds on this very row.
-    isEmptyMarker: money.amount === 0 && !units &&
+    isEmptyMarker: money.amount.isZero() && !units &&
       (c.event === 'OPTION_EXPIRY' || c.event === 'OPTION_EXERCISE'),
     note: c.recognised
       ? [optionWord ?? PLAIN_NOTE[c.event], raw.description].filter(Boolean).join(' · ') || undefined
@@ -160,9 +161,10 @@ export function rowsFor(
   return rows.filter((r) => EVENTS[r.event].totals.includes(total));
 }
 
-/** A total, summed SIGNED — the operation the old code could not do. */
-export function totalOf(rows: LedgerRow[], total: 'contributions' | 'withdrawals' | 'income' | 'costs'): number {
-  return round2(rowsFor(rows, total).reduce((t, r) => t + Math.abs(r.signedAmount), 0));
+/** A total, summed SIGNED and EXACT — a reversal reduces its total instead of inflating it.
+ *  (Audit item 36: the absolute-value sum here was the $2,387 class rebuilt; now the sign carries.) */
+export function totalOf(rows: LedgerRow[], total: 'contributions' | 'withdrawals' | 'income' | 'costs'): Dec {
+  return Dec.sum(rowsFor(rows, total).map((r) => r.signedAmount));
 }
 
 /** Everything we could not name, for the honest line on screen: "12 entries we could not classify". */

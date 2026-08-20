@@ -19,7 +19,8 @@
 import * as fs from 'fs';
 import * as path from 'path';
 import { classifyEvent, touches } from '../events';
-import { readMoney, sumSigned, toNumber } from '../money';
+import { readMoney, sumSigned } from '../money';
+import { Dec } from '../decimal';
 
 const FILE = path.join(__dirname, '../../../Calculation Module/real-downloads/tes-vk.csv');
 const d = fs.existsSync(FILE) ? describe : describe.skip;
@@ -33,8 +34,9 @@ d('VANGUARD, through the new engines', () => {
              money: readMoney(l[11], 'NEGATIVE_IS_OUT', c.rule.direction) };
   });
 
+  // EXACT now — Track 0. The totals are decimals; equality is asserted on strings, no tolerance.
   const total = (t: 'contributions' | 'withdrawals' | 'income' | 'costs') =>
-    Math.round(sumSigned(rows.filter((r) => touches(r.event, t)).map((r) => r.money)) * 100) / 100;
+    sumSigned(rows.filter((r) => touches(r.event, t)).map((r) => r.money));
 
   test('EVERY word in the file is recognised — nothing falls through to a guess', () => {
     const unknown = rows.filter((r) => !r.recognised).map((r) => r.word);
@@ -42,11 +44,11 @@ d('VANGUARD, through the new engines', () => {
   });
 
   test('CONTRIBUTIONS ARE ZERO, as the statement says', () => {
-    expect(total('contributions')).toBe(0);       // was $1,064,493.33
+    expect(total('contributions').isZero()).toBe(true);       // was $1,064,493.33 — now EXACTLY zero
   });
 
   test('WITHDRAWALS ARE ZERO, as the statement says', () => {
-    expect(total('withdrawals')).toBe(0);         // was $424,818.32
+    expect(total('withdrawals').isZero()).toBe(true);         // was $424,818.32 — now EXACTLY zero
   });
 
   test('income is counted ONCE — reinvestment does not double it', () => {
@@ -55,22 +57,21 @@ d('VANGUARD, through the new engines', () => {
     expect(reinvestLegs.length).toBeGreaterThan(0);                 // the file HAS them
     for (const leg of reinvestLegs) expect(touches(leg.event, 'income')).toBe(false);
     // the dividends equal the file's own "Dividend Received" rows, and nothing more
-    const fromFile = rows.filter((r) => /^Dividend$/i.test(r.word))
-      .reduce((t, r) => t + (toNumber(r.money.amount) ?? 0), 0);
-    expect(Math.round(dividends * 100) / 100).toBe(Math.round(fromFile * 100) / 100);
+    const fromFile = Dec.sum(rows.filter((r) => /^Dividend$/i.test(r.word)).map((r) => r.money.amount));
+    expect(dividends.eq(fromFile)).toBe(true);       // EXACT equality — the whole point of Track 0
   });
 
   test('fees are a cost with their own line, and they REDUCE rather than add', () => {
     const fees = total('costs');
-    expect(fees).toBeLessThan(0);                 // signed: money out
+    expect(fees.isNeg()).toBe(true);              // signed: money out
     expect(rows.some((r) => r.event === 'FEE')).toBe(true);
   });
 
   test('the sweeps and the maturity are internal — the entire phantom $1m', () => {
     const internal = rows.filter((r) => ['SWEEP', 'RETURN_OF_CAPITAL'].includes(r.event));
     expect(internal.length).toBeGreaterThan(4);
-    const wouldHaveBeen = internal.reduce((t, r) => t + r.money.amount, 0);
-    expect(wouldHaveBeen).toBeGreaterThan(1_000_000);   // what the old code booked as new money
+    const wouldHaveBeen = Dec.sum(internal.map((r) => r.money.amount));
+    expect(wouldHaveBeen.cmp(Dec.of('1000000'))).toBe(1);   // what the old code booked as new money
     for (const r of internal) {
       expect(touches(r.event, 'contributions')).toBe(false);
       expect(touches(r.event, 'withdrawals')).toBe(false);

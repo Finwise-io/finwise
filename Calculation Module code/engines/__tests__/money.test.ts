@@ -1,5 +1,8 @@
 // The money engine, proved against the real strings in the founder's own institution files.
+// Track 0: amounts are exact decimals (Dec). Totals are asserted as exact strings — no
+// float tolerance anywhere, because there is no float anywhere.
 import { readMoney, signed, sumSigned, toNumber } from '../money';
+import { Dec } from '../decimal';
 
 describe('TEXT MONEY — the exact strings institutions write', () => {
   test("Fidelity's formatting, verbatim from the founder's file", () => {
@@ -23,8 +26,12 @@ describe('TEXT MONEY — the exact strings institutions write', () => {
 
 describe('DIRECTION — held in its own field, never inferred from the sign', () => {
   test('the ordinary convention: negative means money left', () => {
-    expect(readMoney(-139.49, 'NEGATIVE_IS_OUT')).toEqual({ amount: 139.49, direction: 'OUT' });
-    expect(readMoney(139.49, 'NEGATIVE_IS_OUT')).toEqual({ amount: 139.49, direction: 'IN' });
+    const out = readMoney(-139.49, 'NEGATIVE_IS_OUT');
+    expect(out.amount.toString()).toBe('139.49');
+    expect(out.direction).toBe('OUT');
+    const inn = readMoney(139.49, 'NEGATIVE_IS_OUT');
+    expect(inn.amount.toString()).toBe('139.49');
+    expect(inn.direction).toBe('IN');
   });
 
   test('FDX runs the OTHER way — a debit is money leaving, exposed POSITIVE', () => {
@@ -32,8 +39,14 @@ describe('DIRECTION — held in its own field, never inferred from the sign', ()
     expect(readMoney(-500, 'POSITIVE_IS_OUT').direction).toBe('IN');
   });
 
-  test('a stated direction always beats an inferred one', () => {
-    expect(readMoney(-500, 'NEGATIVE_IS_OUT', 'IN').direction).toBe('IN');
+  test('THE SIGN KEEPS ITS MEANING — a stated direction never overrides a contradicting sign', () => {
+    // Audit item 36. A −$500 row whose event says IN is a REVERSAL of that income —
+    // money actually left. The old engine let the label win and booked +$500 of income
+    // that never arrived. The stated direction applies only when the source has no sign.
+    expect(readMoney(-500, 'NEGATIVE_IS_OUT', 'IN').direction).toBe('OUT');
+    expect(readMoney(500, 'NEGATIVE_IS_OUT', 'IN').direction).toBe('IN');
+    // A source that publishes all-positive amounts carries no sign — there, the label rules.
+    expect(readMoney(500, 'ALWAYS_POSITIVE', 'OUT').direction).toBe('OUT');
   });
 
   test('zero carries no direction at all', () => {
@@ -43,30 +56,34 @@ describe('DIRECTION — held in its own field, never inferred from the sign', ()
 
 describe("THE FOUNDER'S $2,387 — cannot happen through this engine", () => {
   // his seven monthly money-market payouts, each a credit and its reinvestment debit
-  const PAIRS = [139.49, 9.46, 9.75, 10.14, 525.76, 294.41, 204.31];
+  const PAIRS = ['139.49', '9.46', '9.75', '10.14', '525.76', '294.41', '204.31'];
 
-  test('the pair nets to ZERO cash, as it does in reality', () => {
-    const legs = PAIRS.flatMap((a) => [readMoney(a, 'NEGATIVE_IS_OUT'), readMoney(-a, 'NEGATIVE_IS_OUT')]);
-    expect(sumSigned(legs)).toBe(0);
+  test('the pair nets to EXACTLY zero cash, as it does in reality', () => {
+    const legs = PAIRS.flatMap((a) => [readMoney(a, 'NEGATIVE_IS_OUT'), readMoney('-' + a, 'NEGATIVE_IS_OUT')]);
+    expect(sumSigned(legs).isZero()).toBe(true);   // true zero, not 1e-13
   });
 
   test('and the OLD way — absolute values — produces exactly the number he saw', () => {
-    const oldWay = PAIRS.flatMap((a) => [Math.abs(a), Math.abs(-a)]).reduce((x, y) => x + y, 0);
-    expect(Math.round(oldWay * 100) / 100).toBe(2386.64);        // the $2,387 on his screen
-    expect(Math.round(PAIRS.reduce((x, y) => x + y, 0) * 100) / 100).toBe(1193.32);   // the truth
+    const oldWay = Dec.sum(PAIRS.flatMap((a) => [Dec.of(a).abs(), Dec.of('-' + a).abs()]));
+    expect(oldWay.round(2).toString()).toBe('2386.64');            // the $2,387 on his screen
+    expect(Dec.sum(PAIRS.map(Dec.of)).toString()).toBe('1193.32'); // the truth
   });
 
   test('income counted once is the statement figure, to the cent', () => {
     const incomeOnly = PAIRS.map((a) => readMoney(a, 'NEGATIVE_IS_OUT', 'IN'));
-    expect(sumSigned(incomeOnly)).toBe(1193.32);
+    expect(sumSigned(incomeOnly).toString()).toBe('1193.32');
   });
 });
 
 describe('SIGNED ADDITION — the operation that was missing', () => {
   test('a charge reduces a total instead of inflating it', () => {
-    expect(sumSigned([readMoney(1193, 'NEGATIVE_IS_OUT'), readMoney(-400, 'NEGATIVE_IS_OUT')])).toBe(793);
+    expect(sumSigned([readMoney(1193, 'NEGATIVE_IS_OUT'), readMoney(-400, 'NEGATIVE_IS_OUT')]).toString()).toBe('793');
   });
-  test('a deposit and its reversal cancel', () => {
-    expect(sumSigned([readMoney(5000, 'NEGATIVE_IS_OUT'), readMoney(-5000, 'NEGATIVE_IS_OUT')])).toBe(0);
+  test('a deposit and its reversal cancel to true zero', () => {
+    expect(sumSigned([readMoney(5000, 'NEGATIVE_IS_OUT'), readMoney(-5000, 'NEGATIVE_IS_OUT')]).isZero()).toBe(true);
+  });
+  test('signed() carries the direction into the value', () => {
+    expect(signed(readMoney(-42.5, 'NEGATIVE_IS_OUT')).toString()).toBe('-42.5');
+    expect(signed(readMoney(42.5, 'NEGATIVE_IS_OUT')).toString()).toBe('42.5');
   });
 });

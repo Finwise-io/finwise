@@ -169,7 +169,10 @@ export function ingestSync(
         ticker: row.ticker,
         shares: row.shares,
         price: row.price,
-        amount: row.amount,
+        // THE APP-STORE EDGE. The engine holds an exact decimal; the store still holds floats until
+        // Track 1 carries Dec into it. Rounded ONCE here (R6) — never summed again as a float in
+        // the engine layer, where every total now runs exact.
+        amount: row.amount.isZero() ? undefined : row.amount.toNumber(2),
         reinvested: row.reinvested,
         note: [row.note, row.recognised ? undefined : `broker word: ${row.sourceWord}`]
           .filter(Boolean).join(' · ') || undefined,
