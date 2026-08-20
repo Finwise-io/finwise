@@ -152,6 +152,11 @@ describe('dedupe — id churn cannot double money', () => {
   test('keys are account-scoped — the same dividend in two accounts is two rows', () => {
     expect(activityKey('acct-1', a())).not.toBe(activityKey('acct-2', a()));
   });
+  test('the key format is FROZEN — devices persist these strings; a format change re-imports history', () => {
+    // construction moved into the Calculation Module (importKey, Track 1 step 2); this pins that
+    // the adapter's output stayed byte-identical to the pre-engine format.
+    expect(activityKey('acct', a())).toBe('acct|2026-07-01|DIVIDEND|55.2||sym-1||');
+  });
 });
 
 describe('netCashSleeve — money-market never counted twice', () => {

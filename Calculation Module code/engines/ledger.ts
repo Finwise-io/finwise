@@ -154,6 +154,36 @@ export function toLedgerRow(raw: RawActivity, convention: SignConvention): Ledge
 }
 
 /** Which rows a given total may read. The ONLY place a screen should ask. */
+// ── THE IMPORT KEY — one identity per imported row, owned here, shared by every road ───────────
+// (Track 1 step 2, founder brief 2026-08-20 §F.) Re-importing an overlapping window can never
+// double money: a row's identity is the composite of everything that makes it THAT row — never the
+// source's own id. SnapTrade reprocesses history and its ids churn; a downloaded file carries no
+// ids at all. The description separates two otherwise-identical same-day fills — the one field
+// that differs. Every road (SnapTrade today, the QFX/CSV import door next) maps its own fields
+// into this ONE mechanism; no road invents a second identity (rule R8: one mechanism per shape).
+export interface ImportIdentity {
+  account: string;                       // OUR account id — the same dividend in two accounts is two rows
+  date?: string | null;
+  word?: string | null;                  // the institution's own word for the event
+  amount?: number | string | null;
+  units?: number | string | null;
+  security?: string | null;              // the road's most stable security identifier
+  ref?: string | null;                   // an external reference id, where the road carries one
+  description?: string | null;
+}
+export function importKey(id: ImportIdentity): string {
+  return [
+    id.account,
+    id.date ?? '',
+    (id.word ?? '').toUpperCase(),
+    id.amount ?? '',
+    id.units ?? '',
+    id.security ?? '',
+    id.ref ?? '',
+    id.description ?? '',
+  ].join('|');
+}
+
 export function rowsFor(
   rows: LedgerRow[],
   total: 'contributions' | 'withdrawals' | 'income' | 'costs',

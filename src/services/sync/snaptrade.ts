@@ -2,6 +2,7 @@
 // no network here. The relay Cloud Function fetches; these normalize into our store's language.
 // Every rule that guards money accuracy is pinned in snaptrade.test.ts.
 import type { TxnType } from '../../domain/transactions';
+import { importKey } from '../../../Calculation Module code/engines/ledger';
 
 // ── SnapTrade shapes (the subset we consume; field names per their API reference) ──────────────
 export interface StAccount {
@@ -240,17 +241,20 @@ export function mapActivityType(a: StActivity): MappedActivity {
 // ── duplicate-proofing ─────────────────────────────────────────────────────────────────────────
 // SnapTrade activity ids can change when they reprocess history, so identity = the composite of
 // everything that makes the row THAT row. Re-ingesting an overlapping window never doubles money.
+// The identity itself lives in the Calculation Module (importKey — Track 1 step 2); this road
+// only maps its fields in. The output is BYTE-IDENTICAL to the pre-engine format, so every
+// seenKeys registry already persisted on a device stays valid.
 export function activityKey(accountId: string, a: StActivity): string {
-  return [
-    accountId,
-    a.trade_date ?? a.settlement_date ?? '',
-    (a.type ?? '').toUpperCase(),
-    a.amount ?? '',
-    a.units ?? '',
-    a.symbol?.id ?? a.symbol?.raw_symbol ?? '',
-    a.external_reference_id ?? '',
-    a.description ?? '',   // audit fix: separates two otherwise-identical same-day fills
-  ].join('|');
+  return importKey({
+    account: accountId,
+    date: a.trade_date ?? a.settlement_date,
+    word: a.type,
+    amount: a.amount,
+    units: a.units,
+    security: a.symbol?.id ?? a.symbol?.raw_symbol,
+    ref: a.external_reference_id,
+    description: a.description,   // audit fix: separates two otherwise-identical same-day fills
+  });
 }
 export function dedupeActivities(accountId: string, incoming: StActivity[], seenKeys: Set<string>): StActivity[] {
   const fresh: StActivity[] = [];
