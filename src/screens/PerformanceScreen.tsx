@@ -10,6 +10,9 @@ import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
 import { buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
+import { windowBounds, moneyWeightedReturn as dietzReturn } from '../../Calculation Module code/engines/window-return';
+import { Dec } from '../../Calculation Module code/engines/decimal';
+import { valueOn, covers as snapshotCovers } from '../../Calculation Module code/engines/snapshots';
 import { Colors, Spacing, Radii, ChartPalette, ClassMarkColors } from '../utils/theme';
 import { money, money2 } from '../domain/_shared/num';
 import { moneyCompact } from '../domain/_shared/money';
@@ -108,9 +111,10 @@ export default function PerformanceScreen() {
   const portBeat = portReturn != null && benchPort != null ? portReturn - benchPort : null;
   const cashTotal = accounts.reduce((t, a) => t + (a.cash_balance || 0), 0);
   // FCC glance pin: the SAME resolved rows + helper Home's hero uses — the two can never disagree
-  const investTotalAll = investmentsTotal(resolveNetWorthRows(
+  const resolvedNwAccounts = resolveNetWorthRows(
     store.user?.uid ?? 'local', store.onboardingProfile, store.nwSeeded ?? false, accounts, store.liabilities ?? [],
-  ).accounts);
+  ).accounts;
+  const investTotalAll = investmentsTotal(resolvedNwAccounts);
   const investedValue = rows.reduce((t, r) => t + r.marketValue, 0);
   const totalValue = investedValue + cashTotal;
   const attr = useMemo(() => attribution(rows), [rows]);
@@ -321,7 +325,31 @@ export default function PerformanceScreen() {
             const contributions = flows.contributions.toNumber(2);
             const withdrawals = flows.withdrawals.toNumber(2);
             const ending = investTotalAll;
-            const beginning = ending - periodDollar - contributions + withdrawals;
+            // Track 1 step 7: the beginning is READ from the daily record when it covers the
+            // window — the close of the day BEFORE the start (D3). Only when the record does not
+            // reach back that far does the derived figure remain, and the record grows daily.
+            const todayKey = new Date().toISOString().slice(0, 10);
+            const bounds = windowStart ? windowBounds(windowStart, todayKey) : null;
+            const snapDays = (store as any).snapshotDays ?? [];
+            const investIds = new Set<string>(resolvedNwAccounts
+              .filter((a: any) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; })
+              .map((a: any) => String(a.asset_id)));
+            const snapBeginning = bounds && snapshotCovers(snapDays, bounds.beginningAsOf)
+              ? valueOn(snapDays, investIds, bounds.beginningAsOf) : null;
+            const beginning = snapBeginning ?? (ending - periodDollar - contributions + withdrawals);
+            // D4: with a MEASURED beginning, the Return is money-weighted (Modified Dietz) with
+            // the timing-sensitivity band — a refusal shows the dollar walk below instead of a
+            // rate that timing drives. Until the record covers the window, the price-based figure
+            // stands with its existing coverage sentence.
+            const mw = snapBeginning != null && bounds ? dietzReturn({
+              beginning: Dec.of(String(snapBeginning)), ending: Dec.of(String(ending)),
+              flows: led
+                .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
+                .map((t: any) => ({ date: String(t.date ?? '').slice(0, 10) || null,
+                  amount: (Dec.parse(t.amount) ?? Dec.ZERO).mul(t.type === 'WITHDRAWAL' ? Dec.of('-1') : Dec.of('1')) })),
+              start: windowStart!, end: todayKey,
+            }) : null;
+            const shownReturn = mw ? mw.rate : portReturn;
             const walk = buildChangeWalk({
               beginning, ending, fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
               contributions, withdrawals, dividends: breakdown.dividends, interest: breakdown.interest,
@@ -334,10 +362,12 @@ export default function PerformanceScreen() {
                   <View style={styles.trioRow}>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Ending value</Text><Text style={styles.sumValBig}>{maskedMoney(Math.round(ending))}</Text></View>
                     <View style={styles.trioCell}><Text style={styles.sumLbl}>Wealth generated</Text><Text style={[styles.sumValBig, { color: walk.wealthGenerated >= 0 ? Colors.gainText : Colors.red }]}>{walk.wealthGenerated < 0 ? '−' : ''}{maskedMoney(Math.abs(Math.round(walk.wealthGenerated)))}</Text></View>
-                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (portReturn ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{portReturn == null ? '—' : pct(portReturn)}</Text></View>
+                    <View style={styles.trioCell}><Text style={styles.sumLbl}>Return</Text><Text style={[styles.sumValBig, { color: (shownReturn ?? 0) >= 0 ? Colors.gainText : Colors.red }]}>{shownReturn == null ? '—' : pct(shownReturn)}</Text></View>
                   </View>
                   <Text style={styles.sumNote}>
-                    Return is for the window you picked ({PERIOD_PHRASE[period]}) — not a yearly rate. Money you added never counts as return.
+                    {mw && mw.rate == null
+                      ? mw.sentence
+                      : `Return is for the window you picked (${PERIOD_PHRASE[period]}) — not a yearly rate. Money you added never counts as return.`}
                   </Text>
                   {/* the value graph lives INSIDE the summary card (approved performance-FINAL) */}
                   {trend.length > 1 && <TrendChartAuto data={trend} />}
@@ -399,8 +429,14 @@ export default function PerformanceScreen() {
             return [...byAcct.entries()].map(([id, a]) => {
               const acctFlows = personalFlowTotals(led.filter((t) => t.account_id === id));
               const contributions = acctFlows.contributions.toNumber(2), withdrawals = acctFlows.withdrawals.toNumber(2);
+              // Track 1 step 7: read the account's beginning from the record when covered
+              const todayKey2 = new Date().toISOString().slice(0, 10);
+              const bounds2 = windowStart ? windowBounds(windowStart, todayKey2) : null;
+              const snapDays2 = (store as any).snapshotDays ?? [];
+              const acctBeginning = bounds2 && snapshotCovers(snapDays2, bounds2.beginningAsOf)
+                ? valueOn(snapDays2, new Set([String(id)]), bounds2.beginningAsOf) : null;
               const w = buildChangeWalk({
-                beginning: a.ending - a.gain - contributions + withdrawals, ending: a.ending,
+                beginning: acctBeginning ?? (a.ending - a.gain - contributions + withdrawals), ending: a.ending,
                 fromLabel: PERIOD_PHRASE[period], toLabel: 'today',
                 contributions, withdrawals, dividends: acctFlows.dividends.toNumber(2), interest: acctFlows.interest.toNumber(2),
               });

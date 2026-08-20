@@ -47,6 +47,9 @@ export interface AccountSnapshot {
   /** THE BROKER'S OWN STATED TOTAL. The only outside check we ever get: if our holdings plus cash
    *  do not reach it, something is missing, and we would rather know than quietly disagree. */
   statedTotal: number | null;
+  /** A HAND-ENTERED account's own value that day — a typed lump with no holdings to sum. Kept
+   *  apart from cash: a typed IRA balance is not cash, and a house is neither. */
+  typedValue?: number | null;
   currency: string;
 }
 
@@ -107,8 +110,10 @@ export function buildDayFromAccounts(accounts: AccountLike[], date: string, writ
     accts.push({
       date, accountId: a.asset_id,
       // uninvested cash: the sleeve on a connected account; the whole balance of a cash account
-      cash: a.cash_balance ?? (a.asset_class === 'cash' || (!ps.length && a.source !== 'connected') ? (a.balance ?? 0) : 0),
+      // cash is CASH only — a typed house or a typed IRA lump is not a sweep balance
+      cash: a.cash_balance ?? (a.asset_class === 'cash' ? (a.balance ?? 0) : 0),
       statedTotal: a.source === 'connected' ? (a.balance ?? null) : null,
+      typedValue: a.source !== 'connected' && a.asset_class !== 'cash' && !ps.length ? (a.balance ?? null) : null,
       currency: 'USD',
     });
   }
@@ -162,7 +167,7 @@ export function valueOn(days: SnapshotDay[], accountIds: Set<string>, date: stri
   if (!day) return null;
   const inSet = (id: string) => accountIds.size === 0 || accountIds.has(id);
   const holdings = day.holdings.filter((h) => inSet(h.accountId)).reduce((t, h) => t + h.value, 0);
-  const cash = day.accounts.filter((a) => inSet(a.accountId)).reduce((t, a) => t + a.cash, 0);
+  const cash = day.accounts.filter((a) => inSet(a.accountId)).reduce((t, a) => t + a.cash + (a.typedValue ?? 0), 0);
   if (!day.holdings.some((h) => inSet(h.accountId)) && !day.accounts.some((a) => inSet(a.accountId))) return null;
   return round2(holdings + cash);
 }

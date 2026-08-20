@@ -24,3 +24,33 @@ describe('COVERAGE IS STATED ON EVERY SCREEN THAT OFFERS A WINDOW', () => {
     }
   });
 });
+
+// ── Track 1 step 7: the beginning value is READ from the daily record, never back-solved,
+// wherever the record covers the window — pinned as source, and proven through the engine. ──
+describe('BEGINNING VALUES COME FROM THE RECORD', () => {
+  test('PerformanceScreen reads valueOn/covers from the snapshot engine for BOTH walks', () => {
+    const src = read('PerformanceScreen.tsx');
+    expect(src).toContain("engines/snapshots");
+    expect(src).toMatch(/snapshotCovers\(snapDays, bounds\.beginningAsOf\)/);    // the summary walk
+    expect(src).toMatch(/snapshotCovers\(snapDays2, bounds2\.beginningAsOf\)/);  // the per-account walk
+    expect(src).toMatch(/beginningAsOf/);   // D3: the close of the day BEFORE the start
+  });
+
+  test('a covered window resolves the beginning from the record (engine truth)', () => {
+    const { buildDayFromAccounts, record, valueOn, covers } = require('../../../Calculation Module code/engines/snapshots');
+    const day = buildDayFromAccounts([
+      { asset_id: 'vg', source: 'connected', balance: 378022, cash_balance: 837.94,
+        positions: [{ ticker: 'VTI', last_price: 250, lots: [{ shares: 1508.73624, cost_per_share: 200 }] }] },
+    ], '2026-06-30', '2026-06-30T23:59:00Z');
+    const days = record([], day);
+    expect(covers(days, '2026-06-30')).toBe(true);          // a July window's beginning is covered
+    expect(valueOn(days, new Set(['vg']), '2026-06-30')).toBeCloseTo(1508.73624 * 250 + 837.94, 2);
+    expect(covers(days, '2026-06-29')).toBe(false);          // and June's is honestly not
+  });
+
+  test('the D4 return refusals are wired: a refused rate shows its sentence in the summary note', () => {
+    const src = read('PerformanceScreen.tsx');
+    expect(src).toContain("engines/window-return");
+    expect(src).toMatch(/mw && mw\.rate == null\s*\?\s*mw\.sentence/);
+  });
+});

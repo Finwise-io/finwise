@@ -173,6 +173,19 @@ describe('buildDayFromAccounts', () => {
     expect(lctx.value).toBe(150);                        // basis, honestly labelled by the null price
   });
 
+  test('a typed HOUSE is never cash — and a typed investment lump keeps its own value', () => {
+    const { buildDayFromAccounts: build, valueOn } = require('../snapshots');
+    const day = build([
+      { asset_id: 'house', source: 'manual', asset_class: 'real_estate', balance: 500000, positions: [] },
+      { asset_id: 'ira', source: 'manual', asset_class: 'stocks_etf', balance: 80000, positions: [] },
+    ], '2026-08-20', '2026-08-20T12:00:00Z');
+    expect(day.accounts.find((a: any) => a.accountId === 'house')!.cash).toBe(0);
+    expect(day.accounts.find((a: any) => a.accountId === 'house')!.typedValue).toBe(500000);
+    expect(day.accounts.find((a: any) => a.accountId === 'ira')!.typedValue).toBe(80000);
+    // the reader counts the lump under its account, scoped by the caller's account set
+    expect(valueOn([day], new Set(['ira']), '2026-08-20')).toBe(80000);
+  });
+
   test('the sleeve is the connected account\'s cash; a manual cash account records its balance; the broker\'s stated total is kept as the outside check', () => {
     const day = buildDayFromAccounts([CONNECTED, CASH_ACCOUNT], '2026-08-20', '2026-08-20T12:00:00Z');
     expect(day.accounts.find((a: any) => a.accountId === 'vg')!.cash).toBe(837.94);
