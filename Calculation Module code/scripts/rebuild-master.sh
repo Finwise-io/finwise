@@ -10,18 +10,18 @@
 # cream columns (written by Claude Code) and the two blue ones (yours, never overwritten).
 set -euo pipefail
 cd "$(dirname "$0")/../.."
-echo "── 1/4  scanning the code"
+echo "── 1/7  scanning the code"
 node "Calculation Module code/scripts/scan-calculations.mjs" >/dev/null
-echo "── 2/4  building the inventory"
+echo "── 2/7  building the inventory"
 python3 "Calculation Module code/scripts/build-inventory-xlsx.py"
-echo "── 3/4  reading the architecture off disk"
+echo "── 3/7  reading the architecture off disk"
 node "Calculation Module code/scripts/architecture-map.mjs" | tail -3
-echo "── 3b/4  rewriting numeric tab references to names (E6)"
+echo "── 4/7  rewriting numeric tab references to names (E6)"
 python3 "Calculation Module code/scripts/name-refs-sweep.py"
-echo "── 4/4  merging into the master"
+echo "── 5/7  merging into the master"
 python3 "Calculation Module code/scripts/build-master.py"
-echo "── 5/6  reconciling YOUR answers into the master"
+echo "── 6/7  reconciling YOUR answers into the master"
 python3 "Calculation Module code/scripts/reconcile-answers.py"
-echo "── 6/6  building the engine bench"
+echo "── 7/7  building the engine bench"
 node "Calculation Module code/scripts/build-bench.mjs"
 echo "── done"
