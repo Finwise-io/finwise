@@ -1,16 +1,16 @@
 {
-  "generated": "2026-08-20",
+  "generated": "2026-08-21",
   "modules": [
     {
       "module": "shared-ui",
-      "source": 85,
-      "tests": 145,
+      "source": 86,
+      "tests": 146,
       "engines": [],
       "dependsOn": [
         "foundation(236)",
-        "plan(91)",
-        "net-worth(67)",
-        "cash-flow(67)"
+        "plan(93)",
+        "cash-flow(68)",
+        "net-worth(67)"
       ],
       "documented": 0,
       "needsFix": 0,

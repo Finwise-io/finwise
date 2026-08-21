@@ -113,3 +113,43 @@ describe('either box takes either file', () => {
     expect(String(r.values.rows).split('\n')).toHaveLength(8);
   });
 });
+
+// ── THE BENCH IS NOT A MODEL OF THE APP — it is the app's own code (founder question 2026-08-21:
+// "just to confirm the code used for bench is the same code that would go in app, as I do not want
+// to check something which will be re-written for app"). This guard makes that promise mechanical:
+// the bench may only IMPORT engines and app domain modules; it may never define money maths of its
+// own. If someone ever pastes a formula into the bench, this fails by name. ──
+describe('the bench runs the app’s own code, never a copy', () => {
+  const fs = require('fs');
+  const path = require('path');
+  const ROOT = path.join(__dirname, '../../..');
+  const entry = fs.readFileSync(path.join(__dirname, '..', 'bench-entry.ts'), 'utf8');
+
+  test('every import resolves to a shipped engine or app domain module', () => {
+    const sources = [...entry.matchAll(/from '([^']+)'/g)].map((m) => m[1]);
+    expect(sources.length).toBeGreaterThan(8);
+    for (const s of sources) {
+      expect({ source: s, allowed: /^\.\.\/engines\/|^\.\.\/\.\.\/src\/domain\//.test(s) })
+        .toEqual({ source: s, allowed: true });
+    }
+  });
+
+  test('the SAME modules are imported by the shipping app, so both roads reach one answer', () => {
+    // the retirement engine the bench calls is the one willItLast (and every Plan screen) calls
+    const wil = fs.readFileSync(path.join(ROOT, 'src/domain/retirement/willItLast.ts'), 'utf8');
+    expect(wil).toMatch(/import \{ simulate.*\} from '\.\/index'/);
+    expect(entry).toMatch(/import \{ simulate, projectNestEgg.*\} from '\.\.\/\.\.\/src\/domain\/retirement'/);
+    // and the ledger/classifier engines the bench calls are the ones the sync road calls
+    const ingest = fs.readFileSync(path.join(ROOT, 'src/services/sync/ingest.ts'), 'utf8');
+    expect(ingest).toMatch(/engines\/ledger/);
+    expect(ingest).toMatch(/engines\/holding-class/);
+  });
+
+  test('the bench defines no money maths of its own — only display helpers', () => {
+    // a formula pasted into the bench would show up as arithmetic on the compounding/discount
+    // shapes the engines own. Display formatting (rounding for the screen) is allowed.
+    const body = entry.split('\n').filter((l: string) => !l.trim().startsWith('//') && !l.trim().startsWith('*'));
+    const banned = body.filter((l: string) => /Math\.pow\(1 \+|\/ Math\.pow\(|\* 25\b|chance_of_success \*|\* 12 \* /.test(l));
+    expect(banned).toEqual([]);
+  });
+});
