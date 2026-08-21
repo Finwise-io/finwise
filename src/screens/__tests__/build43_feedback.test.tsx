@@ -183,7 +183,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     // REWRITTEN 2026-08-11 (founder ask): the whole method, for someone who does not follow finance —
     // what we run, what Monte Carlo means, every assumption, and where to change them.
     const body = GLOSSARY.nestEggMath.body;
-    expect(body).toMatch(/500 times/);                         // how many runs, in plain words
+    expect(body).toMatch(/1,000 times/);                         // how many runs, in plain words
     expect(body).toMatch(/named after the casino/);            // what "Monte Carlo" means
     expect(body).toMatch(/WHAT WE ASSUME/);                    // the assumptions, listed
     expect(body).toMatch(/2\.5% a year/);                      // inflation, stated
