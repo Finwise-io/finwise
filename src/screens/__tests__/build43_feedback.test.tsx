@@ -192,7 +192,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     expect(body).toMatch(/Shares and funds 10\.4%/);
     expect(body).toMatch(/bonds and CDs 4\.2%/);
     expect(body).toMatch(/shares ±18%/);                       // the swing, per year
-    expect(body).toMatch(/at 22% unless you have set your own/);
+    expect(body).toMatch(/a rate worked out from your own income and filing status/);   // B4/E8: no flat 22% any more
     expect(body).toMatch(/the dice are seeded/);               // same answer every time
     expect(body).toMatch(/Plan tab and open Retirement/);      // where to change them
     expect(body).toMatch(/WHAT THIS IS NOT — a promise/);      // and the honest limits
@@ -317,4 +317,16 @@ test('B45: a generic "Imported holdings" account with ONE security is named by i
   ]);
   expect(names.get('imp1')).toBe('E*TRADE LCTX');                 // one security → wears its name
   expect(names.get('imp2')).toBe('E*TRADE Imported holdings');    // several → the honest generic
+});
+
+// ── founder placement 2026-08-20: the withdrawals-are-not-income rule (B5) lives in the
+// guaranteed-income info dot, and the dot sits on the Retirement screen's guaranteed row ──
+test('the guaranteed-income dot carries the B5 rule and sits beside Social Security & pension', () => {
+  const body = GLOSSARY.guaranteedIncome.body;
+  expect(body).toMatch(/NOT counted here: your own withdrawals and required minimum distributions/);
+  expect(body).toMatch(/let the pot fund itself/);
+  expect(body).toMatch(/pension is counted flat/i);
+  const fs = require('fs'); const path = require('path');
+  const src = fs.readFileSync(path.join(__dirname, '..', 'RetirementCockpit.tsx'), 'utf8');
+  expect(src).toMatch(/Social Security & pension.*\n?.*InfoDot term="guaranteedIncome"|InfoDot term="guaranteedIncome"/);
 });

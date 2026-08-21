@@ -781,7 +781,7 @@ export default function RetirementCockpit() {
       <TouchableOpacity style={styles.ssRow} onPress={() => setSsOpen(true)}>
         <Text style={styles.ssIc}>🏛️</Text>
         <View style={{ flex: 1 }}>
-          <Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text>
+          <View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.ssName}>{hasPension ? 'Social Security & pension' : 'Social Security'}</Text><InfoDot term="guaranteedIncome" /></View>
           <Text style={styles.ssSub}>{
             guarRowMonthly > 0
               ? `${money(guarRowMonthly)}/mo${claimAge > age && ssIncome > 0 ? ` · Social Security part starts at ${claimAge}` : ''} · today's $${A.ssEligible == null ? ' · from your setup' : ''}`

@@ -675,7 +675,7 @@ test('the number is explained where the question gets asked, including the appar
   // 2026-08-12: there is no verdict word left to define — the explainer defines the NUMBER, and
   // says plainly why no word sits beside it
   expect(body).toMatch(/WHAT THE NUMBER MEANS/);
-  expect(body).toMatch(/60 of them and ran out in 40/);
+  expect(body).toMatch(/600 of them and ran out in the rest/);
   expect(body).not.toMatch(/Likely|Uncertain|Unlikely|Holding|Watch closely|Running short/);
   // and WHY a plan with money to spare can still show low odds — two true facts, not a mistake
   expect(body).toMatch(/WHY A LOW NUMBER CAN SIT NEXT TO MONEY TO SPARE/);
