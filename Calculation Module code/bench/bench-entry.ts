@@ -469,11 +469,12 @@ export const CARDS: Card[] = [
       const guarded = shown === 100 && s.chance_of_success < 99.5 ? 95 : shown === 0 && s.chance_of_success > 0.5 ? 5 : shown;
       const exact = s.chance_of_success;
       const lasted = Math.round(exact * 10);          // of 1,000 futures
+      // founder wording 2026-08-20: short and simple — the count, then the rounding, done.
       const oddsNote =
-        exact === 100 ? `the money lasted in every one of the 1,000 simulated futures — this 100 is literal, not rounding`
-        : exact === 0 ? `the money ran out before age ${inp.horizon_age} in every one of the 1,000 simulated futures — this 0 is literal, not rounding; spending is bigger than the pot and its income can carry`
-        : guarded !== shown ? `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Shown as ${guarded} rather than ${shown}, because ${shown === 100 ? '100 would claim every future worked' : '0 would claim every future failed'} — and ${shown === 100 ? (1000 - lasted).toLocaleString() + ' of them didn’t work' : lasted.toLocaleString() + ' of them did work'}`
-        : `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Shown to the nearest 5: a different random 1,000 futures could land a couple of points higher or lower, so the exact digit is luck, not knowledge`;
+        exact === 100 ? `the money lasted in all 1,000 futures — a real 100`
+        : exact === 0 ? `the money ran out in all 1,000 futures — a real 0`
+        : guarded !== shown ? `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Shown as ${guarded}, never ${shown} — ${shown === 100 ? (1000 - lasted) + ' futures failed' : lasted + ' futures worked'}`
+        : `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Rounded to the nearest 5 → ${guarded}%`;
       return [
         { label: 'The odds it lasts', value: `${guarded}%`, note: oddsNote, good: guarded >= 80, bad: guarded < 60 },
         { label: 'Projected at retirement', value: money(s.projected_at_retirement) },
