@@ -115,3 +115,48 @@ describe('THE ENGINES THEMSELVES STAY PURE — so the module runs outside the ap
     expect(bad.map((f) => path.relative(ROOT, f))).toEqual([]);
   });
 });
+
+// ── THE FOUNDER'S OWN DECISIONS ARE IN THE DELIVERABLE — and mechanically, not by my say-so.
+// He asked on 2026-08-21: "how do I know you updated the master based on my answers file?" The
+// honest answer was that nothing linked them. reconcile-answers.py now regenerates a "1. Your
+// decisions" tab from his file on every build; this guard fails if that tab goes missing, loses
+// metrics, or stops carrying his verdicts. ──
+describe('the master carries the founder’s answers', () => {
+  const XLSX = path.join(ROOT, 'Calculation Module/MoneyKeel-calculation-master-v1.xlsx');
+  const SCRIPT = path.join(ROOT, 'Calculation Module code/scripts/reconcile-answers.py');
+  const ANSWERS = path.join(ROOT, 'Calculation Module/decomposition/METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx');
+
+  test('the reconciliation exists, reads HIS file, and runs inside the master build', () => {
+    expect(fs.existsSync(SCRIPT)).toBe(true);
+    expect(fs.readFileSync(SCRIPT, 'utf8')).toContain('METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx');
+    expect(fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts/rebuild-master.sh'), 'utf8'))
+      .toContain('reconcile-answers.py');
+  });
+
+  test('his answers file is present and untouched by any writer', () => {
+    expect(fs.existsSync(ANSWERS)).toBe(true);
+    // D5: no script may ever WRITE to the file he filled in
+    const scripts = fs.readdirSync(path.join(ROOT, 'Calculation Module code/scripts'))
+      .filter((f) => f.endsWith('.py'))
+      .map((f) => fs.readFileSync(path.join(ROOT, 'Calculation Module code/scripts', f), 'utf8'));
+    for (const src of scripts) {
+      const writesAnswers = /\.save\([^)]*ANSWERED/i.test(src) || /ANSWERED[^\n]*\.save\(/i.test(src);
+      expect(writesAnswers).toBe(false);
+    }
+  });
+
+  test('the built master carries the tab, all 72 metrics, and the verdict column', () => {
+    if (!fs.existsSync(XLSX)) return;                    // built artifact; skip if not built here
+    const out = require('child_process').execSync(
+      `python3 -c "import openpyxl,json;wb=openpyxl.load_workbook('${XLSX}',read_only=True);` +
+      `ws=wb['1. Your decisions'] if '1. Your decisions' in wb.sheetnames else None;` +
+      `print(json.dumps({'tab': ws is not None, 'hdr': [ws.cell(2,c).value for c in range(1,8)] if ws else [],` +
+      `'metrics': sum(1 for r in range(3, ws.max_row+1) if ws.cell(r,2).value) if ws else 0}))"`,
+    ).toString();
+    const got = JSON.parse(out);
+    expect(got.tab).toBe(true);
+    expect(got.metrics).toBe(72);                        // every metric he graded
+    expect(got.hdr).toContain('YOUR VERDICT');
+    expect(got.hdr.join(' ')).toMatch(/YOUR NEW FORMULA/);
+  });
+});
