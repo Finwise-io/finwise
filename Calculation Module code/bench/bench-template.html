@@ -49,6 +49,13 @@
   .good .rval { color: var(--good); }
   footer { text-align: center; color: var(--sub); font-size: 12px; padding: 18px 0 40px; }
   .err { color: var(--bad); background: var(--bad-soft); border-radius: 7px; padding: 8px 10px; font-size: 13px; }
+  .crow { padding: 9px 0; border-bottom: 1px dashed var(--line); }
+  .crow .rlabel { margin-bottom: 2px; }
+  .chartwrap { position: relative; margin: 6px 0 2px; }
+  .chartwrap svg { display: block; width: 100%; height: auto; }
+  .chartwrap .tip { position: absolute; pointer-events: none; background: #fff; border: 1px solid var(--line);
+    border-radius: 7px; padding: 5px 8px; font-size: 11.5px; color: var(--ink); box-shadow: 0 2px 8px rgba(0,0,0,.08);
+    white-space: nowrap; display: none; z-index: 2; }
 </style>
 </head>
 <body>
@@ -73,15 +80,87 @@
 
   function esc(s) { const d = document.createElement('span'); d.textContent = String(s ?? ''); return d.innerHTML; }
 
+  // ── the balance-by-age chart: median line, 10th–90th band, retirement marker, hover ──────────
+  const GREEN = '#085041', BAND = 'rgba(8,80,65,0.13)', GRID = '#e2e6e3', INK = '#5c6660';
+  function moneyShort(n) {
+    if (n >= 995000) return '$' + (n / 1e6).toFixed(n >= 9950000 ? 0 : 1) + 'm';
+    if (n >= 1000) return '$' + Math.round(n / 1000) + 'k';
+    return '$' + Math.round(n);
+  }
+  function drawBandChart(holder, c) {
+    const W = 560, H = 230, L = 46, R = 12, T = 12, B = 26;
+    const pts = c.points;
+    const a0 = pts[0].age, a1 = pts[pts.length - 1].age;
+    let yMax = 0; for (const p of pts) yMax = Math.max(yMax, p.p90);
+    yMax = yMax || 1;
+    const niceStep = Math.pow(10, Math.floor(Math.log10(yMax / 3)));
+    const step = [1, 2, 2.5, 5, 10].map((m) => m * niceStep).find((s2) => yMax / s2 <= 4) || niceStep * 10;
+    yMax = Math.ceil(yMax / step) * step;
+    const x = (age) => L + ((age - a0) / (a1 - a0 || 1)) * (W - L - R);
+    const y = (v) => T + (1 - v / yMax) * (H - T - B);
+    let grid = '', ylab = '';
+    for (let v = 0; v <= yMax; v += step) {
+      grid += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="' + GRID + '" stroke-width="1"/>';
+      ylab += '<text x="' + (L - 6) + '" y="' + (y(v) + 3.5) + '" text-anchor="end" font-size="10" fill="' + INK + '">' + moneyShort(v) + '</text>';
+    }
+    let xlab = '';
+    const ageStep = (a1 - a0) > 28 ? 10 : 5;
+    for (let a = Math.ceil(a0 / ageStep) * ageStep; a <= a1; a += ageStep) {
+      xlab += '<text x="' + x(a) + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10" fill="' + INK + '">' + a + '</text>';
+    }
+    const band = 'M' + pts.map((p) => x(p.age).toFixed(1) + ',' + y(p.p90).toFixed(1)).join(' L') +
+      ' L' + pts.slice().reverse().map((p) => x(p.age).toFixed(1) + ',' + y(p.p10).toFixed(1)).join(' L') + ' Z';
+    const median = 'M' + pts.map((p) => x(p.age).toFixed(1) + ',' + y(p.p50).toFixed(1)).join(' L');
+    const rx = x(c.retireAge);
+    const svg =
+      '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Balance by age: the typical future and the 10th to 90th spread">' +
+      grid + ylab + xlab +
+      '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(0) + '" y2="' + y(0) + '" stroke="#b9c2bc" stroke-width="1.5"/>' +
+      '<path d="' + band + '" fill="' + BAND + '"/>' +
+      '<line x1="' + rx + '" x2="' + rx + '" y1="' + T + '" y2="' + (H - B) + '" stroke="' + INK + '" stroke-width="1" stroke-dasharray="4 3"/>' +
+      '<text x="' + (rx + 4) + '" y="' + (T + 10) + '" font-size="10" fill="' + INK + '">retire at ' + c.retireAge + '</text>' +
+      '<path d="' + median + '" fill="none" stroke="' + GREEN + '" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle class="dot" r="4" fill="' + GREEN + '" stroke="#fff" stroke-width="2" style="display:none"/>' +
+      '<line class="xh" y1="' + T + '" y2="' + (H - B) + '" stroke="#b9c2bc" stroke-width="1" style="display:none"/>' +
+      '<rect x="' + L + '" y="' + T + '" width="' + (W - L - R) + '" height="' + (H - T - B) + '" fill="transparent"/>' +
+      '</svg>';
+    const wrap = document.createElement('div');
+    wrap.className = 'chartwrap';
+    wrap.innerHTML = svg + '<div class="tip"></div>';
+    holder.appendChild(wrap);
+    const el = wrap.querySelector('svg'), tip = wrap.querySelector('.tip');
+    const dot = el.querySelector('.dot'), xh = el.querySelector('.xh');
+    el.addEventListener('mousemove', (ev) => {
+      const box = el.getBoundingClientRect();
+      const px = (ev.clientX - box.left) * (W / box.width);
+      const age = Math.round(a0 + ((px - L) / (W - L - R)) * (a1 - a0));
+      const p = pts.find((q) => q.age === Math.min(a1, Math.max(a0, age)));
+      if (!p) return;
+      dot.setAttribute('cx', x(p.age)); dot.setAttribute('cy', y(p.p50)); dot.style.display = '';
+      xh.setAttribute('x1', x(p.age)); xh.setAttribute('x2', x(p.age)); xh.style.display = '';
+      tip.style.display = 'block';
+      tip.innerHTML = '<b>age ' + p.age + '</b> · typical ' + moneyShort(p.p50) + '<br>10th–90th: ' + moneyShort(p.p10) + ' – ' + moneyShort(p.p90);
+      const tx = Math.min(box.width - 170, Math.max(0, (x(p.age) / W) * box.width + 10));
+      tip.style.left = tx + 'px';
+      tip.style.top = ((y(p.p50) / H) * box.height - 40) + 'px';
+    });
+    el.addEventListener('mouseleave', () => { tip.style.display = 'none'; dot.style.display = 'none'; xh.style.display = 'none'; });
+  }
+
   function renderResults(card, holder, values) {
     let rows;
     try { rows = card.compute(values); }
     catch (e) { holder.innerHTML = '<div class="err">This combination broke the engine: ' + esc(e && e.message) + '</div>'; return; }
-    holder.innerHTML = rows.map((r) =>
-      '<div class="rrow ' + (r.bad ? 'bad' : '') + (r.good ? ' good' : '') + '">' +
+    holder.innerHTML = rows.map((r) => r.chart
+      ? '<div class="crow"><div class="rlabel">' + esc(r.label) + '</div><div class="chartslot"></div>' +
+        (r.note ? '<div class="rnote">' + esc(r.note) + '</div>' : '') + '</div>'
+      : '<div class="rrow ' + (r.bad ? 'bad' : '') + (r.good ? ' good' : '') + '">' +
         '<div class="rlabel">' + esc(r.label) + '</div>' +
         '<div class="rval">' + esc(r.value) + (r.note ? '<div class="rnote">' + esc(r.note) + '</div>' : '') + '</div>' +
       '</div>').join('');
+    rows.forEach((r, i) => {
+      if (r.chart) drawBandChart(holder.children[i].querySelector('.chartslot'), r.chart);
+    });
   }
 
   for (const card of CARDS) {

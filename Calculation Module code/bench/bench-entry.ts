@@ -26,7 +26,12 @@ export interface Field {
   hint?: string;
   wide?: boolean;
 }
-export interface ResultRow { label: string; value: string; note?: string; bad?: boolean; good?: boolean }
+export interface ResultRow {
+  label: string; value: string; note?: string; bad?: boolean; good?: boolean;
+  /** A balance-by-age band chart, drawn by the shell: the typical (median) future as the line,
+   *  the 10th–90th spread of the 1,000 futures as the shaded band. */
+  chart?: { points: { age: number; p10: number; p50: number; p90: number }[]; retireAge: number; horizonAge: number };
+}
 export interface FileDrop {
   label: string; hint: string;
   /** Parse the file's text into a values patch for the card, plus a note about what was read.
@@ -463,7 +468,7 @@ export const CARDS: Card[] = [
         inflation: num(v.inflation) / 100, mean_return: num(v.ret) / 100, vol_return: num(v.vol) / 100,
         paths: 1000, seed: 42, now_year: new Date().getFullYear(),
       };
-      const s = simulate(inp);
+      const s = simulate({ ...inp, with_band: true } as RetirementInputs) as ReturnType<typeof simulate> & { band?: { age: number; p10: number; p50: number; p90: number }[] };
       const p = projectNestEgg(inp);
       const shown = Math.min(100, Math.max(0, Math.round(s.chance_of_success / 5) * 5));
       const guarded = shown === 100 && s.chance_of_success < 99.5 ? 95 : shown === 0 && s.chance_of_success > 0.5 ? 5 : shown;
@@ -477,9 +482,14 @@ export const CARDS: Card[] = [
         : `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Rounded to the nearest 5 → ${guarded}%`;
       return [
         { label: 'The odds it lasts', value: `${guarded}%`, note: oddsNote, good: guarded >= 80, bad: guarded < 60 },
+        ...(s.band && s.band.length > 1 ? [{
+          label: 'Your balance by age', value: '',
+          note: 'the line is the TYPICAL future (the middle of the 1,000); the shaded band is where the 10th–90th of them land. The dashed line marks retirement.',
+          chart: { points: s.band, retireAge: inp.retire_age, horizonAge: inp.horizon_age },
+        }] : []),
         { label: 'Projected at retirement', value: money(s.projected_at_retirement) },
         { label: 'Deterministic check (no market swings)', value: `will have ${money(p.will_have)} · will need ${money(p.will_need)}` },
-        ...(s.gap > 0 ? [{ label: 'To close the gap', value: `about ${money(s.suggested_extra_monthly)}/mo more`, note: 'the 4%-rule framing on net spending' }] : []),
+        ...(s.gap > 0 ? [{ label: 'To close the gap', value: `about ${money(s.suggested_extra_monthly)}/mo more`, note: `target pot = 25× the yearly spending your guaranteed income doesn't cover — the rule of thumb that a pot lasts if you draw about 4% of it a year. A yardstick for the gap, not the odds.` }] : []),
         { label: 'What is NOT in the guaranteed income', value: 'your own withdrawals and required minimum distributions — the simulation computes those; typing them in would let the pot fund itself (B5)' },
       ];
     },
