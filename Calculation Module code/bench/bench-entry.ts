@@ -467,8 +467,15 @@ export const CARDS: Card[] = [
       const p = projectNestEgg(inp);
       const shown = Math.min(100, Math.max(0, Math.round(s.chance_of_success / 5) * 5));
       const guarded = shown === 100 && s.chance_of_success < 99.5 ? 95 : shown === 0 && s.chance_of_success > 0.5 ? 5 : shown;
+      const exact = s.chance_of_success;
+      const lasted = Math.round(exact * 10);          // of 1,000 futures
+      const oddsNote =
+        exact === 100 ? `the money lasted in every one of the 1,000 simulated futures — this 100 is literal, not rounding`
+        : exact === 0 ? `the money ran out before age ${inp.horizon_age} in every one of the 1,000 simulated futures — this 0 is literal, not rounding; spending is bigger than the pot and its income can carry`
+        : guarded !== shown ? `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Shown as ${guarded} rather than ${shown}, because ${shown === 100 ? '100 would claim every future worked' : '0 would claim every future failed'} — and ${shown === 100 ? (1000 - lasted).toLocaleString() + ' of them didn’t work' : lasted.toLocaleString() + ' of them did work'}`
+        : `it lasted in ${lasted.toLocaleString()} of 1,000 futures (${exact}%). Shown to the nearest 5: a different random 1,000 futures could land a couple of points higher or lower, so the exact digit is luck, not knowledge`;
       return [
-        { label: 'The odds it lasts', value: `${guarded}%`, note: `exact simulation figure ${s.chance_of_success}% — shown to the nearest 5 because 1,000 futures still carry ±2 points of noise; 100 and 0 are never minted by rounding`, good: guarded >= 80, bad: guarded < 60 },
+        { label: 'The odds it lasts', value: `${guarded}%`, note: oddsNote, good: guarded >= 80, bad: guarded < 60 },
         { label: 'Projected at retirement', value: money(s.projected_at_retirement) },
         { label: 'Deterministic check (no market swings)', value: `will have ${money(p.will_have)} · will need ${money(p.will_need)}` },
         ...(s.gap > 0 ? [{ label: 'To close the gap', value: `about ${money(s.suggested_extra_monthly)}/mo more`, note: 'the 4%-rule framing on net spending' }] : []),
