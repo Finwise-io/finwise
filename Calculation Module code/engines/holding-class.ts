@@ -43,7 +43,7 @@ const COMPANY_WORDS = /\b(corp|corporation|inc|ltd|plc|mining|miners?|resources|
 const OCC_OPTION = /^[A-Z.]{1,6}\d{6}[CP]\d{5,8}$/;
 const DATE_STYLE_OPTION = /\b\d{1,2}\/\d{1,2}\/\d{2,4}\s+[\d.]+\s*[CP]\b/i;
 const CD_TBILL_RE = /\b(cd|certificate of deposit|t-?bills?|treasury bills?)\b/i;
-const FIXED_INCOME_RE = /\b(bond|note|treasury|t-note|muni|debenture)\b/i;
+const FIXED_INCOME_RE = /\b(bond|note|treasury|treas|t-note|muni|debenture|cpn|zero cpn)\b/i;   // TREAS/CPN: Fidelity positions export, seen 2026-08-20
 // a coupon-with-maturity shape ("1.625% … DUE 2026") is a bond however the broker tagged it
 const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
 

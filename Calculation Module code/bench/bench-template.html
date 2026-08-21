@@ -69,6 +69,7 @@
   const { CARDS } = window.BENCH;
   const main = document.getElementById('main');
   const nav = document.getElementById('nav');
+  const cardApi = {};   // id → { setValues, setNote, el } — lets one card's drop fill another
 
   function esc(s) { const d = document.createElement('span'); d.textContent = String(s ?? ''); return d.innerHTML; }
 
@@ -149,16 +150,26 @@
         const rd = new FileReader();
         rd.onload = () => {
           const res = card.fileDrop.apply(String(rd.result || ''), file.name);
-          for (const [k, val] of Object.entries(res.values || {})) {
-            values[k] = val;
-            const c = controls[k];
-            if (c) { if (c.type === 'checkbox') c.checked = !!val; else c.value = String(val); }
+          const target = res.redirect && cardApi[res.redirect] ? cardApi[res.redirect] : null;
+          if (target) {
+            target.setValues(res.values || {});
+            target.setNote(res.note);
+            note.textContent = res.note;
+            target.el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          } else {
+            for (const [k, val] of Object.entries(res.values || {})) {
+              values[k] = val;
+              const c = controls[k];
+              if (c) { if (c.type === 'checkbox') c.checked = !!val; else c.value = String(val); }
+            }
+            note.textContent = res.note;
+            recompute();
           }
-          note.textContent = res.note;
-          recompute();
         };
         rd.readAsText(file);
       };
+      cardApi[card.id] = cardApi[card.id] || {};
+      cardApi[card.id].setNote = (t) => { note.textContent = t; };
       zone.addEventListener('click', () => fi.click());
       fi.addEventListener('change', () => { if (fi.files && fi.files[0]) useFile(fi.files[0]); fi.value = ''; });
       zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('over'); });
@@ -185,6 +196,17 @@
       });
       inputs.appendChild(btn);
     }
+
+    cardApi[card.id] = cardApi[card.id] || {};
+    cardApi[card.id].el = el;
+    cardApi[card.id].setValues = (patch) => {
+      for (const [k, val] of Object.entries(patch)) {
+        values[k] = val;
+        const c = controls[k];
+        if (c) { if (c.type === 'checkbox') c.checked = !!val; else c.value = String(val); }
+      }
+      recompute();
+    };
 
     main.appendChild(el);
     recompute();

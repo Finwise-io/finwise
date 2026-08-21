@@ -84,3 +84,32 @@ describe('the file drop', () => {
     expect(r.note).toContain('Action');
   });
 });
+
+// ── the founder's exact miss, 2026-08-20: a holdings file dropped on the ledger card must ROUTE,
+// never dead-end. Pinned with his own sample file when present. ──
+describe('either box takes either file', () => {
+  const fs = require('fs');
+  const SAMPLE = '/Users/palakjain/Assets/for app/sample1.csv';
+
+  test('a holdings file on the ledger card redirects to the classify card', () => {
+    const ledger = CARDS.find((c) => c.id === 'ledger')!;
+    const holdings = 'Symbol,Description,Quantity,Current Value\nAMZN,AMAZON.COM INC,12,"$2,627.28"';
+    const r = ledger.fileDrop!.apply(holdings, 'positions.csv');
+    expect(r.redirect).toBe('classifyfile');
+    expect(r.note).toContain('holdings file');
+  });
+
+  test('an activity file on the classify card redirects to the ledger', () => {
+    const clf = CARDS.find((c) => c.id === 'classifyfile')!;
+    const activity = 'Transaction Type,Transaction Description,Net Amount\nDividend,Dividend Received,139.49';
+    const r = clf.fileDrop!.apply(activity, 'activity.csv');
+    expect(r.redirect).toBe('ledger');
+  });
+
+  (fs.existsSync(SAMPLE) ? test : test.skip)('sample1.csv — the file that dead-ended — routes and classifies all 8 lines', () => {
+    const ledger = CARDS.find((c) => c.id === 'ledger')!;
+    const r = ledger.fileDrop!.apply(fs.readFileSync(SAMPLE, 'utf8'), 'sample1.csv');
+    expect(r.redirect).toBe('classifyfile');
+    expect(String(r.values.rows).split('\n')).toHaveLength(8);
+  });
+});

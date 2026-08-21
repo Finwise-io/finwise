@@ -29,8 +29,27 @@ export interface Field {
 export interface ResultRow { label: string; value: string; note?: string; bad?: boolean; good?: boolean }
 export interface FileDrop {
   label: string; hint: string;
-  /** Parse the file's text into a values patch for the card, plus a note about what was read. */
-  apply(text: string, filename: string): { values: Record<string, any>; note: string };
+  /** Parse the file's text into a values patch for the card, plus a note about what was read.
+   *  `redirect` names ANOTHER card when the file turns out to belong there — a holdings file
+   *  dropped on the ledger loads the classify card instead of dead-ending. */
+  apply(text: string, filename: string): { values: Record<string, any>; note: string; redirect?: string };
+}
+
+/** Either kind of file, whichever box it lands on: try this card's reader first, then the other. */
+function routeFile(
+  text: string, filename: string,
+  mine: (t: string, f: string) => { values: Record<string, any>; note: string },
+  other: (t: string, f: string) => { values: Record<string, any>; note: string },
+  otherCard: string, otherKind: string, otherCardName: string,
+): { values: Record<string, any>; note: string; redirect?: string } {
+  const first = mine(text, filename);
+  if (first.values.rows) return first;
+  const second = other(text, filename);
+  if (second.values.rows) {
+    return { ...second, redirect: otherCard,
+      note: `${filename} is a ${otherKind} file — loaded into the “${otherCardName}” card (the page scrolled there). ${second.note}` };
+  }
+  return { values: {}, note: `${filename} matched neither reader. ${first.note} ${second.note}` };
 }
 export interface Card {
   id: string; title: string; engine: string; what: string;
@@ -146,9 +165,9 @@ export const CARDS: Card[] = [
     ],
     preset: VG ? { label: 'Load the real Vanguard file (31 rows)', values: { rows: VG } } : undefined,
     fileDrop: {
-      label: 'Or drop ANY downloaded activity file here (CSV) — or click to choose',
-      hint: 'Vanguard, Fidelity, E*TRADE, Schwab… the reader finds the word and amount columns by name, whatever the institution calls them. Nothing leaves this machine.',
-      apply: parseActivityFile,
+      label: 'Drop ANY downloaded file here (CSV) — or click to choose',
+      hint: 'Activity or holdings, any institution — the reader finds the columns by name and routes a holdings file to the classify card automatically. Nothing leaves this machine.',
+      apply: (t, f) => routeFile(t, f, parseActivityFile, parseHoldingsFile, 'classifyfile', 'holdings', 'A whole holdings file, classified'),
     },
     compute(v) {
       const parsed = rows3(v.rows);
@@ -468,9 +487,9 @@ export const CARDS: Card[] = [
       { key: 'stated', label: 'The broker’s stated total (optional — leave 0 to skip the check)', type: 'number', default: 0 },
     ],
     fileDrop: {
-      label: 'Drop ANY holdings file here (CSV) — or click to choose',
-      hint: 'The reader finds the name, symbol and value columns by their headers. Edit the parsed lines freely afterward.',
-      apply: parseHoldingsFile,
+      label: 'Drop ANY downloaded file here (CSV) — or click to choose',
+      hint: 'Holdings or activity, any institution — an activity file routes to the ledger card automatically. Edit the parsed lines freely afterward.',
+      apply: (t, f) => routeFile(t, f, parseHoldingsFile, parseActivityFile, 'ledger', 'activity', 'The ledger'),
     },
     compute(v) {
       const parsed = rows3(v.rows);
