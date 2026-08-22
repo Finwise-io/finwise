@@ -23,24 +23,97 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
 INPUT_COLS = ['Input ID','Variable name','Source','Which metric uses it','Which engine uses it','Row status']
 
 # ---------------------------------------------------------------- verified rows
-# Home — read line by line from src/screens/HomeScreen.tsx on 2026-08-22.
-HOME = [
- # label, metric (code), engine, engine id family, note
- ('YOUR INVESTMENTS',              'investTotal',    'TOTAL_INVESTMENTS',      'XS'),
- ('▲ up / ▼ down $X (Y%) this month','youReturn',     'VALUE_WEIGHTED_RETURN',  'XS'),
- ('prices updated <when>',          'freshness',      'PRICE_FRESHNESS',        'XS'),
- ('Your net worth just crossed X',  'milestone',      'NOT IN OLD MASTER — milestoneCrossed, src/domain/milestones.ts', 'HM'),
- ('Needs your attention (1,2,3)',   'topInsights',    'NOT IN OLD MASTER — useInsights, src/domain/insights', 'HM'),
- ('Income',                         'thisMonthNet',   'NOT IN OLD MASTER — incomeMonthlyGrid, src/domain/income', 'CF'),
- ('Spent so far',                   'bva.spent_total','NOT IN OLD MASTER — budgetVsActual, src/domain/budget', 'CF'),
- ('Left / Over',                    'left',           'derived on screen: Income − Spent so far', 'CF'),
- ('<n>% spent · day n of m',        'pctSpent',       'derived on screen: Spent so far ÷ Income', 'CF'),
-]
-# figures already known to appear on more than one parent screen
+# Read screen by screen from the source on 2026-08-22. Nothing here is inferred:
+# an engine with no row in the old master is written as NOT IN OLD MASTER with where it lives.
+NM = 'NOT IN OLD MASTER'
+
+# figures shown on MORE THAN ONE parent screen — they live here once, with every label they wear
 MULTI = [
- ('Net worth',      'Home · Networth', 'netWorth',  'NET_WORTH',           'XS'),
- ('Will your money last (odds)', 'Home · Plan', 'wil.chance', 'WILL_IT_LAST_RESULT', 'XS'),
+ ('Net worth · YOUR NET WORTH',                    'Home · Networth',            'nw.net_worth',      'NET_WORTH'),
+ ('Will my money last / Is my money lasting (odds)','Home · Plan · Cashflow',     'wil.chance',        'WILL_IT_LAST_RESULT'),
+ ('YOUR INVESTMENTS · 📈 INVESTMENTS',              'Home · Performance · Networth','investTotal',     'TOTAL_INVESTMENTS'),
+ ('▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN','Home · Performance',   'youReturn / shownReturn','VALUE_WEIGHTED_RETURN'),
+ ('Spent so far · Spent $X of $Y left to spend this month','Home · Cashflow',     'bva.spent_total',   NM + ' — budgetVsActual, src/domain/budget'),
+ ('Income · In (received) · In (take-home)',        'Home · Cashflow',            'thisMonthNet',      NM + ' — incomeMonthlyGrid, src/domain/income'),
+ ('Left / Over · left to spend this month',         'Home · Cashflow',            'left',              'worked out on the screen: money in − spent so far'),
 ]
+
+HOME = [
+ ('prices updated <when>',           'freshness',   'PRICE_FRESHNESS'),
+ ('Your net worth just crossed X',   'milestone',   NM + ' — milestoneCrossed, src/domain/milestones.ts'),
+ ('Needs your attention (1, 2, 3)',  'topInsights', NM + ' — useInsights, src/domain/insights'),
+ ('<n>% spent · day n of m',         'pctSpent',    'worked out on the screen: spent so far ÷ money in'),
+]
+
+NETWORTH = [
+ ('Change in net worth +$X',                 'changeThisYear', 'TREND_SERIES'),
+ ('Return on cash + investments ±X%',        'invPct',         'NW_CHANGE_PCT'),
+ ('the trend line',                          'series',         'TREND_SERIES'),
+ ('WHAT YOU OWN',                            'totalAssets',    'ACCOUNT_SHARE_OF_TOTAL'),
+ ('💵 CASH',                                  'cashOnHand',     'TOTAL_CASH'),
+ ('🏠 PERSONAL PROPERTY',                     'sectionTotals',  'ACCOUNT_SHARE_OF_TOTAL'),
+ ('class rows — by class, institution or type','classRows',     'ALLOCATION_BY_CLASS'),
+ ('each account and its balance',            'a.balance',      'ACCOUNT_SPLIT'),
+ ('WHAT YOU OWE · 💳 DEBTS',                  'dState.total_debt_balance', 'DEBT_PICTURE'),
+ ('each debt and what is left on it',        'd.remaining_balance', 'DEBT_PICTURE'),
+ ('minimum monthly payment on a debt',       'd.minimum_monthly_payment', 'DEBT_REQUIRED_PAYMENT'),
+ ('Monthly debt payments $X/mo',             'dState.total_monthly_debt_service', 'DEBT_PICTURE'),
+ ('EMERGENCY CUSHION — X.X months',          'runwayMonths',   'worked out on the screen: cash ÷ a typical month of essentials'),
+ ('of essentials covered by your cash — $X cash ÷ $Y/mo essentials','cashOnHand / monthlySpend','TOTAL_CASH · PLANNED_SPENDING'),
+ ('YOUR RETIREMENT PLAN — on track for $X by age Y','pathAhead','POT_AT_RETIREMENT'),
+ ('Net worth so far (setup)',                'nw.net_worth',   'NET_WORTH'),
+ ('Assets $X − Debts $Y = Net worth $Z',     'totalAssets / dState.total_debt_balance', 'NET_WORTH · DEBT_PICTURE'),
+]
+
+PERFORMANCE = [
+ ('Ending value',                            'walk.ending',          'NW_CHANGE_WALK'),
+ ('Wealth generated',                        'walk.wealthGenerated', 'NW_CHANGE_WALK'),
+ ('HOW $X BECAME $Y · ALL ACCOUNTS',         'walk.beginning / walk.ending', 'NW_CHANGE_WALK'),
+ ('Ending market value (per account)',       'w.ending',             'NW_CHANGE_WALK'),
+ ('each account and its ending value',       'a.ending',             'PERFORMANCE_TABLE'),
+ ('WHAT EACH CATEGORY EARNED — RETURN',      'b.earned / b.ret',     'PERFORMANCE_TABLE'),
+ ('All categories',                          'total',                'PERFORMANCE_TABLE'),
+ ('HONEST COMPARISON',                       'benchPort',            'BENCHMARK_RETURN_BLENDED'),
+ ('Return (money-weighted, when the record covers it)','mw.rate',    'MODIFIED_DIETZ (Calculation Module code/engines/window-return.ts)'),
+]
+
+CASHFLOW = [
+ ('Expected in',                             'cell.inflow',   NM + ' — the by-month grid, src/domain/cashflow'),
+ ('Planned out · incl. <big bill>',          'cell.outflow',  NM + ' — the by-month grid, src/domain/cashflow'),
+ ('= Planned surplus',                       'cell.net',      'worked out on the screen: expected in − planned out'),
+ ('Out (spent + debt)',                      'out',           NM + ' — budgetVsActual, src/domain/budget'),
+ ('= Surplus',                               'inn - out',     'worked out on the screen: in − out'),
+ ('YOUR SOURCES — Base salary',              'op.baseSalary', 'TOTAL_INCOME'),
+ ('YOUR SOURCES — Self-employment',          'op.seAmount',   'TOTAL_INCOME'),
+ ('YOUR SOURCES — Bonus',                    'op.bonusAnnual','TOTAL_INCOME'),
+ ('YOUR SOURCES — Stock vesting (equity)',   'rsuTotal',      NM + ' — the equity schedule, src/domain/income'),
+ ('YOUR SOURCES — Rental property',          'rentalTotal',   'RENTAL_INCOME_A_YEAR'),
+ ('YOUR SOURCES — Social Security · pension','guaranteed',    'RETIREMENT_INCOME_NOW'),
+ ('RECEIVED · <month> — each payment',       'i.amount',      NM + ' — the received list, src/domain/income'),
+ ('<MONTH> · $X SPENT',                      'spent',         'SPENDING_BY_KIND'),
+ ('each expense and its amount',             'e.amount',      'SPENDING_BY_KIND'),
+ ('BY CATEGORY VS PLAN — $X of $Y',          'b.spent / b.planned', 'PLANNED_SPENDING'),
+ ('BIG-TICKET RADAR — <bill> · due <month>', 'b.amount',      NM + ' — the big-bill radar, src/domain/cashflow'),
+ ('well above your usual <category>',        'e.amount',      NM + ' — the unusual-spend check, src/domain/budget'),
+ ('THIS MONTH — In (take-home)',             'inflow',        NM + ' — incomeMonthlyGrid, src/domain/income'),
+ ('THIS MONTH — Out (bills + debt)',         'outflow',       'SPENDING_BY_KIND · DEBT_REQUIRED_PAYMENT'),
+ ('THIS MONTH — free to use',                'free',          'worked out on the screen: in − out − what the Plan committed'),
+ ('<goal> · from your Plan',                 'c.monthlyAmount', NM + ' — plan commitments, src/domain/planning'),
+ ('YOUR FUTURE PAYCHECK — At <age>: ~$X / mo','projection.monthly', 'POT_AT_RETIREMENT'),
+ ('YOUR FUTURE PAYCHECK — Social Security · pension','projection.guaranteed','RETIREMENT_INCOME'),
+]
+
+PLAN = [
+ ('✓ What you have — already in: N accounts, $X counted','door.credit.total','WHAT_THE_PLAN_STILL_NEEDS'),
+ ("Your odds — can't work them out yet. Add <what> below.",'door.missing','WHAT_THE_PLAN_STILL_NEEDS'),
+ ('YOUR RETIREMENT PAYCHECK — each guaranteed source','g.amount', NM + ' — retirementPaycheckYear, src/domain/paycheck'),
+ ('= Guaranteed',                            'payMonth.guaranteedTotal', NM + ' — retirementPaycheckYear, src/domain/paycheck'),
+ ('+ Draw from savings',                     'payMonth.safeDraw',        NM + ' — retirementPaycheckYear, src/domain/paycheck'),
+ ('Your paycheck $X/mo',                     'paycheckTotal', 'worked out on the screen: guaranteed + draw from savings'),
+ ('SAVED SCENARIOS (n)',                     'scenarios.length', NM + ' — saved scenarios, src/domain/scenarios'),
+]
+
+VERIFIED = {'home':HOME,'networth':NETWORTH,'performance':PERFORMANCE,'cashflow':CASHFLOW,'plan':PLAN}
 
 nav = json.load(open('/tmp/nav.json'))
 TABS = {'/home':'home','/analytics':'networth','/invest':'performance','/cashflow':'cashflow','/plan':'plan'}
@@ -69,28 +142,33 @@ def nid(family, kind):
     k=(family,kind); counters[k]=counters.get(k,0)+1
     return f"MK-{family}-{kind}-{counters[k]:03d}"
 
-# ---- multiple_screens
+# ---- engine identifiers: one per engine, assigned once
+ENGINE_FAMILY = {}
+engine_id = {}
+def eid_for(engine, family):
+    if engine.startswith('worked out on the screen'): return ''
+    key = engine
+    if key not in engine_id:
+        engine_id[key] = nid(family, 'E')
+    return engine_id[key]
+
 ws = sheet('multiple_screens', COLS)
-for label, screens, metric, engine, fam in MULTI:
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, nid(fam,'E'), '', 'Yes', 'VERIFIED 2026-08-22'])
+for label, screens, metric, engine in MULTI:
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), '', 'Yes', 'VERIFIED 2026-08-22'])
 
-# ---- home (verified)
-ws = sheet('home', COLS)
-for label, metric, engine, fam in HOME:
-    eid = '' if engine.startswith('derived') else nid(fam,'E')
-    ws.append([nid('HM','M'), 'Home', 'NA', label, metric, engine, eid, '', 'Yes', 'VERIFIED 2026-08-22'])
-
-# ---- the other parent tabs: every screen listed, nothing claimed
-for tab in ['networth','performance','plan','cashflow','menu']:
+FAM = {'home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
+for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
+    for label, metric, engine in VERIFIED.get(tab, []):
+        ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
+                   eid_for(engine, FAM[tab]), '', 'Yes', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
         parent_route = [k for k,v in TABS.items() if v==tab][0]
-        routes = [parent_route] + screens_for(tab)
+        routes = screens_for(tab)
     for r in routes:
-        comp = nav['routes'].get(r,'')
-        ws.append(['', PARENTS[tab], 'NA' if r in TABS else r, '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -169,7 +247,7 @@ ref = [
  ('Complies with — identifiers', 'MoneyKeel/documents/standards/moneykeel_naming_spec_unique-identifier_v01.md'),
  ('Complies with — objectives', 'MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md'),
  ('', ''),
- ('COVERAGE — screens read so far', '1 of 49 (Home)'),
+ ('COVERAGE — screens read so far', '5 of 49 — Home, Net worth, Performance, Cash flow, Plan (the five parent screens). The 44 secondary and menu screens are listed and marked NOT STARTED.'),
  ('COVERAGE — what that means', 'Every screen in the app is listed on its tab. Only Home carries figures so far; the rest are marked NOT STARTED. A rising count is not completeness while screens remain unread.'),
 ]
 for a,b in ref: ws.append([a,b])
