@@ -88,9 +88,47 @@ column on the Engines tab, set by the founder. Candidates recommended at the tim
 ledger and money flows, returns, tax, required withdrawals, Social Security, and the retirement
 odds. *(The column and its build guard are still to be built — noted as open work.)*
 
+## "Right" means: the same maths gives the same answer (founder, 2026-08-22)
+
+The same rule as file-versus-code, applied to every comparison in the module:
+
+**If the inputs, the variables, the assumptions and the formula are the same, the output is the
+same. This is arithmetic — 2 + 2 is always 4.**
+
+So wherever two figures ought to agree — the file against the code, our number against the broker's
+own statement, our number against an outside calculator, the same figure on two different screens,
+the bench against the app — they must either **match**, or the difference must be **clearly
+explained by a named difference in inputs or assumptions**. The founder's example: the target
+retirement pot differs because one side retires at 59 and the other at 67.
+
+Anything else is flagged and work stops until it matches or is explained. No unexplained difference
+is carried forward, and no difference is explained by hand-waving.
+
+**The bar for "explained" is reproducible, not narrated.** An explanation must name the exact input
+or assumption that differs, and setting that one input to the other side's value must make the two
+numbers agree. If they still differ, the explanation is wrong and the difference is still open.
+
+Every such reconciliation is recorded — what was compared, the difference, the named cause, and the
+proof that aligning the input closes it — so a known difference is not re-argued and a NEW
+difference is visible the moment it appears.
+
+## When the founder's approved formula is the thing that must change
+
+Where analysis shows the file's formula itself is wrong, the change goes to the founder for a
+verdict before either side is edited. Nothing reaches an engine that is not written in the master
+spreadsheet with his approval.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.
 - Rung 3 coverage across the grid (roughly 990 cells today) — to be priced and sequenced.
 - Rungs 4 and 5 on the engines the founder marks.
 - The build-time file-versus-code check, run on every build.
+- The reconciliation record: every compared pair, its difference, the named cause, and the proof
+  that aligning that one input closes it.
+
+## Parked until every objective is clear
+
+**Which document is "the file"** — the master workbook, the decomposition sections, the
+architecture page, or something not yet built. Founder, 2026-08-22: none of today's documents meet
+the objectives, so this is decided AFTER all four objectives are fully clear, not before.
