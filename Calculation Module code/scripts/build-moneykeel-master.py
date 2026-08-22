@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -96,6 +96,37 @@ for tab in ['networth','performance','plan','cashflow','menu']:
 ws = sheet('inputs', INPUT_COLS)
 ws.append(['', '', '', '', '', 'NOT STARTED — filled as each screen is read'])
 
+
+# ---- Specification: what a row must carry before its calculation can be written
+SPEC = [
+ ('SECTION — WHAT THE NUMBER IS', ''),
+ ('The formula', 'The actual rules in plain English, followable by hand. Nothing in the index tabs carries it.'),
+ ('The inputs, one by one', 'Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.'),
+ ('The decisions and assumptions applied', 'Rounding, timing conventions, inflation, which balance is used, which date wins. Each labelled with whose decision it was — the founder\'s, the person\'s, or built in. This is the fourth link of objective 4.'),
+ ('What comes out', 'Dollars, a percentage, a date, a count or a range; its unit and its rounding.'),
+ ('What it says when it cannot be computed', 'The exact refusal. This is where wrong numbers get invented, so the refusal is part of the specification, not an afterthought.'),
+ ('The grain', 'Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.'),
+ ('The period', 'As of when, and over what window — this month, twelve months, since the person owned it.'),
+ ('SECTION — WHAT PROVES IT', ''),
+ ('Worked examples', 'These inputs give this answer. Rung 2 re-runs them through the real engine on every build.'),
+ ('An example for every case', 'One per case the grid names: input missing, input degraded, a different shape per institution, time-bounded, related events, account type. This is rung 3, the floor for every calculation.'),
+ ('Verification level', 'Whether this engine is marked for rung 4 (the written formula made executable and checked against the code on generated inputs) and rung 5 (laws that must hold for every input). Marked by the founder, recommended by me.'),
+ ('SECTION — WHAT CONNECTS IT', ''),
+ ('Which engines feed this engine', 'The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.'),
+ ('Where it is implemented', 'The file and function that carry it, so file and code can be checked against each other on every build.'),
+ ('SECTION — GOVERNANCE', ''),
+ ('The founder\'s verdict', 'His approval of the row. A row counts as documented only when he has approved it, so without this column the coverage count is meaningless.'),
+ ('Lifecycle', 'Live, cut, or superseded by another identifier. Identifiers are never reused, so a retired one must say what replaced it.'),
+]
+ws = sheet('Specification', ['What is needed','Why it is needed, and whether the file carries it today'])
+for a,b in SPEC:
+    ws.append([a,b])
+    if a.startswith('SECTION'):
+        ws.cell(ws.max_row,1).font=Font(bold=True, color='1F3864')
+ws.column_dimensions['A'].width=42; ws.column_dimensions['B'].width=118
+for r in range(2, ws.max_row+1):
+    ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -106,6 +137,7 @@ ref = [
   'produces it, and the identifier that joins them — so a wrong number can be traced from the label '
   'on screen to its engine and formula in a minute. Serves objectives 3 and 4.'),
  ('', ''),
+ ('TAB — Specification', 'Everything a row must carry before its calculation can be written in code. The index tabs say what exists and where it is shown; this tab says what is still needed to say what each number IS.'),
  ('TAB — Reference', 'This tab. What the file is, what each tab holds, what each column means, and what it must comply with.'),
  ('TAB — multiple_screens', 'Figures shown on more than one parent screen. A figure lives here ONCE, with every screen and every label it wears listed, so the same figure can never have two definitions.'),
  ('TAB — home', 'Figures shown only on Home and the screens reached from it.'),
