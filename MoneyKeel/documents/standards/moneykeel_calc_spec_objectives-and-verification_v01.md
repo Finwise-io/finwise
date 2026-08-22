@@ -1,4 +1,6 @@
-# Calculation Module — the objectives, and the standard that proves them
+# The objectives of the calculation work, and the standard that proves them
+
+Named by the rule in `moneykeel_naming_spec_file-and-folder-naming_v01.md`, in the same folder.
 
 Founder's words, recorded 2026-08-22, governing the work begun 2026-08-18.
 This document outranks any plan of mine. Work is judged against it, not against my framing of it.
