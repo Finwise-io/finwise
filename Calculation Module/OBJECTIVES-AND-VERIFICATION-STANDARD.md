@@ -190,6 +190,23 @@ downstream may resume; his sign-off is what closes the record, not what unblocks
 - **The completion sentence is said per piece of work and again at each build**, not once at the
   end of the project.
 
+## Objectives 3 and 4, as the founder defined them (2026-08-22)
+
+**Who must be able to trace:** the founder himself, and a future engineer who has never seen this
+code. (Not a support person with no code access — that bar is not being set.)
+
+**Where a trace starts:** the screen, plus the label **as it is actually worded on that screen**.
+Not an internal metric name. If a person can say "the Plan screen, the line that reads Projected at
+retirement", that is enough to begin.
+
+**Objectives 3 and 4 are the same thing, with one addition.** Objective 4 additionally requires a
+**unique identifier for every label on screen**, which is what makes the trace mechanical rather
+than a search. The founder's example: `MK-CM-Mv1-NW-M-45` — Calculation Module, Net Worth tab,
+metric 45. **Each metric identifier is connected to a unique engine identifier.**
+
+**The identifier standard is still to be determined — jointly.** Nothing is assigned until the
+standard is agreed.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.
@@ -198,6 +215,8 @@ downstream may resume; his sign-off is what closes the record, not what unblocks
 - The build-time file-versus-code check, run on every build.
 - A founder-approval column, and re-basing the coverage count and its ratchet on APPROVED rows.
 - The sweep for small inline calculations, to find the true denominator.
+- The identifier standard itself, then identifiers assigned to every on-screen label and every
+  engine, with a guard that none is duplicated, reused or silently renumbered.
 - The open-differences list, carrying each unclosed difference to the founder for sign-off.
 - The reconciliation record: every compared pair, its difference, the named cause, and the proof
   that aligning that one input closes it.
