@@ -165,6 +165,31 @@ yet known. Finding them is a sweep of its own, and the count will GROW before it
 ratchet that only allows the documented count to rise must not be read as completeness while the
 denominator is still moving.
 
+## Three working rules the founder settled (2026-08-22)
+
+**What stops when something disagrees.** Work stops on the disagreeing figure and on everything
+built from it — anything that consumes it, directly or through another engine. Unrelated work
+continues. The disagreement is raised as its own visible open item, never buried in a commit
+message, and a build still fails while file and code disagree.
+
+**Who marks the engines for rungs 4 and 5.** I recommend a list with the reason for each; the
+founder approves, strikes or adds; his marks live in the file. The strongest checks are aimed by
+him, not chosen by me.
+
+**Closing an explained difference needs his sign-off.** I may not close one on my own, however well
+it reproduces. Each stays on an open list carrying what was compared, the difference, the named
+cause, and the proof that aligning that one input closes it — ready for a quick verdict.
+My reading, to be corrected if wrong: once the explanation is complete and reproducible the work
+downstream may resume; his sign-off is what closes the record, not what unblocks the day.
+
+## Two assumptions I am running with unless corrected
+
+- **A refusal is a case that needs its own test.** Where the file says a figure cannot honestly be
+  shown — a missing cost basis, a window the history does not cover — the test proves the screen
+  refuses. Silently showing a number there is the failure being guarded against.
+- **The completion sentence is said per piece of work and again at each build**, not once at the
+  end of the project.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.
@@ -173,6 +198,7 @@ denominator is still moving.
 - The build-time file-versus-code check, run on every build.
 - A founder-approval column, and re-basing the coverage count and its ratchet on APPROVED rows.
 - The sweep for small inline calculations, to find the true denominator.
+- The open-differences list, carrying each unclosed difference to the founder for sign-off.
 - The reconciliation record: every compared pair, its difference, the named cause, and the proof
   that aligning that one input closes it.
 
