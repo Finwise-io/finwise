@@ -113,6 +113,152 @@ PLAN = [
  ('SAVED SCENARIOS (n)',                     'scenarios.length', NM + ' — saved scenarios, src/domain/scenarios'),
 ]
 
+
+# secondary screens: (route, label on screen, metric in code, engine)
+SECONDARY = {
+ 'networth': [
+  ('/account-detail','Market value','account.balance','HAND_VALUE_AGE'),
+  ('/account-detail','Income','acctIncome','the ledger sum of interest and dividends for the account'),
+  ('/account-detail','each asset class inside the account','breakdown[k]','ACCOUNT_SPLIT'),
+  ('/account-detail','Income: <amount> on a holding row','incomeOf(rw)','the ledger sum for that holding'),
+  ('/account-detail','ACTIVITY — n records','txns.length','HISTORY_DEPTH'),
+  ('/account-detail','Face value','b.face','BOND_FACTS'),
+  ('/account-detail','Interest payments — X%/yr · $Y/yr','annualCoupon(b)','BOND_COUPON'),
+  ('/account-detail','Matures — <date> (n years away)','years','BOND_YEARS_LEFT'),
+  ('/account-detail','Yield if held to maturity','ytm','BOND_YIELD_TO_MATURITY'),
+  ("/account-detail","Yield on today's value",'cy','BOND_CURRENT_YIELD'),
+  ('/account-detail','Rates rise 1% → value roughly $X–$Y','sens.ratesUp','BOND_RATE_SENSITIVITY'),
+  ('/holding-detail','CURRENT PRICE · LIVE','price','the price feed, with its freshness'),
+  ('/holding-detail','Current value','value','HOLDING_MARKET_VALUE'),
+  ('/holding-detail','Quantity — n shares','shares','HOLDING_SHARES'),
+  ('/holding-detail','Price paid (average)','rawAvg','HOLDING_COST_BASIS'),
+  ('/holding-detail','Total paid','basis','HOLDING_COST_BASIS'),
+  ('/holding-detail','Dividends received (12 mo)','dividends.trailing12','the ledger sum of dividends over twelve months'),
+  ('/holding-detail','Realized gain from your buys and sells','realized','REALISED_GAIN'),
+  ('/holding-detail','Gain — long-term (held over 1 yr)','cg.longGain','HOLDING_CAP_GAINS'),
+  ('/holding-detail','Gain — short-term (under 1 yr)','cg.shortGain','HOLDING_CAP_GAINS'),
+  ('/itemize','We keep the total at $X','lump.balance','the account balance being itemised'),
+  ('/itemize','$X of $Y itemized · remainder','allocated / remainder','worked out on the screen: total − what has been itemised'),
+  ('/itemize','each holding and its value','h.value','HOLDING_MARKET_VALUE'),
+  ('/bonds','total value of your bonds','summary.totalValue','BOND_FACTS'),
+  ('/bonds','n bonds · face $X','summary.totalFace','BOND_FACTS'),
+  ('/bonds','COUPON / YR','summary.coupon','BOND_COUPON'),
+  ('/bonds','AVG YIELD','summary.yield','BOND_CURRENT_YIELD'),
+  ('/bonds','each bond — face, coupon, yield','bi','BOND_FACTS · BOND_COUPON'),
+ ],
+ 'plan': [
+  ('/will-it-last','What you have (nest egg)','inp.start_balance','WILL_IT_LAST_INPUTS'),
+  ('/will-it-last','Monthly spending in retirement','inp.retire_monthly_spend_today','RETIREMENT_SPENDING'),
+  ('/will-it-last','Guaranteed income — $X/mo from age Y','inp.guaranteed_monthly_income','GUARANTEED_STREAMS (engines: B1 rebuild)'),
+  ('/will-it-last','Monthly saving until then','inp.annual_contrib','WILL_IT_LAST_INPUTS'),
+  ('/required-withdrawals','Yours starts in <year> (age N)','rmdStartAgeFor(age)','RMD_START_AGE (Calculation Module code/engines/rmd.ts)'),
+  ('/required-withdrawals','Required $X','required','REQUIRED_WITHDRAWAL'),
+  ('/required-withdrawals','Taken so far $X · still to take','taken / still','worked out on the screen: required − taken so far'),
+  ('/required-withdrawals','YEAR BY YEAR (ESTIMATES) — each year and amount','r.amount','REQUIRED_WITHDRAWAL'),
+  ('/required-withdrawals','BASED ON THESE ACCOUNTS — each balance','a.balance','HAND_VALUE_AGE'),
+  ('/ss-timing',"Monthly check (today's dollars)",'A.guaranteedMonthly','SS_BENEFIT_AT_AGE'),
+  ('/ss-timing','You receive $X/mo ✓','op.ri_ss','RETIREMENT_INCOME_NOW'),
+  ('/ss-timing','Claiming at N pays $X a month','r.monthly','SS_CLAIM_FACTOR · SS_BENEFIT_AT_AGE'),
+  ('/ss-timing','about $X in total by age N','r.lifetime','SS_LIFETIME_TOTAL'),
+  ('/ss-timing','Showing example numbers (a $X/mo statement)','exampleStmt','the worked example used until a real statement goes in'),
+  ('/roth','Convert to Roth this year (<year>)','A.rothConversionThisYear','the amount the person chose'),
+  ('/roth','Extra tax next April (estimate) — about $X','taxCost','TAX_ON_CONVERSION'),
+  ('/roth','from your pre-tax $X','preTax','PRE_TAX_BALANCE'),
+  ('/what-if','+$X/mo (the saving dial)','addMonthly','the amount the person chose'),
+  ('/what-if','$X → $Y (nest egg before and after)','result.before.egg / result.after.egg','POT_AT_RETIREMENT'),
+  ('/what-if','the difference the change makes','result.after.egg - result.before.egg','worked out on the screen: after − before'),
+  ('/multi-goal','each goal and its monthly amount','d.monthlyAmount','the amounts the person chose'),
+  ('/multi-goal','Retirement saving — $X/mo now → $Y/mo','A.contribMonthly / retirementMo','WILL_IT_LAST_INPUTS'),
+  ('/multi-goal','Extra on debt $X/mo','extraDebt','DEBT_PICTURE'),
+  ('/multi-goal','paid off <month> · saves $X','weighed.debtPayoff','DEBT_PAYOFF'),
+  ('/retirement','incl. Social Security $X/mo from age N','ssIncome','RETIREMENT_INCOME_NOW'),
+  ('/retirement','your $X grows to $Y by age N at Z%/yr','nestEgg / scProjected','POT_AT_RETIREMENT'),
+  ('/retirement','At Z% return, your money lasts past age N','scDeplete','WILL_IT_LAST_RESULT'),
+  ('/retirement','Retire at age (the dial)','rAge','the age the person chose'),
+  ('/education','the future total cost of school','plan.futureTotalCost','EDUCATION_COST'),
+  ('/education','$X/mo set aside closes the $Y gap','plan.monthlyNeeded / plan.gap','EDUCATION_COST'),
+ ],
+ 'cashflow': [
+  ('/monthly-income','each source of guaranteed income','g.amount','RETIREMENT_INCOME_NOW'),
+  ('/month-detail','what came in and went out that month','cell','the by-month grid'),
+  ('/paycheck-months','the months a paycheck lands','payYear','RETIREMENT_PAYCHECK'),
+  ('/income-manager','each income source and its amount','sources','TOTAL_INCOME'),
+  ('/bill-calendar','each bill and the day it falls','bills','THE_BILL_CALENDAR'),
+ ],
+ 'menu': [
+  ('/big-costs','each big cost and its year','c.amount','BIG_COSTS'),
+  ('/big-costs','the total of your big costs','total','BIG_COSTS'),
+  ('/contribution-room','$X left / up to $Y','room / limit','CONTRIBUTION_ROOM'),
+  ('/contribution-room','about $X of the $Y limit','used / limit','CONTRIBUTION_ROOM'),
+  ('/contribution-room','about $X/mo for the rest of the year','perMonth','worked out on the screen: room left ÷ months left'),
+  ('/credit','$X of $Y used — the line marks 30%','bal / lim','CREDIT_USE'),
+  ('/expense','$X of $Y this month · over by $Z','catSpend / catBudget','PLANNED_SPENDING'),
+  ('/goals','typical free cash to save $X/mo','capacity.avg','GOAL_CAPACITY'),
+  ('/goals','each goal — $X of $Y · $Z to go','g.saved / g.target','GOAL_PROGRESS'),
+  ('/goals','your non-monthly budget','sinkBasis','SINKING_FUNDS'),
+  ('/income-detail','net a year','state.total_net_annual','TOTAL_INCOME'),
+  ('/income-detail','Gross / year','state.total_gross_annual','TOTAL_INCOME'),
+  ('/income-detail','Net / month','state.net_monthly_income','TOTAL_INCOME'),
+  ('/income-detail','Employer 401(k) match','state.employer_match_annual','EMPLOYER_MATCH'),
+  ('/insights','each insight and the dollars behind it','shareOf(v)','NOT IN OLD MASTER — useInsights, src/domain/insights'),
+  ('/insights','Total invested · Cash total · Investable total','investable / cash','TOTAL_INVESTABLE · TOTAL_CASH'),
+  ('/insurance','the life-cover gap','need.gap','INSURANCE_NEED'),
+  ('/insurance','Income replacement (N yrs)','need.incomeReplacement','INSURANCE_NEED'),
+  ('/insurance','+ Debts, goals & final expenses · Total need','need.total','INSURANCE_NEED'),
+  ('/jobsafety','N months of essentials is $X ($Y/mo)','target / ess','JOB_SAFETY_RUNWAY'),
+  ('/jobsafety','Using $X/mo from your logged spending','monthSpend','SPENDING_BY_KIND'),
+  ('/other-investments','the total value of these investments','summary.totalValue','ALTERNATIVES_TOTAL'),
+  ('/other-investments','EST. GROWTH / YR','summary.growth','ALTERNATIVES_GROWTH'),
+  ('/stress-test','You could cover a $X hit','shock','STRESS_TEST'),
+  ("/stress-test","You'd have $X left — about N months of essentials",'r.cashAfter / r.runwayAfter','STRESS_TEST'),
+  ('/stress-test','your $X/mo of must-pay bills','ess','PLANNED_SPENDING'),
+  ('/tax-organizer','each taxable line and its amount','l.amount','TAXABLE_INCOME'),
+  ('/tax-organizer','Taxable income · Non-taxable','org.taxableTotal','TAXABLE_INCOME'),
+  ('/tax-organizer','each contribution and its amount','c.amount','CONTRIBUTION_ROOM'),
+  ('/worth-a-look','$X left <account> on <date>','f.amount','NOT IN OLD MASTER — the outflow watch, src/domain/insights'),
+ ],
+ 'performance': [
+  ('/look-back','Left in <fund> it became $X (up/down $Y, Z%)','result.stayed','LOOK_BACK'),
+  ('/look-back','Moved to <fund> it would be $X','result.moved','LOOK_BACK'),
+  ('/look-back','Difference: $X more/less if you had moved','result.difference','LOOK_BACK'),
+ ],
+}
+
+
+INPUTS = [
+ ('account balance','the institution download, a connection, or typed by hand','net worth · what you own · cushion · required withdrawal','NET_WORTH · TOTAL_CASH · TOTAL_INVESTMENTS · REQUIRED_WITHDRAWAL'),
+ ('account type (taxable, pre-tax, Roth)','typed at setup, or guessed from the account name','how this account is taxed · required withdrawal · Roth move','TAX_TREATMENT · REQUIRED_WITHDRAWAL'),
+ ('institution name','the download or the connection','net worth by institution · account rows','ACCOUNT_SPLIT'),
+ ('holding quantity (shares)','the download, a connection, or typed','current value · cost basis · gains','HOLDING_SHARES · HOLDING_MARKET_VALUE'),
+ ('holding price','the price feed','current value · today\'s market value · freshness','HOLDING_MARKET_VALUE · PRICE_FRESHNESS'),
+ ('price fetched at','the app, when it last asked for prices','prices updated <when>','PRICE_FRESHNESS'),
+ ('purchase price and date (per lot)','the download or typed','price paid · total paid · long or short-term gain','HOLDING_COST_BASIS · HOLDING_CAP_GAINS'),
+ ('transaction amount','the institution download','contributions · withdrawals · income · the change walk','LEDGER · NW_CHANGE_WALK'),
+ ('transaction date','the institution download','the period a figure covers · the change walk','LEDGER · NW_CHANGE_WALK'),
+ ('transaction words (the institution\'s own wording)','the institution download','what each line means: money in, money out, income, cost','LEDGER · the institution-words table'),
+ ('bond face value','typed, or the download','face value · what comes back at maturity','BOND_FACTS'),
+ ('bond coupon rate','typed, or the download','interest payments a year · yield','BOND_COUPON · BOND_CURRENT_YIELD'),
+ ('bond maturity date','typed, or the download','years away · yield if held to maturity','BOND_YEARS_LEFT · BOND_YIELD_TO_MATURITY'),
+ ('debt balance','typed, or a connection','what you owe · net worth · payoff','DEBT_PICTURE'),
+ ('debt interest rate','typed','payoff date · what extra payments save','DEBT_PAYOFF'),
+ ('debt minimum payment','typed','monthly debt payments · money out','DEBT_REQUIRED_PAYMENT'),
+ ('birth year','typed at setup','current age · retirement age · Social Security · required withdrawal','SS_BENEFIT_AT_AGE · RMD_START_AGE'),
+ ('retirement age','typed, or the dial on Plan','the odds · projected pot · the paycheck','WILL_IT_LAST_RESULT · POT_AT_RETIREMENT'),
+ ('monthly spending in retirement','typed','the odds · the draw from savings','WILL_IT_LAST_INPUTS'),
+ ('Social Security monthly amount','typed from the statement, or a worked example','guaranteed income · the paycheck · claim timing','SS_BENEFIT_AT_AGE · RETIREMENT_INCOME_NOW'),
+ ('Social Security claim age','typed','how much the check is · lifetime total','SS_CLAIM_FACTOR'),
+ ('pension monthly amount','typed','guaranteed income · the paycheck','RETIREMENT_INCOME_NOW'),
+ ('salary and other income','typed at setup','money in · take-home · savings capacity','TOTAL_INCOME'),
+ ('logged spending','typed, or read from a download','spent so far · by category · essentials','SPENDING_BY_KIND · PLANNED_SPENDING'),
+ ('typical monthly essentials','typed','the cushion · job-safety runway · stress test','PLANNED_SPENDING · JOB_SAFETY_RUNWAY'),
+ ('big costs (amount and year)','typed','the odds · the plan · the radar','BIG_COSTS'),
+ ('goals (target, saved, date)','typed','goal progress · what you can afford together','GOAL_PROGRESS'),
+ ('assumed return','built in, and adjustable on the cockpit','projected pot · the odds','POT_AT_RETIREMENT · WILL_IT_LAST_RESULT'),
+ ('inflation rate','a published feed, with a built-in fallback','tomorrow\'s dollars · the odds','WILL_IT_LAST_INPUTS'),
+ ('tax filing status and age','typed at setup','tax bands · the deduction · tax on a Roth move','TAXABLE_INCOME · TAX_ON_CONVERSION'),
+ ('daily and monthly snapshots','the app itself, once a day','the trend line · change in net worth · beginning values','TREND_SERIES · NW_CHANGE_WALK'),
+]
+
 VERIFIED = {'home':HOME,'networth':NETWORTH,'performance':PERFORMANCE,'cashflow':CASHFLOW,'plan':PLAN}
 
 nav = json.load(open('/tmp/nav.json'))
@@ -156,7 +302,8 @@ ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), '', 'Yes', 'VERIFIED 2026-08-22'])
 
-FAM = {'home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
+OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
+FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
@@ -167,12 +314,28 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     else:
         parent_route = [k for k,v in TABS.items() if v==tab][0]
         routes = screens_for(tab)
+    done = set()
+    for route, label, metric, engine in SECONDARY.get(tab, []):
+        done.add(route)
+        ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
+                   eid_for(engine, FAM[tab]), '', 'Yes', 'VERIFIED 2026-08-22'])
+    NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
+        if not r or r in done or r in OWNED: continue
+        if r == '/performance':
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', 'Yes',
+                       'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
+            continue
+        if r in NO_FIGURES:
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', 'Yes',
+                       'READ 2026-08-22 — no calculated figure on this screen'])
+            continue
         ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
-ws.append(['', '', '', '', '', 'NOT STARTED — filled as each screen is read'])
+for var, source, metrics, engines in INPUTS:
+    ws.append([nid('XS','I'), var, source, metrics, engines, 'VERIFIED 2026-08-22'])
 
 
 # ---- Specification: what a row must carry before its calculation can be written
@@ -247,7 +410,7 @@ ref = [
  ('Complies with — identifiers', 'MoneyKeel/documents/standards/moneykeel_naming_spec_unique-identifier_v01.md'),
  ('Complies with — objectives', 'MoneyKeel/documents/standards/moneykeel_calc_spec_objectives-and-verification_v01.md'),
  ('', ''),
- ('COVERAGE — screens read so far', '5 of 49 — Home, Net worth, Performance, Cash flow, Plan (the five parent screens). The 44 secondary and menu screens are listed and marked NOT STARTED.'),
+ ('COVERAGE — screens read so far', '49 of 49. Every screen in the app has been read: the five parent screens, every secondary screen and every menu screen. Twelve screens carry no calculated figure and say so.'),
  ('COVERAGE — what that means', 'Every screen in the app is listed on its tab. Only Home carries figures so far; the rest are marked NOT STARTED. A rising count is not completeness while screens remain unread.'),
 ]
 for a,b in ref: ws.append([a,b])
