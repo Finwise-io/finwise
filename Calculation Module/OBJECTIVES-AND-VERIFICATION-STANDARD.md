@@ -207,6 +207,27 @@ metric 45. **Each metric identifier is connected to a unique engine identifier.*
 **The identifier standard is still to be determined — jointly.** Nothing is assigned until the
 standard is agreed.
 
+### The chain in objective 4 carries all three kinds of decision (founder, 2026-08-22)
+
+- **His rulings** — the verdicts he gave in his answered file, and every ruling since.
+- **The person's own inputs** — their retirement age, their typed target, their stated spending.
+- **The built-in assumptions nobody chose on a screen** — return rate, inflation, rounding rules,
+  the timing convention that makes our recommended pot differ from an outside calculator's.
+
+Each is labelled with **whose** decision it was, because when a number looks wrong the assumption
+nobody chose is usually the cause.
+
+### Scope: the 55-70 core screens first (founder, 2026-08-22)
+
+The objectives apply to the core screens for the 55-70 person first. The rest of the app follows
+after. This bounds the denominator as much as the small-calculations ruling widens it.
+
+### One identifier per figure, or one per label — held
+
+The founder agrees in principle with one identifier per calculated figure, with each place it
+appears recorded against it, so a trace from any screen lands on the same row. **Held deliberately**
+until the identifier nomenclature is designed, which is its own piece of work.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.
