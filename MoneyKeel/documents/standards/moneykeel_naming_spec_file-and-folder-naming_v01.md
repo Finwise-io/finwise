@@ -51,14 +51,33 @@ and once it is superseded, the same name with its date in front:
 |---|---|---|
 | Date | Only on superseded copies, in `archive/`. **The live file carries no date.** | `2026-08-22` |
 | Domain | The product | `moneykeel` (older files keep `finwise` until next touched) |
-| Layer | What kind of work it is | `tax` naming and dictionaries · `calc` maths and engines · `data` schemas and contracts · `pres` screens and mockups |
+| Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and engines · `data` schemas and contracts · `pres` screens and mockups |
 | Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `mock`, `mockup`, `component` |
-| Descriptor | Plain words, hyphenated | `will-money-last`, `monte-carlo-simulator` |
+| Descriptor | **The only part you invent** — see the rule below | `will-money-last`, `monte-carlo-simulator` |
 | Version | Lifecycle | `v01`, `v02`, `draft`, `final` |
 
-Examples: `moneykeel_tax_spec_retirement-metrics-dictionary_v01.md` ·
+Examples: `moneykeel_naming_spec_retirement-metrics-dictionary_v01.md` ·
 `moneykeel_data_schema_plan-inputs-contract_v02.json` ·
-`archive/2026-08-19_moneykeel_tax_spec_retirement-metrics-dictionary_v01.md`
+`archive/2026-08-19_moneykeel_naming_spec_retirement-metrics-dictionary_v01.md`
+
+### The descriptor is the only part you invent — and there is one rule for it
+
+Every other field is picked from a fixed list. The descriptor is written fresh each time, so it is
+the only place a name can go wrong, and this single rule governs it:
+
+**Write it the way you would say it out loud, naming the answer rather than the machinery.**
+`net-worth`, never `nw`. `required-withdrawal`, never `rmd-utils`. `depletion-age-solver`, not
+`sim-helper-2`.
+
+**The same one rule names folders and code files**, which carry no pattern at all — a folder is just
+a descriptor, and a code file is a descriptor plus its extension. So there is one naming judgement
+in the whole system, used in three places:
+
+| What | Pattern | Descriptor rule |
+|---|---|---|
+| Document | Full pattern | Applies to the descriptor field |
+| Folder | No pattern — the name is the descriptor | Applies |
+| Code file | No pattern, no date, no version | Applies |
 
 ## Naming code — the one deliberate exception
 
@@ -79,18 +98,15 @@ When the founder gives feedback he keeps the same filename and adds `-jj` at the
 `..._v02-jj.xlsx`. **No script ever writes to, overwrites or renames a `-jj` file.** It is an
 input of record, like his answered metrics file, and it is kept forever.
 
-## Rules that hold everywhere
+## Rules the pattern does not cover
 
-1. Named the way you would say it out loud — `net-worth`, never `nw`; `required-withdrawal`, never
-   `rmdUtils`.
-2. Named for the answer, not the machinery.
-3. The test sits beside the thing it proves, same name plus `.test`.
-4. Banned names anywhere: `utils`, `helpers`, `common`, `core`, `lib`, `misc`, `v2`, `new`,
+1. The test sits beside the thing it proves, same name plus `.test`.
+2. Banned names anywhere: `utils`, `helpers`, `common`, `core`, `lib`, `misc`, `v2`, `new`,
    `final`, `temp`. Duplicate maths hides in folders named like this.
-5. Only one live file per subject. Two undated files covering the same thing is a defect.
-6. `README.md` is the one exempt filename: every folder carries one, saying what lives there and
+3. Only one live file per subject. Two undated files covering the same thing is a defect.
+4. `README.md` is the one exempt filename: every folder carries one, saying what lives there and
    what never does.
-7. All standards documents sit in a `standards` folder. Nowhere else.
+5. All standards documents sit in a `standards` folder. Nowhere else.
 
 ## Guards to be built (not yet true)
 
