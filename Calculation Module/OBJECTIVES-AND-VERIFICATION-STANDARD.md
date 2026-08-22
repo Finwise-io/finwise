@@ -112,6 +112,30 @@ Every such reconciliation is recorded — what was compared, the difference, the
 proof that aligning the input closes it — so a known difference is not re-argued and a NEW
 difference is visible the moment it appears.
 
+### The three kinds of figure, and what "right" can mean for each (founder approved, 2026-08-22)
+
+The same-maths rule says two figures that ought to agree must agree. But not every figure has
+something outside the app to agree WITH. There are three kinds, and each is checked differently.
+
+**Kind A — rules with a published authority.** Tax tables and brackets, the standard deduction and
+its over-65 addition, Social Security full-retirement ages and claim factors, required-withdrawal
+starting ages and their table, the day count that decides a long-term gain. For these, "right"
+means the app's numbers equal the published source. The source is **named in the file** — which
+publication, which year — and it is **re-checked when the year rolls over**; a test already fails
+the build once the calendar passes the tax year the tables were written for.
+
+**Kind B — figures with a real-world truth to reconcile against.** The broker's own stated account
+total, an account's beginning value on a statement, a holding's share count. For these, "right"
+means our figure reconciles to the institution's, to the cent, or the difference is named and
+reproducible (the same-maths rule above).
+
+**Kind C — figures with no outside truth at all.** The odds the money lasts, the recommended nest
+egg, the assumed return, a projected balance at an age. Nothing outside can settle these. For
+these, "right" means exactly two things: **the method is the one the founder approved**, and **the
+code does exactly what the method says** — no more, no less. Where such a figure is compared with
+an outside calculator, a difference is expected and must still be explained by a named, reproducible
+difference in inputs or conventions, not treated as a defect in either side.
+
 ## When the founder's approved formula is the thing that must change
 
 Where analysis shows the file's formula itself is wrong, the change goes to the founder for a
