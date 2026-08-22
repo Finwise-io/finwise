@@ -142,12 +142,37 @@ Where analysis shows the file's formula itself is wrong, the change goes to the 
 verdict before either side is edited. Nothing reaches an engine that is not written in the master
 spreadsheet with his approval.
 
+## "Documented" means the founder approved it (founder, 2026-08-22)
+
+A row is not documented because I wrote it. **A row is documented when the founder has read it and
+approved it.** His approval lives in the file as his own column, and the coverage count counts
+APPROVED rows — never rows I have written.
+
+Consequence, stated plainly: today's "161 of 161 documented" is **my** count of rows written, not
+his count of rows approved. Against this objective the honest approved figure is zero until he
+starts giving verdicts. The counter and its ratchet have to be re-based on approval, and the old
+number must stop being reported as if it meant this.
+
+## "Every calculation" includes the small ones (founder, 2026-08-22)
+
+Not only the metrics a person reads. Subtotals, a percentage of a total, a difference between two
+dates, a rounding step, a unit conversion — **anything that can put a wrong number in front of a
+person counts**, because a subtotal is exactly where the founder's interest got counted twice.
+
+Consequence, stated plainly: the inventory today counts **engines** (161). Small calculations that
+live inline inside screens are not all in it, so the true denominator is larger than 161 and is not
+yet known. Finding them is a sweep of its own, and the count will GROW before it is complete — the
+ratchet that only allows the documented count to rise must not be read as completeness while the
+denominator is still moving.
+
 ## Open work created by this document
 
 - The verification-level column on the Engines tab, and the build guard that reads it.
 - Rung 3 coverage across the grid (roughly 990 cells today) — to be priced and sequenced.
 - Rungs 4 and 5 on the engines the founder marks.
 - The build-time file-versus-code check, run on every build.
+- A founder-approval column, and re-basing the coverage count and its ratchet on APPROVED rows.
+- The sweep for small inline calculations, to find the true denominator.
 - The reconciliation record: every compared pair, its difference, the named cause, and the proof
   that aligning that one input closes it.
 
