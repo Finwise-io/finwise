@@ -106,7 +106,8 @@ input of record, like his answered metrics file, and it is kept forever.
 3. Only one live file per subject. Two undated files covering the same thing is a defect.
 4. `README.md` is the one exempt filename: every folder carries one, saying what lives there and
    what never does.
-5. All standards documents sit in a `standards` folder. Nowhere else.
+5. **Every specification lives in a `standards` folder.** If the type field says `spec`, the file
+   sits in `standards` — never in `other`, never beside the thing it specifies. Founder, 2026-08-22.
 
 ## Guards to be built (not yet true)
 
