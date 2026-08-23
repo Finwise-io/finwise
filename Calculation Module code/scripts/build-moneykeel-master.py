@@ -429,9 +429,11 @@ DB = [
  ('inside appStateEnc','benchmarkReturns','The index returns the comparison uses.','benchmark return','when they are fetched','one entry per index and period','inside the encrypted blob'),
  ('inside appStateEnc','snaptradeConnections','Which brokerages are connected.','—','when a connection changes','one entry per connection','inside the encrypted blob'),
  ('inside appStateEnc','estatePlan · badges · xp · streak · lastCheckIn','Estate notes and the encouragement counters.','—','with every save','one per person','inside the encrypted blob'),
+ ('NOT SAVED — DEVICE ONLY','snapshotDays','THE DAILY RECORD: for each day, every account and every holding — units, price and value kept apart. This is what a beginning value is READ from instead of being back-solved.','beginning value · change in account value · the performance walk','once a day, on the first open','one entry per day, per account, per holding','not sent at all'),
+ ('NOT SAVED — DEVICE ONLY','invDaily','Cash + investments captured daily — the baseline the Net worth return line is measured from.','Return on cash + investments','once a day, on the first open','one entry per day','not sent at all'),
+ ('NOT SAVED — DEVICE ONLY','transactions','The append-only ledger read from institution downloads: every buy, sell, contribution, withdrawal, dividend and interest line. Read by 32 places in the app.','contributions · withdrawals · income · realised gain · the change walk','when a file is imported or a connection syncs','one entry per transaction','not sent at all'),
  ('NOT SAVED','prices','Prices are fetched fresh and held only on the device.','holding price · price fetched at','never written to the cloud','—','—'),
  ('NOT SAVED','economic figures (inflation, the 10-year yield)','Fetched from a feed each time; deliberately left out of the sync.','inflation rate','never written to the cloud','—','—'),
- ('NOT SAVED','transactions from a download','The activity read from an institution file stays on the device.','transaction amount · date · words','never written to the cloud','—','—'),
 ]
 
 ws = sheet('database', DB_COLS)
