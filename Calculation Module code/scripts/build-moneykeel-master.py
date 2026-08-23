@@ -19,7 +19,34 @@ TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','p
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
+        'Formula (mathematical)','Formula (in words)',
         'Your name for it (72-metric file)','Core screen?','Row status']
+
+# formulas: the mathematical form is written here; the words come from the old master where the
+# engine has a row there, and are written here where it does not.
+import importlib.util as _il
+_sp=_il.spec_from_file_location('mkf', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_formulas.py'))
+_f=_il.module_from_spec(_sp); _sp.loader.exec_module(_f)
+
+_oldwords = {}
+def _load_old_words():
+    w=openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
+    sh=w['2. Engines']; hd=[str(c.value) if c.value else '' for c in sh[2]]; jx={h:n for n,h in enumerate(hd)}
+    for r in sh.iter_rows(min_row=3, values_only=True):
+        n=r[jx['Engine name']]
+        if n: _oldwords[str(n).strip()] = str(r[jx['Formula — the actual rules']] or '').strip()
+
+def formulas(engine):
+    e=str(engine)
+    if e in _f.MATH:
+        parts=[x.strip() for x in e.split('·')]
+        words=' · '.join(filter(None,(_oldwords.get(x,'') for x in parts))) or ''
+        return _f.MATH[e], words or getattr(_f,'WORDS',{}).get(e,'')
+    if e in _f.SCREEN:
+        return _f.SCREEN[e], 'Worked out on the screen itself, with no engine behind it — a place a second definition can appear.'
+    if e in _f.NOTDOC: return _f.NOTDOC[e]
+    if e in _f.OTHER:  return _f.OTHER[e]
+    return '', ''
 INPUT_COLS = ['Input ID','Variable name','Source','Which metric uses it','Which engine uses it','Row status']
 
 # ---------------------------------------------------------------- verified rows
@@ -271,6 +298,7 @@ def screens_for(tab):
         if PARENTS[tab] in parent_list: out.append(route)
     return sorted(out)
 
+_load_old_words()
 wb = openpyxl.Workbook(); wb.remove(wb.active)
 H = Font(bold=True, color='FFFFFF'); HFILL = PatternFill('solid', fgColor='1F3864')
 
@@ -300,15 +328,17 @@ def eid_for(engine, family):
 
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), '', 'Yes', 'VERIFIED 2026-08-22'])
+    m,w = formulas(engine)
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
+        m,w = formulas(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -317,20 +347,21 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     done = set()
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
+        m,w = formulas(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -395,6 +426,8 @@ ref = [
  ('COLUMN — Name on Screen', 'The label copied exactly as it is worded on screen, including capitals. Where a figure wears different labels on different screens, all are listed.'),
  ('COLUMN — Name of Underlying Metric', "The metric's name in the code."),
  ('COLUMN — Name of Underlying Engine', 'The engine that produces the figure. NOT IN OLD MASTER means the engine exists in the code but has no row in the old master file.'),
+ ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
+ ('COLUMN — Formula (in words)', 'The same rule in plain English, followable by hand. Where the engine has a row in the old master this is its wording, carried over; where it does not, it is written here from reading the code.'),
  ('COLUMN — Engine ID', 'The identifier of that engine. Blank where the figure is worked out on the screen itself rather than by an engine — which is itself a finding.'),
  ('COLUMN — Your name for it (72-metric file)', "The founder's own name for the same figure, from METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx. This column is the bridge between his vocabulary and the code's."),
  ('COLUMN — Core screen?', 'Whether the screen is part of the 55-70 core, the agreed first scope.'),
