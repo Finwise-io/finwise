@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -399,6 +399,49 @@ ws.column_dimensions['A'].width=42; ws.column_dimensions['B'].width=118
 for r in range(2, ws.max_row+1):
     ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
+
+# ---- what is saved in the cloud, read from the code on 2026-08-22
+DB_COLS = ['Where it is stored','Field name in the database','What it holds',
+           'Metric or input it serves','How often it is written','Grain — one row per what','Encrypted?']
+DB = [
+ ('users/{uid}','appStateEnc','THE WHOLE app state, encrypted on the device before it leaves it. Everything below lives inside this one field.','every metric in this file, through the inputs tab','2 seconds after any change in the app, the whole payload rewritten','ONE document per person — or per household when two people share','Yes — the server cannot read it'),
+ ('users/{uid}','keyEnvelope','The encryption key, wrapped by the password and by the recovery code.','—','when the password or recovery code is set or changed','one per person','the key itself is wrapped, never stored bare'),
+ ('users/{uid}','appState','The old plaintext copy from before encryption. Deleted on the first save by an updated app.','—','never written now; removed on first save','one per person','No — which is why it is being removed'),
+ ('users/{uid}','householdId','Whose document this person reads and writes — their own, or the partner who invited them.','—','when an invite is redeemed','one per person','No'),
+ ('households/{owner}/members/{member}','code, householdId','The record that a partner joined a household, bound to a real invite.','—','once, when the invite is redeemed','one per member','No'),
+ ('invites/{code}','householdId','An invite code and the household it points at.','—','when an invite is created','one per invite','No'),
+ ('feedback/{doc}','the message','Feedback sent from inside the app.','—','when feedback is sent','one per message','No'),
+ ('snaptrade_users/{uid}','the connection record','The link to the brokerage connection service.','—','when an account is connected','one per person','No'),
+ ('inside appStateEnc','assetAccounts','Every account: its name, institution, balance, class and where the figure came from.','account balance · account type · institution','with every save','one entry per account','inside the encrypted blob'),
+ ('inside appStateEnc','liabilities','Every debt: balance, rate, minimum payment, due day.','debt balance · debt interest rate · debt minimum payment','with every save','one entry per debt','inside the encrypted blob'),
+ ('inside appStateEnc','investments','Holdings: ticker, quantity, price paid, lots.','holding quantity · purchase price and date','with every save','one entry per holding','inside the encrypted blob'),
+ ('inside appStateEnc','expenses','Logged spending: date, amount, category, store.','logged spending','with every save','one entry per expense','inside the encrypted blob'),
+ ('inside appStateEnc','incomes · recurringIncomes','Money received and the sources that repeat.','salary and other income','with every save','one entry per payment or source','inside the encrypted blob'),
+ ('inside appStateEnc','recurringExpenses','Bills that repeat, and the day they fall.','logged spending · the bill calendar','with every save','one entry per bill','inside the encrypted blob'),
+ ('inside appStateEnc','monthlySnapshots','Net worth as it stood at each month end.','the trend line · beginning values','once a month, on the first open of a new month','one entry per month','inside the encrypted blob'),
+ ('inside appStateEnc','nwDaily','Net worth captured when the app is opened.','the trend line · change in net worth','once a day, on the first open','one entry per day','inside the encrypted blob'),
+ ('inside appStateEnc','onboardingProfile','What the person told us at setup: birth year, retirement age, spending, Social Security, pension, filing status.','birth year · retirement age · monthly spending · Social Security · pension · filing status','with every save','one per person','inside the encrypted blob'),
+ ('inside appStateEnc','retirementAssumptions','The plan\'s settings: return, claim age, contributions, draw.','assumed return · Social Security claim age','with every save','one per person','inside the encrypted blob'),
+ ('inside appStateEnc','retirementScenarios','Saved what-ifs.','the saved scenarios count','when a scenario is saved','one entry per scenario','inside the encrypted blob'),
+ ('inside appStateEnc','bigCosts','One-off costs ahead, with the year each falls.','big costs','with every save','one entry per cost','inside the encrypted blob'),
+ ('inside appStateEnc','goals · selectedGoals','Goals: target, saved so far, date.','goals','with every save','one entry per goal','inside the encrypted blob'),
+ ('inside appStateEnc','budgetCategories · monthlyBudgetTarget · allocatedByMonth','The plan for spending, by category and by month.','typical monthly essentials · planned spending','with every save','one entry per category or month','inside the encrypted blob'),
+ ('inside appStateEnc','benchmarkReturns','The index returns the comparison uses.','benchmark return','when they are fetched','one entry per index and period','inside the encrypted blob'),
+ ('inside appStateEnc','snaptradeConnections','Which brokerages are connected.','—','when a connection changes','one entry per connection','inside the encrypted blob'),
+ ('inside appStateEnc','estatePlan · badges · xp · streak · lastCheckIn','Estate notes and the encouragement counters.','—','with every save','one per person','inside the encrypted blob'),
+ ('NOT SAVED','prices','Prices are fetched fresh and held only on the device.','holding price · price fetched at','never written to the cloud','—','—'),
+ ('NOT SAVED','economic figures (inflation, the 10-year yield)','Fetched from a feed each time; deliberately left out of the sync.','inflation rate','never written to the cloud','—','—'),
+ ('NOT SAVED','transactions from a download','The activity read from an institution file stays on the device.','transaction amount · date · words','never written to the cloud','—','—'),
+]
+
+ws = sheet('database', DB_COLS)
+for row in DB: ws.append(list(row))
+for i,c in enumerate(DB_COLS, start=1):
+    ws.column_dimensions[get_column_letter(i)].width = [30,34,60,44,44,44,26][i-1]
+for r in range(2, ws.max_row+1):
+    for c in range(1, len(DB_COLS)+1):
+        ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -418,6 +461,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
+ ('TAB — database', 'What the app saves in the cloud: where each thing is stored, what it holds, which figures depend on it, how often it is written and at what grain. Also names what is deliberately NOT saved.'),
  ('TAB — inputs', 'The raw values the engines need before any calculation happens.'),
  ('', ''),
  ('COLUMN — Metric ID', 'The identifier of the figure, per moneykeel_naming_spec_unique-identifier_v01.md. Given once, never changed, never reused.'),
@@ -452,7 +496,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name=='Reference': continue
+    if name in ('Reference','database'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
