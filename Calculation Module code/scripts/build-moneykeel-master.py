@@ -20,6 +20,7 @@ TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','p
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
         'Formula (mathematical)','Formula (in words)',
+        'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
         'Your name for it (72-metric file)','Core screen?','Row status']
 
@@ -37,13 +38,25 @@ def _load_old_words():
         n=r[jx['Engine name']]
         if n: _oldwords[str(n).strip()] = str(r[jx['Formula — the actual rules']] or '').strip()
 
+SECOND = {
+ 'ALLOCATION_BY_CLASS':'DECIDES the class of every asset before it can group them, and DECIDES the words shown for each class. The classifying rule itself is engine MK-ST-E-xxx — see the asset-classification standard.',
+ 'ACCOUNT_SPLIT':'DECIDES which class each holding inside one account belongs to, then how much of the account total sits in each.',
+ 'ASSET_CLASS_OF_ACCOUNT':'DECIDES an account-level class from the holdings inside it, and what to call a mixed account on screen.',
+ 'HOLDING_MARKET_VALUE':'DECIDES whether a line is a share, a bond, an option, a crypto amount or a currency, because the units differ; and DECIDES the price to use when the feed has none.',
+ 'BOND_FACTS':'DECIDES how a bond is NAMED on screen — issuer, or the identifying number, or a plain description; and DECIDES whether a line is a bond at all.',
+ 'LEDGER':'DECIDES what each institution word means before any amount is booked, and DECIDES the sign when a stated direction and the amount disagree.',
+ 'HAND_VALUE_AGE':'DECIDES whether a stated value is fresh enough to show without a warning.',
+ 'PRICE_FRESHNESS':'DECIDES the moment a price stops being current.',
+ 'TOTAL_CASH':'DECIDES what counts as cash — and deliberately excludes money-market funds.',
+}
 def notes(engine):
     e=str(engine)
     parts=[x.strip() for x in e.split('·')]
     F=getattr(_f,'FINDINGS',{}); D=getattr(_f,'DECISIONS',{})
     find=' | '.join(filter(None,(F.get(x,'') for x in parts)))
     dec =' | '.join(filter(None,(D.get(x,'') for x in parts)))
-    return find, dec
+    sec =' | '.join(filter(None,(SECOND.get(x,'') for x in parts)))
+    return find, dec, sec
 
 def formulas(engine):
     e=str(engine)
@@ -56,7 +69,7 @@ def formulas(engine):
     if e in _f.NOTDOC: return _f.NOTDOC[e]
     if e in _f.OTHER:  return _f.OTHER[e]
     return '', ''
-INPUT_COLS = ['Input ID','Variable name','Source','Which metric uses it','Which engine uses it','Row status']
+INPUT_COLS = ['Input ID','Variable name','Source','Which metric uses it','Which engine uses it','Engine ID','Row status']
 
 # ---------------------------------------------------------------- verified rows
 # Read screen by screen from the source on 2026-08-22. Nothing here is inferred:
@@ -383,17 +396,17 @@ def eid_for(engine, family):
 
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
-    m,w = formulas(engine); fi,de = notes(engine)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+    m,w = formulas(engine); fi,de,se = notes(engine)
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
-        m,w = formulas(engine); fi,de = notes(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -402,26 +415,27 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     done = set()
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
-        m,w = formulas(engine); fi,de = notes(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
 for var, source, metrics, engines in INPUTS:
-    ws.append([nid('XS','I'), var, source, metrics, engines, 'VERIFIED 2026-08-22'])
+    ids = ' · '.join(engine_id[e] for e in engine_id if any(p.strip()==e for p in engines.split('·')))
+    ws.append([nid('XS','I'), var, source, metrics, engines, ids, 'VERIFIED 2026-08-22'])
 
 
 # ---- Specification: what a row must carry before its calculation can be written
@@ -531,6 +545,7 @@ ref = [
  ('COLUMN — Name on Screen', 'The label copied exactly as it is worded on screen, including capitals. Where a figure wears different labels on different screens, all are listed.'),
  ('COLUMN — Name of Underlying Metric', "The metric's name in the code."),
  ('COLUMN — Name of Underlying Engine', 'The engine that produces the figure. NOT IN OLD MASTER means the engine exists in the code but has no row in the old master file.'),
+ ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
  ('COLUMN — Decisions made', 'The rulings that govern this figure, and why. The standing display and rounding rule applies to every row and is stated once at the top of this tab.'),
  ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
