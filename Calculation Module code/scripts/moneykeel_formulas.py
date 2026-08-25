@@ -357,3 +357,47 @@ def derive(engine, label, math_text):
     else:
         period='As of today, from the latest figures held'
     return unit, grain, period
+
+# ── S16: the duplication pass ────────────────────────────────────────────────────────────────
+# Judged one group at a time. Same engine is NOT the same figure: one engine legitimately
+# produces several. Only genuinely identical figures are listed here.
+# Each entry: surviving identifier -> (the identifiers folded into it, why)
+DUPLICATES = {
+ 'MK-PL-M-033':(['MK-NW-M-015'],'The projected pot at retirement, shown on Net worth as "on track for $X by age Y" and on the cockpit as "your $X grows to $Y". One figure, two screens — the founder spotted this one himself.'),
+ 'MK-CF-M-011':(['MK-PL-M-018','MK-PL-M-032','MK-CF-M-024'],'Guaranteed income being received now. Shown four ways: "You receive $X/mo" on Social Security timing, "incl. Social Security $X/mo" on the cockpit, as a source on Cash flow, and as a list on Monthly income. One figure, four identifiers.'),
+ 'MK-XS-M-001':(['MK-NW-M-016'],'Net worth. "Net worth so far" during setup is the same figure as the headline, mid-way through entry.'),
+ 'MK-XS-M-006':(['MK-CF-M-018'],'Money in this month. "In (take-home)" on Cash flow is the same figure as "Income" on Home.'),
+ 'MK-NW-M-018':(['MK-PL-M-016'],'An account\'s value. The balance listed under required withdrawals is the same figure as Market value on account detail.'),
+ 'MK-NW-M-024':(['MK-NW-M-043'],'The coupon a bond pays in a year. "Interest payments" on account detail and "COUPON / YR" on the bonds screen.'),
+ 'MK-NW-M-030':(['MK-NW-M-040'],'A holding\'s current value, on holding detail and again while itemising an account.'),
+ 'MK-PL-M-011':(['MK-PL-M-029'],'What is being saved each month towards retirement — "Monthly saving until then" and "Retirement saving $X/mo now".'),
+ 'MK-PF-M-001':(['MK-PF-M-003'],'The ending value, shown as its own line and again inside the heading "HOW $X BECAME $Y". Same screen, same figure, twice.'),
+ 'MK-MN-M-015':(['MK-HM-M-003'],'The insights list. Home shows the top three of the same list the Insights screen shows in full.'),
+ 'MK-CF-M-015':(['MK-MN-M-007'],'Spending against plan for a category — the same comparison on Cash flow and on the expense screen. CONFIRM: the expense screen adds the amount being typed, which may make it a different figure.'),
+}
+# Same engine, several genuinely different figures — recorded so the question is not asked twice.
+NOT_DUPLICATES = {
+ 'HOLDING_CAP_GAINS':'Long-term and short-term gain are two answers from one engine, not one figure twice.',
+ 'BOND_FACTS':'Face value, the bonds total and the count are three different figures.',
+ 'TOTAL_INCOME':'Base salary, self-employment and bonus are separate sources; gross a year, net a year and net a month are separate figures.',
+ 'WILL_IT_LAST_RESULT':'The odds and the age the money runs out are two different answers from one run.',
+ 'PERFORMANCE_TABLE':'Per account, per category and the total are three cuts, not one figure.',
+ 'INSURANCE_NEED':'The gap, the income to replace and the total need are the parts and the whole.',
+ 'REQUIRED_WITHDRAWAL':'This year\'s required amount and the year-by-year schedule are different figures.',
+ 'TREND_SERIES':'The change over the year and the line itself are different things.',
+ 'BIG_COSTS':'Each cost and the total of them.',
+ 'STRESS_TEST':'What could be covered and what would be left are two answers.',
+ 'TAXABLE_INCOME':'Each line and the total.',
+ 'EDUCATION_COST':'The future cost and the monthly amount that closes the gap.',
+ 'CONTRIBUTION_ROOM':'Room left, room used, and contributions already made are three figures.',
+ 'BOND_CURRENT_YIELD':'One bond\'s yield and the average across bonds are different figures.',
+ 'HOLDING_COST_BASIS':'The average price paid and the total paid are different figures.',
+ 'LOOK_BACK':'Stayed, moved and the difference are three answers to one question.',
+ 'ACCOUNT_SPLIT':'An account\'s balance and the classes inside it are different cuts.',
+ 'WHAT_THE_PLAN_STILL_NEEDS':'What is counted and what is missing are two halves.',
+}
+# Mis-assignments the pass turned up.
+MISASSIGNED = {
+ 'MK-PL-M-030':'This row names DEBT_PICTURE, but "Extra on debt $X/mo" is an amount the person chose on a dial, not a figure that engine produces.',
+ 'MK-NW-M-006':'This row names ACCOUNT_SHARE_OF_TOTAL, but personal property is its own total, not a share of one.',
+}

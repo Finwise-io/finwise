@@ -25,6 +25,7 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Period — as of when, over what window','Engines it depends on',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
+        'Same figure as (S16)',
         'Questions for you (numbered)','YOUR ANSWER — use the same number',
         'Your name for it (72-metric file)','Core screen?','Row status']
 
@@ -95,6 +96,17 @@ def spec_cols(engine, label, math_text):
     if not dep: dep = 'None found in the code — it reads raw values only' if e in _deps['inputs'] else 'NOT DETERMINED'
     if not ins: ins = 'NOT DETERMINED — no input list on record for this engine'
     return ins, unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', dep
+
+_DUP_OF = {}
+for _keep,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
+    for _f_id in _folded: _DUP_OF[_f_id] = (_keep,_why)
+
+def dup_note(mid):
+    if mid in _DUP_OF:
+        keep,why=_DUP_OF[mid]; return 'THE SAME FIGURE AS ' + keep + ' — ' + why
+    kept = getattr(_f,'DUPLICATES',{}).get(mid)
+    if kept: return 'THE SURVIVING IDENTIFIER for this figure. Folded in: ' + ', '.join(kept[0]) + '. ' + kept[1]
+    return ''
 
 _asked=set()
 def questions_for(engine):
@@ -453,7 +465,8 @@ def eid_for(engine, family):
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    _mid = nid('XS','M')
+    ws.append([_mid, screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -461,8 +474,9 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+        _mid = nid(FAM[tab],'M')
+        ws.append([_mid, PARENTS[tab], 'NA', label, metric, engine,
+                   eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -472,20 +486,21 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+        _mid = nid(FAM[tab],'M')
+        ws.append([_mid, PARENTS[tab], route, label, metric, engine,
+                   eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*15 + ['NOT DETERMINED',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*15 + ['NOT DETERMINED',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r] + ['']*17 + ['NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r] + ['']*18 + ['NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -497,27 +512,27 @@ for var, source, metrics, engines in INPUTS:
 # ---- Specification: what a row must carry before its calculation can be written
 SPEC = [
  ('', 'SECTION — WHAT THE NUMBER IS', '', ''),
- ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','DONE — 163 of 163 rows carry both forms.'),
- ('S02','The inputs, one by one','Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.','DONE where it is on record — every row carries its own inputs; 72 read NOT DETERMINED because the old master never held an input list for that engine.'),
- ('S03','The decisions and assumptions applied','Rounding, timing conventions, inflation, which balance is used, which date wins — each labelled with whose decision it was: the founder\'s, the person\'s, or built in. The fourth link of objective 4.','DONE — every row now carries its decisions and assumptions marked [Founder], [The person] or [Built in]; 126 read NOT DETERMINED, meaning no assumption is on record yet.'),
- ('S04','What comes out','Dollars, a percentage, a date, a count or a range; its unit and its rounding.','DONE — 163 of 163, derived by rule from the label and formula and marked as derived. Needs confirming, not trusting.'),
- ('S05','What it says when it cannot be computed','The exact refusal. This is where wrong numbers get invented, so it is part of the specification, not an afterthought.','PART DONE — 126 of 163 written; 37 read NOT DETERMINED because that engine has not been read for its refusal yet.'),
- ('S06','The grain','Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.','DONE — 163 of 163, derived by rule and marked as derived.'),
- ('S07','The period','As of when, and over what window — this month, twelve months, since the person owned it.','DONE — 163 of 163, derived by rule and marked as derived.'),
+ ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','COMPLETE — 163 of 163 carry both forms.'),
+ ('S02','The inputs, one by one','Every input named, with its unit and where it comes from.','PARTIAL — every row carries a cell; 91 name their inputs, 72 read NOT DETERMINED because the old master never held an input list for that engine.'),
+ ('S03','The decisions and assumptions applied','Each marked with whose decision it was: the founder\'s, the person\'s, or built in.','PARTIAL — every row carries a cell; 37 name a real decision, 126 read NOT DETERMINED.'),
+ ('S04','What comes out','Dollars, a percentage, a date, a count; its unit and its rounding.','COMPLETE — 163 of 163, derived by rule from the label and formula and marked as derived. Confirm rather than trust.'),
+ ('S05','What it says when it cannot be computed','The exact refusal — where wrong numbers get invented.','PARTIAL — 126 of 163 written; 37 read NOT DETERMINED because that engine has not been read for its refusal yet.'),
+ ('S06','The grain','One figure per holding, account, debt, goal, category, month or person.','COMPLETE — 163 of 163, derived by rule and marked as derived.'),
+ ('S07','The period','As of when, and over what window.','COMPLETE — 163 of 163, derived by rule and marked as derived.'),
  ('', 'SECTION — WHAT PROVES IT', '', ''),
- ('S08','Worked examples','These inputs give this answer. Rung 2 re-runs them through the real engine on every build.','MISSING.'),
- ('S09','An example for every case','One per case the grid names: input missing, input degraded, a different shape per institution, time-bounded, related events, account type. Rung 3, the floor for every calculation.','MISSING.'),
- ('S10','Verification level','Whether this engine is marked for rung 4 (the written formula made executable and checked against the code on generated inputs) and rung 5 (laws that must hold for every input). Marked by the founder, recommended by me.','MISSING — the column does not exist yet.'),
+ ('S08','Worked examples','These inputs give this answer. Rung 2 re-runs them through the real engine on every build.','NOT STARTED — waits on the founder\'s answers to the numbered questions, since an example needs the rule settled first.'),
+ ('S09','An example for every case','One per case the grid names: missing, degraded, per institution, time-bounded, related events, account type. Rung 3.','NOT STARTED — the biggest single piece of work, and it belongs in the per-family detail files rather than here.'),
+ ('S10','Verification level','Which engines are marked for rung 4 and rung 5. Marked by the founder, recommended by me.','NOT STARTED — the column does not exist yet.'),
  ('', 'SECTION — WHAT CONNECTS IT', '', ''),
- ('S11','Which engines feed this engine','The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.','DONE — read from the code itself, not from any document. 90 rows name their dependencies; the rest read raw values only or have no source line on record.'),
- ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','MISSING.'),
+ ('S11','Which engines feed this engine','The engines it depends on — without it, build order and the one-door design cannot be worked out.','COMPLETE — read from the code itself, not from any document. 90 rows name their dependencies; the rest read raw values only.'),
+ ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','NOT STARTED.'),
  ('', 'SECTION — GOVERNANCE', '', ''),
- ('S13','The founder\'s verdict','His approval of the row. A row counts as documented only when he has approved it, so without this column the coverage count is meaningless.','MISSING — the column does not exist yet.'),
- ('S14','Lifecycle','Live, cut, or superseded by another identifier. Identifiers are never reused, so a retired one must say what replaced it.','MISSING.'),
+ ('S13','The founder\'s verdict','A row counts as documented only when he has approved it.','NOT STARTED — the column does not exist yet, so the coverage count means nothing until it does.'),
+ ('S14','Lifecycle','Live, cut, or superseded by another identifier.','NOT STARTED.'),
  ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
- ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s. Today only four of his seventy-two names appear anywhere in the old master.','MISSING — 0 of 163 rows.'),
- ('S16','The duplication pass','Figures that are the same thing under two identifiers — the Net worth figure that also sits on Plan. Objective 1 made real, and it must happen before the deeper columns are filled or the work gets done twice.','NOT STARTED — the founder flagged it; rows now exist, so it is due.'),
- ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down, so no row can honestly say whether it is in or out.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 yes, 5 no, 5 borderline) and a column for his decision.'),
+ ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s.','NOT STARTED — 0 of 163 rows.'),
+ ('S16','The duplication pass','Figures that are the same thing under two identifiers.','COMPLETE — every group judged one at a time. 11 figures were being shown under 24 identifiers; the 13 folded rows now name the identifier that survives and why. 18 groups were checked and are NOT duplicates — one engine legitimately producing several figures — and say so, so the question is not asked twice. Two mis-assigned engines were found and recorded as findings.'),
+ ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
 
 ws = sheet('Specification', ['No.','What is needed','Why it is needed','Where it stands in this file today'])
@@ -649,6 +664,7 @@ ref = [
  ('COLUMN — Period (S07)', 'As of when, and over what window.'),
  ('COLUMN — Engines it depends on (S11)', 'The engines this one calls, read from the code itself. "None found" means it reads raw values only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
+ ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
  ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
