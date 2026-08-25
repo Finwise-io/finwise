@@ -398,8 +398,8 @@ NOT_DUPLICATES = {
 }
 # Mis-assignments the pass turned up.
 MISASSIGNED = {
- 'MK-PL-M-030':'This row names DEBT_PICTURE, but "Extra on debt $X/mo" is an amount the person chose on a dial, not a figure that engine produces.',
- 'MK-NW-M-006':'This row names ACCOUNT_SHARE_OF_TOTAL, but personal property is its own total, not a share of one.',
+ 'MK-PL-M-030':'CORRECTED 2026-08-25 — this row used to name DEBT_PICTURE. "Extra on debt $X/mo" is an amount the person chose on a dial, not a figure that engine produces.',
+ 'MK-NW-M-006':'CORRECTED 2026-08-25 — this row used to name ACCOUNT_SHARE_OF_TOTAL. Personal property is its own total, worked out on the screen, not a share of a total.',
 }
 
 # ── Input matching: the words an engine uses for an input -> the input's identifier ──────────
@@ -440,11 +440,27 @@ INPUT_WORDS = {
 }
 
 def match_inputs(text):
-    """Return (annotated text, set of input ids found, list of phrases that matched nothing)."""
+    """Return (annotated text, set of input ids found, list of phrases still matching nothing).
+    The sorted list is consulted FIRST — a phrase judged one at a time beats a keyword guess."""
     if not text: return '', set(), []
     parts = [p.strip() for p in str(text).replace('\n',' · ').split('·') if p.strip()]
     out=[]; ids=set(); unmatched=[]
     for p in parts:
+        head = p.split('→')[0].strip().lower().rstrip('s') if '→' in p else p.strip().lower()
+        key = None
+        for k in SORTED_INPUTS:
+            kk = k.lower()
+            if head == kk or head == kk.rstrip('s') or p.split('→')[0].strip().lower() == kk:
+                key = k; break
+        if key:
+            target = SORTED_INPUTS[key]
+            if target == 'ENGINE':
+                out.append(p + '  [NOT AN INPUT — another engine’s answer; see the dependency column]')
+            elif target == 'SETTING':
+                out.append(p + '  [NOT AN INPUT — a setting or a filter, not data anyone supplies]')
+            else:
+                ids.add(target); out.append(p + '  [' + target + ']')
+            continue
         low = p.lower()
         hit = [i for i,words in INPUT_WORDS.items() if any(w in low for w in words)]
         if hit:
@@ -452,3 +468,58 @@ def match_inputs(text):
         else:
             out.append(p + '  [NO INPUT ID — not on the inputs tab]'); unmatched.append(p)
     return ' · '.join(out), ids, unmatched
+
+# ── The 62 unmatched inputs, sorted one at a time (2026-08-25) ───────────────────────────────
+# Four kinds: an existing input under other words, a real input nobody listed, another engine's
+# answer (which belongs in the dependency column, not here), or a setting nobody supplies.
+SORTED_INPUTS = {
+ # ── the same input under different words → point at the identifier it already has
+ 'gross':'MK-XS-I-023','how they file':'MK-XS-I-030','the account':'MK-XS-I-001',
+ 'the holding':'MK-XS-I-004','the holdings':'MK-XS-I-004','holdings':'MK-XS-I-004',
+ 'every debt':'MK-XS-I-014','the ledger':'MK-XS-I-008','value':'MK-XS-I-001',
+ 'what it is worth':'MK-XS-I-001','each source':'MK-XS-I-020','baseline date':'MK-XS-I-031',
+ 'starting value':'MK-XS-I-031','the same inputs':'MK-XS-I-001',
+ # ── a real input nobody listed → new identifier
+ 'the categories':'MK-XS-I-032','when the value was set':'MK-XS-I-033','options':'MK-XS-I-034',
+ 'ri_annuities':'MK-XS-I-035','ri_other':'MK-XS-I-036','ri_rmd':'MK-XS-I-037',
+ 'ri_withdrawals':'MK-XS-I-038','and how often each arrives':'MK-XS-I-039',
+ 'do they receive it now':'MK-XS-I-040','chosen':'MK-XS-I-041','shape':'MK-XS-I-042',
+ 'their own contribution':'MK-XS-I-043','their own overrides':'MK-XS-I-044',
+ 'where they will live':'MK-XS-I-045','percent or dollars':'MK-XS-I-046',
+ 'money to leave behind':'MK-XS-I-047','each account’s class':'MK-XS-I-048',
+ "each account's class":'MK-XS-I-048',
+ # ── another engine's answer → belongs in the dependency column, not here
+ 'dividends':'ENGINE','interest':'ENGINE','money in':'ENGINE','money out':'ENGINE',
+ 'debt paid down':'ENGINE','ending value':'ENGINE','any split':'ENGINE',
+ 'each holding’s benchmark return':'ENGINE',"each holding's benchmark return":'ENGINE',
+ 'each holding’s return':'ENGINE',"each holding's return":'ENGINE','its value':'ENGINE',
+ 'each part':'ENGINE','everything':'ENGINE','guaranteed income':'ENGINE',
+ 'money that counts toward retirement':'ENGINE','the pot':'ENGINE','return and swing':'ENGINE',
+ 'the match':'ENGINE','or the three summary figures':'ENGINE','where it might have gone':'ENGINE',
+ 'where it sat':'ENGINE','today’s value':'ENGINE',"today's value":'ENGINE',
+ 'the dates in this sync':'ENGINE','what we knew':'ENGINE',
+ # ── a setting, not data anyone supplies
+ 'how far back':'SETTING','is a range wanted':'SETTING','now':'SETTING','today':'SETTING',
+ 'optionally one account':'SETTING','optionally one ticker':'SETTING','the chosen chip':'SETTING',
+}
+
+# The inputs the sort created. Same shape as the inputs tab: name, source, metrics, engines.
+NEW_INPUTS = [
+ ('spending categories the person set up','Typed by the person when they set up their budget','planned spending · spending by kind','PLANNED_SPENDING · SPENDING_BY_KIND'),
+ ('the date a hand-typed value was set','Typed by the person, stamped when they save it','account value and its freshness','HAND_VALUE_AGE'),
+ ('option positions — contracts, strike, expiry, put or call','An institution download, a connection, or typed','a holding’s value and gain when it is an option','HOLDING_MARKET_VALUE · HOLDING_CAP_GAINS'),
+ ('annuity income','Typed by the person','guaranteed income · the retirement paycheck','RETIREMENT_INCOME · RETIREMENT_INCOME_NOW'),
+ ('other guaranteed income','Typed by the person','guaranteed income · the retirement paycheck','RETIREMENT_INCOME'),
+ ('required-withdrawal income stream (ri_rmd)','Worked out from balances, not typed','the retirement paycheck. RULE B5: it must NOT count as guaranteed income — money coming OUT of the pot cannot fund the pot','RETIREMENT_INCOME'),
+ ('withdrawal income stream (ri_withdrawals)','Worked out from the plan, not typed','the retirement paycheck. RULE B5: excluded from guaranteed income for the same reason','RETIREMENT_INCOME'),
+ ('how often each income arrives','Typed by the person','which months an income lands in','RETIREMENT_INCOME · TOTAL_INCOME'),
+ ('whether a stream is already being received','Typed by the person','guaranteed income now, as against guaranteed income later','RETIREMENT_INCOME_NOW'),
+ ('the payment the person chose to make on a debt','Typed by the person, and it can exceed the minimum','payoff date · money out','DEBT_PAYOFF · DEBT_REQUIRED_PAYMENT'),
+ ('how a stream is paid — monthly, yearly or one lump','Typed by the person','how an income is spread across the year','RETIREMENT_INCOME'),
+ ('their own retirement contribution','Typed by the person','take-home pay · the pot at retirement','TOTAL_INCOME · POT_AT_RETIREMENT'),
+ ('the person’s own plan overrides','Set by the person on the Plan screen','every plan figure they have overridden','WILL_IT_LAST_INPUTS'),
+ ('where they will live in retirement','Typed by the person','cost of living where they retire','RETIREMENT_SPENDING'),
+ ('how the employer match is expressed — percent or dollars','Typed by the person','the employer match','EMPLOYER_MATCH'),
+ ('money to leave behind','Typed by the person','the odds — the pot may not be run to zero','WILL_IT_LAST_INPUTS · WILL_IT_LAST_RESULT'),
+ ('the person’s own asset-class answer','Typed by the person, and it outranks the institution','what class a holding is counted as','ALLOCATION_BY_CLASS · ASSET_CLASS_OF_ACCOUNT'),
+]

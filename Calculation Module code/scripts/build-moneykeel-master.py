@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines_from_code']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','engines_from_code']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -196,7 +196,7 @@ NETWORTH = [
  ('the trend line',                          'series',         'TREND_SERIES'),
  ('WHAT YOU OWN',                            'totalAssets',    'ACCOUNT_SHARE_OF_TOTAL'),
  ('💵 CASH',                                  'cashOnHand',     'TOTAL_CASH'),
- ('🏠 PERSONAL PROPERTY',                     'sectionTotals',  'ACCOUNT_SHARE_OF_TOTAL'),
+ ('🏠 PERSONAL PROPERTY','sectionTotals','worked out on the screen: the sum of the accounts in the personal-property section'),
  ('class rows — by class, institution or type','classRows',     'ALLOCATION_BY_CLASS'),
  ('each account and its balance',            'a.balance',      'ACCOUNT_SPLIT'),
  ('WHAT YOU OWE · 💳 DEBTS',                  'dState.total_debt_balance', 'DEBT_PICTURE'),
@@ -314,7 +314,7 @@ SECONDARY = {
   ('/what-if','the difference the change makes','result.after.egg - result.before.egg','worked out on the screen: after − before'),
   ('/multi-goal','each goal and its monthly amount','d.monthlyAmount','the amounts the person chose'),
   ('/multi-goal','Retirement saving — $X/mo now → $Y/mo','A.contribMonthly / retirementMo','WILL_IT_LAST_INPUTS'),
-  ('/multi-goal','Extra on debt $X/mo','extraDebt','DEBT_PICTURE'),
+  ('/multi-goal','Extra on debt $X/mo','extraDebt','the amount the person chose'),
   ('/multi-goal','paid off <month> · saves $X','weighed.debtPayoff','DEBT_PAYOFF'),
   ('/retirement','incl. Social Security $X/mo from age N','ssIncome','RETIREMENT_INCOME_NOW'),
   ('/retirement','your $X grows to $Y by age N at Z%/yr','nestEgg / scProjected','POT_AT_RETIREMENT'),
@@ -535,7 +535,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
-for var, source, metrics, engines in INPUTS:
+for var, source, metrics, engines in INPUTS + _f.NEW_INPUTS:
     ids = ' · '.join(engine_id[e] for e in engine_id if any(p.strip()==e for p in engines.split('·')))
     ws.append([nid('XS','I'), var, source, metrics, engines, ids, 'VERIFIED 2026-08-22'])
 
@@ -556,13 +556,13 @@ SPEC = [
  ('S10','Verification level','Which engines are marked for rung 4 and rung 5. Marked by the founder, recommended by me.','NOT STARTED — the column does not exist yet.'),
  ('', 'SECTION — WHAT CONNECTS IT', '', ''),
  ('S11','Which engines feed this engine','Each dependency named by ITS engine identifier and by the output it gives, so a chain can be followed without knowing any engine by name.','COMPLETE — read from the code itself, not from any document. 64 rows name a dependency by identifier; the rest read raw inputs only.'),
- ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','NOT STARTED.'),
+ ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','PARTIAL — the engines tab carries the file and line for every engine identifier that has one on record; the rest read NOT DETERMINED, and the ones worked out on a screen say so.'),
  ('', 'SECTION — GOVERNANCE', '', ''),
  ('S13','The founder\'s verdict','A row counts as documented only when he has approved it.','NOT STARTED — the column does not exist yet, so the coverage count means nothing until it does.'),
  ('S14','Lifecycle','Live, cut, or superseded by another identifier.','NOT STARTED.'),
  ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
  ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s.','NOT STARTED — 0 of 163 rows.'),
- ('S18','The reconciliation engine','Both records kept independently and checked against each other as a build gate — an input an engine names that is on no row, an input declared that no engine names, an engine identifier that does not exist, an engine no metric reaches. Founder, 2026-08-25: never generate one list from the other; agreement by construction hides the orphan.','NOT STARTED — the reconciliation tab is today a report, run by hand. It has to become code with a test.'),
+ ('S18','The reconciliation engine','Both records kept independently and checked against each other as a build gate — an input an engine names that is on no row, an input declared that no engine names, an engine identifier that does not exist, an engine no metric reaches. Founder, 2026-08-25: never generate one list from the other; agreement by construction hides the orphan.','COMPLETE — moneykeel_reconcile.py runs at the end of every build and STOPS it on a structural break: a duplicate identifier, a reference to an engine or input that does not exist, a fold pointing nowhere, a question number used twice. Findings that are real but unresolved — orphan and dead inputs — are counted every build rather than failing it, and must reach zero before the module is called done. Today: 0 breaks, 9 open findings.'),
  ('S16','The duplication pass','Figures that are the same thing under two identifiers.','COMPLETE — every group judged one at a time. 11 figures were being shown under 24 identifiers; the 13 folded rows now name the identifier that survives and why. 18 groups were checked and are NOT duplicates — one engine legitimately producing several figures — and say so, so the question is not asked twice. Two mis-assigned engines were found and recorded as findings.'),
  ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
@@ -662,10 +662,8 @@ REC_COLS = ['Input ID','Input','Engines the inputs tab says use it',
             'Engines that actually name it in their own input list','Verdict']
 ws = sheet('reconciliation', REC_COLS)
 declared = {}
-for row in INPUTS:
-    var, source, metrics, engines = row
 _iid = 0
-for var, source, metrics, engines in INPUTS:
+for var, source, metrics, engines in INPUTS + _f.NEW_INPUTS:
     _iid += 1
     iid = 'MK-XS-I-%03d' % _iid
     dec = {e.strip() for e in str(engines).split('·') if e.strip() and e.strip() != '—'}
@@ -762,6 +760,30 @@ for r in range(2, ws.max_row+1):
     for c in range(1,8): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 print('engines_from_code:', counts)
 
+
+# ---- one row per engine identifier: the definitive list the rest of the file points at
+ENG_COLS = ['Engine ID','Engine name','Where it is implemented (S12)','What it answers',
+            'Metric identifiers that reach it','How it is reached']
+ws = sheet('engines', ENG_COLS)
+_src = {}
+_w2 = openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
+_s2 = _w2['2. Engines']; _h2=[str(c.value) if c.value else '' for c in _s2[2]]; _j2={h:n for n,h in enumerate(_h2)}
+for _r in _s2.iter_rows(min_row=3, values_only=True):
+    _n = _r[_j2['Engine name']]
+    if _n: _src[str(_n).strip()] = str(_r[_j2['Source']] or '').strip()
+for name, eid in sorted(engine_id.items(), key=lambda kv: kv[1]):
+    mids = sorted(METRICS_BY_ENGINE.get(eid, []))
+    if name.startswith('worked out on the screen') or name.startswith('the amount') or name.startswith('the age'):
+        where = 'On the screen itself — no engine file'
+    else:
+        where = _src.get(name, 'NOT DETERMINED — no source line on record')
+    reached = ('Named by ' + str(len(mids)) + ' figure(s)') if mids else 'Only as another engine’s dependency — no figure names it directly'
+    ws.append([eid, name, where, _answers.get(name,'') or '—', ' · '.join(mids) or '—', reached])
+for i,w in enumerate([16,46,52,58,40,44], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,7): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -785,6 +807,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
+ ('TAB — engines', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
  ('TAB — engines_from_code', 'Every exported function in the calculation code, read from the code itself and never from a document, matched back to its engine name, its identifier and the metric identifiers that reach it. This is where an engine nobody reaches, and a calculation nobody documented, become visible.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
  ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
@@ -835,7 +858,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines_from_code'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines','engines_from_code'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
@@ -852,4 +875,15 @@ if _unplaced:
 
 wb.save(OUT)
 print("wrote", OUT)
+
+# S18 — the gate. Structural breaks stop the build; open findings are counted, not hidden.
+import importlib.util as _il2
+_sp2=_il2.spec_from_file_location('mkrec', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_reconcile.py'))
+_rec=_il2.module_from_spec(_sp2); _sp2.loader.exec_module(_rec)
+_breaks, _open, _counts = _rec.check(OUT)
+print('reconciliation — %(figures)s figures, %(inputs)s inputs, %(engines)s engines' % _counts)
+print('  structural breaks: %d   open findings: %d' % (len(_breaks), len(_open)))
+for _b in _breaks[:20]: print('   BREAK  ' + _b)
+if _breaks:
+    raise SystemExit('BUILD STOPPED — the file does not reconcile with itself.')
 print("questions placed:", len(_all_q))
