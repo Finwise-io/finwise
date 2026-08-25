@@ -103,16 +103,56 @@ beginning value, change in account value, and the Return on cash + investments l
 Writes are one a day per person. Reads matter more than storage: a device should fetch the months it
 needs, never the whole history on every open.
 
-## What needs the founder's verdict
-
-1. Approve the shape — history in monthly documents beside the state document.
-2. Does desktop launch **with** history, or with the refusal above?
-3. Approve or rewrite the refusal wording.
-4. Two years of daily records, month-ends beyond — still right, now that it is stored for every
-   device rather than one?
-
 ## Complies with
 
 - `moneykeel_naming_spec_file-and-folder-naming_v01.md`
 - `moneykeel_calc_spec_objectives-and-verification_v01.md` — objective 1: one figure, one answer,
   on every device.
+
+---
+
+# YOUR DECISIONS — please answer here
+
+Save your copy as `moneykeel_data_spec_cloud-storage-shape_v01-jj.md`. Nothing is built until these
+are answered.
+
+### 1. The shape
+
+History moves out of the single state document into monthly documents beside it —
+`users/{uid}/days/{YYYY-MM}` for the daily record and `users/{uid}/ledger/{YYYY-MM}` for the
+transaction ledger, days keyed by date so one device can never overwrite another's.
+
+**Approve / Change it to:**
+
+>
+
+### 2. Does desktop launch with history, or without?
+
+With history means this work lands before desktop ships. Without means desktop shows balances and
+the net-worth trend, and every figure needing the ledger or the daily record refuses in words.
+
+**With history / Without history / Something else:**
+
+>
+
+### 3. The refusal wording, if desktop launches without history
+
+> This device doesn't have your account history yet — it's on the device where you imported it.
+> Open MoneyKeel there once while you're online, and this fills in.
+
+**Approve / Rewrite it as:**
+
+>
+
+### 4. How much daily history do we keep?
+
+Today: two years of daily records, month-ends kept beyond that. That rule was written when the
+history lived on one phone; it now costs cloud storage and is read by every device.
+
+**Keep two years / Change to:**
+
+>
+
+### 5. Anything else you want changed in this specification
+
+>
