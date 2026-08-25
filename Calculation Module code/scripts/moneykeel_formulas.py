@@ -401,3 +401,54 @@ MISASSIGNED = {
  'MK-PL-M-030':'This row names DEBT_PICTURE, but "Extra on debt $X/mo" is an amount the person chose on a dial, not a figure that engine produces.',
  'MK-NW-M-006':'This row names ACCOUNT_SHARE_OF_TOTAL, but personal property is its own total, not a share of one.',
 }
+
+# ── Input matching: the words an engine uses for an input -> the input's identifier ──────────
+# Deliberately conservative. A phrase that matches nothing is left unmatched and REPORTED,
+# because an unmatched input means the inputs tab is missing something, not that it does not matter.
+INPUT_WORDS = {
+'MK-XS-I-001':['balance','account value','total_asset_value','grossassets','cash on hand','holdings value'],
+'MK-XS-I-002':['account type','tax type','pre-tax','pretax','roth','taxable account','tax treatment'],
+'MK-XS-I-003':['institution'],
+'MK-XS-I-004':['shares','quantity','units','share count'],
+'MK-XS-I-005':['price','last close','latest close','market price','last_price'],
+'MK-XS-I-006':['fetched','freshness','as of when prices'],
+'MK-XS-I-007':['lot','cost per share','purchase price','cost basis','price paid','purchase date'],
+'MK-XS-I-008':['amount','proceeds','cash figure'],
+'MK-XS-I-009':['transaction date','trade date','date of the line'],
+'MK-XS-I-010':['description','activity type','the words','wording','activity word'],
+'MK-XS-I-011':['face'],
+'MK-XS-I-012':['coupon'],
+'MK-XS-I-013':['maturity'],
+'MK-XS-I-014':['remaining_balance','debt balance','owed','remaining balance'],
+'MK-XS-I-015':['interest rate','apr','rate on the debt'],
+'MK-XS-I-016':['minimum','required payment','minimum_monthly_payment'],
+'MK-XS-I-017':['birth','current age','age of the person'],
+'MK-XS-I-018':['retire age','retirement age','retireage'],
+'MK-XS-I-019':['spend in retirement','retirement spending','retire_monthly_spend','monthly spending'],
+'MK-XS-I-020':['social security','ss monthly','ssmonthly','statement amount'],
+'MK-XS-I-021':['claim age','claimage'],
+'MK-XS-I-022':['pension'],
+'MK-XS-I-023':['salary','bonus','rental','earned income','gross income','income source','wages'],
+'MK-XS-I-024':['expenses','logged spending','spending','spent'],
+'MK-XS-I-025':['essentials','must-pay','typical month'],
+'MK-XS-I-026':['big cost','bigcosts'],
+'MK-XS-I-027':['goal'],
+'MK-XS-I-028':['expected return','assumed return','rate of return','return assumption'],
+'MK-XS-I-029':['inflation'],
+'MK-XS-I-030':['filing status','married','single','deduction','over-65','over 65'],
+'MK-XS-I-031':['snapshot','daily point','monthly point','beginning value','history'],
+}
+
+def match_inputs(text):
+    """Return (annotated text, set of input ids found, list of phrases that matched nothing)."""
+    if not text: return '', set(), []
+    parts = [p.strip() for p in str(text).replace('\n',' · ').split('·') if p.strip()]
+    out=[]; ids=set(); unmatched=[]
+    for p in parts:
+        low = p.lower()
+        hit = [i for i,words in INPUT_WORDS.items() if any(w in low for w in words)]
+        if hit:
+            ids.update(hit); out.append(p + '  [' + ', '.join(sorted(hit)) + ']')
+        else:
+            out.append(p + '  [NO INPUT ID — not on the inputs tab]'); unmatched.append(p)
+    return ' · '.join(out), ids, unmatched

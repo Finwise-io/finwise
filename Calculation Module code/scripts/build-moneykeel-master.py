@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -54,6 +54,8 @@ SECOND = {
  'PRICE_FRESHNESS':'DECIDES the moment a price stops being current.',
  'TOTAL_CASH':'DECIDES what counts as cash — and deliberately excludes money-market funds.',
 }
+USED_BY = {}
+UNMATCHED = {}
 _deps = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_engine_deps.json')))
 
 def assumptions(engine, math_text, decided):
@@ -77,7 +79,10 @@ def assumptions(engine, math_text, decided):
 
 def spec_cols(engine, label, math_text):
     e=str(engine); parts=[x.strip() for x in e.split('·')]
-    ins=' · '.join(filter(None,(_deps['inputs'].get(x,'').replace('\n',' · ') for x in parts)))
+    ins_raw=' · '.join(filter(None,(_deps['inputs'].get(x,'').replace('\n',' · ') for x in parts)))
+    ins, ids, unmatched = _f.match_inputs(ins_raw)
+    for i in ids: USED_BY.setdefault(i,set()).update(parts)
+    for u in unmatched: UNMATCHED.setdefault(u, set()).update(parts)
     dep=' · '.join(sorted({d for x in parts for d in _deps['deps'].get(x,[])}))
     unit, grain, period = _f.derive(e, label, math_text)
     ref = ' | '.join(filter(None,(_f.REFUSAL.get(x,'') for x in parts)))
@@ -513,7 +518,7 @@ for var, source, metrics, engines in INPUTS:
 SPEC = [
  ('', 'SECTION — WHAT THE NUMBER IS', '', ''),
  ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','COMPLETE — 163 of 163 carry both forms.'),
- ('S02','The inputs, one by one','Every input named, with its unit and where it comes from.','PARTIAL — every row carries a cell; 91 name their inputs, 72 read NOT DETERMINED because the old master never held an input list for that engine.'),
+ ('S02','The inputs, one by one','Every input named, with its INPUT IDENTIFIER beside it, its unit and where it comes from.','PARTIAL — 59 rows name inputs carrying their identifiers; 72 rows name at least one input that appears nowhere on the inputs tab, and say so in the cell. The reconciliation tab checks both directions and is where the gap is counted.'),
  ('S03','The decisions and assumptions applied','Each marked with whose decision it was: the founder\'s, the person\'s, or built in.','PARTIAL — every row carries a cell; 37 name a real decision, 126 read NOT DETERMINED.'),
  ('S04','What comes out','Dollars, a percentage, a date, a count; its unit and its rounding.','COMPLETE — 163 of 163, derived by rule from the label and formula and marked as derived. Confirm rather than trust.'),
  ('S05','What it says when it cannot be computed','The exact refusal — where wrong numbers get invented.','PARTIAL — 126 of 163 written; 37 read NOT DETERMINED because that engine has not been read for its refusal yet.'),
@@ -624,6 +629,49 @@ for i,w in enumerate([34,34,52,26], start=1):
 for r in range(2, ws.max_row+1):
     for c in range(1,5): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
+
+# ---- reconciliation: the two directions of the input map must agree
+REC_COLS = ['Input ID','Input','Engines the inputs tab says use it',
+            'Engines that actually name it in their own input list','Verdict']
+ws = sheet('reconciliation', REC_COLS)
+declared = {}
+for row in INPUTS:
+    var, source, metrics, engines = row
+_iid = 0
+for var, source, metrics, engines in INPUTS:
+    _iid += 1
+    iid = 'MK-XS-I-%03d' % _iid
+    dec = {e.strip() for e in str(engines).split('·') if e.strip() and e.strip() != '—'}
+    act = USED_BY.get(iid, set())
+    both = dec & act
+    only_dec = dec - act
+    only_act = act - dec
+    if not dec and not act:
+        verdict = 'NOT USED ANYWHERE — no engine on either side names this input. Either it is not needed, or an engine reads it without saying so.'
+    elif not act:
+        verdict = 'DECLARED BUT NEVER NAMED — the inputs tab says these engines use it, but no engine names it in its own input list. Unproved in one direction.'
+    elif not dec:
+        verdict = 'USED BUT NOT DECLARED — engines name this input, but the inputs tab does not list them.'
+    elif only_dec or only_act:
+        verdict = 'PARTLY AGREES — ' + (('declared but not naming it: ' + ', '.join(sorted(only_dec))) if only_dec else '') + \
+                  ('  |  ' if only_dec and only_act else '') + \
+                  (('naming it but not declared: ' + ', '.join(sorted(only_act))) if only_act else '')
+    else:
+        verdict = 'AGREES — both directions name the same engines.'
+    ws.append([iid, var, ' · '.join(sorted(dec)) or '—', ' · '.join(sorted(act)) or '—', verdict])
+
+ws.append([])
+ws.append(['GAPS — inputs an engine names that are on NO row of the inputs tab.',
+           'Each one is either a missing input, or the same input under another name.', '', '', ''])
+ws.cell(ws.max_row,1).font = Font(bold=True, color='9C0006')
+for phrase, engines in sorted(UNMATCHED.items()):
+    ws.append(['NO ID', phrase, '—', ' · '.join(sorted(engines))[:300],
+               'MISSING FROM THE INPUTS TAB — add it, or point it at the input it already is.'])
+for i,w in enumerate([15,46,44,44,70], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,6): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -647,6 +695,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
+ ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
  ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
  ('TAB — database', 'What the app saves in the cloud: where each thing is stored, what it holds, which figures depend on it, how often it is written and at what grain. Also names what is deliberately NOT saved.'),
  ('TAB — inputs', 'The raw values the engines need before any calculation happens.'),
@@ -695,7 +744,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens'): continue
+    if name in ('Reference','database','core_screens','reconciliation'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
