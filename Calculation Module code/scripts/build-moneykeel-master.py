@@ -450,33 +450,39 @@ for var, source, metrics, engines in INPUTS:
 
 # ---- Specification: what a row must carry before its calculation can be written
 SPEC = [
- ('SECTION — WHAT THE NUMBER IS', ''),
- ('The formula', 'The actual rules in plain English, followable by hand. Nothing in the index tabs carries it.'),
- ('The inputs, one by one', 'Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.'),
- ('The decisions and assumptions applied', 'Rounding, timing conventions, inflation, which balance is used, which date wins. Each labelled with whose decision it was — the founder\'s, the person\'s, or built in. This is the fourth link of objective 4.'),
- ('What comes out', 'Dollars, a percentage, a date, a count or a range; its unit and its rounding.'),
- ('What it says when it cannot be computed', 'The exact refusal. This is where wrong numbers get invented, so the refusal is part of the specification, not an afterthought.'),
- ('The grain', 'Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.'),
- ('The period', 'As of when, and over what window — this month, twelve months, since the person owned it.'),
- ('SECTION — WHAT PROVES IT', ''),
- ('Worked examples', 'These inputs give this answer. Rung 2 re-runs them through the real engine on every build.'),
- ('An example for every case', 'One per case the grid names: input missing, input degraded, a different shape per institution, time-bounded, related events, account type. This is rung 3, the floor for every calculation.'),
- ('Verification level', 'Whether this engine is marked for rung 4 (the written formula made executable and checked against the code on generated inputs) and rung 5 (laws that must hold for every input). Marked by the founder, recommended by me.'),
- ('SECTION — WHAT CONNECTS IT', ''),
- ('Which engines feed this engine', 'The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.'),
- ('Where it is implemented', 'The file and function that carry it, so file and code can be checked against each other on every build.'),
- ('SECTION — GOVERNANCE', ''),
- ('The founder\'s verdict', 'His approval of the row. A row counts as documented only when he has approved it, so without this column the coverage count is meaningless.'),
- ('Lifecycle', 'Live, cut, or superseded by another identifier. Identifiers are never reused, so a retired one must say what replaced it.'),
+ ('', 'SECTION — WHAT THE NUMBER IS', '', ''),
+ ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','DONE — 163 of 163 rows carry both forms.'),
+ ('S02','The inputs, one by one','Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.','PART DONE — an inputs tab of 31 rows exists, but no row names ITS OWN inputs.'),
+ ('S03','The decisions and assumptions applied','Rounding, timing conventions, inflation, which balance is used, which date wins — each labelled with whose decision it was: the founder\'s, the person\'s, or built in. The fourth link of objective 4.','PART DONE — 32 of 163 rows, and none says whose decision it was.'),
+ ('S04','What comes out','Dollars, a percentage, a date, a count or a range; its unit and its rounding.','MISSING.'),
+ ('S05','What it says when it cannot be computed','The exact refusal. This is where wrong numbers get invented, so it is part of the specification, not an afterthought.','MISSING.'),
+ ('S06','The grain','Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.','MISSING.'),
+ ('S07','The period','As of when, and over what window — this month, twelve months, since the person owned it.','MISSING.'),
+ ('', 'SECTION — WHAT PROVES IT', '', ''),
+ ('S08','Worked examples','These inputs give this answer. Rung 2 re-runs them through the real engine on every build.','MISSING.'),
+ ('S09','An example for every case','One per case the grid names: input missing, input degraded, a different shape per institution, time-bounded, related events, account type. Rung 3, the floor for every calculation.','MISSING.'),
+ ('S10','Verification level','Whether this engine is marked for rung 4 (the written formula made executable and checked against the code on generated inputs) and rung 5 (laws that must hold for every input). Marked by the founder, recommended by me.','MISSING — the column does not exist yet.'),
+ ('', 'SECTION — WHAT CONNECTS IT', '', ''),
+ ('S11','Which engines feed this engine','The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.','MISSING.'),
+ ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','MISSING.'),
+ ('', 'SECTION — GOVERNANCE', '', ''),
+ ('S13','The founder\'s verdict','His approval of the row. A row counts as documented only when he has approved it, so without this column the coverage count is meaningless.','MISSING — the column does not exist yet.'),
+ ('S14','Lifecycle','Live, cut, or superseded by another identifier. Identifiers are never reused, so a retired one must say what replaced it.','MISSING.'),
+ ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
+ ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s. Today only four of his seventy-two names appear anywhere in the old master.','MISSING — 0 of 163 rows.'),
+ ('S16','The duplication pass','Figures that are the same thing under two identifiers — the Net worth figure that also sits on Plan. Objective 1 made real, and it must happen before the deeper columns are filled or the work gets done twice.','NOT STARTED — the founder flagged it; rows now exist, so it is due.'),
+ ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down, so no row can honestly say whether it is in or out.','NOT DETERMINED on every row.'),
 ]
-ws = sheet('Specification', ['What is needed','Why it is needed, and whether the file carries it today'])
-for a,b in SPEC:
-    ws.append([a,b])
+
+ws = sheet('Specification', ['No.','What is needed','Why it is needed','Where it stands in this file today'])
+for n,a,b,c in SPEC:
+    ws.append([n,a,b,c])
     if a.startswith('SECTION'):
-        ws.cell(ws.max_row,1).font=Font(bold=True, color='1F3864')
-ws.column_dimensions['A'].width=42; ws.column_dimensions['B'].width=118
+        ws.cell(ws.max_row,2).font=Font(bold=True, color='1F3864')
+ws.column_dimensions['A'].width=7; ws.column_dimensions['B'].width=40
+ws.column_dimensions['C'].width=86; ws.column_dimensions['D'].width=52
 for r in range(2, ws.max_row+1):
-    ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
+    for c in (2,3,4): ws.cell(r,c).alignment=Alignment(wrap_text=True, vertical='top')
 
 
 # ---- what is saved in the cloud, read from the code on 2026-08-22
@@ -537,7 +543,7 @@ ref = [
   'produces it, and the identifier that joins them — so a wrong number can be traced from the label '
   'on screen to its engine and formula in a minute. Serves objectives 3 and 4.'),
  ('', ''),
- ('TAB — Specification', 'Everything a row must carry before its calculation can be written in code. The index tabs say what exists and where it is shown; this tab says what is still needed to say what each number IS.'),
+ ('TAB — Specification', 'Everything a row must carry before its calculation can be written in code, NUMBERED S01 upwards so a piece of work can be named by its number. The last column says where each one stands in this file today.'),
  ('TAB — Reference', 'This tab. What the file is, what each tab holds, what each column means, and what it must comply with.'),
  ('TAB — multiple_screens', 'Figures shown on more than one parent screen. A figure lives here ONCE, with every screen and every label it wears listed, so the same figure can never have two definitions.'),
  ('TAB — home', 'Figures shown only on Home and the screens reached from it.'),
