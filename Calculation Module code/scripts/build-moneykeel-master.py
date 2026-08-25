@@ -20,6 +20,7 @@ TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','p
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
         'Formula (mathematical)','Formula (in words)',
+        'Errors or findings to address','Decisions made',
         'Your name for it (72-metric file)','Core screen?','Row status']
 
 # formulas: the mathematical form is written here; the words come from the old master where the
@@ -35,6 +36,14 @@ def _load_old_words():
     for r in sh.iter_rows(min_row=3, values_only=True):
         n=r[jx['Engine name']]
         if n: _oldwords[str(n).strip()] = str(r[jx['Formula — the actual rules']] or '').strip()
+
+def notes(engine):
+    e=str(engine)
+    parts=[x.strip() for x in e.split('·')]
+    F=getattr(_f,'FINDINGS',{}); D=getattr(_f,'DECISIONS',{})
+    find=' | '.join(filter(None,(F.get(x,'') for x in parts)))
+    dec =' | '.join(filter(None,(D.get(x,'') for x in parts)))
+    return find, dec
 
 def formulas(engine):
     e=str(engine)
@@ -288,7 +297,53 @@ INPUTS = [
 
 VERIFIED = {'home':HOME,'networth':NETWORTH,'performance':PERFORMANCE,'cashflow':CASHFLOW,'plan':PLAN}
 
-nav = json.load(open('/tmp/nav.json'))
+def build_nav():
+    """The screen map, read from the app itself: which route shows which screen, and which
+    parent screen can reach it. Regenerated on every build so the file cannot describe a
+    navigation that no longer exists."""
+    import re as _re
+    routes={}
+    for root,_,fs in os.walk('app'):
+        for f in fs:
+            if not f.endswith('.tsx'): continue
+            fp=os.path.join(root,f); src=open(fp).read()
+            r='/'+os.path.relpath(fp,'app').replace('.tsx','').replace('(tabs)/','')
+            comps=[x.split('/')[-1] for x in _re.findall(r"from\s+'([^']*screens/[A-Za-z0-9_]+)'", src)]
+            if comps: routes[r]=comps[0]
+    comp_file={}
+    for root,_,fs in os.walk('src/screens'):
+        for f in fs:
+            if f.endswith('.tsx') and '__tests__' not in root: comp_file[f[:-4]]=os.path.join(root,f)
+    def targets(text):
+        return set(_re.findall(r"push\(\s*['\"`](/[a-z0-9\-]+)", text)) | \
+               set(_re.findall(r"href=\{?['\"`](/[a-z0-9\-]+)", text)) | \
+               set(_re.findall(r"replace\(\s*['\"`](/[a-z0-9\-]+)", text))
+    comp_push={}
+    for root,_,fs in os.walk('src/components'):
+        for f in fs:
+            if f.endswith('.tsx') and '__tests__' not in root:
+                t=targets(open(os.path.join(root,f)).read())
+                if t: comp_push[f[:-4]]=t
+    edges={}
+    for r,c in routes.items():
+        fp=comp_file.get(c)
+        if not fp: continue
+        src=open(fp).read(); e=targets(src)
+        for cname,tg in comp_push.items():
+            if _re.search(r'\b'+cname+r'\b', src): e |= tg
+        edges[r]=e
+    tabs={'/home':'Home','/analytics':'Networth','/invest':'Performance','/cashflow':'Cashflow','/plan':'Plan'}
+    reach={}
+    for tab,name in tabs.items():
+        seen={tab}; stack=[tab]
+        while stack:
+            cur=stack.pop()
+            for nxt in edges.get(cur,()):  
+                if nxt not in seen and nxt in routes:
+                    seen.add(nxt); stack.append(nxt); reach.setdefault(nxt,set()).add(name)
+    return {'routes':routes,'reach':{k:sorted(v) for k,v in reach.items()}}
+
+nav = build_nav()
 TABS = {'/home':'home','/analytics':'networth','/invest':'performance','/cashflow':'cashflow','/plan':'plan'}
 
 def screens_for(tab):
@@ -328,17 +383,17 @@ def eid_for(engine, family):
 
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
-    m,w = formulas(engine)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
+    m,w = formulas(engine); fi,de = notes(engine)
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
-        m,w = formulas(engine)
+        m,w = formulas(engine); fi,de = notes(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -347,21 +402,21 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     done = set()
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
-        m,w = formulas(engine)
+        m,w = formulas(engine); fi,de = notes(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -447,6 +502,10 @@ for r in range(2, ws.max_row+1):
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
+ ('STANDING DECISION — how numbers are held and shown',
+  'Every number is held as a float internally. Decimals are SHOWN only for prices of stocks, bonds '
+  'and options, for interest and dividend rates, and for expenses; everything else displays whole '
+  'dollars. Rounding happens once, at the edge, never in the middle. Founder, 2026-08-22.'),
  ('Date file created', TODAY),
  ('Date file last modified', TODAY + '  (stamped by the build, not typed; unchanged when the file is only read)'),
  ('Objective of this file',
@@ -472,6 +531,8 @@ ref = [
  ('COLUMN — Name on Screen', 'The label copied exactly as it is worded on screen, including capitals. Where a figure wears different labels on different screens, all are listed.'),
  ('COLUMN — Name of Underlying Metric', "The metric's name in the code."),
  ('COLUMN — Name of Underlying Engine', 'The engine that produces the figure. NOT IN OLD MASTER means the engine exists in the code but has no row in the old master file.'),
+ ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
+ ('COLUMN — Decisions made', 'The rulings that govern this figure, and why. The standing display and rounding rule applies to every row and is stated once at the top of this tab.'),
  ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
  ('COLUMN — Formula (in words)', 'The same rule in plain English, followable by hand. Where the engine has a row in the old master this is its wording, carried over; where it does not, it is written here from reading the code.'),
  ('COLUMN — Engine ID', 'The identifier of that engine. Blank where the figure is worked out on the screen itself rather than by an engine — which is itself a finding.'),

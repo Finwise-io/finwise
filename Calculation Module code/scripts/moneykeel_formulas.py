@@ -150,3 +150,39 @@ WORDS = {
 'TAX_ON_CONVERSION':'The extra tax a Roth conversion would cause: the converted amount is stacked on top of this year\'s income and taxed band by band.',
 'THE_BILL_CALENDAR':'Places each recurring bill on the day of the month it falls, so the shape of the month can be seen.',
 }
+
+# Findings still to address, and decisions already taken — keyed by engine name.
+FINDINGS = {
+'HOLDING_MARKET_VALUE':'OPTIONS: value is quantity × price with no contract multiplier. An option is 100 shares per contract unless the broker states otherwise, so an option position may be reported at one hundredth of its real value. The ledger normalises a TRADE so units × price equals the broker\'s cash figure, but the holdings path does not. TO VERIFY AND FIX.',
+'HOLDING_COST_BASIS':'OPTIONS: same contract-multiplier question as market value — cost per share × shares, with no ×100 for a contract. TO VERIFY.',
+'HOLDING_CAP_GAINS':'OPTIONS: gain per lot = shares × (price − cost), again with no contract multiplier. TO VERIFY. Separately: a lot with no recorded cost is skipped, so a position of skipped lots reports no gain at all rather than saying it cannot tell.',
+'HOLDING_SHARES':'OPTIONS: quantity is held in contracts for options and in shares for stock, in the same field, with nothing marking which. Anything multiplying quantity by price inherits the ambiguity.',
+'NW_CHANGE_PCT':'The line is labelled "Return on cash + investments" but is computed as (now − then) ÷ then with NO adjustment for money paid in or taken out. Move $50,000 in and it reports a gain. Either the label is wrong or the formula is — founder\'s call.',
+'POT_AT_RETIREMENT':'The Net worth screen builds this projection WITHOUT the person\'s big costs, while Cash flow, Budget, Goals and Social Security timing all include them. Same person, same day, two different nest eggs. Seen in the code; not yet confirmed on screen.',
+'TREND_SERIES':'The daily and monthly points are synced, but the DAILY RECORD they are checked against is not. On a second device the trend survives and the walk behind it does not.',
+'NW_CHANGE_WALK':'Beginning values are read from the daily record, which never leaves the phone. On a new device there is no beginning, so the walk back-solves one or refuses.',
+'REALISED_GAIN':'Reads the transaction ledger, which is device-only. On a second device it reports nothing — not because nothing was sold, but because the record is elsewhere.',
+'PRICE_FRESHNESS':'Prices are never synced, so freshness is per device. Two devices can legitimately disagree about how current a value is.',
+'ACCOUNT_SPLIT':'Reported by the 54-item audit as one of the places a total and its parts can disagree; the reconciliation assertion now catches it, but the screen has no way to say so yet.',
+'WILL_IT_LAST_RESULT':'The odds shown on Home, Plan and Cash flow are rounded to the nearest 5, while the compare tables still show them exact. One figure, two precisions — founder\'s open question.',
+'TOTAL_CASH':'Money-market funds are deliberately NOT counted as cash. Any institution that reports a sweep as a fund will therefore land in investments — worth watching per provider.',
+}
+DECISIONS = {
+'__ALL__':'DISPLAY (founder, 2026-08-22): every number is held as a float internally. Decimals are SHOWN only for prices of stocks, bonds and options, for interest and dividend rates, and for expenses. Everything else displays whole dollars. ROUNDING (rule R6): round once, at the edge, never in the middle.',
+'HOLDING_MARKET_VALUE':'A price is a ratio, not money: it keeps eight decimal places and is never rounded to cents. Rounding a Treasury bill price of $0.9888 to $0.99 invented $276 of gain on one row.',
+'HOLDING_COST_BASIS':'Cost basis comes from recorded lots. A lot with no cost is skipped rather than treated as free shares, because free shares would report the whole value as gain and tax it.',
+'HOLDING_CAP_GAINS':'Long-term is decided by DAYS, not calendar months (correction E7): 335 days used to count as long-term and be taxed at the lower rate.',
+'TOTAL_CASH':'Cash means checking, savings, high-yield savings and the uninvested sweep at a broker. Money-market funds are investments, because they pay dividends and are measured with the investments (founder, 2026-08-04).',
+'NET_WORTH':'Assets minus debts, computed each time and never stored as a third number that could disagree with its own halves. A genuine negative is shown, never floored at zero.',
+'REQUIRED_WITHDRAWAL':'One dated table. Start age is 73 for those born 1951–1959 and 75 for those born 1960 or later; a Roth 401(k) is exempt (fix B4).',
+'RMD_START_AGE (Calculation Module code/engines/rmd.ts)':'The same one dated table, after both earlier copies were deleted.',
+'SS_BENEFIT_AT_AGE':'The amount a person types from their statement is the amount at THEIR full retirement age, not at 62 and not at 70 (fix B2). The full-retirement age itself comes from a birth-year table, to the month.',
+'GUARANTEED_STREAMS (engines: B1 rebuild)':'Each stream grows on its own rule: Social Security rises with inflation, a fixed pension stays flat. They are never inflated together (fix B1).',
+'RETIREMENT_PAYCHECK':'Withdrawals, including required ones, are NOT counted as guaranteed income — counting money coming out of the pot as income would count the same dollars twice (fix B5).',
+'WILL_IT_LAST_RESULT':'One thousand futures, and the odds are rounded to the nearest 5. A genuine 100 or 0 is shown literally; 98 shows as 95, never as 100 (fix B6). The best-to-worst band was removed.',
+'POT_AT_RETIREMENT':'The recommended nest egg is 25× the yearly spending not covered by guaranteed income, counted from the start of the retirement year — which is why it differs from an outside calculator.',
+'MODIFIED_DIETZ (Calculation Module code/engines/window-return.ts)':'When the timing of money moving in or out drives the percentage more than the investments do, the figure is REFUSED and the dollar walk is shown instead.',
+'TAXABLE_INCOME':'Explicit tables per filing status. A married band is not twice the single band — the 37% band starts at $768,700, not at double the single figure.',
+'NW_CHANGE_WALK':'The identity must close: ending = beginning + money in − money out + income − costs + market change. A direction stated by the institution never overrides a contradicting sign — a −$500 line marked IN is a reversal.',
+'LEDGER':'Nothing is booked from a guess. An institution word that is not in the translation table is refused, not sign-guessed — the sign-guess is what minted $1,064,493 of contributions on an account where nothing moved.',
+}
