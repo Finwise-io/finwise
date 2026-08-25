@@ -407,7 +407,7 @@ def eid_for(engine, family):
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -416,7 +416,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -427,16 +427,16 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
         ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
@@ -564,7 +564,7 @@ ref = [
  ('COLUMN — Formula (in words)', 'The same rule in plain English, followable by hand. Where the engine has a row in the old master this is its wording, carried over; where it does not, it is written here from reading the code.'),
  ('COLUMN — Engine ID', 'The identifier of that engine. Blank where the figure is worked out on the screen itself rather than by an engine — which is itself a finding.'),
  ('COLUMN — Your name for it (72-metric file)', "The founder's own name for the same figure, from METRICS-DELIVERABLE-ANSWERED-2026-08-20.xlsx. This column is the bridge between his vocabulary and the code's."),
- ('COLUMN — Core screen?', 'Whether the screen is part of the 55-70 core, the agreed first scope.'),
+ ('COLUMN — Core screen?', 'Whether the screen is part of the 55-70 core, the agreed first scope. Currently NOT DETERMINED on every row: the core list has never been written down, so no row can honestly claim to be in or out of it.'),
  ('COLUMN — Row status', 'VERIFIED with its date means a person read the screen and confirmed the chain. NOT STARTED means the screen has not been read yet. Nothing in between is claimed.'),
  ('', ''),
  ('COLUMN — Input ID', 'The identifier of a raw input, per the same standard.'),
