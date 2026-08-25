@@ -22,7 +22,7 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Formula (mathematical)','Formula (in words)',
         'Inputs it needs','What comes out — unit and rounding',
         'What it says when it cannot be computed','Grain — one figure per what',
-        'Period — as of when, over what window','Engines it depends on',
+        'Period — as of when, over what window','Dependency — engine ID → the output it uses',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
         'Same figure as (S16)',
@@ -36,12 +36,17 @@ _sp=_il.spec_from_file_location('mkf', os.path.join(os.path.dirname(os.path.absp
 _f=_il.module_from_spec(_sp); _sp.loader.exec_module(_f)
 
 _oldwords = {}
+_answers = {}
 def _load_old_words():
     w=openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
     sh=w['2. Engines']; hd=[str(c.value) if c.value else '' for c in sh[2]]; jx={h:n for n,h in enumerate(hd)}
     for r in sh.iter_rows(min_row=3, values_only=True):
         n=r[jx['Engine name']]
-        if n: _oldwords[str(n).strip()] = str(r[jx['Formula — the actual rules']] or '').strip()
+        if not n: continue
+        n=str(n).strip()
+        _oldwords[n] = str(r[jx['Formula — the actual rules']] or '').strip()
+        a = str(r[jx['What it answers']] or '').strip().replace('\n',' ')
+        _answers[n] = (a.split('?')[0].strip() + '?') if '?' in a else (a[:90] or '')
 
 SECOND = {
  'ALLOCATION_BY_CLASS':'DECIDES the class of every asset before it can group them, and DECIDES the words shown for each class. The classifying rule itself is engine MK-ST-E-xxx — see the asset-classification standard.',
@@ -83,7 +88,7 @@ def spec_cols(engine, label, math_text):
     ins, ids, unmatched = _f.match_inputs(ins_raw)
     for i in ids: USED_BY.setdefault(i,set()).update(parts)
     for u in unmatched: UNMATCHED.setdefault(u, set()).update(parts)
-    dep=' · '.join(sorted({d for x in parts for d in _deps['deps'].get(x,[])}))
+
     unit, grain, period = _f.derive(e, label, math_text)
     ref = ' | '.join(filter(None,(_f.REFUSAL.get(x,'') for x in parts)))
     if not ref:
@@ -98,13 +103,30 @@ def spec_cols(engine, label, math_text):
             ref = 'A division: with nothing on the bottom there is no answer, and the line must not appear as zero. NOT YET CONFIRMED against the engine.'
         else:
             ref = 'NOT DETERMINED — this engine has not been read for its refusal yet.'
-    if not dep: dep = 'None found in the code — it reads raw values only' if e in _deps['inputs'] else 'NOT DETERMINED'
+    dep = dep_note(e)
     if not ins: ins = 'NOT DETERMINED — no input list on record for this engine'
     return ins, unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', dep
 
 _DUP_OF = {}
 for _keep,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
     for _f_id in _folded: _DUP_OF[_f_id] = (_keep,_why)
+
+def dep_id(name):
+    if name not in engine_id:
+        engine_id[name] = nid('XS','E')
+    return engine_id[name]
+
+def dep_note(engine):
+    parts=[x.strip() for x in str(engine).split('·')]
+    seen=[]
+    for x in parts:
+        for d in _deps['deps'].get(x,[]):
+            if d not in [y[0] for y in seen]: seen.append((d,))
+    if not seen: return 'None — this engine reads raw inputs only' if any(x in _deps['inputs'] for x in parts) else 'NOT DETERMINED'
+    out=[]
+    for (d,) in seen:
+        out.append(dep_id(d) + ' (' + d + ') → ' + (_answers.get(d,'') or 'output not recorded'))
+    return '\n'.join(out)
 
 def dup_note(mid):
     if mid in _DUP_OF:
@@ -529,13 +551,14 @@ SPEC = [
  ('S09','An example for every case','One per case the grid names: missing, degraded, per institution, time-bounded, related events, account type. Rung 3.','NOT STARTED — the biggest single piece of work, and it belongs in the per-family detail files rather than here.'),
  ('S10','Verification level','Which engines are marked for rung 4 and rung 5. Marked by the founder, recommended by me.','NOT STARTED — the column does not exist yet.'),
  ('', 'SECTION — WHAT CONNECTS IT', '', ''),
- ('S11','Which engines feed this engine','The engines it depends on — without it, build order and the one-door design cannot be worked out.','COMPLETE — read from the code itself, not from any document. 90 rows name their dependencies; the rest read raw values only.'),
+ ('S11','Which engines feed this engine','Each dependency named by ITS engine identifier and by the output it gives, so a chain can be followed without knowing any engine by name.','COMPLETE — read from the code itself, not from any document. 64 rows name a dependency by identifier; the rest read raw inputs only.'),
  ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','NOT STARTED.'),
  ('', 'SECTION — GOVERNANCE', '', ''),
  ('S13','The founder\'s verdict','A row counts as documented only when he has approved it.','NOT STARTED — the column does not exist yet, so the coverage count means nothing until it does.'),
  ('S14','Lifecycle','Live, cut, or superseded by another identifier.','NOT STARTED.'),
  ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
  ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s.','NOT STARTED — 0 of 163 rows.'),
+ ('S18','The reconciliation engine','Both records kept independently and checked against each other as a build gate — an input an engine names that is on no row, an input declared that no engine names, an engine identifier that does not exist, an engine no metric reaches. Founder, 2026-08-25: never generate one list from the other; agreement by construction hides the orphan.','NOT STARTED — the reconciliation tab is today a report, run by hand. It has to become code with a test.'),
  ('S16','The duplication pass','Figures that are the same thing under two identifiers.','COMPLETE — every group judged one at a time. 11 figures were being shown under 24 identifiers; the 13 folded rows now name the identifier that survives and why. 18 groups were checked and are NOT duplicates — one engine legitimately producing several figures — and say so, so the question is not asked twice. Two mis-assigned engines were found and recorded as findings.'),
  ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
@@ -711,7 +734,7 @@ ref = [
  ('COLUMN — What it says when it cannot be computed (S05)', 'The refusal. Written where the engine has been read; NOT DETERMINED where it has not, rather than guessed.'),
  ('COLUMN — Grain (S06)', 'One figure per what: holding, account, debt, goal, category, month, or person.'),
  ('COLUMN — Period (S07)', 'As of when, and over what window.'),
- ('COLUMN — Engines it depends on (S11)', 'The engines this one calls, read from the code itself. "None found" means it reads raw values only.'),
+ ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),

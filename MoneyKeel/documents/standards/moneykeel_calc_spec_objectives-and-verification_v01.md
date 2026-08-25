@@ -184,6 +184,25 @@ cause, and the proof that aligning that one input closes it — ready for a quic
 My reading, to be corrected if wrong: once the explanation is complete and reproducible the work
 downstream may resume; his sign-off is what closes the record, not what unblocks the day.
 
+## Two independent lists, never one generated from the other (founder, 2026-08-25)
+
+When two records describe the same thing — the engines' own input lists and the inputs tab, the
+master file and the code — it is tempting to generate one from the other so they always agree.
+**That is forbidden.** Agreement by construction hides the failure that matters: an input an engine
+reads that nobody ever captured. The orphan disappears into the generated list and the wrong number
+reaches the screen with nothing flagged.
+
+Both records are kept independently, and a **reconciliation engine** checks them against each other
+as a build gate. It must report, in both directions:
+
+- an input an engine names that appears on no row of the inputs tab (the orphan);
+- an input declared on the inputs tab that no engine names (the dead entry);
+- a metric whose engine identifier names an engine that does not exist;
+- an engine that no metric identifier reaches.
+
+Any of these fails the build. This is the same discipline as rung 4: two independent statements of
+the same rule, checked against each other, rather than one copy of one statement.
+
 ## Two assumptions I am running with unless corrected
 
 - **A refusal is a case that needs its own test.** Where the file says a figure cannot honestly be
