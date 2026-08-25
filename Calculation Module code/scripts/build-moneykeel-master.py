@@ -4,7 +4,7 @@ One row per figure a person reads on screen, tied to its metric, its engine and 
 Every row is either VERIFIED (a person read the screen and confirmed the chain) or NOT STARTED.
 Nothing here is guessed: an engine that cannot be found in the code is written as NOT FOUND.
 """
-import json, os, datetime, openpyxl
+import json, os, re, datetime, openpyxl
 from openpyxl.styles import Font, PatternFill, Alignment
 from openpyxl.utils import get_column_letter
 
@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines_from_code']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -60,6 +60,7 @@ SECOND = {
  'TOTAL_CASH':'DECIDES what counts as cash — and deliberately excludes money-market funds.',
 }
 USED_BY = {}
+METRICS_BY_ENGINE = {}
 UNMATCHED = {}
 _deps = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_engine_deps.json')))
 
@@ -482,6 +483,9 @@ def nid(family, kind):
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
 engine_id = {}
+def record_metric(eid, mid):
+    if eid: METRICS_BY_ENGINE.setdefault(eid, []).append(mid)
+
 def eid_for(engine, family):
     if engine.startswith('worked out on the screen'): return ''
     key = engine
@@ -492,7 +496,7 @@ def eid_for(engine, family):
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-    _mid = nid('XS','M')
+    _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid)
     ws.append([_mid, screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
@@ -501,7 +505,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M')
+        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
         ws.append([_mid, PARENTS[tab], 'NA', label, metric, engine,
                    eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
@@ -513,7 +517,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M')
+        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
         ws.append([_mid, PARENTS[tab], route, label, metric, engine,
                    eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
@@ -695,6 +699,69 @@ for i,w in enumerate([15,46,44,44,70], start=1):
 for r in range(2, ws.max_row+1):
     for c in range(1,6): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
+
+# ---- every engine found in the CODE, then matched back to the spreadsheet
+def sweep_code():
+    """Every exported function in the calculation code. Read from the code, never from a document,
+    so an engine that exists and is documented nowhere still appears here."""
+    import re as _re
+    roots = ['src/domain', 'Calculation Module code/engines', 'src/services']
+    found = []
+    for root in roots:
+        for dirpath,_,files in os.walk(root):
+            if '__tests__' in dirpath: continue
+            for f in files:
+                if not f.endswith('.ts') or f.endswith('.test.ts') or f.endswith('.d.ts'): continue
+                fp = os.path.join(dirpath, f)
+                for i,line in enumerate(open(fp).read().split('\n'), start=1):
+                    m = _re.match(r'export (?:async )?function ([A-Za-z0-9_]+)', line) or \
+                        _re.match(r'export const ([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?\(', line)
+                    if m: found.append((m.group(1), fp, i))
+    return sorted(set(found))
+
+CODE_COLS = ['Function in the code','File','Line','Engine name','Engine ID',
+             'Metric identifiers that reach it','Verdict']
+ws = sheet('engines_from_code', CODE_COLS)
+ws.append(['READ FROM THE CODE, NOT FROM ANY DOCUMENT — every exported function in src/domain, '
+           'Calculation Module code/engines and src/services. A function here that no identifier '
+           'reaches is either a helper or an undocumented calculation; the verdict column says '
+           'which question each one raises.','','','','','',''])
+ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
+fn_to_engine = {}
+for _n, _fn, _src, _inp in [(k,v,'','') for k,v in []]: pass
+_w = openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
+_sh = _w['2. Engines']; _hd=[str(c.value) if c.value else '' for c in _sh[2]]; _jx={h:n for n,h in enumerate(_hd)}
+for _r in _sh.iter_rows(min_row=3, values_only=True):
+    _n = _r[_jx['Engine name']]
+    if not _n: continue
+    for _x in re.split(r'[,/·]| and ', str(_r[_jx['Function in the code']] or '')):
+        _x=_x.strip()
+        if _x.isidentifier(): fn_to_engine.setdefault(_x, str(_n).strip())
+
+counts = {'mapped':0,'no_metric':0,'no_id':0,'unknown':0}
+for fn, fp, line in sweep_code():
+    ename = fn_to_engine.get(fn, '')
+    eid = engine_id.get(ename, '') if ename else ''
+    mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
+    if not ename:
+        verdict = 'NOT ON RECORD — this function exists in the code and appears in no engine row anywhere. Either it is a helper that does no money maths, or it is a calculation nobody has documented. Each one needs judging.'
+        counts['unknown'] += 1
+    elif not eid:
+        verdict = 'ENGINE WITH NO IDENTIFIER — it has a row in the old master but no figure on any screen reaches it, so it never earned an identifier.'
+        counts['no_id'] += 1
+    elif not mids:
+        verdict = 'REACHED ONLY AS A DEPENDENCY — it carries an identifier because another engine leans on it, but no figure on any screen names it directly.'
+        counts['no_metric'] += 1
+    else:
+        verdict = 'MAPPED — reached by ' + str(len(mids)) + ' metric identifier(s).'
+        counts['mapped'] += 1
+    ws.append([fn, fp, line, ename or '—', eid or '—', ' · '.join(mids) or '—', verdict])
+for i,w in enumerate([30,46,7,30,16,40,66], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,8): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+print('engines_from_code:', counts)
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -718,6 +785,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
+ ('TAB — engines_from_code', 'Every exported function in the calculation code, read from the code itself and never from a document, matched back to its engine name, its identifier and the metric identifiers that reach it. This is where an engine nobody reaches, and a calculation nobody documented, become visible.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
  ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
  ('TAB — database', 'What the app saves in the cloud: where each thing is stored, what it holds, which figures depend on it, how often it is written and at what grain. Also names what is deliberately NOT saved.'),
@@ -767,7 +835,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines_from_code'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
