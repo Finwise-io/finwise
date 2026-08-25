@@ -1,0 +1,476 @@
+{
+ "deps": {
+  "EXPENSE_COMMENTARY": [
+   "READ_A_RECEIPT"
+  ],
+  "PRICE_FRESHNESS": [
+   "FETCH_PRICES"
+  ],
+  "ACCOUNT_TYPE_FACTS": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "SPENDING_BY_KIND": [
+   "READ_A_NUMBER"
+  ],
+  "OTHER_INCOME": [
+   "READ_A_NUMBER"
+  ],
+  "RENTALS": [
+   "READ_A_NUMBER"
+  ],
+  "SYNC_ONE_ACCOUNT": [
+   "ACCOUNT_IDENTITY",
+   "ACCOUNT_TAX_TYPE_GUESS",
+   "NEW_ID",
+   "OPTION_HOLDING"
+  ],
+  "ALREADY_SEEN_CHECK": [
+   "ACTIVITY_IDENTITY"
+  ],
+  "ASSET_CLASS_OF_ACCOUNT": [
+   "CLASS_FROM_NAME_TEXT"
+  ],
+  "ACCOUNTS_FROM_SETUP": [
+   "NEW_ID",
+   "READ_A_NUMBER"
+  ],
+  "EXPECTED_RETURN_BY_KIND": [
+   "ACCOUNT_TYPE_FACTS"
+  ],
+  "KIND_IS_CASH": [
+   "ACCOUNT_TYPE_FACTS"
+  ],
+  "ITEMISED_REMAINDER": [
+   "ITEMISED_TOTAL"
+  ],
+  "BOND_YIELD_TO_MATURITY": [
+   "BOND_COUPON",
+   "BOND_YEARS_LEFT"
+  ],
+  "BOND_CURRENT_YIELD": [
+   "BOND_COUPON"
+  ],
+  "PLANNED_SPENDING": [
+   "READ_A_NUMBER",
+   "SPENDING_BY_KIND"
+  ],
+  "DEBTS_FROM_SETUP": [
+   "DEBT_TYPE_FROM_NAME",
+   "NEW_ID",
+   "READ_A_NUMBER"
+  ],
+  "DEBT_SHAPE": [
+   "DEBT_SHAPE_DEFAULT"
+  ],
+  "SNAPSHOT_READ_ALL": [
+   "SNAPSHOT_READ_ONE"
+  ],
+  "FILE_IMPORT": [
+   "CLASS_FROM_FILE",
+   "FILE_PARSE"
+  ],
+  "EMPLOYER_MATCH": [
+   "READ_A_NUMBER"
+  ],
+  "EQUITY_ROW_VALUE": [
+   "READ_A_NUMBER"
+  ],
+  "GUARANTEED_OUTSIDE_STREAMS": [
+   "READ_A_NUMBER"
+  ],
+  "TAX_OVER65_COUNT": [
+   "READ_A_NUMBER"
+  ],
+  "RENTAL_INCOME_A_YEAR": [
+   "RENTALS"
+  ],
+  "RETIREMENT_INCOME": [
+   "READ_A_NUMBER"
+  ],
+  "STATE_TAX_RATE": [
+   "READ_A_NUMBER"
+  ],
+  "TAX_OWED_SINGLE": [
+   "TAXABLE_INCOME_SINGLE"
+  ],
+  "TAXABLE_INCOME": [
+   "TAX_DEDUCTION"
+  ],
+  "LOOK_BACK": [
+   "PRICE_FACTOR_OVER_WINDOW"
+  ],
+  "HOLDING_MARKET_VALUE": [
+   "HOLDING_SHARES"
+  ],
+  "PERSONAL_RETURN": [
+   "PERSONAL_FLOWS",
+   "PERSONAL_RETURN_POSSIBLE"
+  ],
+  "PERIOD_RETURN": [
+   "PERIOD_START_DATE",
+   "PRICE_LATEST"
+  ],
+  "RETURN_SINCE_A_DATE": [
+   "PRICE_LATEST"
+  ],
+  "PORTFOLIO_TREND_LINE": [
+   "HOLDING_SHARES",
+   "PERIOD_START_DATE"
+  ],
+  "POT_AT_RETIREMENT": [
+   "WILL_IT_LAST"
+  ],
+  "RETIREMENT_SPENDING": [
+   "COST_OF_LIVING",
+   "READ_A_NUMBER"
+  ],
+  "SS_CLAIM_FACTOR": [
+   "SS_FULL_RETIREMENT_AGE"
+  ],
+  "CAN_HOLD_TICKERS": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "ACCOUNT_SPLIT": [
+   "ASSET_CLASS_OF_ACCOUNT",
+   "CLASS_FROM_NAME_TEXT"
+  ],
+  "ITEMISE_AN_ACCOUNT": [
+   "ITEMISED_REMAINDER"
+  ],
+  "RETIREMENT_SHARE_DEFAULT": [
+   "ASSET_CLASS_OF_ACCOUNT",
+   "HOW_A_HOME_IS_USED"
+  ],
+  "TOTAL_INVESTMENTS": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "IS_PHYSICAL_ASSET": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "MONTHLY_SAVING": [
+   "EMPLOYER_MATCH",
+   "READ_A_NUMBER"
+  ],
+  "PRIMARY_CAR": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "IF_RATES_MOVE": [
+   "BOND_YIELD_TO_MATURITY"
+  ],
+  "IS_BOND": [
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "DEBT_MINIMUM_TOTAL": [
+   "DEBT_SHAPE"
+  ],
+  "DEBT_REQUIRED_PAYMENT": [
+   "DEBT_SHAPE"
+  ],
+  "TREND_SERIES": [
+   "SNAPSHOT_READ_ALL"
+  ],
+  "RETIREMENT_INCOME_NOW": [
+   "RETIREMENT_INCOME"
+  ],
+  "GROSS_FROM_TAKE_HOME": [
+   "TAX_OWED_SINGLE"
+  ],
+  "EQUITY_THIS_YEAR": [
+   "EQUITY_ROW_VALUE",
+   "READ_A_NUMBER",
+   "VESTING_YEAR"
+  ],
+  "TAX_OWED": [
+   "TAXABLE_INCOME"
+  ],
+  "HOLDING_UNREALISED_GAIN": [
+   "HOLDING_COST_BASIS",
+   "HOLDING_MARKET_VALUE"
+  ],
+  "SS_BENEFIT_AT_AGE": [
+   "SS_CLAIM_FACTOR"
+  ],
+  "NET_WORTH_ROWS": [
+   "ACCOUNTS_FROM_SETUP",
+   "DEBTS_FROM_SETUP"
+  ],
+  "ALLOCATION_BY_CLASS": [
+   "ACCOUNT_SPLIT",
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "TOTAL_CASH": [
+   "ACCOUNT_SPLIT",
+   "ASSET_CLASS_OF_ACCOUNT"
+  ],
+  "RETIREMENT_SHARE_AMOUNT": [
+   "RETIREMENT_SHARE_DEFAULT"
+  ],
+  "TOTAL_INVESTABLE": [
+   "IS_PHYSICAL_ASSET"
+  ],
+  "DEBT_ACTUAL_TOTAL": [
+   "DEBT_REQUIRED_PAYMENT"
+  ],
+  "EFFECTIVE_TAX_RATE": [
+   "TAX_OWED"
+  ],
+  "SALARY_BY_MONTH": [
+   "GROSS_FROM_TAKE_HOME",
+   "READ_A_NUMBER"
+  ],
+  "HOLDING_TOTAL_ROI": [
+   "HOLDING_COST_BASIS",
+   "HOLDING_UNREALISED_GAIN"
+  ],
+  "WHICH_VIEW": [
+   "RETIREMENT_INCOME_NOW"
+  ],
+  "EXPECTED_RETURN_BLENDED": [
+   "EXPECTED_RETURN_BY_KIND",
+   "PRIMARY_CAR",
+   "RETIREMENT_SHARE_AMOUNT"
+  ],
+  "EXPECTED_SWING_BLENDED": [
+   "PRIMARY_CAR",
+   "RETIREMENT_SHARE_AMOUNT"
+  ],
+  "REPORTED_RETURN": [
+   "RETIREMENT_SHARE_AMOUNT"
+  ],
+  "NEST_EGG": [
+   "PRIMARY_CAR",
+   "RETIREMENT_SHARE_AMOUNT"
+  ],
+  "DEBT_PAYMENTS_ACTUAL": [
+   "DEBT_ACTUAL_TOTAL"
+  ],
+  "SPLIT_BY_HOW_IT_IS_TAXED": [
+   "RETIREMENT_SHARE_AMOUNT"
+  ],
+  "MONTHS_WORKED": [
+   "SALARY_BY_MONTH"
+  ],
+  "SALARY_A_YEAR": [
+   "SALARY_BY_MONTH"
+  ],
+  "PERFORMANCE_TABLE": [
+   "BENCHMARK_FOR_KIND",
+   "HOLDING_COST_BASIS",
+   "HOLDING_FIRST_BOUGHT",
+   "HOLDING_MARKET_VALUE",
+   "HOLDING_TOTAL_ROI",
+   "HOLDING_UNREALISED_GAIN",
+   "PERIOD_RETURN",
+   "PERIOD_START_DATE",
+   "PRICE_LATEST",
+   "RETURN_SINCE_A_DATE"
+  ],
+  "DEBT_PICTURE": [
+   "DEBT_MINIMUM_TOTAL",
+   "DEBT_PAYMENTS_ACTUAL"
+  ],
+  "TIPS_A_YEAR": [
+   "MONTHS_WORKED",
+   "READ_A_NUMBER"
+  ],
+  "WHAT_THE_PLAN_STILL_NEEDS": [
+   "NEST_EGG"
+  ],
+  "TOTAL_INCOME": [
+   "EQUITY_THIS_YEAR",
+   "OTHER_INCOME",
+   "READ_A_NUMBER",
+   "RENTAL_INCOME_A_YEAR",
+   "RETIREMENT_INCOME_NOW",
+   "SALARY_A_YEAR",
+   "TIPS_A_YEAR"
+  ],
+  "WILL_IT_LAST_INPUTS": [
+   "EFFECTIVE_TAX_RATE",
+   "EXPECTED_RETURN_BLENDED",
+   "EXPECTED_SWING_BLENDED",
+   "FILING_STATUS",
+   "GUARANTEED_OUTSIDE_STREAMS",
+   "MONTHLY_SAVING",
+   "NEST_EGG",
+   "REPORTED_RETURN",
+   "RETIREMENT_SPENDING",
+   "SPLIT_BY_HOW_IT_IS_TAXED",
+   "SS_BENEFIT_AT_AGE",
+   "STATE_TAX_RATE",
+   "SWING_FROM_RETURN",
+   "TAX_OVER65_COUNT",
+   "TOTAL_INCOME"
+  ],
+  "WILL_IT_LAST_RESULT": [
+   "NEST_EGG",
+   "ODDS_DISPLAY",
+   "RETIREMENT_SPENDING",
+   "WILL_IT_LAST",
+   "WILL_IT_LAST_INPUTS"
+  ]
+ },
+ "inputs": {
+  "EXPENSE_COMMENTARY": "the spending \u2192 expenses\nincome \u2192 monthlyIncome\ninflation \u2192 inflationRate",
+  "ECONOMIC_FIGURES": "inflation \u2192 the published series\nthe 10-year yield \u2192 FRED DGS10",
+  "READ_A_RECEIPT": "the photograph \u2192 the image",
+  "CONFIRM_TAX_TYPE": "the accounts \u2192 accounts\nwhich one \u2192 assetId\nwhat it really is \u2192 kind, taxBucket",
+  "ACCOUNT_IDENTITY": "the broker's account id \u2192 snapTradeAccountId",
+  "FETCH_PRICES": "the tickers \u2192 tickers\nwhere prices come from \u2192 provider\nhow far back \u2192 range",
+  "TICKER_PLAUSIBLE": "the symbol \u2192 t",
+  "PRICE_FRESHNESS": "when it was fetched \u2192 fetchedAt\nnow \u2192 now",
+  "ACTIVITY_IDENTITY": "our account id \u2192 accountId\nthe activity \u2192 a (its id, date, type, ticker, amount)",
+  "ACCOUNT_TAX_TYPE_GUESS": "the broker's label \u2192 rawType\nits category \u2192 category",
+  "TRANSLATE_BROKER_WORD": "the broker's word \u2192 type\noption markers \u2192 option_symbol, option_type",
+  "OPTION_HOLDING": "contracts \u2192 units\nprice per share \u2192 price\ncost per contract \u2192 average_purchase_price\nthe option itself \u2192 symbol.option_symbol (underlying, strike, call/put, expiry)",
+  "CLASS_FROM_BROKER": "ticker \u2192 symbol.raw_symbol\nname \u2192 symbol.description\nbroker type \u2192 symbol.type.code\nshares \u2192 units\nprice \u2192 price\ncost \u2192 average_purchase_price\npurchase history \u2192 tax_lots[]",
+  "HISTORY_DEPTH": "what we knew \u2192 existing\nthe dates in this sync \u2192 activityDates",
+  "UNINVESTED_CASH": "broker cash \u2192 balances.cash\nmoney-market holdings \u2192 positions where cash_equivalent is true",
+  "CURRENCY": "the chosen currency \u2192 the setting",
+  "MONEY_IN_WORDS": "the amount \u2192 n\nare balances hidden \u2192 the hide setting",
+  "MONEY_IN_WORDS_WITH_CENTS": "the amount \u2192 n",
+  "NEW_ID": "the kind of thing \u2192 prefix",
+  "READ_A_NUMBER": "what they typed \u2192 v",
+  "IS_ALTERNATIVE": "the account \u2192 a, via ASSET_CLASS_OF_ACCOUNT",
+  "ACCOUNT_NAMES": "the accounts \u2192 accounts (id, name, institution, mask)",
+  "ACCOUNT_TYPE_FACTS": "account type \u2192 id",
+  "ACCOUNT_SHARE_OF_TOTAL": "each balance \u2192 balance\neach assumed return \u2192 target_return",
+  "SLICE_WORDING": "the account \u2192 a\nwhich class \u2192 cls",
+  "CLASS_FROM_NAME_TEXT": "name or description text \u2192 label",
+  "ITEMISED_TOTAL": "each holding's value \u2192 items[].value",
+  "MATURITY_MEANS_BOND": "maturity date \u2192 maturityDate",
+  "HOW_A_HOME_IS_USED": "the choice \u2192 re_use",
+  "WHERE_THE_VALUE_CAME_FROM": "where it came from \u2192 source\nwhen it last updated \u2192 last_synced",
+  "TAX_TREATMENT": "explicit treatment \u2192 tax_treatment\nhow it is taxed \u2192 tax_bucket",
+  "NET_WORTH_GROUPING": "the class rows \u2192 classRows",
+  "HAND_VALUE_AGE": "the account \u2192 a\nwhen the value was set \u2192 value_as_of\ntoday \u2192 now",
+  "TAX_TYPE_TO_ACCOUNT": "the choice \u2192 w",
+  "BOND_COUPON": "face value \u2192 face\ncoupon rate \u2192 couponRate",
+  "BOND_FACTS": "the holding \u2192 position/account",
+  "BOND_YEARS_LEFT": "maturity \u2192 maturity\ntoday \u2192 now",
+  "SPENDING_BY_KIND": "the categories \u2192 spendCats\nor the three summary figures \u2192 b_fixed, b_nonmonthly, b_flexible",
+  "DEBT_TYPE_FACTS": "debt type \u2192 id",
+  "DEBT_SHAPE_DEFAULT": "debt type \u2192 debt_type",
+  "DEBT_TYPE_FROM_NAME": "what they called it \u2192 label",
+  "WHAT_IS_MISSING": "the accounts \u2192 assets\nthe window \u2192 the change line's own start\nthe ledger \u2192 transactions\nfailed syncs \u2192 syncFailures",
+  "NW_CHANGE_WALK": "starting value \u2192 beginning\nending value \u2192 ending\nmoney in \u2192 contributions\nmoney out \u2192 withdrawals\ndividends \u2192 dividends\ninterest \u2192 interest\ndebt paid down \u2192 debtPrincipal",
+  "NW_CHANGE_PCT": "stored history \u2192 daily\ntoday's value \u2192 currentInvestable\nbaseline date \u2192 sinceKey",
+  "SNAPSHOT_READ_ONE": "the month key \u2192 ym\nthe stored entry \u2192 raw",
+  "CLASS_FROM_FILE": "ticker \u2192 symbol\nname / description \u2192 name",
+  "FILE_DECODE": "the picked file \u2192 b64",
+  "IMPORT_ACCOUNT_MATCH": "existing accounts \u2192 accounts\nthe file's institution \u2192 institution",
+  "FILE_PARSE": "the file text \u2192 text",
+  "TAX_DEDUCTION": "filing status (their setup answer) \u2192 status\nbirth year (their setup answer, ri_ fields' sibling birthYear) \u2192 over65 count",
+  "OTHER_INCOME": "the other-income rows \u2192 the extra income question",
+  "FILING_STATUS": "their answer \u2192 filingStatus",
+  "RENTALS": "the rental rows \u2192 the rentals question",
+  "VESTING_YEAR": "the date \u2192 row.date",
+  "TAXABLE_INCOME_SINGLE": "gross income \u2192 gross",
+  "NET_WORTH": "everything owned \u2192 grossAssets\neverything owed \u2192 grossDebt",
+  "ALLOCATION_BY_HOLDING_KIND": "each holding \u2192 rows[].position.kind\nits value \u2192 rows[].marketValue\ncash \u2192 cash",
+  "WHAT_DROVE_THE_RETURN": "each holding \u2192 rows[].position\nits value \u2192 rows[].marketValue\nits return \u2192 rows[].periodReturn",
+  "BENCHMARK_FOR_KIND": "account type \u2192 kind",
+  "HOLDING_CAP_GAINS": "each lot \u2192 lots[]\nprice \u2192 the latest close\ntoday \u2192 now",
+  "HOLDING_COST_BASIS": "each lot's shares and cost \u2192 lots[].shares, lots[].cost_per_share",
+  "HOLDING_FIRST_BOUGHT": "each lot's date \u2192 lots[].purchase_date",
+  "PRICE_FACTOR_OVER_WINDOW": "the price series \u2192 series\nhow far back \u2192 months\ntoday \u2192 now",
+  "PERSONAL_RETURN_POSSIBLE": "the ledger \u2192 transactions\nthe accounts \u2192 accounts\nwhich are measured \u2192 accountIds",
+  "PERSONAL_RETURN_ANSWERED": "the result \u2192 r",
+  "PRICE_LATEST": "the price series \u2192 series.points[]",
+  "BENCHMARK_RETURN_BLENDED": "each holding's benchmark return \u2192 rows[].benchReturn\nits value \u2192 rows[].marketValue",
+  "VALUE_WEIGHTED_RETURN": "each holding's return \u2192 rows[].periodReturn\nits value \u2192 rows[].marketValue",
+  "REALISED_GAIN": "the ledger \u2192 txns\noptionally one ticker \u2192 opts.ticker\noptionally one account \u2192 opts.accountId\ntoday \u2192 opts.now",
+  "PERIOD_START_DATE": "the chosen chip \u2192 period\ntoday \u2192 now",
+  "CONCENTRATION": "each holding \u2192 rows[].marketValue\nits ticker \u2192 rows[].position.ticker",
+  "HOLDING_SHARES": "each lot's shares \u2192 lots[].shares",
+  "PERSONAL_FLOWS": "the ledger \u2192 transactions\nwhich accounts are measured \u2192 accountIds",
+  "ODDS_SENTENCE": "the chance \u2192 chance\nthe age it must last to \u2192 horizonAge",
+  "ARE_YOU_ON_COURSE": "the odds \u2192 chance\nretirement age \u2192 retireAge\nthe age it must last to \u2192 horizonAge\nthe pot at retirement \u2192 potAtRetire\nwhat is left at the end \u2192 leftoverAtHorizon\nthe age it runs out \u2192 shortfallAge",
+  "SAMPLE_ASK_SENTENCE": "what is still missing \u2192 missing",
+  "SAMPLE_ODDS_SENTENCE": "the age it must last to \u2192 horizonAge",
+  "AGE_THE_MONEY_RUNS_OUT": "the middle path year by year \u2192 band[].p50\nthe age at each point \u2192 band[].age",
+  "COST_OF_LIVING": "where they will live \u2192 location",
+  "ODDS_DISPLAY": "chance_of_success from the simulation (exact percent) \u2192 the displayed odds",
+  "SS_FULL_RETIREMENT_AGE": "birth year (their setup answer, the birthYear field) \u2192 the full retirement age in years",
+  "WILL_IT_LAST": "the pot \u2192 start_balance\nwhat goes in \u2192 annual_contribution\nreturn and swing \u2192 mean_return, vol_return\ninflation \u2192 inflation\nspend \u2192 retire_monthly_spend_today\nguaranteed \u2192 guaranteed_monthly_income\nages \u2192 current_age, retire_age, horizon_age\nbig costs \u2192 one_off_costs\npayments that stop \u2192 recurring_until\nchanges to saving \u2192 contribution_adjustments",
+  "SWING_FROM_RETURN": "the return \u2192 ret",
+  "CASH_EFFECT_OF_A_ROW": "what kind of row \u2192 type\nthe amount \u2192 amount\nshares and price \u2192 shares, price\nwas it reinvested \u2192 reinvested",
+  "LEDGER_ROW_NAME": "the row type \u2192 t",
+  "SYNC_ONE_ACCOUNT": "what we already have \u2192 existingAccounts\nwhat we have already seen \u2192 existingSeenKeys\nwhat the broker sent \u2192 payloads\nnow \u2192 nowIso",
+  "ALREADY_SEEN_CHECK": "our account id \u2192 accountId\nthe new activities \u2192 incoming\nkeys already seen \u2192 seenKeys",
+  "ASSET_CLASS_OF_ACCOUNT": "explicit class \u2192 asset_class\nname / description \u2192 label\nmaturity \u2192 maturity_date\naccount type \u2192 kind\nholdings inside \u2192 positions\nhow it is taxed \u2192 tax_bucket",
+  "ACCOUNTS_FROM_SETUP": "their answers \u2192 the setup profile (savings, investments, retirement balances)",
+  "EXPECTED_RETURN_BY_KIND": "account type \u2192 kind\nany override \u2192 overrides",
+  "KIND_IS_CASH": "account type \u2192 kind",
+  "ITEMISED_REMAINDER": "the typed total \u2192 lumpBalance\nthe holdings \u2192 items",
+  "BOND_YIELD_TO_MATURITY": "coupon \u2192 annualCoupon\nface \u2192 face\nvalue \u2192 value\nyears left \u2192 yearsToMaturity",
+  "BOND_CURRENT_YIELD": "coupon \u2192 annualCoupon\nwhat it is worth \u2192 value",
+  "PLANNED_SPENDING": "the categories \u2192 SPENDING_BY_KIND\nthe single figure \u2192 monthlySpending",
+  "DEBTS_FROM_SETUP": "name \u2192 debtName\nbalance \u2192 debtBalance\nrate \u2192 debtRate\npayment \u2192 debtPayment",
+  "DEBT_SHAPE": "chosen shape \u2192 payment_type\ndebt type \u2192 debt_type",
+  "SNAPSHOT_READ_ALL": "the stored snapshots \u2192 raw",
+  "FILE_IMPORT": "the uploaded file \u2192 text\n(each column as listed opposite)",
+  "EMPLOYER_MATCH": "the match \u2192 employerMatchValue\npercent or dollars \u2192 employerMatchMode\ntheir own contribution \u2192 c_401k",
+  "EQUITY_ROW_VALUE": "shares \u2192 row.shares\nprice \u2192 row.price\nkind \u2192 type\nstrike and market \u2192 strike, market",
+  "GUARANTEED_OUTSIDE_STREAMS": "Social Security amount + cadence (ri_ss, ri_ss_freq) \u2192 the ss stream\npension (ri_pension, ri_pension_freq) \u2192 the pension stream\nannuities (ri_annuities, \u2026) \u2192 the annuity stream\nother (ri_other, \u2026) \u2192 the other stream\nper-source rises-with-inflation flags (ri_<k>_inflates) \u2192 each stream's inflates",
+  "TAX_OVER65_COUNT": "birth year (their setup answer, the birthYear field) \u2192 the count of people 65+ on the return",
+  "RENTAL_INCOME_A_YEAR": "each rental \u2192 rentalList",
+  "RETIREMENT_INCOME": "each source \u2192 ri_ss \u00b7 ri_pension \u00b7 ri_withdrawals \u00b7 ri_rmd \u00b7 ri_annuities \u00b7 ri_other\nand how often each arrives \u2192 the matching frequency",
+  "STATE_TAX_RATE": "their answer \u2192 stateTaxRate",
+  "TAX_OWED_SINGLE": "gross income \u2192 gross",
+  "TAXABLE_INCOME": "gross \u2192 gross\nhow they file \u2192 status",
+  "LOOK_BACK": "the amount \u2192 amount\nwhere it sat \u2192 fromSeries\nwhere it might have gone \u2192 toSeries\nhow far back \u2192 months",
+  "HOLDING_MARKET_VALUE": "shares \u2192 totalShares\nprice \u2192 the latest close",
+  "PERSONAL_RETURN": "the ledger \u2192 transactions\nthe accounts \u2192 accounts\nwhich are measured \u2192 accountIds\ntoday's value \u2192 currentValue\ntoday \u2192 now",
+  "PERIOD_RETURN": "the price series \u2192 series\nthe chosen chip \u2192 period\ntoday \u2192 now",
+  "RETURN_SINCE_A_DATE": "the price series \u2192 series\nthe start date \u2192 sinceISO\ntoday \u2192 now",
+  "PORTFOLIO_TREND_LINE": "the holdings \u2192 positions\nprices \u2192 priceOf(ticker)\nthe chosen chip \u2192 period\nthe benchmark \u2192 benchTickerSym\ntoday \u2192 now",
+  "POT_AT_RETIREMENT": "the same inputs \u2192 inp",
+  "RETIREMENT_SPENDING": "the answer \u2192 the retirement-spending question\nwhere they will live \u2192 the location answer",
+  "SS_CLAIM_FACTOR": "claim age (the slider, 62\u201370) \u2192 months early or late vs their full retirement age\nbirth year (their setup answer) \u2192 the full retirement age it anchors to",
+  "CAN_HOLD_TICKERS": "tax bucket \u2192 tax_bucket\naccount type \u2192 kind\nits class \u2192 assetClassOf",
+  "ACCOUNT_SPLIT": "the account \u2192 a\nits total \u2192 balance\nuninvested \u2192 cash_balance\nholdings \u2192 positions[]\noptions \u2192 option_holdings[]",
+  "ITEMISE_AN_ACCOUNT": "the account \u2192 lump\nthe holdings \u2192 items\nkeep the remainder as cash \u2192 keepRemainderAsCash",
+  "RETIREMENT_SHARE_DEFAULT": "account type \u2192 kind\nclass \u2192 assetClassOf\nhome use \u2192 re_use\nthe main car \u2192 primaryCarId",
+  "TOTAL_INVESTMENTS": "each account's class \u2192 assetClassOf\neach account's money \u2192 balance",
+  "IS_PHYSICAL_ASSET": "the account \u2192 a, via its class",
+  "MONTHLY_SAVING": "their own contribution \u2192 c_401k\nthe match \u2192 EMPLOYER_MATCH\nother regular saving \u2192 the answers",
+  "PRIMARY_CAR": "vehicle accounts \u2192 accounts\nvalue of each \u2192 balance",
+  "IF_RATES_MOVE": "the bond \u2192 face, couponRate, maturity, value\ntoday \u2192 now",
+  "IS_BOND": "the holding \u2192 position/account",
+  "DEBT_MINIMUM_TOTAL": "every debt \u2192 debts\neach minimum \u2192 minimum_monthly_payment",
+  "DEBT_REQUIRED_PAYMENT": "shape \u2192 paymentShape\nminimum \u2192 minimum_monthly_payment\nchosen \u2192 monthly_payment",
+  "TREND_SERIES": "monthly snapshots \u2192 monthly\ndaily points \u2192 daily",
+  "RETIREMENT_INCOME_NOW": "do they receive it now \u2192 incomeSources\nthe amounts \u2192 retirementIncomeMonthly",
+  "GROSS_FROM_TAKE_HOME": "take-home pay \u2192 net",
+  "EQUITY_THIS_YEAR": "each line \u2192 equityRowValue\nits year \u2192 rowVestYear",
+  "TAX_OWED": "gross \u2192 gross\nhow they file \u2192 status\ntheir state rate \u2192 stateRate",
+  "HOLDING_UNREALISED_GAIN": "value \u2192 marketValue\ncost \u2192 costBasis",
+  "SS_BENEFIT_AT_AGE": "statement amount at their full retirement age (typed from their ssa.gov statement) \u2192 statement monthly\nclaim age (the slider) \u2192 the factor's input\nbirth year (setup) \u2192 the anchor",
+  "NET_WORTH_ROWS": "accounts \u2192 ACCOUNTS_FROM_SETUP and anything added since\ndebts \u2192 DEBTS_FROM_SETUP and anything added since",
+  "ALLOCATION_BY_CLASS": "each account's class \u2192 assetClassOf\neach account's money \u2192 balance\nany split \u2192 accountClassBreakdown",
+  "TOTAL_CASH": "each account's class \u2192 assetClassOf\neach account's money \u2192 balance",
+  "RETIREMENT_SHARE_AMOUNT": "money \u2192 balance\nsaved share \u2192 retirement_pct\nfallback \u2192 RETIREMENT_SHARE_DEFAULT",
+  "TOTAL_INVESTABLE": "each account's class \u2192 assetClassOf\neach account's money \u2192 balance",
+  "DEBT_ACTUAL_TOTAL": "every debt \u2192 debts, via requiredPayment",
+  "EFFECTIVE_TAX_RATE": "gross \u2192 gross\nhow they file \u2192 status\ntheir state rate \u2192 stateRate",
+  "SALARY_BY_MONTH": "the twelve months \u2192 salaryByMonth\nor one figure \u2192 the monthly salary box\ngross or take-home \u2192 salaryMode",
+  "HOLDING_TOTAL_ROI": "gain \u2192 unrealizedGain\ncost \u2192 costBasis",
+  "WHICH_VIEW": "their own choice \u2192 the lens override\nare they drawing retirement income \u2192 RETIREMENT_INCOME_NOW",
+  "EXPECTED_RETURN_BLENDED": "each account's money \u2192 balance\neach account's rate \u2192 benchmarkReturn(kind)",
+  "EXPECTED_SWING_BLENDED": "each account's money \u2192 balance\neach type's swing \u2192 ASSET_KINDS vol",
+  "REPORTED_RETURN": "each account's reported rate \u2192 actual_ttm\nthe share of it counted toward retirement \u2192 RETIREMENT_SHARE_AMOUNT",
+  "NEST_EGG": "every account \u2192 accounts, via RETIREMENT_SHARE_AMOUNT",
+  "DEBT_PAYMENTS_ACTUAL": "every debt \u2192 debts, via DEBT_REQUIRED_PAYMENT",
+  "SPLIT_BY_HOW_IT_IS_TAXED": "each account \u2192 accounts\nits tax treatment \u2192 tax_bucket\nthe share counted toward retirement \u2192 RETIREMENT_SHARE_AMOUNT",
+  "MONTHS_WORKED": "the twelve months \u2192 salaryGrossByMonth",
+  "SALARY_A_YEAR": "the twelve months \u2192 salaryGrossByMonth",
+  "PERFORMANCE_TABLE": "the holdings \u2192 positions\nprices \u2192 priceOf(ticker)\nthe chosen chip \u2192 period\ntoday \u2192 now",
+  "DEBT_PICTURE": "every debt \u2192 debts\nrates \u2192 interest_rate_apr\npayments \u2192 the minimum and chosen payments",
+  "TIPS_A_YEAR": "tips a month \u2192 tipsMonthly\nmonths worked \u2192 salaryActiveMonths",
+  "WHAT_THE_PLAN_STILL_NEEDS": "their age \u2192 birthYear or age\nwhat they spend \u2192 monthlySpending\nmoney that counts toward retirement \u2192 NEST_EGG",
+  "TOTAL_INCOME": "each part \u2192 its own engine above",
+  "WILL_IT_LAST_INPUTS": "their age \u2192 birthYear\nthe pot \u2192 NEST_EGG\nreturn and swing \u2192 EXPECTED_RETURN_BLENDED, EXPECTED_SWING_BLENDED\nspending \u2192 RETIREMENT_SPENDING\nguaranteed income \u2192 RETIREMENT_INCOME, SS_BENEFIT_AT_AGE\nmoney to leave behind \u2192 legacyTarget\ntheir own overrides \u2192 the Plan screen",
+  "WILL_IT_LAST_RESULT": "everything \u2192 WILL_IT_LAST_INPUTS\nis a range wanted \u2192 withBand"
+ }
+}

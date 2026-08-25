@@ -15,11 +15,14 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
         'Formula (mathematical)','Formula (in words)',
+        'Inputs it needs','What comes out — unit and rounding',
+        'What it says when it cannot be computed','Grain — one figure per what',
+        'Period — as of when, over what window','Engines it depends on',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
         'Questions for you (numbered)','YOUR ANSWER — use the same number',
@@ -50,6 +53,49 @@ SECOND = {
  'PRICE_FRESHNESS':'DECIDES the moment a price stops being current.',
  'TOTAL_CASH':'DECIDES what counts as cash — and deliberately excludes money-market funds.',
 }
+_deps = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_engine_deps.json')))
+
+def assumptions(engine, math_text, decided):
+    e=str(engine); mt=(math_text or '').lower(); out=[]
+    if decided: out.append('[Founder] ' + decided)
+    if 'inflation' in mt or 'inflation' in e.lower():
+        out.append('[Built in] Inflation comes from a published feed, with a fallback figure when the feed is silent.')
+    if '(1 + r)' in mt or 'random return' in mt or 'return' in mt and 'assumed' in mt:
+        out.append('[Built in] The assumed rate of return, which the person can change on the cockpit.')
+    if 'life expectancy' in mt:
+        out.append('[Built in] A life-expectancy figure the person never chose.')
+    if '25' in mt and 'nest egg' in mt:
+        out.append('[Founder] Twenty-five times the yearly spending not covered by guaranteed income, counted from the start of the retirement year.')
+    if 'claim' in mt or 'full retirement age' in mt:
+        out.append('[The person] The claim age they set, and the statement amount they typed.')
+    if 'retire' in mt or 'retirement' in mt:
+        out.append('[The person] The retirement age in their plan.')
+    if not out:
+        out.append('NOT DETERMINED — no assumption recorded for this figure yet.')
+    return '\n'.join(out)
+
+def spec_cols(engine, label, math_text):
+    e=str(engine); parts=[x.strip() for x in e.split('·')]
+    ins=' · '.join(filter(None,(_deps['inputs'].get(x,'').replace('\n',' · ') for x in parts)))
+    dep=' · '.join(sorted({d for x in parts for d in _deps['deps'].get(x,[])}))
+    unit, grain, period = _f.derive(e, label, math_text)
+    ref = ' | '.join(filter(None,(_f.REFUSAL.get(x,'') for x in parts)))
+    if not ref:
+        mt = (math_text or '')
+        if e.startswith('worked out on the screen'):
+            ref = 'Inherits the refusal of the figures it is built from: if either side is missing, this line is not shown.'
+        elif 'Σ' in mt or mt.startswith(('total','net worth','cash','investments','assets')):
+            ref = _f.EMPTY_SUM
+        elif e.startswith('the amount') or e.startswith('the amounts') or e.startswith('the age') or e.startswith('the value'):
+            ref = 'Nothing to compute — the person either entered it or has not, and the screen shows it only when they have.'
+        elif '÷' in mt:
+            ref = 'A division: with nothing on the bottom there is no answer, and the line must not appear as zero. NOT YET CONFIRMED against the engine.'
+        else:
+            ref = 'NOT DETERMINED — this engine has not been read for its refusal yet.'
+    if not dep: dep = 'None found in the code — it reads raw values only' if e in _deps['inputs'] else 'NOT DETERMINED'
+    if not ins: ins = 'NOT DETERMINED — no input list on record for this engine'
+    return ins, unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', dep
+
 _asked=set()
 def questions_for(engine):
     Q=getattr(_f,'QUESTIONS',{})
@@ -406,17 +452,17 @@ def eid_for(engine, family):
 
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
-    m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
-        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -425,21 +471,21 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     done = set()
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
-        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, *sp, se, fi, assumptions(engine, m, de), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', '', '', '', '', '', 'NOT DETERMINED',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r] + ['']*17 + ['NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -452,18 +498,18 @@ for var, source, metrics, engines in INPUTS:
 SPEC = [
  ('', 'SECTION — WHAT THE NUMBER IS', '', ''),
  ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','DONE — 163 of 163 rows carry both forms.'),
- ('S02','The inputs, one by one','Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.','PART DONE — an inputs tab of 31 rows exists, but no row names ITS OWN inputs.'),
- ('S03','The decisions and assumptions applied','Rounding, timing conventions, inflation, which balance is used, which date wins — each labelled with whose decision it was: the founder\'s, the person\'s, or built in. The fourth link of objective 4.','PART DONE — 32 of 163 rows, and none says whose decision it was.'),
- ('S04','What comes out','Dollars, a percentage, a date, a count or a range; its unit and its rounding.','MISSING.'),
- ('S05','What it says when it cannot be computed','The exact refusal. This is where wrong numbers get invented, so it is part of the specification, not an afterthought.','MISSING.'),
- ('S06','The grain','Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.','MISSING.'),
- ('S07','The period','As of when, and over what window — this month, twelve months, since the person owned it.','MISSING.'),
+ ('S02','The inputs, one by one','Every input named separately, with its unit, and where it comes from: the person typed it, an institution download, a connected provider, or another engine.','DONE where it is on record — every row carries its own inputs; 72 read NOT DETERMINED because the old master never held an input list for that engine.'),
+ ('S03','The decisions and assumptions applied','Rounding, timing conventions, inflation, which balance is used, which date wins — each labelled with whose decision it was: the founder\'s, the person\'s, or built in. The fourth link of objective 4.','DONE — every row now carries its decisions and assumptions marked [Founder], [The person] or [Built in]; 126 read NOT DETERMINED, meaning no assumption is on record yet.'),
+ ('S04','What comes out','Dollars, a percentage, a date, a count or a range; its unit and its rounding.','DONE — 163 of 163, derived by rule from the label and formula and marked as derived. Needs confirming, not trusting.'),
+ ('S05','What it says when it cannot be computed','The exact refusal. This is where wrong numbers get invented, so it is part of the specification, not an afterthought.','PART DONE — 126 of 163 written; 37 read NOT DETERMINED because that engine has not been read for its refusal yet.'),
+ ('S06','The grain','Whether the figure is per holding, per account, per person or per household. Without it a total and a single line look identical.','DONE — 163 of 163, derived by rule and marked as derived.'),
+ ('S07','The period','As of when, and over what window — this month, twelve months, since the person owned it.','DONE — 163 of 163, derived by rule and marked as derived.'),
  ('', 'SECTION — WHAT PROVES IT', '', ''),
  ('S08','Worked examples','These inputs give this answer. Rung 2 re-runs them through the real engine on every build.','MISSING.'),
  ('S09','An example for every case','One per case the grid names: input missing, input degraded, a different shape per institution, time-bounded, related events, account type. Rung 3, the floor for every calculation.','MISSING.'),
  ('S10','Verification level','Whether this engine is marked for rung 4 (the written formula made executable and checked against the code on generated inputs) and rung 5 (laws that must hold for every input). Marked by the founder, recommended by me.','MISSING — the column does not exist yet.'),
  ('', 'SECTION — WHAT CONNECTS IT', '', ''),
- ('S11','Which engines feed this engine','The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.','MISSING.'),
+ ('S11','Which engines feed this engine','The engines it depends on. Without this, build order and the one-door design cannot be worked out — a metric points at an engine today, but engines do not point at each other.','DONE — read from the code itself, not from any document. 90 rows name their dependencies; the rest read raw values only or have no source line on record.'),
  ('S12','Where it is implemented','The file and function that carry it, so file and code can be checked against each other on every build.','MISSING.'),
  ('', 'SECTION — GOVERNANCE', '', ''),
  ('S13','The founder\'s verdict','His approval of the row. A row counts as documented only when he has approved it, so without this column the coverage count is meaningless.','MISSING — the column does not exist yet.'),
@@ -471,7 +517,7 @@ SPEC = [
  ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
  ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s. Today only four of his seventy-two names appear anywhere in the old master.','MISSING — 0 of 163 rows.'),
  ('S16','The duplication pass','Figures that are the same thing under two identifiers — the Net worth figure that also sits on Plan. Objective 1 made real, and it must happen before the deeper columns are filled or the work gets done twice.','NOT STARTED — the founder flagged it; rows now exist, so it is due.'),
- ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down, so no row can honestly say whether it is in or out.','NOT DETERMINED on every row.'),
+ ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down, so no row can honestly say whether it is in or out.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 yes, 5 no, 5 borderline) and a column for his decision.'),
 ]
 
 ws = sheet('Specification', ['No.','What is needed','Why it is needed','Where it stands in this file today'])
@@ -529,6 +575,40 @@ for r in range(2, ws.max_row+1):
     for c in range(1, len(DB_COLS)+1):
         ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
+
+# ---- S17: which screens are the 55-70 core. My recommendation; his decision.
+CORE = {
+ '/home':'Yes — the first screen','/analytics':'Yes — Net worth','/invest':'Yes — Performance',
+ '/cashflow':'Yes — Cash flow','/plan':'Yes — Plan',
+ '/account-detail':'Yes — where a wrong balance is chased','/holding-detail':'Yes — where a wrong gain is chased',
+ '/bonds':'Yes — this age group holds them','/other-investments':'Yes — the things with no market price',
+ '/import-holdings':'Yes — the way real data gets in','/add-account':'Yes','/connect':'Yes','/itemize':'Yes — splitting one lump into holdings',
+ '/look-back':'Borderline — interesting, not needed to trust a number',
+ '/will-it-last':'Yes — the question the whole plan answers','/what-if':'Yes','/retirement':'Yes — the cockpit',
+ '/ss-timing':'Yes — a 55-70 decision','/required-withdrawals':'Yes — a 73+ obligation','/roth':'Yes — a 55-70 decision',
+ '/multi-goal':'Yes','/sharpen':'Borderline — a way in, not a figure',
+ '/monthly-income':'Yes','/income-manager':'Yes','/income-detail':'Yes','/income':'Yes',
+ '/month-detail':'Yes','/bill-calendar':'Yes','/paycheck-months':'Yes','/big-costs':'Yes — the costs that break a plan',
+ '/contribution-room':'Yes — still relevant while working','/tax-organizer':'Yes','/insights':'Yes — what needs you today',
+ '/expense':'Yes','/goals':'Yes','/estate':'Yes — squarely a 55-70 concern','/insurance':'Borderline — matters at 55, less at 70',
+ '/stress-test':'Borderline','/jobsafety':'No — a working-age worry','/credit':'No — a working-age worry',
+ '/education':'No — college costs belong to the younger group','/worth-a-look':'Borderline',
+ '/rewards':'No — encouragement, not a number','/tips':'No — encouragement, not a number',
+ '/settings':'Yes — carries hide-balances and the lock','/auth':'Yes — the way in','/first-run':'Yes','/onboarding':'Yes',
+ '/savings':'Borderline','/performance':'Yes — a second route to Performance','/budget':'Yes','/connect-done':'Yes',
+}
+ws = sheet('core_screens', ['Screen name','Parent screen','Core or not — my recommendation','JJ — Decision (Y/N)'])
+_seen=set()
+for route, comp in sorted(nav['routes'].items()):
+    if route in _seen: continue
+    _seen.add(route)
+    parents = nav['reach'].get(route) or ([PARENTS[t] for t,rt in [('home','/home'),('networth','/analytics'),('performance','/invest'),('cashflow','/cashflow'),('plan','/plan')] if rt==route] or ['Menu'])
+    ws.append([route, ' · '.join(parents), CORE.get(route,'NOT DETERMINED — not yet judged'), ''])
+for i,w in enumerate([34,34,52,26], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,5): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -552,6 +632,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
+ ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
  ('TAB — database', 'What the app saves in the cloud: where each thing is stored, what it holds, which figures depend on it, how often it is written and at what grain. Also names what is deliberately NOT saved.'),
  ('TAB — inputs', 'The raw values the engines need before any calculation happens.'),
  ('', ''),
@@ -561,11 +642,17 @@ ref = [
  ('COLUMN — Name on Screen', 'The label copied exactly as it is worded on screen, including capitals. Where a figure wears different labels on different screens, all are listed.'),
  ('COLUMN — Name of Underlying Metric', "The metric's name in the code."),
  ('COLUMN — Name of Underlying Engine', 'The engine that produces the figure. NOT IN OLD MASTER means the engine exists in the code but has no row in the old master file.'),
+ ('COLUMN — Inputs it needs (S02)', 'Every input the engine reads, named. Carried from the old master where it has a row there.'),
+ ('COLUMN — What comes out (S04)', 'Dollars, a percentage, a date, a count; how it is held and how it is shown. Marked "derived by rule" where it was worked out from the label and formula rather than read from the engine — those need confirming.'),
+ ('COLUMN — What it says when it cannot be computed (S05)', 'The refusal. Written where the engine has been read; NOT DETERMINED where it has not, rather than guessed.'),
+ ('COLUMN — Grain (S06)', 'One figure per what: holding, account, debt, goal, category, month, or person.'),
+ ('COLUMN — Period (S07)', 'As of when, and over what window.'),
+ ('COLUMN — Engines it depends on (S11)', 'The engines this one calls, read from the code itself. "None found" means it reads raw values only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
  ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
- ('COLUMN — Decisions made', 'The rulings that govern this figure, and why. The standing display and rounding rule applies to every row and is stated once at the top of this tab.'),
+ ('COLUMN — Decisions made (S03)', 'The rulings and assumptions that govern this figure, each marked with WHOSE decision it was: [Founder] his own ruling, [The person] something the user set, [Built in] an assumption nobody chose on a screen — which is usually why a number looks wrong. The standing display and rounding rule applies to every row and is stated at the top of this tab.'),
  ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
  ('COLUMN — Formula (in words)', 'The same rule in plain English, followable by hand. Where the engine has a row in the old master this is its wording, carried over; where it does not, it is written here from reading the code.'),
  ('COLUMN — Engine ID', 'The identifier of that engine. Blank where the figure is worked out on the screen itself rather than by an engine — which is itself a finding.'),
@@ -592,7 +679,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database'): continue
+    if name in ('Reference','database','core_screens'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))

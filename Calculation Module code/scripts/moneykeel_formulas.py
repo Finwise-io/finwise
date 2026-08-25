@@ -276,3 +276,84 @@ QUESTIONS = {
  'Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
 ],
 }
+
+# ── S04 / S05 / S06 / S07 ────────────────────────────────────────────────────────────────────
+# What comes out, what it says when it cannot, the grain and the period.
+# Written per engine where the engine has been read; otherwise derived by the rules in derive()
+# below and marked as derived, never presented as read.
+
+REFUSAL = {
+'MODIFIED_DIETZ (Calculation Module code/engines/window-return.ts)':'REFUSES when the timing of money moving in or out drives the percentage more than the investments do, and shows the dollar walk instead. Also refuses when the starting value is zero or negative.',
+'WILL_IT_LAST_RESULT':'No odds at all until the three facts are answered. A sample is shown in their place, labelled as a sample, never as the person\'s own number.',
+'WHAT_THE_PLAN_STILL_NEEDS':'This engine IS the refusal: it names what is missing and what is already counted.',
+'POT_AT_RETIREMENT':'No figure when there is nothing to grow, or when retirement is not ahead of the person.',
+'BOND_CURRENT_YIELD':'No value means no answer — never a division by zero.',
+'BOND_YIELD_TO_MATURITY':'No answer once the bond has matured, and none without a price.',
+'HOLDING_CAP_GAINS':'A lot with no recorded purchase price is SKIPPED. Today the screen does not say so, which is finding Q20.',
+'REALISED_GAIN':'Sales with no recorded purchase are counted separately and named on screen: "N sales had no recorded purchase, so their gain isn\'t counted."',
+'NW_CHANGE_PCT':'No baseline, or nothing invested, means the line is simply absent rather than shown as zero.',
+'PRICE_FRESHNESS':'With no priced holdings there is no freshness to report and the line does not appear.',
+'HAND_VALUE_AGE':'Always answers, but carries the age of the figure and warns once it is stale.',
+'REQUIRED_WITHDRAWAL':'Nothing before the start age for that birth year. A Roth 401(k) is exempt and says so.',
+'GOAL_CAPACITY':'Needs recent months to speak. With too few it says so rather than offering a figure from one month.',
+'SS_BENEFIT_AT_AGE':'Without a statement amount a worked example is shown, labelled as an example throughout.',
+'TREND_SERIES':'A line needs at least two points; with one, the point is shown and the line is not drawn.',
+'NW_CHANGE_WALK':'Where the record does not reach back far enough, the beginning is back-solved and the walk says so. With neither record nor flows it refuses.',
+'LOOK_BACK':'Without enough price history for both sides it declines the comparison rather than compare unequal periods.',
+}
+# Totals over an empty list are the quiet case worth naming once.
+EMPTY_SUM = ('Adds up to $0 when there is nothing to add. Zero and "nothing recorded yet" look '
+             'identical on screen — worth a decision.')
+
+def derive(engine, label, math_text):
+    """Unit and rounding, grain, and period — derived by rule from the label and the formula.
+    Marked as derived wherever it appears, so it is confirmed rather than trusted."""
+    lab=(label or '').lower(); mt=(math_text or '').lower(); e=str(engine)
+    # what comes out
+    if 'odds' in lab or 'WILL_IT_LAST' in e:
+        unit='Percent · rounded to the nearest 5 · a real 100 or 0 shown literally'
+    elif 'price' in lab or 'price paid' in lab:
+        unit='US dollars per unit · held to 8 decimal places · decimals shown'
+    elif '%' in lab or 'return' in lab or 'yield' in lab or 'rate' in lab or 'ret' == lab:
+        unit='Percent · one decimal shown'
+    elif 'months' in lab or 'runway' in lab or 'cushion' in lab:
+        unit='Months · one decimal'
+    elif 'age' in lab and 'usage' not in lab:
+        unit='Age in whole years'
+    elif 'quantity' in lab or 'shares' in lab or 'count' in lab or 'records' in lab:
+        unit='A count · whole units, except crypto which keeps its fractions'
+    elif 'date' in lab or 'matures' in lab:
+        unit='A date'
+    else:
+        unit='US dollars · held to the cent · shown as whole dollars'
+    # grain
+    if e.startswith('HOLDING') or 'holding' in lab or 'lot' in lab:
+        grain='One figure per holding'
+    elif e.startswith('BOND') or 'bond' in lab:
+        grain='One figure per bond'
+    elif e.startswith('ACCOUNT') or 'account' in lab:
+        grain='One figure per account'
+    elif 'debt' in lab or e.startswith('DEBT'):
+        grain='One figure per debt, and one total per person'
+    elif 'goal' in lab:
+        grain='One figure per goal'
+    elif 'category' in lab or 'class' in lab or 'bucket' in lab:
+        grain='One figure per category'
+    elif 'month' in lab:
+        grain='One figure per month'
+    else:
+        grain='One figure per person — or per household when two people share one record'
+    # period
+    if 'this month' in lab or 'spent so far' in lab or 'received' in lab:
+        period='This calendar month, to today'
+    elif '12 mo' in lab or 'twelve' in lab or 'a year' in lab or '/yr' in lab or 'annual' in lab:
+        period='The last twelve months'
+    elif 'window' in mt or 'period' in lab or 'return' in lab:
+        period='The window the person chose on screen'
+    elif 'retirement' in lab or 'retire' in lab or 'nest egg' in lab or 'pot' in lab:
+        period='From today to the retirement age in the plan'
+    elif 'year' in lab:
+        period='This calendar year, to today'
+    else:
+        period='As of today, from the latest figures held'
+    return unit, grain, period
