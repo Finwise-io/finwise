@@ -22,6 +22,7 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Formula (mathematical)','Formula (in words)',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
+        'Questions for you (numbered)','YOUR ANSWER — use the same number',
         'Your name for it (72-metric file)','Core screen?','Row status']
 
 # formulas: the mathematical form is written here; the words come from the old master where the
@@ -49,6 +50,15 @@ SECOND = {
  'PRICE_FRESHNESS':'DECIDES the moment a price stops being current.',
  'TOTAL_CASH':'DECIDES what counts as cash — and deliberately excludes money-market funds.',
 }
+_asked=set()
+def questions_for(engine):
+    Q=getattr(_f,'QUESTIONS',{})
+    out=[]
+    for part in [x.strip() for x in str(engine).split('·')]:
+        if part in Q and part not in _asked:
+            _asked.add(part); out.extend(Q[part])
+    return '\n\n'.join(out)
+
 def notes(engine):
     e=str(engine)
     parts=[x.strip() for x in e.split('·')]
@@ -396,17 +406,17 @@ def eid_for(engine, family):
 
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
-    m,w = formulas(engine); fi,de,se = notes(engine)
-    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+    m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
+    ws.append([nid('XS','M'), screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
 for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
-        m,w = formulas(engine); fi,de,se = notes(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], 'NA', label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -415,21 +425,21 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     done = set()
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
-        m,w = formulas(engine); fi,de,se = notes(engine)
+        m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine)
         ws.append([nid(FAM[tab],'M'), PARENTS[tab], route, label, metric, engine,
-                   eid_for(engine, FAM[tab]), m, w, se, fi, de, '', 'Yes', 'VERIFIED 2026-08-22'])
+                   eid_for(engine, FAM[tab]), m, w, se, fi, de, qs, '', '', 'Yes', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', 'Yes',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—', '', '', '', '', '', '', '', '', '', 'Yes',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r, '', '', '', '', '', '', '', '', '', '', '', '', 'NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -546,6 +556,8 @@ ref = [
  ('COLUMN — Name of Underlying Metric', "The metric's name in the code."),
  ('COLUMN — Name of Underlying Engine', 'The engine that produces the figure. NOT IN OLD MASTER means the engine exists in the code but has no row in the old master file.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
+ ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
+ ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
  ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
  ('COLUMN — Decisions made', 'The rulings that govern this figure, and why. The standing display and rounding rule applies to every row and is stated once at the top of this tab.'),
  ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
@@ -581,5 +593,14 @@ for name in wb.sheetnames:
 
 wb._sheets = [wb[n] for n in TAB_ORDER if n in wb.sheetnames]
 os.makedirs(os.path.dirname(OUT), exist_ok=True)
+# GUARD: every question must have landed on a row. A question the founder cannot see is a
+# question that will never be answered.
+_all_q = {q.split(' ')[0] for v in getattr(_f,'QUESTIONS',{}).values() for q in v}
+_unplaced = _all_q - {q for e in _asked for q in
+                      {x.split(' ')[0] for x in getattr(_f,'QUESTIONS',{}).get(e,[])}}
+if _unplaced:
+    raise SystemExit('BUILD STOPPED — these questions landed on no row: ' + ', '.join(sorted(_unplaced)))
+
 wb.save(OUT)
 print("wrote", OUT)
+print("questions placed:", len(_all_q))

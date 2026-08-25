@@ -186,3 +186,93 @@ DECISIONS = {
 'NW_CHANGE_WALK':'The identity must close: ending = beginning + money in − money out + income − costs + market change. A direction stated by the institution never overrides a contradicting sign — a −$500 line marked IN is a reversal.',
 'LEDGER':'Nothing is booked from a guess. An institution word that is not in the translation table is refused, not sign-guessed — the sign-guess is what minted $1,064,493 of contributions on an account where nothing moved.',
 }
+
+# Questions for the founder, attached to the engine they concern. NUMBERS ARE FIXED FOREVER —
+# he answers by number, so a number is never reused, renumbered or reordered.
+QUESTIONS = {
+'BOND_FACTS':[
+ 'Q01 — Is Quantity for a bond the FACE amount (e.g. 227,000) with the price quoted per $100 of face, or the number of bonds? It decides how value and gain are worked out.',
+ 'Q02 — How should a bond be NAMED on screen? Draft: "US Treasury 4.25% Nov 2029", with the identifying number shown as a detail rather than the headline. Approve or rewrite.',
+ 'Q03 — Certificates of deposit: under Fixed Income, or their own class? They carry a term, a rate and an early-withdrawal penalty that a bond does not.',
+],
+'BOND_COUPON':[
+ 'Q04 — "Annual income" on a bond: the last twelve months actually received, or the forward estimate from today\'s coupon? Both are defensible and they differ.',
+],
+'BOND_YIELD_TO_MATURITY':[
+ 'Q05 — Accrued interest: do we work it out ourselves — which needs a day-count rule per bond type — or only show what the institution gives us?',
+],
+'HOLDING_MARKET_VALUE':[
+ 'Q06 — Options: is quantity held in CONTRACTS with the price per share (so value = contracts x 100 x price), or is the price already per contract? Today neither is applied and the value may be a hundredth of the truth.',
+ 'Q07 — Crypto: how many decimal places should a quantity keep? Some coins are held in very small fractions.',
+ 'Q08 — Foreign currency: is this cash held at an institution, or currency trading? And should that tab\'s "Dividend" row be "Interest"?',
+],
+'HOLDING_SHARES':[
+ 'Q09 — Should the app store the UNIT beside every quantity — shares, contracts, coins, units of face, currency units — so nothing can be multiplied by the wrong price? Today one field holds all of them with nothing marking which.',
+],
+'ALLOCATION_BY_CLASS':[
+ 'Q10 — What order of evidence decides an asset\'s class? Draft: the institution\'s own class field, then the shape of the identifier (option symbols, nine-character bond numbers, currency codes), then words in the name, then ask you.',
+ 'Q11 — When nothing matches: refuse the line and ask, or park it as unclassified? Parking keeps the totals right and hides a gap; refusing is honest and stops the import.',
+ 'Q12 — Does the person\'s own answer always win and stick, even when the next sync disagrees? That is today\'s rule for holdings — confirm it holds for every class.',
+ 'Q13 — Commodities: is a fund that tracks gold (GLD) simply a fund with a "commodity" label for allocation, and do you want PHYSICAL metal — weight, unit, purity, storage, spot price — supported at launch?',
+],
+'ACCOUNT_SPLIT':[
+ 'Q14 — What should a MIXED account be called on screen, when it holds several classes at once?',
+],
+'the ledger sum of interest and dividends for the account':[
+ 'Q15 — An institution word we do not recognise: refuse the line and ask you, or book it as unclassified with no direction? The old sign-guess is what minted the $1.4 million.',
+],
+'TOTAL_CASH':[
+ 'Q16 — Does foreign-currency cash count towards Cash, or sit apart until it is converted?',
+],
+'NW_CHANGE_PCT':[
+ 'Q17 — "Return on cash + investments" counts money you paid in as a gain. Is the LABEL wrong, or the FORMULA? Fixing the formula means removing deposits and withdrawals before measuring.',
+],
+'POT_AT_RETIREMENT':[
+ 'Q18 — Net worth projects the pot WITHOUT your big costs; Cash flow, Budget, Goals and Social Security timing all include them. Which is right for the Net worth screen?',
+],
+'WILL_IT_LAST_RESULT':[
+ 'Q19 — The odds are rounded to the nearest 5 on screen but shown exact in the compare tables. Round everywhere, or show exact everywhere?',
+],
+'HOLDING_CAP_GAINS':[
+ 'Q20 — A lot with no recorded purchase price is skipped, so its gain is simply absent. Should the screen SAY so — "gain not counted for N shares, no purchase price on record" — rather than quietly reporting less?',
+],
+'REALISED_GAIN':[
+ 'Q21 — On a second device the ledger is absent, so this reads nothing. Until history syncs, should it refuse in words rather than show a figure that looks like zero?',
+],
+'PRICE_FRESHNESS':[
+ 'Q22 — How old is too old for a price before the screen warns? Today it is a fixed limit in the code; you have never set it.',
+],
+'HAND_VALUE_AGE':[
+ 'Q23 — Same question for a value you typed by hand: after how long should the app ask you to check it?',
+],
+'TAXABLE_INCOME':[
+ 'Q24 — State tax is applied to taxable accounts only. Do you want a state rate captured per person, or to keep the single blended figure we use now?',
+],
+'INSURANCE_NEED':[
+ 'Q25 — How many years of income should the default life-cover estimate replace, and does it assume the mortgage is cleared?',
+],
+'EDUCATION_COST':[
+ 'Q26 — What education inflation rate should the college projection use, and should it be visible and editable on the screen?',
+],
+'GOAL_CAPACITY':[
+ 'Q27 — "Typical free cash to save" uses the middle of recent months. How many months should it look back, and should a one-off windfall be excluded?',
+],
+'JOB_SAFETY_RUNWAY':[
+ 'Q28 — How many months of essentials should the app treat as safe by default — and is that number yours to set per person, or one figure for everyone?',
+],
+'STRESS_TEST':[
+ 'Q29 — What size of shock should the test use by default, and should it be a fixed dollar figure or a share of the person\'s spending?',
+],
+'RETIREMENT_PAYCHECK':[
+ 'Q30 — The draw from savings is shown as one figure a month. Should it hold steady in today\'s dollars, or rise with inflation each year?',
+],
+'REQUIRED_WITHDRAWAL':[
+ 'Q31 — Required withdrawals are estimated from balances we hold. When an institution states its own required figure, does theirs win?',
+],
+'TREND_SERIES':[
+ 'Q32 — The trend survives on a new device but the walk behind it does not. Should the trend say so, or show quietly?',
+],
+'BENCHMARK_RETURN_BLENDED':[
+ 'Q33 — Which index should each asset class be compared against, and should the person be able to change it?',
+],
+}
