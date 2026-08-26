@@ -18,11 +18,11 @@ PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
 TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
-        'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
+        'Name of Underlying Metric','Function that produces it','Function ID',
         'Formula (mathematical)','Formula (in words)',
         'Inputs it needs','What comes out — unit and rounding',
         'What it says when it cannot be computed','Grain — one figure per what',
-        'Period — as of when, over what window','Dependency — engine ID → the output it uses',
+        'Period — as of when, over what window','Dependency — function ID → the output it uses',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
         'Same figure as (S16)',
@@ -84,6 +84,44 @@ def assumptions(engine, math_text, decided):
         out.append('NOT DETERMINED — no assumption recorded for this figure yet.')
     return '\n'.join(out)
 
+
+def numbered(text, sep='\n'):
+    """A cell holding more than one thing is numbered, so it can be read and referred to."""
+    if not text: return text
+    parts = [p.strip(' ·') for p in str(text).split(sep) if p.strip(' ·')]
+    if len(parts) < 2: return str(text)
+    return '\n'.join('%d. %s' % (i, p) for i, p in enumerate(parts, 1))
+
+
+_FNMAP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_fn_map.json')))
+_ENG2FN, _FID = _FNMAP['eng2fn'], _FNMAP['fid']
+
+def functions_for(engine):
+    """The function that actually produces a figure, named by its identifier.
+
+    Three honest answers: the function and its identifier · the screen itself, where the figure is
+    worked out on the screen · or a plain statement that no function is on record for it.
+    """
+    e = str(engine)
+    if e.startswith('worked out on the screen'):
+        return 'Worked out on the screen itself — no function behind it', ''
+    if e.startswith('the amount') or e.startswith('the amounts') or e.startswith('the age') or e.startswith('the value'):
+        return 'Typed by the person — no function behind it', ''
+    names, ids = [], []
+    for part in [p.strip() for p in e.split('·')]:
+        # a part written as "NOT IN OLD MASTER — budgetVsActual, src/domain/budget" names its function
+        m = re.search(r'—\s*([A-Za-z_][A-Za-z0-9_]*)\s*,', part)
+        cands = _ENG2FN.get(part.split('[')[0].strip(), [])
+        if m and m.group(1) in _FID: cands = [m.group(1)]
+        for fn in cands:
+            if fn in _FID and fn not in names:
+                names.append(fn); ids.append(_FID[fn])
+    if not names:
+        return 'NOT ON RECORD — no function is recorded for this figure', ''
+    if len(names) == 1:
+        return names[0], ids[0]
+    return numbered(' · '.join(names), ' · '), numbered(' · '.join(ids), ' · ')
+
 def spec_cols(engine, label, math_text):
     e=str(engine); parts=[x.strip() for x in e.split('·')]
     ins_raw=' · '.join(filter(None,(_deps['inputs'].get(x,'').replace('\n',' · ') for x in parts)))
@@ -107,7 +145,7 @@ def spec_cols(engine, label, math_text):
             ref = 'NOT DETERMINED — this engine has not been read for its refusal yet.'
     dep = dep_note(e)
     if not ins: ins = 'NOT DETERMINED — no input list on record for this engine'
-    return ins, unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', dep
+    return numbered(ins, ' · '), unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', numbered(dep)
 
 _DUP_OF = {}
 for _keep,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
@@ -156,7 +194,7 @@ def questions_for(engine):
     for part in [x.strip() for x in str(engine).split('·')]:
         if part in Q and part not in _asked:
             _asked.add(part); out.extend(Q[part])
-    return '\n\n'.join(out)
+    return '\n\n'.join(out)   # questions keep their own Qnn numbers
 
 def notes(engine):
     e=str(engine)
@@ -165,7 +203,7 @@ def notes(engine):
     find=' | '.join(filter(None,(F.get(x,'') for x in parts)))
     dec =' | '.join(filter(None,(D.get(x,'') for x in parts)))
     sec =' | '.join(filter(None,(SECOND.get(x,'') for x in parts)))
-    return find, dec, sec
+    return numbered(find, ' | '), numbered(dec), numbered(sec, ' | ')
 
 def formulas(engine):
     e=str(engine)
@@ -509,8 +547,8 @@ def eid_for(engine, family):
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-    _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid)
-    ws.append([_mid, screens, 'NA', label, metric, mark_engine(engine), eid_for(engine,'XS'), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid); _FN_OF = functions_for(engine)
+    ws.append([_mid, screens, 'NA', label, metric, mark_engine(engine), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -518,9 +556,9 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
-        ws.append([_mid, PARENTS[tab], 'NA', label, metric, mark_engine(engine),
-                   eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
+        ws.append([_mid, PARENTS[tab], 'NA', label, metric, _FN_OF[0], _FN_OF[1],
+                   m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -530,9 +568,9 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
-        ws.append([_mid, PARENTS[tab], route, label, metric, mark_engine(engine),
-                   eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
+        ws.append([_mid, PARENTS[tab], route, label, metric, _FN_OF[0], _FN_OF[1],
+                   m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
@@ -718,7 +756,7 @@ import importlib.util as _il3
 _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
-FN_COLS = ['Function ID','Function','File','Line','Category','What it is for',
+FN_COLS = ['Function ID','Function','File','Line','Category','Objective — what this function is for',
            'What it is handed (its inputs)','What it gives back (its output)',
            'Where its answer appears — the words, the screen, the section','Assumptions it makes',
            'Can its answer reach a screen?','Dependent functions — one step below',
@@ -757,9 +795,10 @@ for row in _FN_ROWS:
     if not _purpose:
         _purpose = 'NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.'
     ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], _purpose,
-               row['inputs'], row['output'], row['screen_labels'], row['assumptions'],
-               row['can_reach_a_screen'], row['depends_on'], row['feeder_count'],
-               row['fed_by'], row['chain'],
+               numbered(row['inputs'], ' · '), row['output'],
+               numbered(row['screen_labels'], ' · '), numbered(row['assumptions']),
+               row['can_reach_a_screen'], numbered(row['depends_on'], ' · '), row['feeder_count'],
+               numbered(row['fed_by'], ' · '), numbered(row['chain']),
                ' · '.join(mids) or '—', old or '—'])
 for i,w in enumerate([15,28,34,7,26,44,42,30,62,54,14,34,12,52,66,26,22], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
@@ -932,7 +971,7 @@ import importlib.util as _il2
 _sp2=_il2.spec_from_file_location('mkrec', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_reconcile.py'))
 _rec=_il2.module_from_spec(_sp2); _sp2.loader.exec_module(_rec)
 _breaks, _open, _counts = _rec.check(OUT)
-print('reconciliation — %(figures)s figures, %(inputs)s inputs, %(engines)s engines' % _counts)
+print('reconciliation — %(figures)s figures, %(inputs)s inputs, %(functions)s functions' % _counts)
 print('  structural breaks: %d   open findings: %d' % (len(_breaks), len(_open)))
 for _b in _breaks[:20]: print('   BREAK  ' + _b)
 if _breaks:

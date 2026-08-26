@@ -20,18 +20,18 @@ def check(path=MASTER):
     head = {t: [c.value for c in wb[t][1]] for t in SCREEN_TABS}
     col = lambda t, name: head[t].index(name)
 
-    metric_ids, engine_ids, rows = set(), set(), []
-    defined_engines = {r[0] for r in wb['engines-old-tab'].iter_rows(min_row=2, values_only=True) if r[0]}
+    metric_ids, function_ids, rows = set(), set(), []
+    known_functions = {r[0] for r in wb['functions_from_code'].iter_rows(min_row=3, values_only=True) if r[0]}
     for t in SCREEN_TABS:
         for r in wb[t].iter_rows(min_row=2, values_only=True):
             if not r[0]:
                 continue
             rows.append((t, r))
             metric_ids.add(r[0])
-            eid = r[col(t, 'Engine ID')]
-            if eid:
-                engine_ids.add(eid)
-    engine_ids |= defined_engines
+            fid = r[col(t, 'Function ID')]
+            if fid:
+                function_ids |= set(ID.findall(str(fid)))
+    function_ids |= known_functions
 
     input_ids = {r[0] for r in wb['inputs'].iter_rows(min_row=2, values_only=True) if r[0]}
     breaks = []   # structural: the file does not hold together. Stops the build.
@@ -62,9 +62,9 @@ def check(path=MASTER):
 
     # 4. every engine identifier a dependency names must exist
     for t, r in rows:
-        for eid in set(ID.findall(str(r[col(t, 'Dependency — engine ID → the output it uses')] or ''))):
-            if eid.startswith('MK-') and '-E-' in eid and eid not in engine_ids:
-                breaks.append('UNKNOWN ENGINE — %s depends on %s, which no row carries' % (r[0], eid))
+        for fid in set(ID.findall(str(r[col(t, 'Dependency — function ID → the output it uses')] or ''))):
+            if '-F-' in fid and fid not in function_ids:
+                breaks.append('UNKNOWN FUNCTION — %s depends on %s, which is in no function row' % (r[0], fid))
 
     # 5. a folded duplicate must point at an identifier that exists
     for t, r in rows:
@@ -81,13 +81,13 @@ def check(path=MASTER):
     for q in sorted({q for q in qs if qs.count(q) > 1}):
         breaks.append('QUESTION USED TWICE — %s appears on more than one row' % q)
 
-    return breaks, open_, {'figures': len(rows), 'inputs': len(input_ids), 'engines': len(engine_ids)}
+    return breaks, open_, {'figures': len(rows), 'inputs': len(input_ids), 'functions': len(function_ids)}
 
 
 if __name__ == '__main__':
     os.chdir(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
     breaks, open_, counts = check()
-    print('reconciliation — %(figures)s figures, %(inputs)s inputs, %(engines)s engines' % counts)
+    print('reconciliation — %(figures)s figures, %(inputs)s inputs, %(functions)s functions' % counts)
     print('structural breaks: %d   open findings: %d' % (len(breaks), len(open_)))
     for b in breaks: print('  BREAK  ' + b)
     for o in open_: print('  OPEN   ' + o)

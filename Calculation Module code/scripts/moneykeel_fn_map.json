@@ -1,0 +1,944 @@
+{
+ "eng2fn": {
+  "EXPENSE_COMMENTARY": [
+   "analyzeExpenses"
+  ],
+  "ECONOMIC_FIGURES": [
+   "fetchEconomicData"
+  ],
+  "READ_A_RECEIPT": [
+   "parseReceipt"
+  ],
+  "CONFIRM_TAX_TYPE": [
+   "confirmWrapper"
+  ],
+  "ACCOUNT_IDENTITY": [
+   "stAssetId"
+  ],
+  "FETCH_PRICES": [
+   "fetchPriceSeries"
+  ],
+  "TICKER_PLAUSIBLE": [
+   "isPlausibleTicker"
+  ],
+  "PRICE_FRESHNESS": [
+   "priceFreshness"
+  ],
+  "ACTIVITY_IDENTITY": [
+   "activityKey"
+  ],
+  "ACCOUNT_TAX_TYPE_GUESS": [
+   "mapAccountType"
+  ],
+  "TRANSLATE_BROKER_WORD": [
+   "mapActivityType"
+  ],
+  "OPTION_HOLDING": [
+   "mapOptionHolding"
+  ],
+  "CLASS_FROM_BROKER": [
+   "mapPosition"
+  ],
+  "HISTORY_DEPTH": [
+   "mergeHistoryFrom"
+  ],
+  "UNINVESTED_CASH": [
+   "netCashSleeve"
+  ],
+  "CURRENCY": [
+   "activeCurrency"
+  ],
+  "MONEY_IN_WORDS": [
+   "formatMoney"
+  ],
+  "MONEY_IN_WORDS_WITH_CENTS": [
+   "formatMoneyCents"
+  ],
+  "NEW_ID": [
+   "newEntityId"
+  ],
+  "READ_A_NUMBER": [
+   "toNum"
+  ],
+  "IS_ALTERNATIVE": [
+   "isAlternative"
+  ],
+  "ACCOUNT_NAMES": [
+   "accountDisplayNames"
+  ],
+  "ACCOUNT_TYPE_FACTS": [
+   "assetKind"
+  ],
+  "ACCOUNT_SHARE_OF_TOTAL": [
+   "buildAssetsState"
+  ],
+  "SLICE_WORDING": [
+   "classPortionLabel"
+  ],
+  "CLASS_FROM_NAME_TEXT": [
+   "incomeBearingClassOf"
+  ],
+  "ITEMISED_TOTAL": [
+   "itemizedTotal"
+  ],
+  "MATURITY_MEANS_BOND": [
+   "maturityClass"
+  ],
+  "HOW_A_HOME_IS_USED": [
+   "realEstateUseOf"
+  ],
+  "WHERE_THE_VALUE_CAME_FROM": [
+   "sourceWording"
+  ],
+  "TAX_TREATMENT": [
+   "taxTreatmentOf"
+  ],
+  "NET_WORTH_GROUPING": [
+   "uberGroupRows"
+  ],
+  "HAND_VALUE_AGE": [
+   "valueFreshness"
+  ],
+  "TAX_TYPE_TO_ACCOUNT": [
+   "wrapperAccount"
+  ],
+  "BOND_COUPON": [
+   "annualCoupon"
+  ],
+  "BOND_FACTS": [
+   "bondInfo"
+  ],
+  "BOND_YEARS_LEFT": [
+   "yearsToMaturity"
+  ],
+  "SPENDING_BY_KIND": [
+   "spendBuckets"
+  ],
+  "DEBT_TYPE_FACTS": [
+   "debtKind"
+  ],
+  "DEBT_SHAPE_DEFAULT": [
+   "defaultPaymentType"
+  ],
+  "DEBT_TYPE_FROM_NAME": [
+   "inferDebtType"
+  ],
+  "WHAT_IS_MISSING": [
+   "dataGaps"
+  ],
+  "NW_CHANGE_WALK": [
+   "buildChangeWalk"
+  ],
+  "NW_CHANGE_PCT": [
+   "investableChangePct"
+  ],
+  "SNAPSHOT_READ_ONE": [
+   "normalizeSnapshot"
+  ],
+  "CLASS_FROM_FILE": [
+   "classifyHolding"
+  ],
+  "FILE_DECODE": [
+   "decodeCsvBase64"
+  ],
+  "IMPORT_ACCOUNT_MATCH": [
+   "matchImportAccount"
+  ],
+  "FILE_PARSE": [
+   "parseCsv"
+  ],
+  "TAX_DEDUCTION": [
+   "deductionFor"
+  ],
+  "OTHER_INCOME": [
+   "extraIncome"
+  ],
+  "FILING_STATUS": [
+   "filingStatusOf"
+  ],
+  "RENTALS": [
+   "rentalList"
+  ],
+  "VESTING_YEAR": [
+   "rowVestYear"
+  ],
+  "TAXABLE_INCOME_SINGLE": [
+   "taxableIncome"
+  ],
+  "NET_WORTH": [
+   "buildNetWorth"
+  ],
+  "ALLOCATION_BY_HOLDING_KIND": [
+   "allocation"
+  ],
+  "WHAT_DROVE_THE_RETURN": [
+   "attribution"
+  ],
+  "BENCHMARK_FOR_KIND": [
+   "benchmarkTicker"
+  ],
+  "HOLDING_CAP_GAINS": [
+   "capGains"
+  ],
+  "HOLDING_COST_BASIS": [
+   "costBasis"
+  ],
+  "HOLDING_FIRST_BOUGHT": [
+   "earliestPurchaseDate"
+  ],
+  "PRICE_FACTOR_OVER_WINDOW": [
+   "factorOverMonths"
+  ],
+  "PERSONAL_RETURN_POSSIBLE": [
+   "historyIsComplete"
+  ],
+  "PERSONAL_RETURN_ANSWERED": [
+   "isMoneyWeighted"
+  ],
+  "PRICE_LATEST": [
+   "latestClose"
+  ],
+  "BENCHMARK_RETURN_BLENDED": [
+   "portfolioBenchReturn"
+  ],
+  "VALUE_WEIGHTED_RETURN": [
+   "portfolioPeriodReturn"
+  ],
+  "REALISED_GAIN": [
+   "realizedFromLedger"
+  ],
+  "PERIOD_START_DATE": [
+   "startDateFor"
+  ],
+  "CONCENTRATION": [
+   "topHoldingConcentration"
+  ],
+  "HOLDING_SHARES": [
+   "totalShares"
+  ],
+  "PERSONAL_FLOWS": [
+   "userFlows"
+  ],
+  "ODDS_SENTENCE": [
+   "oddsLine"
+  ],
+  "ARE_YOU_ON_COURSE": [
+   "onCourseSentence"
+  ],
+  "SAMPLE_ASK_SENTENCE": [
+   "sampleAskLine"
+  ],
+  "SAMPLE_ODDS_SENTENCE": [
+   "sampleOddsLine"
+  ],
+  "AGE_THE_MONEY_RUNS_OUT": [
+   "shortfallAgeFromBand"
+  ],
+  "COST_OF_LIVING": [
+   "colFactor"
+  ],
+  "ODDS_DISPLAY": [
+   "displayOdds"
+  ],
+  "SS_FULL_RETIREMENT_AGE": [
+   "fullRetirementAge"
+  ],
+  "WILL_IT_LAST": [
+   "simulate"
+  ],
+  "SWING_FROM_RETURN": [
+   "volOf"
+  ],
+  "CASH_EFFECT_OF_A_ROW": [
+   "cashEffect"
+  ],
+  "LEDGER_ROW_NAME": [
+   "txnLabel"
+  ],
+  "SYNC_ONE_ACCOUNT": [
+   "ingestSync"
+  ],
+  "ALREADY_SEEN_CHECK": [
+   "dedupeActivities"
+  ],
+  "ASSET_CLASS_OF_ACCOUNT": [
+   "assetClassOf"
+  ],
+  "ACCOUNTS_FROM_SETUP": [
+   "assetsFromOnboarding"
+  ],
+  "EXPECTED_RETURN_BY_KIND": [
+   "benchmarkReturn"
+  ],
+  "KIND_IS_CASH": [
+   "isCashKind"
+  ],
+  "ITEMISED_REMAINDER": [
+   "itemizeRemainder"
+  ],
+  "BOND_YIELD_TO_MATURITY": [
+   "approxYTM"
+  ],
+  "BOND_CURRENT_YIELD": [
+   "currentYield"
+  ],
+  "PLANNED_SPENDING": [
+   "plannedMonthlySpend"
+  ],
+  "DEBTS_FROM_SETUP": [
+   "debtsFromOnboarding"
+  ],
+  "DEBT_SHAPE": [
+   "paymentShape"
+  ],
+  "SNAPSHOT_READ_ALL": [
+   "readHistory"
+  ],
+  "FILE_IMPORT": [
+   "importHoldings"
+  ],
+  "EMPLOYER_MATCH": [
+   "employerMatchMonthly"
+  ],
+  "EQUITY_ROW_VALUE": [
+   "equityRowValue"
+  ],
+  "GUARANTEED_OUTSIDE_STREAMS": [
+   "guaranteedOutsideStreams"
+  ],
+  "TAX_OVER65_COUNT": [
+   "over65CountOf"
+  ],
+  "RENTAL_INCOME_A_YEAR": [
+   "rentalNetAnnual"
+  ],
+  "RETIREMENT_INCOME": [
+   "retirementIncomeMonthly"
+  ],
+  "STATE_TAX_RATE": [
+   "stateRateOf"
+  ],
+  "TAX_OWED_SINGLE": [
+   "taxOwed"
+  ],
+  "TAXABLE_INCOME": [
+   "taxableIncomeFor"
+  ],
+  "LOOK_BACK": [
+   "lookBack"
+  ],
+  "HOLDING_MARKET_VALUE": [
+   "marketValue"
+  ],
+  "PERSONAL_RETURN": [
+   "moneyWeightedReturn"
+  ],
+  "PERIOD_RETURN": [
+   "periodReturn"
+  ],
+  "RETURN_SINCE_A_DATE": [
+   "periodReturnSince"
+  ],
+  "PORTFOLIO_TREND_LINE": [
+   "portfolioTrend"
+  ],
+  "POT_AT_RETIREMENT": [
+   "projectNestEgg"
+  ],
+  "RETIREMENT_SPENDING": [
+   "retirementSpendMonthly"
+  ],
+  "SS_CLAIM_FACTOR": [
+   "ssClaimFactorFor"
+  ],
+  "CAN_HOLD_TICKERS": [
+   "accountAllowsTicker"
+  ],
+  "ACCOUNT_SPLIT": [
+   "accountClassBreakdown"
+  ],
+  "ITEMISE_AN_ACCOUNT": [
+   "buildItemizedAccounts"
+  ],
+  "RETIREMENT_SHARE_DEFAULT": [
+   "earmarkDefault"
+  ],
+  "TOTAL_INVESTMENTS": [
+   "investmentsTotal"
+  ],
+  "IS_PHYSICAL_ASSET": [
+   "isRealAsset"
+  ],
+  "MONTHLY_SAVING": [
+   "monthlyContributionsFromOnboarding"
+  ],
+  "PRIMARY_CAR": [
+   "primaryCarIdOf"
+  ],
+  "IF_RATES_MOVE": [
+   "bondRateSensitivity"
+  ],
+  "IS_BOND": [
+   "isBond"
+  ],
+  "DEBT_MINIMUM_TOTAL": [
+   "minimumDebtService"
+  ],
+  "DEBT_REQUIRED_PAYMENT": [
+   "requiredPayment"
+  ],
+  "TREND_SERIES": [
+   "trendPoints"
+  ],
+  "RETIREMENT_INCOME_NOW": [
+   "currentRetirementIncomeMonthly"
+  ],
+  "GROSS_FROM_TAKE_HOME": [
+   "grossFromNet"
+  ],
+  "EQUITY_THIS_YEAR": [
+   "rsuAnnual"
+  ],
+  "TAX_OWED": [
+   "taxOwedFor"
+  ],
+  "HOLDING_UNREALISED_GAIN": [
+   "unrealizedGain"
+  ],
+  "SS_BENEFIT_AT_AGE": [
+   "ssBenefitAt"
+  ],
+  "NET_WORTH_ROWS": [
+   "resolveNetWorthRows"
+  ],
+  "ALLOCATION_BY_CLASS": [
+   "assetAllocation"
+  ],
+  "TOTAL_CASH": [
+   "cashTotal"
+  ],
+  "RETIREMENT_SHARE_AMOUNT": [
+   "earmarkedAmount"
+  ],
+  "TOTAL_INVESTABLE": [
+   "investableAssets"
+  ],
+  "DEBT_ACTUAL_TOTAL": [
+   "totalDebtMonthly"
+  ],
+  "EFFECTIVE_TAX_RATE": [
+   "effectiveRateOnGrossFor"
+  ],
+  "SALARY_BY_MONTH": [
+   "salaryGrossByMonth"
+  ],
+  "HOLDING_TOTAL_ROI": [
+   "totalROI"
+  ],
+  "WHICH_VIEW": [
+   "resolveLens"
+  ],
+  "EXPECTED_RETURN_BLENDED": [
+   "blendedReturn"
+  ],
+  "EXPECTED_SWING_BLENDED": [
+   "blendedVolatility"
+  ],
+  "REPORTED_RETURN": [
+   "portfolioActualReturn"
+  ],
+  "NEST_EGG": [
+   "retirementEarmarkedValue"
+  ],
+  "DEBT_PAYMENTS_ACTUAL": [
+   "actualDebtPayment"
+  ],
+  "SPLIT_BY_HOW_IT_IS_TAXED": [
+   "taxBucketSplit"
+  ],
+  "MONTHS_WORKED": [
+   "salaryActiveMonths"
+  ],
+  "SALARY_A_YEAR": [
+   "salaryAnnual"
+  ],
+  "PERFORMANCE_TABLE": [
+   "buildPerformance"
+  ],
+  "DEBT_PICTURE": [
+   "buildDebtState"
+  ],
+  "TIPS_A_YEAR": [
+   "tipsAnnual"
+  ],
+  "WHAT_THE_PLAN_STILL_NEEDS": [
+   "planDoor"
+  ],
+  "TOTAL_INCOME": [
+   "totalGrossAnnual"
+  ],
+  "WILL_IT_LAST_INPUTS": [
+   "willItLastInputs"
+  ],
+  "WILL_IT_LAST_RESULT": [
+   "selectWillItLast"
+  ]
+ },
+ "fid": {
+  "accountAllowsTicker": "MK-NW-F-005",
+  "accountClassBreakdown": "MK-NW-F-027",
+  "accountDisplayName": "MK-NW-F-025",
+  "accountDisplayNames": "MK-NW-F-026",
+  "accountId": "MK-ST-F-027",
+  "accountLastFour": "MK-NW-F-024",
+  "activeCurrency": "MK-ST-F-047",
+  "activeSyncProvider": "MK-XS-F-099",
+  "activityKey": "MK-XS-F-108",
+  "actualDebtPayment": "MK-CF-F-026",
+  "actualMonthFlow": "MK-CF-F-005",
+  "addNotificationResponseListener": "MK-XS-F-090",
+  "affectedAccountIds": "MK-CF-F-113",
+  "allocatableThisMonth": "MK-CF-F-006",
+  "allocation": "MK-PF-F-017",
+  "alternativesSummary": "MK-NW-F-002",
+  "alternativesTotal": "MK-NW-F-019",
+  "analyzeExpenses": "MK-XS-F-057",
+  "annual401kLimit": "MK-CF-F-053",
+  "annualCashflow": "MK-CF-F-012",
+  "annualCoupon": "MK-NW-F-057",
+  "annualHsaLimit": "MK-CF-F-055",
+  "annualIraLimit": "MK-CF-F-054",
+  "annualNet": "MK-CF-F-044",
+  "annualizedEnteredSalary": "MK-CF-F-059",
+  "applyTransaction": "MK-CF-F-111",
+  "approxYTM": "MK-NW-F-060",
+  "assetAllocation": "MK-NW-F-029",
+  "assetClassOf": "MK-NW-F-011",
+  "assetKind": "MK-NW-F-007",
+  "assetsFromOnboarding": "MK-NW-F-040",
+  "attribution": "MK-PF-F-016",
+  "authenticate": "MK-XS-F-035",
+  "availableToSaveSummary": "MK-PL-F-016",
+  "avgCost": "MK-PF-F-003",
+  "balancesHidden": "MK-ST-F-046",
+  "benchmarkInfo": "MK-NW-F-036",
+  "benchmarkReturn": "MK-NW-F-034",
+  "benchmarkTicker": "MK-PF-F-013",
+  "benefitActiveMonths": "MK-CF-F-069",
+  "benefitAnnual": "MK-CF-F-070",
+  "blendedReturn": "MK-NW-F-037",
+  "blendedVolatility": "MK-NW-F-035",
+  "bondInfo": "MK-NW-F-056",
+  "bondRateSensitivity": "MK-NW-F-064",
+  "bondSummary": "MK-NW-F-061",
+  "budgetFromOnboarding": "MK-CF-F-013",
+  "budgetVsActual": "MK-CF-F-014",
+  "buildAssetsState": "MK-NW-F-039",
+  "buildBudgetState": "MK-CF-F-001",
+  "buildChangeWalk": "MK-XS-F-011",
+  "buildDatedGrid": "MK-XS-F-004",
+  "buildDayFromAccounts": "MK-ST-F-028",
+  "buildDebtState": "MK-CF-F-036",
+  "buildGoalsState": "MK-PL-F-011",
+  "buildIncomeState": "MK-CF-F-049",
+  "buildInsights": "MK-HM-F-001",
+  "buildItemizedAccounts": "MK-NW-F-052",
+  "buildNetWorth": "MK-NW-F-065",
+  "buildPaycheckYear": "MK-CF-F-107",
+  "buildPerformance": "MK-PF-F-014",
+  "buildRetirementState": "MK-PL-F-053",
+  "buildSnapshot": "MK-XS-F-031",
+  "cacheDataKey": "MK-XS-F-041",
+  "canAnswer": "MK-ST-F-006",
+  "cancelStreakReminder": "MK-XS-F-086",
+  "capGains": "MK-PF-F-006",
+  "capitalNeeded": "MK-PL-F-048",
+  "captureException": "MK-XS-F-037",
+  "cashEffect": "MK-CF-F-118",
+  "cashTotal": "MK-NW-F-016",
+  "cashflowYear": "MK-CF-F-020",
+  "categoryMonthly": "MK-CF-F-003",
+  "claimWindow": "MK-PL-F-064",
+  "classPortionLabel": "MK-NW-F-028",
+  "classifyEvent": "MK-ST-F-007",
+  "classifyHolding": "MK-XS-F-014",
+  "classifyHoldingClass": "MK-ST-F-011",
+  "clearDataKey": "MK-XS-F-043",
+  "colFactor": "MK-PL-F-047",
+  "compareMortgageToTreasury": "MK-CF-F-043",
+  "confirmWrapper": "MK-XS-F-103",
+  "connectionFreshness": "MK-XS-F-100",
+  "correctClassOf": "MK-NW-F-053",
+  "costBasis": "MK-PF-F-002",
+  "couponIncomeAnnual": "MK-NW-F-062",
+  "coverageFor": "MK-ST-F-004",
+  "covers": "MK-ST-F-035",
+  "crashReportingEnabled": "MK-XS-F-039",
+  "createInvite": "MK-XS-F-075",
+  "creditScoreBand": "MK-CF-F-032",
+  "creditUtilization": "MK-CF-F-031",
+  "currencySymbol": "MK-ST-F-048",
+  "currentAge": "MK-XS-F-017",
+  "currentIdToken": "MK-XS-F-064",
+  "currentRetirementIncomeMonthly": "MK-CF-F-072",
+  "currentUserEmail": "MK-XS-F-065",
+  "currentYield": "MK-NW-F-059",
+  "dataGaps": "MK-XS-F-002",
+  "dayWords": "MK-ST-F-003",
+  "debtKind": "MK-CF-F-035",
+  "debtToIncome": "MK-CF-F-033",
+  "debtsFromOnboarding": "MK-CF-F-038",
+  "decodeCsvBase64": "MK-XS-F-012",
+  "decryptFromSync": "MK-XS-F-055",
+  "decryptWithKey": "MK-XS-F-053",
+  "deductionFor": "MK-CF-F-099",
+  "dedupeActivities": "MK-XS-F-109",
+  "defaultPaymentType": "MK-CF-F-021",
+  "deleteAccount": "MK-XS-F-072",
+  "depletionAge": "MK-PL-F-003",
+  "directionOf": "MK-ST-F-009",
+  "displayOdds": "MK-PL-F-066",
+  "drawOrderOutcome": "MK-PL-F-010",
+  "earliestPurchaseDate": "MK-PF-F-012",
+  "earmarkDefault": "MK-NW-F-030",
+  "earmarkedAmount": "MK-NW-F-032",
+  "earmarkedKinds": "MK-NW-F-038",
+  "educationPlan": "MK-PL-F-033",
+  "effectiveAnnualContribution": "MK-XS-F-030",
+  "effectiveRate": "MK-CF-F-090",
+  "effectiveRateOnGross": "MK-CF-F-096",
+  "effectiveRateOnGrossFor": "MK-CF-F-102",
+  "effectiveTaxRate": "MK-CF-F-048",
+  "emergencyTest": "MK-CF-F-010",
+  "emit": "MK-ST-F-040",
+  "employerMatchAnnual": "MK-CF-F-046",
+  "employerMatchMonthly": "MK-CF-F-078",
+  "encryptForSync": "MK-XS-F-054",
+  "encryptWithKey": "MK-XS-F-052",
+  "equitiesTotal": "MK-NW-F-017",
+  "equityByMonth": "MK-CF-F-018",
+  "equityCashFlow": "MK-CF-F-064",
+  "equityRowValue": "MK-CF-F-062",
+  "equityVestWeights": "MK-CF-F-065",
+  "estimateEffectiveTaxRate": "MK-CF-F-047",
+  "extraIncome": "MK-CF-F-071",
+  "factorOverMonths": "MK-PF-F-022",
+  "fetchEconomicData": "MK-XS-F-056",
+  "fetchPriceSeries": "MK-XS-F-083",
+  "filingStatusOf": "MK-CF-F-085",
+  "firstDate": "MK-ST-F-034",
+  "fixedIncomeTotal": "MK-NW-F-018",
+  "flagComparisonText": "MK-CF-F-110",
+  "formatMoney": "MK-ST-F-049",
+  "formatMoneyCents": "MK-ST-F-050",
+  "fraLabel": "MK-PL-F-063",
+  "fullRetirementAge": "MK-PL-F-057",
+  "gapsHeadline": "MK-XS-F-003",
+  "generateDataKey": "MK-XS-F-044",
+  "generateRecoveryCode": "MK-XS-F-045",
+  "getAssetsState": "MK-NW-F-044",
+  "getDataKey": "MK-XS-F-042",
+  "getDebtState": "MK-CF-F-041",
+  "getIncomeState": "MK-CF-F-052",
+  "getProfileReadModel": "MK-XS-F-023",
+  "getUserDoc": "MK-ST-F-041",
+  "goalMonthsRemaining": "MK-PL-F-019",
+  "goalProgressPct": "MK-PL-F-022",
+  "goalStatus": "MK-PL-F-023",
+  "goalsFromOnboarding": "MK-PL-F-013",
+  "grossAnnualBaseline": "MK-CF-F-045",
+  "grossFromNet": "MK-CF-F-097",
+  "grossSalaryMonthly": "MK-CF-F-061",
+  "growOneYear": "MK-PL-F-054",
+  "guaranteedOutsideStreams": "MK-CF-F-076",
+  "guaranteedRows": "MK-CF-F-105",
+  "historyCoverage": "MK-NW-F-046",
+  "historyIsComplete": "MK-PF-F-025",
+  "holdingId": "MK-ST-F-026",
+  "howTheGapCloses": "MK-PL-F-043",
+  "importHoldings": "MK-XS-F-015",
+  "importKey": "MK-ST-F-014",
+  "incomeBearingClassOf": "MK-NW-F-008",
+  "incomeFromOnboarding": "MK-CF-F-079",
+  "incomeMonthlyGrid": "MK-CF-F-092",
+  "inferDebtType": "MK-CF-F-037",
+  "ingestSync": "MK-XS-F-102",
+  "initCrashReporting": "MK-XS-F-036",
+  "interestIncomeAnnual": "MK-NW-F-063",
+  "inverseOf": "MK-CF-F-116",
+  "investableAssets": "MK-NW-F-022",
+  "investableChangePct": "MK-XS-F-010",
+  "investmentIncomeAnnual": "MK-CF-F-119",
+  "investmentsTotal": "MK-NW-F-021",
+  "isAlternative": "MK-NW-F-001",
+  "isBond": "MK-NW-F-055",
+  "isCashKind": "MK-NW-F-006",
+  "isEmailVerified": "MK-XS-F-063",
+  "isEncrypted": "MK-XS-F-051",
+  "isLockAvailable": "MK-XS-F-034",
+  "isMoneyOut": "MK-CF-F-108",
+  "isMoneyWeighted": "MK-PF-F-027",
+  "isPlausibleTicker": "MK-XS-F-081",
+  "isRealAsset": "MK-NW-F-014",
+  "itemizeRemainder": "MK-NW-F-050",
+  "itemizedResultTotal": "MK-NW-F-051",
+  "itemizedTotal": "MK-NW-F-049",
+  "jobActiveMonth": "MK-CF-F-080",
+  "joinHouseholdMembership": "MK-XS-F-078",
+  "k401Headroom": "MK-CF-F-056",
+  "latestClose": "MK-PF-F-009",
+  "leverDeltas": "MK-PL-F-046",
+  "lifeInsuranceNeed": "MK-PL-F-034",
+  "loadAssets": "MK-NW-F-042",
+  "loadBudget": "MK-CF-F-015",
+  "loadDebt": "MK-CF-F-039",
+  "loadGoals": "MK-PL-F-014",
+  "loadIncome": "MK-CF-F-050",
+  "loadProfile": "MK-XS-F-021",
+  "loadUserData": "MK-XS-F-074",
+  "loadUserRoot": "MK-XS-F-079",
+  "loanPayment": "MK-CF-F-028",
+  "loginUser": "MK-XS-F-066",
+  "logoutUser": "MK-XS-F-069",
+  "lookBack": "MK-PF-F-023",
+  "looksFixedIncome": "MK-ST-F-001",
+  "lookupInvite": "MK-XS-F-076",
+  "ltcgRateFor": "MK-CF-F-104",
+  "makeEnvelope": "MK-XS-F-046",
+  "makeMonthlySnapshot": "MK-XS-F-007",
+  "makeTransaction": "MK-CF-F-112",
+  "mapAccountType": "MK-XS-F-104",
+  "mapActivityType": "MK-XS-F-107",
+  "mapOptionHolding": "MK-XS-F-106",
+  "mapPosition": "MK-XS-F-105",
+  "marginalBracket": "MK-CF-F-094",
+  "marginalBracketFor": "MK-CF-F-103",
+  "marketValue": "MK-PF-F-004",
+  "matchImportAccount": "MK-XS-F-016",
+  "maturityClass": "MK-NW-F-009",
+  "measuredFromLabel": "MK-ST-F-005",
+  "mergeHistoryFrom": "MK-XS-F-111",
+  "milestoneCrossed": "MK-HM-F-004",
+  "milestoneFloor": "MK-HM-F-003",
+  "milestoneLabel": "MK-HM-F-002",
+  "minimumDebtService": "MK-CF-F-025",
+  "money": "MK-ST-F-053",
+  "money2": "MK-ST-F-054",
+  "moneyCompact": "MK-ST-F-051",
+  "moneyWeightedReturn": "MK-PF-F-026",
+  "monthWords": "MK-ST-F-002",
+  "monthlyContributionsFromOnboarding": "MK-NW-F-041",
+  "monthlyEssentials": "MK-CF-F-009",
+  "monthlySavings": "MK-XS-F-029",
+  "monthlyTaxRates": "MK-CF-F-087",
+  "monthsToClear": "MK-CF-F-029",
+  "monthsToGoal": "MK-PL-F-021",
+  "monthsUntil": "MK-PL-F-018",
+  "mortgageOddsEffect": "MK-CF-F-042",
+  "nameEvidence": "MK-ST-F-010",
+  "netCashSleeve": "MK-XS-F-110",
+  "newEntityId": "MK-ST-F-043",
+  "nextDecision": "MK-PL-F-027",
+  "nonMonthlyBasis": "MK-CF-F-007",
+  "normalizeSnapshot": "MK-XS-F-008",
+  "ocrAvailable": "MK-XS-F-095",
+  "ocrReceipt": "MK-XS-F-097",
+  "oddsLine": "MK-PL-F-024",
+  "on": "MK-ST-F-039",
+  "onAuthChange": "MK-XS-F-071",
+  "onCourseSentence": "MK-PL-F-030",
+  "onOrBefore": "MK-ST-F-033",
+  "otherIncomeMonth": "MK-CF-F-073",
+  "over65CountOf": "MK-CF-F-089",
+  "parseCsv": "MK-XS-F-013",
+  "parseReceipt": "MK-XS-F-058",
+  "parseReceiptText": "MK-XS-F-094",
+  "parseReceiptWithOCR": "MK-XS-F-092",
+  "paymentShape": "MK-CF-F-022",
+  "paymentToClearBy": "MK-CF-F-030",
+  "payoffPlan": "MK-CF-F-034",
+  "pendingUpload": "MK-ST-F-037",
+  "periodDollarDelta": "MK-PF-F-021",
+  "periodReturn": "MK-PF-F-010",
+  "periodReturnSince": "MK-PF-F-011",
+  "personalFlowTotals": "MK-ST-F-013",
+  "pickReceipt": "MK-XS-F-096",
+  "planCompleteness": "MK-XS-F-001",
+  "planDoor": "MK-PL-F-026",
+  "planTarget": "MK-PL-F-044",
+  "plannedMonthlySpend": "MK-CF-F-002",
+  "portfolioActualReturn": "MK-NW-F-004",
+  "portfolioBenchReturn": "MK-PF-F-020",
+  "portfolioPeriodReturn": "MK-PF-F-019",
+  "portfolioTrend": "MK-PF-F-018",
+  "priceFreshness": "MK-XS-F-082",
+  "primaryCarIdOf": "MK-NW-F-031",
+  "profileFromOnboarding": "MK-XS-F-026",
+  "progressiveMonthlyTax": "MK-CF-F-098",
+  "projectNestEgg": "MK-PL-F-055",
+  "prune": "MK-ST-F-029",
+  "pruneDaily": "MK-XS-F-006",
+  "publishSurplus": "MK-CF-F-017",
+  "readFileString": "MK-XS-F-059",
+  "readHistory": "MK-XS-F-009",
+  "readMoney": "MK-ST-F-018",
+  "realEstateTotal": "MK-NW-F-020",
+  "realEstateUseOf": "MK-NW-F-013",
+  "realizedFromLedger": "MK-PF-F-028",
+  "reclassifyAccounts": "MK-NW-F-054",
+  "reconcile": "MK-ST-F-036",
+  "reconcileAccountTotal": "MK-ST-F-022",
+  "reconcileLedgerIdentity": "MK-ST-F-023",
+  "record": "MK-ST-F-030",
+  "refreshEmailVerified": "MK-XS-F-062",
+  "regenerateRecoveryCode": "MK-XS-F-068",
+  "registerUser": "MK-XS-F-060",
+  "relayUrl": "MK-XS-F-112",
+  "rentalList": "MK-CF-F-067",
+  "rentalNetAnnual": "MK-CF-F-068",
+  "requestNotificationPermission": "MK-XS-F-084",
+  "requiredAnnualSaving": "MK-PL-F-041",
+  "requiredMonthly": "MK-PL-F-020",
+  "requiredPayment": "MK-CF-F-023",
+  "resendVerification": "MK-XS-F-061",
+  "resetPassword": "MK-XS-F-070",
+  "resolveLens": "MK-XS-F-024",
+  "resolveNetWorthRows": "MK-XS-F-033",
+  "restoreUndo": "MK-CF-F-115",
+  "restoreWithRecoveryCode": "MK-XS-F-067",
+  "retireAgeWithContribution": "MK-PL-F-035",
+  "retirementEarmarkedValue": "MK-NW-F-033",
+  "retirementHorizonYears": "MK-XS-F-019",
+  "retirementIncomeMonthly": "MK-CF-F-075",
+  "retirementSpendMonthly": "MK-PL-F-049",
+  "reviewTransactions": "MK-CF-F-109",
+  "rewrapPassword": "MK-XS-F-049",
+  "rewrapRecovery": "MK-XS-F-050",
+  "rmdAtAge": "MK-PL-F-007",
+  "rmdDivisor": "MK-PL-F-006",
+  "rmdSchedule": "MK-PL-F-008",
+  "rmdStartAge": "MK-ST-F-024",
+  "rmdStartAgeFor": "MK-PL-F-005",
+  "rmdStartAgeFromAge": "MK-ST-F-025",
+  "rmdTakenThisYear": "MK-PL-F-009",
+  "rothConversionCost": "MK-PL-F-032",
+  "rothConversionWindow": "MK-CF-F-058",
+  "rothVsTraditional": "MK-CF-F-057",
+  "round2": "MK-ST-F-055",
+  "rowVestYear": "MK-CF-F-063",
+  "rowsFor": "MK-ST-F-015",
+  "rsuAnnual": "MK-CF-F-066",
+  "runSnapTradeSync": "MK-XS-F-116",
+  "salaryActiveMonths": "MK-CF-F-081",
+  "salaryAnnual": "MK-CF-F-082",
+  "salaryGrossByMonth": "MK-CF-F-060",
+  "sampleAskLine": "MK-PL-F-028",
+  "sampleOddsLine": "MK-PL-F-025",
+  "saveAssets": "MK-NW-F-043",
+  "saveBudget": "MK-CF-F-016",
+  "saveDebt": "MK-CF-F-040",
+  "saveGoals": "MK-PL-F-015",
+  "saveIncome": "MK-CF-F-051",
+  "saveProfile": "MK-XS-F-022",
+  "saveUserData": "MK-XS-F-073",
+  "savingToReachTarget": "MK-PL-F-042",
+  "savingsByMonth": "MK-CF-F-011",
+  "scheduleRmdReminder": "MK-XS-F-087",
+  "scheduleSsWindowReminder": "MK-XS-F-091",
+  "scheduleStreakReminder": "MK-XS-F-085",
+  "scheduleWeeklySummary": "MK-XS-F-089",
+  "scholarshipByCalendarMonth": "MK-CF-F-077",
+  "selectWillItLast": "MK-PL-F-068",
+  "sendBudgetAlert": "MK-XS-F-088",
+  "sendTestReport": "MK-XS-F-040",
+  "setHideBalances": "MK-ST-F-045",
+  "setMoneyFormat": "MK-ST-F-044",
+  "setSyncProviderForTesting": "MK-XS-F-098",
+  "setUserDoc": "MK-ST-F-042",
+  "setUserHousehold": "MK-XS-F-077",
+  "setUserScope": "MK-XS-F-038",
+  "shortfallAgeFromBand": "MK-PL-F-029",
+  "shouldDailySync": "MK-XS-F-115",
+  "signed": "MK-ST-F-019",
+  "simulate": "MK-PL-F-050",
+  "sinkingFund": "MK-PL-F-017",
+  "snapshotFromOnboarding": "MK-XS-F-032",
+  "snaptradeConfigured": "MK-XS-F-113",
+  "solveRetireAge": "MK-PL-F-056",
+  "solveSafeDraw": "MK-CF-F-106",
+  "sourceWording": "MK-NW-F-045",
+  "spendBuckets": "MK-CF-F-004",
+  "spendByMonth": "MK-CF-F-008",
+  "spendMoreSentence": "MK-PL-F-039",
+  "spendMoreState": "MK-PL-F-038",
+  "ssBenefitAt": "MK-PL-F-060",
+  "ssBenefitAtClaimAge": "MK-PL-F-061",
+  "ssClaimFactor": "MK-PL-F-059",
+  "ssClaimFactorFor": "MK-PL-F-058",
+  "ssLifetimeTotal": "MK-PL-F-062",
+  "ssStreamOf": "MK-PL-F-051",
+  "ssUpliftFactor": "MK-PL-F-045",
+  "stAssetId": "MK-XS-F-101",
+  "startDateFor": "MK-PF-F-008",
+  "stateRateOf": "MK-CF-F-086",
+  "stripNonMoney": "MK-XS-F-093",
+  "submitFeedback": "MK-XS-F-080",
+  "sumSigned": "MK-ST-F-020",
+  "surplusByMonth": "MK-XS-F-028",
+  "tabOrder": "MK-XS-F-025",
+  "takeHomeMonthly": "MK-XS-F-027",
+  "targetAtRetirement": "MK-PL-F-040",
+  "taxBucketSplit": "MK-PL-F-001",
+  "taxOrganizer": "MK-PL-F-031",
+  "taxOwed": "MK-CF-F-095",
+  "taxOwedFor": "MK-CF-F-101",
+  "taxTreatmentOf": "MK-NW-F-012",
+  "taxableAnnual": "MK-CF-F-084",
+  "taxableByCalendarMonth": "MK-CF-F-088",
+  "taxableIncome": "MK-CF-F-093",
+  "taxableIncomeFor": "MK-CF-F-100",
+  "tipsAnnual": "MK-CF-F-074",
+  "toLedgerRow": "MK-ST-F-012",
+  "toNum": "MK-ST-F-052",
+  "toNumber": "MK-ST-F-021",
+  "toReadModel": "MK-XS-F-020",
+  "topHoldingConcentration": "MK-PF-F-015",
+  "totalAssets": "MK-NW-F-015",
+  "totalDebtBalance": "MK-CF-F-027",
+  "totalDebtMonthly": "MK-CF-F-024",
+  "totalGrossAnnual": "MK-CF-F-083",
+  "totalOf": "MK-ST-F-016",
+  "totalROI": "MK-PF-F-007",
+  "totalShares": "MK-PF-F-001",
+  "touches": "MK-ST-F-008",
+  "trendPoints": "MK-XS-F-005",
+  "trimHints": "MK-PL-F-037",
+  "txnLabel": "MK-CF-F-117",
+  "uberGroupOf": "MK-NW-F-047",
+  "uberGroupRows": "MK-NW-F-048",
+  "unclassified": "MK-ST-F-017",
+  "undoSnapshot": "MK-CF-F-114",
+  "unitsOn": "MK-ST-F-032",
+  "unrealizedGain": "MK-PF-F-005",
+  "unwrapWithPassword": "MK-XS-F-047",
+  "unwrapWithRecovery": "MK-XS-F-048",
+  "upcomingBills": "MK-CF-F-019",
+  "usdCash": "MK-XS-F-114",
+  "userCapGainsRates": "MK-CF-F-091",
+  "userFlows": "MK-PF-F-024",
+  "valueFreshness": "MK-NW-F-003",
+  "valueOn": "MK-ST-F-031",
+  "volOf": "MK-PL-F-065",
+  "waterfall": "MK-PL-F-012",
+  "weighGoals": "MK-PL-F-036",
+  "willItLastInputs": "MK-PL-F-067",
+  "windowBounds": "MK-ST-F-038",
+  "withSsStream": "MK-PL-F-052",
+  "withdrawalOrder": "MK-PL-F-004",
+  "withdrawalPlan": "MK-PL-F-002",
+  "wrapperAccount": "MK-NW-F-010",
+  "wrapperWord": "MK-NW-F-023",
+  "yearsToMaturity": "MK-NW-F-058",
+  "yearsToRetirement": "MK-XS-F-018"
+ }
+}
