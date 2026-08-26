@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','functions_from_code']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','functions_from_code','functions_summary']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -747,7 +747,8 @@ for _r in _s3.iter_rows(min_row=3, values_only=True):
 
 import collections as _co
 _cat_counts = _co.Counter()
-for row in _fn.with_ids_and_chains():
+_FN_ROWS = _fn.with_ids_and_chains()
+for row in _FN_ROWS:
     old = _fn_to_old.get(row['name'], '')
     eid = engine_id.get(old, '') if old else ''
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
@@ -787,6 +788,42 @@ for i,w in enumerate([16,46,52,58,40,44], start=1):
 for r in range(2, ws.max_row+1):
     for c in range(1,7): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
+
+# ---- a count per category: how many functions, and how many cannot say what goes in or comes out
+SUM_COLS = ['Category','Functions','Handed nothing, and reads no stored data',
+            'Handed nothing, but reads the stored data','Does not declare what it gives back',
+            'Neither: nothing in, nothing declared out']
+ws = sheet('functions_summary', SUM_COLS)
+ws.append(['A function handed nothing that reads no stored data has its answer from a constant, '
+           'the clock, or something the code does not show. A function that does not declare what it '
+           'gives back cannot be checked for returning the right shape. Both are counted here rather '
+           'than described.','','','','',''])
+ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
+import collections as _c2
+_tally = _c2.defaultdict(lambda: [0,0,0,0,0])
+for _r in _FN_ROWS:
+    _cat = _r['category']; _in = _r['inputs']; _out = _r['output']
+    _nothing = _in.startswith('Nothing is handed')
+    _store = 'stored data' in _in
+    _noout = _out.startswith('NOT DECLARED')
+    t = _tally[_cat]
+    t[0] += 1
+    if _nothing and not _store: t[1] += 1
+    if _nothing and _store: t[2] += 1
+    if _noout: t[3] += 1
+    if _nothing and _noout: t[4] += 1
+_tot = [0,0,0,0,0]
+for _cat in sorted(_tally):
+    v = _tally[_cat]
+    ws.append([_cat] + v)
+    _tot = [a+b for a,b in zip(_tot, v)]
+ws.append(['TOTAL'] + _tot)
+ws.cell(ws.max_row,1).font = Font(bold=True)
+for i,w in enumerate([40,12,40,38,34,34], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,7): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -811,6 +848,7 @@ ref = [
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
  ('TAB — engines', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
+ ('TAB — functions_summary', 'A count per category: how many functions there are, how many are handed nothing at all, how many are handed nothing but reach into the stored data, and how many never say what they give back.'),
  ('TAB — functions_from_code', 'Every function in the calculation code, read from the code itself, sorted into the four categories by what it actually does. 1 ACTION does something and displays nothing. 2 DISPLAYED lands on a screen. 3 DEPENDENT feeds a chain that ends at a screen. 4 BRINGS DATA IN fetches from outside the app. A function that can reach a screen can put a wrong number in front of a person; one that cannot, cannot.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
  ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
@@ -866,7 +904,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines','functions_from_code'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines','functions_from_code','functions_summary'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
