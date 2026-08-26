@@ -719,9 +719,9 @@ _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.a
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
 FN_COLS = ['Function ID','Function','File','Line','Category','Why it was put there',
-           'Can its answer reach a screen?','Fed directly by (one step)',
-           'How many functions feed it in total',
-           'Every function that feeds it',
+           'Can its answer reach a screen?','Dependent functions — one step below',
+           'Dependent functions — how many in total',
+           'Dependent functions — all of them',
            'The chain, ending in this function',
            'Figures that name it','Name in the old inventory']
 ws = sheet('functions_from_code', FN_COLS)
@@ -828,7 +828,7 @@ ref = [
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
- ('COLUMN — Every function that feeds it', 'Every function whose output reaches this one, however many steps away.'),
+ ('COLUMN — Dependent functions', 'A dependent function is one whose output is used by another function, in a chain that ends at a screen. These columns list the dependent functions behind this one: those one step below it, how many there are in total, and all of them however many steps away.'),
  ('COLUMN — The chain, ending in this function', 'Read left to right. The function that shows the answer sits at the END, and everything feeding it comes before it. A loop is marked where a chain turns back on itself. Chains are cut at five levels and eight paths, and say so.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
