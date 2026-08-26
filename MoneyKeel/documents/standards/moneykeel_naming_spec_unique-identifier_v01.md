@@ -26,8 +26,14 @@ The founder's first draft was `MK-CM-Mv1-NW-M-45`. Two segments were dropped, ea
 | Type | `M` metric — what a person reads · `E` engine — the code that computes · `I` input — a raw value · `D` decision or assumption · `S` screen |
 | Number | Three digits, given out in order within each family, **never reused** |
 
-Examples: `MK-NW-M-045` a metric · `MK-PL-E-012` an engine · `MK-CF-I-007` an input ·
+Examples: `MK-NW-M-045` a metric · `MK-PL-F-012` a function · `MK-CF-I-007` an input ·
 `MK-PL-D-003` an assumption · `MK-NW-S-004` a screen.
+
+**`E` is retired.** It stood for "engine", a word invented for something that does not exist in the
+code. The vocabulary standard replaced it: what produces a figure is a **function**, and the one
+that answers a whole question by calling the others is an **orchestrator function**. Identifiers
+already issued as `MK-…-E-…` are not reused for anything else; they survive only on the
+`engines-old-tab` sheet, which is kept so the earlier work can still be traced.
 
 ### Addressing every cell of the founder's 72-metric grid
 

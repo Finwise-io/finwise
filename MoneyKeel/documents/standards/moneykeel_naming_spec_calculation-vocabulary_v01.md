@@ -128,6 +128,18 @@ Read downwards. Net worth, as it actually works today.
 
 ---
 
+## Where each of these lives in the master file
+
+| Word | Tab |
+|---|---|
+| Metric, name on screen, screen | the parent-screen tabs, `menu`, `multiple_screens` |
+| Function, its category, its objective, its inputs and output, its assumptions | `functions_from_code` |
+| How many functions stand behind each figure | `functions_per_metric` |
+| The four categories, counted | `functions_summary` |
+| Input | `inputs` |
+| The two records checked against each other | `reconciliation` |
+| The retired word | `engines-old-tab`, kept only so earlier work can be traced |
+
 ## Complies with
 
 - `moneykeel_naming_spec_unique-identifier_v01.md` — how identifiers are formed and assigned.

@@ -268,3 +268,11 @@ until the identifier nomenclature is designed, which is its own piece of work.
 **Which document is "the file"** — the master workbook, the decomposition sections, the
 architecture page, or something not yet built. Founder, 2026-08-22: none of today's documents meet
 the objectives, so this is decided AFTER all four objectives are fully clear, not before.
+
+
+## A note on the word "engine"
+
+This document was written before the vocabulary was settled, and says "engine" where it now means
+**function** — and, where it means the one function that answers a whole question, **orchestrator
+function**. His rulings are left in the words he used; the vocabulary standard
+`moneykeel_naming_spec_calculation-vocabulary_v01.md` governs which word is used from here on.
