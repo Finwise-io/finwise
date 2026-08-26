@@ -149,17 +149,31 @@ def with_ids_and_chains(rows=None, funcs=None):
             for tail in chains(k, seen + (n,), depth + 1):
                 out.append([n] + tail)
         return out or [[n]]
+    def everything_feeding(n):
+        """Every function whose output reaches n, however many steps away."""
+        out, stack, seen = [], list(calls(n)), {n}
+        while stack:
+            k = stack.pop(0)
+            if k in seen: continue
+            seen.add(k); out.append(k)
+            stack.extend(calls(k))
+        return out
     for r in rows:
         r['id'] = ident[r['name']]
         paths = chains(r['name'])
         lines = []
         for path in paths[:8]:
             if len(path) < 2: continue
-            lines.append(' → '.join((ident.get(x, '') + ' ' + x).strip() for x in path))
-        r['chain'] = '\n'.join(lines) if lines else 'Depends on nothing else — it reads its inputs and answers'
+            # the function that shows the answer sits at the END; what feeds it comes first
+            lines.append(' → '.join((ident.get(x, '') + ' ' + x).strip() for x in reversed(path)))
+        r['chain'] = '\n'.join(lines) if lines else 'Nothing feeds it — it reads its inputs and answers'
         if len(paths) > 8:
             r['chain'] += '\n… and %d more paths' % (len(paths) - 8)
         r['depends_on'] = ' · '.join(ident.get(k,'?') + ' ' + k for k in calls(r['name'])) or '—'
+        feeders = everything_feeding(r['name'])
+        r['fed_by'] = (' · '.join(ident.get(k,'?') + ' ' + k for k in feeders)
+                       if feeders else 'Nothing — it is the start of its own chain')
+        r['feeder_count'] = len(feeders)
     return rows
 
 if __name__ == '__main__':

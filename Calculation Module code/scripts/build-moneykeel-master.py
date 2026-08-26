@@ -719,16 +719,18 @@ _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.a
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
 FN_COLS = ['Function ID','Function','File','Line','Category','Why it was put there',
-           'Can its answer reach a screen?','Depends on (one step)',
-           'Dependency chain — what it leans on, all the way down',
+           'Can its answer reach a screen?','Fed directly by (one step)',
+           'How many functions feed it in total',
+           'Every function that feeds it',
+           'The chain, ending in this function',
            'Figures that name it','Name in the old inventory']
 ws = sheet('functions_from_code', FN_COLS)
 ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a function returns, '
            'whether it reaches outside for data, and who calls it — never by its name. '
            '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
            '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside. '
-           'The chain reads left to right: this function, then what it leans on, down to the bottom.',
-           '','','','','','','','','',''])
+           'The chain reads left to right and ENDS in the function that shows the answer; everything feeding it comes first.',
+           '','','','','','','','','','',''])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
 
 _fn_to_old = {}
@@ -749,12 +751,13 @@ for row in _fn.with_ids_and_chains():
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
     _cat_counts[row['category']] += 1
     ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], row['why'],
-               row['can_reach_a_screen'], row['depends_on'], row['chain'],
+               row['can_reach_a_screen'], row['depends_on'], row['feeder_count'],
+               row['fed_by'], row['chain'],
                ' · '.join(mids) or '—', old or '—'])
-for i,w in enumerate([15,28,42,7,32,58,15,44,74,32,28], start=1):
+for i,w in enumerate([15,28,40,7,30,52,15,40,12,60,74,30,26], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
 for r in range(2, ws.max_row+1):
-    for c in range(1,12): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    for c in range(1,14): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 print('functions_from_code:', dict(_cat_counts))
 
 
@@ -825,7 +828,8 @@ ref = [
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
- ('COLUMN — Dependency chain', 'What a function leans on, all the way down, read left to right. A loop is marked where a chain turns back on itself. Chains are cut at five levels and at eight paths, and say so.'),
+ ('COLUMN — Every function that feeds it', 'Every function whose output reaches this one, however many steps away.'),
+ ('COLUMN — The chain, ending in this function', 'Read left to right. The function that shows the answer sits at the END, and everything feeding it comes before it. A loop is marked where a chain turns back on itself. Chains are cut at five levels and eight paths, and say so.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
