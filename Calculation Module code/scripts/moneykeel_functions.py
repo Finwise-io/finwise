@@ -28,8 +28,10 @@ def bodies(path):
     return out
 
 
-LABEL_TXT = re.compile(r'>\s*([A-Z][A-Za-z0-9 ,\'’%$/&\-\.]{2,44})\s*<')
-LABEL_PROP = re.compile(r'(?:label|title)\s*=\s*[{"\']\s*[\'"]?([A-Z][A-Za-z0-9 ,\'’%$/&\-\.]{2,44})')
+# A label is taken WHOLE — brackets, colons and slashes included. Cutting at the first bracket
+# turned "In (received)" into "In", a label that appears on no screen.
+LABEL_TXT = re.compile(r'>\s*([A-Z][^<>{}\n]{2,58}?)\s*<')
+LABEL_PROP = re.compile(r'(?:label|title)\s*=\s*(?:\{\s*)?[\'"]([A-Z][^\'"\n]{2,58})[\'"]')
 
 def signature_parts(sig, body):
     """What a function is handed, and what it gives back — read from its own signature."""
