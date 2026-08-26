@@ -112,12 +112,80 @@ def screen_labels(names):
                         mm = LABEL_TXT.findall(lines[k]) or LABEL_PROP.findall(lines[k])
                         if mm: lab = mm[-1].strip(); break
                     if not lab: continue
+                    where = section_above(lines, i)
+                    said = ('"' + lab + '" — on ' + screen_of(short) +
+                            (', under "' + where + '"' if where else ''))
                     for h in printed:
                         for fn in held[h]:
-                            out.setdefault(fn, set()).add(lab + '   (' + short + ')')
+                            out.setdefault(fn, set()).add(said)
                     for fn in direct:
-                        out.setdefault(fn, set()).add(lab + '   (' + short + ')')
+                        out.setdefault(fn, set()).add(said)
     return out
+
+
+# file name in the code -> the screen a person would name
+SCREEN_NAMES = {
+ 'HomeScreen':'Home','NetWorthScreen':'Net worth','PerformanceScreen':'Performance',
+ 'CashFlowScreen':'Cash flow','PlanHubScreen':'Plan','AccountDetailScreen':'Account detail',
+ 'HoldingDetailScreen':'Holding detail','WillItLastScreen':'Will my money last',
+ 'WhatIfScreen':'What if','SsTimingScreen':'Social Security timing','RothScreen':'Roth move',
+ 'RequiredWithdrawalsScreen':'Required withdrawals','MultiGoalScreen':'Goals together',
+ 'RetirementCockpit':'Retirement cockpit','BondsScreen':'Bonds','ItemizeScreen':'Itemise an account',
+ 'OtherInvestmentsScreen':'Other investments','LookBackScreen':'Look back','GoalsScreen':'Goals',
+ 'InsuranceScreen':'Insurance','JobSafetyScreen':'Job safety','StressTestScreen':'Stress test',
+ 'TaxOrganizerScreen':'Tax organiser','EducationScreen':'College costs','CreditScreen':'Credit',
+ 'BigCostsScreen':'Big costs','ContributionRoomScreen':'Contribution room','ExpenseScreen':'Add an expense',
+ 'IncomeDetailScreen':'Income detail','IncomeManagerScreen':'Income manager','MonthlyIncomeScreen':'Monthly income',
+ 'MonthDetailScreen':'Month detail','BillCalendarScreen':'Bill calendar','PaycheckMonthsScreen':'Paycheck months',
+ 'InsightsScreen':'Insights','WorthALookScreen':'Worth a look','EstateScreen':'Estate','SettingsScreen':'Settings',
+ 'ImportHoldingsScreen':'Import holdings','AddAccountScreen':'Add an account','ConnectFlowScreen':'Connect an account',
+ 'OnboardingScreen':'Setup','FirstRunScreen':'First run','modules':'the setup questions, which appear on more than one screen',
+}
+def screen_of(filename):
+    base = filename.replace('.tsx','').replace('.ts','')
+    if base in SCREEN_NAMES:
+        nm = SCREEN_NAMES[base]
+        return nm if nm.startswith('the ') else 'the ' + nm + ' screen'
+    if base.endswith('Screen'): return 'the ' + re.sub(r'(?<!^)(?=[A-Z])',' ',base[:-6]).lower() + ' screen'
+    return 'a card used on more than one screen (' + base + ')'
+
+SECTION = re.compile(r'(?:SectionBand[^>]*?title=\s*[{`\'"]+\s*([^`\'"<>{}\n]{3,54}))')
+def section_above(lines, i):
+    for k in range(i, max(-1, i-60), -1):
+        m = SECTION.search(lines[k])
+        if m:
+            t = m.group(1).strip().rstrip('`').strip()
+            t = re.sub(r'\$\{[^}]*\}', '…', t)
+            if t: return t
+    return ''
+
+ASSUMPTION_PATTERNS = [
+ (re.compile(r'\?\?\s*(-?\d+(?:\.\d+)?)'), 'When the value is missing it uses {0} instead of refusing.'),
+ (re.compile(r'new Date\(\)'), "Uses today's date from the device clock."),
+ (re.compile(r'Math\.round'), 'Rounds the answer.'),
+ (re.compile(r'toFixed\((\d)\)'), 'Shows {0} decimal place(s).'),
+ (re.compile(r'/\s*12\b'), 'Treats a year as twelve equal months.'),
+ (re.compile(r'/\s*365'), 'Treats a year as 365 days.'),
+ (re.compile(r'\*\s*100\b'), 'Multiplies by 100 — a percentage, or an option contract of 100 shares.'),
+ (re.compile(r'[-+*/=(,]\s*0\.\d+\s*[-+*/);,]'), 'Carries a built-in rate or share that nobody chose on a screen.'),
+ (re.compile(r'\bclamp\(|Math\.(min|max)\('), 'Caps the answer at a limit rather than letting it run.'),
+ (re.compile(r'\bfilter\([^)]*!'), 'Leaves some rows out of the answer.'),
+ (re.compile(r'\|\|\s*0\b'), 'Treats a missing number as zero, so nothing recorded and genuinely zero look the same.'),
+]
+def strip_comments(body):
+    """Assumptions must be read from the code, not from what someone wrote about it."""
+    body = re.sub(r'/\*.*?\*/', ' ', body, flags=re.S)
+    return '\n'.join(re.sub(r'//.*$', '', l) for l in body.split('\n'))
+
+def assumptions_in(body):
+    body = strip_comments(body)
+    found = []
+    for rx, sentence in ASSUMPTION_PATTERNS:
+        m = rx.search(body)
+        if m:
+            try: found.append(sentence.format(*[g for g in m.groups() if g is not None]))
+            except Exception: found.append(sentence)
+    return found
 
 def collect():
     funcs = {}
@@ -260,9 +328,12 @@ def with_ids_and_chains(rows=None, funcs=None):
             r['purpose'] = first if len(first) > 12 else note[:220]
         else:
             r['purpose'] = ''
+        found = assumptions_in(funcs[r['name']]['body'])
+        r['assumptions'] = ('\n'.join('· ' + f for f in found) if found else
+                            'None found in this function — anything it assumes comes from the functions it depends on.')
         r['screen_labels'] = (' · '.join(sorted(labels.get(r['name'], []))[:6])
                               if r['name'] in labels else
-                              ('NOT FOUND — a screen calls it but no label was found near the call'
+                              ('NOT FOUND — a screen calls it, but the words printed beside its answer could not be traced automatically. Needs reading.'
                                if r['category'].startswith('2') else '—'))
         paths = chains(r['name'])
         lines = []

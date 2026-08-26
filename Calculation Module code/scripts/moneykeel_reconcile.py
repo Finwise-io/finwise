@@ -21,7 +21,7 @@ def check(path=MASTER):
     col = lambda t, name: head[t].index(name)
 
     metric_ids, engine_ids, rows = set(), set(), []
-    defined_engines = {r[0] for r in wb['engines'].iter_rows(min_row=2, values_only=True) if r[0]}
+    defined_engines = {r[0] for r in wb['engines-old-tab'].iter_rows(min_row=2, values_only=True) if r[0]}
     for t in SCREEN_TABS:
         for r in wb[t].iter_rows(min_row=2, values_only=True):
             if not r[0]:

@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','functions_from_code','functions_summary']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -720,7 +720,7 @@ _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
 FN_COLS = ['Function ID','Function','File','Line','Category','What it is for',
            'What it is handed (its inputs)','What it gives back (its output)',
-           'Label on screen, where its answer is printed',
+           'Where its answer appears — the words, the screen, the section','Assumptions it makes',
            'Can its answer reach a screen?','Dependent functions — one step below',
            'Dependent functions — how many in total',
            'Dependent functions — all of them',
@@ -732,7 +732,7 @@ ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a f
            '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
            '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside. '
            'The chain reads left to right and ENDS in the function that shows the answer; everything feeding it comes first.',
-           '','','','','','','','','','','','',''])
+           '','','','','','','','','','','','','',''])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
 
 _fn_to_old = {}
@@ -757,21 +757,21 @@ for row in _FN_ROWS:
     if not _purpose:
         _purpose = 'NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.'
     ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], _purpose,
-               row['inputs'], row['output'], row['screen_labels'],
+               row['inputs'], row['output'], row['screen_labels'], row['assumptions'],
                row['can_reach_a_screen'], row['depends_on'], row['feeder_count'],
                row['fed_by'], row['chain'],
                ' · '.join(mids) or '—', old or '—'])
-for i,w in enumerate([15,28,36,7,28,46,46,34,44,14,38,12,56,70,28,24], start=1):
+for i,w in enumerate([15,28,34,7,26,44,42,30,62,54,14,34,12,52,66,26,22], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
 for r in range(2, ws.max_row+1):
-    for c in range(1,17): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    for c in range(1,18): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 print('functions_from_code:', dict(_cat_counts))
 
 
 # ---- one row per engine identifier: the definitive list the rest of the file points at
 ENG_COLS = ['Engine ID','Engine name','Where it is implemented (S12)','What it answers',
             'Metric identifiers that reach it','How it is reached']
-ws = sheet('engines', ENG_COLS)
+ws = sheet('engines-old-tab', ENG_COLS)
 _src = {}
 _w2 = openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
 _s2 = _w2['2. Engines']; _h2=[str(c.value) if c.value else '' for c in _s2[2]]; _j2={h:n for n,h in enumerate(_h2)}
@@ -850,7 +850,7 @@ ref = [
  ('TAB — plan', 'Figures shown only on Plan and the screens reached from it.'),
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
- ('TAB — engines', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
+ ('TAB — engines-old-tab', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
  ('TAB — functions_summary', 'A count per category: how many functions there are, how many are handed nothing at all, how many are handed nothing but reach into the stored data, and how many never say what they give back.'),
  ('TAB — functions_from_code', 'Every function in the calculation code, read from the code itself, sorted into the four categories by what it actually does. 1 ACTION does something and displays nothing. 2 DISPLAYED lands on a screen. 3 DEPENDENT feeds a chain that ends at a screen. 4 BRINGS DATA IN fetches from outside the app. A function that can reach a screen can put a wrong number in front of a person; one that cannot, cannot.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
@@ -874,7 +874,8 @@ ref = [
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
  ('COLUMN — What it is for', 'The purpose of the function in one sentence, taken from the note written above it in the code, or from the old inventory when the code carries none. NOT DETERMINED where neither exists — never invented.'),
  ('COLUMN — What it is handed / what it gives back', 'Read from the function\'s own signature: the values passed to it, whether it also reads the stored data, and what it returns. NOT DECLARED means the code does not say what comes back.'),
- ('COLUMN — Label on screen', 'For a function whose answer is displayed, the words printed beside it, found by following the name the screen stores the answer in. NOT FOUND means a screen calls it but the label could not be traced automatically and needs reading.'),
+ ('COLUMN — Where its answer appears', 'In plain English: the words printed beside the answer, which screen they are on, and the section they sit under. NOT FOUND means a screen calls the function but the words could not be traced automatically and need reading.'),
+ ('COLUMN — Assumptions it makes', 'What the function takes for granted, in plain English rather than in code: a value used when data is missing, a rate nobody chose on a screen, a year treated as twelve equal months, a cap, rows deliberately left out. Read from the code with the comments stripped out, so it reports what runs rather than what someone wrote about it.'),
  ('COLUMN — Dependent functions', 'A dependent function is one whose output is used by another function, in a chain that ends at a screen. These columns list the dependent functions behind this one: those one step below it, how many there are in total, and all of them however many steps away.'),
  ('COLUMN — The chain, ending in this function', 'Read left to right. The function that shows the answer sits at the END, and everything feeding it comes before it. A loop is marked where a chain turns back on itself. Chains are cut at five levels and eight paths, and say so.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
@@ -908,7 +909,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines','functions_from_code','functions_summary'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
