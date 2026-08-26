@@ -159,33 +159,76 @@ def section_above(lines, i):
             if t: return t
     return ''
 
-ASSUMPTION_PATTERNS = [
- (re.compile(r'\?\?\s*(-?\d+(?:\.\d+)?)'), 'When the value is missing it uses {0} instead of refusing.'),
- (re.compile(r'new Date\(\)'), "Uses today's date from the device clock."),
- (re.compile(r'Math\.round'), 'Rounds the answer.'),
- (re.compile(r'toFixed\((\d)\)'), 'Shows {0} decimal place(s).'),
- (re.compile(r'/\s*12\b'), 'Treats a year as twelve equal months.'),
- (re.compile(r'/\s*365'), 'Treats a year as 365 days.'),
- (re.compile(r'\*\s*100\b'), 'Multiplies by 100 — a percentage, or an option contract of 100 shares.'),
- (re.compile(r'[-+*/=(,]\s*0\.\d+\s*[-+*/);,]'), 'Carries a built-in rate or share that nobody chose on a screen.'),
- (re.compile(r'\bclamp\(|Math\.(min|max)\('), 'Caps the answer at a limit rather than letting it run.'),
- (re.compile(r'\bfilter\([^)]*!'), 'Leaves some rows out of the answer.'),
- (re.compile(r'\|\|\s*0\b'), 'Treats a missing number as zero, so nothing recorded and genuinely zero look the same.'),
-]
+def _words(name):
+    """turn a code name into words a person would say"""
+    n = re.sub(r'(?<!^)(?=[A-Z])', ' ', str(name)).replace('_', ' ').lower().strip()
+    swap = {'nw':'net worth','ret':'return','pct':'percent','amt':'amount','bal':'balance',
+            'inp':'the inputs','op':'the setup answers','ss':'social security','rmd':'required withdrawal',
+            'egg':'nest egg','col':'cost of living','txn':'transaction','acct':'account','mo':'a month',
+            'yr':'a year','est':'estimated','vol':'how much it swings','inf':'inflation'}
+    return ' '.join(swap.get(w, w) for w in n.split())
+
+def _num(v):
+    """a number said the way a person would say it"""
+    f = float(v)
+    if 0 < f < 1:
+        pct = f * 100
+        return ('%g%%' % round(pct, 4))
+    if f == int(f): return '%d' % int(f)
+    return '%g' % f
+
+def assumptions_in(body):
+    """What a function takes for granted, named with its real value.
+
+    Read from the code with comments stripped, so it reports what runs.
+    """
+    code = strip_comments(body)
+    found = []
+    def add(sentence):
+        if sentence not in found: found.append(sentence)
+
+    # a value used when something is missing
+    for m in re.finditer(r'([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*\?\?\s*(-?\d+(?:\.\d+)?)', code):
+        add('If %s is missing it uses %s.' % (_words(m.group(1).split('.')[-1]), _num(m.group(2))))
+    for m in re.finditer(r'([A-Za-z_][A-Za-z0-9_.\[\]]*)\s*\|\|\s*0\b', code):
+        add('If %s is missing it counts as zero, so nothing recorded and a real zero look the same.'
+            % _words(m.group(1).split('.')[-1]))
+
+    # a rate or share written into the code
+    for m in re.finditer(r'(?:const|let)\s+([A-Za-z_][A-Za-z0-9_]*)\s*(?::[^=]+)?=\s*(0\.\d+|\d+(?:\.\d+)?)\s*[;\n]', code):
+        add('Uses a built-in %s of %s.' % (_words(m.group(1)), _num(m.group(2))))
+    for m in re.finditer(r'([A-Za-z_][A-Za-z0-9_.]*)\s*\*\s*(0\.\d+)', code):
+        add('Applies a built-in rate of %s to %s.' % (_num(m.group(2)), _words(m.group(1).split('.')[-1])))
+
+    # time
+    if re.search(r'/\s*12\b', code):  add('Treats a year as twelve equal months.')
+    if re.search(r'\*\s*12\b', code): add('Turns a monthly figure into a year by multiplying by twelve.')
+    if re.search(r'/\s*365(\.25)?\b', code): add('Treats a year as 365 days.')
+    if re.search(r'\*\s*30\b|/\s*30\b', code): add('Treats a month as 30 days.')
+    if re.search(r'new Date\(\)|Date\.now\(\)', code): add("Uses today's date from the device clock, so the answer changes by itself overnight.")
+
+    # options and percentages
+    if re.search(r'\*\s*100\b', code):
+        add('Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.')
+
+    # caps and floors
+    for m in re.finditer(r'clamp\(\s*[^,]+,\s*(-?[\d.]+)\s*,\s*(-?[\d.]+)\s*\)', code):
+        add('Never lets the answer fall below %s or rise above %s.' % (_num(m.group(1)), _num(m.group(2))))
+    for m in re.finditer(r'Math\.(min|max)\(\s*([A-Za-z_][A-Za-z0-9_.]*)\s*,\s*(-?[\d.]+)\s*\)', code):
+        add(('Caps %s at %s.' if m.group(1) == 'min' else 'Never lets %s fall below %s.')
+            % (_words(m.group(2).split('.')[-1]), _num(m.group(3))))
+
+    # rounding and what is left out
+    if re.search(r'Math\.round', code): add('Rounds the answer to a whole number.')
+    for m in re.finditer(r'toFixed\((\d)\)', code):
+        add('Shows %s decimal place%s.' % (m.group(1), '' if m.group(1) == '1' else 's'))
+    if re.search(r'\.filter\(', code): add('Leaves some rows out of the answer — check which.')
+    return found
+
 def strip_comments(body):
     """Assumptions must be read from the code, not from what someone wrote about it."""
     body = re.sub(r'/\*.*?\*/', ' ', body, flags=re.S)
     return '\n'.join(re.sub(r'//.*$', '', l) for l in body.split('\n'))
-
-def assumptions_in(body):
-    body = strip_comments(body)
-    found = []
-    for rx, sentence in ASSUMPTION_PATTERNS:
-        m = rx.search(body)
-        if m:
-            try: found.append(sentence.format(*[g for g in m.groups() if g is not None]))
-            except Exception: found.append(sentence)
-    return found
 
 def collect():
     funcs = {}
