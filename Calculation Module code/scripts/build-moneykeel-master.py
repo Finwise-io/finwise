@@ -718,7 +718,7 @@ import importlib.util as _il3
 _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
-FN_COLS = ['Function ID','Function','File','Line','Category','Why it was put there',
+FN_COLS = ['Function ID','Function','File','Line','Category','What it is for',
            'What it is handed (its inputs)','What it gives back (its output)',
            'Label on screen, where its answer is printed',
            'Can its answer reach a screen?','Dependent functions — one step below',
@@ -753,7 +753,10 @@ for row in _FN_ROWS:
     eid = engine_id.get(old, '') if old else ''
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
     _cat_counts[row['category']] += 1
-    ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], row['why'],
+    _purpose = row.get('purpose') or (_answers.get(_fn_to_old.get(row['name'],''),'') or '')
+    if not _purpose:
+        _purpose = 'NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.'
+    ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], _purpose,
                row['inputs'], row['output'], row['screen_labels'],
                row['can_reach_a_screen'], row['depends_on'], row['feeder_count'],
                row['fed_by'], row['chain'],
@@ -869,6 +872,7 @@ ref = [
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
+ ('COLUMN — What it is for', 'The purpose of the function in one sentence, taken from the note written above it in the code, or from the old inventory when the code carries none. NOT DETERMINED where neither exists — never invented.'),
  ('COLUMN — What it is handed / what it gives back', 'Read from the function\'s own signature: the values passed to it, whether it also reads the stored data, and what it returns. NOT DECLARED means the code does not say what comes back.'),
  ('COLUMN — Label on screen', 'For a function whose answer is displayed, the words printed beside it, found by following the name the screen stores the answer in. NOT FOUND means a screen calls it but the label could not be traced automatically and needs reading.'),
  ('COLUMN — Dependent functions', 'A dependent function is one whose output is used by another function, in a chain that ends at a screen. These columns list the dependent functions behind this one: those one step below it, how many there are in total, and all of them however many steps away.'),

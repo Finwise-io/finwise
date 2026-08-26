@@ -24,7 +24,15 @@ def bodies(path):
     out = []
     for k, (name, i, sig) in enumerate(marks):
         end = marks[k+1][1] if k+1 < len(marks) else len(text)
-        out.append((name, i+1, sig, '\n'.join(text[i:end])))
+        # the note written above the function — its purpose, in the author's own words
+        note = []
+        j = i - 1
+        while j >= 0 and (text[j].strip().startswith(('*', '/**', '*/', '//')) or text[j].strip() == ''):
+            if text[j].strip() == '' and note: break
+            if text[j].strip() not in ('*/', '/**', '*', ''):
+                note.append(re.sub(r'^\s*(/\*\*|\*/|\*|//)\s?', '', text[j]).strip())
+            j -= 1
+        out.append((name, i+1, sig, '\n'.join(text[i:end]), ' '.join(reversed(note)).strip()))
     return out
 
 
@@ -119,8 +127,8 @@ def collect():
             for f in files:
                 if not f.endswith('.ts') or f.endswith('.test.ts') or f.endswith('.d.ts'): continue
                 fp = os.path.join(dirpath, f)
-                for name, line, sig, body in bodies(fp):
-                    funcs.setdefault(name, {'file': fp, 'line': line, 'sig': sig, 'body': body})
+                for name, line, sig, body, note in bodies(fp):
+                    funcs.setdefault(name, {'file': fp, 'line': line, 'sig': sig, 'body': body, 'note': note})
     return funcs
 
 def usage(names):
@@ -246,6 +254,12 @@ def with_ids_and_chains(rows=None, funcs=None):
     for r in rows:
         r['id'] = ident[r['name']]
         r['inputs'], r['output'] = signature_parts(funcs[r['name']]['sig'], funcs[r['name']]['body'])
+        note = (funcs[r['name']].get('note') or '').strip()
+        if note:
+            first = re.split(r'(?<=[.?!])\s', note)[0].strip()
+            r['purpose'] = first if len(first) > 12 else note[:220]
+        else:
+            r['purpose'] = ''
         r['screen_labels'] = (' · '.join(sorted(labels.get(r['name'], []))[:6])
                               if r['name'] in labels else
                               ('NOT FOUND — a screen calls it but no label was found near the call'
