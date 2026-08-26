@@ -718,14 +718,17 @@ import importlib.util as _il3
 _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
-FN_COLS = ['Function','File','Line','Category','Why it was put there',
-           'Can its answer reach a screen?','Figures that name it','Name in the old inventory']
+FN_COLS = ['Function ID','Function','File','Line','Category','Why it was put there',
+           'Can its answer reach a screen?','Depends on (one step)',
+           'Dependency chain — what it leans on, all the way down',
+           'Figures that name it','Name in the old inventory']
 ws = sheet('functions_from_code', FN_COLS)
 ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a function returns, '
            'whether it reaches outside for data, and who calls it — never by its name. '
            '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
-           '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside.',
-           '','','','','','',''])
+           '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside. '
+           'The chain reads left to right: this function, then what it leans on, down to the bottom.',
+           '','','','','','','','','',''])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
 
 _fn_to_old = {}
@@ -740,17 +743,18 @@ for _r in _s3.iter_rows(min_row=3, values_only=True):
 
 import collections as _co
 _cat_counts = _co.Counter()
-for row in _fn.categorise():
+for row in _fn.with_ids_and_chains():
     old = _fn_to_old.get(row['name'], '')
     eid = engine_id.get(old, '') if old else ''
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
     _cat_counts[row['category']] += 1
-    ws.append([row['name'], row['file'], row['line'], row['category'], row['why'],
-               row['can_reach_a_screen'], ' · '.join(mids) or '—', old or '—'])
-for i,w in enumerate([30,44,7,34,62,16,34,30], start=1):
+    ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], row['why'],
+               row['can_reach_a_screen'], row['depends_on'], row['chain'],
+               ' · '.join(mids) or '—', old or '—'])
+for i,w in enumerate([15,28,42,7,32,58,15,44,74,32,28], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
 for r in range(2, ws.max_row+1):
-    for c in range(1,9): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    for c in range(1,12): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 print('functions_from_code:', dict(_cat_counts))
 
 
@@ -820,6 +824,8 @@ ref = [
  ('COLUMN — Period (S07)', 'As of when, and over what window.'),
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
+ ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
+ ('COLUMN — Dependency chain', 'What a function leans on, all the way down, read left to right. A loop is marked where a chain turns back on itself. Chains are cut at five levels and at eight paths, and say so.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),

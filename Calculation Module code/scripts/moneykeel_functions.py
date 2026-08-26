@@ -105,9 +105,66 @@ def categorise():
                     'can_reach_a_screen': 'Yes' if (n in by_screen or n in reaches) else 'No'})
     return out
 
+FAMILY_BY_PATH = [
+    ('src/domain/networth','NW'), ('src/domain/assets','NW'), ('src/domain/bonds','NW'),
+    ('src/domain/alternatives','NW'), ('src/domain/performance','PF'),
+    ('src/domain/cashflow','CF'), ('src/domain/budget','CF'), ('src/domain/income','CF'),
+    ('src/domain/debt','CF'), ('src/domain/transactions','CF'), ('src/domain/paycheck','CF'),
+    ('src/domain/retirement','PL'), ('src/domain/planning','PL'), ('src/domain/decumulation','PL'),
+    ('src/domain/goals','PL'), ('src/domain/scenarios','PL'),
+    ('src/domain/insights','HM'), ('src/domain/milestones','HM'),
+    ('src/domain/_shared','ST'), ('Calculation Module code/engines','ST'),
+    ('src/services','XS'),
+]
+
+def family_of(path):
+    for prefix, fam in FAMILY_BY_PATH:
+        if path.startswith(prefix): return fam
+    return 'XS'
+
+def with_ids_and_chains(rows=None, funcs=None):
+    """Give every function an identifier, then write the chain of what it depends on."""
+    rows = rows or categorise()
+    funcs = funcs or collect()
+    counters = {}
+    ident = {}
+    for r in sorted(rows, key=lambda x: (family_of(x['file']), x['file'], x['line'])):
+        fam = family_of(r['file'])
+        counters[fam] = counters.get(fam, 0) + 1
+        ident[r['name']] = 'MK-%s-F-%03d' % (fam, counters[fam])
+    names = set(funcs)
+    def calls(n):
+        body = funcs[n]['body'] if n in funcs else ''
+        return [m for m in sorted({x for x in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(', body)
+                                   if x in names and x != n})]
+    def chains(n, seen=(), depth=0):
+        kids = calls(n)
+        if not kids or depth >= 5:
+            return [[n]] if depth else [[n]]
+        out = []
+        for k in kids:
+            if k in seen:
+                out.append([n, k + ' (already above — a loop)'])
+                continue
+            for tail in chains(k, seen + (n,), depth + 1):
+                out.append([n] + tail)
+        return out or [[n]]
+    for r in rows:
+        r['id'] = ident[r['name']]
+        paths = chains(r['name'])
+        lines = []
+        for path in paths[:8]:
+            if len(path) < 2: continue
+            lines.append(' → '.join((ident.get(x, '') + ' ' + x).strip() for x in path))
+        r['chain'] = '\n'.join(lines) if lines else 'Depends on nothing else — it reads its inputs and answers'
+        if len(paths) > 8:
+            r['chain'] += '\n… and %d more paths' % (len(paths) - 8)
+        r['depends_on'] = ' · '.join(ident.get(k,'?') + ' ' + k for k in calls(r['name'])) or '—'
+    return rows
+
 if __name__ == '__main__':
     import collections
-    rows = categorise()
+    rows = with_ids_and_chains()
     c = collections.Counter(r['category'] for r in rows)
     print('functions:', len(rows))
     for k, v in c.most_common(): print(f'  {v:4}  {k}')
