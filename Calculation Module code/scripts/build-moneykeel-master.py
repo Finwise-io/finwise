@@ -719,6 +719,8 @@ _sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.a
 _fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
 FN_COLS = ['Function ID','Function','File','Line','Category','Why it was put there',
+           'What it is handed (its inputs)','What it gives back (its output)',
+           'Label on screen, where its answer is printed',
            'Can its answer reach a screen?','Dependent functions — one step below',
            'Dependent functions — how many in total',
            'Dependent functions — all of them',
@@ -730,7 +732,7 @@ ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a f
            '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
            '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside. '
            'The chain reads left to right and ENDS in the function that shows the answer; everything feeding it comes first.',
-           '','','','','','','','','','',''])
+           '','','','','','','','','','','','',''])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
 
 _fn_to_old = {}
@@ -751,13 +753,14 @@ for row in _fn.with_ids_and_chains():
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
     _cat_counts[row['category']] += 1
     ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], row['why'],
+               row['inputs'], row['output'], row['screen_labels'],
                row['can_reach_a_screen'], row['depends_on'], row['feeder_count'],
                row['fed_by'], row['chain'],
                ' · '.join(mids) or '—', old or '—'])
-for i,w in enumerate([15,28,40,7,30,52,15,40,12,60,74,30,26], start=1):
+for i,w in enumerate([15,28,36,7,28,46,46,34,44,14,38,12,56,70,28,24], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
 for r in range(2, ws.max_row+1):
-    for c in range(1,14): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    for c in range(1,17): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 print('functions_from_code:', dict(_cat_counts))
 
 
@@ -828,6 +831,8 @@ ref = [
  ('COLUMN — Dependency (S11)', 'The engines this one leans on, each named by ITS identifier and by the output it gives. Read from the code itself, never from a document. "None" means the engine reads raw inputs only.'),
  ('COLUMN — Secondary calculations and decisions the engine makes', 'The judgements an engine must make BEFORE its headline figure exists: what class an asset is, what to call it on screen, which units apply, whether a value is fresh. Each of these is a formula of its own and needs its own row.'),
  ('COLUMN — Function ID', 'Every function in the code carries one, MK-[family]-F-[number]. The family comes from the folder the code sits in.'),
+ ('COLUMN — What it is handed / what it gives back', 'Read from the function\'s own signature: the values passed to it, whether it also reads the stored data, and what it returns. NOT DECLARED means the code does not say what comes back.'),
+ ('COLUMN — Label on screen', 'For a function whose answer is displayed, the words printed beside it, found by following the name the screen stores the answer in. NOT FOUND means a screen calls it but the label could not be traced automatically and needs reading.'),
  ('COLUMN — Dependent functions', 'A dependent function is one whose output is used by another function, in a chain that ends at a screen. These columns list the dependent functions behind this one: those one step below it, how many there are in total, and all of them however many steps away.'),
  ('COLUMN — The chain, ending in this function', 'Read left to right. The function that shows the answer sits at the END, and everything feeding it comes before it. A loop is marked where a chain turns back on itself. Chains are cut at five levels and eight paths, and say so.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),

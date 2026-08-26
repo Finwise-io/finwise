@@ -27,6 +27,88 @@ def bodies(path):
         out.append((name, i+1, sig, '\n'.join(text[i:end])))
     return out
 
+
+LABEL_TXT = re.compile(r'>\s*([A-Z][A-Za-z0-9 ,\'’%$/&\-\.]{2,44})\s*<')
+LABEL_PROP = re.compile(r'(?:label|title)\s*=\s*[{"\']\s*[\'"]?([A-Z][A-Za-z0-9 ,\'’%$/&\-\.]{2,44})')
+
+def signature_parts(sig, body):
+    """What a function is handed, and what it gives back — read from its own signature."""
+    inside = ''
+    depth = 0
+    for i, ch in enumerate(sig):
+        if ch == '(':
+            depth += 1
+            if depth == 1:
+                start = i + 1
+                continue
+        elif ch == ')':
+            depth -= 1
+            if depth == 0:
+                inside = sig[start:i]; rest = sig[i+1:]
+                break
+    else:
+        rest = ''
+    params = []
+    d = 0; cur = ''
+    for ch in inside:
+        if ch in '<([{': d += 1
+        if ch in '>)]}': d -= 1
+        if ch == ',' and d == 0:
+            params.append(cur.strip()); cur = ''
+        else:
+            cur += ch
+    if cur.strip(): params.append(cur.strip())
+    params = [p for p in params if p]
+    ret = ''
+    m = re.search(r':\s*([^={]+?)\s*(?:=>|\{|$)', rest)
+    if m: ret = m.group(1).strip()
+    reads_store = 'reads the app\'s stored data' if 'useStore' in body or 'getState()' in body else ''
+    ins = ' · '.join(params) if params else 'Nothing is handed to it'
+    if reads_store: ins += ' · ' + reads_store
+    return ins, (ret or 'NOT DECLARED — the code does not say what it gives back')
+
+def screen_labels(names):
+    """The words printed beside a function's answer.
+
+    Two hops, because a screen almost never renders a call directly: it stores the answer in a
+    name at the top of the file and prints that name lower down. So we follow the name.
+    """
+    out = {}
+    for root in SCREEN_ROOTS:
+        for dirpath, _, files in os.walk(root):
+            if '__tests__' in dirpath: continue
+            for f in files:
+                if not f.endswith(('.ts','.tsx')) or '.test.' in f: continue
+                fp = os.path.join(dirpath, f); short = os.path.basename(fp)
+                lines = open(fp).read().split('\n')
+                text = '\n'.join(lines)
+                # hop 1 — which name holds which function's answer
+                held = {}
+                for m in re.finditer(r'const\s+(?:\{([^}]{1,140})\}|([A-Za-z0-9_]+))\s*=\s*([^;\n]{0,300})', text):
+                    rhs = m.group(3) or ''
+                    fns = {x for x in re.findall(r'\b([A-Za-z_][A-Za-z0-9_]*)\s*\(', rhs) if x in names}
+                    if not fns: continue
+                    holders = [x.strip().split(':')[0].strip() for x in (m.group(1) or '').split(',') if x.strip()] or [m.group(2)]
+                    for h in holders:
+                        if h: held.setdefault(h, set()).update(fns)
+                # hop 2 — where those names are printed, and the words nearest them
+                for i, line in enumerate(lines):
+                    printed = {h for h in held if re.search(r'[{(,\s]' + re.escape(h) + r'\b', line)}
+                    direct = {n for n in names if re.search(r'\b' + re.escape(n) + r'\s*\(', line)}
+                    if not printed and not direct: continue
+                    if not re.search(r'money|maskedMoney|pct|<Text|value=|toFixed', line): continue
+                    lab = ''
+                    for k in range(i, max(-1, i-8), -1):
+                        mm = LABEL_TXT.findall(lines[k]) or LABEL_PROP.findall(lines[k])
+                        if mm: lab = mm[-1].strip(); break
+                    if not lab: continue
+                    for h in printed:
+                        for fn in held[h]:
+                            out.setdefault(fn, set()).add(lab + '   (' + short + ')')
+                    for fn in direct:
+                        out.setdefault(fn, set()).add(lab + '   (' + short + ')')
+    return out
+
 def collect():
     funcs = {}
     for root in CALC_ROOTS:
@@ -158,8 +240,14 @@ def with_ids_and_chains(rows=None, funcs=None):
             seen.add(k); out.append(k)
             stack.extend(calls(k))
         return out
+    labels = screen_labels(set(funcs))
     for r in rows:
         r['id'] = ident[r['name']]
+        r['inputs'], r['output'] = signature_parts(funcs[r['name']]['sig'], funcs[r['name']]['body'])
+        r['screen_labels'] = (' · '.join(sorted(labels.get(r['name'], []))[:6])
+                              if r['name'] in labels else
+                              ('NOT FOUND — a screen calls it but no label was found near the call'
+                               if r['category'].startswith('2') else '—'))
         paths = chains(r['name'])
         lines = []
         for path in paths[:8]:
