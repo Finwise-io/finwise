@@ -44,6 +44,7 @@ def _load_old_words():
         n=r[jx['Engine name']]
         if not n: continue
         n=str(n).strip()
+        _KNOWN_ENGINES.add(n)
         _oldwords[n] = str(r[jx['Formula — the actual rules']] or '').strip()
         a = str(r[jx['What it answers']] or '').strip().replace('\n',' ')
         _answers[n] = (a.split('?')[0].strip() + '?') if '?' in a else (a[:90] or '')
@@ -111,6 +112,18 @@ def spec_cols(engine, label, math_text):
 _DUP_OF = {}
 for _keep,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
     for _f_id in _folded: _DUP_OF[_f_id] = (_keep,_why)
+
+_KNOWN_ENGINES = set()
+def mark_engine(engine):
+    """An engine name that exists in no engine row is a name I assigned while reading the screen.
+    It must say so, or the row looks like it points at something documented when it does not."""
+    out=[]
+    for part in [p.strip() for p in str(engine).split('·')]:
+        if part and part.isupper() and part.replace('_','').isalpha() and part not in _KNOWN_ENGINES:
+            out.append(part + '  [NAME ASSIGNED HERE — no engine row exists for it yet]')
+        else:
+            out.append(part)
+    return ' · '.join(out)
 
 def dep_id(name):
     if name not in engine_id:
@@ -497,7 +510,7 @@ ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
     _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid)
-    ws.append([_mid, screens, 'NA', label, metric, engine, eid_for(engine,'XS'), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    ws.append([_mid, screens, 'NA', label, metric, mark_engine(engine), eid_for(engine,'XS'), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -506,7 +519,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
-        ws.append([_mid, PARENTS[tab], 'NA', label, metric, engine,
+        ws.append([_mid, PARENTS[tab], 'NA', label, metric, mark_engine(engine),
                    eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
@@ -518,7 +531,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid)
-        ws.append([_mid, PARENTS[tab], route, label, metric, engine,
+        ws.append([_mid, PARENTS[tab], route, label, metric, mark_engine(engine),
                    eid_for(engine, FAM[tab]), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
@@ -563,6 +576,8 @@ SPEC = [
  ('', 'SECTION — NOT ON THE ORIGINAL LIST, STILL NEEDED', '', ''),
  ('S15','Your name for it, from the 72-metric file','The bridge between the founder\'s vocabulary and the code\'s.','NOT STARTED — 0 of 163 rows.'),
  ('S18','The reconciliation engine','Both records kept independently and checked against each other as a build gate — an input an engine names that is on no row, an input declared that no engine names, an engine identifier that does not exist, an engine no metric reaches. Founder, 2026-08-25: never generate one list from the other; agreement by construction hides the orphan.','COMPLETE — moneykeel_reconcile.py runs at the end of every build and STOPS it on a structural break: a duplicate identifier, a reference to an engine or input that does not exist, a fold pointing nowhere, a question number used twice. Findings that are real but unresolved — orphan and dead inputs — are counted every build rather than failing it, and must reach zero before the module is called done. Today: 0 breaks, 9 open findings.'),
+ ('S19','Duplicate calculations in the CODE','S16 compared the figures on screens, so it could only see engines a figure names. Two functions in different files that compute the same thing, named by no figure, are invisible to it — alternativesSummary and alternativesTotal both total the same holdings. A second pass is needed over the code itself.','NOT STARTED — found while answering a question about S16, not by S16.'),
+ ('S20','Engine names that exist nowhere','Twenty engine names in this file were assigned while reading a screen and have no engine row anywhere. Every one now says so on its row rather than looking documented.','FLAGGED — the names are marked; each still needs a row of its own, or to be pointed at an engine that already exists.'),
  ('S16','The duplication pass','Figures that are the same thing under two identifiers.','COMPLETE — every group judged one at a time. 11 figures were being shown under 24 identifiers; the 13 folded rows now name the identifier that survives and why. 18 groups were checked and are NOT duplicates — one engine legitimately producing several figures — and say so, so the question is not asked twice. Two mis-assigned engines were found and recorded as findings.'),
  ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
