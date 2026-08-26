@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','engines_from_code']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines','functions_from_code']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Name of Underlying Engine','Engine ID',
@@ -713,67 +713,45 @@ for r in range(2, ws.max_row+1):
     for c in range(1,6): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
 
-# ---- every engine found in the CODE, then matched back to the spreadsheet
-def sweep_code():
-    """Every exported function in the calculation code. Read from the code, never from a document,
-    so an engine that exists and is documented nowhere still appears here."""
-    import re as _re
-    roots = ['src/domain', 'Calculation Module code/engines', 'src/services']
-    found = []
-    for root in roots:
-        for dirpath,_,files in os.walk(root):
-            if '__tests__' in dirpath: continue
-            for f in files:
-                if not f.endswith('.ts') or f.endswith('.test.ts') or f.endswith('.d.ts'): continue
-                fp = os.path.join(dirpath, f)
-                for i,line in enumerate(open(fp).read().split('\n'), start=1):
-                    m = _re.match(r'export (?:async )?function ([A-Za-z0-9_]+)', line) or \
-                        _re.match(r'export const ([A-Za-z0-9_]+)\s*=\s*(?:async\s*)?\(', line)
-                    if m: found.append((m.group(1), fp, i))
-    return sorted(set(found))
+# ---- every FUNCTION in the calculation code, sorted into the four categories
+import importlib.util as _il3
+_sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
+_fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
-CODE_COLS = ['Function in the code','File','Line','Engine name','Engine ID',
-             'Metric identifiers that reach it','Verdict']
-ws = sheet('engines_from_code', CODE_COLS)
-ws.append(['READ FROM THE CODE, NOT FROM ANY DOCUMENT — every exported function in src/domain, '
-           'Calculation Module code/engines and src/services. A function here that no identifier '
-           'reaches is either a helper or an undocumented calculation; the verdict column says '
-           'which question each one raises.','','','','','',''])
+FN_COLS = ['Function','File','Line','Category','Why it was put there',
+           'Can its answer reach a screen?','Figures that name it','Name in the old inventory']
+ws = sheet('functions_from_code', FN_COLS)
+ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a function returns, '
+           'whether it reaches outside for data, and who calls it — never by its name. '
+           '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
+           '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside.',
+           '','','','','','',''])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
-fn_to_engine = {}
-for _n, _fn, _src, _inp in [(k,v,'','') for k,v in []]: pass
-_w = openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
-_sh = _w['2. Engines']; _hd=[str(c.value) if c.value else '' for c in _sh[2]]; _jx={h:n for n,h in enumerate(_hd)}
-for _r in _sh.iter_rows(min_row=3, values_only=True):
-    _n = _r[_jx['Engine name']]
-    if not _n: continue
-    for _x in re.split(r'[,/·]| and ', str(_r[_jx['Function in the code']] or '')):
-        _x=_x.strip()
-        if _x.isidentifier(): fn_to_engine.setdefault(_x, str(_n).strip())
 
-counts = {'mapped':0,'no_metric':0,'no_id':0,'unknown':0}
-for fn, fp, line in sweep_code():
-    ename = fn_to_engine.get(fn, '')
-    eid = engine_id.get(ename, '') if ename else ''
+_fn_to_old = {}
+_w3 = openpyxl.load_workbook('Calculation Module/MoneyKeel-calculation-master-v1.xlsx', data_only=True)
+_s3 = _w3['2. Engines']; _h3=[str(c.value) if c.value else '' for c in _s3[2]]; _j3={h:n for n,h in enumerate(_h3)}
+for _r in _s3.iter_rows(min_row=3, values_only=True):
+    _n = _r[_j3['Engine name']]
+    if not _n: continue
+    for _x in re.split(r'[,/·]| and ', str(_r[_j3['Function in the code']] or '')):
+        _x=_x.strip()
+        if _x.isidentifier(): _fn_to_old.setdefault(_x, str(_n).strip())
+
+import collections as _co
+_cat_counts = _co.Counter()
+for row in _fn.categorise():
+    old = _fn_to_old.get(row['name'], '')
+    eid = engine_id.get(old, '') if old else ''
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
-    if not ename:
-        verdict = 'NOT ON RECORD — this function exists in the code and appears in no engine row anywhere. Either it is a helper that does no money maths, or it is a calculation nobody has documented. Each one needs judging.'
-        counts['unknown'] += 1
-    elif not eid:
-        verdict = 'ENGINE WITH NO IDENTIFIER — it has a row in the old master but no figure on any screen reaches it, so it never earned an identifier.'
-        counts['no_id'] += 1
-    elif not mids:
-        verdict = 'REACHED ONLY AS A DEPENDENCY — it carries an identifier because another engine leans on it, but no figure on any screen names it directly.'
-        counts['no_metric'] += 1
-    else:
-        verdict = 'MAPPED — reached by ' + str(len(mids)) + ' metric identifier(s).'
-        counts['mapped'] += 1
-    ws.append([fn, fp, line, ename or '—', eid or '—', ' · '.join(mids) or '—', verdict])
-for i,w in enumerate([30,46,7,30,16,40,66], start=1):
+    _cat_counts[row['category']] += 1
+    ws.append([row['name'], row['file'], row['line'], row['category'], row['why'],
+               row['can_reach_a_screen'], ' · '.join(mids) or '—', old or '—'])
+for i,w in enumerate([30,44,7,34,62,16,34,30], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
 for r in range(2, ws.max_row+1):
-    for c in range(1,8): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
-print('engines_from_code:', counts)
+    for c in range(1,9): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+print('functions_from_code:', dict(_cat_counts))
 
 
 # ---- one row per engine identifier: the definitive list the rest of the file points at
@@ -823,7 +801,7 @@ ref = [
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
  ('TAB — engines', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
- ('TAB — engines_from_code', 'Every exported function in the calculation code, read from the code itself and never from a document, matched back to its engine name, its identifier and the metric identifiers that reach it. This is where an engine nobody reaches, and a calculation nobody documented, become visible.'),
+ ('TAB — functions_from_code', 'Every function in the calculation code, read from the code itself, sorted into the four categories by what it actually does. 1 ACTION does something and displays nothing. 2 DISPLAYED lands on a screen. 3 DEPENDENT feeds a chain that ends at a screen. 4 BRINGS DATA IN fetches from outside the app. A function that can reach a screen can put a wrong number in front of a person; one that cannot, cannot.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
  ('TAB — core_screens', 'Every screen in the app, its parent, my recommendation on whether it belongs to the 55-70 core, and a column for the founder to decide. Until this is decided, no row in the file can honestly claim to be in scope (S17).'),
  ('TAB — database', 'What the app saves in the cloud: where each thing is stored, what it holds, which figures depend on it, how often it is written and at what grain. Also names what is deliberately NOT saved.'),
@@ -873,7 +851,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines','engines_from_code'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines','functions_from_code'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
