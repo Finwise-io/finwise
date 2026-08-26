@@ -15,7 +15,7 @@ TODAY = datetime.date.today().isoformat()
 
 PARENTS = {'home':'Home','networth':'Networth','performance':'Performance',
            'cashflow':'Cashflow','plan':'Plan','menu':'Menu'}
-TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary']
+TAB_ORDER = ['Reference','Specification','multiple_screens','home','networth','performance','plan','cashflow','menu','inputs','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric']
 
 COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen',
         'Name of Underlying Metric','Function that produces it','Function ID',
@@ -23,6 +23,7 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Inputs it needs','What comes out — unit and rounding',
         'What it says when it cannot be computed','Grain — one figure per what',
         'Period — as of when, over what window','Dependency — function ID → the output it uses',
+        'The chain of functions behind it','Assumptions made anywhere in that chain',
         'Secondary calculations and decisions the engine makes',
         'Errors or findings to address','Decisions made',
         'Same figure as (S16)',
@@ -93,6 +94,10 @@ def numbered(text, sep='\n'):
     return '\n'.join('%d. %s' % (i, p) for i, p in enumerate(parts, 1))
 
 
+import importlib.util as _il3
+_sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
+_fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
+_FN_ROWS = None
 _FNMAP = json.load(open(os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_fn_map.json')))
 _ENG2FN, _FID = _FNMAP['eng2fn'], _FNMAP['fid']
 
@@ -121,6 +126,44 @@ def functions_for(engine):
     if len(names) == 1:
         return names[0], ids[0]
     return numbered(' · '.join(names), ' · '), numbered(' · '.join(ids), ' · ')
+
+
+_FN_BY_ID = {}
+def _fn_index():
+    global _FN_ROWS
+    if _FN_BY_ID: return _FN_BY_ID
+    if _FN_ROWS is None:
+        _FN_ROWS = _fn.with_ids_and_chains()
+    for r in _FN_ROWS: _FN_BY_ID[r['id']] = r
+    return _FN_BY_ID
+
+def chain_and_assumptions(fid_cell):
+    """For a figure: the chain that ends in the function producing it, and every assumption made
+    anywhere in that chain, each named with the function that makes it."""
+    idx = _fn_index()
+    ids = [x for x in re.findall(r'MK-[A-Z]{2}-F-\d{3}', str(fid_cell or ''))]
+    if not ids:
+        return ('No function on record — nothing to chain', 'No function on record — assumptions unknown')
+    chains, notes = [], []
+    for fid in ids:
+        r = idx.get(fid)
+        if not r: continue
+        chains.append(r['chain'])
+        for who in [r] + [idx[i] for i in re.findall(r'MK-[A-Z]{2}-F-\d{3}', r.get('fed_by','')) if i in idx]:
+            a = who.get('assumptions','')
+            if a.startswith('None found'): continue
+            for line in a.split('\n'):
+                line = line.strip(' ·')
+                if line and (who['id'] + ' — ' + line) not in notes:
+                    notes.append(who['id'] + ' — ' + line)
+    chain = '\n'.join(chains) if chains else 'No chain recorded'
+    if not notes:
+        return numbered(chain), 'None found anywhere in this chain'
+    shown = notes[:25]
+    out = numbered('\n'.join(shown))
+    if len(notes) > 25:
+        out += '\n… and %d more, on the functions tab' % (len(notes) - 25)
+    return numbered(chain), out
 
 def spec_cols(engine, label, math_text):
     e=str(engine); parts=[x.strip() for x in e.split('·')]
@@ -548,7 +591,7 @@ ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
     _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid); _FN_OF = functions_for(engine)
-    ws.append([_mid, screens, 'NA', label, metric, mark_engine(engine), m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    ws.append([_mid, screens, 'NA', label, metric, _FN_OF[0], _FN_OF[1], m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -558,7 +601,7 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
         ws.append([_mid, PARENTS[tab], 'NA', label, metric, _FN_OF[0], _FN_OF[1],
-                   m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -570,19 +613,19 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
         _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
         ws.append([_mid, PARENTS[tab], route, label, metric, _FN_OF[0], _FN_OF[1],
-                   m, w, *sp, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
         if r == '/performance':
-            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*15 + ['NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*17 + ['NOT DETERMINED',
                        'READ 2026-08-22 — the same screen as /invest, reached by a second route'])
             continue
         if r in NO_FIGURES:
-            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*15 + ['NOT DETERMINED',
+            ws.append(['', PARENTS[tab], r, '—', '—', '—'] + ['']*17 + ['NOT DETERMINED',
                        'READ 2026-08-22 — no calculated figure on this screen'])
             continue
-        ws.append(['', PARENTS[tab], r] + ['']*18 + ['NOT STARTED — screen not yet read'])
+        ws.append(['', PARENTS[tab], r] + ['']*20 + ['NOT STARTED — screen not yet read'])
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
@@ -752,9 +795,6 @@ for r in range(2, ws.max_row+1):
 
 
 # ---- every FUNCTION in the calculation code, sorted into the four categories
-import importlib.util as _il3
-_sp3=_il3.spec_from_file_location('mkfn', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_functions.py'))
-_fn=_il3.module_from_spec(_sp3); _sp3.loader.exec_module(_fn)
 
 FN_COLS = ['Function ID','Function','File','Line','Category','Objective — what this function is for',
            'What it is handed (its inputs)','What it gives back (its output)',
@@ -785,8 +825,7 @@ for _r in _s3.iter_rows(min_row=3, values_only=True):
 
 import collections as _co
 _cat_counts = _co.Counter()
-_FN_ROWS = _fn.with_ids_and_chains()
-for row in _FN_ROWS:
+for row in _fn_index().values() if False else sorted(_fn_index().values(), key=lambda r: r['id']):
     old = _fn_to_old.get(row['name'], '')
     eid = engine_id.get(old, '') if old else ''
     mids = sorted(METRICS_BY_ENGINE.get(eid, [])) if eid else []
@@ -866,6 +905,47 @@ for i,w in enumerate([40,12,40,38,34,34], start=1):
 for r in range(2, ws.max_row+1):
     for c in range(1,7): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
 
+
+# ---- how many functions stand behind each figure, by screen
+CNT_COLS = ['Parent screen','Figures','Behind one function only','Behind 2 to 5 functions',
+            'Behind more than 5 functions','No function on record']
+ws = sheet('functions_per_metric', CNT_COLS)
+ws.append(['Counting the function that produces a figure PLUS every function below it. A figure '
+           'standing on many functions is not wrong, but a wrong one has that many places to have '
+           'started.','','','','',''])
+ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
+import collections as _c3
+_per = _c3.defaultdict(lambda: [0,0,0,0,0])
+for _tab in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _sh = wb[_tab]
+    _hd = [c.value for c in _sh[1]]
+    _fi = _hd.index('Function ID')
+    _pa = _hd.index('Parent Screen Name')
+    for _r in _sh.iter_rows(min_row=2, values_only=True):
+        if not _r[0]: continue
+        _screen = _r[_pa] if _tab != 'multiple_screens' else 'Shown on more than one screen'
+        _ids = re.findall(r'MK-[A-Z]{2}-F-\d{3}', str(_r[_fi] or ''))
+        _row = _per[_screen]
+        _row[0] += 1
+        if not _ids:
+            _row[4] += 1; continue
+        _total = 0
+        for _i in _ids:
+            _frow = _fn_index().get(_i)
+            _total += 1 + (_frow['feeder_count'] if _frow else 0)
+        if _total == 1: _row[1] += 1
+        elif _total <= 5: _row[2] += 1
+        else: _row[3] += 1
+_tot = [0,0,0,0,0]
+for _screen in sorted(_per):
+    v = _per[_screen]; ws.append([_screen] + v)
+    _tot = [a+b for a,b in zip(_tot, v)]
+ws.append(['TOTAL'] + _tot); ws.cell(ws.max_row,1).font = Font(bold=True)
+for i,w in enumerate([34,10,26,26,30,24], start=1):
+    ws.column_dimensions[get_column_letter(i)].width = w
+for r in range(2, ws.max_row+1):
+    for c in range(1,7): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+
 # ---- Reference
 ws = sheet('Reference', ['Item','Detail'])
 ref = [
@@ -890,6 +970,7 @@ ref = [
  ('TAB — cashflow', 'Figures shown only on Cash flow and the screens reached from it.'),
  ('TAB — menu', 'Screens reachable only from the menu, and the figures on them.'),
  ('TAB — engines-old-tab', 'One row per engine identifier — the definitive list every dependency and every figure points at. Carries where the engine is implemented, what it answers, and which figures reach it.'),
+ ('TAB — functions_per_metric', 'By parent screen: how many figures it shows, and how many functions stand behind each one — a single function, two to five, more than five, or none on record.'),
  ('TAB — functions_summary', 'A count per category: how many functions there are, how many are handed nothing at all, how many are handed nothing but reach into the stored data, and how many never say what they give back.'),
  ('TAB — functions_from_code', 'Every function in the calculation code, read from the code itself, sorted into the four categories by what it actually does. 1 ACTION does something and displays nothing. 2 DISPLAYED lands on a screen. 3 DEPENDENT feeds a chain that ends at a screen. 4 BRINGS DATA IN fetches from outside the app. A function that can reach a screen can put a wrong number in front of a person; one that cannot, cannot.'),
  ('TAB — reconciliation', 'The input map checked in BOTH directions: what the inputs tab says uses each input, against what each engine actually names in its own input list. Where the two disagree the row says so. The section at the foot lists inputs an engine names that appear nowhere on the inputs tab.'),
@@ -917,6 +998,8 @@ ref = [
  ('COLUMN — Assumptions it makes', 'What the function takes for granted, in plain English rather than in code: a value used when data is missing, a rate nobody chose on a screen, a year treated as twelve equal months, a cap, rows deliberately left out. Read from the code with the comments stripped out, so it reports what runs rather than what someone wrote about it.'),
  ('COLUMN — Dependent functions', 'A dependent function is one whose output is used by another function, in a chain that ends at a screen. These columns list the dependent functions behind this one: those one step below it, how many there are in total, and all of them however many steps away.'),
  ('COLUMN — The chain, ending in this function', 'Read left to right. The function that shows the answer sits at the END, and everything feeding it comes before it. A loop is marked where a chain turns back on itself. Chains are cut at five levels and eight paths, and say so.'),
+ ('COLUMN — The chain of functions behind it', 'The chain that ends in the function producing this figure, read left to right, taken from the functions tab.'),
+ ('COLUMN — Assumptions made anywhere in that chain', 'Every assumption made by the producing function OR by any function below it, each named with the identifier of the function that makes it. This is where a figure quietly inherits a rate nobody chose.'),
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
@@ -948,7 +1031,7 @@ for r in range(2, ws.max_row+1):
     ws.cell(r,1).font=Font(bold=True); ws.cell(r,2).alignment=Alignment(wrap_text=True, vertical='top')
 
 for name in wb.sheetnames:
-    if name in ('Reference','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary'): continue
+    if name in ('Reference','database','core_screens','reconciliation','engines-old-tab','functions_from_code','functions_summary','functions_per_metric'): continue
     w=wb[name]
     for i,col in enumerate(COLS if name!='inputs' else INPUT_COLS, start=1):
         w.column_dimensions[get_column_letter(i)].width = max(14, min(42, len(col)+8))
@@ -958,8 +1041,12 @@ os.makedirs(os.path.dirname(OUT), exist_ok=True)
 # GUARD: every question must have landed on a row. A question the founder cannot see is a
 # question that will never be answered.
 _all_q = {q.split(' ')[0] for v in getattr(_f,'QUESTIONS',{}).values() for q in v}
-_unplaced = _all_q - {q for e in _asked for q in
-                      {x.split(' ')[0] for x in getattr(_f,'QUESTIONS',{}).get(e,[])}}
+_placed = set()
+for _t in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _hd = [c.value for c in wb[_t][1]]; _qi = _hd.index('Questions for you (numbered)')
+    for _r in wb[_t].iter_rows(min_row=2, values_only=True):
+        if _r[0] and _r[_qi]: _placed |= set(re.findall(r'Q\d\d', str(_r[_qi])))
+_unplaced = _all_q - _placed
 if _unplaced:
     raise SystemExit('BUILD STOPPED — these questions landed on no row: ' + ', '.join(sorted(_unplaced)))
 
