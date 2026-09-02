@@ -11,6 +11,7 @@ import AddAccountScreen from '../AddAccountScreen';
 import HomeScreen from '../HomeScreen';
 import { useStore } from '../../store/useStore';
 import { setSyncProviderForTesting, SandboxSyncProvider, connectionFreshness, CONSENT_COPY } from '../../services/sync';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 let mockParams: Record<string, string> = {};
 const mockPushes: string[] = [];
@@ -99,7 +100,7 @@ test('unified add screen: class-first, dynamic fields, saves with value-as-of st
   fireEvent.press(screen.getByLabelText('Save this account'));
   const a = (useStore.getState() as any).assetAccounts[0];
   expect(a).toMatchObject({ label: 'Treasury 2034', asset_class: 'bonds', tax_bucket: 'TAXABLE', balance: 9500, coupon_rate: 0.045, source: 'manual' });
-  expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10));
+  expect(a.value_as_of).toBe(isoLocalDate(new Date()));
 });
 
 test('edit mode = manual update (c15): pre-filled; saving updates balance AND re-stamps value-as-of', () => {
@@ -113,7 +114,7 @@ test('edit mode = manual update (c15): pre-filled; saving updates balance AND re
   fireEvent.press(screen.getByLabelText('Save the update'));
   const a = (useStore.getState() as any).assetAccounts[0];
   expect(a.balance).toBe(10400);
-  expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10));   // staleness clock resets together
+  expect(a.value_as_of).toBe(isoLocalDate(new Date()));   // staleness clock resets together
 });
 
 test('debt class writes a real liability through the same store path', () => {

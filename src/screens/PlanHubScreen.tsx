@@ -34,6 +34,7 @@ import { targetAtRetirement } from '../domain/planning/target';
 import { onCourseSentence, planDoor, nextDecision, shortfallAgeFromBand, oddsLine, sampleOddsLine, SS_DECISION_FROM, SS_DECISION_TO } from '../domain/planning/hub';
 import { simulate } from '../domain/retirement';
 import { useCashflowModel } from '../hooks/useCashflowModel';
+import { salaryAnnual } from '../domain/income';
 
 /** How a withdrawal rate reads in words. Never "safe" — we do not know that, and saying it is a
  *  promise we cannot make (founder 2026-08-13). The 4% figure is a published guideline, which is a
@@ -100,7 +101,10 @@ export default function PlanHubScreen() {
   const guaranteedMonthly = retirementIncomeMonthly(op);
   // what they earn decides whether the required saving is a real ask or an impossible one; the room
   // is what the app already knows can go somewhere tax-advantaged
-  const annualIncomeForPlan = Math.round(Number(op.baseSalary ?? 0) * (op.salaryFreq === 'monthly' ? 12 : 1)) || undefined;
+  // The HOUSEHOLD's wages. This read one person's baseSalary and multiplied by 12 only when they
+  // were paid monthly — so a fortnightly earner's plan was built on a fortnight's pay, and a
+  // partner's wage was not in it at all. salaryAnnual sums every earner and every frequency.
+  const annualIncomeForPlan = Math.round(salaryAnnual(op)) || undefined;
   // WIRED 2026-08-14 (audit D12). The bridge sentence has always been able to say how much of the
   // required saving fits somewhere tax-advantaged — the sentence was written, and the value feeding
   // it was hard-coded undefined, so nobody ever saw it. The number is not new: the same headroom

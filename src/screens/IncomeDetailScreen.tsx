@@ -11,6 +11,7 @@ import { money } from '../domain/_shared/num';
 import { incomeFromOnboarding, buildIncomeState, equityCashFlow } from '../domain/income';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
+import { incomeFromAccounts } from '../domain/income/from-accounts';
 
 const CADENCE: Record<string, string> = {
   MONTHLY: '/mo', ANNUAL: '/yr', QUARTERLY: '/qtr', WEEKLY: '/wk', BIWEEKLY: '/2wk', ONETIME: 'one-time',
@@ -28,7 +29,7 @@ export default function IncomeDetailScreen() {
   // Prefer ACTUAL passive income from holdings (recorded dividends/interest + bond coupons) over the
   // onboarding estimate, so totals reflect real money once the user has holdings.
   const actualPassive = useMemo(
-    () => Math.round(investmentIncomeAnnual(store.transactions ?? []) + interestIncomeAnnual(store.assetAccounts ?? [])),
+    () => Math.round(incomeFromAccounts(store.assetAccounts ?? [], store.transactions ?? []).annual),
     [store.transactions, store.assetAccounts],
   );
   const opLive = useMemo(() => (actualPassive > 0 ? { ...op, invAnnual: actualPassive } : op), [op, actualPassive]);

@@ -7,6 +7,7 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import * as fs from 'fs';
 import { useStore } from '../store/useStore';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 let mockParams: any = {};
 jest.mock('expo-router', () => ({
@@ -24,7 +25,7 @@ const PAT_ACCOUNTS = [
   { asset_id: 'fid', label: 'Traditional IRA', institution: 'Fidelity', kind: 'ira', tax_bucket: 'PRE_TAX', balance: 420000, target_return: 0.07 },
   { asset_id: 'rot', label: 'Roth IRA', institution: 'Vanguard', kind: 'roth_ira', tax_bucket: 'ROTH', balance: 96000, target_return: 0.07 },
   { asset_id: 'ally', label: 'Savings', institution: 'Ally', kind: 'savings', tax_bucket: 'CASH', balance: 38000, target_return: 0.01 },
-  { asset_id: 'hme', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 620000, target_return: 0, value_as_of: new Date().toISOString().slice(0, 10) },
+  { asset_id: 'hme', label: 'Home', kind: 'home', tax_bucket: 'PROPERTY', balance: 620000, target_return: 0, value_as_of: isoLocalDate(new Date()) },
 ];
 
 const PAT = {

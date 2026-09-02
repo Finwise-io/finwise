@@ -23,6 +23,7 @@ import {
 } from '../domain/performance';
 import { HoldingEditor, TransactionSheet, HistorySheet } from './PerformanceScreen';
 import type { AssetAccount } from '../domain/assets';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const pct = (v: number | null | undefined) => (v == null ? '—' : `${v >= 0 ? '+' : '−'}${Math.abs(Math.round(v * 1000) / 10)}%`);
 const PERIOD_WORDS: Record<string, string> = { '1M': 'month', '3M': '3 months', '6M': '6 months', YTD: 'year so far', '1Y': 'year', '2Y': '2 years' };
@@ -79,7 +80,7 @@ export default function HoldingDetailScreen() {
     const back: Record<string, number> = { '1M': 1, '3M': 3, '6M': 6, '1Y': 12, '2Y': 24 };
     if (period === 'YTD') start.setMonth(0, 1); else start.setMonth(start.getMonth() - (back[period] ?? 12));
     return coverageFor(pts.map((x) => ({ date: x.date })), start.toISOString().slice(0, 10),
-                       new Date().toISOString().slice(0, 10));
+                       isoLocalDate(new Date()));
   }, [position, priceCache, period]);
 
   // B47 finding 4: deleting re-renders BEFORE router.back() finishes — the not-found screen

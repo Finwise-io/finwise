@@ -25,15 +25,78 @@ const KIND_FOR: Record<ItemClass, string> = {
 };
 
 /** Σ of the itemized holding values. */
+/* ─ MK-NW-F-049 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * itemizedTotal
+ *
+ * Answers ..... Σ of the itemized holding values.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-050 itemizeRemainder · MK-NW-F-051 itemizedResultTotal
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-050 itemizeRemainder
+ *               MK-NW-F-051 itemizedResultTotal
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-049
+ * Changed ..... 2026-06-28 (e637ba5)
+ */
 export const itemizedTotal = (items: ItemHolding[]): number =>
   round2(items.reduce((t, h) => t + (h.value || 0), 0));
 
 /** Lump balance − Σ holdings. Positive = still unallocated; negative = holdings exceed the entered total. */
+/* ─ MK-NW-F-050 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * itemizeRemainder
+ *
+ * Answers ..... Lump balance − Σ holdings.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-051 itemizedResultTotal · MK-NW-F-052 buildItemizedAccounts
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-052 buildItemizedAccounts · MK-NW-F-051 itemizedResultTotal
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If lump balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-050
+ * Changed ..... 2026-06-28 (e637ba5)
+ */
 export const itemizeRemainder = (lumpBalance: number, items: ItemHolding[]): number =>
   round2((lumpBalance || 0) - itemizedTotal(items));
 
 /** The account total AFTER itemizing. With keep-as-cash and a non-negative remainder this equals the lump
  *  exactly (total preserved). If holdings exceed the lump, the total rises to Σ (the estimate was low). */
+/* ─ MK-NW-F-051 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * itemizedResultTotal
+ *
+ * Answers ..... The account total AFTER itemizing.
+ *
+ * Formula .....
+ *     sum = itemized total(items)
+ *     remainder = itemize remainder(lump.balance, items)
+ *     the answer:
+ *     round(sum + remainder, 2 dp)   if keep remainder as cash and remainder > 0
+ *     sum   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-051
+ * Changed ..... 2026-06-28 (e637ba5)
+ */
 export const itemizedResultTotal = (
   lump: Pick<AssetAccount, 'balance'>, items: ItemHolding[], keepRemainderAsCash = true,
 ): number => {
@@ -45,6 +108,36 @@ export const itemizedResultTotal = (
 /** Build the new accounts to CREATE when committing an itemization. The caller then deletes the lump and
  *  addAsset()s each of these. Each inherits the lump's institution + tax bucket; a positive remainder
  *  becomes a cash sleeve so the total reconciles exactly. */
+/* ─ MK-NW-F-052 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildItemizedAccounts
+ *
+ * Answers ..... Build the new accounts to CREATE when committing an itemization.
+ *
+ * Formula .....
+ *     institution = (lump.institution or lump.label or '').trim() (or undefined when missing or zero)
+ *     bucket = lump.tax bucket
+ *     the answer = acct
+ *     remainder = itemize remainder(lump.balance, items)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-011 bond face value
+ *               MK-XS-I-012 bond coupon rate
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Decides .....
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If coupon rate is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-052
+ * Changed ..... 2026-06-28 (e637ba5)
+ */
 export function buildItemizedAccounts(
   lump: AssetAccount, items: ItemHolding[], keepRemainderAsCash = true,
 ): Omit<AssetAccount, 'asset_id'>[] {

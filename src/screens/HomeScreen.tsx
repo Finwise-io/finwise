@@ -35,6 +35,7 @@ import { InfoDot } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { SectionBand } from '../components/SectionBand';
 import { DotJoined } from '../components/SepDot';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -152,7 +153,7 @@ export default function HomeScreen() {
     // APPROVED 2026-07-19: one daily net-worth point per open day → the trend graph draws within
     // days of first use (monthly snapshots stay the deep record; this is just a chart point).
     // founder rule 2026-08-04: also capture cash+investments — the change-% denominator
-    store.captureDailyNw?.(new Date().toISOString().slice(0, 10), nwv.net_worth, investableAssets(resolvedRows.accounts));
+    store.captureDailyNw?.(isoLocalDate(new Date()), nwv.net_worth, investableAssets(resolvedRows.accounts));
     store.runReclassifyOnce?.();   // founder gaps 1 & 2: fix accounts stored under the OLD rule
   }, [ym, thisMonthNet, bva, expenses, store.assetAccounts, store.liabilities, store.allocatedByMonth, store.nwSeeded]);
 
@@ -272,7 +273,7 @@ export default function HomeScreen() {
                  two can never disagree (accuracy rule: one source per concept). */
               <Text style={styles.heroLine}>
                 <Text style={{ color: youReturn >= 0 ? Colors.gainText : Colors.red, fontWeight: '800' }}>
-                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctTxt(Math.abs(youReturn))})
+                  {youReturn >= 0 ? '▲ up' : '▼ down'} {maskedMoney(Math.abs(periodDollarDelta(investTotal, youReturn)))} ({pctToOneDp(Math.abs(youReturn))})
                 </Text>
                 <Text> this month</Text>
               </Text>
@@ -283,7 +284,7 @@ export default function HomeScreen() {
             )}
             {youReturn != null && marketReturn != null && (
               <View style={{ flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap' }}>
-                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctTxt(Math.abs(youReturn - marketReturn))}`]} />
+                <DotJoined style={styles.heroVs} parts={[`you ${signedPct(youReturn)}`, `market ${signedPct(marketReturn)}`, `${youReturn >= marketReturn ? 'ahead' : 'behind'} by ${pctToOneDp(Math.abs(youReturn - marketReturn))}`]} />
                 <InfoDot term="benchmark" />
               </View>
             )}
@@ -554,8 +555,10 @@ export default function HomeScreen() {
 }
 
 function greeting() { const h = new Date().getHours(); return h < 12 ? 'morning' : h < 18 ? 'afternoon' : 'evening'; }
-const pctTxt = (d: number) => `${(Math.round(d * 1000) / 10).toFixed(1)}%`;
-const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctTxt(Math.abs(d))}`;
+/** One decimal place. domain/insights has a whole-number pctTxt; two precisions must not share
+ *  one name. */
+const pctToOneDp = (d: number) => `${(Math.round(d * 1000) / 10).toFixed(1)}%`;
+const signedPct = (d: number) => `${d >= 0 ? '+' : '−'}${pctToOneDp(Math.abs(d))}`;
 
 const styles = StyleSheet.create({
   // desktop two-column (approved shell mock: 1fr/1fr, 16 gap)

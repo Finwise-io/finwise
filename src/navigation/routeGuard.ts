@@ -18,6 +18,9 @@ export const MODAL_SEGMENTS = [
   'account-detail',             // FCC Net worth tab: one page per account
   'multi-goal',                 // FCC Plan tab: Afford it all? (the F4 composer)
   'first-run',                  // FCC: the lens questions (intents + stage), also Settings' revisit target
+  'base-pay',                   // Your base pay — one section per earner (approved mock income-v5, 2a-2e)
+  'filing-status',              // How do you file? — never asked before (approved mock income-v5, 4a-4c)
+  'income-summary',             // Your income, all of it (approved mock income-v5, 5a-5b)
   'look-back','what-if',        // FCC Invest tab: backward + forward what-ifs
   'will-it-last',               // FCC Plan tab: the one number, opened up
 ];
@@ -37,12 +40,21 @@ export function nextRoute({ user, onboardingComplete, onboardingPaused, segment 
   const inModals     = MODAL_SEGMENTS.includes(segment);
 
   if (user) {
+    // NOBODY IS EVER SENT HERE, SO BEING HERE IS A CHOICE. The guard's job is to stop someone being
+    // TRAPPED in setup; it is not to stop them CHOOSING it. Those were the same line until
+    // 2026-08-28, and it bounced /onboarding to Home in three of the four states — including the two
+    // that matter, because the light first-run sets onboardingComplete before Home is ever shown.
+    // The founder tapped "Or answer guided setup questions", landed back on the same screen, tapped
+    // "Pick up where you left off", landed back again: a circular loop, with the whole guided setup
+    // unreachable behind it. Nothing in this file routes anyone TO /onboarding, and the screen has
+    // its own exits (Save & come back later, and finishing), so staying put is always safe.
+    // Same class as T22.
+    if (inOnboarding) return null;
     if (onboardingComplete) {
-      // Done — keep them in the app; only bounce to Home from stray routes (e.g. /auth, /onboarding).
+      // Done — keep them in the app; only bounce to Home from stray routes (e.g. /auth).
       if (!inTabs && !inModals) return '/(tabs)/home';
     } else if (onboardingPaused) {
-      // Paused setup — let them use the app; don't trap them back in onboarding.
-      if (inOnboarding) return '/(tabs)/home';
+      // Paused setup — let them use the app.
     } else {
       // FCC (B46): a brand-new user gets the LIGHT first-run (value intro → intents → stage →
       // routed fast-path). The deep questionnaire (/onboarding) stays legal — it's the

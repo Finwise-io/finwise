@@ -54,7 +54,7 @@ A screen asks for **the person's plan** and reads figures off it. It cannot asse
 
 Three parts make it real, and all three are needed:
 
-1. **One entry point.** `MoneyKeel/engines/retirement/the-plan.ts` is the only thing a screen may
+1. **One entry point.** `MoneyKeel/functions/retirement/the-plan.ts` is the only thing a screen may
    call for this family.
 2. **One place the inputs are assembled** — big costs, inflation, employment, Social Security —
    so no screen can quietly leave one out.

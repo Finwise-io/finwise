@@ -26,13 +26,15 @@ import { PaycheckCard } from '../components/PaycheckCard';
 import { QuickAddExpense, ExpenseFab } from '../components/MoneySheets';
 import { useCashflowModel } from '../hooks/useCashflowModel';
 import { maskedMoney, spokenMoney } from '../components/useMoney';
-import { IncomeSetupSheet } from '../components/IncomeSetupSheet';
 import BudgetScreen from './BudgetScreen';
 import { HeroAmount } from '../components/HeroAmount';
 import { EstimateTag } from '../components/UI';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
+import { hasMonthlySalaryTable } from '../domain/income/salary-months';
+import { earnerWages } from '../domain/income/earners';
+import { wageGrossByMonth, salaryAnnual } from '../domain/income';
 
 const MONTHS_LONG = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
 
@@ -66,13 +68,12 @@ export default function CashFlowScreen() {
   // ── v1.3 CASH FLOW SURFACE (FINAL mock approved 2026-07-19): four tabs, one month switcher ──
   const [surfTab, setSurfTab] = useState<'This month' | 'Income' | 'Spending' | 'Debts'>('This month');
   const [surfOffset, setSurfOffset] = useState(0);           // 0 = current · negative past · positive future
-  const [incomeSheet, setIncomeSheet] = useState(false);
   const selDate = new Date(now.getFullYear(), now.getMonth() + surfOffset, 1);
   const selYm = `${selDate.getFullYear()}-${String(selDate.getMonth() + 1).padStart(2, '0')}`;
   const selLabel = selDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
     + (surfOffset < 0 ? ' — final' : surfOffset > 0 ? ' — planned' : '');
   // the income question is ANSWERED when any source exists (the first-open gate)
-  const incomeReady = !!(op?.baseSalary || (Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length) || op?.seAmount || retirementIncomeMonthly(op) > 0);
+  const incomeReady = !!(salaryAnnual(op) > 0 || hasMonthlySalaryTable(op) || op?.seAmount || retirementIncomeMonthly(op) > 0);
 
   return (
     <View style={{ flex: 1, backgroundColor: Colors.bgSecondary }}>
@@ -112,9 +113,12 @@ export default function CashFlowScreen() {
         /* FIRST OPEN (approved): no zeros — the two setup doors */
         <View style={styles.card}>
           <SectionBand inCard inset={16} title="SET UP YOUR MONTH — 2 STEPS" />
-          <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => setIncomeSheet(true)}
-            accessibilityLabel="Step 1: set up your income — steady or varies, ten seconds">
-            <View style={{ flex: 1 }}><Text style={styles.doorT}>1 · Your income</Text><Text style={styles.doorSub}>steady or varies — 10 seconds</Text></View>
+          {/* The approved mock (income-v5, 2a) replaces the bottom sheet with a full screen: a sheet
+              caps at 88% of the display, and three figures plus a fourteen-month table plus a second
+              earner never fitted in one. Founder approval 2026-08-27. */}
+          <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={() => router.push('/base-pay')}
+            accessibilityLabel="Step 1: set up your income — your base pay, one section per earner">
+            <View style={{ flex: 1 }}><Text style={styles.doorT}>1 · Your base pay</Text><Text style={styles.doorSub}>one section per earner — bonus and other income come after</Text></View>
             <Text style={styles.link}>Set up ›</Text>
           </TouchableOpacity>
           <SpendingQuestion op={op} store={store} />
@@ -134,7 +138,7 @@ export default function CashFlowScreen() {
       ))}
 
       {surfTab === 'Income' && (
-        <IncomeTab op={op} store={store} ym={selYm} onSetup={() => setIncomeSheet(true)} />
+        <IncomeTab op={op} store={store} ym={selYm} onSetup={() => router.push('/base-pay')} onSummary={() => router.push('/income-summary')} />
       )}
 
       {surfTab === 'Spending' && (
@@ -172,7 +176,6 @@ export default function CashFlowScreen() {
 
     {/* '+ Expense' (M4): same corner, same label as Home — one habit, one spot */}
     <ExpenseFab onPress={() => setSheet(true)} />
-    <IncomeSetupSheet visible={incomeSheet} onClose={() => setIncomeSheet(false)} />
     <QuickAddExpense visible={sheet} onClose={() => setSheet(false)} customCats={customCats}
       isCurrentMonth baseDate={now} monthLabel={header} />
 
@@ -276,9 +279,9 @@ function OtherMonthCard({ offset, ym, label, grid, store, onSpending }: { offset
 }
 
 /** INCOME tab: sources + the steady/varies pop-up door + received-this-month + the Teller door. */
-function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string; onSetup: () => void }) {
+function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any; ym: string; onSetup: () => void; onSummary: () => void }) {
   const router = useRouter();
-  const varies = Array.isArray(op?.salaryByMonth) && op.salaryByMonth.length > 0;
+  const varies = hasMonthlySalaryTable(op);
   const guaranteed = retirementIncomeMonthly(op);
   const received = (store.incomes ?? []).filter((i: any) => String(i.date ?? '').startsWith(ym));
   const sources: { label: string; sub: string | string[]; amount: string }[] = [];
@@ -286,19 +289,24 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
   // the old code hardcoded 'take-home · monthly' and printed the raw per-period entry, so a salary
   // saved as gross/biweekly showed a number nothing else on the screen could reconcile with. The sub
   // now names the entered form and bridges to the SAME monthly take-home the In line uses.
-  if (op?.baseSalary) {
+  // ONE ROW PER EARNER. This showed a single salary however many people earned one, so a household
+  // on two wages saw one of them here and the total of both on the In line — two numbers on one
+  // screen that could not be reconciled. Founder ruling 2026-08-27 (B32).
+  for (const w of earnerWages(op)) {
+    if (!Number(w.baseSalary)) continue;
     const mIdx = new Date().getMonth();
-    const monthlyNet = Math.round(salaryGrossByMonth(op)[mIdx] * (1 - monthlyTaxRates(op)[mIdx]));
+    const monthlyNet = Math.round(wageGrossByMonth(w)[mIdx] * (1 - monthlyTaxRates(op)[mIdx]));
     const FREQ_WORD: Record<string, string> = { monthly: 'monthly', biweekly: 'every 2 weeks', weekly: 'weekly', semimonthly: 'twice a month', annual: 'yearly' };
-    const unit = FREQ_WORD[String(op.salaryFreq ?? 'monthly')] ?? 'monthly';
-    const basis = op.salaryMode === 'takehome' ? 'take-home' : 'before tax';
-    const plainMonthlyTakehome = op.salaryMode === 'takehome' && (op.salaryFreq ?? 'monthly') === 'monthly';
+    const unit = FREQ_WORD[String(w.salaryFreq ?? 'monthly')] ?? 'monthly';
+    const basis = w.salaryMode === 'takehome' ? 'take-home' : 'before tax';
+    const plainMonthlyTakehome = w.salaryMode === 'takehome' && (w.salaryFreq ?? 'monthly') === 'monthly';
+    const whose = earnerWages(op).length > 1 ? (w === (op as any) ? 'You' : (op as any)?.partnerName || 'Partner') : null;
     sources.push({
-      label: varies ? 'Salary — varies' : 'Salary — steady',
+      label: `${whose ? whose + ' · ' : ''}${varies ? 'Salary — varies' : 'Salary — steady'}`,
       sub: varies ? 'by-month table · tap Set up to adjust'
         : plainMonthlyTakehome ? 'take-home · monthly'
         : [basis, unit, `≈ ${maskedMoney(monthlyNet)}/mo take-home`],
-      amount: maskedMoney(Math.round(Number(op.baseSalary) || 0)),
+      amount: maskedMoney(Math.round(Number(w.baseSalary) || 0)),
     });
   }
   if (op?.seAmount) sources.push({ label: 'Self-employment', sub: op.seFreq === 'monthly' ? 'net · monthly' : 'net · yearly', amount: maskedMoney(Math.round(Number(op.seAmount) || 0)) });
@@ -353,6 +361,15 @@ function IncomeTab({ op, store, ym, onSetup }: { op: any; store: any; ym: string
           <Text style={styles.soonPill}>SOON</Text>
         </View>
       </View>
+      {/* Your income, all of it — the summary (approved mock income-v5, 5a). Two totals: what lands,
+          and what it is taxed on. It reads the rate set on Your base pay and never asks again. */}
+      <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={onSummary}
+        accessibilityLabel="Your income, all of it — what lands and what it is taxed on">
+        <View style={{ flex: 1 }}><Text style={styles.doorT}>Your income, all of it</Text>
+          <Text style={styles.doorSub}>what lands, and what it is taxed on</Text></View>
+        <Text style={styles.link}>Open ›</Text>
+      </TouchableOpacity>
+
     </>
   );
 }

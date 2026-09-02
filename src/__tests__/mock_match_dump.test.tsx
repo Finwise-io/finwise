@@ -6,6 +6,7 @@ import { render, screen } from '@testing-library/react-native';
 import * as fs from 'fs';
 import { useStore } from '../store/useStore';
 import { employedPartner } from '../testing/personas';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 let mockParams: any = {};
 jest.mock('expo-router', () => ({
@@ -15,7 +16,7 @@ jest.mock('expo-router', () => ({
   useSegments: () => [],
 }));
 
-const today = new Date().toISOString().slice(0, 10);
+const today = isoLocalDate(new Date());
 const REAL_DATA = {
   onboardingComplete: true,
   nwSeeded: true,

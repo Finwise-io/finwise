@@ -1,0 +1,121 @@
+<title>Two Days On The Calculation Module</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;--grey:#6E7F8E;--greybg:#6E7F8E14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;
+ --grey:#8B9AA8;--greybg:#8B9AA822;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;--grey:#8B9AA8;--greybg:#8B9AA822;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:26px 0 32px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:14px 16px}
+.c.k-done{border-left:3px solid var(--ok)}.c.k-coded{border-left:3px solid var(--blue)}
+.c.k-approved{border-left:3px solid var(--warn)}.c.k-found{border-left:3px solid var(--bad)}
+.c.k-notworked{border-left:3px solid var(--grey)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:29px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+td.nm{color:var(--ink);font-weight:600;min-width:210px}
+td.wy{max-width:520px;line-height:1.5}
+td.st{white-space:nowrap;width:1%}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.t-done{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-coded{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-approved{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-found{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-notworked{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.st .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:29px;margin:40px 0 8px}
+h2+p{color:var(--ink2);margin:0 0 16px;max-width:74ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+ol{color:var(--ink2);max-width:74ch;padding-left:20px}ol li{margin-bottom:9px}ol li b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">MoneyKeel · Calculation Module · 25–27 August 2026</p>
+<h1>Two days on the calculation module</h1>
+<p class="stand">Everything worked on or found, and where each one actually stands. Nothing is marked done unless it is coded <i>and</i> a test proves it — and where a test passes both before and after a change, it does not count.</p>
+</header>
+<div class="cards">
+<div class="c k-done"><div class="n">15</div><div class="l">Done</div><div class="s">Coded and tested. A test that fails on the old code.</div></div>
+<div class="c k-coded"><div class="n">1</div><div class="l">Coded</div><div class="s">In the code, but not fully verified — more still hidden.</div></div>
+<div class="c k-approved"><div class="n">2</div><div class="l">Design approved</div><div class="s">Mock agreed. No code written.</div></div>
+<div class="c k-found"><div class="n">8</div><div class="l">Found</div><div class="s">Real, proven, waiting on a decision from you.</div></div>
+<div class="c k-notworked"><div class="n">6</div><div class="l">Not worked</div><div class="s">On record, untouched.</div></div>
+</div>
+<div class="tw"><table>
+<thead><tr><th>Item</th><th>What it is, and why it matters</th><th>Status</th></tr></thead>
+<tbody>
+<tr class="grp"><th colspan="3">Money on screen</th></tr>
+<tr class="s-done"><td class="nm">B05 · Tax charged on 401(k) money</td><td class="wy">Tax was worked out on a base that never had the 401(k) removed. ~$4,400/yr too much on a $120k salary putting in $20k — and it set the withholding rate for every month, so it reached take-home, surplus, essentials and the whole cash-flow module.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-found"><td class="nm">Take-home entered by hand is wrong</td><td class="wy">Type your take-home and the app grosses it up, then taxes it down — removing the 401(k) twice. Lands $1,467/mo away from what was typed. Pre-existing; B05 improved it by $200 and left the cause.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-approved"><td class="nm">The $0 planned contradiction</td><td class="wy">One card says Out (bills + debt) $8,321 and four rows later “Spent $45 of $0 planned”. Two definitions of planned, differing by the whole amount.</td><td class="st"><span class="tag t-approved">Design approved</span><span class="sub">not coded</span></td></tr>
+<tr class="s-found"><td class="nm">B06 · Three return methods, one label</td><td class="wy">Performance imports all three. Line 352: shownReturn = mw ? Modified Dietz : value-weighted average. Same word on screen, different maths, switching as history fills in.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-found"><td class="nm">B01 · A rule that was never built</td><td class="wy">The file says required payment is “the minimum, or interest + 1% when none stated”. No 1% exists in the code. A debt with no stated minimum shows $0/mo and prefills the pay dialog with $0.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="grp"><th colspan="3">The 2026-08-25 audit — 51 findings</th></tr>
+<tr class="s-done"><td class="nm">A10 · A guard that could never fire</td><td class="wy">The gate&#x27;s identifier pattern carried the retired E and had no F, so the UNKNOWN FUNCTION check had never once run.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">A11 · A second guard that never fired</td><td class="wy">The orphan-input check looked for a string the builder has never written. Now split into three findings that say what is true: 74 figures record no input, 21 inputs are read by nothing, 12 list another function&#x27;s answer.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-coded"><td class="nm">A09 · Functions invisible to the file</td><td class="wy">The sweep read only exported functions in three folders. 455 → 533 by reading module-private ones. Still blind to four more folders — 77 functions doing arithmetic, including recomputeBalances, which builds the balance net worth is made of.</td><td class="st"><span class="tag t-coded">Coded</span><span class="sub">not fully verified</span></td></tr>
+<tr class="s-found"><td class="nm">A13 · One name, two functions</td><td class="wy">11 names across 26 declarations — round2 five times, moneyWeightedReturn twice as two different methods. Every header now says so; nothing yet prevents it.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-done"><td class="nm">A44 · Corrected</td><td class="wy">I had said the retirement-pot year convention was undetermined. The code settles it. The finding was partly wrong and now says what is actually missing.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-notworked"><td class="nm">A01 · VERIFIED means nothing</td><td class="wy">All 163 rows read VERIFIED 2026-08-22 because the builder types that literal on every row. Rungs 2 and 3 have not started.</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="s-notworked"><td class="nm">The other 46 findings</td><td class="wy">Recorded on the row they belong to, none worked.</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="grp"><th colspan="3">The 2026-08-26 formula audit — 25 findings</th></tr>
+<tr class="s-found"><td class="nm">B02 · Re-verified — the finding was wrong</td><td class="wy">I reported four figures showing planned where they say spent. Opening the screens showed all four read logged expenses. The master file was wrong, not the app. File fix.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-found"><td class="nm">B03 · Re-verified — flipped</td><td class="wy">Cushion divides by total planned spend, not essentials. The code is self-consistent; the file&#x27;s word “essentials” is the odd one out. Likely a file fix, not the code fix I first called.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-found"><td class="nm">B04 · Re-verified — mostly a file error</td><td class="wy">“× pay” and “a year” are both file errors; the question and the code agree with each other. The missing cap is a missing input. And the arithmetic is written three times.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-notworked"><td class="nm">B07–B25 · not yet re-verified</td><td class="wy">Nine CLASH findings still checked only against the file, not the screen. Two of the four I have re-verified changed shape.</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="grp"><th colspan="3">The file and the code, tied together</th></tr>
+<tr class="s-done"><td class="nm">Your answers survive a rebuild</td><td class="wy">The builder wrote an empty string into the two columns only you fill, every build. 33 numbered questions had nowhere safe to be answered. Now read back, keyed to the identifier; an answer whose row vanished is named, never dropped.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">548 code headers</td><td class="wy">Every function carries its identifier, what it answers, its formula, who calls it, everything it reaches, and when it last changed — the date from git, not typed.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Identifiers made permanent</td><td class="wy">They were assigned by position in a sorted list, so adding one function renumbered every function after it. Now read from a register: a name keeps its number wherever it moves.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Guard B1 · a header is a printed view</td><td class="wy">A hand-edited header stops the build. Proven: I edited one and it did.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Guard B2 · the formula agrees</td><td class="wy">The arithmetic in a header and the arithmetic in the file are compared off disk. Proven: I changed one and it stopped the build.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">The build spec</td><td class="wy">22 guards in five groups, one command runs them. Graded honestly: 17 built, 1 partial, 4 to build.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="grp"><th colspan="3">The master file</th></tr>
+<tr class="s-done"><td class="nm">Formula on all 533 functions</td><td class="wy">Both forms, read from the code, with a column grading how far to trust each: 24 by hand, 161 clean, 221 partly, 29 not read, 20 with no arithmetic.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Inputs tab rebuilt against the code</td><td class="wy">The engine columns are gone. Each input names the field the code stores it under and every function that touches it. Found 12 raw values with no row, and 2 captured and read by nothing.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Why no function</td><td class="wy">69 was reported as one number. It is 52 untraced, 12 worked out on the screen, and 5 typed by the person that are already right.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="grp"><th colspan="3">Cash flow redesign</th></tr>
+<tr class="s-approved"><td class="nm">This month + Spending · v06</td><td class="wy">Planned and actual never share a row. Debts itemised. Recurring debt in its own section. Radar excludes installment debt. Receipts listed five at a time, expandable. Built from your sheet, with the two surpluses corrected to 350 and 900.</td><td class="st"><span class="tag t-approved">Design approved</span><span class="sub">not coded</span></td></tr>
+<tr class="s-found"><td class="nm">Add income · three figures</td><td class="wy">Gross, 401(k) and what lands in the bank, so tax is derived rather than estimated — and three figures that must reconcile catch each other.</td><td class="st"><span class="tag t-found">Found</span><span class="sub">decision needed</span></td></tr>
+<tr class="s-notworked"><td class="nm">5 functions to write</td><td class="wy">plannedMonthFlow · debtPaymentsByDebt · recurringDebtPayments · debtPaymentsCountedAsExpenses · isRadarItem</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="s-notworked"><td class="nm">2 functions to modify</td><td class="wy">actualMonthFlow (MK-CF-F-005) and budgetVsActual (MK-CF-F-014)</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="s-notworked"><td class="nm">3 things parked on two missing fields</td><td class="wy">The by-hand/imported split, the imported list, and the ±3-day receipt match all need `source` on an expense and which card a purchase was on. Neither field exists.</td><td class="st"><span class="tag t-notworked">Not worked</span></td></tr>
+<tr class="grp"><th colspan="3">Deliverables</th></tr>
+<tr class="s-done"><td class="nm">Net worth traced from institution to screen</td><td class="wy">A proportional Sankey with the formula, assumptions and identifier at every node. Found that no function multiplies an option contract by 100.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr>
+<tr class="s-done"><td class="nm">Which figures have a function</td><td class="wy">All 163 with their exact label and screen. Now saved in documents/other.</td><td class="st"><span class="tag t-done">Done</span><span class="sub">coded and tested</span></td></tr></tbody></table></div>
+
+<h2>What I would do next, in order</h2>
+<p>Two of these change money on a screen; the rest make the file trustworthy enough to act on.</p>
+<ol>
+<li><b>The take-home round trip.</b> Anyone who typed their take-home is seeing a figure up to $1,600 a month away from what they entered. Your instruction — use what they typed — is the fix, and it needs no new field.</li>
+<li><b>Widen the sweep to four more folders.</b> 77 functions doing arithmetic are invisible to the file, including the one that builds the account balance net worth is made of. Every remaining finding is checked against a file that cannot see a third of the arithmetic — which is why B02 and B04 both came out wrong.</li>
+<li><b>Re-verify the nine remaining CLASH findings against their screens.</b> Two of the four I have re-verified changed shape. The others should not be acted on until they are checked the same way.</li>
+<li><b>Then code This month.</b> All five new functions and both modifications work on data that exists today. Spending follows, except the one section that needs the two missing fields.</li>
+</ol>
+
+<h2>The pattern worth keeping</h2>
+<p>Four of the defects found in these two days were mine, and every one was caught by a gate rather than by reading: the header guard caught my printed view leaking back as an author's note; the widened sweep exposed 11 duplicate names where I had counted 5; a law you already had caught a wrong waterfall; and opening a screen showed a finding I had reported from the file was simply wrong.</p>
+<p>Your own note on the screen-map guard — <i>each caught a real defect within minutes of being written, after the same surfaces had been read carefully by hand</i> — held again, three times over. The practical consequence: <b>a law that must hold for every input is worth more than an example.</b> Of the guards still to build, <span class="mono">D3</span> — the same metric rendered on two screens and compared — is that kind.</p>
+</div>

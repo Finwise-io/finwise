@@ -27,6 +27,28 @@ export interface BudgetState {
 // Term #10. The old budget `savings_rate_pct` was a dead, divergent 4th definition; removed.
 
 /** projected_to_save = net monthly income − monthly spending. Income comes from the Income module. */
+/* ─ MK-CF-F-001 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * buildBudgetState
+ *
+ * Answers ..... projected_to_save = net monthly income − monthly spending.
+ *
+ * Formula .....
+ *     spend = doc.monthly spending (or 0 when missing or zero)
+ *     save = net monthly income − spend
+ *
+ * Called by ... MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If monthly spending is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-001
+ * Changed ..... 2026-06-22 (bef9497)
+ */
 export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: BudgetDoc): BudgetState {
   const spend = doc.monthly_spending || 0;
   const save = netMonthlyIncome - spend;
@@ -42,6 +64,26 @@ export function buildBudgetState(uid: UserId, netMonthlyIncome: number, doc: Bud
  *  is larger (the stated total can include an uncategorized remainder the buckets don't capture).
  *  Every surface that needs "monthly spending" — budget surplus, emergency-fund runway, essentials —
  *  routes through this so they can't drift apart. */
+/* ─ MK-CF-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * plannedMonthlySpend
+ *
+ * Answers ..... The single canonical "planned monthly spend": the itemized buckets OR the stated total, whichever is larger (the stated total can include an uncategorized remainder the buckets don't capture).
+ *
+ * Formula .....
+ *     max(spend buckets(op).monthly total, op.monthly spending read as a number (0 when it is not one))
+ *
+ * Called by ... MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-013 budgetFromOnboarding · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... MK-CF-M-015 · MK-MN-M-007 · MK-MN-M-026 · MK-NW-M-014
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-002
+ * Changed ..... 2026-06-24 (fa35cf4)
+ */
 export function plannedMonthlySpend(op: OnboardingProfile | null): number {
   return Math.max(spendBuckets(op).monthly_total, toNum(op?.monthlySpending));
 }
@@ -50,6 +92,38 @@ export function plannedMonthlySpend(op: OnboardingProfile | null): number {
 // screen uses (modules.tsx SpendingEditor → takeHomeMonthly). incomeMonthlyGrid('available') is already
 // imported; computing it here avoids a budget→savings import cycle. (Was net-of-tax, which wrongly
 // counted 401(k) money as spendable, so a % category's $ on screen ≠ the $ the budget/runway/savings used.)
+/* ─ MK-CF-F-120 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * pctBaseMonthly
+ *
+ * Answers ..... A-1: the %-of-income base = true take-home (after tax AND 401k) — the SAME base the spending-plan screen uses (modules.tsx SpendingEditor → takeHomeMonthly).
+ *
+ * Formula .....
+ *     grid = income monthly grid(op, 'available')
+ *     the answer = Σ over grid of (amount)÷ 12
+ *
+ * Called by ... MK-CF-F-003 categoryMonthly · MK-CF-F-008 spendByMonth
+ *               MK-CF-F-009 monthlyEssentials
+ *
+ * Reaches ..... 19 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-003 categoryMonthly
+ *               MK-XS-F-030 effectiveAnnualContribution · MK-CF-F-010 emergencyTest
+ *               MK-CF-F-009 monthlyEssentials · MK-XS-F-029 monthlySavings
+ *               MK-CF-F-002 plannedMonthlySpend · MK-CF-F-011 savingsByMonth
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-CF-F-004 spendBuckets
+ *               MK-CF-F-008 spendByMonth · MK-XS-F-028 surplusByMonth
+ *               … and 1 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-120
+ * Changed ..... not in git yet (—)
+ */
 function pctBaseMonthly(op: OnboardingProfile | null): number {
   const grid = incomeMonthlyGrid(op, 'available');
   return grid.reduce((t, m) => t + m.amount, 0) / 12;
@@ -58,6 +132,42 @@ function pctBaseMonthly(op: OnboardingProfile | null): number {
 /** Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share,
  *  so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3). $ as-is;
  *  % resolves against take-home (after tax AND 401(k), per A-1) — NOT net-of-tax; non-monthly (yearly) ÷ 12. */
+/* ─ MK-CF-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * categoryMonthly
+ *
+ * Answers ..... Canonical per-category planned $/month — the ONE conversion the buckets AND the Budget screen share, so a category's on-screen line item ALWAYS reconciles with its bucket total (build-34 #3).
+ *
+ * Formula .....
+ *     amt = to num(amount); if (amt ≤ 0) return 0
+ *     pct = unit = 'pct'
+ *     base = pct base monthly(op)
+ *     (pct ? (amt ÷ 100) × base × 12 : amt) ÷ 12   when bucket = 'nonmonthly'
+ *     the answer:
+ *     (amt ÷ 100) × base   if pct
+ *     amt   otherwise
+ *
+ * Called by ... MK-CF-F-004 spendBuckets
+ *
+ * Reaches ..... 18 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-002 plannedMonthlySpend
+ *               MK-CF-F-011 savingsByMonth · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-004 spendBuckets · MK-CF-F-008 spendByMonth
+ *               MK-XS-F-028 surplusByMonth · MK-CF-F-019 upcomingBills
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-003
+ * Changed ..... 2026-06-27 (6eb9522)
+ */
 export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: string } | null | undefined, op: OnboardingProfile | null): number {
   const amt = toNum(c?.amount); if (amt <= 0) return 0;
   const pct = c?.unit === 'pct';
@@ -69,6 +179,45 @@ export function categoryMonthly(c: { amount?: any; unit?: string; bucket?: strin
 /** Roll the per-category spending up into the three monthly-normalized buckets.
  *  Categories carry a bucket (fixed/nonmonthly/flexible) and an amount in $ or % of take-home;
  *  non-monthly (yearly) amounts are divided by 12. Falls back to the legacy b_* fields. */
+/* ─ MK-CF-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * spendBuckets
+ *
+ * Answers ..... Roll the per-category spending up into the three monthly-normalized buckets.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     cats = spend cats   if array.is array(spend cats)
+ *     nothing   otherwise
+ *     fixed = to num(b fixed), non = to num(b nonmonthly), flex = to num(b flexible)
+ *     the answer:
+ *     fixed = fixed
+ *     non monthly = non
+ *     flexible = flex
+ *     monthly total = round(fixed + non + flex, 2 dp)
+ *     fixed = 0, flex = 0, non mo = 0
+ *     m = category monthly(c, op); if (m ≤ 0) continue
+ *
+ * Called by ... MK-CF-F-002 plannedMonthlySpend · MK-CF-F-008 spendByMonth
+ *               MK-CF-F-009 monthlyEssentials · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-CF-F-019 upcomingBills
+ *
+ * Reaches ..... 17 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-013 budgetFromOnboarding
+ *               MK-CF-F-014 budgetVsActual · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-CF-F-010 emergencyTest · MK-CF-F-009 monthlyEssentials
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-002 plannedMonthlySpend
+ *               MK-CF-F-011 savingsByMonth · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-CF-F-008 spendByMonth · MK-XS-F-028 surplusByMonth
+ *               MK-CF-F-019 upcomingBills
+ *
+ * Serves ...... MK-CF-M-013 · MK-CF-M-014 · MK-CF-M-019 · MK-MN-M-021
+ * Reads ....... MK-XS-I-032 spending categories the person set up
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-004
+ * Changed ..... 2026-06-27 (6eb9522)
+ */
 export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non_monthly: number; flexible: number; monthly_total: number } {
   const a = op ?? {};
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
@@ -86,27 +235,26 @@ export function spendBuckets(op: OnboardingProfile | null): { fixed: number; non
   return { fixed: round2(fixed), non_monthly: round2(nonMo), flexible: round2(flex), monthly_total: round2(fixed + nonMo + flex) };
 }
 
-/** Actual money flow for a month from LOGGED data — the exact figures behind the Home cash-flow card,
- *  so every screen (Home, Goals) shows the SAME surplus. income = net pay (after tax) for the month +
- *  logged one-off income; spent = actual logged expenses (excl. debt); debtPaid = logged "Debt payment".
- *  surplus = income − spent − debtPaid (AFTER debt, the canonical definition). */
-export function actualMonthFlow(
-  op: OnboardingProfile | null,
-  incomes: { date?: string; amount?: any }[] | undefined,
-  expenses: { date?: string; amount?: any; category?: string }[] | undefined,
-  ym: string,
-): { income: number; spent: number; debtPaid: number; surplus: number } {
-  const [y, m] = ym.split('-').map(Number);
-  const grid = op ? incomeMonthlyGrid(op, 'net') : [];
-  const baseNet = grid[(m || 1) - 1]?.amount ?? 0;
-  const extraIncome = (incomes ?? []).filter((i) => String(i?.date ?? '').startsWith(ym)).reduce((t, i) => t + (Number(i.amount) || 0), 0);
-  const income = baseNet + extraIncome;
-  const spent = budgetVsActual(expenses ?? [], op, new Date(y || 2000, (m || 1) - 1, 15)).spent_total;
-  const debtPaid = (expenses ?? []).filter((e) => e.category === 'Debt payment' && String(e.date ?? '').startsWith(ym)).reduce((t, e) => t + (Number(e.amount) || 0), 0);
-  return { income, spent, debtPaid, surplus: income - spent - debtPaid };
-}
 
 /** What's LEFT of this month's surplus to put to work = surplus − already-allocated this month (never < 0). */
+/* ─ MK-CF-F-006 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * allocatableThisMonth
+ *
+ * Answers ..... What's LEFT of this month's surplus to put to work = surplus − already-allocated this month (never < 0).
+ *
+ * Formula .....
+ *     max(0, surplus − (allocated this month or 0))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If allocated this month is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-006
+ * Changed ..... 2026-06-28 (cb877d4)
+ */
 export function allocatableThisMonth(surplus: number, allocatedThisMonth: number | undefined): number {
   return Math.max(0, surplus - (allocatedThisMonth || 0));
 }
@@ -114,6 +262,32 @@ export function allocatableThisMonth(surplus: number, allocatedThisMonth: number
 /** Label basis for the non-monthly bucket (e.g. "15% of take-home pay") — the combined % when EVERY
  *  non-monthly category is %-based, else allPct=false (a plain $ total). For unambiguous UI labelling
  *  (pj build-34: a 15%-of-take-home non-monthly bucket showed an annual $ with no stated basis). */
+/* ─ MK-CF-F-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * nonMonthlyBasis
+ *
+ * Answers ..... Label basis for the non-monthly bucket (e.g.
+ *
+ * Formula .....
+ *     cats = op!.spend cats!   if array.is array(op.spend cats)
+ *     []   otherwise
+ *     nm = cats where bucket = 'nonmonthly' and to num(amount) > 0
+ *     all pct = nm.length > 0 and nm.every((c) => unit = 'pct')
+ *     pct = round(Σ over nm of (amount read as a number (0 when it is not one)))   if all pct
+ *     0   otherwise
+ *     the answer = { all pct, pct }
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 spending categories the person set up
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-007
+ * Changed ..... 2026-06-28 (cad76ca)
+ */
 export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean; pct: number } {
   const cats = Array.isArray(op?.spendCats) ? op!.spendCats! : [];
   const nm = cats.filter((c) => c?.bucket === 'nonmonthly' && toNum(c?.amount) > 0);
@@ -125,6 +299,44 @@ export function nonMonthlyBasis(op: OnboardingProfile | null): { allPct: boolean
 /** Spending placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
  *  Monthly bills repeat; non-monthly costs (tuition, insurance) land in the months chosen;
  *  any estimated-but-uncategorized spend is spread evenly. */
+/* ─ MK-CF-F-008 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * spendByMonth
+ *
+ * Answers ..... Spending placed in the calendar months it's actually due (Jan→Dec) — NOT averaged.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     out = 12 slots, each 0
+ *     cats = spend cats   if array.is array(spend cats)
+ *     nothing   otherwise
+ *     net monthly = pct base monthly(op)
+ *     amt = to num(amount); if (amt ≤ 0) continue
+ *     pct = unit = 'pct'
+ *     flat = spend buckets(op).monthly total
+ *     uncategorized = max(0, to num(monthly spending) − spend buckets(op).monthly total)
+ *     the answer = for each of out: round2
+ *
+ * Called by ... MK-CF-F-011 savingsByMonth · MK-CF-F-012 annualCashflow
+ *               MK-CF-F-020 cashflowYear · MK-XS-F-004 buildDatedGrid
+ *
+ * Reaches ..... 10 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-012 annualCashflow · MK-XS-F-004 buildDatedGrid
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-CF-F-020 cashflowYear · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-XS-F-029 monthlySavings · MK-CF-F-011 savingsByMonth
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-028 surplusByMonth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 spending categories the person set up
+ *
+ * Decides .....
+ *     · Uses a built-in i of 0.
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-008
+ * Changed ..... 2026-06-24 (fa35cf4)
+ */
 export function spendByMonth(op: OnboardingProfile | null): number[] {
   const a = op ?? {};
   const out = new Array(12).fill(0);
@@ -155,6 +367,37 @@ export function spendByMonth(op: OnboardingProfile | null): number[] {
 
 /** Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important
  *  bills. Falls back to total monthly spend if categories aren't itemized. */
+/* ─ MK-CF-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthlyEssentials
+ *
+ * Answers ..... Monthly money you MUST keep paying — the recurring (non-monthly excluded) Critical + Important bills.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     cats = spend cats   if array.is array(spend cats)
+ *     nothing   otherwise
+ *     planned monthly spend(op)   when cats is missing
+ *     net monthly = pct base monthly(op)
+ *     ess = 0
+ *     amt = to num(amount); if (amt ≤ 0) continue
+ *     uncategorized = max(0, to num(monthly spending) − spend buckets(op).monthly total)
+ *     the answer = round(ess + uncategorized, 2 dp)
+ *
+ * Called by ... MK-CF-F-010 emergencyTest
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-010 emergencyTest
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-025 typical monthly essentials
+ *               MK-XS-I-032 spending categories the person set up
+ *
+ * Decides .....
+ *     · Uses a built-in ess of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-009
+ * Changed ..... 2026-06-24 (fa35cf4)
+ */
 export function monthlyEssentials(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const cats = Array.isArray(a.spendCats) ? a.spendCats : null;
@@ -185,6 +428,24 @@ export interface ShockResult {
   gapToFund: number;          // how far your cash is from that
 }
 /** "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last. */
+/* ─ MK-CF-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * emergencyTest
+ *
+ * Answers ..... "What if a $X emergency hit right now?" — can your cash absorb it, and how long would you last.
+ *
+ * Formula .....
+ *     ess = monthly essentials(op)
+ *     cash after = round(cash − shock, 2 dp)
+ *     recommended fund = round(ess × 3, 2 dp)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-025 typical monthly essentials
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-010
+ * Changed ..... 2026-06-09 (e39df23)
+ */
 export function emergencyTest(op: OnboardingProfile | null, cash: number, shock: number): ShockResult {
   const ess = monthlyEssentials(op);
   const cashAfter = round2(cash - shock);
@@ -205,6 +466,30 @@ export function emergencyTest(op: OnboardingProfile | null, cash: number, shock:
  *  the spending due that month. Lumpy on BOTH sides — income (equity/bonus/scholarships in their
  *  months) and bills (tuition/insurance in their months) — so a big bill shows up as a real dip,
  *  not smeared across the year. This is savings ON TOP of the 401(k). */
+/* ─ MK-CF-F-011 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * savingsByMonth
+ *
+ * Answers ..... Discretionary amount free to save each month = take-home that month (after tax & 401k) minus the spending due that month.
+ *
+ * Formula .....
+ *     avail = income monthly grid(op, 'available')
+ *     spend = spend by month(op)
+ *     the answer:
+ *     for each of avail: label = label
+ *     amount = round(amount − spend[i], 2 dp)
+ *
+ * Called by ... MK-XS-F-028 surplusByMonth · MK-XS-F-030 effectiveAnnualContribution
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-XS-F-029 monthlySavings · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-XS-F-028 surplusByMonth
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-011
+ * Changed ..... 2026-06-22 (9fddd8e)
+ */
 export function savingsByMonth(op: OnboardingProfile | null): { label: string; amount: number }[] {
   const avail = incomeMonthlyGrid(op, 'available');
   const spend = spendByMonth(op);
@@ -216,6 +501,25 @@ export function savingsByMonth(op: OnboardingProfile | null): { label: string; a
  *  grossAnnual − tax computation) so "Surplus / yr" reconciles exactly with the savings screen's
  *  monthly average × 12 (#6: they disagreed because the recap annualized flatly while the savings plan
  *  summed the month-by-month grid). saveYr === Σ savingsByMonth by construction. */
+/* ─ MK-CF-F-012 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * annualCashflow
+ *
+ * Answers ..... ONE annual cash-flow roll-up, derived entirely from the per-month income grid + spendByMonth — the SAME bases the savings-plan and budget already use.
+ *
+ * Formula .....
+ *     sum = Σ over (rows: { amount: number }[]) => rows of (amount)
+ *     gross yr = round(sum(income monthly grid(op, 'gross')), 2 dp)
+ *     net yr = round(sum(income monthly grid(op, 'net')), 2 dp)
+ *     available yr = round(sum(income monthly grid(op, 'available')), 2 dp)
+ *     spend yr = round(Σ over spend by month(op) of (each), 2 dp)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-012
+ * Changed ..... 2026-06-22 (080d3c0)
+ */
 export function annualCashflow(op: OnboardingProfile | null): {
   grossYr: number; taxYr: number; netYr: number; k401Yr: number; availableYr: number; spendYr: number; saveYr: number;
 } {
@@ -235,6 +539,25 @@ export function annualCashflow(op: OnboardingProfile | null): {
   };
 }
 
+/* ─ MK-CF-F-013 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * budgetFromOnboarding
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     b = spend buckets(op)
+ *
+ * Called by ... MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-013
+ * Changed ..... 2026-06-13 (bff3637)
+ */
 export function budgetFromOnboarding(uid: UserId, op: OnboardingProfile | null): BudgetDoc {
   const a = op ?? {};
   const b = spendBuckets(op);
@@ -258,6 +581,38 @@ export interface BudgetVsActual {
 
 /** Month-to-date actual spending vs the planned budget, bucketed. `expenses` is the store's
  *  ExpenseEntry[] (each has amount, category, date 'YYYY-MM-DD'). */
+/* ─ MK-CF-F-014 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * budgetVsActual
+ *
+ * Answers ..... Month-to-date actual spending vs the planned budget, bucketed.
+ *
+ * Formula .....
+ *     ym = `${now.get full year()}-${string(now.get month() + 1).pad start(2, '0')}`
+ *     planned = spend buckets(op)
+ *     spent = fixed = 0
+ *     nonmonthly = 0
+ *     flexible = 0
+ *     spent total = round(spent.fixed + spent.nonmonthly + spent.flexible, 2 dp)
+ *     the answer:
+ *     month = ym
+ *     planned total = planned.monthly total
+ *     spent total = spent total
+ *     remaining = round(planned.monthly total − spent total, 2 dp)
+ *     buckets = buckets
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-CF-M-004 · MK-XS-M-005
+ * Reads ....... MK-XS-I-024 logged spending
+ *               MK-XS-I-032 spending categories the person set up
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-014
+ * Changed ..... 2026-06-10 (66e36dc)
+ */
 export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, now: Date = new Date()): BudgetVsActual {
   const ym = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
   const planned = spendBuckets(op);
@@ -281,9 +636,54 @@ export function budgetVsActual(expenses: any[], op: OnboardingProfile | null, no
 
 const COLLECTION = 'budgets';
 export const SURPLUS_CALCULATED = 'SurplusCalculatedEvent';
+/* ─ MK-CF-F-015 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * loadBudget
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-015
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export async function loadBudget(uid: UserId) { return getUserDoc<BudgetDoc>(COLLECTION, uid); }
+/* ─ MK-CF-F-016 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * saveBudget
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-016
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export async function saveBudget(d: BudgetDoc) { await setUserDoc(COLLECTION, d.user_id, d); }
 /** Publish the authoritative surplus for Goals/Retirement to consume. */
+/* ─ MK-CF-F-017 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * publishSurplus
+ *
+ * Answers ..... Publish the authoritative surplus for Goals/Retirement to consume.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-017
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function publishSurplus(uid: UserId, projectedToSave: number) {
   emit(SURPLUS_CALCULATED, { user_id: uid, calculated_surplus_cash: projectedToSave });
 }

@@ -11,6 +11,42 @@ export interface RealizedResult {
   sellsWithoutBasis: number;    // sells we could not honestly price (no recorded buy)
 }
 
+/* ─ MK-PF-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * realizedFromLedger
+ *
+ * Answers ..... How much profit have I actually taken?
+ *
+ * Formula .....
+ *     now = opts.now (or new date() when missing)
+ *     yr = string(now.get full year())
+ *     queues = new map<string, { shares: number; price: number }[]>()
+ *     key of = (t: transaction) => `${account id}|${string(ticker).to upper case()}`
+ *     all = 0, year = 0, counted = 0, uncovered = 0
+ *     k = key of(t)
+ *     q = queues.get(k) (or none when missing)
+ *     q = queues.get(k) (or none when missing)
+ *     to sell = shares!
+ *     basis = 0, covered = 0
+ *     lot = the first of q
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-NW-M-035
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-028
+ * Changed ..... 2026-07-18 (50e9885)
+ */
 export function realizedFromLedger(
   txns: Transaction[],
   opts: { ticker?: string; accountId?: string; now?: Date } = {},

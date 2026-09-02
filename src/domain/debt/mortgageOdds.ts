@@ -13,6 +13,7 @@
 //   • while the loan runs, the extra payment is money NOT going into savings;
 //   • once it clears — sooner, because of the extra — the whole payment stops leaving.
 import { simulate, type RetirementInputs } from '../retirement';
+import { monthsToClear } from './index';
 
 export interface MortgageOddsEffect {
   /** the plan exactly as it stands today */
@@ -25,14 +26,6 @@ export interface MortgageOddsEffect {
   fasterPayoffYear: number;
 }
 
-/** Months to clear a balance at a payment, or null when the payment never covers the interest. */
-function monthsToClear(balance: number, annualRate: number, payment: number): number | null {
-  const i = annualRate / 12;
-  if (payment <= balance * i) return null;
-  let b = balance, m = 0;
-  while (b > 0 && m < 1200) { b = b + b * i - payment; m++; }
-  return m;
-}
 
 /**
  * Run the plan twice and report both results.
@@ -40,6 +33,32 @@ function monthsToClear(balance: number, annualRate: number, payment: number): nu
  * `base` must be the plan as committed, with the mortgage ALREADY expressed as a `recurring_until`
  * payment — the founder's ruling is that we tell the person we include their loan for as long as it
  * runs, so it is never buried inside their spending answer.
+ */
+/* ─ MK-CF-F-042 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * mortgageOddsEffect
+ *
+ * Answers ..... Run the plan twice and report both results.
+ *
+ * Formula .....
+ *     slow = months to clear(balance, annual rate, monthly payment)
+ *     fast = months to clear(balance, annual rate, monthly payment + extra monthly)
+ *     nothing   when slow = nothing (or fast = nothing (or extra monthly ≤ 0 when missing or zero) when missing or zero)
+ *     year of = (months: number) => now year + round down((months − 1) ÷ 12)
+ *     payoff year = year of(slow)
+ *     faster payoff year = year of(fast)
+ *     the answer = { before, after, payoff year, faster payoff year }
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-042
+ * Changed ..... 2026-08-15 (a91c65b)
  */
 export function mortgageOddsEffect(args: {
   base: RetirementInputs;

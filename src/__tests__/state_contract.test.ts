@@ -92,20 +92,20 @@ describe('state contract (FCC-state-contract.md)', () => {
     expect((dDrag ?? 200)).toBeLessThanOrEqual(dNo ?? 200);       // and never extend the money
     // B4: the mirror is GONE — one dated, sourced table in the Calculation Module; the domain
     // adapter and the simulation both read it, so agreement holds by construction.
-    const { rmdDivisor } = require('../domain/decumulation');
+    const { rmdDivisorAtAge } = require('../domain/decumulation');
     const engine = require('../../Calculation Module code/engines/rmd');
     expect(rmdStartAgeFor(74, 2026)).toBe(73);                       // born ~1952
     expect(rmdStartAgeFor(60, 2026)).toBe(75);                       // born ~1966 (SECURE 2.0 §107)
-    expect(Math.abs(rmdDivisor(75) - engine.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
+    expect(Math.abs(rmdDivisorAtAge(75) - engine.UNIFORM_LIFETIME[75])).toBeLessThan(0.01);
   });
 
   test('PRD F2#11 — progressive monthly withholding: EXACT annual identity + honest bonus months + manual stays flat', () => {
-    const { progressiveMonthlyTax, taxOwed } = require('../domain/income/tax');
+    const { progressiveMonthlyTax, taxOwedFor } = require('../domain/income/tax');
     const { monthlyTaxRates, incomeMonthlyGrid } = require('../domain/income');
     // telescoping identity: the twelve monthly taxes sum to the annual schedule TO THE CENT
     const lumpy = [6000, 6000, 36000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000, 6000];
     const tax = progressiveMonthlyTax(lumpy);
-    expect(Math.abs(tax.reduce((a: number, b: number) => a + b, 0) - taxOwed(lumpy.reduce((a, b) => a + b, 0)))).toBeLessThan(0.01);
+    expect(Math.abs(tax.reduce((a: number, b: number) => a + b, 0) - taxOwedFor(lumpy.reduce((a, b) => a + b, 0)))).toBeLessThan(0.01);
     // the bonus month's effective rate exceeds a plain month's (brackets fill up)
     expect(tax[2] / lumpy[2]).toBeGreaterThan(tax[1] / lumpy[1]);
     // estimate mode: the vector reflects that; manual mode: the user's flat number in all 12

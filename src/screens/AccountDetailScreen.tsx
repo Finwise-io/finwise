@@ -23,7 +23,7 @@ const TAX_WORDS: Record<string, string> = {
   tax_deferred: 'pre-tax — taxed when it comes out',
   tax_free: 'tax-free (Roth)',
 };
-const iso = (d: Date) => d.toISOString().slice(0, 10);
+import { isoLocalDate as iso } from '../domain/_shared/dates';
 
 type ActionType = 'DEPOSIT' | 'WITHDRAWAL' | 'TRANSFER' | 'DIVIDEND' | 'INTEREST' | 'COUPON';
 const ACTION_LABEL: Record<ActionType, string> = {

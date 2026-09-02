@@ -32,6 +32,35 @@ export interface FinancialSnapshot {
  *  gifts count where they land) can't cover the non-401(k) contributions, the shortfall is
  *  deducted from the effective amount added to the nest egg; an outright deficit goes negative
  *  and the projection correctly shows wealth declining. */
+/* ─ MK-XS-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * effectiveAnnualContribution
+ *
+ * Answers ..... NEGATIVE CASH FLOW DRAINS WEALTH — committed contributions don't create money.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     stated annual = monthly contributions from onboarding(op) × 12
+ *     has spend data = to num(monthly spending) > 0 (or array.is array(spend cats) and spend cats.length > 0 when missing or zero)
+ *     stated annual   when has spend data is missing
+ *     free cash annual = Σ over savings by month(a as any) of (amount)
+ *     non401k annual = (to num(c roth) + to num(c invest) + to num(c property)) × 12
+ *     the answer = stated annual + min(0, free cash annual − non401k annual)
+ *
+ * Called by ... MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-032 spending categories the person set up
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-030
+ * Changed ..... 2026-06-13 (e77e5a3)
+ */
 export function effectiveAnnualContribution(op: Record<string, any> | null): number {
   const a = op ?? {};
   const statedAnnual = monthlyContributionsFromOnboarding(op) * 12;
@@ -48,6 +77,48 @@ export function effectiveAnnualContribution(op: Record<string, any> | null): num
  * arrays; a headless/test caller that only has onboarding answers uses `snapshotFromOnboarding`.
  * The rows are authoritative — passing `[]` means "the user has none" (e.g. all accounts deleted, or
  * a paid-off debt), NOT "resurrect onboarding".
+ */
+/* ─ MK-XS-F-031 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildSnapshot
+ *
+ * Answers ..... Build a snapshot from EXPLICIT net-worth rows.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     profile = to read model(profile from onboarding(uid, op))
+ *     income doc = income from onboarding(uid, op)
+ *     income = build income state(uid, income doc.sources, income doc.tax)
+ *     acct rows = accounts
+ *     debt rows = liabilities
+ *     assets = build assets state(uid, acct rows)
+ *     debt = build debt state(uid, debt rows)
+ *     networth = build net worth(uid, assets.total asset value, debt.total debt balance)
+ *     budget = build budget state(uid, income.net monthly income, budget from onboarding(uid, op))
+ *     invest mo = to num(c roth) + to num(c invest) + to num(c property)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-027 goals (target, saved, date)
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If current age is missing it uses 35.
+ *     · If target retirement age is missing it uses 65.
+ *     · If plan to age is missing it uses 90.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-031
+ * Changed ..... 2026-06-13 (e77e5a3)
  */
 export function buildSnapshot(
   uid: UserId,
@@ -108,6 +179,21 @@ export function buildSnapshot(
  * before Net Worth is set up). Derives the accounts/liabilities from `op`, then calls buildSnapshot.
  * Live UI surfaces (Home, TopBar) resolve their rows via `resolveNetWorthRows` instead.
  */
+/* ─ MK-XS-F-032 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * snapshotFromOnboarding
+ *
+ * Answers ..... Snapshot from onboarding answers alone — for headless/test callers (and any surface that runs before Net Worth is set up).
+ *
+ * Formula .....
+ *     build snapshot(uid, op, econ, assets from onboarding(uid, op).accounts, debts from onboarding(uid, op).debts)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-032
+ * Changed ..... 2026-06-13 (e77e5a3)
+ */
 export function snapshotFromOnboarding(uid: UserId, op: Record<string, any> | null, econ: EconomicData): FinancialSnapshot {
   return buildSnapshot(uid, op, econ, assetsFromOnboarding(uid, op).accounts, debtsFromOnboarding(uid, op).debts);
 }
@@ -120,6 +206,21 @@ export interface NetWorthRows { accounts: AssetAccount[]; liabilities: Debt[]; }
  * them OR Net Worth has been seeded — so a user who DELETED everything correctly shows $0 rather than
  * resurrecting onboarding (`nwSeeded` stays true after deletions). Only a user who has never set up
  * Net Worth at all (nothing live, never seeded) falls back to the onboarding-derived estimate.
+ */
+/* ─ MK-XS-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * resolveNetWorthRows
+ *
+ * Answers ..... The single rule for which net-worth rows a live UI surface should use, so Home + TopBar + the Net Worth screen never disagree (B-49).
+ *
+ * Formula .....
+ *     use live = nw seeded (or live accounts.length > 0 (or live liabilities.length > 0 when missing or zero) when missing or zero)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-033
+ * Changed ..... 2026-06-13 (e77e5a3)
  */
 export function resolveNetWorthRows(
   uid: UserId,

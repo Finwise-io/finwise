@@ -36,7 +36,50 @@ export interface InsightInput {
   goalOffTrack?: { label: string; monthsBehind: number } | null;   // r12: worst dated goal running late at its REAL funding rate
 }
 
+/* ─ MK-HM-F-005 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * pctTxt
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-HM-F-006 money0
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-HM-F-006 money0
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-005
+ * Changed ..... not in git yet (—)
+ */
 const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
+/* ─ MK-HM-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * money0
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Shows 1 decimal place.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-006
+ * Changed ..... not in git yet (—)
+ */
 const money0 = (n: number) => `$${Math.round(n).toLocaleString()}`;
 
 type RawInsight = Omit<Insight, 'theme'>;   // rules return everything but the theme; buildInsights attaches it
@@ -99,6 +142,25 @@ const RULES: Rule[] = [
 ];
 
 /** Ranked insights (highest priority first). `limit` caps the result (default all). */
+/* ─ MK-HM-F-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildInsights
+ *
+ * Answers ..... Ranked insights (highest priority first).
+ *
+ * Formula .....
+ *     the first limit of out   if limit ≠ nothing
+ *     out   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-001
+ * Changed ..... 2026-07-30 (62656b7)
+ */
 export function buildInsights(input: InsightInput, limit?: number): Insight[] {
   let out = RULES.map((r) => r(input)).filter((x): x is RawInsight => x != null)
     .sort((a, b) => a.priority - b.priority)

@@ -45,3 +45,6 @@ Calculation Module/real-downloads/*
 
 # the built engine bench embeds the REAL Vanguard ledger as a preset — never committed
 Calculation Module code/bench/MoneyKeel-engine-bench.html
+
+__pycache__/
+*.pyc

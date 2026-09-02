@@ -20,6 +20,33 @@ export const LATEST_CREDIT_AGE = 70;
 export const FULL_RETIREMENT_AGE = 67;
 
 /** Full retirement age in YEARS (fractional — 66y4m = 66.333…), from the birth year. */
+/* ─ MK-PL-F-057 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * fullRetirementAge
+ *
+ * Answers ..... Full retirement age in YEARS (fractional — 66y4m = 66.333…), from the birth year.
+ *
+ * Formula .....
+ *     full retirement age = 67                          when born 1960 or later
+ *                           66 + (birth year − 1954) × 2 months   when born 1955-1959
+ *                           66                          when born 1954 or earlier
+ *
+ * Called by ... MK-PL-F-058 ssClaimFactorFor · MK-PL-F-063 fraLabel
+ *
+ * Reaches ..... 8 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-063 fraLabel · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-060 ssBenefitAt · MK-PL-F-061 ssBenefitAtClaimAge
+ *               MK-PL-F-059 ssClaimFactor · MK-PL-F-058 ssClaimFactorFor
+ *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-057
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function fullRetirementAge(birthYear?: number | null): number {
   const y = Number(birthYear);
   // no birth year (null coerces to 0) → the 1960+ default, never the ≤1954 branch
@@ -31,6 +58,37 @@ export function fullRetirementAge(birthYear?: number | null): number {
 /** SSA factor for a claim age (62–70), relative to the statement amount at the person's OWN
  *  full retirement age. Month-precise: 5/9 of 1%/mo for the first 36 early months, 5/12 of 1%/mo
  *  beyond, 2/3 of 1%/mo delayed credit to 70. */
+/* ─ MK-PL-F-058 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * ssClaimFactorFor
+ *
+ * Answers ..... SSA factor for a claim age (62–70), relative to the statement amount at the person's OWN full retirement age.
+ *
+ * Formula .....
+ *     months = round(claim age) × 12 − full retirement age × 12
+ *     factor = 1                                                   when months = 0
+ *              1 − (first 36 early months × 5/9 of 1%)
+ *                − (each further early month × 5/12 of 1%)          when claiming early
+ *              1 + (each month claimed late × 2/3 of 1%)            when claiming late
+ *
+ * Called by ... MK-PL-F-059 ssClaimFactor · MK-PL-F-060 ssBenefitAt
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-060 ssBenefitAt
+ *               MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-059 ssClaimFactor
+ *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... MK-PL-M-019
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-021 Social Security claim age
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-058
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssClaimFactorFor(claimAge: number, birthYear?: number | null): number {
   const fra = fullRetirementAge(birthYear);
   const a = Math.min(LATEST_CREDIT_AGE, Math.max(EARLIEST_CLAIM_AGE, Math.round(claimAge)));
@@ -46,26 +104,134 @@ export function ssClaimFactorFor(claimAge: number, birthYear?: number | null): n
 }
 
 /** The pre-table factor, anchored at 67 — unchanged behaviour for anyone born 1960+. */
+/* ─ MK-PL-F-059 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * ssClaimFactor
+ *
+ * Answers ..... The pre-table factor, anchored at 67 — unchanged behaviour for anyone born 1960+.
+ *
+ * Formula .....
+ *     ss claim factor for(claim age, nothing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-021 Social Security claim age
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-059
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssClaimFactor(claimAge: number): number {
   return ssClaimFactorFor(claimAge, null);
 }
 
 /** Monthly benefit at a claim age from the at-FRA statement amount (today's dollars, whole $). */
+/* ─ MK-PL-F-060 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * ssBenefitAt
+ *
+ * Answers ..... Monthly benefit at a claim age from the at-FRA statement amount (today's dollars, whole $).
+ *
+ * Formula .....
+ *     monthly benefit = round(statement amount at full retirement age × factor(claim age))
+ *
+ * Called by ... MK-PL-F-061 ssBenefitAtClaimAge · MK-PL-F-062 ssLifetimeTotal
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-061 ssBenefitAtClaimAge
+ *               MK-PL-F-062 ssLifetimeTotal · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... MK-PL-M-017 · MK-PL-M-019
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-021 Social Security claim age
+ *
+ * Decides .....
+ *     · If statement monthly is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-060
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssBenefitAt(statementMonthly: number, claimAge: number, birthYear?: number | null): number {
   return Math.round((statementMonthly || 0) * ssClaimFactorFor(claimAge, birthYear));
 }
 /** Kept for callers not yet passing a birth year (behaves as born-1960+). */
+/* ─ MK-PL-F-061 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * ssBenefitAtClaimAge
+ *
+ * Answers ..... Kept for callers not yet passing a birth year (behaves as born-1960+).
+ *
+ * Formula .....
+ *     ss benefit at(statement monthly, claim age, nothing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-021 Social Security claim age
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-061
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssBenefitAtClaimAge(statementMonthly: number, claimAge: number): number {
   return ssBenefitAt(statementMonthly, claimAge, null);
 }
 
 /** Total collected from claim age to a live-to age the USER sets (months × monthly, today's dollars). */
+/* ─ MK-PL-F-062 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * ssLifetimeTotal
+ *
+ * Answers ..... Total collected from claim age to a live-to age the USER sets (months × monthly, today's dollars).
+ *
+ * Formula .....
+ *     months = max(0, round((live to age − claim age) × 12))
+ *     the answer = ss benefit at(statement monthly, claim age, birth year) × months
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-021 Social Security claim age
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-062
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssLifetimeTotal(statementMonthly: number, claimAge: number, liveToAge: number, birthYear?: number | null): number {
   const months = Math.max(0, Math.round((liveToAge - claimAge) * 12));
   return ssBenefitAt(statementMonthly, claimAge, birthYear) * months;
 }
 
 /** The FRA as words a person recognises — "67", or "66 and 4 months". */
+/* ─ MK-PL-F-063 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * fraLabel
+ *
+ * Answers ..... The FRA as words a person recognises — "67", or "66 and 4 months".
+ *
+ * Formula .....
+ *     fra = full retirement age(birth year)
+ *     years = round down(fra)
+ *     months = round((fra − years) × 12)
+ *     the answer:
+ *     string(years)   if months = 0
+ *     `${years} and ${months} months`   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-063
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function fraLabel(birthYear?: number | null): string {
   const fra = fullRetirementAge(birthYear);
   const years = Math.floor(fra);
@@ -74,6 +240,30 @@ export function fraLabel(birthYear?: number | null): string {
 }
 
 /** The claim window: the month the person turns 62 → the month they turn 70. */
+/* ─ MK-PL-F-064 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * claimWindow
+ *
+ * Answers ..... The claim window: the month the person turns 62 → the month they turn 70.
+ *
+ * Formula .....
+ *     nothing   when birth year is missing
+ *     m = birth month   if birth month and birth month ≥ 1 and birth month ≤ 12
+ *     1   otherwise
+ *     fmt = (y: number) => `${y}-${string(m).pad start(2, '0')}`
+ *     the answer:
+ *     opens = fmt(birth year + EARLIEST_CLAIM_AGE)
+ *     closes = fmt(birth year + LATEST_CREDIT_AGE)
+ *     opens year = birth year + EARLIEST_CLAIM_AGE
+ *     opens month = m
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-064
+ * Changed ..... 2026-08-02 (459ef30)
+ */
 export function claimWindow(birthYear: number | null, birthMonth: number | null): { opens: string; closes: string; opensYear: number; opensMonth: number } | null {
   if (!birthYear) return null;
   const m = birthMonth && birthMonth >= 1 && birthMonth <= 12 ? birthMonth : 1;

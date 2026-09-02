@@ -12,7 +12,10 @@ import re, sys, os, openpyxl
 
 MASTER = 'MoneyKeel/documents/other/moneykeel_calc_master_calculation-master_v01.xlsx'
 SCREEN_TABS = ('multiple_screens','home','networth','performance','plan','cashflow','menu')
-ID = re.compile(r'MK-[A-Z]{2}-[MEIDS]-\d{3}')
+# A4, fixed 2026-08-26. This class read [MEIDS] — it carried the RETIRED type E and had no F,
+# so no function identifier was ever matched and check 4 below could not fire. It had never
+# once run. E is kept only so a row on engines-old-tab can still be recognised.
+ID = re.compile(r'MK-[A-Z]{2}-[MFEIDS]-\d{3}')
 
 
 def check(path=MASTER):
@@ -47,8 +50,16 @@ def check(path=MASTER):
     # 2. every input an engine names exists on the inputs tab; nothing is an orphan
     for t, r in rows:
         cell = str(r[col(t, 'Inputs it needs')] or '')
-        if 'NO INPUT ID' in cell:
+        # A11, fixed 2026-08-26. This looked for 'NO INPUT ID', which appears nowhere in the
+        # file; the builder writes 'NOT DETERMINED' and '[NOT AN INPUT'. It had never fired either.
+        if cell.startswith('NOT DETERMINED'):
+            open_.append('NO INPUT LIST — %s records no input at all, so nothing can be traced to '
+                         'a raw value' % r[0])
+        elif 'NO INPUT ID' in cell:
             open_.append('ORPHAN INPUT — %s names an input that is on no row of the inputs tab' % r[0])
+        elif '[NOT AN INPUT' in cell and not ID.search(cell):
+            open_.append("NOT AN INPUT — %s lists only another function's answer where its raw "
+                         'inputs should be' % r[0])
         for iid in set(ID.findall(cell)):
             if iid.startswith('MK-XS-I-') and iid not in input_ids:
                 breaks.append('UNKNOWN INPUT — %s names %s, which no row of the inputs tab defines' % (r[0], iid))

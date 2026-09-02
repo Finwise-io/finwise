@@ -18,8 +18,16 @@ export interface OnboardingProfile {
   status?: string; tracks?: string[]; name?: string;
   // employment / salary
   incomeSources?: string[]; salaryFreq?: 'hourly' | 'weekly' | 'biweekly' | 'monthly'; baseSalary?: Money;
-  hoursPerWeek?: Money; salaryMode?: 'gross' | 'takehome'; salaryByMonth?: Money[]; salaryMonthMode?: 'same' | 'months';
+  hoursPerWeek?: Money; salaryMode?: 'gross' | 'takehome';
+  /** Month key ('2026-07') → amount. Was twelve positional slots meaning Jan–Dec, which could not
+   *  describe a window crossing a year boundary; an array is still READ, as the current year. */
+  salaryByMonth?: Record<string, Money> | Money[];
+  salaryMonthMode?: 'same' | 'months';
   tipsMonthly?: Money; whoEarns?: 'you' | 'partner' | 'both';
+  /** The partner's wage, under the SAME field names as the person's own, so every function that
+   *  reads a wage works on either block unchanged. Until 2026-08-27 whoEarns:'both' tagged ONE
+   *  salary as belonging to two people and there was nowhere to put the second — finding B32. */
+  partnerWage?: import('./income/earners').EarnerWage;
   // bonus / equity
   bonusAnnual?: Money; bonusMonth?: Money; signingOnetime?: Money;
   equityType?: 'rsu' | 'option'; rsuGrants?: RsuGrant[]; rsuShares?: Money; rsuPrice?: Money; optStrike?: Money; optMarket?: Money;
@@ -39,6 +47,10 @@ export interface OnboardingProfile {
   ri_ss_freq?: RiFreq; ri_pension_freq?: RiFreq; ri_withdrawals_freq?: RiFreq; ri_rmd_freq?: RiFreq; ri_annuities_freq?: RiFreq; ri_other_freq?: RiFreq;
   // tax
   taxMode?: 'system' | 'manual'; manualTaxRate?: Money;
+  /** Do the interest and dividends actually reach the bank? They are taxed either way. Left
+   *  unanswered they are treated as REINVESTED, which is what they are in most accounts —
+   *  counted as income you are taxed on, never as money you can spend. Mock income-v5, 3c. */
+  invPaidToBank?: 'yes' | 'no';
   // spending
   monthlySpending?: Money; spendCats?: SpendCat[]; savingsByMonth?: Money[]; savingsMode?: 'auto' | 'custom';
   b_fixed?: Money; b_nonmonthly?: Money; b_flexible?: Money;
@@ -53,5 +65,10 @@ export interface OnboardingProfile {
   // goals / household / debt / legacy
   goals?: GoalEntry[]; monthlySavingsCapacity?: Money;
   hasPartner?: 'yes' | 'no'; partnerName?: string; inviteCode?: string; dependentsCount?: Money;
+  /** How you file, and — on a joint return only — which of you is 65 or older. Being 65+ adds
+   *  to the standard deduction ($1,650 each on a joint return); we know the person's birth
+   *  year and have never known their partner's, so a couple is asked. */
+  filingStatus?: import('./income/tax').FilingStatus;
+  over65Who?: 'me' | 'both' | 'neither';
   debtName?: string; debtBalance?: Money; debtRate?: Money; debtPayment?: Money; legacyTarget?: Money;
 }

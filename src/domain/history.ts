@@ -40,6 +40,24 @@ export const DAILY_KEEP = 400;
 export interface TrendPoint { key: string; nw: number }   // key 'YYYY-MM' (month-end) or 'YYYY-MM-DD'
 
 /** Chart series = monthly snapshots + daily points, chronological ('YYYY-MM' sorts before its days). */
+/* ─ MK-XS-F-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * trendPoints
+ *
+ * Answers ..... Chart series = monthly snapshots + daily points, chronological ('YYYY-MM' sorts before its days).
+ *
+ * Formula .....
+ *     pts = for each of read history(monthly): key = month
+ *     nw = net worth
+ *     the answer = pts.sort((a, b) => key.locale compare(key))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-NW-M-001 · MK-NW-M-003
+ * Reads ....... MK-XS-I-031 daily and monthly snapshots
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-005
+ * Changed ..... 2026-07-19 (6c94acf)
+ */
 export function trendPoints(
   monthly: Record<string, unknown> | null | undefined,
   daily: Record<string, unknown> | null | undefined,
@@ -52,6 +70,27 @@ export function trendPoints(
 }
 
 /** Prune helper for the store writer: newest DAILY_KEEP days survive. */
+/* ─ MK-XS-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * pruneDaily
+ *
+ * Answers ..... Prune helper for the store writer: newest DAILY_KEEP days survive.
+ *
+ * Formula .....
+ *     keys = the names in daily, in order
+ *     daily   when keys.length ≤ DAILY_KEEP
+ *     keep = a list with no repeats of keys.slice(-DAILY_KEEP)
+ *     the answer = object.from entries(object.entries(daily).filter(([k]) => keep.has(k)))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-006
+ * Changed ..... 2026-07-19 (6c94acf)
+ */
 export function pruneDaily(daily: Record<string, number>): Record<string, number> {
   const keys = Object.keys(daily).sort();
   if (keys.length <= DAILY_KEEP) return daily;
@@ -59,10 +98,64 @@ export function pruneDaily(daily: Record<string, number>): Record<string, number
   return Object.fromEntries(Object.entries(daily).filter(([k]) => keep.has(k)));
 }
 
+/* ─ MK-XS-F-121 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * isYm
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-008 normalizeSnapshot
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-008 normalizeSnapshot · MK-XS-F-009 readHistory
+ *               MK-XS-F-005 trendPoints
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-121
+ * Changed ..... not in git yet (—)
+ */
 const isYm = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}$/.test(s);
+/* ─ MK-XS-F-122 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * n
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     v   if typeof v = 'number' and number.is finite(v)
+ *     fallback   otherwise
+ *
+ * Called by ... MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-007 makeMonthlySnapshot · MK-XS-F-008 normalizeSnapshot
+ *               MK-XS-F-009 readHistory · MK-XS-F-005 trendPoints
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-122
+ * Changed ..... not in git yet (—)
+ */
 const n = (v: unknown, fallback = 0): number => (typeof v === 'number' && Number.isFinite(v) ? v : fallback);
 
 /** The ONE writer — stamps the version and keeps the arithmetic identity by construction. */
+/* ─ MK-XS-F-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * makeMonthlySnapshot
+ *
+ * Answers ..... The ONE writer — stamps the version and keeps the arithmetic identity by construction.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-007
+ * Changed ..... 2026-07-15 (980516a)
+ */
 export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> & { net_worth?: number }): MonthlySnapshot {
   return {
     ...i,
@@ -74,6 +167,33 @@ export function makeMonthlySnapshot(i: Omit<MonthlySnapshot, 'v' | 'net_worth'> 
 
 /** Normalize ONE stored entry: v1 passes validated; a legacy blob (no `v`) maps best-effort;
  *  anything without a real month + net worth is dropped (null), never charted. */
+/* ─ MK-XS-F-008 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * normalizeSnapshot
+ *
+ * Answers ..... Normalize ONE stored entry: v1 passes validated; a legacy blob (no `v`) maps best-effort; anything without a real month + net worth is dropped (null), never charted.
+ *
+ * Formula .....
+ *     nothing   when raw = nothing (or raw is not a object when missing or zero)
+ *     r = raw as record<string, unknown>
+ *     month = month as string   if is ym(month)
+ *     ym   if is ym(ym)
+ *     nothing   otherwise   otherwise
+ *     nothing   when month is missing
+ *     gross assets = n(gross assets, na n)
+ *     gross debt = n(gross debt, na n)
+ *     net worth = n(net worth, number.is finite(gross assets − gross debt) ? round2(gross assets − gross debt) : na n)
+ *     nothing   when !number.is finite(net worth)
+ *
+ * Called by ... MK-XS-F-009 readHistory
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-009 readHistory · MK-XS-F-005 trendPoints
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-008
+ * Changed ..... 2026-07-15 (980516a)
+ */
 export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | null {
   if (raw == null || typeof raw !== 'object') return null;
   const r = raw as Record<string, unknown>;
@@ -104,6 +224,28 @@ export function normalizeSnapshot(ym: string, raw: unknown): MonthlySnapshot | n
 }
 
 /** The ONE reader every history surface uses: normalized, garbage-free, sorted by month. */
+/* ─ MK-XS-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * readHistory
+ *
+ * Answers ..... The ONE reader every history surface uses: normalized, garbage-free, sorted by month.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-005 trendPoints
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-005 trendPoints
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-031 daily and monthly snapshots
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-009
+ * Changed ..... 2026-08-05 (db8f3c8)
+ */
 export function readHistory(raw: Record<string, unknown> | null | undefined): MonthlySnapshot[] {
   return Object.entries(raw ?? {})
     .map(([ym, v]) => normalizeSnapshot(ym, v))
@@ -115,6 +257,29 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *  property values move only when someone retypes them, so a total-net-worth percent is noise.
  *  Baseline = the earliest invDaily point on/after the change line's own baseline date; the
  *  percent exists ONLY when that history exists (never back-guessed). Returns % (1dp) or null. */
+/* ─ MK-XS-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * investableChangePct
+ *
+ * Answers ..... FOUNDER RULE 2026-08-04: the NW change PERCENT is measured on cash + investments only — property values move only when someone retypes them, so a total-net-worth percent is noise.
+ *
+ * Formula .....
+ *     nothing   when since key is missing (or not (current investable > 0) when missing or zero)
+ *     base = (inv daily as any)[base key]   if base key ≠ nothing
+ *     nothing   otherwise
+ *     nothing   when base is not a number (or not (base > 0) when missing or zero)
+ *     the answer = round(((current investable − base) ÷ base) × 1000) ÷ 10
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-NW-M-002
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-010
+ * Changed ..... 2026-08-05 (db8f3c8)
+ */
 export function investableChangePct(
   invDaily: Record<string, unknown> | null | undefined,
   currentInvestable: number,
@@ -141,6 +306,35 @@ export interface ChangeWalk {
   wealthGenerated: number; dividends: number; interest: number; marketChange: number;
   debtPrincipal: number; ending: number;
 }
+/* ─ MK-XS-F-011 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildChangeWalk
+ *
+ * Answers ..... My net worth changed since last time — what actually caused it?
+ *
+ * Formula .....
+ *     contributions = max(0, args.contributions (or 0 when missing))
+ *     withdrawals = max(0, args.withdrawals (or 0 when missing))
+ *     dividends = max(0, args.dividends (or 0 when missing))
+ *     interest = max(0, args.interest (or 0 when missing))
+ *     debt principal = max(0, args.debt principal (or 0 when missing))
+ *     total = round(args.ending − args.beginning, 2 dp)
+ *     wealth generated = round(total − contributions + withdrawals − debt principal, 2 dp)
+ *     market change = round(wealth generated − dividends − interest, 2 dp)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-PF-M-001 · MK-PF-M-002 · MK-PF-M-003 · MK-PF-M-004
+ *
+ * Decides .....
+ *     · If contributions is missing it uses 0.
+ *     · If withdrawals is missing it uses 0.
+ *     · If dividends is missing it uses 0.
+ *     · If interest is missing it uses 0.
+ *     · If debt principal is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-011
+ * Changed ..... 2026-08-09 (cd7fd4a)
+ */
 export function buildChangeWalk(args: {
   beginning: number; ending: number; fromLabel: string; toLabel: string;
   contributions?: number; withdrawals?: number; dividends?: number; interest?: number; debtPrincipal?: number;

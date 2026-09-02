@@ -21,9 +21,10 @@ import { colFactor } from '../domain/retirement/col';
 import { ssBenefitAt } from '../domain/retirement/ssTiming';
 import { retirementEarmarkedValue, earmarkedAmount, earmarkDefault, assetKind, ASSET_KINDS, ASSET_SECTIONS, blendedReturn, benchmarkReturn, benchmarkInfo, portfolioActualReturn, monthlyContributionsFromOnboarding, type AssetAccount } from '../domain/assets';
 import { resolveNetWorthRows } from '../domain/snapshot';
-import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, rmdStartAgeFor } from '../domain/decumulation';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor } from '../domain/decumulation';
 import { k401Headroom, annualIraLimit, rothVsTraditional, rothConversionWindow } from '../domain/income/limits';
-import { marginalBracket } from '../domain/income/tax';
+import { marginalBracketFor } from '../domain/income/tax';
+import { filingStatusOf, over65CountOf } from '../domain/income';
 import { totalGrossAnnual, retirementIncomeMonthly, guaranteedOutsideStreams } from '../domain/income';
 import { Disclaimer } from '../components/Disclaimer';
 import { InfoDot, TRYING_IT_OUT } from '../components/UI';
@@ -32,8 +33,7 @@ import { useSliderPan } from '../components/sliderGesture';   // B47 finding 12:
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const big = (n: number) => moneyCompact(n, 'M');
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
-const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);            // higher return ⇒ more volatility
+import { volOf, clamp } from '../domain/retirement/willItLast';
 const SECTION_COLOR: Record<string, string> = { Cash: Colors.primary, Investments: Colors.purple, Retirement: Colors.blue, Property: Colors.gold };
 const sectionOf = (a: AssetAccount) => assetKind(a.kind)?.section ?? (a.tax_bucket === 'CASH' ? 'Cash' : a.tax_bucket === 'PROPERTY' ? 'Property' : a.tax_bucket === 'TAXABLE' ? 'Investments' : 'Retirement');
 
@@ -204,8 +204,8 @@ export default function RetirementCockpit() {
   // ---- TAX-SMART MOVES ----
   const annual401k = num(op.c_401k) * 12;
   const k401 = k401Headroom(age, annual401k);
-  const marginalNow = marginalBracket(totalGrossAnnual(op));
-  const marginalRetire = marginalBracket(planSpend * 12);
+  const marginalNow = marginalBracketFor(totalGrossAnnual(op), filingStatusOf(op), over65CountOf(op));
+  const marginalRetire = marginalBracketFor(planSpend * 12, filingStatusOf(op), over65CountOf(op));
   const rvt = rothVsTraditional(marginalNow, marginalRetire);
   const inRothWindow = rothConversionWindow(age, Math.round(planRetireAge), claimAge);
   // transparency: split the final projected balance into starting egg + contributions you add + growth
@@ -589,7 +589,7 @@ export default function RetirementCockpit() {
                     <View style={{ flex: 1 }}>
                       <Text style={styles.orderName}>{s.label} <Text style={styles.orderAmt}>· {moneyCompact(s.amount, 'M')}{s.bucket === 'rmd' ? ' this year' : ''}</Text></Text>
                       {s.bucket === 'rmd' && (
-                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisor(Math.max(age, rmdStartAgeFor(age))).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, rmdStartAgeFor(age))}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
+                        <Text style={styles.orderCalc}>= your {money(dSplit.preTax)} pre-tax ÷ {rmdDivisorAtAge(Math.max(age, rmdStartAgeFor(age))).toFixed(1)} (the IRS life-expectancy factor at {Math.max(age, rmdStartAgeFor(age))}). It's the first slice of your pre-tax balance below — not money on top of it.</Text>
                       )}
                       <Text style={styles.orderWhy}>{s.why}</Text>
                     </View>

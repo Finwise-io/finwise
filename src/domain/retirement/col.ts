@@ -50,6 +50,31 @@ export interface ColMatch { factor: number; name: string | null }
 
 /** Cost-of-living factor for a free-text location. Unrecognized (or blank) → 1.0, name null —
  *  callers use `name` to tell the user honestly whether an adjustment is applied. */
+/* ─ MK-PL-F-047 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * colFactor
+ *
+ * Answers ..... Cost-of-living factor for a free-text location.
+ *
+ * Formula .....
+ *     q = string(location ?? '').trim().to lower case()
+ *     factor = 1
+ *     name = nothing   when q is missing
+ *     the answer:
+ *     factor = row.factor
+ *     name = row.name
+ *
+ * Called by ... MK-PL-F-049 retirementSpendMonthly
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-049 retirementSpendMonthly
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-047
+ * Changed ..... 2026-06-10 (d3268ce)
+ */
 export function colFactor(location?: string | null): ColMatch {
   const q = String(location ?? '').trim().toLowerCase();
   if (!q) return { factor: 1, name: null };

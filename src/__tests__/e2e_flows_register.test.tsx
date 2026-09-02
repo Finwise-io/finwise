@@ -6,6 +6,7 @@ import React from 'react';
 import { render, screen, fireEvent, waitFor } from '@testing-library/react-native';
 import { useStore } from '../store/useStore';
 import { setSyncProviderForTesting, SandboxSyncProvider } from '../services/sync';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 let mockParams: Record<string, string> = {};
 const mockPushes: string[] = [];
@@ -172,7 +173,7 @@ test('E2E-44 stale gold: update the value in one tap and the as-of stamp resets 
   fireEvent.press(screen.getByLabelText('Save the updated value'));
   const a = (useStore.getState() as any).assetAccounts[0];
   expect(a.balance).toBe(10400);
-  expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10));
+  expect(a.value_as_of).toBe(isoLocalDate(new Date()));
 });
 
 // ── E2E-45 · debt through the unified add screen → NW shows the OWE side + pay-first ──
@@ -235,18 +236,23 @@ test('E2E-48 contribution room: the try-it door opens the what-if with the amoun
   expect(mockPushes.find((r) => /\/what-if\?addMonthly=\d+/.test(r))).toBeTruthy();
 });
 
-// ── E2E-49 · filing status set on the organizer → the Roth screen's tax bill drops, live ──
-test('E2E-49 switching to married on the Tax organizer lowers the Roth conversion tax in the same session', () => {
+// ── E2E-49 · filing status answered → the Roth screen's tax bill drops, live ──
+// The question moved off the Tax organizer on 2026-08-27: it was three chips buried in a screen
+// nobody passes through, and married-filing-separately was not among them though its table exists.
+// It is its own screen now, asked in onboarding. The journey is unchanged — answer it, and the Roth
+// conversion's tax bill falls in the same session.
+test('E2E-49 answering how you file lowers the Roth conversion tax in the same session', () => {
   useStore.setState({ onboardingProfile: { ...WORKER, taxMode: undefined, manualTaxRate: undefined }, assetAccounts: EGG } as any);
   const RothScreen = require('../screens/RothScreen').default;
   const r1 = render(<RothScreen />);
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '30000');
   const singleLine = screen.getByText(/Tax bill next April: about \$/).props.children.join('');
   r1.unmount();
-  const TaxOrganizerScreen = require('../screens/TaxOrganizerScreen').default;
-  const org = render(<TaxOrganizerScreen />);
-  fireEvent.press(screen.getByLabelText('Married, filing jointly'));
-  org.unmount();
+  const FilingStatusScreen = require('../screens/FilingStatusScreen').default;
+  const filing = render(<FilingStatusScreen />);
+  fireEvent.press(screen.getByLabelText('Married filing jointly'));
+  fireEvent.press(screen.getByLabelText('Save'));
+  filing.unmount();
   render(<RothScreen />);
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '30000');
   const marriedLine = screen.getByText(/Tax bill next April: about \$/).props.children.join('');
@@ -324,7 +330,7 @@ test('E2E-55 from the consent screen, Add-by-hand is one tap away (never a dead 
 test('E2E-56 a logged grocery run shows inside the month detail it belongs to', () => {
   useStore.setState({
     onboardingProfile: WORKER,
-    expenses: [{ id: 'e1', amount: 240, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
+    expenses: [{ id: 'e1', amount: 240, category: 'Groceries', date: isoLocalDate(new Date()) }],
   } as any);
   mockParams = { slot: '0' };
   const MonthDetailScreen = require('../screens/MonthDetailScreen').default;

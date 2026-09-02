@@ -94,6 +94,34 @@ export interface AssetAccount {
 /** Manual-value freshness (FCC): how old a hand-entered value is, and whether it needs a nudge.
  *  Applies to accounts WITHOUT live pricing (no derive_balance positions feed). 6+ months = stale.
  *  Returns null when the account is live-priced or carries no as-of date (nothing to judge). */
+/* ─ MK-NW-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * valueFreshness
+ *
+ * Answers ..... Manual-value freshness (FCC): how old a hand-entered value is, and whether it needs a nudge.
+ *
+ * Formula .....
+ *     nothing   when derive balance
+ *     nothing   when value as of is missing
+ *     m = value as of.match( ÷ ^(\d{4}) − (\d{2}) ÷ )
+ *     nothing   when m is missing
+ *     months old = max(0, (now.get full year() - +m[1]) × 12 + (now.get month() + 1 - +m[2]))
+ *     the answer:
+ *     as of = value as of
+ *     months old = months old
+ *     stale = months old ≥ 6
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-NW-M-018 · MK-PL-M-016
+ * Reads ....... MK-XS-I-033 the date a hand-typed value was set
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-003
+ * Changed ..... 2026-07-13 (04777bc)
+ */
 export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf: string; monthsOld: number; stale: boolean } | null {
   if (a.derive_balance) return null;                       // live-priced from positions
   if (!a.value_as_of) return null;
@@ -105,6 +133,34 @@ export function valueFreshness(a: AssetAccount, now: Date = new Date()): { asOf:
 
 /** Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
  *  Returns null when none are reported (so the UI can prompt instead of showing a fake 0%). */
+/* ─ MK-NW-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * portfolioActualReturn
+ *
+ * Answers ..... Value-weighted ACTUAL trailing-12mo return across holdings that have one reported.
+ *
+ * Formula .....
+ *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY' and actual ttm ≠ nothing and earmarked amount(each) > 0
+ *     total = Σ over items of (earmarked amount(each))
+ *     nothing   when total ≤ 0
+ *     weighted = Σ over items of ((actual ttm as number) × earmarked amount(each))
+ *     the answer = round(weighted ÷ total, 4 dp)
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-051 what an account actually returned over the last twelve months
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-004
+ * Changed ..... 2026-06-05 (1e6bbe9)
+ */
 export function portfolioActualReturn(accounts: AssetAccount[]): number | null {
   const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY' && a.actual_ttm != null && earmarkedAmount(a) > 0);
   const total = items.reduce((t, a) => t + earmarkedAmount(a), 0);
@@ -115,6 +171,28 @@ export function portfolioActualReturn(accounts: AssetAccount[]): number | null {
 
 /** Can this account hold individual ticker securities? (Excludes cash, property, and 529 —
  *  a 529 holds the plan's age-based portfolios, not individual stocks.) */
+/* ─ MK-NW-F-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountAllowsTicker
+ *
+ * Answers ..... Can this account hold individual ticker securities?
+ *
+ * Formula .....
+ *     false   when tax bucket = 'PROPERTY' (or tax bucket = 'CASH' when missing or zero)
+ *     false   when kind = 'college_529'
+ *     false   when kind = 'checking' (or kind = 'savings' when missing or zero)
+ *     cls = asset class of(a)
+ *     false   when cls = 'bonds' (or cls = 'alternatives' when missing or zero)
+ *     the answer = true
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-005
+ * Changed ..... 2026-06-28 (76c2bf0)
+ */
 export function accountAllowsTicker(a: AssetAccount): boolean {
   if (a.tax_bucket === 'PROPERTY' || a.tax_bucket === 'CASH') return false;
   if (a.kind === 'college_529') return false;
@@ -163,7 +241,45 @@ export const ASSET_SECTIONS = ['Cash', 'Investments', 'Retirement', 'Property'] 
 // savings, money market, CDs…) roll up under the accountant's honest term — never "Savings"
 // covering a sweep account that actually holds CDs + money market + cash.
 export const CASH_GROUP_LABEL = 'Cash and cash equivalents';
+/* ─ MK-NW-F-006 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * isCashKind
+ *
+ * Answers ..... Does this account type sit under the Cash heading on screen?
+ *
+ * Formula .....
+ *     asset kind(kind).bucket = 'CASH'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-006
+ * Changed ..... 2026-08-01 (00a40f9)
+ */
 export const isCashKind = (kind?: string) => assetKind(kind)?.bucket === 'CASH';
+/* ─ MK-NW-F-007 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * assetKind
+ *
+ * Answers ..... What do we know about this kind of account?
+ *
+ * Formula .....
+ *     id = id); }
+ *
+ * Called by ... MK-NW-F-006 isCashKind · MK-NW-F-034 benchmarkReturn
+ *
+ * Reaches ..... 9 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-006 isCashKind
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-007
+ * Changed ..... 2026-08-04 (abb4c23)
+ */
 export function assetKind(id?: string) { return ASSET_KINDS.find((k) => k.id === id); }
 
 // ── Derivation layer for the two-axis model (Term #1) ─────────────────────────
@@ -190,6 +306,34 @@ const KIND_TO_CLASS: Record<string, AssetClass> = {
 // money-market funds → Stocks / Funds (funds paying dividends) · CDs / T-bills → Bonds & CDs.
 // B7 (founder brief 2026-08-20): the words, the ticker lists and the ordering live in the ONE
 // engine now — this is the same name-first question, asked of account labels.
+/* ─ MK-NW-F-008 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * incomeBearingClassOf
+ *
+ * Answers ..... FOUNDER RULE 2026-08-04 (supersedes the money-market=cash rule and the 12-month CD split): CASH means cash only — a sweep/settlement balance.
+ *
+ * Formula .....
+ *     name evidence(label)
+ *
+ * Called by ... MK-NW-F-011 assetClassOf · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-053 correctClassOf · MK-NW-F-054 reclassifyAccounts
+ *
+ * Reaches ..... 39 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-016 cashTotal
+ *               MK-PL-F-077 clamp · MK-NW-F-053 correctClassOf
+ *               MK-NW-F-030 earmarkDefault · MK-NW-F-032 earmarkedAmount
+ *               … and 21 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-008
+ * Changed ..... 2026-08-20 (026b132)
+ */
 export function incomeBearingClassOf(label?: string): AssetClass | null {
   return nameEvidence(label);
 }
@@ -197,6 +341,25 @@ export function incomeBearingClassOf(label?: string): AssetClass | null {
 /** FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY maturity-dated instrument
  *  is a BOND — it pays interest, so it must sit in the measured bucket regardless of how soon it
  *  matures. Stored once as explicit `asset_class`; no maturity → cash (a plain balance). */
+/* ─ MK-NW-F-009 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * maturityClass
+ *
+ * Answers ..... FOUNDER RULE 2026-08-04 (supersedes build-34 #8's 12-month split): ANY maturity-dated instrument is a BOND — it pays interest, so it must sit in the measured bucket regardless of how soon it matures.
+ *
+ * Formula .....
+ *     'bonds'   if maturity date and string(maturity date).trim()
+ *     'cash'   otherwise
+ *
+ * Called by ... MK-NW-F-053 correctClassOf
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-053 correctClassOf · MK-NW-F-054 reclassifyAccounts
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-009
+ * Changed ..... 2026-08-04 (abb4c23)
+ */
 export function maturityClass(maturityDate?: string | null): 'cash' | 'bonds' {
   return maturityDate && String(maturityDate).trim() ? 'bonds' : 'cash';
 }
@@ -205,6 +368,23 @@ export function maturityClass(maturityDate?: string | null): 'cash' | 'bonds' {
  *  The wrapper sets the TAX treatment; the separately-chosen assetClass says WHAT it holds (axis 1). So a
  *  stock in a 401(k) and a stock in a brokerage are the same class, different wrapper. */
 export type AddWrapper = 'taxable' | '401k' | 'trad_ira' | 'roth' | 'hsa';
+/* ─ MK-NW-F-010 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * wrapperAccount
+ *
+ * Answers ..... The person picked how this account is taxed — what does that make it?
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-010
+ * Changed ..... 2026-08-04 (abb4c23)
+ */
 export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucket: TaxBucket } {
   switch (w) {
     case '401k':     return { kind: '401k',     tax_bucket: 'PRE_TAX' };
@@ -218,6 +398,54 @@ export function wrapperAccount(w?: AddWrapper | null): { kind: string; tax_bucke
 /** WHAT the account is (asset class). Explicit `asset_class` wins; then the income-bearing label
  *  rule (money-market ⇒ Stocks/ETFs, CD/T-bill ⇒ bonds, sweep ⇒ cash); a maturity date ⇒ a bond;
  *  else derive from `kind`, falling back to the tax bucket. */
+/* ─ MK-NW-F-011 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * assetClassOf
+ *
+ * Answers ..... WHAT the account is (asset class).
+ *
+ * Formula .....
+ *     asset class   when asset class
+ *     by label = income bearing class of(label)
+ *     by label   when by label
+ *     'bonds'   when maturity date
+ *     by kind = KIND_TO_CLASS[kind]   if kind
+ *     undefined   otherwise
+ *     by kind   when by kind
+ *     'stocks_etf'   when count of positions and positions
+ *     'cash'   when tax bucket = 'CASH'
+ *     'real_estate'   when tax bucket = 'PROPERTY'
+ *     the answer = 'mixed'
+ *
+ * Called by ... MK-CF-F-184 incomeFromAccounts · MK-NW-F-005 accountAllowsTicker
+ *               MK-NW-F-007 assetKind · MK-NW-F-014 isRealAsset
+ *               MK-NW-F-016 cashTotal · MK-NW-F-017 equitiesTotal
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-020 realEstateTotal · MK-NW-F-021 investmentsTotal
+ *               MK-NW-F-027 accountClassBreakdown · MK-NW-F-029 assetAllocation
+ *               MK-NW-F-030 earmarkDefault · MK-NW-F-031 primaryCarIdOf
+ *               MK-NW-F-055 isBond · MK-NW-F-063 interestIncomeAnnual
+ *
+ * Reaches ..... 36 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-007 assetKind
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-016 cashTotal · MK-PL-F-077 clamp
+ *               MK-NW-F-030 earmarkDefault · MK-NW-F-032 earmarkedAmount
+ *               MK-NW-F-038 earmarkedKinds · MK-NW-F-017 equitiesTotal
+ *               … and 18 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-011
+ * Changed ..... 2026-08-04 (abb4c23)
+ */
 export function assetClassOf(a: AssetAccount): AssetClass {
   if (a.asset_class) return a.asset_class;
   const byLabel = incomeBearingClassOf(a.label);
@@ -235,6 +463,29 @@ export function assetClassOf(a: AssetAccount): AssetClass {
 
 /** HOW the account is taxed (wrapper). Explicit `tax_treatment` wins; else map the legacy tax_bucket
  *  (CASH/TAXABLE/PROPERTY → taxable, PRE_TAX → tax_deferred, ROTH → tax_free). */
+/* ─ MK-NW-F-012 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * taxTreatmentOf
+ *
+ * Answers ..... HOW the account is taxed (wrapper).
+ *
+ * Formula .....
+ *     tax treatment   when tax treatment
+ *     'tax_deferred'   when tax bucket = 'PRE_TAX'
+ *     'tax_free'   when tax bucket = 'ROTH'
+ *     'taxable'
+ *
+ * Called by ... MK-NW-F-025 accountDisplayName
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-XS-F-002 dataGaps · MK-XS-F-119 namesFor
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-012
+ * Changed ..... 2026-06-22 (ec4bf1f)
+ */
 export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
   if (a.tax_treatment) return a.tax_treatment;
   if (a.tax_bucket === 'PRE_TAX') return 'tax_deferred';
@@ -244,12 +495,56 @@ export function taxTreatmentOf(a: AssetAccount): TaxTreatment {
 
 /** Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
  *  Defaults to 'primary' (the conservative nest-egg exclusion); explicit `re_use` overrides. */
+/* ─ MK-NW-F-013 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * realEstateUseOf
+ *
+ * Answers ..... Real-estate use (primary/rental/secondary/land); only meaningful when assetClassOf === 'real_estate'.
+ *
+ * Formula .....
+ *     re use (or 'primary' when missing)
+ *
+ * Called by ... MK-NW-F-030 earmarkDefault
+ *
+ * Reaches ..... 16 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-NW-F-030 earmarkDefault
+ *               MK-NW-F-032 earmarkedAmount · MK-NW-F-038 earmarkedKinds
+ *               MK-PL-F-026 planDoor · MK-NW-F-004 portfolioActualReturn
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-013
+ * Changed ..... 2026-06-22 (ec4bf1f)
+ */
 export function realEstateUseOf(a: AssetAccount): RealEstateUse {
   return a.re_use ?? 'primary';
 }
 
 /** True when the asset is a real/physical asset (real estate or personal property) — excluded from
  *  investable assets and the nest egg (Term #4/#7). */
+/* ─ MK-NW-F-014 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * isRealAsset
+ *
+ * Answers ..... True when the asset is a real/physical asset (real estate or personal property) — excluded from investable assets and the nest egg (Term #4/#7).
+ *
+ * Formula .....
+ *     c = asset class of(a)
+ *     the answer = c = 'real_estate' (or c = 'personal_property' when missing or zero)
+ *
+ * Called by ... MK-NW-F-022 investableAssets
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-022 investableAssets
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-014
+ * Changed ..... 2026-06-22 (535cc66)
+ */
 export function isRealAsset(a: AssetAccount): boolean {
   const c = assetClassOf(a);
   return c === 'real_estate' || c === 'personal_property';
@@ -258,9 +553,58 @@ export function isRealAsset(a: AssetAccount): boolean {
 // ── Canonical asset totals (Term #2/#3/#4) ────────────────────────────────────
 // THE single source for each total — screens read these, never re-sum inline. All derive from
 // assetClassOf, so they stay consistent across every surface (Net Worth, Home, Insights, donut).
+/* ─ MK-NW-F-066 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * sumWhere
+ *
+ * Answers ..... ── Canonical asset totals (Term #2/#3/#4) ──────────────────────────────────── THE single source for each total — screens read these, never re-sum inline.
+ *
+ * Formula .....
+ *     round(Σ over accounts (or none when missing) where pred of (balance (or 0 when missing or zero)), 2 dp)
+ *
+ * Called by ... MK-NW-F-017 equitiesTotal · MK-NW-F-018 fixedIncomeTotal
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-020 realEstateTotal
+ *               MK-NW-F-021 investmentsTotal · MK-NW-F-022 investableAssets
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-019 alternativesTotal · MK-NW-F-017 equitiesTotal
+ *               MK-NW-F-018 fixedIncomeTotal · MK-NW-F-022 investableAssets
+ *               MK-NW-F-021 investmentsTotal · MK-NW-F-020 realEstateTotal
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-066
+ * Changed ..... not in git yet (—)
+ */
 function sumWhere(accounts: AssetAccount[], pred: (a: AssetAccount) => boolean): number {
   return round2((accounts ?? []).filter(pred).reduce((t, a) => t + (a.balance || 0), 0));
 }
+/* ─ MK-NW-F-015 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * totalAssets
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     round(Σ over accounts (or none when missing) of (balance (or 0 when missing or zero)), 2 dp)
+ *
+ * Called by ... MK-NW-F-022 investableAssets
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-022 investableAssets
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-015
+ * Changed ..... 2026-08-10 (e37d50e)
+ */
 export function totalAssets(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).reduce((t, a) => t + (a.balance || 0), 0));
 }
@@ -268,31 +612,141 @@ export function totalAssets(accounts: AssetAccount[]): number {
  *  shows. L-7 fix 2026-08-10: this used to count whole cash accounts only, so a connected brokerage's
  *  sweep balance was cash in the donut and the CASH group but NOT in the emergency cushion — the same
  *  screen printed "CASH $8,838" above "$8,000 cash ÷ …". Both now read the class breakdown. */
+/* ─ MK-NW-F-016 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * cashTotal
+ *
+ * Answers ..... Cash & cash equivalents (Term #3) — THE cash number, and the same one the Net Worth CASH group shows.
+ *
+ * Formula .....
+ *     b = account class breakdown(a)
+ *     the answer = t + (b ? cash : asset class of(a) = 'cash' ? (balance or 0) : 0)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-MN-M-016 · MK-NW-M-005 · MK-NW-M-014
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-016
+ * Changed ..... 2026-08-10 (e37d50e)
+ */
 export function cashTotal(accounts: AssetAccount[]): number {
   return round2((accounts ?? []).reduce((t, a) => {
     const b = accountClassBreakdown(a);
     return t + (b ? b.cash : assetClassOf(a) === 'cash' ? (a.balance || 0) : 0);
   }, 0));
 }
+/* ─ MK-NW-F-017 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * equitiesTotal
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => asset class of(a) = 'stocks_etf')
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-017
+ * Changed ..... 2026-06-22 (535cc66)
+ */
 export function equitiesTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'stocks_etf');
 }
+/* ─ MK-NW-F-018 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * fixedIncomeTotal
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => asset class of(a) = 'bonds')
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-018
+ * Changed ..... 2026-06-22 (535cc66)
+ */
 export function fixedIncomeTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'bonds');
 }
+/* ─ MK-NW-F-019 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * alternativesTotal
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => asset class of(a) = 'alternatives')
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-019
+ * Changed ..... 2026-06-22 (aa23839)
+ */
 export function alternativesTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'alternatives');
 }
+/* ─ MK-NW-F-020 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * realEstateTotal
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => asset class of(a) = 'real_estate')
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-020
+ * Changed ..... 2026-06-22 (aa23839)
+ */
 export function realEstateTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => assetClassOf(a) === 'real_estate');
 }
 /** Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives,
  *  ACROSS all wrappers (so a 401(k)'s stocks count). Excludes cash + real assets. */
+/* ─ MK-NW-F-021 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * investmentsTotal
+ *
+ * Answers ..... Investments / holdings (allocation view, Term #4) = equities + fixed income + alternatives, ACROSS all wrappers (so a 401(k)'s stocks count).
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => { const c = asset class of(a); return c = 'stocks_etf' or c = 'bonds' or c = 'alternatives' or c = 'mixed'; })
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-XS-M-003
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-021
+ * Changed ..... 2026-08-11 (4975971)
+ */
 export function investmentsTotal(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => { const c = assetClassOf(a); return c === 'stocks_etf' || c === 'bonds' || c === 'alternatives' || c === 'mixed'; });
 }
 /** Investable assets (Term #4) = all financial assets (cash + investments + retirement balances),
  *  EXCLUDING real estate + personal property. */
+/* ─ MK-NW-F-022 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * investableAssets
+ *
+ * Answers ..... Investable assets (Term #4) = all financial assets (cash + investments + retirement balances), EXCLUDING real estate + personal property.
+ *
+ * Formula .....
+ *     sum where(accounts, (a) => !is real asset(a))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-MN-M-016
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-022
+ * Changed ..... 2026-08-11 (4975971)
+ */
 export function investableAssets(accounts: AssetAccount[]): number {
   return sumWhere(accounts, (a) => !isRealAsset(a));
 }
@@ -312,12 +766,54 @@ const KIND_TO_WRAPPER: Record<string, string> = {
   '401k': '401(k)', trad_ira: 'Traditional IRA', roth_ira: 'Roth IRA', hsa: 'HSA', college_529: '529',
   home: 'Home', vehicle: 'Vehicle',
 };
+/* ─ MK-NW-F-023 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * wrapperWord
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     KIND_TO_WRAPPER[kind] (or '' when missing)   if kind
+ *     ''   otherwise
+ *
+ * Called by ... MK-NW-F-025 accountDisplayName
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-XS-F-002 dataGaps · MK-XS-F-119 namesFor
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-023
+ * Changed ..... 2026-08-11 (4975971)
+ */
 export const wrapperWord = (kind?: string): string => (kind ? KIND_TO_WRAPPER[kind] ?? '' : '');
 
 /** The last four digits of an account, or null when we genuinely don't have them. Reads the stored
  *  mask ('••4821') or an account number, and only ever returns FOUR DIGITS — E*TRADE relays a
  *  scrambled identifier through SnapTrade whose tail is gibberish, and showing that as "your last
  *  four" would be worse than showing nothing (live-verified 2026-07-19). */
+/* ─ MK-NW-F-024 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * accountLastFour
+ *
+ * Answers ..... The last four digits of an account, or null when we genuinely don't have them.
+ *
+ * Formula .....
+ *     digits = string(raw ?? '').replace( ÷ \D ÷ g, '')
+ *     digits.slice(-4)   when digits.length ≥ 4
+ *     the answer = nothing
+ *
+ * Called by ... MK-NW-F-025 accountDisplayName
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-025 accountDisplayName · MK-NW-F-026 accountDisplayNames
+ *               MK-XS-F-002 dataGaps · MK-XS-F-119 namesFor
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-024
+ * Changed ..... 2026-08-11 (bfefb86)
+ */
 export function accountLastFour(a: { mask?: string; account_number?: string }): string | null {
   for (const raw of [a.mask, (a as any).account_number]) {
     const digits = String(raw ?? '').replace(/\D/g, '');
@@ -330,6 +826,40 @@ export function accountLastFour(a: { mask?: string; account_number?: string }): 
  *  ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" —
  *  prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask
  *  suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821"). */
+/* ─ MK-NW-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * accountDisplayName
+ *
+ * Answers ..... The ONE display name for an account row (build-43 finding #1): institution prefixes the label ONLY when the label doesn't already say it (E*TRADE's own name is "E*Trade Individual Brokerage" — prefixing the institution again rendered "E-Trade E*Trade Individual…"), and the broker's mask suffixes when present so two same-named accounts are tellable apart (wireframe: "Brokerage ...4821").
+ *
+ * Formula .....
+ *     inst raw = (institution ?? '').trim()
+ *     last4 = account last four(a)
+ *     wrapper = wrapper word((a as any).kind)
+ *     tax advantaged = tax treatment of(a as asset account) ! = 'taxable'
+ *     `${inst raw} ${wrapper} -${last4}`   if last4
+ *     `${inst raw} ${wrapper}`   otherwise   when tax advantaged and wrapper
+ *     `${inst raw} -${last4}`   when last4
+ *     `${inst raw} ${wrapper}`   when wrapper
+ *     label = (label ?? '').trim()
+ *     pos = ((a as any).positions ?? []) as any[]
+ *     inst = (institution ?? '').trim()
+ *     norm = (s: string) => to lower case().replace( ÷ [^a − z0 − 9] ÷ g, '')
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-026 accountDisplayNames
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-026 accountDisplayNames · MK-XS-F-002 dataGaps
+ *               MK-XS-F-119 namesFor
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-025
+ * Changed ..... 2026-08-11 (4975971)
+ */
 export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution' | 'mask'> & { positions?: unknown[]; kind?: string; tax_bucket?: TaxBucket; tax_treatment?: TaxTreatment }): string {
   // FOUNDER RULE 2026-08-11 (refined) — THE account name, on every surface:
   //
@@ -376,6 +906,31 @@ export function accountDisplayName(a: Pick<AssetAccount, 'label' | 'institution'
 /** Display names for a whole LIST of accounts. Masks exist only when they are real digits (build-43
  *  finding: E*TRADE relays a scrambled identifier, not the account number) — so identical twins get
  *  a stable " · 1 / · 2" ordinal instead (ordered by asset_id, so the numbering never shuffles). */
+/* ─ MK-NW-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountDisplayNames
+ *
+ * Answers ..... Display names for a whole LIST of accounts.
+ *
+ * Formula .....
+ *     base = a lookup of for each of accounts: [asset id, account display name(each)]
+ *     counts = new map<string, number>()
+ *     seen = new map<string, number>()
+ *     out = new map<string, string>()
+ *     n = base.get(asset id)!
+ *     i = (seen.get(n) ?? 0) + 1
+ *     the answer = out
+ *
+ * Called by ... MK-XS-F-119 namesFor
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps · MK-XS-F-119 namesFor
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-026
+ * Changed ..... 2026-07-24 (8f03c59)
+ */
 export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | 'label' | 'institution' | 'mask'> & { positions?: unknown[] })[]): Map<string, string> {
   const base = new Map(accounts.map((a) => [a.asset_id, accountDisplayName(a)]));
   const counts = new Map<string, number>();
@@ -398,6 +953,53 @@ export function accountDisplayNames(accounts: (Pick<AssetAccount, 'asset_id' | '
  *  stocks — with the slices summing EXACTLY to the broker's authoritative balance. A tiny unpriced
  *  remainder (accrued interest, rounding) folds into the account's largest slice; a material one is
  *  honestly 'mixed'. Manual/imported accounts return null — they stay whole (founder-approved rule). */
+/* ─ MK-NW-F-027 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * accountClassBreakdown
+ *
+ * Answers ..... APPROVED v6 (2026-07-19): a CONNECTED account splits across the asset classes it actually holds — CDs under bonds, money market + sleeve under cash, options under alternatives, stocks under stocks — with the slices summing EXACTLY to the broker's authoritative balance.
+ *
+ * Formula .....
+ *     nothing   when source ! = 'connected'
+ *     out = cash = 0
+ *     bonds = 0
+ *     stocks etf = 0
+ *     alternatives = 0
+ *     real estate = 0
+ *     personal property = 0
+ *     mixed = 0
+ *     sh = (lots ?? []).reduce((t: number, l: any) => t + (shares or 0), 0)
+ *     v = sh × last price   if last price ≠ nothing
+ *     0   otherwise
+ *     by name = income bearing class of(`${ticker ?? ''} ${name ?? description ?? ''}`)
+ *     sum = round(Σ over object.values(out) as number[] of (each), 2 dp)
+ *     r = round((balance or 0) − sum, 2 dp)
+ *     own = asset class of(a)
+ *     bucket = 'mixed'   if own = 'mixed'
+ *     own   otherwise
+ *     the answer = out
+ *
+ * Called by ... MK-NW-F-016 cashTotal · MK-NW-F-029 assetAllocation
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-029 assetAllocation · MK-NW-F-016 cashTotal
+ *
+ * Serves ...... MK-NW-M-008 · MK-NW-M-020
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Decides .....
+ *     · If cash balance is missing it uses 0.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-027
+ * Changed ..... 2026-08-17 (cf71d68)
+ */
 export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, number> | null {
   if (a.source !== 'connected') return null;
   const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
@@ -455,6 +1057,24 @@ export function accountClassBreakdown(a: AssetAccount): Record<AssetClass, numbe
 
 const CD_RE = /\b(cd|certificate of deposit)\b/i;
 const TREASURY_RE = /\b(treasur\w*|t-?bills?|t-?notes?|govt?|government)\b/i;
+/* ─ MK-NW-F-067 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * plural
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-028 classPortionLabel
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-028 classPortionLabel
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-067
+ * Changed ..... not in git yet (—)
+ */
 const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? one : many}`;
 
 /** Plain words for an account's slice inside a class row. Founder finding 2026-08-11: this repeated
@@ -462,6 +1082,37 @@ const plural = (n: number, one: string, many = `${one}s`) => `${n} ${n === 1 ? o
  *  It COUNTS what is actually in there instead — "3 CDs & 1 Treasury in this account" — so the line
  *  earns its space. Where we cannot tell two things apart (a plain ticker gives no way to know a
  *  stock from an ETF), we say the honest broader word rather than guess a split. */
+/* ─ MK-NW-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * classPortionLabel
+ *
+ * Answers ..... Plain words for an account's slice inside a class row.
+ *
+ * Formula .....
+ *     pos = (positions ?? []) as any[]
+ *     c = 'bonds'   if asset class = 'bond'
+ *     'alternatives'   if asset class = 'other'
+ *     'cash'   if asset class = 'cash'
+ *     'stocks_etf'   otherwise   otherwise   otherwise
+ *     the answer = c = cls
+ *     name of = (p: any) => `${ticker ?? ''} ${name ?? label ?? ''}`
+ *     opts = count of ((a as any).option holdings ?? []) as any[]
+ *     cds = in class where CD_RE.test(name of(each))count of
+ *     treas = in class where !CD_RE.test(name of(each)) and TREASURY_RE.test(name of(each))count of
+ *     rest = in class.length − cds − treas
+ *     parts = [opts ? plural(opts, 'option') : '', in class.length ? plural(in class.length, 'holding') : ''] where boolean
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-028
+ * Changed ..... 2026-08-17 (cf71d68)
+ */
 export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
   const pos = ((a.positions ?? []) as any[]);
   const inClass = pos.filter((p) => {
@@ -499,6 +1150,33 @@ export function classPortionLabel(a: AssetAccount, cls: AssetClass): string {
   }
 }
 
+/* ─ MK-NW-F-029 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * assetAllocation
+ *
+ * Answers ..... How much money sits in each of the seven classes?
+ *
+ * Formula .....
+ *     out = cash = 0
+ *     bonds = 0
+ *     stocks etf = 0
+ *     alternatives = 0
+ *     real estate = 0
+ *     personal property = 0
+ *     mixed = 0
+ *     b = account class breakdown(a)
+ *     the answer = out
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-NW-M-007
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-029
+ * Changed ..... 2026-07-19 (6c94acf)
+ */
 export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, number> {
   const out: Record<AssetClass, number> = { cash: 0, bonds: 0, stocks_etf: 0, alternatives: 0, real_estate: 0, personal_property: 0, mixed: 0 };
   for (const a of accounts ?? []) {
@@ -525,6 +1203,35 @@ export function assetAllocation(accounts: AssetAccount[]): Record<AssetClass, nu
  *  A 529 stays out: that money is legally earmarked for someone else's education, not a choice.
  *  `primaryCarId` names the one vehicle treated as the car you drive (the most valuable one) —
  *  callers pass it so a household with two cars keeps the second as a real asset. */
+/* ─ MK-NW-F-030 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * earmarkDefault
+ *
+ * Answers ..... Default % of an account that's earmarked for retirement (rest funds other goals).
+ *
+ * Formula .....
+ *     0   when kind = 'college_529'
+ *     0   when asset class of(a) = 'real_estate' and real estate use of(a) = 'primary'
+ *     0   when asset id = primary car id
+ *     100
+ *
+ * Called by ... MK-NW-F-032 earmarkedAmount
+ *
+ * Reaches ..... 15 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-NW-F-032 earmarkedAmount
+ *               MK-NW-F-038 earmarkedKinds · MK-PL-F-026 planDoor
+ *               MK-NW-F-004 portfolioActualReturn · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-001 taxBucketSplit · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-030
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
   if (a.kind === 'college_529') return 0;               // not the household's to spend
   if (assetClassOf(a) === 'real_estate' && realEstateUseOf(a) === 'primary') return 0;   // the home you live in
@@ -534,23 +1241,138 @@ export function earmarkDefault(a: AssetAccount, primaryCarId?: string): number {
 
 /** The vehicle treated as "the car you drive" — the most valuable one, so a second car stays a real
  *  asset. Ties break on id, so the choice never shuffles between renders. */
+/* ─ MK-NW-F-031 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * primaryCarIdOf
+ *
+ * Answers ..... The vehicle treated as "the car you drive" — the most valuable one, so a second car stays a real asset.
+ *
+ * Formula .....
+ *     cars = accounts (or none when missing) where kind = 'vehicle' (or asset class of(each) = 'personal_property' when missing or zero)
+ *     undefined   when count of cars is missing
+ *     the answer = [...cars].sort((x, y) => (balance or 0) − (balance or 0) or string(asset id).locale compare(string(asset id)))[0].asset id
+ *
+ * Called by ... MK-NW-F-033 retirementEarmarkedValue · MK-NW-F-035 blendedVolatility
+ *               MK-NW-F-037 blendedReturn
+ *
+ * Reaches ..... 11 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-PL-F-026 planDoor
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-031
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function primaryCarIdOf(accounts: AssetAccount[]): string | undefined {
   const cars = (accounts ?? []).filter((a) => a.kind === 'vehicle' || assetClassOf(a) === 'personal_property');
   if (!cars.length) return undefined;
   return [...cars].sort((x, y) => (y.balance || 0) - (x.balance || 0) || String(x.asset_id).localeCompare(String(y.asset_id)))[0].asset_id;
 }
 /** The retirement-earmarked $ for one account (uses the saved % or the smart default). */
+/* ─ MK-NW-F-032 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * earmarkedAmount
+ *
+ * Answers ..... The retirement-earmarked $ for one account (uses the saved % or the smart default).
+ *
+ * Formula .....
+ *     pct = earmark default(a, primary car id)   if retirement pct = nothing
+ *     retirement pct   otherwise
+ *     the answer = round((balance or 0) × max(0, min(100, pct)) ÷ 100, 2 dp)
+ *
+ * Called by ... MK-NW-F-004 portfolioActualReturn · MK-NW-F-033 retirementEarmarkedValue
+ *               MK-NW-F-035 blendedVolatility · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-038 earmarkedKinds · MK-PL-F-001 taxBucketSplit
+ *
+ * Reaches ..... 14 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-077 clamp · MK-NW-F-038 earmarkedKinds
+ *               MK-PL-F-026 planDoor · MK-NW-F-004 portfolioActualReturn
+ *               MK-NW-F-033 retirementEarmarkedValue · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-001 taxBucketSplit
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-050 the share of an account earmarked for retirement
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-032
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function earmarkedAmount(a: AssetAccount, primaryCarId?: string): number {
   const pct = a.retirement_pct == null ? earmarkDefault(a, primaryCarId) : a.retirement_pct;
   return round2((a.balance || 0) * Math.max(0, Math.min(100, pct)) / 100);
 }
 /** Total nest egg = sum of each account's retirement-earmarked portion. This — not net worth — funds retirement. */
+/* ─ MK-NW-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * retirementEarmarkedValue
+ *
+ * Answers ..... Total nest egg = sum of each account's retirement-earmarked portion.
+ *
+ * Formula .....
+ *     car = primary car id of(accounts)
+ *     the answer = round(Σ over accounts (or none when missing) of (earmarked amount(each, car)), 2 dp)
+ *
+ * Called by ... MK-CF-F-107 buildPaycheckYear · MK-PL-F-026 planDoor
+ *               MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 6 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-026 planDoor · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-033
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function retirementEarmarkedValue(accounts: AssetAccount[]): number {
   const car = primaryCarIdOf(accounts);
   return round2((accounts ?? []).reduce((t, a) => t + earmarkedAmount(a, car), 0));
 }
 
 /** Benchmark expected annual return for an asset kind — user override if set, else the ASSET_KINDS default. */
+/* ─ MK-NW-F-034 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * benchmarkReturn
+ *
+ * Answers ..... Benchmark expected annual return for an asset kind — user override if set, else the ASSET_KINDS default.
+ *
+ * Formula .....
+ *     overrides[kind]   when kind and overrides and overrides[kind] ≠ nothing
+ *     asset kind(kind).ret (or 0.06 when missing)
+ *
+ * Called by ... MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-037 blendedReturn
+ *
+ * Reaches ..... 7 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-037 blendedReturn · MK-XS-F-031 buildSnapshot
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If return is missing it uses 6%.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-034
+ * Changed ..... 2026-08-11 (07be308)
+ */
 export function benchmarkReturn(kind: string | undefined, overrides?: Record<string, number>): number {
   if (kind && overrides && overrides[kind] != null) return overrides[kind];
   return assetKind(kind)?.ret ?? 0.06;
@@ -594,6 +1416,40 @@ export const VOLATILITY_META: Record<string, { source: string; period: string; e
  *  portfolio). Weighted-average volatility assumes the parts move together, which slightly
  *  OVERSTATES risk for a mixed portfolio; overstating risk makes the odds cautious rather than
  *  flattering, which is the side to err on. Falls back to the scenario rule when nothing is held. */
+/* ─ MK-NW-F-035 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * blendedVolatility
+ *
+ * Answers ..... The volatility of THIS portfolio — each account's own class volatility, weighted the way the money actually is (the same weighting `blendedReturn` uses, so the pair always describes one portfolio).
+ *
+ * Formula .....
+ *     car = primary car id of(accounts)
+ *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY'
+ *     total = Σ over items of (earmarked amount(each, car))
+ *     0.12   when total ≤ 0
+ *     v = overrides[kind]   if kind and overrides.[kind] ≠ nothing
+ *     KIND_VOLATILITY[kind]   if kind
+ *     undefined   otherwise   otherwise
+ *     the answer = t + (v ?? 0.12) × earmarked amount(a, car)
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-077 clamp
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-077 clamp · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-065 volOf · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-035 annuity income
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If v is missing it uses 12%.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-035
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function blendedVolatility(accounts: AssetAccount[], overrides?: Record<string, number>): number {
   const car = primaryCarIdOf(accounts);
   const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
@@ -627,6 +1483,33 @@ export const BENCHMARK_META: Record<string, { source: string; period: string; es
 };
 /** Benchmark return + its source/period for an asset kind. `edited` flags a user override;
  *  `estimate` flags that there's no clean 30-yr series so the figure is an estimate. */
+/* ─ MK-NW-F-036 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * benchmarkInfo
+ *
+ * Answers ..... Benchmark return + its source/period for an asset kind.
+ *
+ * Formula .....
+ *     meta = BENCHMARK_META[kind ?? ''] (or source = 'generic blended estimate'
+ *     period = '—'
+ *     estimate = true when missing)
+ *     edited = !!(kind and overrides and overrides[kind] ≠ nothing)
+ *     the answer:
+ *     ret = benchmark return(kind, overrides)
+ *     source = 'your custom estimate'   if edited
+ *     meta.source   otherwise
+ *     period = '—'   if edited
+ *     meta.period   otherwise
+ *     edited = edited
+ *     estimate = !!meta.estimate
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-036
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function benchmarkInfo(kind: string | undefined, overrides?: Record<string, number>): { ret: number; source: string; period: string; edited: boolean; estimate: boolean } {
   const meta = BENCHMARK_META[kind ?? ''] ?? { source: 'Generic blended estimate', period: '—', estimate: true };
   const edited = !!(kind && overrides && overrides[kind] != null);
@@ -635,6 +1518,36 @@ export function benchmarkInfo(kind: string | undefined, overrides?: Record<strin
 /** Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
  *  Different asset types earn different returns — equity vs bonds vs PE vs hedge funds — so the
  *  nest egg's growth rate is the value-weighted average of their benchmarks. */
+/* ─ MK-NW-F-037 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * blendedReturn
+ *
+ * Answers ..... Blended expected return across the EARMARKED nest egg, weighted by each holding's share.
+ *
+ * Formula .....
+ *     car = primary car id of(accounts)
+ *     items = accounts (or none when missing) where tax bucket ! = 'PROPERTY'
+ *     total = Σ over items of (earmarked amount(each, car))
+ *     0.06   when total ≤ 0
+ *     weighted = Σ over items of (benchmark return(kind, overrides) × earmarked amount(each, car))
+ *     the answer = round(weighted ÷ total, 4 dp)
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-037
+ * Changed ..... 2026-08-11 (83acb7e)
+ */
 export function blendedReturn(accounts: AssetAccount[], overrides?: Record<string, number>): number {
   const car = primaryCarIdOf(accounts);
   const items = (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY');
@@ -644,6 +1557,29 @@ export function blendedReturn(accounts: AssetAccount[], overrides?: Record<strin
   return Math.round((weighted / total) * 1e4) / 1e4;
 }
 /** Distinct investment kinds present in the earmarked nest egg (for the benchmark editor). */
+/* ─ MK-NW-F-038 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * earmarkedKinds
+ *
+ * Answers ..... Distinct investment kinds present in the earmarked nest egg (for the benchmark editor).
+ *
+ * Formula .....
+ *     seen = new set<string>()
+ *     the answer = array.from(seen)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Uses a built-in d e f a u l t r e t u r n of 7%.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-038
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function earmarkedKinds(accounts: AssetAccount[]): string[] {
   const seen = new Set<string>();
   (accounts ?? []).filter((a) => a.tax_bucket !== 'PROPERTY' && earmarkedAmount(a) > 0).forEach((a) => seen.add(a.kind || 'other_asset'));
@@ -660,6 +1596,33 @@ export interface AssetsState {
 
 const DEFAULT_RETURN = 0.07;
 
+/* ─ MK-NW-F-039 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildAssetsState
+ *
+ * Answers ..... How much of everything sits in each account, and what return do they blend to?
+ *
+ * Formula .....
+ *     total asset value      = round(Σ over every account of (balance), 2 dp)
+ *     share of portfolio (a) = round(balance of a ÷ total × 100, 2 dp)
+ *     average target return  = round(Σ(target return × balance) ÷ total, 4 dp)
+ *
+ * Called by ... MK-NW-F-044 getAssetsState · MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-044 getAssetsState
+ *               MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... MK-NW-M-004
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-028 assumed return
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-039
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsState {
   const total = accounts.reduce((t, a) => t + a.balance, 0);
   const withPct = accounts.map((a) => ({
@@ -672,6 +1635,33 @@ export function buildAssetsState(uid: UserId, accounts: AssetAccount[]): AssetsS
 }
 
 /** Build asset accounts from onboarding answers (accumulation: retirement savings + holdings). */
+/* ─ MK-NW-F-040 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * assetsFromOnboarding
+ *
+ * Answers ..... Build asset accounts from onboarding answers (accumulation: retirement savings + holdings).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     accounts = []
+ *     bal = raw read as a number (0 when it is not one)
+ *     the answer:
+ *     user id = uid
+ *     accounts = accounts
+ *
+ * Called by ... MK-XS-F-032 snapshotFromOnboarding · MK-XS-F-033 resolveNetWorthRows
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-033 resolveNetWorthRows · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-040
+ * Changed ..... 2026-06-13 (e77e5a3)
+ */
 export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null): AssetsDoc {
   const a = op ?? {};
   const accounts: AssetAccount[] = [];
@@ -692,6 +1682,28 @@ export function assetsFromOnboarding(uid: UserId, op: Record<string, any> | null
 }
 
 /** Total monthly contributions across types + employer match (feeds the retirement projection). */
+/* ─ MK-NW-F-041 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * monthlyContributionsFromOnboarding
+ *
+ * Answers ..... Total monthly contributions across types + employer match (feeds the retirement projection).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     the answer = Σ over ['c_401k', 'c_roth', 'c_invest', 'c_property'] of (a[each] read as a number (0 when it is not one))+ employer match monthly(op)
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs · MK-XS-F-030 effectiveAnnualContribution
+ *
+ * Reaches ..... 5 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-030 effectiveAnnualContribution
+ *               MK-PL-F-068 selectWillItLast · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-043 their own retirement contribution
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-041
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function monthlyContributionsFromOnboarding(op: Record<string, any> | null): number {
   const a = op ?? {};
   return ['c_401k', 'c_roth', 'c_invest', 'c_property'].reduce((t, k) => t + toNum(a[k]), 0) + employerMatchMonthly(op);
@@ -699,8 +1711,57 @@ export function monthlyContributionsFromOnboarding(op: Record<string, any> | nul
 
 const COLLECTION = 'assets';
 export const ASSETS_UPDATED = 'AssetsUpdated';
+/* ─ MK-NW-F-042 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * loadAssets
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It reaches outside the app for data and hands back what came back — no arithmetic of its own.
+ *
+ * Called by ... MK-NW-F-044 getAssetsState
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-044 getAssetsState
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-042
+ * Changed ..... 2026-07-30 (a85874e)
+ */
 export async function loadAssets(uid: UserId) { return getUserDoc<AssetsDoc>(COLLECTION, uid); }
+/* ─ MK-NW-F-043 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * saveAssets
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-043
+ * Changed ..... 2026-07-30 (a85874e)
+ */
 export async function saveAssets(d: AssetsDoc) { await setUserDoc(COLLECTION, d.user_id, d); emit(ASSETS_UPDATED, { user_id: d.user_id }); }
+/* ─ MK-NW-F-044 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * getAssetsState
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     d = build assets state(uid, accounts ?? [])   if await load assets(uid); return d
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-044
+ * Changed ..... 2026-07-30 (a85874e)
+ */
 export async function getAssetsState(uid: UserId) {
   const d = await loadAssets(uid); return d ? buildAssetsState(uid, d.accounts ?? []) : null;
 }
@@ -708,6 +1769,27 @@ export async function getAssetsState(uid: UserId) {
 /** THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by
  *  every screen that names where an account's numbers come from. The on-row chip LOOK is a separate
  *  founder-gated mock (audit item 10) — this is the words, so they can never drift again. */
+/* ─ MK-NW-F-045 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * sourceWording
+ *
+ * Answers ..... THE source wording (Build-47 walk row 8, audit Strategy #9): one sentence per source, used by every screen that names where an account's numbers come from.
+ *
+ * Formula .....
+ *     day = the first 10 of string(last synced)   if last synced
+ *     ''   otherwise
+ *     `connected · ${day or 'linked'}`   when source = 'connected'
+ *     `imported · ${day or '—'}`   when source = 'imported'
+ *     the answer = 'by hand · you update it'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-006 price fetched at
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-045
+ * Changed ..... 2026-08-07 (0482964)
+ */
 export function sourceWording(a: AssetAccount): string {
   const day = a.last_synced ? String(a.last_synced).slice(0, 10) : '';
   if (a.source === 'connected') return `Connected · ${day || 'linked'}`;
@@ -726,6 +1808,38 @@ export interface HistoryCoverage {
   monthsCovered: number | null;   // how much of the claimed window is really covered
   sentence: string;               // the one plain sentence a screen shows
 }
+/* ─ MK-NW-F-046 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * historyCoverage
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     who = (institution or label or 'this account').trim()
+ *     from = the first 10 of string(history from)   if history from
+ *     nothing   otherwise
+ *     nothing   when the first 10 of from ≤ window start
+ *     months = max(0, round((now.get full year() − fy) × 12 + (now.get month() + 1 − fm) + (now.get date() − fd) ÷ 30, 1 dp))
+ *
+ * Called by ... MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *               MK-XS-I-057 the date an account history begins
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Treats a month as 30 days.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-046
+ * Changed ..... 2026-08-07 (0482964)
+ */
 export function historyCoverage(
   a: AssetAccount,
   windowStart: string,
@@ -751,6 +1865,24 @@ export function historyCoverage(
     sentence: `${who} shared ${span} of history (from ${prettyDay(from)}) — figures before that aren't counted.` };
 }
 const MONTH_ABBR = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/* ─ MK-NW-F-068 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * prettyDay
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     `${MONTH_ABBR[(m or 1) − 1]} ${d}, ${y}`
+ *
+ * Called by ... MK-NW-F-046 historyCoverage
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps · MK-NW-F-046 historyCoverage
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-068
+ * Changed ..... not in git yet (—)
+ */
 function prettyDay(iso: string): string {
   const [y, m, d] = iso.split('-').map(Number);
   return `${MONTH_ABBR[(m || 1) - 1]} ${d}, ${y}`;
@@ -773,9 +1905,45 @@ const CLASS_UBER: Record<AssetClass, UberGroup> = {
   stocks_etf: 'investments', bonds: 'investments', alternatives: 'investments', mixed: 'investments',
   real_estate: 'property', personal_property: 'property',
 };
+/* ─ MK-NW-F-047 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * uberGroupOf
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     CLASS_UBER[cls] (or 'investments' when missing)
+ *
+ * Called by ... MK-NW-F-048 uberGroupRows
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-048 uberGroupRows
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-047
+ * Changed ..... 2026-08-09 (7c1b320)
+ */
 export const uberGroupOf = (cls: AssetClass): UberGroup => CLASS_UBER[cls] ?? 'investments';
 
 /** Group per-class totals into the three uber-groups, keeping class order inside each. */
+/* ─ MK-NW-F-048 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * uberGroupRows
+ *
+ * Answers ..... Group per-class totals into the three uber-groups, keeping class order inside each.
+ *
+ * Formula .....
+ *     classes = class rows where uber group of(key) = group
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-048
+ * Changed ..... 2026-08-09 (7c1b320)
+ */
 export function uberGroupRows(
   classRows: { key: AssetClass; label: string; color: string; total: number }[],
 ): { group: UberGroup; label: string; icon: string; total: number; classes: typeof classRows }[] {

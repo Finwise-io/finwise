@@ -1,0 +1,126 @@
+<title>Building The Three Screens</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;--grey:#6E7F8E;--greybg:#6E7F8E14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;
+ --grey:#8B9AA8;--greybg:#8B9AA822;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;--grey:#8B9AA8;--greybg:#8B9AA822;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:26px 0 32px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:14px 16px}
+.c.k-done{border-left:3px solid var(--ok)}.c.k-coded{border-left:3px solid var(--blue)}
+.c.k-approved{border-left:3px solid var(--warn)}.c.k-found{border-left:3px solid var(--bad)}
+.c.k-notworked{border-left:3px solid var(--grey)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:29px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+td.os{color:var(--ink);font-weight:600;min-width:190px}
+td.os .sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+td.fn{min-width:150px}
+td.ac{white-space:nowrap;width:1%}
+td.nt{max-width:330px;line-height:1.5}
+td.im{max-width:330px;line-height:1.5;color:var(--ink3)}
+.none{color:var(--ink3);font-style:italic;font-size:12.5px}
+tr.v-fix td.im{color:var(--warn)}
+tr.v-park td.os{color:var(--ink3)}
+td.nm{color:var(--ink);font-weight:600;min-width:210px}
+td.wy{max-width:520px;line-height:1.5}
+td.st{white-space:nowrap;width:1%}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.t-use{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-fix{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-new{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-park{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.t-done{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-coded{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-approved{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-found{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-notworked{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.st .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:29px;margin:40px 0 8px}
+h2+p{color:var(--ink2);margin:0 0 16px;max-width:74ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+ol{color:var(--ink2);max-width:74ch;padding-left:20px}ol li{margin-bottom:9px}ol li b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">MoneyKeel · build plan · 2026-08-27</p>
+<h1>Building the three screens</h1>
+<p class="stand">Every row on cash flow <b>This month</b>, cash flow <b>Spending</b> and the <b>base-salary income</b> screen: what it needs calculated, whether a function already exists, and — where I would change one — everything else that moves with it.</p>
+</header>
+<div class="cards">
+<div class="c k-done"><div class="n">5</div><div class="l">Use as is</div><div class="s">The function exists and its formula already matches what the screen needs.</div></div>
+<div class="c k-approved"><div class="n">5</div><div class="l">Correct it</div><div class="s">The function exists but does not do what the new screen needs.</div></div>
+<div class="c k-coded"><div class="n">8</div><div class="l">Write new</div><div class="s">Nothing today produces this.</div></div>
+<div class="c k-notworked"><div class="n">4</div><div class="l">Park</div><div class="s">Waiting on the card provider and the two fields it brings.</div></div>
+</div>
+<div class="tw"><table>
+<thead><tr><th>On screen</th><th>Function today</th><th>Action</th><th>What changes</th><th>What else moves if I change it</th></tr></thead>
+<tbody>
+<tr class="grp"><th colspan="5">Cash flow · This month — the plan</th></tr>
+<tr class="v-fix"><td class="os">In (take-home)<span class="sub">What lands in the bank each month, as entered on the income screen</span></td><td class="fn"><span class="mono">MK-CF-F-092 incomeMonthlyGrid</span></td><td class="ac"><span class="tag t-fix">Correct it</span></td><td class="nt">Gains one branch: if take-home was entered, use it as typed. Today it always derives take-home by taxing gross.</td><td class="im">22 functions, incl. takeHomeMonthly, monthlySavings, emergencyTest, buildSnapshot. They MOVE — toward the figure the person typed. That is the fix, not a side effect.</td></tr>
+<tr class="v-fix"><td class="os">Mortgage · Car · HELOC · Credit card, one row each<span class="sub">The payment reserved for each debt this month</span></td><td class="fn"><span class="mono">MK-CF-F-023 requiredPayment</span></td><td class="ac"><span class="tag t-fix">Correct it</span></td><td class="nt">Formula matches for a stated minimum. The file claims an &#x27;interest + 1% when none stated&#x27; rule that does not exist — B01. A debt with no minimum returns 0.</td><td class="im">10 functions. Adding the fallback RAISES the monthly debt figure for anyone who left a minimum blank — today they see $0/mo, which is why it needs your ruling first.</td></tr>
+<tr class="v-use"><td class="os">Expenses (planned)<span class="sub">Everything planned to be spent this month, one number</span></td><td class="fn"><span class="mono">MK-CF-F-002 plannedMonthlySpend</span></td><td class="ac"><span class="tag t-use">Use as is</span></td><td class="nt">Already the canonical planned figure — the larger of the itemised categories and the stated total.</td><td class="im">None. This is the helper the screen SHOULD have been calling.</td></tr>
+<tr class="v-new"><td class="os">= Planned surplus<span class="sub">take-home − each debt − planned expenses</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">plannedMonthFlow. Nothing today produces the planned block as one object; the screen assembles it from cell.outflow, which is where the second definition of &#x27;planned&#x27; came from.</td><td class="im">None — new function, nothing calls it yet.</td></tr>
+<tr class="grp"><th colspan="5">Cash flow · This month — actual</th></tr>
+<tr class="v-use"><td class="os">In (take-home) received<span class="sub">Same figure as planned this month</span></td><td class="fn"><span class="mono">MK-CF-F-092 incomeMonthlyGrid</span></td><td class="ac"><span class="tag t-use">Use as is</span></td><td class="nt">Your sheet shows 5,000 on both sides, so the full month&#x27;s take-home.</td><td class="im">None beyond the change above.</td></tr>
+<tr class="v-new"><td class="os">Mortgage paid ✓ · Car due 28th $0<span class="sub">Which debts have actually been paid, and how much each</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">debtPaymentsByDebt. Today logged payments are only ever TOTALLED — one number, debtPaid. The data to split them exists (a logged payment stores the debt&#x27;s label) and nothing reads it back.</td><td class="im">None — new function.</td></tr>
+<tr class="v-park"><td class="os">Expenses entered by hand<span class="sub">Logged expenses this month, excluding debt payments</span></td><td class="fn"><span class="mono">MK-CF-F-014 budgetVsActual</span></td><td class="ac"><span class="tag t-park">Park</span></td><td class="nt">Correct today, but cannot be split by source. Needs a `source` field on an expense.</td><td class="im">1 function. Parked on the provider work.</td></tr>
+<tr class="v-park"><td class="os">Expenses imported from your card<span class="sub">Purchases arriving from the card feed</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-park">Park</span></td><td class="nt">Needs both the `source` field and which card a purchase was on. Neither exists.</td><td class="im">Parked on the provider.</td></tr>
+<tr class="v-fix"><td class="os">= Actual surplus<span class="sub">take-home − debts confirmed paid − expenses</span></td><td class="fn"><span class="mono">MK-CF-F-005 actualMonthFlow</span></td><td class="ac"><span class="tag t-fix">Correct it</span></td><td class="nt">Exists and is close. Must itemise debts instead of one debtPaid total, and stop subtracting spending already covered by a card payment once import exists.</td><td class="im">NOTHING. 0 direct callers, 0 reach — it is called only from screens. The safest change on this list.</td></tr>
+<tr class="grp"><th colspan="5">Cash flow · Spending</th></tr>
+<tr class="v-new"><td class="os">Monthly recurring expenses — mortgage, car<span class="sub">The installment debts only, one row each</span></td><td class="fn"><span class="mono">MK-CF-F-022 paymentShape + MK-CF-F-023 requiredPayment</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">recurringDebtPayments. Both parts exist; nothing assembles the installment-only list.</td><td class="im">None — new function built on two unchanged ones.</td></tr>
+<tr class="v-use"><td class="os">Planned expenses by category<span class="sub">Each category&#x27;s planned monthly amount</span></td><td class="fn"><span class="mono">MK-CF-F-004 spendBuckets + MK-CF-F-003 categoryMonthly</span></td><td class="ac"><span class="tag t-use">Use as is</span></td><td class="nt">Exactly what spendBuckets returns. It was only ever wrong where a screen used it as ACTUAL.</td><td class="im">None.</td></tr>
+<tr class="v-park"><td class="os">Actual — entered by hand, listed<span class="sub">Each logged expense, five shown</span></td><td class="fn"><span class="mono">MK-CF-F-014 budgetVsActual</span></td><td class="ac"><span class="tag t-park">Park</span></td><td class="nt">Needs the `source` field to separate from imported.</td><td class="im">Parked.</td></tr>
+<tr class="v-park"><td class="os">Actual — imported, listed<span class="sub">Each imported purchase, five shown</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-park">Park</span></td><td class="nt">Needs the card feed.</td><td class="im">Parked.</td></tr>
+<tr class="v-new"><td class="os">Debt payments counted as expenses<span class="sub">HELOC and manually-entered card payments</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">debtPaymentsCountedAsExpenses. The rule is paymentShape: revolving and due-in-full count, installment does not.</td><td class="im">None — new function.</td></tr>
+<tr class="v-new"><td class="os">Big-ticket radar<span class="sub">Which items are unusual enough to warn about</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">isRadarItem. Today the rule is inline in the screen and BACKWARDS — B28. It flags the mortgage every month and hides an unusual card payment.</td><td class="im">None — new function replacing screen-level logic.</td></tr>
+<tr class="grp"><th colspan="5">Base salary · income screen</th></tr>
+<tr class="v-use"><td class="os">Pay frequency<span class="sub">Hourly, weekly, bi-weekly, monthly, annually</span></td><td class="fn"><span class="mono">MK-CF-F-060 salaryGrossByMonth</span></td><td class="ac"><span class="tag t-use">Use as is</span></td><td class="nt">SALARY_PERIODS already carries all five.</td><td class="im">None.</td></tr>
+<tr class="v-fix"><td class="os">Gross pay each month<span class="sub">As entered, converted to a month</span></td><td class="fn"><span class="mono">MK-CF-F-060 salaryGrossByMonth</span></td><td class="ac"><span class="tag t-fix">Correct it</span></td><td class="nt">Delete the gross-up branch. With gross always captured, the branch that inverts tax to FIND a gross has nothing to do.</td><td class="im">38 functions, 26 displayed — but ZERO change to any of them. The branch only ran for salaryMode=&#x27;takehome&#x27;, which the new screen never sets. It becomes dead code, and deleting dead code moves nothing.</td></tr>
+<tr class="v-use"><td class="os">Into your 401(k) each month<span class="sub">As entered</span></td><td class="fn"><span class="mono">MK-CF-F-088 taxableByCalendarMonth</span></td><td class="ac"><span class="tag t-use">Use as is</span></td><td class="nt">Already reads c_401k and takes it off before tax — fixed this morning as B05.</td><td class="im">None. Already done and tested.</td></tr>
+<tr class="v-new"><td class="os">What lands in your bank each month<span class="sub">As entered — used exactly as typed</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">takeHomeAsEntered. The override: given, it IS take-home; not given, estimate from gross and label it.</td><td class="im">None — new function, read by incomeMonthlyGrid.</td></tr>
+<tr class="v-new"><td class="os">Everything else taken out<span class="sub">gross − 401(k) − what lands in the bank</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">deductionsFromPay. Derived, not estimated — covers federal, state, insurance and anything else without asking about any of them.</td><td class="im">None — new function.</td></tr>
+<tr class="v-new"><td class="os">The three must reconcile<span class="sub">Refuse to save when gross − 401(k) &lt; what lands</span></td><td class="fn"><span class="none">none exists</span></td><td class="ac"><span class="tag t-new">Write new</span></td><td class="nt">payFiguresAgree. This is the check the three figures buy, and it would have caught the $1,467 drift before anyone saw it.</td><td class="im">None — new function.</td></tr>
+<tr class="v-fix"><td class="os">Employer 401(k) match<span class="sub">Rate applied to their own contribution, or a flat amount</span></td><td class="fn"><span class="mono">MK-CF-F-078 employerMatchMonthly</span></td><td class="ac"><span class="tag t-fix">Correct it</span></td><td class="nt">The arithmetic is written THREE times — B29. Two definitions plus one inline copy. Collapse to one; no cap exists and none is captured.</td><td class="im">7 functions. Collapsing three identical copies to one changes no number today — it stops them drifting tomorrow.</td></tr></tbody></table></div>
+
+<h2>The five corrections, ranked by risk</h2>
+<p>Only these touch code that other screens already depend on. Ranked by how much moves.</p>
+<ol>
+<li><b>actualMonthFlow</b> <span class="mono">MK-CF-F-005</span> — <b>nothing moves.</b> Zero callers, zero reach; only screens call it. The safest change on the list.</li>
+<li><b>salaryGrossByMonth</b> <span class="mono">MK-CF-F-060</span> — reaches 38 functions, and <b>still nothing moves.</b> The branch being deleted only ever ran when someone entered take-home instead of gross, which the new screen never does. Dead code.</li>
+<li><b>employerMatchMonthly</b> <span class="mono">MK-CF-F-078</span> — reaches 7. Collapsing three identical copies into one <b>changes no number today.</b> It stops them drifting tomorrow.</li>
+<li><b>requiredPayment</b> <span class="mono">MK-CF-F-023</span> — reaches 10, and this one <b>does move numbers.</b> Adding a fallback for a debt with no stated minimum raises the monthly debt figure for those people — today they see $0. Needs your ruling on the rule before it is written.</li>
+<li><b>incomeMonthlyGrid</b> <span class="mono">MK-CF-F-092</span> — reaches 22, and it <b>should move them.</b> Using the take-home a person typed instead of one derived by taxing gross changes take-home, surplus, essentials, the emergency test and the snapshot — toward the figure they entered.</li>
+</ol>
+
+<h2>What this means for the order</h2>
+<p>Twelve of the eighteen buildable items either use an unchanged function or add a new one that nothing else calls. Only two corrections move a number anyone sees, and one of those is the point of the exercise.</p>
+<ol>
+<li><b>The income screen first.</b> Three new functions, one dead-code deletion, one de-duplication. Nothing else moves, and it is what makes take-home right everywhere downstream.</li>
+<li><b>Then This month.</b> Two new functions and the safest correction on the list. The only open question is the debt-minimum fallback.</li>
+<li><b>Then Spending, except its Actual section.</b> Three new functions, no corrections at all.</li>
+<li><b>Then the parked four</b>, when the card provider is in place.</li>
+</ol>
+</div>

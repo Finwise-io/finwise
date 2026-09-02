@@ -12,6 +12,33 @@ export interface CompletenessInput {
   hasDebtsOrSkipped: boolean; // liabilities entered OR user has no debt (we can't tell skipped; treat any as done)
 }
 
+/* ─ MK-XS-F-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * planCompleteness
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     done count = checks where donecount of
+ *     total = count of checks
+ *     the answer:
+ *     checks = checks
+ *     done count = done count
+ *     total = total
+ *     pct = round((done count ÷ total) × 100)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-027 goals (target, saved, date)
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-001
+ * Changed ..... 2026-06-06 (abfe24a)
+ */
 export function planCompleteness(i: CompletenessInput): { checks: PlanCheck[]; doneCount: number; total: number; pct: number } {
   const checks: PlanCheck[] = [
     { key: 'income', label: 'Add your income', detail: 'Salary, bonus, equity, rental — drives every projection.', done: i.incomeAnnual > 0, route: '/income-manager' },

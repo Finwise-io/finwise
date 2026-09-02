@@ -39,13 +39,13 @@
 
 <h1>Screen architecture</h1>
 <p class="sub">
-  <b>47 screens</b>, plus 3 aliases and redirects. The top half is <b>measured from the code</b> — every route, every
+  <b>50 screens</b>, plus 3 aliases and redirects. The top half is <b>measured from the code</b> — every route, every
   inbound link, read from <code>app/</code> and <code>src/</code>. The bottom half is <b>a
   recommendation</b> and is labelled as one. Regenerate any time with
   <code>node scripts/screen-map.mjs</code>.
 </p>
-<p class="stamp">Generated 2026-08-20 · 5 with no way in ·
-  7 with a single door · 3 conditional</p>
+<p class="stamp">Generated 2026-09-02 · 5 with no way in ·
+  9 with a single door · 3 conditional</p>
 
 <div class="legend">
   <span class="chip" style="background:#DFF2E9;color:#085041">IN THE TAB BAR</span>
@@ -217,9 +217,17 @@
   </div></div>
 </div>
 <div class="group">
-  <div class="gh">From the Cash flow tab &nbsp;<span style="font-weight:600;opacity:.7">3</span></div>
+  <div class="gh">From the Cash flow tab &nbsp;<span style="font-weight:600;opacity:.7">5</span></div>
   
   <div class="grid"><div class="box" style="background:#fff;border-color:rgba(0,0,0,.10)33">
+    <div class="bt">Base pay</div>
+    <div class="br">/base-pay</div>
+    
+    <div class="bp">Your base pay — a section for each person who earns a wage: how often they are paid, whether it varies, the gross, the 401(k) and what lands in the bank.</div>
+    
+    
+    <div class="bd">CashFlow · IncomeSummary</div>
+  </div><div class="box" style="background:#fff;border-color:rgba(0,0,0,.10)33">
     <div class="bt">Bill calendar</div>
     <div class="br">/bill-calendar</div>
     
@@ -235,6 +243,14 @@
     
     
     <div class="bd">MoneySheets · the ☰ menu · the completeness engine · onboarding · Budget · CashFlow · IncomeDetail</div>
+  </div><div class="box" style="background:#FAEEDA;border-color:#854F0B33">
+    <div class="bt">Income summary</div>
+    <div class="br">/income-summary</div>
+    <div class="tag" style="color:#854F0B">ONE DOOR</div>
+    <div class="bp">Your income, all of it — what lands in your bank each month, and what the year is taxed on. Two totals, never one.</div>
+    
+    
+    <div class="bd">CashFlow</div>
   </div><div class="box" style="background:#fff;border-color:rgba(0,0,0,.10)33">
     <div class="bt">Month detail</div>
     <div class="br">/month-detail</div>
@@ -384,7 +400,7 @@
   </div></div>
 </div>
 <div class="group">
-  <div class="gh">Deeper in — from another screen &nbsp;<span style="font-weight:600;opacity:.7">4</span></div>
+  <div class="gh">Deeper in — from another screen &nbsp;<span style="font-weight:600;opacity:.7">5</span></div>
   <div class="gb">you have to already be somewhere else</div>
   <div class="grid"><div class="box" style="background:#FAEEDA;border-color:#854F0B33">
     <div class="bt">Big costs</div>
@@ -402,6 +418,14 @@
     
     
     <div class="bd">PlanPrepare · Goals</div>
+  </div><div class="box" style="background:#FAEEDA;border-color:#854F0B33">
+    <div class="bt">Filing status</div>
+    <div class="br">/filing-status</div>
+    <div class="tag" style="color:#854F0B">ONE DOOR</div>
+    <div class="bp">How you file your taxes, and who on the return is 65 or older — the two answers every tax estimate in the app depends on.</div>
+    
+    
+    <div class="bd">TaxOrganizer</div>
   </div><div class="box" style="background:#fff;border-color:rgba(0,0,0,.10)33">
     <div class="bt">Jobsafety</div>
     <div class="br">/jobsafety</div>
@@ -543,7 +567,7 @@
 
 <h2>D &middot; Every screen — what it does, and whether it moves</h2>
 <p class="sub">The <b>what it does</b> column is written by hand; everything else is measured.
-  <b>31 of 47 screens stay exactly where they are</b>,
+  <b>34 of 50 screens stay exactly where they are</b>,
   10 move, and 6 are waiting on a ruling.</p>
 <table>
  <tr><th>Screen</th><th>What it does today</th><th>Lives in</th><th>Moving?</th></tr>
@@ -586,6 +610,9 @@
      <td>stays</td></tr><tr><td class="mono">Add account</td>
      <td>Add or edit an account by hand.</td>
      <td>Net worth</td>
+     <td>stays</td></tr><tr><td class="mono">Base pay</td>
+     <td>Your base pay — a section for each person who earns a wage: how often they are paid, whether it varies, the gross, the 401(k) and what lands in the bank.</td>
+     <td>Cash flow</td>
      <td>stays</td></tr><tr><td class="mono">Big costs</td>
      <td>One-time costs you know are coming — a roof, a car, a wedding.</td>
      <td>Plan · Retire</td>
@@ -613,6 +640,9 @@
      <td>stays</td></tr><tr><td class="mono">Expense</td>
      <td>Add an expense, by hand or by scanning the receipt.</td>
      <td>Cash flow</td>
+     <td>stays</td></tr><tr><td class="mono">Filing status</td>
+     <td>How you file your taxes, and who on the return is 65 or older — the two answers every tax estimate in the app depends on.</td>
+     <td>Cash flow</td>
      <td>stays</td></tr><tr><td class="mono">Holding detail</td>
      <td>One ticker: price, graph, what you paid, what it is worth now.</td>
      <td>Performance</td>
@@ -627,6 +657,9 @@
      <td>Legacy — awaiting a ruling</td>
      <td><b>awaiting your ruling</b></td></tr><tr><td class="mono">Income manager</td>
      <td>Every income source you have entered, in one place.</td>
+     <td>Cash flow</td>
+     <td>stays</td></tr><tr><td class="mono">Income summary</td>
+     <td>Your income, all of it — what lands in your bank each month, and what the year is taxed on. Two totals, never one.</td>
      <td>Cash flow</td>
      <td>stays</td></tr><tr><td class="mono">Insights</td>
      <td>Ranked nudges drawn from your own numbers, grouped by theme.</td>

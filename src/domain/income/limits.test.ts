@@ -1,13 +1,25 @@
 import { annual401kLimit, annualIraLimit, annualHsaLimit, k401Headroom, rothVsTraditional, rothConversionWindow } from './limits';
 
 describe('contribution limits + tax moves', () => {
-  test('limits add age catch-ups', () => {
-    expect(annual401kLimit(40)).toBe(24500);
-    expect(annual401kLimit(55)).toBe(32500);        // +8,000
-    expect(annualIraLimit(40)).toBe(7000);
-    expect(annualIraLimit(50)).toBe(8000);          // +1,000
-    expect(annualHsaLimit(40, false)).toBe(4400);
-    expect(annualHsaLimit(60, true)).toBe(9750);    // family + 1,000 (55+)
+  // Every figure below is typed in from the PUBLISHED 2026 source, not from our constants — so this
+  // test can disagree with the code, which is its whole point. On 2026-09-01 it would have failed
+  // twice: the IRA limits still carried the 2025 figures ($7,000/$1,000 against the published
+  // $7,500/$1,100), and the 60–63 super catch-up did not exist in the code at all — in an app built
+  // for people aged 55 to 70. A constant checked only against itself is not checked.
+  test('limits match the published IRS 2026 figures', () => {
+    expect(annual401kLimit(40)).toBe(24_500);
+    expect(annual401kLimit(55)).toBe(24_500 + 8_000);
+    expect(annualIraLimit(40)).toBe(7_500);
+    expect(annualIraLimit(50)).toBe(7_500 + 1_100);
+    expect(annualHsaLimit(40, false)).toBe(4_400);
+    expect(annualHsaLimit(60, true)).toBe(8_750 + 1_000);   // family + the 55+ catch-up
+  });
+
+  test('SECURE 2.0: ages 60–63 get the super catch-up, and it drops back at 64', () => {
+    expect(annual401kLimit(59)).toBe(24_500 + 8_000);
+    expect(annual401kLimit(60)).toBe(24_500 + 11_250);
+    expect(annual401kLimit(63)).toBe(24_500 + 11_250);
+    expect(annual401kLimit(64)).toBe(24_500 + 8_000);       // back to the ordinary catch-up
   });
 
   test('401k headroom', () => {

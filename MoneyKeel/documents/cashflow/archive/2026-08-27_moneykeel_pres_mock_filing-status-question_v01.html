@@ -1,0 +1,127 @@
+<title>MoneyKeel — How do you file your taxes? (onboarding, v1)</title>
+<style>
+  :root{--bg:#e8ece9;--ink:#1a1a18;--ink2:#585d59;--accent:#178F6B}
+  @media(prefers-color-scheme:dark){:root{--bg:#161917;--ink:#eceeea;--ink2:#a4aaa5}}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1700px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:6px 0 8px}
+  h2.sec{font-size:19px;font-weight:800;margin:40px 0 4px}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:940px}
+  .lede b{color:var(--ink)}
+  .row{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px;align-items:flex-start}
+  .col h3{font-size:14px;font-weight:800;margin:0 0 8px}
+  .col .note{font-size:12px;color:var(--ink2);max-width:330px;margin:8px 0 0;line-height:1.5}
+  .phone{width:330px;background:#0c0d0c;border-radius:46px;padding:8px;box-shadow:0 18px 40px rgba(10,25,18,.25)}
+  .screen{background:#F6F7F5;border-radius:39px;overflow:hidden;color:#1A1A18;min-height:660px;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:11px 24px 2px;font-size:12px;font-weight:700}
+  .content{padding:6px 13px 0;flex:1}
+  .prog{height:3px;background:#EEEEE9;margin:6px 0 14px}.prog i{display:block;height:3px;background:#178F6B;width:62%}
+  .hd{font-size:22px;font-weight:800;line-height:1.25;padding:2px 2px 4px;display:block}
+  .sub{font-size:13px;color:#6B6B66;padding:0 2px 12px;display:block;line-height:1.45}
+  .card{background:#FFF;padding:4px 13px;margin:0 -13px}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:13px 0;border-top:1px solid rgba(0,0,0,.09)}
+  .opt:first-child{border-top:none}
+  .dot{width:19px;height:19px;border:2px solid rgba(0,0,0,.25);border-radius:50%;flex:none;margin-top:1px}
+  .opt.on .dot{border-color:#178F6B;background:#178F6B;box-shadow:inset 0 0 0 3px #fff}
+  .opt b{font-size:14.5px;font-weight:700;display:block}
+  .opt span{font-size:11.5px;color:#76766F;display:block;margin-top:2px;line-height:1.45}
+  .opt.on b{color:#0F6E56}
+  .band{background:#DFF2E9;color:#085041;font-size:10.5px;font-weight:800;letter-spacing:.07em;
+        text-transform:uppercase;padding:7px 13px;margin:14px -13px 0}
+  .info{background:#E6F1FB;border-left:3px solid #185FA5;padding:10px 12px;font-size:12.5px;line-height:1.5;margin:12px 0 0}
+  .pre{background:#E1F5EE;border-left:3px solid #178F6B;padding:10px 12px;font-size:12.5px;line-height:1.5;margin:12px 0 0}
+  .cta{display:block;text-align:center;margin-top:14px;font-size:14px;font-weight:800;color:#fff;background:#178F6B;padding:12px}
+  .skip{display:block;text-align:center;margin-top:9px;font-size:12.5px;font-weight:700;color:#6B6B66;padding-bottom:12px}
+  .flag{background:#E1F5EE;border-left:3px solid #178F6B;padding:10px 12px;font-size:13px;margin:14px 0;max-width:940px;line-height:1.55}
+</style>
+<div class="wrap">
+<p class="eyebrow">MoneyKeel · mock for approval · 2026-08-27 · v1</p>
+<h1>How do you file your taxes?</h1>
+<p class="lede">A new onboarding step, straight after <b>“Do you manage money with a partner?”</b> — because someone who has just answered that is already thinking about the household.</p>
+
+<div class="flag"><b>Why it is worth one question.</b> Nothing in the app has ever set a filing status. The code reads one, finds nothing, and falls back to <b>single</b> — for everybody, including the couple who just told us they have a partner. Five surfaces use it: every month’s withholding rate, the effective rate, the Roth conversion, the retirement tax rate, and now the base-pay estimate. On $84,000 a married couple is being shown <b>$328 a month less</b> than lands in their bank.</div>
+
+<div class="row">
+
+  <div class="col"><h3>A · they said “just me”</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i></i></div>
+      <span class="hd">How do you file your taxes?</span>
+      <span class="sub">It decides your tax bands, so every take-home figure depends on it.</span>
+      <div class="card">
+        <div class="opt on"><span class="dot"></span><div><b>Single</b><span>One return, just you.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing jointly</b><span>One return for both of you. Most couples.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing separately</b><span>Married, but a return each.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Head of household</b><span>Unmarried, and you support someone who lives with you.</span></div></div>
+      </div>
+      <p class="pre">Set to <b>Single</b> because you told us it is just you. Change it if that is not right.</p>
+      <span class="cta">Continue</span>
+      <span class="skip">Not sure — use Single for now</span>
+    </div>
+  </div></div>
+  <p class="note">Pre-answered from what they already said, so most people confirm rather than choose. “Not sure” is an honest exit that does not pretend the answer is known.</p>
+  </div>
+
+  <div class="col"><h3>B · they said “I have a partner”</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i></i></div>
+      <span class="hd">How do you file your taxes?</span>
+      <span class="sub">It decides your tax bands, so every take-home figure depends on it.</span>
+      <div class="card">
+        <div class="opt"><span class="dot"></span><div><b>Single</b><span>One return, just you.</span></div></div>
+        <div class="opt on"><span class="dot"></span><div><b>Married filing jointly</b><span>One return for both of you. Most couples.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing separately</b><span>Married, but a return each.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Head of household</b><span>Unmarried, and you support someone who lives with you.</span></div></div>
+      </div>
+      <p class="pre">Set to <b>Married filing jointly</b> because you told us about Sam. Change it if that is not right.</p>
+
+      <div class="band">Is either of you 65 or older?</div>
+      <div class="card">
+        <div class="opt on"><span class="dot"></span><div><b>Just me</b><span>You are 67, so we have you already.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Both of us</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Neither</b></div></div>
+      </div>
+      <p class="info">Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know your age from your birth year; we have never asked about Sam’s.</p>
+      <span class="cta">Continue</span>
+    </div>
+  </div></div>
+  <p class="note">The over-65 question only appears for a couple. For one person the app already knows the answer from their birth year and never asks.</p>
+  </div>
+
+  <div class="col"><h3>C · what it changes</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i style="width:70%"></i></div>
+      <span class="hd">That changes your take-home</span>
+      <span class="sub">On the $84,000 you told us about.</span>
+      <div class="card">
+        <div class="opt"><span class="dot" style="border-color:#76766F"></span><div><b>Taxed as single</b><span>$9,650 a year — what we were assuming</span></div></div>
+        <div class="opt on"><span class="dot"></span><div><b>Married filing jointly</b><span>$5,720 a year</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>…and both of you over 65</b><span>$5,324 a year</span></div></div>
+      </div>
+      <p class="pre"><b>$328 a month more</b> lands in your bank than we were showing you — $361 if you are both over 65.</p>
+      <p class="info">This is a federal estimate only. It knows nothing about your state, and if your partner earns too, their income moves the band — we have not asked about that yet.</p>
+      <span class="cta">Got it</span>
+    </div>
+  </div></div>
+  <p class="note">Shown once, right after the answer, so the question feels worth having answered. Optional — say if you would rather it went straight on.</p>
+  </div>
+</div>
+
+<h2 class="sec">The rules underneath</h2>
+<p class="lede">
+1 · <b>Asked in onboarding, straight after the partner question</b> — not on Income and not on Plan. Four of the five surfaces that need it are live long before anyone opens Plan, and someone who never opens Plan would be taxed as single for ever.<br>
+2 · <b>Pre-answered from what they already told us.</b> A partner means married filing jointly is offered; no partner means single. Most people confirm rather than choose.<br>
+3 · <b>Married filing separately is its own table</b>, not a label on top of single. Every band and the deduction are half the joint figures — the statutory rule, so the two can never drift apart. It happens to match single below $384,350 of taxable income, but filing separately also blocks a Roth contribution above $10,000 and changes how much Social Security is taxed, and the app must know which it is when it models those.<br>
+4 · <b>The over-65 question is only asked of a couple.</b> For one person the birth year already answers it. Today the code counts the person alone even on a joint return — a limitation recorded in the 2026-08-20 brief as conservative; this is the moment it can be closed.<br>
+5 · <b>Every estimate still says what it cannot see.</b> Federal only, one income, no state.
+</p>
+</div>

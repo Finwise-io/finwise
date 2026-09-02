@@ -3,6 +3,7 @@
 import { applyTransaction, makeTransaction, investmentIncomeAnnual, availableCash, type Transaction, type TxnType } from '../domain/transactions';
 import { totalShares, latestClose, type PriceSeries } from '../domain/performance';
 import { retirementEarmarkedValue, type AssetAccount } from '../domain/assets';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const round2 = (n: number) => Math.round(n * 100) / 100;
 const px = (t: string, p: number): [string, PriceSeries] => [t, { ticker: t, points: [{ date: '2025-01-01', close: p }] }];
@@ -20,7 +21,7 @@ function recompute(accs: AssetAccount[], cache: Record<string, PriceSeries>): As
 const NW = (accs: AssetAccount[]) => round2(accs.reduce((t, a) => t + (a.balance || 0), 0));
 const acct = (id: string, o: Partial<AssetAccount> = {}): AssetAccount => ({ asset_id: id, label: id, tax_bucket: 'TAXABLE', balance: 0, target_return: 0.08, ...o });
 let LEDGER: Transaction[] = [];
-const TODAY = new Date().toISOString().slice(0, 10);
+const TODAY = isoLocalDate(new Date());
 function run(accs: AssetAccount[], p: Partial<Transaction>): AssetAccount[] {
   const t = makeTransaction({ date: TODAY, type: 'BUY', account_id: 'MS', ...p } as any);
   LEDGER = [t, ...LEDGER];

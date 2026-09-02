@@ -1,0 +1,217 @@
+<title>MoneyKeel — Cash flow: This month + Spending (v4, built from JJ's sheet)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5;} }
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1700px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:6px 0 8px}
+  h2.sec{font-size:19px;font-weight:800;margin:40px 0 4px}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:940px}
+  .lede b{color:var(--ink)}
+  .row{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px;align-items:flex-start}
+  .col h3{font-size:14px;font-weight:800;margin:0 0 8px}
+  .col .note{font-size:12px;color:var(--ink2);max-width:330px;margin:8px 0 0;line-height:1.5}
+  .phone{width:330px;background:#0c0d0c;border-radius:46px;padding:8px;box-shadow:0 18px 40px rgba(10,25,18,.25)}
+  .screen{background:#F6F7F5;border-radius:39px;overflow:hidden;color:#1A1A18;min-height:700px;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:11px 24px 2px;font-size:12px;font-weight:700}
+  .content{padding:6px 13px 0;flex:1}
+  .t{font-size:18px;font-weight:800;padding:4px 2px 6px;display:block}
+  .subtabs{display:flex;gap:5px;padding-bottom:7px}
+  .stab{font-size:11.5px;font-weight:700;color:#6B6B66;border:1.5px solid rgba(0,0,0,.10);border-radius:0;padding:6px 10px}
+  .stab.on{color:#0F6E56;border-color:#178F6B;background:#E1F5EE;font-weight:800}
+  /* the green bars run END TO END, square corners; rows keep the padding so every number
+     lands on ONE right edge — the same geometry as SectionBand in the app */
+  .band{background:#085041;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+        padding:7px 13px;margin:12px -13px 0;display:flex;justify-content:space-between;gap:8px}
+  .band.sub{background:#DFF2E9;color:#085041}
+  .card{background:#FFF;padding:9px 13px;margin:0 -13px}
+  .rrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(0,0,0,.09);
+        font-size:13.5px;font-variant-numeric:tabular-nums;gap:8px}
+  .rrow:first-of-type{border-top:none}
+  .rrow .sub{display:block;font-size:10.5px;color:#76766F;font-weight:400}
+  .rrow.tot{border-top:1.5px solid #1A1A18;font-weight:800}
+  .neg{color:#A32D2D}.pos{color:#006300}.dim{color:#6B6B66}
+  .pill{font-size:9px;font-weight:800;padding:1px 5px;letter-spacing:.04em;text-transform:uppercase;white-space:nowrap}
+  .pill.debt{background:#E6F1FB;color:#185FA5}.pill.act{background:#E1F5EE;color:#0F6E56}
+  .pill.due{background:#FAEEDA;color:#854F0B}.pill.imp{background:#EEEEE9;color:#3A3A36}
+  .hero{font-size:32px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+  .herosub{font-size:12px;color:#6B6B66;font-weight:700}
+  .empty{font-size:12.5px;color:#6B6B66;line-height:1.5}
+  .cta{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:800;color:#fff;background:#178F6B;padding:8px 14px}
+  .tabbar{display:flex;justify-content:space-around;border-top:1px solid rgba(0,0,0,.10);padding:7px 0 12px;background:#fff}
+  .tb{font-size:9.5px;font-weight:700;color:#76766F;text-align:center}
+  .tb.on{color:#178F6B}.tb i{display:block;font-size:15px;font-style:normal}
+  .flag{background:#E1F5EE;border-left:3px solid #178F6B;padding:10px 12px;font-size:13px;margin:14px 0;max-width:940px;line-height:1.55}
+</style>
+<div class="wrap">
+<p class="eyebrow">MoneyKeel · mock for approval · 2026-08-26 · v4</p>
+<h1>Cash flow — This month and Spending</h1>
+<p class="lede">Built row for row from <b>cashflow-thismonth+spending-screen-jj.xlsx</b>, with the two surplus figures corrected: the HELOC and the manually-entered card payment are now deducted, so <b>planned surplus is 350</b> (was 750) and <b>actual surplus is 900</b> (was 1,300).</p>
+
+<div class="flag"><b>The one rule that keeps it honest.</b> A credit-card payment is counted <i>either</i> as the payment <i>or</i> as the purchases it paid for — never both. When the card is connected we count the <b>imported purchases</b> and the payment is only a radar note. When it is not connected we count the <b>payment</b>, because that is the only record of that spending.</div>
+
+<h2 class="sec">1 · This month</h2>
+<div class="row">
+
+  <div class="col"><h3>A · with data</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Planned · August</span><span>+$350</span></div>
+      <div class="card">
+        <div class="rrow"><span>In (take-home) <span class="sub">after tax and 401(k)</span></span><b>$5,000</b></div>
+        <div class="rrow"><span class="dim">Mortgage payment <span class="pill debt">debt</span></span><span class="dim">−$2,000</span></div>
+        <div class="rrow"><span class="dim">Car payment <span class="pill debt">debt</span></span><span class="dim">−$250</span></div>
+        <div class="rrow"><span class="dim">Expenses <span class="sub">your spending plan</span></span><span class="dim">−$2,000</span></div>
+        <div class="rrow"><span class="dim">HELOC <span class="sub">from big-ticket radar</span></span><span class="dim">−$200</span></div>
+        <div class="rrow"><span class="dim">Credit card payment <span class="sub">manually entered</span></span><span class="dim">−$200</span></div>
+        <div class="rrow tot"><span>= Planned surplus</span><span class="pos">+$350</span></div>
+      </div>
+
+      <div class="band"><span>Actual · so far</span><span>+$900</span></div>
+      <div class="card">
+        <div class="rrow"><span>In (take-home) received</span><b>$5,000</b></div>
+        <div class="rrow"><span class="dim">Mortgage <span class="pill act">paid</span></span><span class="dim">−$2,000</span></div>
+        <div class="rrow"><span class="dim">Car loan <span class="pill due">due 28th</span></span><span class="dim">$0</span></div>
+        <div class="rrow"><span class="dim">Expenses entered by hand</span><span class="dim">−$500</span></div>
+        <div class="rrow"><span class="dim">Expenses imported from your card <span class="pill imp">imported</span></span><span class="dim">−$1,200</span></div>
+        <div class="rrow"><span class="dim">HELOC <span class="sub">from big-ticket radar</span></span><span class="dim">−$200</span></div>
+        <div class="rrow"><span class="dim">Credit card payment <span class="sub">manually entered</span></span><span class="dim">−$200</span></div>
+        <div class="rrow tot"><span>= Actual surplus so far</span><span class="pos">+$900</span></div>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Every row on both sides is deducted — nothing is shown without being counted. The car loan is unpaid, so it is $0 in Actual with its due date, never silently dropped.</p>
+  </div>
+
+  <div class="col"><h3>B · fresh account — no plan set</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Planned · August</span><span>—</span></div>
+      <div class="card">
+        <div class="rrow"><span>In (take-home)</span><b>$5,000</b></div>
+        <div class="rrow"><span class="dim">Mortgage payment <span class="pill debt">debt</span></span><span class="dim">−$2,000</span></div>
+        <div class="rrow"><span class="dim">Car payment <span class="pill debt">debt</span></span><span class="dim">−$250</span></div>
+        <div class="rrow"><span class="dim">Expenses</span><span class="dim">— not set</span></div>
+        <p class="empty" style="margin:9px 0 0">Your debts are here, but you haven’t said what you plan to spend. Until you do there is no planned surplus — we won’t guess one.</p>
+        <span class="cta">Plan your spending</span>
+      </div>
+
+      <div class="band"><span>Actual · so far</span><span>+$3,000</span></div>
+      <div class="card">
+        <div class="rrow"><span>In (take-home) received</span><b>$5,000</b></div>
+        <div class="rrow"><span class="dim">Mortgage <span class="pill act">paid</span></span><span class="dim">−$2,000</span></div>
+        <div class="rrow"><span class="dim">Car loan <span class="pill due">due 28th</span></span><span class="dim">$0</span></div>
+        <div class="rrow"><span class="dim">Expenses entered by hand</span><span class="dim">$0</span></div>
+        <div class="rrow tot"><span>= Actual surplus so far</span><span class="pos">+$3,000</span></div>
+        <p class="empty" style="margin:9px 0 0">Nothing logged yet, and no card connected. Connect a card and your purchases arrive here on their own.</p>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note"><b>The state that caused the bug.</b> No categories itemised. The old screen printed “Spent $45 of $0 planned”; this says <b>not set</b> and offers the way to set it. Actual still works — it needs no plan.</p>
+  </div>
+</div>
+
+<h2 class="sec">2 · Spending</h2>
+<div class="row">
+
+  <div class="col"><h3>C · with data</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Monthly recurring expenses</span><span>$2,250</span></div>
+      <div class="card">
+        <div class="rrow"><span>Mortgage payment <span class="sub">same every month</span></span><b>$2,000</b></div>
+        <div class="rrow"><span>Car payment <span class="sub">same every month</span></span><b>$250</b></div>
+      </div>
+
+      <div class="band"><span>Planned expenses</span><span>$2,000</span></div>
+      <div class="card">
+        <div class="rrow"><span>Gas</span><b>$200</b></div>
+        <div class="rrow"><span>Grocery</span><b>$900</b></div>
+        <div class="rrow"><span>Utilities</span><b>$200</b></div>
+        <div class="rrow"><span>Other</span><b>$700</b></div>
+        <div class="rrow tot"><span>= Total</span><span>$2,000</span></div>
+      </div>
+
+      <div class="band"><span>Actual expenses</span><span>$2,100</span></div>
+      <div class="card">
+        <div class="rrow"><span>Entered by hand <span class="sub">receipts and typed</span></span><b>$500</b></div>
+        <div class="rrow"><span>Imported from your card <span class="pill imp">imported</span></span><b>$1,200</b></div>
+        <div class="rrow"><span>HELOC payment <span class="sub">counted as an expense</span></span><b>$200</b></div>
+        <div class="rrow"><span>Credit card payment <span class="sub">manually entered · counted as an expense</span></span><b>$200</b></div>
+        <div class="rrow tot"><span>= Actual expenses</span><span>$2,100</span></div>
+      </div>
+
+      <div class="band sub"><span>Big-ticket radar</span><span></span></div>
+      <div class="card">
+        <div class="rrow"><span>Credit card payment <span class="pill debt">debt</span><span class="sub">connected card · NOT counted as an expense — the $1,200 of purchases above is</span></span><span class="dim">$1,200</span></div>
+        <div class="rrow"><span>HELOC payment <span class="pill debt">debt</span><span class="sub">counted as an expense</span></span><b>$200</b></div>
+        <div class="rrow"><span>Credit card payment <span class="pill debt">debt</span><span class="sub">manually entered · counted as an expense — we cannot match it to receipts</span></span><b>$200</b></div>
+        <p class="empty" style="margin:8px 0 0">Your mortgage and car loan never appear here. They are the same every month, and a warning you see every month stops being a warning.</p>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Actual expenses splits by where it came from — <b>by hand</b> and <b>imported</b> — so you can see what the card brought in. The radar says of each item whether it is counted, so nobody adds it up twice in their head.</p>
+  </div>
+
+  <div class="col"><h3>D · fresh account</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Monthly recurring expenses</span><span>$2,250</span></div>
+      <div class="card">
+        <div class="rrow"><span>Mortgage payment</span><b>$2,000</b></div>
+        <div class="rrow"><span>Car payment</span><b>$250</b></div>
+      </div>
+
+      <div class="band"><span>Planned expenses</span><span>—</span></div>
+      <div class="card">
+        <p class="empty">You haven’t planned your spending yet. This is what every “of $X planned” on any screen is measured against.</p>
+        <span class="cta">Plan your spending</span>
+      </div>
+
+      <div class="band"><span>Actual expenses</span><span>$0</span></div>
+      <div class="card">
+        <p class="empty">Nothing logged this month. Connect a card and purchases arrive on their own, or add a receipt by hand.</p>
+        <span class="cta">Log an expense</span>
+      </div>
+
+      <div class="band sub"><span>Big-ticket radar</span><span></span></div>
+      <div class="card"><p class="empty">Nothing unusual. Regular debt payments never appear here — only a card or HELOC payment, or a bill well above its usual size.</p></div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Every section keeps its heading when empty, so the shape of the screen never changes — only what is in it.</p>
+  </div>
+</div>
+
+<h2 class="sec">The rules underneath</h2>
+<p class="lede">
+1 · <b>Every row shown is a row deducted.</b> Nothing appears on This month without being in the sum — that was the error in the sheet, and it is what the surplus test will pin.<br>
+2 · <b>A card payment is counted once.</b> Connected card → the imported purchases are the expense, the payment is a radar note only. Not connected → the payment IS the expense.<br>
+3 · <b>Recurring debt is never a radar item.</b> Installment debt (mortgage, car) is the same every month; revolving (credit card, HELOC) and a due-in-full lump always are.<br>
+4 · <b>The radar never deducts.</b> It is a lens on rows already counted, and each item says whether it is counted.<br>
+5 · <b>Nothing is guessed.</b> No plan set → “not set”, never $0 dressed as an answer.<br>
+6 · <b>It adds up on the page.</b> 5000−2000−250−2000−200−200 = 350 · 5000−2000−0−500−1200−200−200 = 900 · 200+900+200+700 = 2000 · 500+1200+200+200 = 2100.
+</p>
+</div>

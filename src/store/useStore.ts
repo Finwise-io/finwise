@@ -37,6 +37,7 @@ import { buildDayFromAccounts, record as recordSnapshotDay, prune as pruneSnapsh
 import { newEntityId } from '../domain/_shared/ids';
 import { goalsFromOnboarding } from '../domain/goals';
 import { setMoneyFormat, CURRENCIES } from '../domain/_shared/money';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 export type IncomeEntry = {
   id: string;
@@ -562,7 +563,10 @@ export const useStore = create<AppState>()(
       // ── Onboarding actions ───────────────────────────────────────
       setEmploymentStatus: (s) => set({ employmentStatus: s }),
       setOnboardingDraft: (d) => set({ onboardingDraft: d }),
-      setOnboardingProfile: (p) => set({ onboardingProfile: p }),
+      // The take-home mode is converted here, once, on its way in — so no screen and no function
+      // below this line ever sees it again. See take-home-mode-migration.ts for why.
+      setOnboardingProfile: (p) => set({ onboardingProfile: p
+        ? require('../domain/income/take-home-mode-migration').convertTakeHomeMode(p) : p }),
       setSelectedGoals: (goals) => set({ selectedGoals: goals }),
       setBudgetFrequency: (f) => set({ budgetFrequency: f }),
       setPayFrequency: (f) => set({ payFrequency: f }),
@@ -843,7 +847,7 @@ export const useStore = create<AppState>()(
       })),
       setRetirementAssumptions: (patch) => set((s) => ({ retirementAssumptions: { ...s.retirementAssumptions, ...patch } })),
       adoptPlan: (patch, label) => set((s) => ({
-        planHistory: [{ snapshot: { ...s.retirementAssumptions }, label, date: new Date().toISOString().slice(0, 10) }, ...s.planHistory].slice(0, 5),
+        planHistory: [{ snapshot: { ...s.retirementAssumptions }, label, date: isoLocalDate(new Date()) }, ...s.planHistory].slice(0, 5),
         retirementAssumptions: { ...s.retirementAssumptions, ...patch },
       })),
       revertPlan: () => set((s) => {

@@ -21,6 +21,30 @@ const MAX_SAVING = 5_000_000;        // ditto, per year
 
 /** Smallest x in [lo, hi] where reaching(x) is true, to `tol`. The odds rise monotonically with
  *  money, so a plain bisection is exact enough — and deterministic, because the seed never moves. */
+/* ─ MK-PL-F-070 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * smallestThatWorks
+ *
+ * Answers ..... Smallest x in [lo, hi] where reaching(x) is true, to `tol`.
+ *
+ * Formula .....
+ *     lo   when works(lo)
+ *     nothing   when !works(hi)
+ *     a = lo, b = hi
+ *     mid = (a + b) ÷ 2
+ *     the answer = b
+ *
+ * Called by ... MK-PL-F-040 targetAtRetirement · MK-PL-F-041 requiredAnnualSaving
+ *               MK-PL-F-042 savingToReachTarget
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-044 planTarget · MK-PL-F-041 requiredAnnualSaving
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-040 targetAtRetirement
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-070
+ * Changed ..... not in git yet (—)
+ */
 function smallestThatWorks(lo: number, hi: number, tol: number, works: (x: number) => boolean): number | null {
   if (works(lo)) return lo;
   if (!works(hi)) return null;                 // even the ceiling fails — no answer exists
@@ -32,11 +56,54 @@ function smallestThatWorks(lo: number, hi: number, tol: number, works: (x: numbe
   return b;
 }
 
+/* ─ MK-PL-F-071 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * oddsOf
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     simulate(inp).chance of success
+ *
+ * Called by ... MK-PL-F-040 targetAtRetirement · MK-PL-F-041 requiredAnnualSaving
+ *               MK-PL-F-046 leverDeltas
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-046 leverDeltas · MK-PL-F-044 planTarget
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-040 targetAtRetirement
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-071
+ * Changed ..... not in git yet (—)
+ */
 const oddsOf = (inp: RetirementInputs) => simulate(inp).chance_of_success;
 
 /** THE TARGET: the balance on day one of retirement that reaches TARGET_ODDS.
  *  Modelled as a plan that starts the day they retire — no more contributions, just the pot and
  *  the years it has to cover. That is what "I need $2M to retire" actually means. */
+/* ─ MK-PL-F-040 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * targetAtRetirement
+ *
+ * Answers ..... THE TARGET: the balance on day one of retirement that reaches TARGET_ODDS.
+ *
+ * Formula .....
+ *     found = smallest that works(0, MAX_TARGET, 5000, (x) => odds of(at retirement(x)) ≥ TARGET_ODDS)
+ *     the answer:
+ *     nothing   if found = nothing
+ *     round up(found ÷ 10000) × 10000   otherwise
+ *
+ * Called by ... MK-PL-F-044 planTarget
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-044 planTarget
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-040
+ * Changed ..... 2026-08-13 (8ac5226)
+ */
 export function targetAtRetirement(base: RetirementInputs): number | null {
   const atRetirement = (startBalance: number): RetirementInputs => ({
     ...base,
@@ -56,6 +123,34 @@ export function targetAtRetirement(base: RetirementInputs): number | null {
 /** THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan —
  *  the one with their age, their years left, their spending, their big costs. Returned as the
  *  EXTRA over what they already put away, because that is the number a person can act on. */
+/* ─ MK-PL-F-041 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * requiredAnnualSaving
+ *
+ * Answers ..... THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan — the one with their age, their years left, their spending, their big costs.
+ *
+ * Formula .....
+ *     with saving = (annual: number): retirement inputs => ({ ...base, annual contribution: annual })
+ *     found = smallest that works(0, MAX_SAVING, 500, (x) => odds of(with saving(x)) ≥ TARGET_ODDS)
+ *     nothing   when found = nothing
+ *     total = round up(found ÷ 500) × 500
+ *     the answer:
+ *     total = total
+ *     extra = max(0, total − (base.annual contribution ?? 0))
+ *
+ * Called by ... MK-PL-F-044 planTarget
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-044 planTarget
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If annual contribution is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-041
+ * Changed ..... 2026-08-15 (5670c43)
+ */
 export function requiredAnnualSaving(base: RetirementInputs): { total: number; extra: number } | null {
   const withSaving = (annual: number): RetirementInputs => ({ ...base, annual_contribution: annual });
   const found = smallestThatWorks(0, MAX_SAVING, 500, (x) => oddsOf(withSaving(x)) >= TARGET_ODDS);
@@ -86,6 +181,33 @@ export function requiredAnnualSaving(base: RetirementInputs): { total: number; e
  *  promised to reach, because the projection is a simulated median rather than a smooth compounding
  *  curve. Measured on Pat: the formula gives $82,000 and lands $22,000 SHORT. So: search, then round
  *  UP — the returned figure must actually reach the target and one step lower must miss. */
+/* ─ MK-PL-F-042 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * savingToReachTarget
+ *
+ * Answers ..... The yearly saving whose PROJECTION reaches a typed target.
+ *
+ * Formula .....
+ *     found = smallest that works(0, MAX_SAVING, 500, (x) => projected with(x) ≥ typed target)
+ *     nothing   when found = nothing
+ *     total = round up(found ÷ 500) × 500
+ *     the answer:
+ *     total = total
+ *     extra = max(0, total − (base.annual contribution ?? 0))
+ *
+ * Called by ... MK-PL-F-044 planTarget
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-044 planTarget
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If annual contribution is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-042
+ * Changed ..... 2026-08-15 (5670c43)
+ */
 export function savingToReachTarget(base: RetirementInputs, typedTarget: number): { total: number; extra: number } | null {
   const projectedWith = (annual: number) =>
     simulate({ ...base, annual_contribution: annual }).projected_at_retirement;
@@ -100,6 +222,29 @@ export function savingToReachTarget(base: RetirementInputs, typedTarget: number)
  *
  *  Pat's own reading of the first draft: "$77,500 x 7 = $542,500, so how does that close $1,090,848?"
  *  It does not. Growth does nearly half the work, and the sentence never said growth existed. */
+/* ─ MK-PL-F-043 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * howTheGapCloses
+ *
+ * Answers ..... Where the money to close the gap actually comes from — the breakdown that stops a person subtracting and concluding the app cannot add up (founder, 2026-08-14).
+ *
+ * Formula .....
+ *     years = max(0, base.retire age − base.current age)
+ *     no saving = round(simulate({ ...base, annual contribution: 0 }).projected at retirement)
+ *     with saving = round(simulate({ ...base, annual contribution: total annual saving }).projected at retirement)
+ *     put in = total annual saving × years
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-043
+ * Changed ..... 2026-08-15 (5670c43)
+ */
 export function howTheGapCloses(base: RetirementInputs, totalAnnualSaving: number): {
   growthOnExisting: number; putIn: number; growthOnNew: number; projectsTo: number;
 } {
@@ -136,6 +281,41 @@ export interface PlanTarget {
 /** One call, everything the second gauge and the bridge sentence need.
  *  `annualIncome` decides the impossible state — a required saving larger than what someone earns
  *  is a real answer, but it is never "the ask" (founder 2026-08-12). */
+/* ─ MK-PL-F-044 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * planTarget
+ *
+ * Answers ..... One call, everything the second gauge and the bridge sentence need.
+ *
+ * Formula .....
+ *     sim = simulate(base)
+ *     odds = sim.chance of success
+ *     projected = round(sim.projected at retirement)
+ *     already there = odds ≥ TARGET_ODDS
+ *     target = target at retirement(base)
+ *     typed = typed target   if typed target ≠ nothing and typed target > 0
+ *     nothing   otherwise
+ *     saving to target = nothing   if typed = nothing
+ *     saving to reach target(base, typed)   otherwise
+ *     saving = total = base.annual contribution (or 0 when missing)
+ *     extra = 0   if already there
+ *     required annual saving(base)   otherwise
+ *     extra = saving.extra (or nothing when missing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If annual contribution is missing it uses 0.
+ *     · Treats a year as twelve equal months.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-044
+ * Changed ..... 2026-08-15 (5670c43)
+ */
 export function planTarget(base: RetirementInputs, annualIncome?: number, roomAnnual?: number, typedTarget?: number | null): PlanTarget {
   const sim = simulate(base);
   const odds = sim.chance_of_success;
@@ -177,10 +357,60 @@ export interface Lever { key: string; label: string; points: number; apply: Part
 
 /** Social Security pays roughly 8% more for each year you delay past full retirement age — the
  *  claim-later lever has to raise the CHECK, not just move its start date. */
+/* ─ MK-PL-F-045 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * ssUpliftFactor
+ *
+ * Answers ..... Social Security pays roughly 8% more for each year you delay past full retirement age — the claim-later lever has to raise the CHECK, not just move its start date.
+ *
+ * Formula .....
+ *     1 + 0.08 × max(0, to age − from age)
+ *
+ * Called by ... MK-PL-F-046 leverDeltas
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-046 leverDeltas
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-045
+ * Changed ..... 2026-08-12 (20ec5e5)
+ */
 export function ssUpliftFactor(fromAge: number, toAge: number): number {
   return 1 + 0.08 * Math.max(0, toAge - fromAge);
 }
 
+/* ─ MK-PL-F-046 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * leverDeltas
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     base odds = odds of(base)
+ *     later = opts.retire later years (or 2 when missing)
+ *     cut = opts.spend cut monthly (or 400 when missing)
+ *     claim = opts.claim age (or 70 when missing)
+ *     from = base.guaranteed start age (or base.retire age when missing)
+ *     ss now = ss stream of(base).monthly (or base.guaranteed monthly income (or 0 when missing) when missing)
+ *     uplifted = with ss stream(base, math.round(ss now × ss uplift factor(from, claim)), claim)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-036 other guaranteed income
+ *
+ * Decides .....
+ *     · If retire later years is missing it uses 2.
+ *     · If spend cut monthly is missing it uses 400.
+ *     · If claim age is missing it uses 70.
+ *     · If guaranteed monthly income is missing it uses 0.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-046
+ * Changed ..... 2026-08-12 (20ec5e5)
+ */
 export function leverDeltas(base: RetirementInputs, opts: { spendCutMonthly?: number; retireLaterYears?: number; claimAge?: number } = {}): Lever[] {
   const baseOdds = oddsOf(base);
   const later = opts.retireLaterYears ?? 2;

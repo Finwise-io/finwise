@@ -44,8 +44,95 @@ export interface Transaction {
                               // never drift; rows recorded before this field use inverseOf()).
 }
 
+/* ─ MK-CF-F-132 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * map
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     asset account) =>
+ *
+ * Called by ... MK-CF-F-008 spendByMonth · MK-CF-F-011 savingsByMonth
+ *               MK-CF-F-014 budgetVsActual · MK-CF-F-019 upcomingBills
+ *               MK-CF-F-020 cashflowYear · MK-CF-F-034 payoffPlan
+ *               MK-CF-F-049 buildIncomeState · MK-CF-F-064 equityCashFlow
+ *               MK-CF-F-065 equityVestWeights · MK-CF-F-066 rsuAnnual
+ *               MK-CF-F-067 rentalList · MK-CF-F-079 incomeFromOnboarding
+ *               MK-CF-F-087 monthlyTaxRates · MK-CF-F-088 taxableByCalendarMonth
+ *               MK-CF-F-092 incomeMonthlyGrid · MK-CF-F-098 progressiveMonthlyTax
+ *               MK-CF-F-107 buildPaycheckYear · MK-CF-F-109 reviewTransactions
+ *               MK-CF-F-111 applyTransaction · MK-CF-F-114 undoSnapshot
+ *               MK-CF-F-115 restoreUndo · MK-CF-F-138 addLot
+ *               MK-CF-F-139 removeShares · MK-CF-F-142 monthsOf
+ *               MK-CF-F-146 payFiguresAgree · MK-CF-F-149 recurringDebtPayments
+ *               MK-CF-F-157 debtPaymentsByDebt · MK-CF-F-168 salaryWindow
+ *               MK-CF-F-176 sumMonthsOverEarners · MK-CF-F-177 wageGrossByMonth
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
+ *               MK-HM-F-001 buildInsights · MK-NW-F-026 accountDisplayNames
+ *               MK-NW-F-039 buildAssetsState · MK-NW-F-046 historyCoverage
+ *               MK-NW-F-048 uberGroupRows · MK-NW-F-052 buildItemizedAccounts
+ *               MK-NW-F-054 reclassifyAccounts · MK-NW-F-061 bondSummary
+ *               MK-NW-F-068 prettyDay · MK-PF-F-012 earliestPurchaseDate
+ *               MK-PF-F-014 buildPerformance · MK-PF-F-016 attribution
+ *               MK-PF-F-017 allocation · MK-PF-F-018 portfolioTrend
+ *               MK-PL-F-004 withdrawalOrder · MK-PL-F-009 rmdTakenThisYear
+ *               MK-PL-F-011 buildGoalsState · MK-PL-F-013 goalsFromOnboarding
+ *               MK-PL-F-016 availableToSaveSummary · MK-PL-F-018 monthsUntil
+ *               MK-PL-F-031 taxOrganizer · MK-PL-F-037 trimHints
+ *               MK-PL-F-046 leverDeltas · MK-PL-F-050 simulate
+ *               MK-PL-F-055 projectNestEgg · MK-PL-F-067 willItLastInputs
+ *               MK-ST-F-002 monthWords · MK-ST-F-003 dayWords
+ *               MK-ST-F-010 nameEvidence · MK-ST-F-016 totalOf
+ *               MK-ST-F-020 sumSigned · MK-ST-F-022 reconcileAccountTotal
+ *               MK-ST-F-029 prune · MK-ST-F-061 isMonthEnd
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-005 trendPoints · MK-XS-F-009 readHistory
+ *               MK-XS-F-015 importHoldings · MK-XS-F-028 surplusByMonth
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-058 parseReceipt
+ *               MK-XS-F-083 fetchPriceSeries · MK-XS-F-094 parseReceiptText
+ *               MK-XS-F-102 ingestSync · MK-XS-F-103 confirmWrapper
+ *               MK-XS-F-105 mapPosition · MK-XS-F-111 mergeHistoryFrom
+ *               MK-XS-F-116 runSnapTradeSync · MK-XS-F-129 findHeaderRow
+ *               MK-XS-F-146 prettyExpiry
+ *
+ * Reaches ..... 181 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-026 accountDisplayNames · MK-CF-F-005 actualMonthFlow
+ *               MK-CF-F-138 addLot · MK-PF-F-017 allocation
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-CF-F-012 annualCashflow · MK-CF-F-143 annualisedGross
+ *               MK-CF-F-111 applyTransaction · MK-NW-F-029 assetAllocation
+ *               MK-XS-F-172 assetClassForSymbol · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-PF-F-016 attribution
+ *               MK-PL-F-016 availableToSaveSummary · MK-CF-O-001 basePay
+ *               … and 163 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-132
+ * Changed ..... not in git yet (—)
+ */
 const map = (accs: AssetAccount[], id: EntityId, fn: (a: AssetAccount) => AssetAccount) =>
   accs.map((a) => (a.asset_id === id ? fn(a) : a));
+/* ─ MK-CF-F-133 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * cashOf
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     cash balance (or 0 when missing or zero)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-133
+ * Changed ..... not in git yet (—)
+ */
 const cashOf = (a: AssetAccount) => a.cash_balance || 0;
 // Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash
 // accounts (checking/savings) and property hold their money in `balance`. Moving cash must hit the
@@ -53,9 +140,81 @@ const cashOf = (a: AssetAccount) => a.cash_balance || 0;
 // The sleeve exists ONLY on ledger-managed accounts (derive_balance, or a sleeve already present) —
 // the SAME rule recomputeBalances uses. Bumping a phantom sleeve on a manual-balance IRA made
 // recompute REPLACE the entered $310k with the sleeve's −$5k (P1, caught by the RMD screen's test).
+/* ─ MK-CF-F-134 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * usesSleeve
+ *
+ * Answers ..... Where an account's spendable cash lives: investment accounts use the cash_balance SLEEVE; cash accounts (checking/savings) and property hold their money in `balance`.
+ *
+ * Formula .....
+ *     tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
+ *
+ * Called by ... MK-CF-F-135 availableCash · MK-CF-F-136 bumpCash
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-111 applyTransaction · MK-CF-F-135 availableCash
+ *               MK-CF-F-136 bumpCash
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-134
+ * Changed ..... not in git yet (—)
+ */
 const usesSleeve = (a: AssetAccount) => a.tax_bucket !== 'CASH' && a.tax_bucket !== 'PROPERTY'
   && (a.derive_balance === true || a.cash_balance != null);
+/* ─ MK-CF-F-135 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * availableCash
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     cash balance (or 0 when missing or zero)   if uses sleeve(a)
+ *     balance (or 0 when missing or zero)   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-135
+ * Changed ..... not in git yet (—)
+ */
 const availableCash = (a: AssetAccount) => (usesSleeve(a) ? (a.cash_balance || 0) : (a.balance || 0));
+/* ─ MK-CF-F-136 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * bumpCash
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     ...a = ...a
+ *     cash balance = round((cash balance or 0) + delta, 2 dp)   when uses sleeve(a)
+ *     itemised = (positions.length ?? 0) > 0 and tax bucket ! = 'CASH' and tax bucket ! = 'PROPERTY'
+ *     the answer:
+ *     ...a = ...a
+ *     balance = round((balance or 0) + delta, 2 dp)
+ *
+ * Called by ... MK-CF-F-111 applyTransaction
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-111 applyTransaction
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *
+ * Decides .....
+ *     · If length is missing it uses 0.
+ *     · If cash balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-136
+ * Changed ..... not in git yet (—)
+ */
 function bumpCash(a: AssetAccount, delta: number): AssetAccount {
   if (usesSleeve(a)) return { ...a, cash_balance: round2((a.cash_balance || 0) + delta) };
   // FOUNDER FINDING 2026-08-11 ("$500 is what I added manually as a deposit — it never asked if it
@@ -77,10 +236,65 @@ function bumpCash(a: AssetAccount, delta: number): AssetAccount {
   }
   return { ...a, balance: round2((a.balance || 0) + delta) };
 }
+/* ─ MK-CF-F-137 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * findPos
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-CF-F-111 applyTransaction · MK-CF-F-138 addLot
+ *               MK-CF-F-139 removeShares
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-138 addLot · MK-CF-F-111 applyTransaction
+ *               MK-CF-F-139 removeShares
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-137
+ * Changed ..... not in git yet (—)
+ */
 const findPos = (a: AssetAccount, t: Transaction) =>
   (a.positions ?? []).find((p) => (t.position_id && p.position_id === t.position_id) || (t.ticker && p.ticker === t.ticker?.toUpperCase()));
 
 /** Add shares to a position (creating it if needed) at a cost basis — used by BUY and reinvested dividends. */
+/* ─ MK-CF-F-138 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * addLot
+ *
+ * Answers ..... Add shares to a position (creating it if needed) at a cost basis — used by BUY and reinvested dividends.
+ *
+ * Formula .....
+ *     lot = lot id = new entity id('lot')
+ *     shares = shares
+ *     cost per share = cost per share
+ *     purchase date = date
+ *     existing = find pos(a, t)
+ *     the answer:
+ *     ...a = ...a
+ *     positions = for each of positions (or none when missing): ...each = ...each
+ *     lots = [...lots, lot]   if each = existing
+ *     each   otherwise
+ *     pos = position id = new entity id('pos')
+ *     ticker = (ticker ?? '').to upper case()
+ *     kind = kind
+ *     lots = [lot]
+ *
+ * Called by ... MK-CF-F-111 applyTransaction
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-111 applyTransaction
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-138
+ * Changed ..... not in git yet (—)
+ */
 function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: number): AssetAccount {
   const lot = { lot_id: newEntityId('lot'), shares, cost_per_share: costPerShare, purchase_date: t.date };
   const existing = findPos(a, t);
@@ -92,6 +306,34 @@ function addLot(a: AssetAccount, t: Transaction, shares: number, costPerShare: n
 }
 
 /** Remove `shares` from a position FIFO (oldest lots first); returns updated account. */
+/* ─ MK-CF-F-139 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * removeShares
+ *
+ * Answers ..... Remove `shares` from a position FIFO (oldest lots first); returns updated account.
+ *
+ * Formula .....
+ *     pos = find pos(a, t)
+ *     a   when pos is missing
+ *     remaining = shares
+ *     lots = for each of pos.lots: { ...each }
+ *     take = min(shares, remaining)
+ *     kept = lots where shares > 1e − 9
+ *     the answer = { ...a, positions }
+ *
+ * Called by ... MK-CF-F-111 applyTransaction
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-111 applyTransaction
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-139
+ * Changed ..... not in git yet (—)
+ */
 function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAccount {
   const pos = findPos(a, t);
   if (!pos) return a;
@@ -111,6 +353,38 @@ function removeShares(a: AssetAccount, t: Transaction, shares: number): AssetAcc
 }
 
 /** Apply one transaction to the accounts (pure). The ledger append is the caller's job. */
+/* ─ MK-CF-F-111 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * applyTransaction
+ *
+ * Answers ..... Apply one transaction to the accounts (pure).
+ *
+ * Formula .....
+ *     the answer = accounts
+ *     amt = amount (or 0 when missing or zero)
+ *     out = map(accounts, account id, (a) => bump cash(a, -amt))
+ *     src = accounts.find((a) => asset id = account id)
+ *     pos = src and find pos(src, t)
+ *     accounts   when src is missing (or pos is missing (or counter account id is missing when missing or zero) when missing or zero)
+ *     out = map(accounts, account id, (a) => ({ ...a, positions: (positions ?? []).filter((p) => p ! = pos) }))
+ *     map(accounts, account id, (a) => (find pos(a, t) ? add lot(a, t, shares!, price!) : a))   when reinvested and shares and price
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-008 transaction amount
+ *
+ * Decides .....
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-111
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function applyTransaction(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
   switch (t.type) {
     case 'ADJUSTMENT':
@@ -166,6 +440,27 @@ export function applyTransaction(accounts: AssetAccount[], t: Transaction): Asse
 export { availableCash };
 
 /** Build a full transaction (id + created_at) from a partial. */
+/* ─ MK-CF-F-112 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * makeTransaction
+ *
+ * Answers ..... Build a full transaction (id + created_at) from a partial.
+ *
+ * Formula .....
+ *     ...p = ...p
+ *     ticker = ticker.to upper case()
+ *     id = new entity id('txn')
+ *     created at = the date ).to isostring(
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-112
+ * Changed ..... 2026-07-12 (db079fe)
+ */
 export function makeTransaction(p: Omit<Transaction, 'id' | 'created_at'>): Transaction {
   return { ...p, ticker: p.ticker?.toUpperCase(), id: newEntityId('txn'), created_at: new Date().toISOString() };
 }
@@ -177,17 +472,73 @@ export function makeTransaction(p: Omit<Transaction, 'id' | 'created_at'>): Tran
 // existed fall back to a synthetic opposite transaction (cash-delta types only).
 
 /** The account ids a transaction can touch. */
+/* ─ MK-CF-F-113 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * affectedAccountIds
+ *
+ * Answers ..... The account ids a transaction can touch.
+ *
+ * Formula .....
+ *     [account id, counter account id]   if counter account id
+ *     [account id]   otherwise
+ *
+ * Called by ... MK-CF-F-114 undoSnapshot
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-114 undoSnapshot
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-113
+ * Changed ..... 2026-07-12 (db079fe)
+ */
 export function affectedAccountIds(t: Transaction): EntityId[] {
   return t.counter_account_id ? [t.account_id, t.counter_account_id] : [t.account_id];
 }
 
 /** Deep copies of the affected accounts, taken BEFORE applyTransaction. */
+/* ─ MK-CF-F-114 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * undoSnapshot
+ *
+ * Answers ..... Deep copies of the affected accounts, taken BEFORE applyTransaction.
+ *
+ * Formula .....
+ *     ids = a list with no repeats of affected account ids(t)
+ *     the answer = accounts where ids.has(asset id)for each of : JSON.parse(JSON.stringify(each))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-114
+ * Changed ..... 2026-07-12 (db079fe)
+ */
 export function undoSnapshot(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
   const ids = new Set(affectedAccountIds(t));
   return accounts.filter((a) => ids.has(a.asset_id)).map((a) => JSON.parse(JSON.stringify(a)));
 }
 
 /** Restore the affected accounts to the transaction's pre-apply copies (pure). */
+/* ─ MK-CF-F-115 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * restoreUndo
+ *
+ * Answers ..... Restore the affected accounts to the transaction's pre-apply copies (pure).
+ *
+ * Formula .....
+ *     by id = a lookup of for each of undo prev (or none when missing): [asset id, each]
+ *     the answer:
+ *     for each of accounts: JSON.parse(JSON.stringify(by id.get(asset id)))   if by id.has(asset id)
+ *     each   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-115
+ * Changed ..... 2026-07-12 (db079fe)
+ */
 export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAccount[] {
   const byId = new Map((t.undo_prev ?? []).map((a) => [a.asset_id, a]));
   return accounts.map((a) => (byId.has(a.asset_id) ? JSON.parse(JSON.stringify(byId.get(a.asset_id))) : a));
@@ -196,6 +547,28 @@ export function restoreUndo(accounts: AssetAccount[], t: Transaction): AssetAcco
 /** Legacy fallback for rows recorded before undo_prev: a synthetic opposite transaction.
  *  Only pure cash-delta types are safely invertible; lot-touching and absolute types (BUY, SELL,
  *  the OPENING types, TRANSFER_IN_KIND, reinvested income) return null — those need the snapshot. */
+/* ─ MK-CF-F-116 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * inverseOf
+ *
+ * Answers ..... Legacy fallback for rows recorded before undo_prev: a synthetic opposite transaction.
+ *
+ * Formula .....
+ *     base = ...t = ...t
+ *     id = new entity id('txn')
+ *     note = `reversal of ${id}`
+ *     the answer:
+ *     nothing   if reinvested
+ *     ...base = ...base
+ *     type = 'WITHDRAWAL'   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-116
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function inverseOf(t: Transaction): Transaction | null {
   const base: Transaction = { ...t, id: newEntityId('txn'), note: `reversal of ${t.id}` };
   switch (t.type) {
@@ -221,9 +594,46 @@ const TYPE_LABEL: Record<TxnType, string> = {
   DEPOSIT: 'Deposit', WITHDRAWAL: 'Withdrawal', TRANSFER: 'Transfer', TRANSFER_IN_KIND: 'Transfer shares', ADJUSTMENT: 'Broker adjustment',
   DIVIDEND: 'Dividend', INTEREST: 'Interest', COUPON: 'Coupon', FEE: 'Fee',
 };
+/* ─ MK-CF-F-117 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * txnLabel
+ *
+ * Answers ..... What do we call this kind of row on screen?
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-117
+ * Changed ..... 2026-07-29 (13c9be6)
+ */
 export function txnLabel(t: TxnType): string { return TYPE_LABEL[t] ?? t; }
 
 /** Signed cash effect on the primary account (for display). */
+/* ─ MK-CF-F-118 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * cashEffect
+ *
+ * Answers ..... Signed cash effect on the primary account (for display).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-008 transaction amount
+ *
+ * Decides .....
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-118
+ * Changed ..... 2026-07-29 (13c9be6)
+ */
 export function cashEffect(t: Transaction): number {
   switch (t.type) {
     case 'DEPOSIT': case 'SELL': return (t.type === 'SELL' ? ((t.shares || 0) * (t.price || 0) || (t.amount || 0)) : (t.amount || 0));
@@ -237,6 +647,29 @@ export function cashEffect(t: Transaction): number {
 
 /** Investment income (cash dividends/interest/coupons, not reinvested) over the trailing window — feeds
  *  the Income module. Reinvested payouts grow the position instead, so they're excluded. */
+/* ─ MK-CF-F-119 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * investmentIncomeAnnual
+ *
+ * Answers ..... Investment income (cash dividends/interest/coupons, not reinvested) over the trailing window — feeds the Income module.
+ *
+ * Formula .....
+ *     cutoff = the date now); cutoff.set full year(cutoff.get full year() − 1
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-119
+ * Changed ..... 2026-06-05 (258e19f)
+ */
 export function investmentIncomeAnnual(txns: Transaction[], now: Date = new Date()): number {
   const cutoff = new Date(now); cutoff.setFullYear(cutoff.getFullYear() - 1);
   return round2((txns ?? [])

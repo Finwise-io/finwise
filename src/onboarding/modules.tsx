@@ -5,13 +5,19 @@ import { Card } from '../components/UI';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { Status, Track, StepId, incomeSourceOptionsFor } from './engine';
 import Mascot from './Mascot';
-import { estimateEffectiveTaxRate, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, marginalBracket, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
+import { effectiveRateOnGrossFor, marginalBracketFor, filingStatusOf, stateRateOf, over65CountOf, TAX_YEAR, grossSalaryMonthly, annualizedEnteredSalary, rsuAnnual, equityRowValue, equityCashFlow, rentalNetAnnual, incomeMonthlyGrid, totalGrossAnnual, taxableAnnual, extraIncome, salaryAnnual, salaryActiveMonths, benefitAnnual } from '../domain/income';
 import { loanPayment } from '../domain/debt';
+import { currentAge as domainCurrentAge } from '../domain/profile/calc';
 import { colFactor } from '../domain/retirement/col';
 import { capitalNeeded } from '../domain/retirement';
 import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets, annualCashflow } from '../domain/budget';
+// ONE take-home in the whole app. This screen used to work it out for itself — tax on the full
+// gross, then the 401(k) off afterwards — while every other screen read the income grid, where
+// the 401(k) comes off BEFORE tax as a traditional contribution does. $160 a month apart on the
+// employedPartner persona. Same defect as B05, fixed in the grid and never reaching this copy.
+import { takeHomeMonthly as domainTakeHomeMonthly } from '../domain/savings';
 import { annual401kLimit, IRS_LIMITS } from '../domain/income/limits';
 import { formatMoney, currencySymbol } from '../domain/_shared/money';
 
@@ -26,7 +32,8 @@ export const num = (v: any): number => {
   const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, ''));
   return isNaN(n) ? 0 : n;
 };
-export const money = (n: number) => formatMoney(n);
+import { money } from '../domain/_shared/num';
+export { money };
 // compact form for tight spots like chart bar labels — always in thousands with a "K":
 // $0.9K, $2.1K, $12K, -$1K (currency-aware symbol)
 export const moneyShort = (n: number) => {
@@ -89,7 +96,8 @@ function MoneyCadenceRow({ ctx, k, label }: { ctx: StepCtx; k: string; label: st
 }
 
 // RMD start age (SECURE 2.0): born 1951–1959 → 73; born 1960+ → 75 (earlier cohorts already at/after 73).
-export function rmdStartAge(birthYear: number): number { return birthYear >= 1960 ? 75 : 73; }
+import { rmdStartAge } from '../../Calculation Module code/engines/rmd';
+export { rmdStartAge };
 
 // IRS Uniform Lifetime Table (2022+) — distribution-period factors by age. RMD = balance ÷ factor.
 const UNIFORM_LIFETIME: Record<number, number> = {
@@ -349,7 +357,8 @@ export function grossAnnual(a: Record<string, any>): number {
 }
 // Effective tax rate in use: the user's own (manual) rate, else the IRS-schedule estimate on TAXABLE income.
 export function incomeTaxRate(a: Record<string, any>): number {
-  return a.taxMode === 'manual' ? num(a.manualTaxRate) / 100 : estimateEffectiveTaxRate(taxableAnnual(a));
+  return a.taxMode === 'manual' ? num(a.manualTaxRate) / 100
+    : effectiveRateOnGrossFor(taxableAnnual(a), filingStatusOf(a as any), stateRateOf(a as any), over65CountOf(a as any));
 }
 export function monthlyIncome(a: Record<string, any>): number {
   const total = totalGrossAnnual(a);
@@ -361,23 +370,26 @@ export function monthlyIncome(a: Record<string, any>): number {
  *  out of your paycheck). Every screen that says "Take-home" must read this — the income recap and the
  *  spending plan used to disagree by exactly the 401(k). `monthlyIncome` (net-of-tax) is for %-of-income
  *  math only, never displayed as "take-home". */
-export function takeHomeMonthly(a: Record<string, any>): number {
-  return monthlyIncome(a) - num(a.c_401k);
-}
+export { domainTakeHomeMonthly as takeHomeMonthly };
 export function retirementMonthlyIncome(a: Record<string, any>): number {
   // each source carries its own cadence (ri_<k>_freq) → normalize to per-month
   return ['ss', 'pension', 'withdrawals', 'rmd', 'annuities', 'other']
     .reduce((t, k) => t + num(a['ri_' + k]) / (CAD_DIV[a['ri_' + k + '_freq']] ?? 1), 0);
 }
-export function employerMatchMonthly(a: Record<string, any>): number {
-  const val = num(a.employerMatchValue);
-  return a.employerMatchMode === 'pct' ? (num(a.c_401k) * val) / 100 : val;  // % of YOUR contribution
-}
+import { employerMatchMonthly } from '../domain/income/onboarding';
+import { hasMonthlySalaryTable, salaryCalendarYear, salaryYearFromCells, salaryMonths } from '../domain/income/salary-months';
+import { FilingStatusQuestions } from '../screens/FilingStatusScreen';
+import { incomeFromAccounts } from '../domain/income/from-accounts';
+import BasePayScreen from '../screens/BasePayScreen';
+export { employerMatchMonthly };
 export function monthlyContributions(a: Record<string, any>): number {
   return ['c_401k', 'c_roth', 'c_invest', 'c_property'].reduce((t, k) => t + num(a[k]), 0) + employerMatchMonthly(a);
 }
-export function currentAge(a: Record<string, any>, fallback = 35): number {
-  return num(a.birthYear) ? new Date().getFullYear() - num(a.birthYear) : fallback;
+/** The person's age, or a stand-in when we were never told their birth year. NOT the same question
+ *  as domain ageOrDefault(birthYear, birthMonth), which knows the month and answers null when it
+ *  cannot say — so it does not share its name. */
+export function ageOrDefault(a: Record<string, any>, fallback = 35): number {
+  return domainCurrentAge(num(a.birthYear) || null, num(a.birthMonth) || 6) ?? fallback;
 }
 export function fv(principal: number, monthly: number, years: number, rate = 0.07): number {
   const m = years * 12, r = rate / 12;
@@ -398,7 +410,7 @@ export function debtPayoff(a: Record<string, any>): { bal: number; pay: number; 
 // ── must-have validation ────────────────────────────────────────────────────
 const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_sources: a => Array.isArray(a.incomeSources) && a.incomeSources.length > 0,
-  income_salary: a => num(a.baseSalary) > 0 || (Array.isArray(a.salaryByMonth) && a.salaryByMonth.some((x: any) => num(x) > 0)),
+  income_salary: a => num(a.baseSalary) > 0 || Object.values(salaryMonths(a as any)).some((x) => x > 0),
   income_self: a => num(a.seAmount) > 0,
   income_investment: a => num(a.invAnnual) > 0,
   income_benefits: a => num(a.benefitMonthly) > 0,
@@ -406,6 +418,9 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   income_scholarship: a => Array.isArray(a.scholarships) ? a.scholarships.some((x: any) => num(x?.amount) > 0) : num(a.scholarshipAmount) > 0,
   income_loans: a => Array.isArray(a.loans) && a.loans.some((x: any) => num(x?.amount) > 0),
   income_other: a => num(a.otherAmount) > 0,
+  // Pre-answered from what they already said (and filingStatusOf falls back the same way), so
+  // Continue confirms rather than requires. Never blank, whatever they do.
+  filing_status: a => a.filingStatus == null || ['single', 'married', 'mfs', 'hoh'].includes(String(a.filingStatus)),
   income_tax: a => a.taxMode !== 'manual' || num(a.manualTaxRate) > 0,
   monthlySpending: a => num(a.monthlySpending) > 0,
   // a real calendar date — month 13 or year 12 would silently wreck the age math downstream
@@ -418,7 +433,7 @@ const REQUIRED: Partial<Record<StepId, (a: Record<string, any>) => boolean>> = {
   contributionsByType: a => true,
   // must be ahead of the user's current age (when we know it) and humanly plausible
   targetRetirementAge: a => num(a.targetRetirementAge) > 0 && num(a.targetRetirementAge) < 100
-    && (!num(a.birthYear) ? true : num(a.targetRetirementAge) > currentAge(a)),
+    && (!num(a.birthYear) ? true : num(a.targetRetirementAge) > ageOrDefault(a)),
   expectedRetirementSpending: a => num(a.expectedRetirementSpending) > 0,
   currentSavingsPortfolio: a => a.currentSavingsPortfolio != null && a.currentSavingsPortfolio !== '',
   retirementIncomeSources: a => retirementMonthlyIncome(a) > 0,
@@ -489,10 +504,42 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const setAmt = (t: string) => { ctx.setAnswer('invAmount', t); ctx.setAnswer('invAnnual', String(num(t) * MULT[freq])); };
       const setFreq = (f: string) => { ctx.setAnswer('invFreq', f); ctx.setAnswer('invAnnual', String(num(a.invAmount ?? a.invAnnual) * MULT[f])); };
       const annual = num(a.invAnnual);
+      // NEVER ASK FOR WHAT CAN BE WORKED OUT (approved mock income-v5, 3c). The app holds the
+      // accounts, so it shows what they pay and lets the person correct it. Asking cold invites a
+      // second, different answer to one question with nothing to reconcile them.
+      const st: any = useStore.getState();
+      const worked = incomeFromAccounts(st.assetAccounts ?? [], st.transactions ?? []);
       return (<>
         <Header emoji="💵" title="Interest & dividends" sub="Money your savings and investments pay you." />
+        {worked.lines.length > 0 && (
+          <Card>
+            <Text style={s.label}>From your accounts</Text>
+            {worked.lines.map((l) => (
+              <View key={l.label} style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }}>
+                <View style={{ flex: 1 }}>
+                  <Text style={s.workedRow}>{l.label}</Text>
+                  <Text style={s.hint}>{l.why}</Text>
+                </View>
+                <Text style={s.workedRow}>{money(l.annual)}</Text>
+              </View>
+            ))}
+            <View style={{ flexDirection: 'row', justifyContent: 'space-between', paddingVertical: 6 }}>
+              <Text style={s.workedTot}>= We work out</Text>
+              <Text style={s.workedTot}>{money(worked.annual)}/yr</Text>
+            </View>
+            {!!worked.missing && <Text style={s.hint}>{worked.missing}</Text>}
+            {Math.round(worked.annual) !== Math.round(annual) && worked.annual > 0 && (
+              <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Use ${money(worked.annual)}`}
+                onPress={() => { ctx.setAnswer('invAmount', String(Math.round(worked.annual)));
+                                 ctx.setAnswer('invFreq', 'annual');
+                                 ctx.setAnswer('invAnnual', String(Math.round(worked.annual))); }}>
+                <Text style={s.addAnother}>Use {money(worked.annual)} ›</Text>
+              </TouchableOpacity>
+            )}
+          </Card>
+        )}
         <Card>
-          <Text style={s.heroLabel}>How much</Text>
+          <Text style={s.heroLabel}>{worked.lines.length > 0 ? 'Change it if that is not right' : 'How much'}</Text>
           <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
             value={a.invAmount ?? a.invAnnual ?? ''} onChangeText={setAmt} />
           <View style={{ flexDirection: 'row', gap: 6, marginTop: 8, justifyContent: 'center' }}>
@@ -501,7 +548,26 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           </View>
           <Text style={s.hint}>Interest from savings plus dividends from stocks or funds — pick how often you receive it (monthly bond funds, quarterly stock dividends, annual distributions).</Text>
         </Card>
-        {annual > 0 && <Callout text={`About ${money(annual)} a year`} />}
+        {annual > 0 && (
+          <>
+            {/* TAXED, AND NOT SPENDABLE (finding B34, approved mock income-v5 frame 3c). In most
+                accounts these are reinvested where they are earned and never reach the bank — so
+                counting them as money to spend made every surplus too generous by the whole
+                dividend. They are still taxed, so the tax still comes out of the pay that does
+                reach the bank. Reinvested is the default: silence is not "paid to my bank". */}
+            <Card>
+              <Text style={s.label}>Does this reach your bank?</Text>
+              <Choice ctx={ctx} k="invPaidToBank" options={[
+                { value: 'no',  title: 'No — it is reinvested', sub: 'It stays where it is earned. Taxed, but not money you can spend.' },
+                { value: 'yes', title: 'Yes — it is paid out',  sub: 'It lands in your bank and you can spend it.' }]} />
+            </Card>
+            <Callout
+              text={`About ${money(annual)} a year`}
+              sub={a.invPaidToBank === 'yes'
+                ? 'Counted as income you are taxed on, and as money that reaches your bank.'
+                : `Counted as income you are taxed on — but not as money to spend, because it is reinvested where it is earned. The tax on it still comes out of your pay.`} />
+          </>
+        )}
       </>);
     }
 
@@ -704,104 +770,19 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       </>);
     }
 
-    case 'income_salary': {
-      const mode = a.salaryMode ?? 'gross';
-      const FREQ_LABEL: Record<string, string> = { hourly: 'hour', weekly: 'week', biweekly: '2 weeks', monthly: 'month' };
-      const freq = a.salaryFreq ?? 'monthly';
-      const FREQ_MULT: Record<string, number> = { weekly: 52 / 12, biweekly: 26 / 12, monthly: 1 };
-      const enteredMonthly = freq === 'hourly'
-        ? num(a.baseSalary) * (num(a.hoursPerWeek) || 40) * 52 / 12
-        : num(a.baseSalary) * (FREQ_MULT[freq] ?? 1);   // entered base expressed per month (gross-or-takehome terms)
-      const byMonth = a.salaryMonthMode === 'months';
-      const tbl: string[] = Array.isArray(a.salaryByMonth) && a.salaryByMonth.length === 12 ? a.salaryByMonth : new Array(12).fill('');
-      const setMonth = (i: number, v: string) => { const arr = [...tbl]; arr[i] = v; ctx.setAnswer('salaryByMonth', arr); };
-      const goSame = () => { ctx.setAnswer('salaryMonthMode', 'same'); ctx.setAnswer('salaryByMonth', undefined); };
-      const goMonths = () => { ctx.setAnswer('salaryMonthMode', 'months'); ctx.setAnswer('salaryByMonth', new Array(12).fill(enteredMonthly > 0 ? String(Math.round(enteredMonthly)) : '')); };
-      const annualGross = salaryAnnual(a);
-      const bracketPct = Math.round(marginalBracket(annualGross) * 100);
-      const hasAmt = annualGross > 0;
-      return (<>
-        <Header emoji="💵" title="Base salary" sub="Just your base pay — bonuses, equity & other income come on the next screens." />
-        <Card>
-          {household && (
-            <>
-              <Text style={s.label}>Who earns this income?</Text>
-              <Segmented ctx={ctx} k="whoEarns" defaultValue="you" options={[
-                { value: 'you', label: 'You' }, { value: 'partner', label: 'Partner' }, { value: 'both', label: 'Both' }]} />
-            </>
-          )}
-          <Text style={s.label}>How are you paid?</Text>
-          <Segmented ctx={ctx} k="salaryFreq" defaultValue="monthly" options={[
-            { value: 'hourly', label: 'Hourly' }, { value: 'weekly', label: 'Weekly' },
-            { value: 'biweekly', label: 'Bi-weekly' }, { value: 'monthly', label: 'Monthly' }]} />
-
-          {freq === 'hourly' && (
-            <>
-              <Text style={s.label}>Hours per week</Text>
-              <TextInput style={s.input} keyboardType="decimal-pad" placeholder="e.g. 20" placeholderTextColor={Colors.textTertiary}
-                value={a.hoursPerWeek ?? ''} onChangeText={(t) => ctx.setAnswer('hoursPerWeek', t)} />
-              <Text style={s.hint}>Leave blank to use a 40-hour week.</Text>
-            </>
-          )}
-
-          <Text style={s.heroLabel}>Base pay (per {FREQ_LABEL[freq] ?? 'month'})</Text>
-          <TextInput style={s.heroInput} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-            value={a.baseSalary ?? ''} onChangeText={(t) => ctx.setAnswer('baseSalary', t)} />
-          <Segmented ctx={ctx} k="salaryMode" defaultValue="gross" options={[
-            { value: 'gross', label: 'Gross' }, { value: 'takehome', label: 'Take-home' }]} />
-
-          {freq === 'hourly' && (
-            <>
-              <Text style={s.label}>Tips, on average (per month) — optional</Text>
-              <TextInput style={s.input} keyboardType="decimal-pad" placeholder={`${currencySymbol()}0`} placeholderTextColor={Colors.textTertiary}
-                value={a.tipsMonthly ?? ''} onChangeText={(t) => ctx.setAnswer('tipsMonthly', t)} />
-            </>
-          )}
-
-          {/* same every month, or a per-month table (handles raises, gaps, seasonal work) */}
-          <Text style={[s.label, { marginTop: 12 }]}>Is your base pay the same every month?</Text>
-          <View style={s.segRow}>
-            <TouchableOpacity style={[s.seg, !byMonth && s.segOn]} onPress={goSame}><Text style={[s.segTxt, !byMonth && s.segTxtOn]}>Same each month</Text></TouchableOpacity>
-            <TouchableOpacity style={[s.seg, byMonth && s.segOn]} onPress={goMonths}><Text style={[s.segTxt, byMonth && s.segTxtOn]}>Set by month</Text></TouchableOpacity>
-          </View>
-
-          {byMonth && (
-            <>
-              <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 10 }}>
-                <Text style={s.dueLabel}>{mode === 'gross' ? 'Gross' : 'Take-home'} pay each month</Text>
-                {enteredMonthly > 0 && <TouchableOpacity onPress={() => ctx.setAnswer('salaryByMonth', new Array(12).fill(String(Math.round(enteredMonthly))))}><Text style={s.addAnother}>Fill all · {money(enteredMonthly)}</Text></TouchableOpacity>}
-              </View>
-              {MONTHS3.map((lbl, i) => (
-                <View key={lbl} style={s.salMonthRow}>
-                  <Text style={s.salMonthLbl}>{lbl}</Text>
-                  <View style={s.salMonthInputWrap}>
-                    <Text style={s.salPre}>{currencySymbol()}</Text>
-                    <TextInput style={s.salMonthInput} keyboardType="decimal-pad" placeholder="0" placeholderTextColor={Colors.textTertiary}
-                      value={tbl[i] ?? ''} onChangeText={(t) => setMonth(i, t)} />
-                  </View>
-                </View>
-              ))}
-              <Text style={s.hint}>Set $0 for months you're not working (a gap, summer off), or raise a month after a pay bump.</Text>
-            </>
-          )}
-        </Card>
-
-        {hasAmt && (
-          <View style={s.callout}>
-            <Text style={s.calloutIcon}>✨</Text>
-            <View style={{ flex: 1 }}>
-              <Text style={s.calloutTxt}>≈ {money(annualGross)} base{mode === 'takehome' ? ' (gross, grossed up from take-home)' : ''} this year</Text>
-              <Text style={s.calloutSub}>{byMonth ? `${salaryActiveMonths(a)} month${salaryActiveMonths(a) !== 1 ? 's' : ''} of pay` : 'Same each month'} · {bracketPct}% federal bracket ({TAX_YEAR}). Bonuses & equity are added on the next screens.</Text>
-            </View>
-          </View>
-        )}
-      </>);
-    }
+    case 'income_salary':
+      // ONE COMPONENT, TWO FRAMES (approved mock income-v5, rule 2b). This step used to be its own
+      // copy of the base-pay questions — one earner, its own wording, its own idea of what to ask —
+      // while Cash flow opened a different screen with a section per earner. Four places could set a
+      // salary and each asked differently. It renders the real screen now, so they cannot drift.
+      // The 401(k) and the employer match come with it, inside each earner's own section, which is
+      // why income_401k and employerContribution are no longer separate steps.
+      return <BasePayScreen frame="onboarding" />;
 
     case 'income_401k': {
       const monthly401k = num(a.c_401k);
       const annual401k = monthly401k * 12;
-      const limit = annual401kLimit(currentAge(a));
+      const limit = annual401kLimit(ageOrDefault(a));
       const overLimit = annual401k > limit;
       return (<>
         <Header emoji="🏦" title="401(k) contributions" sub="Locked until retirement — we track it separately." />
@@ -818,7 +799,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
 
     case 'employerContribution': {
       const matchMode = a.employerMatchMode ?? 'pct';
-      const matchMonthly = matchMode === 'pct' ? (num(a.c_401k) * num(a.employerMatchValue)) / 100 : num(a.employerMatchValue);
+      const matchMonthly = employerMatchMonthly(a as any);   // the third copy of this rule, removed
       return (<>
         <Header emoji="🏢" title="Employer match" sub="What your employer adds to your 401(k)." />
         <Card>
@@ -863,19 +844,36 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
     case 'income_rental':
       return <RentalEditor ctx={ctx} />;
 
+    case 'filing_status':
+      return (
+        <FilingStatusQuestions
+          op={a}
+          status={(a.filingStatus as any) ?? (a.hasPartner === 'yes' ? 'married' : 'single')}
+          onStatus={(v) => ctx.setAnswer('filingStatus', v)}
+          over65={(a.over65Who as any) ?? null}
+          onOver65={(v) => ctx.setAnswer('over65Who', v)} />
+      );
+
     case 'income_tax': {
       const gross = grossAnnual(a);
-      const estPct = Math.round(estimateEffectiveTaxRate(gross) * 100);
-      const brkPct = Math.round(marginalBracket(gross) * 100);
+      const estPct = Math.round(effectiveRateOnGrossFor(gross, filingStatusOf(a as any), stateRateOf(a as any), over65CountOf(a as any)) * 100);
+      const brkPct = Math.round(marginalBracketFor(gross, filingStatusOf(a as any), over65CountOf(a as any)) * 100);
       return (<>
-        <Header emoji="🧾" title="Taxes" sub="How should we handle your taxes?" />
-        {gross > 0 && <Callout text={`~${estPct}% effective rate · ${brkPct}% bracket (${TAX_YEAR})`}
-          sub={`On ~${money(gross)} gross, from the IRS schedule after the standard deduction.`} />}
+        <Header emoji="🧾" title="Taxes" sub="What comes out of your pay?" />
+        {/* THE SAME QUESTION AS THE BASE-PAY SCREEN, IN THE SAME WORDS. It used to ask for an
+            "effective tax rate % — from last year's return", and that phrase means one thing on a
+            return and another on a payslip: our figure is FEDERAL INCOME TAX ONLY, while a return
+            reads about 12 points higher once Social Security, Medicare and a state are in it. A
+            person could type 18 against our 9.2 and both be right. Founder ruling 2026-08-28. */}
+        {gross > 0 && <Callout text={`~${estPct}% federal income tax · ${brkPct}% bracket (${TAX_YEAR})`}
+          sub={`On ~${money(gross)} gross, from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.`} />}
         <Card>
           <Choice ctx={ctx} k="taxMode" options={[
-            { value: 'system', title: `Use this estimate (~${estPct}%)`, sub: 'From the IRS bracket schedule' },
-            { value: 'manual', title: 'Enter my own rate', sub: 'e.g. from last year’s tax return' }]} />
-          {a.taxMode === 'manual' && <NumRow ctx={ctx} k="manualTaxRate" decimal label="Effective tax rate % — from last year’s return" ph="22" />}
+            { value: 'system', title: `Use our estimate (~${estPct}%)`, sub: 'Federal income tax only' },
+            { value: 'manual', title: 'Tell us what really comes out', sub: 'Everything withheld, from a payslip' }]} />
+          {a.taxMode === 'manual' && <NumRow ctx={ctx} k="manualTaxRate" decimal
+            label="Everything taken out, as a share of your gross" ph="24" />}
+          {a.taxMode === 'manual' && <Text style={s.hint}>From a payslip: add up every deduction except your 401(k), and divide by the gross.</Text>}
         </Card>
       </>);
     }
@@ -923,7 +921,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       return <SavePlanScreen ctx={ctx} />;
 
     case 'targetRetirementAge': {
-      const tgt = num(a.targetRetirementAge), age = currentAge(a), yrs = tgt - age;
+      const tgt = num(a.targetRetirementAge), age = ageOrDefault(a), yrs = tgt - age;
       return (<><Header emoji="🏖️" title="When do you hope to retire?" sub="Your target age." />
         <Card><HeroAmount ctx={ctx} k="targetRetirementAge" label="Target age" ph="65" kind="number" /></Card>
         {tgt > 0 && a.birthYear && yrs > 0 && <Callout text={`${yrs} years from now`} sub="That's your runway to save and invest." />}
@@ -947,7 +945,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       // If a 401(k)/IRA question is also in this flow, scope THIS to non-retirement money so nothing is double-counted.
       const hasRet = ctx.tracks.includes('retire_acc');
       const bal = num(a.currentSavingsPortfolio);
-      const by = num(a.birthYear), startAge = by > 0 ? rmdStartAge(by) : 0, age = currentAge(a);
+      const by = num(a.birthYear), startAge = by > 0 ? rmdStartAge(by) : 0, age = ageOrDefault(a);
       const rmdAge = startAge > 0 ? Math.max(age, startAge) : 0;
       const rmd = !hasRet && rmdAge > 0 ? estimateAnnualRMD(bal, rmdAge) : 0;   // RMD insight only when this is the full pre-tax-ish pool
       return (<><Header emoji="🏦" title={hasRet ? 'Your other savings & investments' : 'Your savings & investments'}
@@ -963,7 +961,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
       const tot = retirementMonthlyIncome(a);
       const by = num(a.birthYear);
       const startAge = by > 0 ? rmdStartAge(by) : 0;
-      const age = currentAge(a);
+      const age = ageOrDefault(a);
       return (<><Header emoji="📨" title="Retirement income" sub="Enter each source and how often you receive it." />
         <Card>
           <MoneyCadenceRow ctx={ctx} k="ri_ss" label="Social Security" />
@@ -1151,7 +1149,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
         const spendAnnual = num(a.monthlySpending) * 12;
         const netDraw = Math.max(0, spendAnnual - incAnnual);
         const lastsYears = netDraw > 0 ? pool / netDraw : 99;
-        const startAge = currentAge(a, 65);
+        const startAge = ageOrDefault(a, 65);
         const lastsToAge = Math.round(startAge + lastsYears);
         const ok = lastsToAge >= num(a.horizonAge || 90);
         return (<><Header emoji="🛟" title="Will your money last?" />
@@ -1415,7 +1413,7 @@ function IncomeRecap({ ctx }: { ctx: StepCtx }) {
   const availGrid = incomeMonthlyGrid(a, 'available');
   const labels = availGrid.map((g) => g.label);
   const amounts = availGrid.map((g) => g.amount);
-  const avgMo = takeHomeMonthly(a);   // single source — identical to availableYr/12, shared with the spending-plan screen
+  const avgMo = domainTakeHomeMonthly(a);   // single source — identical to availableYr/12, shared with the spending-plan screen
   // most-common month = mode of the rounded amounts (ties → the higher value)
   const round100 = (x: number) => Math.round(x / 100) * 100;
   const freq: Record<number, number> = {};
@@ -1554,7 +1552,7 @@ function CashflowRecap({ ctx }: { ctx: StepCtx }) {
   // retired / no-accumulation-income → simple income-vs-spending recap
   if (retired || grossYrGate <= 0) {
     // take-home via the canonical takeHomeMonthly (after tax AND 401k) — same helper every screen uses
-    const incMo = takeHomeMonthly(a) || retirementMonthlyIncome(a);   // labeled "Take-Home" → use the canonical helper
+    const incMo = domainTakeHomeMonthly(a) || retirementMonthlyIncome(a);   // labeled "Take-Home" → use the canonical helper
     const spendMo = Math.max(spendBuckets(a).monthly_total, num(a.monthlySpending));
     const left = incMo - spendMo;
     return (<>
@@ -1677,7 +1675,7 @@ function SavingsEditor({ ctx }: { ctx: StepCtx }) {
   const months = suggested.map((m, i) => ({ label: m.label, amount: amountOf(i) }));
   const annual = months.reduce((t, m) => t + m.amount, 0);
   const avg = annual / 12;
-  const net = takeHomeMonthly(a);   // "% of take-home" must use true take-home (after 401k), same as every other screen
+  const net = domainTakeHomeMonthly(a);   // "% of take-home" must use true take-home (after 401k), same as every other screen
   const pct = net > 0 ? Math.round((avg / net) * 100) : 0;
   const maxA = Math.max(...months.map((m) => m.amount), 1);
 
@@ -1812,7 +1810,7 @@ function goalCapacity(a: Record<string, any>): { capMo: number; investMo: number
 function RetireOutlook({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const [giOpen, setGiOpen] = React.useState(false);
-  const age = currentAge(a);
+  const age = ageOrDefault(a);
   const rAge = num(a.targetRetirementAge) || 65;
   const years = Math.max(1, rAge - age);
   const horizon = num(a.horizonAge) || 90;                          // plan-to age (asked in drawdown flows; default 90)
@@ -2051,7 +2049,7 @@ function WhenField({ day, year, onDay, onYear }: { day?: string; year?: string; 
 function SpendingEditor({ ctx }: { ctx: StepCtx }) {
   const a = ctx.answers;
   const cats = (a.spendCats ?? []) as any[];
-  const net = takeHomeMonthly(a);   // #BUG: true take-home (after tax AND 401k) — was monthlyIncome (before 401k), which disagreed with the income screen by the 401(k)
+  const net = domainTakeHomeMonthly(a);   // #BUG: true take-home (after tax AND 401k) — was monthlyIncome (before 401k), which disagreed with the income screen by the 401(k)
   const get = (id: string) => cats.find((c) => c.id === id) ?? {};
   const upsert = (id: string, patch: any, seed: any) => {
     const i = cats.findIndex((c) => c.id === id);
@@ -2384,6 +2382,8 @@ const s = StyleSheet.create({
   sub: { fontSize: 15, color: Colors.primaryDark, textAlign: 'center', marginTop: 6 },
   label: { fontSize: 13, fontWeight: '600', color: Colors.textSecondary, marginBottom: 6, marginTop: 4 },
   hint: { fontSize: 11, color: Colors.textTertiary, marginTop: 6, lineHeight: 15 },
+  workedRow: { fontSize: 13, fontWeight: '600', color: Colors.textPrimary },
+  workedTot: { fontSize: 13, fontWeight: '800', color: Colors.textPrimary },
   srcCard: { flexDirection: 'row', alignItems: 'center', gap: 12, backgroundColor: Colors.cardBg, borderRadius: Radii.lg, padding: Spacing.md, marginBottom: 8, borderWidth: 1.5, borderColor: Colors.border },
   srcCardOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   srcIcon: { fontSize: 24 },

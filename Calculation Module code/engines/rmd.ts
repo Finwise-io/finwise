@@ -20,6 +20,35 @@ export const RMD_RULE_ASOF = '2026-08-20';
 
 /** The age required withdrawals begin, by birth year. Unknown birth year → 73, the earlier age —
  *  the conservative direction (planning for withdrawals a year early beats missing one). */
+/* ─ MK-ST-F-024 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rmdStartAge
+ *
+ * Answers ..... The age required withdrawals begin, by birth year.
+ *
+ * Formula .....
+ *     start age = 75   when born 1960 or later
+ *                 73   otherwise
+ *
+ * Called by ... MK-PL-F-006 rmdDivisor · MK-ST-F-025 rmdStartAgeFromAge
+ *
+ * Reaches ..... 33 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-003 depletionAge
+ *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-027 nextDecision · MK-PL-F-069 oddsAt
+ *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
+ *               MK-PL-F-055 projectNestEgg · MK-PL-F-041 requiredAnnualSaving
+ *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-006 rmdDivisor
+ *               MK-PL-F-008 rmdSchedule · MK-PL-F-005 rmdStartAgeFor
+ *               … and 15 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-024
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function rmdStartAge(birthYear?: number | null): number {
   const y = Number(birthYear);
   if (!y || !Number.isFinite(y)) return 73;
@@ -28,26 +57,75 @@ export function rmdStartAge(birthYear?: number | null): number {
 
 /** The same rule when only an age is known (birth year ≈ this year − age; ±1 year of precision,
  *  which is what an age-only caller has). */
+/* ─ MK-ST-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * rmdStartAgeFromAge
+ *
+ * Answers ..... The same rule when only an age is known (birth year ≈ this year − age; ±1 year of precision, which is what an age-only caller has).
+ *
+ * Formula .....
+ *     rmd start age(now year − age)
+ *
+ * Called by ... MK-PL-F-005 rmdStartAgeFor · MK-PL-F-050 simulate
+ *
+ * Reaches ..... 31 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-003 depletionAge
+ *               MK-PL-F-010 drawOrderOutcome · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-027 nextDecision · MK-PL-F-069 oddsAt
+ *               MK-PL-F-071 oddsOf · MK-PL-F-044 planTarget
+ *               MK-PL-F-055 projectNestEgg · MK-PL-F-041 requiredAnnualSaving
+ *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-008 rmdSchedule
+ *               MK-PL-F-005 rmdStartAgeFor · MK-PL-F-042 savingToReachTarget
+ *               … and 13 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-025
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function rmdStartAgeFromAge(age: number, nowYear: number): number {
   return rmdStartAge(nowYear - age);
 }
 
 /** IRS Uniform Lifetime Table divisors (post-2022). Interpolated between listed ages. */
+// COMPLETE, 72 to 120+, checked against the published IRS table on 2026-09-01. It used to skip
+// ages 91, 93–94 and 96–99 and interpolate between neighbours, which read 0.1 LOW at 93, 97, 98
+// and 99 — on a $500,000 balance at 98 that is a $925 understatement of a legally required
+// withdrawal, and under-withdrawing an RMD is what the IRS penalises. A statutory table is typed
+// in whole or not at all.
 export const UNIFORM_LIFETIME: Record<number, number> = {
-  73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1, 80: 20.2,
-  81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4, 88: 13.7,
-  89: 12.9, 90: 12.2, 92: 10.8, 95: 8.9, 100: 6.4,
+  72: 27.4, 73: 26.5, 74: 25.5, 75: 24.6, 76: 23.7, 77: 22.9, 78: 22.0, 79: 21.1,
+  80: 20.2, 81: 19.4, 82: 18.5, 83: 17.7, 84: 16.8, 85: 16.0, 86: 15.2, 87: 14.4,
+  88: 13.7, 89: 12.9, 90: 12.2, 91: 11.5, 92: 10.8, 93: 10.1, 94: 9.5, 95: 8.9,
+  96: 8.4, 97: 7.8, 98: 7.3, 99: 6.8, 100: 6.4, 101: 6.0, 102: 5.6, 103: 5.2,
+  104: 4.9, 105: 4.6, 106: 4.3, 107: 4.1, 108: 3.9, 109: 3.7, 110: 3.5, 111: 3.4,
+  112: 3.3, 113: 3.1, 114: 3.0, 115: 2.9, 116: 2.8, 117: 2.7, 118: 2.5, 119: 2.3,
+  120: 2.0,
 };
 
 /** Divisor at an age, 0 before that person's start age. */
+/* ─ MK-PL-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * rmdDivisor
+ *
+ * Answers ..... Divisor at an age, 0 before that person's start age.
+ *
+ * Formula .....
+ *     divisor(age) = 0                        when age is below the start age
+ *                    the table value at age   when the table lists that age
+ *                    straight-line between the two nearest listed ages   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-006
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function rmdDivisor(age: number, birthYear?: number | null): number {
   if (age < rmdStartAge(birthYear)) return 0;
-  if (UNIFORM_LIFETIME[age]) return UNIFORM_LIFETIME[age];
-  const ages = Object.keys(UNIFORM_LIFETIME).map(Number).sort((a, b) => a - b);
-  if (age < ages[0]) return UNIFORM_LIFETIME[ages[0]];
-  if (age >= ages[ages.length - 1]) return UNIFORM_LIFETIME[ages[ages.length - 1]];
-  let lo = ages[0], hi = ages[ages.length - 1];
-  for (const k of ages) { if (k <= age) lo = k; if (k >= age) { hi = k; break; } }
-  const t = (age - lo) / (hi - lo || 1);
-  return Math.round((UNIFORM_LIFETIME[lo] + t * (UNIFORM_LIFETIME[hi] - UNIFORM_LIFETIME[lo])) * 10) / 10;
+  // The table is complete from 72 to 120, so nothing between is ever estimated. Past 120 the IRS
+  // row is "120 and over": the 2.0 stands for every later age.
+  return UNIFORM_LIFETIME[Math.min(120, Math.max(72, Math.floor(age)))];
 }

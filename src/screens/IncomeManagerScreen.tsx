@@ -15,6 +15,8 @@ import { RsuEditor, RentalEditor } from '../onboarding/modules';   // reuse the 
 import type { StepCtx } from '../onboarding/modules';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { useLocalSearchParams, router } from 'expo-router';
+import { isoLocalDate } from '../domain/_shared/dates';
+import { incomeFromAccounts } from '../domain/income/from-accounts';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // annualize a structured income source for display
@@ -50,7 +52,7 @@ export default function IncomeManagerScreen() {
     setAnswer: (k, v) => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), [k]: v }),
   };
 
-  const investIncome = investmentIncomeAnnual(transactions) + interestIncomeAnnual(store.assetAccounts ?? []);
+  const investIncome = incomeFromAccounts(store.assetAccounts ?? [], transactions).annual;
   // FOUNDER RULE 2026-08-04 (fifth ingredient check): a "last 12 months" figure can only cover the
   // history each source actually shared. Name the shortfalls rather than quietly understating.
   const yearStart = new Date(Date.now() - 365 * 86400_000).toISOString().slice(0, 10);
@@ -182,7 +184,7 @@ export default function IncomeManagerScreen() {
         month={editKey ? Number(op[editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']) || null : null}
         onMonth={(m) => { if (editKey) store.setOnboardingProfile?.({ ...op, [editKey === 'bonusAnnual' ? 'bonusMonth' : 'otherMonth']: m }); }} />
       <AddIncome open={addOpen} onClose={() => setAddOpen(false)}
-        onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: new Date().toISOString().slice(0, 10) }); setAddOpen(false); }} />
+        onSave={(source, amount) => { store.addIncome?.({ type: 'other', amount, source, date: isoLocalDate(new Date()) }); setAddOpen(false); }} />
 
       {/* Equity comp + Rental — reuse the rich onboarding editors (grants / multiple properties), live-backed */}
       <Modal visible={rich != null} transparent animationType={modalAnimation()} onRequestClose={() => setRich(null)}>

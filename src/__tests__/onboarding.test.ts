@@ -33,11 +33,12 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     const steps = buildSteps('employed', ['spend', 'retire_acc'], { incomeSources: ['employment'] });
     expect(steps).toEqual(
       expect.arrayContaining([
-        'income_sources', 'income_salary', 'income_401k', 'income_rsu', 'income_tax', 'recap_income',
+        // the 401(k) moved inside the base-pay screen on 2026-08-28 — see flow_audit
+        'income_sources', 'income_salary', 'income_rsu', 'income_tax', 'recap_income',
         'monthlySpending', 'recap_spend', 'contributionsByType', 'targetRetirementAge', 'recap_retire',
       ]),
     );
-    expect(steps.filter((s) => s === 'income_401k')).toHaveLength(1);   // deduped across tracks
+    expect(steps.filter((s) => s === 'income_salary')).toHaveLength(1);   // deduped across tracks
     expect(steps).not.toContain('horizonAge');
   });
 
@@ -45,7 +46,7 @@ describe('onboarding engine — data-driven flow (matrix v3)', () => {
     // gaps/seasonal work are expressed as $0 months in the salary table, not a separate job type
     const emp = buildSteps('student', ['spend'], { incomeSources: ['employment'] });
     expect(emp).toContain('income_salary');
-    expect(emp).toContain('income_401k');
+    expect(emp).toContain('income_salary');   // which now carries the 401(k) and the match
     expect(emp).toContain('income_rsu');
 
     const benefits = buildSteps('student', ['spend'], { incomeSources: ['benefits', 'scholarship'] });

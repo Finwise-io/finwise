@@ -11,10 +11,13 @@ import { moneyCompact } from '../domain/_shared/money';
 import { payoffPlan, totalDebtMonthly, debtToIncome, loanPayment, type PayoffMethod, type Debt } from '../domain/debt';
 import { availableToSaveSummary, sinkingFund, goalStatus, requiredMonthly } from '../domain/goals';
 import { totalGrossAnnual } from '../domain/income';
-import { spendBuckets, nonMonthlyBasis, actualMonthFlow, allocatableThisMonth } from '../domain/budget';
+import { spendBuckets, nonMonthlyBasis, allocatableThisMonth } from '../domain/budget';
+import { actualMonthFlow } from '../../MoneyKeel/functions/cashflow/this-month';
+import { incomeMonthlyGrid } from '../domain/income/onboarding';
 import { currencySymbol } from '../domain/_shared/money';
 import { surplusByMonth } from '../domain/savings';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { monthKey } from '../domain/income/salary-months';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const monthsToDate = (m: number) => { const d = new Date(); d.setMonth(d.getMonth() + m); return d.toLocaleDateString(undefined, { month: 'short', year: 'numeric' }); };
@@ -39,9 +42,21 @@ export default function GoalsScreen() {
   const capacity = useMemo(() => availableToSaveSummary(surplusByMonth(op, liabilities)), [op, liabilities]);
   const sink = useMemo(() => sinkingFund(spendBuckets(op).non_monthly), [op]);
   const sinkBasis = useMemo(() => nonMonthlyBasis(op), [op]);   // e.g. "15% of take-home pay" — state the basis so the $ isn't a mystery
-  const nowYm = new Date().toISOString().slice(0, 7);          // 'YYYY-MM' — this month, for funded-this-month status
+  const nowYm = monthKey(new Date());          // 'YYYY-MM' — this month, for funded-this-month status
   // Available surplus to allocate THIS month — the SAME canonical number as the Home cash-flow card.
-  const flow = useMemo(() => actualMonthFlow(op, store.incomes, store.expenses, nowYm), [op, store.incomes, store.expenses, nowYm]);
+  // ONE actualMonthFlow. MK-CF-F-005 used to live in domain/budget and a second copy was written in
+  // this-month.ts; the surviving one is the This-month version, so Goals and This month can never
+  // disagree about this month's surplus. What lands = the month's net pay plus anything logged as
+  // income that month — the same two parts the old function added.
+  const flow = useMemo(() => {
+    const m = Number(nowYm.slice(5, 7)) || 1;
+    const baseNet = (op ? incomeMonthlyGrid(op, 'net') : [])[m - 1]?.amount ?? 0;
+    const extra = (store.incomes ?? [])
+      .filter((i: any) => String(i?.date ?? '').startsWith(nowYm))
+      .reduce((t: number, i: any) => t + (Number(i.amount) || 0), 0);
+    return actualMonthFlow({ ym: nowYm, takeHomeMonthly: baseNet + extra, debts: liabilities as any,
+                             plannedExpenses: 0, expenses: (store.expenses ?? []) as any });
+  }, [op, store.incomes, store.expenses, liabilities, nowYm]);
   const availableSurplus = allocatableThisMonth(flow.surplus, store.allocatedByMonth?.[nowYm]);
   const [alloc, setAlloc] = useState<Goal | null>(null);     // goal being funded from surplus
   const [allocAmt, setAllocAmt] = useState('');

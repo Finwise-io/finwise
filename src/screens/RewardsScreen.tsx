@@ -9,6 +9,7 @@ import { InputModal } from '../components/InputModal';
 import { Colors, Typography, Spacing, Radii } from '../utils/theme';
 import { requiredMonthly, goalStatus } from '../domain/goals';
 import { money } from '../domain/_shared/num';
+import { monthKey } from '../domain/income/salary-months';
 
 // 'YYYY-MM' → 'Apr 2027'
 const fmtYM = (ym?: string) => {
@@ -211,7 +212,7 @@ export default function RewardsScreen() {
         const done = pct >= 100;
         // on-track/behind from REAL money funded into THIS goal THIS MONTH vs the rate the date needs.
         const req = requiredMonthly(goal as any);   // works off targetDate OR duration now
-        const fundedMo = goal.fundedByMonth?.[new Date().toISOString().slice(0, 7)] ?? 0;
+        const fundedMo = goal.fundedByMonth?.[monthKey(new Date())] ?? 0;
         const st = goalStatus(goal as any, fundedMo);
         return (
           <Card key={goal.id} style={done ? { borderColor: Colors.primaryMid, borderWidth: 1 } : {}}>

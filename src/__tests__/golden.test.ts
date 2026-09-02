@@ -3,10 +3,10 @@
 // Traces to docs/finwise-qa-plan.md §1 / Appendix A (QA-T1-001..012). A failure here means a
 // money number the user sees has drifted from first-principles math — a Tier-1 / S1 regression.
 import { projectNestEgg, capitalNeeded, simulate, type RetirementInputs } from '../domain/retirement';
-import { taxOwed, marginalBracket, effectiveRateOnGross, grossFromNet, taxableIncome } from '../domain/income/tax';
+import { taxOwedFor, marginalBracketFor, effectiveRateOnGrossFor, grossFromNet, taxableIncomeFor } from '../domain/income/tax';
 import { loanPayment } from '../domain/debt';
 import { currentYield, bondInfo } from '../domain/bonds';
-import { rmdAtAge, rmdDivisor } from '../domain/decumulation';
+import { rmdAtAge, rmdDivisorAtAge } from '../domain/decumulation';
 import {
   earmarkedAmount, retirementEarmarkedValue, investableAssets,
   benchmarkReturn, blendedReturn, portfolioActualReturn, type AssetAccount,
@@ -79,18 +79,18 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
   //   12%×(50,400−12,400) = 4,560
   //   22%×(83,900−50,400) = 7,370
   //   total               = 13,170
-  test('QA-T1-005 taxOwed($100k) = $13,170; marginal 22%; effective 13.17%', () => {
-    expect(taxableIncome(100_000)).toBe(83_900);
-    expect(taxOwed(100_000)).toBe(13_170);
-    expect(marginalBracket(100_000)).toBe(0.22);
-    expect(effectiveRateOnGross(100_000)).toBeCloseTo(0.1317, 4);
+  test('QA-T1-005 taxOwedFor($100k) = $13,170; marginal 22%; effective 13.17%', () => {
+    expect(taxableIncomeFor(100_000)).toBe(83_900);
+    expect(taxOwedFor(100_000)).toBe(13_170);
+    expect(marginalBracketFor(100_000)).toBe(0.22);
+    expect(effectiveRateOnGrossFor(100_000)).toBeCloseTo(0.1317, 4);
   });
-  test('QA-T1-006 grossFromNet inverts taxOwed (round-trips $100k within $2)', () => {
-    const net = 100_000 - taxOwed(100_000);        // 86,830 take-home
+  test('QA-T1-006 grossFromNet inverts taxOwedFor (round-trips $100k within $2)', () => {
+    const net = 100_000 - taxOwedFor(100_000);        // 86,830 take-home
     expect(Math.abs(grossFromNet(net) - 100_000)).toBeLessThanOrEqual(2);
   });
   test('QA-T1-007 tax below the standard deduction is zero', () => {
-    expect(taxOwed(10_000)).toBe(0);
+    expect(taxOwedFor(10_000)).toBe(0);
     expect(grossFromNet(0)).toBe(0);
   });
 
@@ -115,7 +115,7 @@ describe('QA-T1: Golden financial scenarios (hand-computed)', () => {
   // ── QA-T1-010  RMD (IRS Uniform Lifetime Table) ─────────────────────────────
   // age 73 divisor = 26.5.  $500,000 / 26.5 = 18,867.9245… → round2 18,867.92
   test('QA-T1-010 rmdAtAge($500k, 73): divisor 26.5 → $18,867.92', () => {
-    expect(rmdDivisor(73)).toBe(26.5);
+    expect(rmdDivisorAtAge(73)).toBe(26.5);
     expect(rmdAtAge(500_000, 73)).toBe(18_867.92);
     expect(rmdAtAge(500_000, 72)).toBe(0);          // below RMD start age → no RMD
   });

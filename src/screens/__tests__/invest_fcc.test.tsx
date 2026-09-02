@@ -7,6 +7,15 @@ import { render, screen, fireEvent, within } from '@testing-library/react-native
 import { GLOSSARY } from '../../domain/glossary';
 import PerformanceScreen from '../PerformanceScreen';
 import { useStore } from '../../store/useStore';
+import { isoLocalDate } from '../../domain/_shared/dates';
+
+// Dates the staleness rule can actually judge: 6+ months old is stale (see valueFreshness).
+const monthsAgo = (n: number) => {
+  const d = new Date(); d.setMonth(d.getMonth() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-03`;
+};
+const FRESH = monthsAgo(2);    // comfortably inside the window, whenever this runs
+const STALE = monthsAgo(10);   // comfortably outside it
 
 const pushes: string[] = [];
 jest.mock('expo-router', () => ({
@@ -33,9 +42,12 @@ beforeEach(() => {
       { asset_id: 'brk', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 0, derive_balance: true,
         positions: [pos('p1', 'NVDA', 200, 300), pos('p2', 'VTI', 100, 200), pos('p3', 'BND', 100, 80)] },
       { asset_id: 'bnd1', label: 'Treasury 4.5% ’36', kind: 'fixed_income', tax_bucket: 'TAXABLE', asset_class: 'bonds',
-        balance: 95000, face_value: 100000, coupon_rate: 0.045, maturity_date: '2036-06-30', value_as_of: '2026-03-03' },
+        // FRESH means fresh TODAY. This was pinned to a fixed 2026-03-03 and quietly aged into
+        // staleness on 1 September, six months later — the test broke on the calendar, not on the
+        // code. A fixture that asserts freshness has to be dated relative to now.
+        balance: 95000, face_value: 100000, coupon_rate: 0.045, maturity_date: '2036-06-30', value_as_of: FRESH },
       { asset_id: 'gld', label: 'Gold coins', kind: 'commodities', tax_bucket: 'TAXABLE', asset_class: 'alternatives',
-        balance: 9000, value_as_of: '2025-11-20' },
+        balance: 9000, value_as_of: STALE },
     ],
     priceCache: {
       NVDA: { ticker: 'NVDA', ...seriesFor(300, 423) },   // +41%
@@ -118,7 +130,7 @@ test('bonds and alternatives fold into the grouped list with value-as-of stamps 
   render(<PerformanceScreen />);
   expect(screen.getByText(/YOUR INVESTMENTS/)).toBeOnTheScreen();
   expect(screen.getByText(/Bonds & CDs\s+\$95,000/)).toBeOnTheScreen();
-  expect(screen.getByText(/Value as of 2026-03/)).toBeOnTheScreen();          // fresh: a dated CHIP, no flag
+  expect(screen.getByText(new RegExp(`Value as of ${FRESH.slice(0, 7)}`))).toBeOnTheScreen();   // fresh: a dated CHIP, no flag
   expect(screen.getByText(/Alternatives\s+\$9,000/)).toBeOnTheScreen();
   expect(screen.getByText(/⏱ \d+ mo old/)).toBeOnTheScreen();                // Nov 2025 gold → the stale chip
 });
@@ -193,8 +205,8 @@ test('Build-46 walk row 2: a holding with NO price shows what you paid — never
 describe('the value walk (founder final mock, 2026-08-04) — where the return came from', () => {
   test('the walk renders in the approved order and its rows reach the ending value', () => {
     useStore.setState({ transactions: [
-      { account_id: 'b1', type: 'DIVIDEND', amount: 300, date: new Date().toISOString().slice(0, 10) },
-      { account_id: 'b1', type: 'INTEREST', amount: 120, date: new Date().toISOString().slice(0, 10) },
+      { account_id: 'b1', type: 'DIVIDEND', amount: 300, date: isoLocalDate(new Date()) },
+      { account_id: 'b1', type: 'INTEREST', amount: 120, date: isoLocalDate(new Date()) },
     ] } as any);
     render(<PerformanceScreen />);
     expect(screen.getByText(/HOW .* BECAME /)).toBeOnTheScreen();
@@ -229,7 +241,7 @@ describe('period chips + category earnings (final mock, 2026-08-04)', () => {
   });
 
   test('the category table sums the ledger income and labels its columns', () => {
-    const today = new Date().toISOString().slice(0, 10);
+    const today = isoLocalDate(new Date());
     useStore.setState({ transactions: [
       { account_id: 'brk', type: 'DIVIDEND', ticker: 'VTI', amount: 300, date: today },
       { account_id: 'brk', type: 'INTEREST', amount: 120, date: today },

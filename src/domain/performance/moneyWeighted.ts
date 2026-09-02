@@ -24,6 +24,38 @@ const DAY = 86400000;
 
 /** The user's dated flows for a measured set of accounts, investor-sign convention:
  *  money the user PUT IN is negative, money TAKEN OUT is positive. */
+/* ─ MK-PF-F-024 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * userFlows
+ *
+ * Answers ..... The user's dated flows for a measured set of accounts, investor-sign convention: money the user PUT IN is negative, money TAKEN OUT is positive.
+ *
+ * Formula .....
+ *     flows = []
+ *     in set = account ids.has(string(account id))
+ *     counter in set = counter account id ≠ nothing and account ids.has(string(counter account id))
+ *     when = date.parse(string(date))
+ *     the answer = flows where size of(amount) > 0.004.sort((a, b) => date − date)
+ *
+ * Called by ... MK-PF-F-026 moneyWeightedReturn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · If amount is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If price is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-024
+ * Changed ..... 2026-07-14 (f22902e)
+ */
 export function userFlows(transactions: Transaction[], accountIds: Set<string>): { date: number; amount: number }[] {
   const flows: { date: number; amount: number }[] = [];
   for (const t of transactions ?? []) {
@@ -57,6 +89,30 @@ export function userFlows(transactions: Transaction[], accountIds: Set<string>):
 }
 
 /** True iff every measured account's story begins IN the ledger (openable honestly). */
+/* ─ MK-PF-F-025 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * historyIsComplete
+ *
+ * Answers ..... True iff every measured account's story begins IN the ledger (openable honestly).
+ *
+ * Formula .....
+ *     false   when first is missing
+ *     false   when !['OPENING_CASH', 'OPENING_POSITION', 'DEPOSIT'].includes(first.type as string)
+ *     true
+ *
+ * Called by ... MK-PF-F-026 moneyWeightedReturn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-025
+ * Changed ..... 2026-07-14 (f22902e)
+ */
 export function historyIsComplete(transactions: Transaction[], accounts: AssetAccount[], accountIds: Set<string>): boolean {
   for (const a of accounts) {
     if (!accountIds.has(String(a.asset_id))) continue;
@@ -69,6 +125,30 @@ export function historyIsComplete(transactions: Transaction[], accounts: AssetAc
   return true;
 }
 
+/* ─ MK-PF-F-030 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * npv
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     disc = (when: number) => (1 + rate)^(-((when − t0) ÷ DAY) ÷ 365)
+ *     v = 0
+ *     the answer = v + end value × disc(end date)
+ *
+ * Called by ... MK-PF-F-026 moneyWeightedReturn
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PF-F-026 moneyWeightedReturn
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in v of 0.
+ *     · Treats a year as 365 days.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-030
+ * Changed ..... not in git yet (—)
+ */
 function npv(rate: number, flows: { date: number; amount: number }[], endValue: number, endDate: number, t0: number): number {
   const disc = (when: number) => Math.pow(1 + rate, -((when - t0) / DAY) / 365);
   let v = 0;
@@ -77,6 +157,39 @@ function npv(rate: number, flows: { date: number; amount: number }[], endValue: 
 }
 
 /** XIRR via bisection — deterministic, no derivative games. */
+/* ─ MK-PF-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * moneyWeightedReturn
+ *
+ * Answers ..... XIRR via bisection — deterministic, no derivative games.
+ *
+ * Formula .....
+ *     reason = 'no_history'   when !history is complete(transactions, accounts, account ids)
+ *     flows = user flows(transactions, account ids)
+ *     invested = flows where amount < 0
+ *     reason = 'no_history'   when invested.length = 0
+ *     t0 = flows[0].date
+ *     since days = round down((now − t0) ÷ DAY)
+ *     reason = 'too_short'   when since days < 30
+ *     lo = -0.95, hi = 10
+ *     f = (r: number) => npv(r, flows, math.max(0, current value), now, t0)
+ *     f lo = f(lo), f hi = f(hi)
+ *     reason = 'no_solution'   when f lo × f hi > 0
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · Uses a built-in i of 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-026
+ * Changed ..... 2026-07-14 (f22902e)
+ */
 export function moneyWeightedReturn(
   transactions: Transaction[],
   accounts: AssetAccount[],
@@ -107,6 +220,21 @@ export function moneyWeightedReturn(
   return { ratePerYear: Math.round(((lo + hi) / 2) * 1e4) / 1e4, flows: flows.length, sinceDays };
 }
 
+/* ─ MK-PF-F-027 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isMoneyWeighted
+ *
+ * Answers ..... Did the personal return produce a number, or a reason it could not?
+ *
+ * Formula .....
+ *     (r as money weighted).rate per year ! = undefined
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PF-F-027
+ * Changed ..... 2026-07-14 (f22902e)
+ */
 export function isMoneyWeighted(r: MoneyWeighted | MoneyWeightedMiss): r is MoneyWeighted {
   return (r as MoneyWeighted).ratePerYear !== undefined;
 }

@@ -13,6 +13,7 @@ import { type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isBond, bondInfo, annualCoupon, yearsToMaturity, currentYield, approxYTM, bondSummary } from '../domain/bonds';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // ISO date helpers (local components, no TZ shift) for the maturity date picker
@@ -151,7 +152,7 @@ export function BondEditor({ bond, open, onClose, onSave, onDelete }: {
           if (full) { onDelete?.(); return; }
           const newVal = r2(cur - sold);
           // the ledger row lowers the value (the one writer); onSave carries only the non-balance fields
-          if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: new Date().toISOString().slice(0, 10), note: 'Bond sale' });
+          if (bond) recordTransaction?.({ type: 'SELL', account_id: bond.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Bond sale' });
           onSave({ label: label.trim(), tax_bucket: bucket, institution: institution.trim() || undefined,
             coupon_rate: num(coupon) / 100, maturity_date: maturity.trim(),
             face_value: r2(num(face) * (newVal / cur)), ...(bond ? {} : { balance: newVal }) });

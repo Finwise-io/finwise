@@ -8,6 +8,31 @@ export const RECLASSIFY_VERSION = 'cash-only-2026-08-10';
 
 /** The class an account SHOULD carry under the current rule. Explicit user choices are respected
  *  only when they still agree with the rule — a stale 'cash' on a CD is exactly what we are fixing. */
+/* ─ MK-NW-F-053 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * correctClassOf
+ *
+ * Answers ..... The class an account SHOULD carry under the current rule.
+ *
+ * Formula .....
+ *     by label = income bearing class of(label)
+ *     by label   when by label
+ *     maturity class(maturity date)   when maturity date
+ *     'stocks_etf'   when kind = 'money_market'
+ *     'bonds'   when kind = 'cd'
+ *     the answer = nothing
+ *
+ * Called by ... MK-NW-F-054 reclassifyAccounts
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-NW-F-054 reclassifyAccounts
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-053
+ * Changed ..... 2026-08-10 (88ce4aa)
+ */
 export function correctClassOf(a: AssetAccount): AssetClass | null {
   const byLabel = incomeBearingClassOf(a.label);
   if (byLabel) return byLabel;                                  // CD/T-bill → bonds · money-market → stocks
@@ -17,6 +42,31 @@ export function correctClassOf(a: AssetAccount): AssetClass | null {
   return null;
 }
 
+/* ─ MK-NW-F-054 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * reclassifyAccounts
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     changed = 0
+ *     want = correct class of(a)
+ *     next = a
+ *     ps = (next.positions ?? []) as any[]
+ *     the answer = p
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Decides .....
+ *     · Uses a built-in changed of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-054
+ * Changed ..... 2026-08-10 (88ce4aa)
+ */
 export function reclassifyAccounts(accounts: AssetAccount[]): { accounts: AssetAccount[]; changed: number } {
   let changed = 0;
   const out = (accounts ?? []).map((a) => {

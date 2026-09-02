@@ -5,6 +5,25 @@ import Constants from 'expo-constants';
 import { currentIdToken } from '../firebase';
 import type { StAccount, StActivity, StOptionHolding, StPosition } from './snaptrade';
 
+/* ─ MK-XS-F-112 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * relayUrl
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-113 snaptradeConfigured · MK-XS-F-147 call
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-147 call · MK-XS-F-116 runSnapTradeSync
+ *               MK-XS-F-113 snaptradeConfigured
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-112
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function relayUrl(): string | null {
   return (
     (Constants.expoConfig?.extra as any)?.SNAPTRADE_RELAY_URL ||
@@ -12,8 +31,44 @@ export function relayUrl(): string | null {
     null
   );
 }
+/* ─ MK-XS-F-113 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * snaptradeConfigured
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     !!relay url()
+ *
+ * Called by ... MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-113
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export const snaptradeConfigured = () => !!relayUrl();
 
+/* ─ MK-XS-F-147 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * call
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     url = relay url()
+ *     token = await current id token()
+ *     data = await res.json().catch(() => nothing)
+ *     the answer = data as T
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-147
+ * Changed ..... not in git yet (—)
+ */
 async function call<T>(action: string, params: Record<string, unknown> = {}): Promise<T> {
   const url = relayUrl();
   if (!url) throw new Error('Connections need the relay. Set SNAPTRADE_RELAY_URL (see functions/snaptrade.js).');
@@ -48,6 +103,28 @@ export const snaptradeApi = {
 };
 
 /** USD cash across the balances list (v1 is USD-only; other currencies are ignored, not guessed). */
+/* ─ MK-XS-F-114 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * usdCash
+ *
+ * Answers ..... USD cash across the balances list (v1 is USD-only; other currencies are ignored, not guessed).
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · If cash is missing it uses 0.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-114
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function usdCash(balances: HoldingsPayload['balances'] | null | undefined): number {
   return (balances ?? [])
     .filter((b) => !b.currency?.code || b.currency.code === 'USD')

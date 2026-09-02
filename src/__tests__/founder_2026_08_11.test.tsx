@@ -5,6 +5,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import { useStore } from '../store/useStore';
 import { accountDisplayName, accountDisplayNames, accountLastFour } from '../domain/assets';
 import { dataGaps } from '../domain/gaps';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const mockSync = jest.fn();
 jest.mock('../services/sync/snaptradeSync', () => ({ runSnapTradeSync: (...a: any[]) => mockSync(...a) }));
@@ -723,7 +724,7 @@ test('the info dot scrolls — a definition longer than the card is no longer un
 
 // ── PERFORMANCE HANDOFF (2026-08-11): the parts must sum to the whole ──────────────────────────
 test('every account with value gets its own walk, so the per-account walks sum to the all-accounts walk', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   useStore.setState({
     onboardingComplete: true, nwSeeded: true,
     onboardingProfile: { status: 'employed', incomeSources: ['employment'], monthlySpending: '4500' },

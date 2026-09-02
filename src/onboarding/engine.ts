@@ -14,7 +14,7 @@ export type StepId =
   // meta
   | 'status' | 'goals' | 'whatYouNeed' | 'account' | 'verifyEmail' | 'name'
   // S1 — income captured as focused, one-type-per-screen sub-steps
-  | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'income_tax'
+  | 'income_sources' | 'income_salary' | 'income_401k' | 'income_bonus' | 'income_rsu' | 'income_rental' | 'filing_status' | 'income_tax'
   | 'income_self' | 'income_investment' | 'income_benefits' | 'income_support' | 'income_scholarship' | 'income_loans' | 'income_other'
   | 'monthlySpending' | 'flexBuckets' | 'savingsRateTarget'
   // S2 accumulation
@@ -135,6 +135,7 @@ const TAXABLE_SOURCES: IncomeSourceKey[] = ['employment', 'self_employment', 'in
 
 // Optional (skippable) field steps — rendered with a "Skip for now".
 export const OPTIONAL_STEPS = new Set<StepId>([
+  'filing_status',   // pre-answered from what they already said — Continue confirms it
   'income_401k', 'employerContribution', 'income_bonus', 'income_rsu', 'income_rental',  // income extras — skippable
   // per-source detail steps: you picked the source, but you can still skip if it turns out to be
   // nothing (e.g. "I selected loans but don't actually have any") — never trap the user.
@@ -164,7 +165,7 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   if (srcs.includes('employment')) {
     // birth first: the 401(k) limit depends on age. Gaps/seasonal work = $0 months in salaryByMonth.
     // Employer match gets its own focused screen right after the contribution.
-    out.push('income_salary', 'birth', 'income_401k', 'employerContribution', 'income_bonus', 'income_rsu');
+    out.push('income_salary', 'birth', 'income_bonus', 'income_rsu');
   }
   if (srcs.includes('self_employment')) out.push('income_self');
   if (srcs.includes('investment_income')) out.push('income_investment');
@@ -177,7 +178,10 @@ function incomeBlock(status: Status | null, answers?: Record<string, any>): Step
   // "other" counts as taxable unless the user marked it a gift (gifts aren't taxable to the recipient)
   const taxablePicked = srcs.some((s) =>
     TAXABLE_SOURCES.includes(s) && !(s === 'other_income' && answers?.otherTaxable === 'no'));
-  if (taxablePicked) out.push('income_tax');
+  // HOW THEY FILE comes before the tax estimate, because the estimate is read off it. Until
+  // 2026-08-27 it was never asked here at all: the code looked for a filing status, found
+  // nothing and taxed everyone as a single filer — a married couple included. B31.
+  if (taxablePicked) { out.push('filing_status'); out.push('income_tax'); }
   out.push('recap_income');
   return out;
 }
@@ -198,7 +202,7 @@ const SERVICE_ORDER: Track[] = [
 
 // Per-service field requirements, given life stage + the full track set (for reuse logic).
 // Income is NOT listed here — buildSteps hoists the income block for income-bearing tracks.
-function requirements(track: Track, status: Status | null, tracks: Track[]): { must: StepId[]; optional: StepId[] } {
+function requirements(track: Track, status: Status | null, tracks: Track[], answers?: Record<string, any>): { must: StepId[]; optional: StepId[] } {
   const hasSpend = tracks.includes('spend');
   const decumulating = status === 'retired';
   switch (track) {
@@ -211,7 +215,25 @@ function requirements(track: Track, status: Status | null, tracks: Track[]): { m
                  ? ['flexBuckets'] : ['flexBuckets', 'savingsRateTarget'] };
     case 'retire_acc':
       // 401(k) contribution then its match on a dedicated screen (deduped if income flow also present).
-      return { must: ['birth', 'currentRetirementSavings', 'income_401k', 'employerContribution', 'contributionsByType',
+      // A 401(k) NEEDS EARNED INCOME. The IRS rule is that contributions come out of compensation:
+      // wages, or self-employment earnings through a solo 401(k). A pension, Social Security, rent or
+      // dividends earn nobody the right to contribute — so asking someone with only those is asking a
+      // question that has no valid answer, which is worse than not asking.
+      //
+      // Where it IS asked depends on which kind of earned income they have. A wage brings the
+      // base-pay screen, which carries the 401(k) and the match inside each earner's own section
+      // (approved mock income-v5, 2b) — that is also how three copies of the match arithmetic came to
+      // exist when it was two screens later. Self-employment brings no such screen, and
+      // contributionsByType asks for Roth, taxable and property but NOT the 401(k) — so a solo 401(k)
+      // would have had nowhere to be entered. Founder challenge 2026-08-28: "if someone is not
+      // working, how can they contribute to 401K?" They cannot, and now we do not ask.
+      const srcs: string[] = Array.isArray(answers?.incomeSources) ? answers!.incomeSources : [];
+      const hasWage = srcs.includes('employment');
+      const selfEmployedOnly = !hasWage && srcs.includes('self_employment');
+      const asksItHere = selfEmployedOnly;                  // nothing else earns the right to contribute
+      return { must: ['birth', 'currentRetirementSavings',
+                      ...(asksItHere ? ['income_401k' as StepId, 'employerContribution' as StepId] : []),
+                      'contributionsByType',
                       'targetRetirementAge', 'expectedRetirementSpending'],
                optional: ['retLocation', 'travelBudget', 'medicalBudget', 'spendingChangeLater'] };
     case 'retire_dec':
@@ -274,7 +296,7 @@ export function buildSteps(status: Status | null, tracks: Track[], answers?: Rec
 
   for (const track of SERVICE_ORDER) {
     if (!tracks.includes(track)) continue;
-    const { must, optional } = requirements(track, status, tracks);
+    const { must, optional } = requirements(track, status, tracks, answers);
     for (const f of [...must, ...optional]) emit(f);
     const recap = RECAP_OF[track];
     // Both retirement tracks share one recap — hold it until AFTER the second track's

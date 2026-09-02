@@ -1,7 +1,7 @@
 // PLAN ENGINE PROBE (mock-match audit, 2026-08-12) — the step a string diff cannot do: check that
 // the numbers the Plan tab prints reconcile with each other and with the engine that produced them.
 // It MEASURES and records to /tmp/plan-engine-probe.json; the audit workbook quotes these figures
-// (mockups/Plan-redesign-Aug-12/plan-mock-match-audit-2026-08-12.xlsx, Defects D1–D3, D6).
+// (MoneyKeel/documents/retirement/archive/2026-08-12_moneykeel_calc_spec_plan-mock-match-audit_v01.xlsx, Defects D1–D3, D6).
 import * as fs from 'fs';
 import { planTarget, leverDeltas, TARGET_ODDS } from '../domain/planning/target';
 import { simulate, type RetirementInputs } from '../domain/retirement';

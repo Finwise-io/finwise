@@ -11,7 +11,9 @@ import { SectionBand } from './SectionBand';
 import { maskedMoney } from './useMoney';
 import type { ChangeWalk } from '../domain/history';
 
-const money = (n: number) => `${n < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(n)))}`;
+/** Money with a true minus sign in front — a different job from the shared `money`, which is why
+ *  it now has a different name. */
+const signedMoney = (n: number) => `${n < 0 ? '−' : ''}${maskedMoney(Math.abs(Math.round(n)))}`;
 
 export function ChangeWalkSheet({ visible, onClose, walk }: {
   visible: boolean; onClose: () => void; walk: ChangeWalk | null;
@@ -38,12 +40,12 @@ export function ChangeWalkSheet({ visible, onClose, walk }: {
           {rows.map((r) => (
             <View key={r.label} style={[s.row, r.indent && s.indent]}>
               <Text style={[s.label, r.strong && s.strong, r.muted && s.muted]}>{r.label}</Text>
-              <Text style={[s.value, r.strong && s.strong, r.value < 0 && s.neg]}>{money(r.value)}</Text>
+              <Text style={[s.value, r.strong && s.strong, r.value < 0 && s.neg]}>{signedMoney(r.value)}</Text>
             </View>
           ))}
           <View style={[s.row, s.total]}>
             <Text style={[s.label, s.strong]}>Ending net worth ({walk.toLabel})</Text>
-            <Text style={[s.value, s.strong, { color: Colors.primaryDark }]}>{money(walk.ending)}</Text>
+            <Text style={[s.value, s.strong, { color: Colors.primaryDark }]}>{signedMoney(walk.ending)}</Text>
           </View>
           <Text style={s.note}>
             {walk.fromLabel} → {walk.toLabel} · every line counts only what happened in this window.

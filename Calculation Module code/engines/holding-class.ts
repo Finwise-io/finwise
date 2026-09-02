@@ -49,6 +49,45 @@ const COUPON_MATURITY_RE = /\d(\.\d+)?%.*\b(DUE|20\d\d)\b/i;
 
 /** What the NAME (symbol + description together) says, or null when it says nothing.
  *  Ordered specific-before-general, same discipline as the event table. */
+/* ─ MK-ST-F-010 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * nameEvidence
+ *
+ * Answers ..... What the NAME (symbol + description together) says, or null when it says nothing.
+ *
+ * Formula .....
+ *     t = string(label ?? '').trim()
+ *     nothing   when t is missing
+ *     words = for each of split( ÷ [\s·—-]+ ÷ ): to upper case()
+ *     'cash'   when SWEEP_RE.test(t)
+ *     'stocks_etf'   when MONEY_MARKET_RE.test(t) (or words.some((w) => MONEY_MARKET_TICKERS.has(w)) when missing or zero)
+ *     'bonds'   when words.some((w) => TBILL_ETF_TICKERS.has(w))
+ *     'alternatives'   when OCC_OPTION.test(replace( ÷ \s+ ÷ g, '').to upper case())
+ *     'alternatives'   when DATE_STYLE_OPTION.test(t) (or ÷ \b(put|call)s?\b ÷ test(t) when missing or zero)
+ *     'alternatives'   when words.some((w) => CRYPTO_TICKERS.has(w)) (or ÷ \b(bitcoin|ethereum|crypto(currenc(y|ies))?)\b ÷ test(t) when missing or zero)
+ *     'alternatives'   when words.some((w) => COMMODITY_TICKERS.has(w))
+ *     'alternatives'   when ÷ \b(gold|silver|platinum|palladium|commodit(y|ies))\b ÷ test(t) and !COMPANY_WORDS.test(t)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-NW-F-008 incomeBearingClassOf · MK-ST-F-011 classifyHoldingClass
+ *
+ * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-NW-F-029 assetAllocation · MK-XS-F-172 assetClassForSymbol
+ *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
+ *               MK-NW-F-016 cashTotal · MK-PL-F-077 clamp
+ *               MK-ST-F-011 classifyHoldingClass · MK-NW-F-053 correctClassOf
+ *               … and 27 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-013 bond maturity date
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-010
+ * Changed ..... 2026-08-20 (026b132)
+ */
 export function nameEvidence(label?: string | null): HoldingClass | null {
   const t = String(label ?? '').trim();
   if (!t) return null;
@@ -103,6 +142,54 @@ const TAG_CLASS: Record<string, HoldingClass> = {
   cs: 'stocks_etf', et: 'stocks_etf', oef: 'stocks_etf', cef: 'stocks_etf', adr: 'stocks_etf',
 };
 
+/* ─ MK-ST-F-011 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * classifyHoldingClass
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     cls = user answer
+ *     source = 'user'
+ *     why = 'your own answer — it outranks every automatic rule and survives every sync'   when user answer
+ *     by name = name evidence(`${ticker ?? ''} ${name ?? ''}`)
+ *     cls = by name
+ *     source = 'name'
+ *     why = 'the institution\'s own words for it'   when by name
+ *     cls = 'bonds'
+ *     source = 'maturity'
+ *     why = 'it carries a maturity date'   when maturity date and string(maturity date).trim()
+ *     cls = 'stocks_etf'
+ *     source = 'flag'
+ *     why = 'the broker\'s cash − equivalent flag — a money − market fund
+ *     measured where its income lands' = measured where its income lands'   when cash equivalent
+ *     tag = TAG_CLASS[string(broker tag ?? '').to lower case()]
+ *     cls = tag
+ *     source = 'broker − tag'
+ *     why = 'the broker\'s type tag — fallback only
+ *     a name would have outranked it' = a name would have outranked it'   when tag
+ *     cls = 'stocks_etf'
+ *     source = 'security − default'
+ *     why = 'a priced security with units is an investment; with no other evidence it sits in stocks ÷ Funds'   when has security identity
+ *     the answer:
+ *     cls = 'cash'
+ *     source = 'unlabelled'
+ *     why = 'an unlabelled broker balance is cash'
+ *
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ *               MK-XS-F-172 assetClassForSymbol
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-172 assetClassForSymbol · MK-XS-F-015 importHoldings
+ *               MK-XS-F-102 ingestSync · MK-XS-F-105 mapPosition
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-013 bond maturity date
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-011
+ * Changed ..... 2026-08-20 (026b132)
+ */
 export function classifyHoldingClass(e: ClassEvidence): ClassVerdict {
   // 1 · the person's own answer wins, always, and never raises a flag
   if (e.userAnswer) return { cls: e.userAnswer, source: 'user', why: 'your own answer — it outranks every automatic rule and survives every sync' };

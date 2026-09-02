@@ -12,6 +12,7 @@ import { useStore } from '../store/useStore';
 import { Colors, Spacing, Radii } from '../utils/theme';
 import { maskedMoney } from '../components/useMoney';
 import { InfoDot } from '../components/UI';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 // native date picker (audit AA-1: no hand-typed YYYY-MM-DD) — same helpers the Bonds editor uses
@@ -70,7 +71,7 @@ export default function AddAccountScreen() {
 
   const save = () => {
     if (!ready) return;
-    const today = new Date().toISOString().slice(0, 10);
+    const today = isoLocalDate(new Date());
     if (cls === 'debt') {
       store.addLiability?.({ label: name.trim(), debt_type: 'OTHER', remaining_balance: num(balance), interest_rate_apr: num(apr) / 100, minimum_monthly_payment: num(minPay) });
       router.back();

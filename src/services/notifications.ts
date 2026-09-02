@@ -14,6 +14,23 @@ if (Platform.OS !== 'web') Notifications.setNotificationHandler({
   }),
 });
 
+/* ─ MK-XS-F-084 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * requestNotificationPermission
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     false   when device.is device is missing
+ *     true   when existing = 'granted'
+ *     status = 'granted'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-084
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export async function requestNotificationPermission(): Promise<boolean> {
   if (!Device.isDevice) return false; // won't work in simulator
 
@@ -25,6 +42,21 @@ export async function requestNotificationPermission(): Promise<boolean> {
 }
 
 // ── Schedule daily streak reminder ─────────────────────────────────
+/* ─ MK-XS-F-085 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * scheduleStreakReminder
+ *
+ * Answers ..... ── Schedule daily streak reminder ─────────────────────────────────
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-085
+ * Changed ..... 2026-07-13 (762d771)
+ */
 export async function scheduleStreakReminder() {
   await Notifications.cancelScheduledNotificationAsync('streak-reminder');
 
@@ -44,12 +76,48 @@ export async function scheduleStreakReminder() {
 }
 
 // ── Cancel streak reminder (e.g. user already checked in) ──────────
+/* ─ MK-XS-F-086 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * cancelStreakReminder
+ *
+ * Answers ..... ── Cancel streak reminder (e.g.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-086
+ * Changed ..... 2026-07-14 (63edc6b)
+ */
 export async function cancelStreakReminder() {
   await Notifications.cancelScheduledNotificationAsync('streak-reminder');
 }
 
 // ── Required-withdrawal reminders (FCC Plan r48/r51 — logistics only, no timing advice) ──
 /** November 1 nudge ahead of the Dec 31 deadline (this year or a future start year). */
+/* ─ MK-XS-F-087 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * scheduleRmdReminder
+ *
+ * Answers ..... ── Required-withdrawal reminders (FCC Plan r48/r51 — logistics only, no timing advice) ── November 1 nudge ahead of the Dec 31 deadline (this year or a future start year).
+ *
+ * Formula .....
+ *     id = `rmd − reminder-${year}`
+ *     fire at = the date year, 10, 1, 10, 0, 0
+ *     false   when fire at.get time() ≤ date.now()
+ *     the answer = true
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-087
+ * Changed ..... 2026-07-14 (63edc6b)
+ */
 export async function scheduleRmdReminder(year: number) {
   const id = `rmd-reminder-${year}`;
   await Notifications.cancelScheduledNotificationAsync(id);
@@ -68,6 +136,25 @@ export async function scheduleRmdReminder(year: number) {
 }
 
 // ── Budget alert (fire immediately) ────────────────────────────────
+/* ─ MK-XS-F-088 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * sendBudgetAlert
+ *
+ * Answers ..... ── Budget alert (fire immediately) ────────────────────────────────
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-088
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export async function sendBudgetAlert(category: string, pct: number) {
   await Notifications.scheduleNotificationAsync({
     content: {
@@ -80,6 +167,21 @@ export async function sendBudgetAlert(category: string, pct: number) {
 }
 
 // ── Weekly summary notification ────────────────────────────────────
+/* ─ MK-XS-F-089 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * scheduleWeeklySummary
+ *
+ * Answers ..... ── Weekly summary notification ────────────────────────────────────
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-089
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export async function scheduleWeeklySummary() {
   await Notifications.cancelScheduledNotificationAsync('weekly-summary');
 
@@ -100,6 +202,21 @@ export async function scheduleWeeklySummary() {
 }
 
 // ── Listen for notification taps ───────────────────────────────────
+/* ─ MK-XS-F-090 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * addNotificationResponseListener
+ *
+ * Answers ..... ── Listen for notification taps ───────────────────────────────────
+ *
+ * Formula .....
+ *     screen = response.notification.request.content.data.screen as string
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-090
+ * Changed ..... 2026-08-02 (459ef30)
+ */
 export function addNotificationResponseListener(
   onNavigate: (screen: string) => void
 ) {
@@ -111,6 +228,27 @@ export function addNotificationResponseListener(
 
 // ── Social Security claim-window reminder (design r18, built pre-48 per founder decision) ──
 /** Fires the month the claim window opens (their 62nd-birthday month), 10:00 on the 1st. */
+/* ─ MK-XS-F-091 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * scheduleSsWindowReminder
+ *
+ * Answers ..... ── Social Security claim-window reminder (design r18, built pre-48 per founder decision) ── Fires the month the claim window opens (their 62nd-birthday month), 10:00 on the 1st.
+ *
+ * Formula .....
+ *     id = 'ss − window − reminder'
+ *     fire at = the date opens year, opens month1 − 1, 1, 10, 0, 0
+ *     false   when fire at.get time() ≤ date.now()
+ *     the answer = true
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-091
+ * Changed ..... 2026-08-02 (459ef30)
+ */
 export async function scheduleSsWindowReminder(opensYear: number, opensMonth1: number) {
   const id = 'ss-window-reminder';
   await Notifications.cancelScheduledNotificationAsync(id);

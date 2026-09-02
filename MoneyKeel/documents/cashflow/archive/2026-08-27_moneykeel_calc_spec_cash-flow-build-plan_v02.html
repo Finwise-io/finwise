@@ -1,0 +1,130 @@
+<title>Cash Flow Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;--grey:#6E7F8E;--greybg:#6E7F8E14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;
+ --grey:#8B9AA8;--greybg:#8B9AA822;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;--grey:#8B9AA8;--greybg:#8B9AA822;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:26px 0 32px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:14px 16px}
+.c.k-done{border-left:3px solid var(--ok)}.c.k-coded{border-left:3px solid var(--blue)}
+.c.k-approved{border-left:3px solid var(--warn)}.c.k-found{border-left:3px solid var(--bad)}
+.c.k-notworked{border-left:3px solid var(--grey)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:29px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+td.os{color:var(--ink);font-weight:600;min-width:190px}
+td.os .sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+td.fn{min-width:150px}
+td.ac{white-space:nowrap;width:1%}
+td.nt{max-width:330px;line-height:1.5}
+td.im{max-width:330px;line-height:1.5;color:var(--ink3)}
+.none{color:var(--ink3);font-style:italic;font-size:12.5px}
+tr.v-fix td.im{color:var(--warn)}
+tr.v-park td.os{color:var(--ink3)}
+td.nm{color:var(--ink);font-weight:600;min-width:210px}
+td.wy{max-width:520px;line-height:1.5}
+td.st{white-space:nowrap;width:1%}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.t-amend{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-data{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-use{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-fix{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-new{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-park{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.t-done{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-coded{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-approved{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-found{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-notworked{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.ac .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:4px;font-family:"IBM Plex Sans",sans-serif}
+td.ac{white-space:nowrap;width:1%;min-width:120px}
+.st .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:29px;margin:40px 0 8px}
+h2+p{color:var(--ink2);margin:0 0 16px;max-width:74ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+ol{color:var(--ink2);max-width:74ch;padding-left:20px}ol li{margin-bottom:9px}ol li b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">MoneyKeel · build plan, re-run · 2026-08-27</p>
+<h1>Cash flow and income — what is written, what changes, what is left</h1>
+<p class="stand">Re-run against the <b>approved</b> income design. Three files are already written with 39 laws passing; the approval changes one of them and adds eight pieces of work. Every row says what else moves if I change it.</p>
+</header>
+<div class="cards">
+<div class="c k-done"><div class="n">3</div><div class="l">Use as is</div><div class="s">Written and unaffected by the approval.</div></div>
+<div class="c k-approved"><div class="n">1</div><div class="l">Amend</div><div class="s">Written, but for one earner. The approved screen has two.</div></div>
+<div class="c k-coded"><div class="n">1</div><div class="l">Write new</div><div class="s">The household orchestrator.</div></div>
+<div class="c k-approved"><div class="n">6</div><div class="l">Correct</div><div class="s">Exists, wrong for the approved design.</div></div>
+<div class="c k-found"><div class="n">3</div><div class="l">Data change</div><div class="s">A field that does not exist yet.</div></div>
+<div class="c k-notworked"><div class="n">3</div><div class="l">Park</div><div class="s">Waiting on the card provider.</div></div>
+</div>
+<div class="tw"><table>
+<thead><tr><th>What</th><th>Action</th><th>Why, and what it is</th><th>What else moves</th></tr></thead>
+<tbody>
+<tr class="grp"><th colspan="5">Already written — and what the approval changes</th></tr>
+<tr class="v-amend"><td class="os">base-pay.ts · 14 laws<span class="sub">annualisedGross · takeHomeAsEntered · deductionsFromPay · payFiguresAgree · basePay</span></td><td class="ac"><span class="tag t-amend">Amend</span><span class="sub">written, needs changing</span></td><td class="nt">Takes ONE earner. The approved screen has two, each with their own frequency and varies answer, and the employer match inside each section. basePay becomes a household orchestrator over two BasePayEntry.</td><td class="im">Nothing yet — not wired to a screen. Amending now costs a morning; amending after wiring costs the wiring too.</td></tr>
+<tr class="v-use"><td class="os">this-month.ts · 12 laws<span class="sub">plannedMonthFlow · actualMonthFlow · debtPaymentsByDebt · thisMonth</span></td><td class="ac"><span class="tag t-use">Use as is</span><span class="sub">already right</span></td><td class="nt">Takes takeHomeMonthly as a number. It does not care whose — so the household figure drops straight in.</td><td class="im">None.</td></tr>
+<tr class="v-use"><td class="os">spending.ts · 13 laws<span class="sub">recurringDebtPayments · debtPaymentsCountedAsExpenses · actualSpending · isRadarItem · radar · spending</span></td><td class="ac"><span class="tag t-use">Use as is</span><span class="sub">already right</span></td><td class="nt">Unaffected by the income redesign.</td><td class="im">None.</td></tr>
+<tr class="v-use"><td class="os">MFS tax table · 6 laws<span class="sub">the fourth filing status, every band half the joint ones</span></td><td class="ac"><span class="tag t-use">Use as is</span><span class="sub">already right</span></td><td class="nt">Written today. Waiting on the question that selects it.</td><td class="im">None.</td></tr>
+<tr class="grp"><th colspan="5">The income redesign — what it needs</th></tr>
+<tr class="v-new"><td class="os">Two earners<span class="sub">One BasePayEntry per person; the household is the sum</span></td><td class="ac"><span class="tag t-new">Write new</span><span class="sub">nothing exists</span></td><td class="nt">household() — the orchestrator over both. Each earner keeps their own frequency, varies answer, table, 401(k), match and what-lands.</td><td class="im">None — new function.</td></tr>
+<tr class="v-fix"><td class="os">The employer match, once<span class="sub">Rate on their own contribution, or a flat amount</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">MK-CF-F-078. Three copies today — two functions and one inline. Collapse to the src/domain one. No cap exists and none is captured.</td><td class="im">7 functions. No number moves today; it stops them drifting tomorrow.</td></tr>
+<tr class="v-data"><td class="os">The filing status<span class="sub">single · married jointly · married separately · head of household</span></td><td class="ac"><span class="tag t-data">Data change</span><span class="sub">a field that does not exist</span></td><td class="nt">Nothing writes op.filingStatus, so everyone falls back to single. The question is new; the tables already exist. B31.</td><td class="im">5 surfaces get the RIGHT answer for the first time: withholding, effective rate, Roth, retirement tax, base-pay estimate. Couples move $328–$866/mo.</td></tr>
+<tr class="v-data"><td class="os">Over 65, both of them<span class="sub">A count, not a flag</span></td><td class="ac"><span class="tag t-data">Data change</span><span class="sub">a field that does not exist</span></td><td class="nt">over65CountOf reads one birth year and returns 0 or 1. A couple both over 65 is short $1,650 of deduction. B33.</td><td class="im">Same 5 surfaces. Small next to the filing status, real for 55-70.</td></tr>
+<tr class="v-fix"><td class="os">The bracket from BOTH incomes<span class="sub">Combined gross, annualised</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">MK-CF-F-088. Averages the months given × 12 — that part is right. It must add the partner&#x27;s. B32.</td><td class="im">25 functions, and they SHOULD move: on $84,000 with a partner on $54,000 the band is 22%, not 12%.</td></tr>
+<tr class="v-fix"><td class="os">Dividends: taxed, not spendable<span class="sub">Out of take-home, into what is taxed</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">MK-CF-F-071 extraIncome. invAnnual flows into ex.taxableMonthly and lands in the take-home grid. B34.</td><td class="im">33 functions. Every surplus, runway and savings figure drops by the dividend amount — $250/mo on $3,000/yr. It is a REDUCTION, so people will notice.</td></tr>
+<tr class="v-fix"><td class="os">Dividends from the holdings<span class="sub">Show what the accounts pay; let them correct it</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">MK-NW-F-063 interestIncomeAnnual already does the interest side. B35.</td><td class="im">0 functions reach it today — it is computed and unused. Wiring it in changes only the income screen.</td></tr>
+<tr class="v-fix"><td class="os">Bonus and equity per earner<span class="sub">Whose bonus, and which month</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">The month placement already works. It needs an owner, like base pay.</td><td class="im">Small — the placement rule is untouched.</td></tr>
+<tr class="grp"><th colspan="5">The pay table, and the one change I would do alone</th></tr>
+<tr class="v-data"><td class="os">Months keyed by date<span class="sub">&#x27;2026-07&#x27; → amount, not slot 0 of twelve</span></td><td class="ac"><span class="tag t-data">Data change</span><span class="sub">a field that does not exist</span></td><td class="nt">A 14-month window running from last month crosses a year boundary. salaryByMonth is twelve POSITIONAL slots meaning Jan–Dec; slot 0 cannot mean both January and July.</td><td class="im">MK-CF-F-060 reaches 39 functions, 26 of them displayed. The change is mechanical — index by key, not position — and NO arithmetic moves. That is exactly why it should go in alone: easy to verify by itself, very hard to verify tangled with new maths.</td></tr>
+<tr class="v-fix"><td class="os">The gross-up branch<span class="sub">Deleted, with salaryMode</span></td><td class="ac"><span class="tag t-fix">Correct</span><span class="sub">exists, wrong for this</span></td><td class="nt">With gross always captured, the branch that inverts tax to FIND a gross has nothing to do.</td><td class="im">39 functions reached, ZERO affected. It only ever ran for salaryMode=&#x27;takehome&#x27;, which the new screen never sets. Dead code.</td></tr>
+<tr class="grp"><th colspan="5">Still parked</th></tr>
+<tr class="v-park"><td class="os">Actual spend split by source<span class="sub">by hand · imported</span></td><td class="ac"><span class="tag t-park">Park</span><span class="sub">waiting on the card provider</span></td><td class="nt">Needs a `source` field on an expense.</td><td class="im">Waiting on the card provider.</td></tr>
+<tr class="v-park"><td class="os">The imported purchase list<span class="sub">each purchase from the feed</span></td><td class="ac"><span class="tag t-park">Park</span><span class="sub">waiting on the card provider</span></td><td class="nt">Needs `source` and which card.</td><td class="im">Waiting on the card provider.</td></tr>
+<tr class="v-park"><td class="os">Receipt-to-import matching<span class="sub">same amount, ±3 days</span></td><td class="ac"><span class="tag t-park">Park</span><span class="sub">waiting on the card provider</span></td><td class="nt">Needs both fields.</td><td class="im">Waiting on the card provider.</td></tr></tbody></table></div>
+
+<h2>The order I would build it in</h2>
+<p>Two rules decide the order: a change that moves no number goes in alone and first, and a change that moves a number people will notice goes in where it can be seen and explained.</p>
+<ol>
+<li><b>Months keyed by date.</b> Alone, first, on its own. Reaches 39 functions and moves no arithmetic — the easiest thing in the world to verify by itself, and very hard to verify tangled with new maths. Everything else needs it.</li>
+<li><b>Delete the gross-up branch and salaryMode.</b> Dead code once gross is always captured. Zero functions affected.</li>
+<li><b>Collapse the three employer-match copies to one.</b> No number moves today.</li>
+<li><b>Amend base-pay.ts to two earners</b> and add the household orchestrator. Nothing is wired yet, so this costs a morning now and the wiring too if it waits.</li>
+<li><b>The filing-status question, and over-65 for a couple.</b> Data plus a screen. Five surfaces get the right answer for the first time; a couple sees $328–$866 a month more.</li>
+<li><b>The bracket from both incomes.</b> Needs 4 and 5 done first.</li>
+<li><b>Dividends out of take-home.</b> Last of the number-movers, because it is the only one that makes a figure SMALLER — every surplus drops by the dividend amount. People notice a reduction, so it should land on its own with the reason on the screen.</li>
+<li><b>Dividends from the holdings.</b> Reaches nothing today; safe whenever.</li>
+</ol>
+
+<h2>What this is worth, in money</h2>
+<p>Every figure below was computed, not estimated, and each has a finding number on the master file.</p>
+<div class="cards" style="margin-top:8px">
+<div class="c k-found"><div class="n">$1,467</div><div class="l">a month · B27</div><div class="s">Someone who typed their take-home, with a 401(k). Grossed up, taxed down, contribution removed twice.</div></div>
+<div class="c k-found"><div class="n">$328–866</div><div class="l">a month · B31</div><div class="s">Every couple, taxed as a single filer because nothing has ever set a filing status.</div></div>
+<div class="c k-found"><div class="n">$168</div><div class="l">a month · B32</div><div class="s">The joint bracket read from one income. And the missing salary itself is the larger half.</div></div>
+<div class="c k-found"><div class="n">−$250</div><div class="l">a month · B34</div><div class="s">Dividends counted as spendable when they are reinvested. The only correction that makes a figure smaller.</div></div>
+</div>
+</div>

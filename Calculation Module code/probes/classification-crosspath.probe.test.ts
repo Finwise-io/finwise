@@ -5,13 +5,13 @@
 // Answering it properly turned up something the inventory had not recorded: there is not ONE
 // classifier. There are three, they use different rules, and they disagree.
 //
-//   1. classifyHolding()  — a line in a FILE you upload (CSV)
+//   1. assetClassForSymbol()  — a line in a FILE you upload (CSV)
 //   2. mapPosition()      — a position from a CONNECTED broker (SnapTrade)
 //   3. assetClassOf()     — a whole ACCOUNT, when nothing inside it is itemised
 //
 // This probe runs the same real-world holdings through the file path and the broker path and pins
 // where they part company. Nothing here is opinion; every line is executed.
-import { classifyHolding } from '../../src/domain/import/holdingsImport';
+import { assetClassForSymbol } from '../../src/domain/import/holdingsImport';
 import { mapPosition } from '../../src/services/sync/snaptrade';
 import { assetClassOf } from '../../src/domain/assets';
 
@@ -27,7 +27,7 @@ describe('THE SAME HOLDING, THREE DOORS', () => {
       ['06418AAA1', 'KEYBANK NA 4.00% CD 08/24/26', 'bonds'],
       ['SGOV', 'ISHARES 0-3 MONTH TREASURY BOND ETF', 'bonds'],
     ] as const) {
-      expect(classifyHolding(sym, desc)).toBe(expected);
+      expect(assetClassForSymbol(sym, desc)).toBe(expected);
       expect(st(sym, desc)).toBe(expected);
     }
   });
@@ -36,33 +36,33 @@ describe('THE SAME HOLDING, THREE DOORS', () => {
   // built the ONE classifier both doors now call, so they pin AGREEMENT instead — same holdings,
   // same answers, whichever way the data arrives.
   test('FIXED BY B7 — a COMMODITY fund is alternatives through BOTH doors', () => {
-    expect(classifyHolding('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
+    expect(assetClassForSymbol('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
     expect(st('GLD', 'SPDR GOLD SHARES')).toBe('alternatives');
-    expect(classifyHolding('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
+    expect(assetClassForSymbol('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
     expect(st('SLV', 'ISHARES SILVER TRUST')).toBe('alternatives');
   });
 
   test('FIXED BY B7 — a CRYPTO fund is alternatives even when the broker tags it an equity', () => {
     // IBIT arrives with the ordinary equity code 'cs'; name evidence now outranks the tag.
-    expect(classifyHolding('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
+    expect(assetClassForSymbol('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
     expect(st('IBIT', 'ISHARES BITCOIN TRUST')).toBe('alternatives');
     expect(st('BTC', 'BITCOIN', 'crypto')).toBe('alternatives');
   });
 
   test('FIXED BY B7 — an OPTION in a positions row is alternatives through BOTH doors', () => {
-    expect(classifyHolding('AAPL250117C00220000', '')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL250117C00220000', '')).toBe('alternatives');
     expect(st('AAPL250117C00220000', 'AAPL JAN 17 25 CALL 220')).toBe('alternatives');
   });
 
   test('FIXED BY B7 — the CURRENCYSHARES gap is closed (the shortened one-word name, and the seen tickers)', () => {
-    expect(classifyHolding('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
+    expect(assetClassForSymbol('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
     expect(st('FXE', 'INVESCO CURRENCYSHARES EURO TRUST')).toBe('alternatives');
-    expect(classifyHolding('FXY', 'INVESCO CURRENCYSHARES JAPANESE YEN')).toBe('alternatives');
+    expect(assetClassForSymbol('FXY', 'INVESCO CURRENCYSHARES JAPANESE YEN')).toBe('alternatives');
   });
 
   test('the file path protects a MINING STOCK from the commodity rule; the point is it HAS the rule', () => {
-    expect(classifyHolding('GOLD', 'BARRICK GOLD CORP')).toBe('stocks_etf');   // a company, not bullion
-    expect(classifyHolding('', 'SPDR GOLD MINISHARES')).toBe('alternatives');
+    expect(assetClassForSymbol('GOLD', 'BARRICK GOLD CORP')).toBe('stocks_etf');   // a company, not bullion
+    expect(assetClassForSymbol('', 'SPDR GOLD MINISHARES')).toBe('alternatives');
   });
 });
 

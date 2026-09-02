@@ -33,8 +33,74 @@ export interface SyncResult {
   needsWrapperConfirm: string[];         // asset_ids whose tax wrapper the UI must ask about
 }
 
+/* ─ MK-XS-F-101 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * stAssetId
+ *
+ * Answers ..... What do we call this connected account internally?
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-101
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export const stAssetId = (snapTradeAccountId: string) => `st-${snapTradeAccountId}`;
 
+/* ─ MK-XS-F-102 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * ingestSync
+ *
+ * Answers ..... A broker just sent us data — what changes?
+ *
+ * Formula .....
+ *     accounts = [...existing accounts]
+ *     seen keys = { ...existing seen keys }
+ *     new transactions = []
+ *     needs wrapper confirm = []
+ *     st = account
+ *     guess = map account type(st.raw type, st.account category)
+ *     tail = string(st.number).slice(-4)   if st.number
+ *     ''   otherwise
+ *     mask = `••${tail}`   if ÷ ^\d{4}$ ÷ .test(tail)
+ *     undefined   otherwise
+ *     inst = st.institution name.trim().to lower case()
+ *     asset id = prior.asset id (or st asset id(st.id) when missing)
+ *     mapped = for each of positions (or none when missing): map position where (m): m is non nullable<typeof m> => !!m
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-005 holding price
+ *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Decides .....
+ *     · If cost per share is missing it uses 0.
+ *     · If target return is missing it uses 8%.
+ *     · If balance is missing it uses 0.
+ *     · If shares is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If cost per share is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If value is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-102
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function ingestSync(
   existingAccounts: AssetAccount[],
   existingSeenKeys: Record<string, true>,
@@ -224,6 +290,27 @@ export function ingestSync(
 }
 
 /** Mark an account's wrapper as USER-CONFIRMED — future syncs never override it. */
+/* ─ MK-XS-F-103 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * confirmWrapper
+ *
+ * Answers ..... Mark an account's wrapper as USER-CONFIRMED — future syncs never override it.
+ *
+ * Formula .....
+ *     for each of accounts: ...each = ...each
+ *     kind = kind
+ *     tax bucket = tax bucket
+ *     wrapper confirmed = true   if asset id = asset id
+ *     each   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-103
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export function confirmWrapper(accounts: AssetAccount[], assetId: string, kind: string, taxBucket: AssetAccount['tax_bucket']): AssetAccount[] {
   return accounts.map((a) => (a.asset_id === assetId ? { ...a, kind, tax_bucket: taxBucket, wrapper_confirmed: true } : a));
 }

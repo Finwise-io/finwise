@@ -12,11 +12,53 @@ export const ALT_KINDS_CAPTURE = ['crypto', 'commodities', 'annuities', 'options
 export type AltKind = typeof ALT_KINDS[number];
 
 /** Is this account an "other investment" — an alternative held at a manual value (not a bond, not cash/property)? */
+/* ─ MK-NW-F-001 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isAlternative
+ *
+ * Answers ..... Is this account an "other investment" — an alternative held at a manual value (not a bond, not cash/property)?
+ *
+ * Formula .....
+ *     ALT_KINDS.includes((kind ?? '') as alt kind) and !maturity date and tax bucket ! = 'PROPERTY'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-013 bond maturity date
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-001
+ * Changed ..... 2026-06-06 (a41cd47)
+ */
 export function isAlternative(a: AssetAccount): boolean {
   return ALT_KINDS.includes((a.kind ?? '') as AltKind) && !a.maturity_date && a.tax_bucket !== 'PROPERTY';
 }
 
 export interface AltSummary { count: number; totalValue: number; blendedReturn: number; estAnnualGrowth: number; }
+/* ─ MK-NW-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * alternativesSummary
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     alts = accounts (or none when missing) where is alternative
+ *     total = Σ over alts of (balance (or 0 when missing or zero))
+ *     weighted = Σ over total > 0 ? alts of ((balance or 0) × benchmark return(kind))÷ total : 0
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-002
+ * Changed ..... 2026-06-06 (a41cd47)
+ */
 export function alternativesSummary(accounts: AssetAccount[]): AltSummary {
   const alts = (accounts ?? []).filter(isAlternative);
   const total = alts.reduce((t, a) => t + (a.balance || 0), 0);

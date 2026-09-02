@@ -4,6 +4,7 @@
 // Pure functions, no app plumbing. MANUAL-ENTRY RULE: hand-typed transactions are NEVER flagged —
 // the watch runs on connected-account transactions only (t.source === 'connected').
 import type { Transaction } from './index';
+import { median } from '../_shared/num';
 
 export type FlagReason = 'unusually_large' | 'first_time_payee' | 'odd_pattern' | 'possible_duplicate';
 export type FlagStatus = 'open' | 'was_me' | 'flagged';
@@ -26,20 +27,80 @@ export interface TxnFlag {
 }
 
 /** Money leaves the account: withdrawals, fees, and transfers with no recognized counter-account. */
+/* ─ MK-CF-F-108 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * isMoneyOut
+ *
+ * Answers ..... Money leaves the account: withdrawals, fees, and transfers with no recognized counter-account.
+ *
+ * Formula .....
+ *     true   when type = 'WITHDRAWAL' (or type = 'FEE' when missing or zero)
+ *     true   when type = 'TRANSFER' and !counter account id
+ *     false
+ *
+ * Called by ... MK-CF-F-109 reviewTransactions
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-109 reviewTransactions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-108
+ * Changed ..... 2026-07-13 (4cb258a)
+ */
 export function isMoneyOut(t: Transaction): boolean {
   if (t.type === 'WITHDRAWAL' || t.type === 'FEE') return true;
   if (t.type === 'TRANSFER' && !t.counter_account_id) return true;
   return false;
 }
 
+/* ─ MK-CF-F-131 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * normPayee
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     (note ?? '').trim().to lower case()
+ *
+ * Called by ... MK-CF-F-109 reviewTransactions
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-109 reviewTransactions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-131
+ * Changed ..... not in git yet (—)
+ */
 const normPayee = (note?: string | null) => (note ?? '').trim().toLowerCase();
-const median = (xs: number[]): number => {
-  if (!xs.length) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  const mid = Math.floor(s.length / 2);
-  return s.length % 2 ? s[mid] : (s[mid - 1] + s[mid]) / 2;
-};
-const daysBetween = (a: string, b: string) => Math.abs(new Date(a).getTime() - new Date(b).getTime()) / 86_400_000;
+/* ─ MK-CF-F-162 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * daysApart
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     size of(the date a).get time() − new date(b) ÷ 86400000
+ *
+ * Called by ... MK-CF-F-109 reviewTransactions
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-109 reviewTransactions
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in l a r g e m u l t i p l e of 3.
+ *     · Uses a built-in l a r g e f l o o r of 500.
+ *     · Uses a built-in l a r g e c o l d s t a r t of 1000.
+ *     · Uses a built-in m i n h i s t o r y of 5.
+ *     · Uses a built-in p a y e e f l o o r of 250.
+ *     · Uses a built-in p a t t e r n c o u n t of 3.
+ *     · Uses a built-in p a t t e r n t o t a l of 1000.
+ *     · Uses a built-in h i s t o r y d a y s of 90.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-162
+ * Changed ..... not in git yet (—)
+ */
+const daysApart = (a: string, b: string) => Math.abs(new Date(a).getTime() - new Date(b).getTime()) / 86_400_000;
 
 // Fixed v1 thresholds — no automatic tightening or loosening (design: thresholds never auto-adjust).
 export const LARGE_MULTIPLE = 3;        // ≥ 3× the account's typical money-out…
@@ -66,6 +127,41 @@ export interface ReviewContext {
  * Rules in order — any ONE trips a flag; a transaction gets at most one flag; the odd-pattern
  * rule produces one COMBINED card for the day.
  */
+/* ─ MK-CF-F-109 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * reviewTransactions
+ *
+ * Answers ..... Review new transactions against an account's history.
+ *
+ * Formula .....
+ *     make id = ctx.make id (or () => `flag${math.random().to string(36).slice(2, 10)}` when missing)
+ *     now iso = (ctx.now ?? new date()).to isostring()
+ *     flags = []
+ *     flagged ids = new set<string>()
+ *     dup candidates = new ones where is money out(each) and (amount ?? 0) > 0
+ *     acct = string(account id)
+ *     candidates = new ones where source = 'connected' and is money out(each) and (amount ?? 0) > 0
+ *     acct = string(account id)
+ *     amount = amount as number
+ *     past amounts = for each of past: amount as number
+ *     typical = median(past amounts)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-008 transaction amount
+ *               MK-XS-I-009 transaction date
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *               MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · If amount is missing it uses 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-109
+ * Changed ..... 2026-07-30 (62656b7)
+ */
 export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): TxnFlag[] {
   const { history, knownPayees = {} } = ctx;
   const makeId = ctx.makeId ?? (() => `flag_${Math.random().toString(36).slice(2, 10)}`);
@@ -85,7 +181,7 @@ export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): 
     const twin = history.find((h) => String(h.account_id) === acct && isMoneyOut(h) && h.id !== t.id
       && Math.abs((h.amount ?? 0) - (t.amount ?? 0)) < 0.005
       && normPayee(h.note) === normPayee(t.note)
-      && daysBetween(h.date, t.date) <= 2);
+      && daysApart(h.date, t.date) <= 2);
     if (twin) {
       flags.push({
         flag_id: makeId(), transaction_ids: [String(t.id)], account_id: acct,
@@ -104,7 +200,7 @@ export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): 
     const acct = String(t.account_id);
     const amount = t.amount as number;
     const past = history.filter((h) => String(h.account_id) === acct && isMoneyOut(h) && (h.amount ?? 0) > 0
-      && daysBetween(h.date, t.date) <= HISTORY_DAYS && h.id !== t.id);
+      && daysApart(h.date, t.date) <= HISTORY_DAYS && h.id !== t.id);
 
     // (1) UNUSUALLY LARGE
     const pastAmounts = past.map((h) => h.amount as number);
@@ -167,6 +263,28 @@ export function reviewTransactions(newOnes: Transaction[], ctx: ReviewContext): 
 }
 
 /** The plain-English comparison sentence for the detail view — fixed, human-reviewed templates. */
+/* ─ MK-CF-F-110 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * flagComparisonText
+ *
+ * Answers ..... The plain-English comparison sentence for the detail view — fixed, human-reviewed templates.
+ *
+ * Formula .....
+ *     times = round(amount ÷ comparison)
+ *     the answer = `your usual withdrawal from this account is about $${math.round(comparison).to locale string()}. this one is ${times} times that.`
+ *     `first time we've seen this payee on this account.`   when reason = 'first_time_payee'
+ *     `looks like the same charge twice — same amount, same place, within two days. if one was typed by mistake, delete it; if both are real, mark it settled.`   when reason = 'possible_duplicate'
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-110
+ * Changed ..... 2026-07-30 (62656b7)
+ */
 export function flagComparisonText(f: TxnFlag): string {
   if (f.reason === 'unusually_large') {
     if (f.comparison && f.comparison > 0) {

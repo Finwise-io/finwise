@@ -79,8 +79,72 @@ const OCC_OPTION = /^-?[A-Z.]{1,6}\d{6}[CP]\d{1,8}$/;
  *  share-price feed comes back with no price and reads as worth nothing. */
 const CUSIP = /^[0-9A-Z]{9}$/;
 
+/* ─ MK-ST-F-056 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * has
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     re.test(s)
+ *
+ * Called by ... MK-CF-F-020 cashflowYear · MK-CF-F-092 incomeMonthlyGrid
+ *               MK-CF-F-109 reviewTransactions · MK-CF-F-114 undoSnapshot
+ *               MK-CF-F-115 restoreUndo · MK-CF-F-146 payFiguresAgree
+ *               MK-CF-F-150 debtPaymentsCountedAsExpenses · MK-CF-F-153 radar
+ *               MK-PF-F-024 userFlows · MK-PF-F-025 historyIsComplete
+ *               MK-PL-F-009 rmdTakenThisYear · MK-PL-F-031 taxOrganizer
+ *               MK-ST-F-010 nameEvidence · MK-ST-F-031 valueOn
+ *               MK-ST-F-061 isMonthEnd · MK-XS-F-004 buildDatedGrid
+ *               MK-XS-F-006 pruneDaily · MK-XS-F-014 classifyHolding
+ *               MK-XS-F-104 mapAccountType · MK-XS-F-109 dedupeActivities
+ *
+ * Reaches ..... 88 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
+ *               MK-NW-F-002 alternativesSummary · MK-NW-F-019 alternativesTotal
+ *               MK-CF-F-012 annualCashflow · MK-NW-F-029 assetAllocation
+ *               MK-XS-F-172 assetClassForSymbol · MK-NW-F-011 assetClassOf
+ *               MK-NW-F-007 assetKind · MK-CF-O-001 basePay
+ *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
+ *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
+ *               MK-CF-F-013 budgetFromOnboarding · MK-CF-F-014 budgetVsActual
+ *               MK-XS-F-004 buildDatedGrid · MK-CF-F-107 buildPaycheckYear
+ *               … and 70 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-056
+ * Changed ..... not in git yet (—)
+ */
 const has = (s: string, re: RegExp) => re.test(s);
 
+/* ─ MK-XS-F-014 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * classifyHolding
+ *
+ * Answers ..... For a line in a FILE you upload: which class is it?
+ *
+ * Formula .....
+ *     ticker = string(input.ticker ?? '').trim().replace( ÷ \ × +$ ÷ , '').replace( ÷ ^- ÷ , '').to upper case()
+ *     name = string(input.name ?? '').trim()
+ *     both = `${ticker} ${name}`.trim()
+ *     itype = string(input.institution type ?? '').trim().to upper case()
+ *     isub = string(input.institution sub type ?? '').trim().to upper case()
+ *     out(input.stated, 'you set this yourself')   when input.stated
+ *     out('stocks_funds', 'the institution says it is a money − market fund')   when isub = 'MONEYMARKET'
+ *     out('cash', 'the institution says it is cash')   when isub = 'CASH'
+ *     out(STRONG_TYPE[itype], `the institution's own type says ${itype}`)   when STRONG_TYPE[itype]
+ *     weak type = a list with no repeats of ['STOCK', 'MUTUALFUND', 'ETF', 'CS', 'ET', 'MF', 'OEF', 'CEF', 'ADR']
+ *     the answer = out('alternatives', 'the symbol is shaped like an option contract')
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *               MK-XS-I-048 the person’s own asset-class answer
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-014
+ * Changed ..... 2026-08-18 (e3e7833)
+ */
 export function classifyHolding(input: ClassifyInput): Classified {
   const out = (assetClass: AssetClass, because: string, confident = true): Classified =>
     ({ assetClass, label: CLASS_LABEL[assetClass], because, confident });
@@ -172,6 +236,30 @@ export function classifyHolding(input: ClassifyInput): Classified {
 
 /** Fixed income by its words. This is where a CD's identity actually lives — verified in FDX 6.3
  *  and 6.4 that no standard carries a maturity or coupon field on a holding. */
+/* ─ MK-ST-F-001 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * looksFixedIncome
+ *
+ * Answers ..... Fixed income by its words.
+ *
+ * Formula .....
+ *     t = text.to upper case()
+ *     true   when ÷ \b(CD|CERTIFICATE OF DEPOSIT|T-?BILL|TREASURY BILLS?|TREAS BILLS?|TREASURY NOTE|TREAS NOTE|TREASURY BOND|TREAS |DEBENTURE|MUNI|ZERO CPN)\b ÷ .test(t)
+ *     true   when ÷ \b bds\b|\b bond\b|\b notes?\b ÷ .test(t) and ! ÷ \b noted\b ÷ .test(t)
+ *     true   when ÷ \b bd\b\s × (INDEX|FD|FUND) ÷ .test(t)
+ *     true   when ÷ \d(\.\d+)?\s × %. × \b(20\d\d|DUE|MTD)\b ÷ .test(t)
+ *     true   when ÷ \b cpn\b\s × [\d.] ÷ .test(t)
+ *     the answer = false
+ *
+ * Called by ... MK-XS-F-014 classifyHolding
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-014 classifyHolding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-001
+ * Changed ..... 2026-08-18 (e3e7833)
+ */
 export function looksFixedIncome(text: string): boolean {
   const t = text.toUpperCase();
   if (/\b(CD|CERTIFICATE OF DEPOSIT|T-?BILL|TREASURY BILLS?|TREAS BILLS?|TREASURY NOTE|TREAS NOTE|TREASURY BOND|TREAS |DEBENTURE|MUNI|ZERO CPN)\b/.test(t)) return true;

@@ -19,6 +19,24 @@ const GOOGLE_VISION_KEY = Constants.expoConfig?.extra?.GOOGLE_VISION_API_KEY || 
  * Setup: enable Cloud Vision API in Google Cloud Console,
  * add GOOGLE_VISION_API_KEY to your .env file.
  */
+/* ─ MK-XS-F-092 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * parseReceiptWithOCR
+ *
+ * Answers ..... Sends a receipt image to Google Cloud Vision API for OCR, then parses the raw text to extract store, total, date, category.
+ *
+ * Formula .....
+ *     the answer = nothing
+ *     json = await response.json()
+ *     raw text = json.responses.[0].full text annotation.text (or '' when missing or zero)
+ *     nothing   when raw text is missing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-092
+ * Changed ..... 2026-05-21 (e39fbd7)
+ */
 export async function parseReceiptWithOCR(imageUri: string): Promise<ParsedReceipt | null> {
   if (!GOOGLE_VISION_KEY) {
     console.warn('GOOGLE_VISION_API_KEY not set — falling back to manual entry');
@@ -69,12 +87,72 @@ export async function parseReceiptWithOCR(imageUri: string): Promise<ParsedRecei
  *  money pattern as $30.04 and — on a receipt with no TOTAL keyword — beat the real charge because
  *  it was the largest number on the page. Founder's parking receipt, 2026-08-12: read as $30.04
  *  when the fee was $22.45. Times are stripped for the same reason (7:54, 08:30). */
+/* ─ MK-XS-F-093 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * stripNonMoney
+ *
+ * Answers ..... A DATE IS NOT MONEY.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-058 parseReceipt · MK-XS-F-094 parseReceiptText
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-097 ocrReceipt · MK-XS-F-058 parseReceipt
+ *               MK-XS-F-094 parseReceiptText · MK-XS-F-092 parseReceiptWithOCR
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-093
+ * Changed ..... 2026-08-12 (4d85bb3)
+ */
 export function stripNonMoney(line: string): string {
   return line
     .replace(/\b\d{1,4}[.\/-]\d{1,2}[.\/-]\d{2,4}\b/g, ' ')   // 30.04.24 · 04/30/24 · 2024-04-30
     .replace(/\b\d{1,2}:\d{2}(:\d{2})?\b/g, ' ');              // 08:30 · 7:54
 }
 
+/* ─ MK-XS-F-094 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * parseReceiptText
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     lines = for each of text.split('\n'): trim() where boolean
+ *     payment line = ÷ \b(cash|tender|tendered|change|paid|payment|visa|mastercard|amex|discover|debit|credit|card|auth|approval|account)\b ÷ i
+ *     strong total = ÷ \b(grand\s × total|amount\s × due|balance\s × due|total\s × due|balance|net)\b ÷ i
+ *     weak total = ÷ \b(total|fee)\b ÷ i
+ *     subtotal line = ÷ \bsub\s × -?\s × total\b ÷ i
+ *     savings hdr = ÷ \b(your\s+savings|total\s+savings|savings\s+value|your\s+points|rewards?|cash\s × off|coupons?)\b ÷ i
+ *     negative line = ÷ -\s × \$?\s × \d ÷
+ *     amount = ÷ \$?\s × ([\d,]+\.[\d]{2})\b ÷
+ *     m = strip non money(l).match(AMOUNT)
+ *     v = parse float(m[1].replace( ÷ , ÷ g, ''))   if m
+ *     na n   otherwise
+ *     the answer:
+ *     v   if number.is finite(v) and v > 0 and v < 10000
+ *     nothing   otherwise
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-XS-F-092 parseReceiptWithOCR
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-092 parseReceiptWithOCR
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · Uses a built-in strong t of 0.
+ *     · Uses a built-in weak t of 0.
+ *     · Uses a built-in subtotal of 0.
+ *     · Uses a built-in largest safe of 0.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-094
+ * Changed ..... 2026-07-21 (b409e89)
+ */
 export function parseReceiptText(text: string): ParsedReceipt {
   const lines = text.split('\n').map((l) => l.trim()).filter(Boolean);
 
@@ -180,6 +258,33 @@ export function parseReceiptText(text: string): ParsedReceipt {
   return { store, amount, date, category, items, confidence };
 }
 
+/* ─ MK-XS-F-144 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * guessCategory
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     lower = (store + ' ' + text).to lower case()
+ *     'Gas'   when ÷ gas|fuel|shell|chevron|bp|exxon|mobil|circle k|speedway|wawa ÷ .test(lower)
+ *     'Dining'   when ÷ restaurant|cafe|pizza|burger|sushi|diner|grill|kitchen|bar |tavern|starbucks|mcdonald|subway|chipotle|taco|chick ÷ .test(lower)
+ *     'Health'   when ÷ pharmacy|cvs|walgreen|rite aid|health|clinic|doctor|hospital|medical|dental ÷ .test(lower)
+ *     'Subscriptions'   when ÷ netflix|hulu|disney|spotify|amazon prime|apple|subscription|recurring ÷ .test(lower)
+ *     'Transit'   when ÷ uber|lyft|taxi|transit|metro|bus |train|airline|flight|parking ÷ .test(lower)
+ *     'Groceries'   when ÷ walmart|target|costco|kroger|whole foods|trader|safeway|publix|aldi|grocery|market|food ÷ .test(lower)
+ *     'Shopping'   when ÷ home depot|lowe|ikea|furniture|hardware ÷ .test(lower)
+ *     'Utilities'   when ÷ electric|water|gas bill|utility|internet|phone bill|at&t|verizon|comcast ÷ .test(lower)
+ *     the answer = 'Other'
+ *
+ * Called by ... MK-XS-F-094 parseReceiptText
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-094 parseReceiptText · MK-XS-F-092 parseReceiptWithOCR
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-144
+ * Changed ..... not in git yet (—)
+ */
 function guessCategory(store: string, text: string): string {
   const lower = (store + ' ' + text).toLowerCase();
 

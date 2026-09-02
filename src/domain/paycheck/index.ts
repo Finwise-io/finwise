@@ -71,6 +71,42 @@ export interface PaycheckOptions {
 /** The dated guaranteed-income rows for the next 12 months (the F2 grid seam).
  *  Received-now gate: identical rule to currentRetirementIncomeMonthly — ri_* counts only when
  *  'retirement_income' is among the selected income sources (or there is no source list). */
+/* ─ MK-CF-F-105 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * guaranteedRows
+ *
+ * Answers ..... The dated guaranteed-income rows for the next 12 months (the F2 grid seam).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     srcs = income sources
+ *     []   when array.is array(srcs) and !srcs.includes('retirement_income')
+ *     start month = now.get month(), start year = now.get full year()
+ *     month at = (s: number) => ((start month + s) % 12) + 1
+ *     year at = (s: number) => start year + round down((start month + s) ÷ 12)
+ *     slot of = (m1to12: number) => ((m1to12 − 1) − start month + 12) % 12
+ *     rows = []
+ *     amt = a['ri_' + key] read as a number (0 when it is not one)
+ *     freq = a['ri_' + key + '_freq'] (or 'monthly' when missing)
+ *     day = a['ri_' + key + '_day'] read as a number (0 when it is not one) (or undefined when missing or zero)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-107 buildPaycheckYear
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-040 whether a stream is already being received
+ *
+ * Decides .....
+ *     · Uses a built-in q of 0.
+ *     · Uses a built-in s of 0.
+ *     · Treats a year as twelve equal months.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-105
+ * Changed ..... 2026-07-12 (652a06e)
+ */
 export function guaranteedRows(op: OnboardingProfile | null, now: Date = new Date()): GuaranteedRow[] {
   const a: Record<string, any> = op ?? {};
   const srcs = a.incomeSources;
@@ -95,6 +131,39 @@ export function guaranteedRows(op: OnboardingProfile | null, now: Date = new Dat
 }
 
 /** Largest level monthly draw that keeps chance-of-success ≥ the floor. Deterministic (seeded). */
+/* ─ MK-CF-F-106 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * solveSafeDraw
+ *
+ * Answers ..... Largest level monthly draw that keeps chance-of-success ≥ the floor.
+ *
+ * Formula .....
+ *     0   when nest egg ≤ 0
+ *     years = max(1, sim.horizon age − sim.current age)
+ *     lo = 0, hi = max(100, (nest egg ÷ years ÷ 12) × 2)
+ *     round(hi, 2 dp)   when chance at(hi) ≥ chance floor
+ *     mid = (lo + hi) ÷ 2
+ *     the answer = round(round down(lo ÷ 5) × 5, 2 dp)
+ *
+ * Called by ... MK-CF-F-107 buildPaycheckYear
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If paths is missing it uses 300.
+ *     · If seed is missing it uses 42.
+ *     · Uses a built-in i of 0.
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-106
+ * Changed ..... 2026-07-12 (652a06e)
+ */
 export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim: PaycheckSimInputs, chanceFloor = 80): number {
   if (nestEgg <= 0) return 0;
   const base: RetirementInputs = {
@@ -119,6 +188,40 @@ export function solveSafeDraw(nestEgg: number, guaranteedMonthlyAvg: number, sim
 }
 
 /** Build the month-by-month paycheck. Pure; recompute triggers are the caller's job. */
+/* ─ MK-CF-F-107 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildPaycheckYear
+ *
+ * Answers ..... Build the month-by-month paycheck.
+ *
+ * Formula .....
+ *     now = opts.now (or new date() when missing)
+ *     rows = guaranteed rows(op, now)
+ *     nest egg = round(opts.nest egg (or retirement earmarked value(opts.accounts ?? []) when missing), 2 dp)
+ *     guaranteed annual = Σ over rows of (amount)
+ *     safe draw = solve safe draw(nest egg, guaranteed annual ÷ 12, opts.sim, opts.chance floor ?? 80)
+ *     grid = build dated grid(op, { now, liabilities: opts.liabilities, guaranteed income: rows })
+ *     start month = now.get month(), start year = now.get full year()
+ *     cm = ((start month + s) % 12) + 1
+ *     yr = start year + round down((start month + s) ÷ 12)
+ *     label = MONTHS[cm − 1] + (yr > start year ? ` ’${string(yr).slice(2)}` : '')
+ *     g total = Σ over g of (amount)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If chance floor is missing it uses 80.
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-107
+ * Changed ..... 2026-07-12 (652a06e)
+ */
 export function buildPaycheckYear(op: OnboardingProfile | null, opts: PaycheckOptions): PaycheckYear {
   const now = opts.now ?? new Date();
   const rows = guaranteedRows(op, now);

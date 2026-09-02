@@ -6,6 +6,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import FirstRunScreen from '../FirstRunScreen';
 import { useStore } from '../../store/useStore';
 import { resolveLens } from '../../domain/profile/lens';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 const mockReplaces: string[] = [];
 jest.mock('expo-router', () => ({
@@ -112,7 +113,7 @@ test("the cash-flow snapshot card: income/spent/left from the month's own figure
   useStore.setState({
     onboardingComplete: true,
     onboardingProfile: { status: 'employed', baseSalary: '8000', salaryMode: 'gross', salaryFreq: 'monthly', taxMode: 'manual', manualTaxRate: '25', name: 'Pat', monthlySpending: '3000' },
-    expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
+    expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: isoLocalDate(new Date()) }],
   } as any);
   render(<HomeScreen />);
   expect(screen.getByText("THIS MONTH'S CASH FLOW")).toBeOnTheScreen();

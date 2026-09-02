@@ -1,4 +1,4 @@
-// THE CASH FLOW SURFACE (v1.3, FINAL mock approved 2026-07-19 — mockups/final/cashflow-4tabs-FINAL…).
+// THE CASH FLOW SURFACE (v1.3, FINAL mock approved 2026-07-19 — MoneyKeel/documents/other/archive/2026-07-19_moneykeel_pres_mock_cashflow-4tabs_v01.html).
 // Pins: four tabs · first-open has doors not zeros · the income pop-up saves CANONICAL fields
 // (steady → baseSalary/takehome/monthly; varies → salaryByMonth) · Spending embeds the proven
 // Activity body · Debts embeds the debt manager · the month switcher shows past actuals and
@@ -7,9 +7,11 @@ import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
 import { useStore } from '../../store/useStore';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
+var mockPush = jest.fn();
 jest.mock('expo-router', () => ({
-  useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn() }),
+  useRouter: () => ({ back: jest.fn(), push: mockPush, replace: jest.fn() }),
   useLocalSearchParams: () => ({}),
 }));
 
@@ -35,68 +37,26 @@ test('the four tabs render and switch (This month · Income · Spending · Debts
   expect(screen.getAllByText(/debt/i).length).toBeGreaterThan(0);     // embedded debt manager
 });
 
-test('FIRST OPEN: no zeros — the two setup doors; the income pop-up opens from door 1', () => {
+// THE DOOR MOVED, 2026-08-27. The approved mock (income-v5, frame 2a) replaces the bottom sheet with
+// a full screen: a sheet caps at 88% of the display, and three figures plus a fourteen-month table
+// plus a second earner never fitted in one. The four pop-up tests that stood here are replaced by
+// src/screens/__tests__/base_pay_screen.test.tsx (the screen, frames 2a-2e) and
+// src/domain/income/salary-months.test.ts (the month keys, including the cross-year window that the
+// rolling-frame test used to pin). What is checked HERE is the door itself.
+test('FIRST OPEN: no zeros — the two setup doors; door 1 opens the base-pay screen', () => {
   useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
   render(<CashFlowScreen />);
   expect(screen.getByText('SET UP YOUR MONTH — 2 STEPS')).toBeOnTheScreen();
   expect(screen.queryByText(/\$0/)).toBeNull();                        // the founder's $0 wall is gone
+  expect(screen.getByText('1 · Your base pay')).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
-  expect(screen.getByText('How steady is it?')).toBeOnTheScreen();     // the approved pop-up
-});
-
-test('income pop-up STEADY saves the canonical fields (baseSalary · takehome · monthly)', () => {
-  useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
-  render(<CashFlowScreen />);
-  fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
-  fireEvent.changeText(screen.getByLabelText('Monthly take-home amount'), '6200');
-  fireEvent.press(screen.getByLabelText('Save my income'));
-  const op = (useStore.getState() as any).onboardingProfile;
-  expect(op.baseSalary).toBe('6200');
-  expect(op.salaryMode).toBe('takehome');
-  expect(op.salaryFreq).toBe('monthly');
-});
-
-test('income pop-up VARIES: months carry their YEAR, the frame is chosen (calendar/rolling), canonical slots written', () => {
-  const yr = new Date().getFullYear();
-  useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
-  render(<CashFlowScreen />);
-  fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
-  fireEvent.press(screen.getByLabelText('It varies month to month'));
-  // BUILD-44 FIX: the frame question + real month-and-year labels
-  expect(screen.getByLabelText(`Calendar year ${yr}`)).toBeOnTheScreen();
-  expect(screen.getByLabelText('The next 12 months from today')).toBeOnTheScreen();
-  fireEvent.changeText(screen.getByLabelText('Monthly take-home amount'), '5000');
-  fireEvent.press(screen.getByLabelText(new RegExp(`Dec ${yr}: .*Tap to adjust`)));
-  fireEvent.changeText(screen.getByLabelText(`Dec ${yr} take-home amount`), '9000');
-  fireEvent.press(screen.getByLabelText('Save my income'));
-  const op = (useStore.getState() as any).onboardingProfile;
-  expect(op.salaryByMonth).toHaveLength(12);
-  expect(op.salaryByMonth[11]).toBe('9000');       // December slot — calendar-indexed, unambiguous
-  expect(op.salaryByMonth[0]).toBe('5000');
-});
-
-test('income pop-up VARIES rolling frame: same canonical slots, months labeled across the year boundary', () => {
-  const yr = new Date().getFullYear();
-  const start = new Date().getMonth();
-  useStore.setState({ onboardingProfile: {}, onboardingComplete: true } as any);
-  render(<CashFlowScreen />);
-  fireEvent.press(screen.getByLabelText(/Step 1: set up your income/));
-  fireEvent.press(screen.getByLabelText('It varies month to month'));
-  fireEvent.press(screen.getByLabelText('The next 12 months from today'));
-  fireEvent.changeText(screen.getByLabelText('Monthly take-home amount'), '4000');
-  // the LAST chip in rolling order is (start+11)%12 — if the window crosses New Year it wears NEXT year's label
-  const lastSlot = (start + 11) % 12;
-  const lastYear = start + 11 >= 12 ? yr + 1 : yr;
-  const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
-  expect(screen.getByLabelText(new RegExp(`${MONTHS[lastSlot]} ${lastYear}: .*Tap to adjust`))).toBeOnTheScreen();
-  fireEvent.press(screen.getByLabelText('Save my income'));
-  expect((useStore.getState() as any).onboardingProfile.salaryByMonth).toHaveLength(12);
+  expect(mockPush).toHaveBeenCalledWith('/base-pay');
 });
 
 test('Spending tab (approved mock): month header, rows with source chips, categories vs plan, both door links', () => {
   // bucket plans come from the budget fields (spendCats / b_*) — give the fixture a real plan
   useStore.setState({ onboardingProfile: { ...WORKER, b_fixed: '1800', b_flexible: '900' }, onboardingComplete: true } as any);
-  (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: new Date().toISOString().slice(0, 10), notes: '' });
+  (useStore.getState() as any).addExpense({ amount: 86, category: 'Food', store: 'Whole Foods', date: isoLocalDate(new Date()), notes: '' });
   render(<CashFlowScreen />);
   fireEvent.press(screen.getByLabelText('Spending tab'));
   expect(screen.getByText(/· \$86 SPENT/)).toBeOnTheScreen();                  // the month header with the sum

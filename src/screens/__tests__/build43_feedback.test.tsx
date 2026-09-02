@@ -10,6 +10,7 @@ import HomeScreen from '../HomeScreen';
 import NetWorthScreen from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
 import { GLOSSARY } from '../../domain/glossary';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn() }),
@@ -285,7 +286,7 @@ test('B45: a young history labels the span HONESTLY — "since Jul 19", never "u
   const expected = `since ${new Date(`${key}T12:00:00`).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
   useStore.setState({
     assetAccounts: [{ asset_id: 'a1', label: 'Savings', kind: 'savings', tax_bucket: 'TAXABLE', balance: 5000, target_return: 0 }],
-    nwDaily: { [key]: 4000, [new Date().toISOString().slice(0, 10)]: 5000 },   // launch captures today on device
+    nwDaily: { [key]: 4000, [isoLocalDate(new Date())]: 5000 },   // launch captures today on device
   } as any);
   render(<NetWorthScreen />);
   // founder wording 2026-08-10: the move is named ("Change in net worth"), signed, and no longer
@@ -300,7 +301,7 @@ test('B45 + founder 2026-08-10: an unchanged history reads "$0" and stays TAPPAB
   const key = new Date(Date.now() - 5 * 86400e3).toISOString().slice(0, 10);
   useStore.setState({
     assetAccounts: [{ asset_id: 'a1', label: 'Savings', kind: 'savings', tax_bucket: 'TAXABLE', balance: 5000, target_return: 0 }],
-    nwDaily: { [key]: 5000, [new Date().toISOString().slice(0, 10)]: 5000 },
+    nwDaily: { [key]: 5000, [isoLocalDate(new Date())]: 5000 },
   } as any);
   render(<NetWorthScreen />);
   expect(screen.getByLabelText(/Change in net worth \$0.*hide offsetting moves/)).toBeOnTheScreen();   // tappable: opens the walk

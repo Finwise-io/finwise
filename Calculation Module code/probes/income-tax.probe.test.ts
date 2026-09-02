@@ -2,10 +2,12 @@
 //
 // This family has form: B-34 was a real bug here, where a representative month was used as if it
 // were every month and inflated income roughly twofold. So each rule is pinned deliberately.
+// Until 2026-08-27 this file imported TWO tax engines — one single-filer-only, one filing-status
+// aware — and asserted the same answers from both without noticing they were the same arithmetic.
+// There is one engine now.
 import {
-  taxableIncome, taxOwed, marginalBracket, effectiveRateOnGross, grossFromNet,
-  taxableIncomeFor, taxOwedFor, effectiveRateOnGrossFor, progressiveMonthlyTax,
-  TAX_BRACKETS, STANDARD_DEDUCTION, TAX_YEAR,
+  taxableIncomeFor, taxOwedFor, marginalBracketFor, effectiveRateOnGrossFor, grossFromNet,
+  progressiveMonthlyTax, TAX_BRACKETS, STANDARD_DEDUCTION, TAX_YEAR,
 } from '../../src/domain/income/tax';
 import { salaryGrossByMonth, salaryAnnual, salaryActiveMonths, grossSalaryMonthly, equityRowValue, rowVestYear } from '../../src/domain/income/onboarding';
 
@@ -17,22 +19,22 @@ import { salaryGrossByMonth, salaryAnnual, salaryActiveMonths, grossSalaryMonthl
 // ════════════════════════════════════════════════════════════════════════════════════════════════
 describe('TAX_OWED', () => {
   test('the deduction comes off first, and cannot push taxable income below zero', () => {
-    expect(taxableIncome(100_000)).toBe(100_000 - STANDARD_DEDUCTION);
-    expect(taxableIncome(5_000)).toBe(0);
-    expect(taxOwed(5_000)).toBe(0);
+    expect(taxableIncomeFor(100_000)).toBe(100_000 - STANDARD_DEDUCTION);
+    expect(taxableIncomeFor(5_000)).toBe(0);
+    expect(taxOwedFor(5_000)).toBe(0);
   });
 
   test('each rate applies only to its own slice — the tax is progressive, never flat', () => {
     // taxable 12,400 exactly fills the 10% band
-    const atBandTop = taxOwed(12_400 + STANDARD_DEDUCTION);
+    const atBandTop = taxOwedFor(12_400 + STANDARD_DEDUCTION);
     expect(atBandTop).toBeCloseTo(1_240, 0);
     // one dollar more is taxed at 12% — on that dollar alone, not on everything
-    expect(taxOwed(12_401 + STANDARD_DEDUCTION) - atBandTop).toBeCloseTo(0.12, 2);
+    expect(taxOwedFor(12_401 + STANDARD_DEDUCTION) - atBandTop).toBeCloseTo(0.12, 2);
   });
 
   test('the marginal rate is the band you are IN, and the effective rate is always lower', () => {
-    expect(marginalBracket(150_000)).toBe(0.24);
-    expect(effectiveRateOnGross(150_000)).toBeLessThan(0.24);   // the distinction people get wrong
+    expect(marginalBracketFor(150_000)).toBe(0.24);
+    expect(effectiveRateOnGrossFor(150_000)).toBeLessThan(0.24);   // the distinction people get wrong
   });
 
   test('the table says which year it is for, so a stale table is visible rather than silent', () => {
@@ -72,7 +74,7 @@ describe('FILING_STATUS', () => {
 describe('GROSS_FROM_NET', () => {
   test('it inverts the schedule: the gross whose take-home equals what was typed', () => {
     const gross = grossFromNet(80_000);
-    expect(gross - taxOwed(gross)).toBeCloseTo(80_000, 0);
+    expect(gross - taxOwedFor(gross)).toBeCloseTo(80_000, 0);
     expect(grossFromNet(0)).toBe(0);
     expect(grossFromNet(-5)).toBe(0);
   });
@@ -122,11 +124,21 @@ describe('SALARY_BY_MONTH', () => {
       .toEqual([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12]);
   });
 
-  test('TAKE-HOME entries are grossed up, keeping the SHAPE of the year', () => {
-    const takehome = salaryGrossByMonth({ salaryMode: 'takehome', salaryByMonth: [5_000, 5_000, 10_000, ...new Array(9).fill(5_000)] } as any);
-    expect(takehome[2]).toBeGreaterThan(takehome[0]);                  // the big month stays big
-    expect(takehome[2] / takehome[0]).toBeCloseTo(2, 1);               // and stays twice the others
-    expect(takehome.reduce((t, x) => t + x, 0)).toBeGreaterThan(65_000);
+  // MOVED 2026-08-28 (build step 2). The gross-up used to run inside salaryGrossByMonth on every
+  // read — inverting the tax schedule to find a gross that would produce a typed take-home, a guess
+  // laid on an estimate. It now happens ONCE, on the way into the store, and the shape of the year
+  // is simply the months as stored. What the conversion must preserve is tested where it lives.
+  test('a take-home entry is converted ONCE, and the shape of the year survives it', () => {
+    const { convertTakeHomeMode } = require('../../src/domain/income/take-home-mode-migration');
+    const before: any = { salaryMode: 'takehome', baseSalary: '5000', salaryFreq: 'monthly',
+                          salaryByMonth: [5_000, 5_000, 10_000, ...new Array(9).fill(5_000)] };
+    const after = convertTakeHomeMode(before);
+    expect(after.salaryMode).toBe('gross');
+    expect(Number(after.baseSalary)).toBeGreaterThan(5_000);      // gross exceeds what lands
+    expect(after.landsTypical).toBe('5000');                      // and what they typed is kept, as what lands
+    const months = salaryGrossByMonth(after);
+    expect(months[2]).toBeGreaterThan(months[0]);                 // the big month stays big
+    expect(months[2] / months[0]).toBeCloseTo(2, 1);              // and stays twice the others
   });
 
   test('B-34 PINNED: the annual figure ADDS the months, never multiplies the biggest by twelve', () => {

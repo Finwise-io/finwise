@@ -12,7 +12,7 @@ import AddAccountScreen from '../screens/AddAccountScreen';
 import SnapTradeConnect from '../screens/SnapTradeConnect';
 import GoalsScreen from '../screens/GoalsScreen';
 import { ingestSync } from '../services/sync/ingest';
-import { importHoldings, classifyHolding } from '../domain/import/holdingsImport';
+import { importHoldings, assetClassForSymbol } from '../domain/import/holdingsImport';
 
 let mockParams: Record<string, string> = {};
 const mockPushes: string[] = [];
@@ -229,7 +229,7 @@ describe('USER WALK · 5 edge cases', () => {
   });
 
   test('E5 · a CSV with an OCC option row files it under alternatives, never as a stock (G2)', () => {
-    expect(classifyHolding('AAPL250116C00220000')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL250116C00220000')).toBe('alternatives');
     const csv = 'Symbol,Quantity,Cost Basis,Value\nVTI,10,2000,2500\nAAPL250116C00220000,2,820,1300\n';
     const r = importHoldings(csv);
     const opt = r.holdings.find((h) => h.symbol === 'AAPL250116C00220000');

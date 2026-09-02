@@ -1,9 +1,9 @@
 import {
-  annualNet, grossAnnualBaseline, estimateEffectiveTaxRate, effectiveTaxRate,
+  annualNet, grossAnnualBaseline, effectiveTaxRate,
   buildIncomeState, employerMatchAnnual,
 } from './calc';
 import { incomeFromOnboarding, employerMatchMonthly, grossSalaryMonthly, rsuAnnual, incomeMonthlyGrid, extraIncome, salaryAnnual, totalGrossAnnual, taxableAnnual } from './onboarding';
-import { grossFromNet, taxOwed } from './tax';
+import { grossFromNet, taxOwedFor, effectiveRateOnGrossFor } from './tax';
 import { IncomeSource } from './types';
 import type { OnboardingProfile } from '../onboardingProfile';
 
@@ -27,8 +27,8 @@ describe('income calc', () => {
   });
 
   test('progressive tax estimate (single filer, federal)', () => {
-    expect(estimateEffectiveTaxRate(100000)).toBeCloseTo(0.1317, 4);
-    expect(estimateEffectiveTaxRate(0)).toBe(0);
+    expect(effectiveRateOnGrossFor(100000)).toBeCloseTo(0.1317, 4);
+    expect(effectiveRateOnGrossFor(0)).toBe(0);
   });
 
   test('manual tax override wins', () => {
@@ -232,11 +232,14 @@ describe('income from onboarding (full job inflows + rental + tax config)', () =
   test('take-home salary is grossed up via the IRS schedule (round-trips)', () => {
     const grossAnnual = grossFromNet(60_000);
     expect(grossAnnual).toBeGreaterThan(60_000);                 // gross exceeds take-home
-    expect(grossAnnual - taxOwed(grossAnnual)).toBeCloseTo(60_000, -1);  // net ≈ entered take-home
-    // mapping: entering $5,000/mo as take-home stores a higher gross salary
-    expect(grossSalaryMonthly({ baseSalary: '5000', salaryMode: 'takehome' }) * 12).toBeCloseTo(grossAnnual, -1);
-    // entering it as gross stores it as-is
+    expect(grossAnnual - taxOwedFor(grossAnnual)).toBeCloseTo(60_000, -1);  // net ≈ entered take-home
+    // The conversion happens once, on the way into the store — not on every read (build step 2).
+    const { convertTakeHomeMode } = require('./take-home-mode-migration');
+    const converted = convertTakeHomeMode({ baseSalary: '5000', salaryMode: 'takehome', salaryFreq: 'monthly' });
+    expect(grossSalaryMonthly(converted as any) * 12).toBeCloseTo(grossAnnual, -1);
+    // entering it as gross stores it as-is, and the conversion leaves it alone
     expect(grossSalaryMonthly({ baseSalary: '5000', salaryMode: 'gross' })).toBe(5000);
+    expect(convertTakeHomeMode({ baseSalary: '5000', salaryMode: 'gross' }).baseSalary).toBe('5000');
   });
 });
 

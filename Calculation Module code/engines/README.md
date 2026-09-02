@@ -1,29 +1,18 @@
-# Calculation Module — engines
+# FROZEN — 2026-08-27
 
-**Every calculation the app trusts lives here.** Founder order, 2026-08-18:
+**Nothing new goes in this folder.** Founder ruling, 2026-08-27.
 
-> *"Make sure you put all the code in calculation module code — so we know which code we are using,
-> and if any link is using stale code not in the folder it will fail and we will know."*
+The eleven files here still run and are still swept into the master file, so every function in them
+keeps its identifier and its row. They are frozen, not deleted: a figure on a screen still depends
+on them, and moving them is its own piece of work with its own tests.
 
-## The rules
+**New calculations go in `MoneyKeel/functions/<domain>/`** — one family per file, its test beside
+it, named by the answer it produces.
 
-1. **Pure TypeScript.** No React, no React Native, no Expo, no store, no screens. An engine takes
-   values and returns values. That is what lets the whole module run in plain Node and in a browser
-   bench, outside the app.
-2. **One concept, one engine.** If two places answer the same question, one of them is deleted —
-   not kept "for now".
-3. **A guard test fails the build** when app code still calls a superseded path instead of the
-   engine here. Stale code does not sit quietly; it breaks the suite and names itself.
-4. **Every engine is proved against a real institution file** where one exists, not against
-   invented data.
+Why this folder is frozen rather than kept: two live folders both called "engines" is how one name
+came to mean two different things. `moneyWeightedReturn` exists here AND in `src/domain/performance`,
+and they are different methods — an internal rate of return in one, Modified Dietz in the other.
+That is finding A13, and a second live engines folder would keep making more of them.
 
-## What is here
-
-| Engine | Answers | Replaces |
-|---|---|---|
-| `events.ts` | What kind of event is this broker line? | the sign-guess in `snaptrade.ts` |
-| `money.ts` | How much money moved, and which way? | `Math.abs` at import and in screen sums |
-
-## Running them outside the app
-
-    npx jest "Calculation Module code"
+The word "engine" itself was decommissioned by `moneykeel_naming_spec_calculation-vocabulary_v01.md`
+on 2026-08-25. This folder keeps the name only because renaming it would break every import.

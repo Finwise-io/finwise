@@ -27,10 +27,40 @@ import { round2 } from '../_shared/num';
 export const SS_DECISION_FROM = 60;
 export const SS_DECISION_TO = 70;
 
+/* ─ MK-PL-F-024 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * oddsLine
+ *
+ * Answers ..... How do we state the odds in words?
+ *
+ * Formula .....
+ *     `${chance}% odds of lasting to age ${horizon age}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-024
+ * Changed ..... 2026-08-12 (bb56c4d)
+ */
 export function oddsLine(_lens: 'retired' | string, chance: number, horizonAge: number): string {
   return `${chance}% odds of lasting to age ${horizonAge}`;
 }
 /** The same sentence for the app-wide SAMPLE, always labelled as one. */
+/* ─ MK-PL-F-025 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * sampleOddsLine
+ *
+ * Answers ..... The same sentence for the app-wide SAMPLE, always labelled as one.
+ *
+ * Formula .....
+ *     `sample: ${SAMPLE_CHANCE}% odds of lasting to age ${horizon age}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-025
+ * Changed ..... 2026-08-11 (76511f4)
+ */
 export function sampleOddsLine(horizonAge: number = SAMPLE_HORIZON): string {
   return `Sample: ${SAMPLE_CHANCE}% odds of lasting to age ${horizonAge}`;
 }
@@ -41,6 +71,33 @@ export interface PlanDoor {
   count: number;                      // how many answers are still needed
   credit: { accounts: number; total: number } | null;   // live accounts already counted (never retyped)
 }
+/* ─ MK-PL-F-026 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * planDoor
+ *
+ * Answers ..... Is there enough to show this person their own odds?
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     missing = []
+ *     has age = number(birth year) > 1900 (or number(age) > 0 when missing or zero)
+ *     has spend = number(monthly spending) > 0 (or number(spend monthly) > 0 when missing or zero)
+ *     total = round(Σ over accounts (or none when missing) of (balance (or 0 when missing or zero)), 2 dp)
+ *     earmarked = retirement earmarked value(accounts ?? [])
+ *     has have = earmarked > 0
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-PL-M-001 · MK-PL-M-002
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-017 birth year
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-026
+ * Changed ..... 2026-08-11 (53309f3)
+ */
 export function planDoor(op: Record<string, any> | null, accounts: AssetAccount[]): PlanDoor {
   const a = op ?? {};
   const missing: PlanDoor['missing'] = [];
@@ -75,6 +132,35 @@ export interface NextDecision {
 }
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
 
+/* ─ MK-PL-F-027 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * nextDecision
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     now = args.now (or new date() when missing)
+ *     due = rmd at age(args.pre tax balance, args.age)
+ *     taken = rmd taken this year(args.transactions ?? [], args.pre tax account ids, now.get full year())
+ *     opens = the date args.birth year + 62, now.get month(), 1
+ *     the answer = nothing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-024 logged spending
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Uses a built-in s a m p l e c h a n c e of 84.
+ *     · Uses a built-in s a m p l e h o r i z o n of 90.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-027
+ * Changed ..... 2026-08-12 (4abeef7)
+ */
 export function nextDecision(args: {
   lens: string;
   age: number | null;
@@ -149,6 +235,27 @@ export const SAMPLE_HORIZON = 90;
 
 /** The invitation under a sample: name the answers still missing, so a dead end becomes one tap.
  *  Founder rule 2026-08-11 — sample + ask, whether ONE answer is missing or all three. */
+/* ─ MK-PL-F-028 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * sampleAskLine
+ *
+ * Answers ..... The invitation under a sample: name the answers still missing, so a dead end becomes one tap.
+ *
+ * Formula .....
+ *     n = count of missing
+ *     ''   when n = 0
+ *     verb = (m: string) => (starts with('what counts') ? 'choose' : 'add')
+ *     `a sample, not your number — ${verb(missing[0])} ${missing[0]} and it becomes yours`   when n = 1
+ *     list = `${missing[0]} and ${missing[1]}`   if n = 2
+ *     `${missing.slice(0, -1).join(', ')} and ${missing[n − 1]}`   otherwise
+ *     the answer = `a sample, not your number — ${n} answers make it yours: ${list}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-028
+ * Changed ..... 2026-08-11 (53309f3)
+ */
 export function sampleAskLine(missing: string[]): string {
   const n = missing.length;
   if (n === 0) return '';
@@ -159,9 +266,49 @@ export function sampleAskLine(missing: string[]): string {
 }
 
 /** The age the middle path first hits zero, from a simulation band — null while it never does. */
+/* ─ MK-PL-F-029 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * shortfallAgeFromBand
+ *
+ * Answers ..... The age the middle path first hits zero, from a simulation band — null while it never does.
+ *
+ * Formula .....
+ *     (band ?? []).find((pt) => pt.p50 ≤ 0).age (or nothing when missing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-029
+ * Changed ..... 2026-08-11 (debe967)
+ */
 export function shortfallAgeFromBand(band?: { age: number; p50: number }[] | null): number | null {
   return (band ?? []).find((pt) => pt.p50 <= 0)?.age ?? null;
 }
+/* ─ MK-PL-F-030 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * onCourseSentence
+ *
+ * Answers ..... In one sentence, how is this plan doing?
+ *
+ * Formula .....
+ *     nothing   when chance = nothing
+ *     near = (n: number) => money(math.max(1000, math.round(n ÷ 1000) × 1000))
+ *     lasts = (args.leftover at horizon ?? 0) > 0
+ *     short at = args.shortfall age
+ *     nothing   when not (args.pot at retire! > 0)
+ *     the answer = `retire at ${args.retire age} with ~${near(args.pot at retire!)}, ${ending}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *
+ * Decides .....
+ *     · If leftover at horizon is missing it uses 0.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-030
+ * Changed ..... 2026-08-11 (debe967)
+ */
 export function onCourseSentence(args: {
   lens: 'retired' | string; chance: number | null;
   retireAge: number; horizonAge: number;

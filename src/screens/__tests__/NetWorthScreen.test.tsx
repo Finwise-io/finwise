@@ -7,6 +7,7 @@ import { router } from 'expo-router';
 import NetWorthScreen, { assetSheetReady } from '../NetWorthScreen';
 import { useStore } from '../../store/useStore';
 import { employedPartner } from '../../testing/personas';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 beforeEach(() => {
   useStore.getState().resetAll();
@@ -270,7 +271,7 @@ describe('walk row 8: the grouping pills (v7 FINAL)', () => {
 // FOUNDER RULE 2026-08-04: the change % is measured on cash + investments (never total NW —
 // property moves only when retyped). The percent appears ONLY once invDaily history exists.
 test('change line: % on cash + investments, from real history — never total-NW, never invented', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   const past = '2026-01-02';
   useStore.setState({
     nwSeeded: true,
@@ -290,7 +291,7 @@ test('change line: % on cash + investments, from real history — never total-NW
 });
 
 test('change line: NO percent before the cash+investments history exists', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   useStore.setState({
     nwSeeded: true,
     assetAccounts: [
@@ -345,7 +346,7 @@ test('one shared right edge: band totals reserve the same arrow column the rows 
 // numbers were true — and the "since" line names the day the CHANGE is measured from. Two different
 // facts, so both earn a place; neither may print the other's date. The trend line stays gone.
 test('hero: today stamps the title, the since line carries the measured-from day, no sparkline', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   useStore.setState({
     nwSeeded: true,
     assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 401000, target_return: 0.07 }],
@@ -391,7 +392,7 @@ test('By institution: groups collapse, and a bank\'s debt never joins its asset 
 // FINAL mock: the missing-data banner is INLINE on the screen (never a pop-up) and exists ONLY
 // while a promised number is incomplete.
 test('banner appears with the gap named — and is absent when the data is complete', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   useStore.setState({
     nwSeeded: true,
     assetAccounts: [{
@@ -420,7 +421,7 @@ test('banner appears with the gap named — and is absent when the data is compl
 // FINAL mock State E: tapping the change opens the walk sheet — the same card design as the
 // Performance walk, with the net-worth wording and the debt-principal line, rows summing exactly.
 test('tapping the change opens the walk sheet and its rows reach the ending net worth', () => {
-  const today = new Date().toISOString().slice(0, 10);
+  const today = isoLocalDate(new Date());
   useStore.setState({
     nwSeeded: true,
     assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 401000, target_return: 0.07 }],

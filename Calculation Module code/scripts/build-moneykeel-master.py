@@ -28,13 +28,38 @@ COLS = ['Metric ID','Parent Screen Name','Secondary Screen Name','Name on Screen
         'Errors or findings to address','Decisions made',
         'Same figure as (S16)',
         'Questions for you (numbered)','YOUR ANSWER — use the same number',
-        'Your name for it (72-metric file)','Core screen?','Row status']
+        'Your name for it (72-metric file)','Core screen?','Row status',
+        'Audit finding — 2026-08-25 review',
+        'Formula audit — metric vs the function it names (2026-08-26)',
+        'Why no function',
+        'Wrong on screen — build first',
+        'Where each finding stands',
+        'Active or decommissioned','Date last modified']
 
 # formulas: the mathematical form is written here; the words come from the old master where the
 # engine has a row there, and are written here where it does not.
 import importlib.util as _il
 _sp=_il.spec_from_file_location('mkf', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_formulas.py'))
 _f=_il.module_from_spec(_sp); _sp.loader.exec_module(_f)
+
+_sps=_il.spec_from_file_location('mks', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_finding_status.py'))
+_fstat=_il.module_from_spec(_sps); _sps.loader.exec_module(_fstat)
+
+_spl=_il.spec_from_file_location('mkl', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_lifecycle.py'))
+_life=_il.module_from_spec(_spl); _spl.loader.exec_module(_life)
+_HIST=_life.History(datetime.date.today().isoformat())
+
+_spk=_il.spec_from_file_location('mkk', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_keep.py'))
+_keepmod=_il.module_from_spec(_spk); _spk.loader.exec_module(_keepmod)
+_KEPT = _keepmod.read(OUT)
+print('read back from the file on disk: %d entries of his own' % len(_KEPT))
+
+_spi=_il.spec_from_file_location('mki', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_inputs.py'))
+_inp=_il.module_from_spec(_spi); _spi.loader.exec_module(_inp)
+_spb=_il.spec_from_file_location('mkb', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_formula_audit.py'))
+_baudit=_il.module_from_spec(_spb); _spb.loader.exec_module(_baudit)
+_spa=_il.spec_from_file_location('mka', os.path.join(os.path.dirname(os.path.abspath(__file__)),'moneykeel_audit.py'))
+_audit=_il.module_from_spec(_spa); _spa.loader.exec_module(_audit)
 
 _oldwords = {}
 _answers = {}
@@ -137,11 +162,56 @@ def _fn_index():
     for r in _FN_ROWS: _FN_BY_ID[r['id']] = r
     return _FN_BY_ID
 
+def _finding_states(mid):
+    """Where every finding on this row stands, and what closed it.
+
+    [Founder 2026-08-27] A finding with no outcome is half a record: next month nobody can tell
+    what was fixed from what was merely written down. So each one carries its status, the date it
+    closed, what closed it, and the test that fails if it comes back.
+    """
+    import re as _re
+    hits = []
+    for src in (_audit.ON_ROW.get(mid, []), _baudit.ON_ROW.get(mid, [])):
+        hits += [h for h in src if h not in hits]
+    if not hits:
+        return 'No finding on this row. That is not a statement that the row is right — only that '\
+               'nothing has been written against it.'
+    out = []
+    for h in hits:
+        st = _fstat.of(h)[0]
+        out.append('%s — %s' % (h, _fstat.cell(h).split(chr(10))[0]))
+    return '\n'.join(out)
+
+
+def _why_none(fid, fn_text):
+    """Why a figure has no function — four answers, not one silence.
+
+    The file used to report 69 figures with no function as a single number, which reads as 69
+    problems. It is three problems and one non-problem: a value the person typed needs no function
+    and is already right. Separating them was the founder's call on 2026-08-26.
+    """
+    if str(fid or '').strip():
+        return 'HAS A FUNCTION — traceable from the screen to the code.'
+    t = str(fn_text or '')
+    if t.startswith('Typed by the person'):
+        return ('TYPED — none needed. The person entered this number; nothing calculates it and '
+                'nothing should. This row is already right and needs no work.')
+    if t.startswith('Worked out on the screen'):
+        return ('WORKED OUT ON THE SCREEN — the arithmetic lives in a screen file, so it cannot be '
+                'shared. A second screen needing the same figure writes it again, which is how two '
+                'screens come to disagree, and none of it is tested. Lift it into a named function '
+                'with a formula and a test. Guard D1 would catch this; D1 is not built.')
+    return ('NO FUNCTION ON RECORD — nothing in this file says what produces this figure. Most were '
+            'named while reading a screen and never traced back to the code, because the link from '
+            'file to code still runs through a column somebody typed in the old inventory. That is '
+            'S21, and closing it would answer most of these mechanically.')
+
+
 def chain_and_assumptions(fid_cell):
     """For a figure: the chain that ends in the function producing it, and every assumption made
     anywhere in that chain, each named with the function that makes it."""
     idx = _fn_index()
-    ids = [x for x in re.findall(r'MK-[A-Z]{2}-F-\d{3}', str(fid_cell or ''))]
+    ids = [x for x in re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(fid_cell or ''))]
     if not ids:
         return ('No function on record — nothing to chain', 'No function on record — assumptions unknown')
     chains, notes = [], []
@@ -149,7 +219,7 @@ def chain_and_assumptions(fid_cell):
         r = idx.get(fid)
         if not r: continue
         chains.append(r['chain'])
-        for who in [r] + [idx[i] for i in re.findall(r'MK-[A-Z]{2}-F-\d{3}', r.get('fed_by','')) if i in idx]:
+        for who in [r] + [idx[i] for i in re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', r.get('fed_by','')) if i in idx]:
             a = who.get('assumptions','')
             if a.startswith('None found'): continue
             for line in a.split('\n'):
@@ -191,8 +261,8 @@ def spec_cols(engine, label, math_text):
     return numbered(ins, ' · '), unit + '  [derived by rule — confirm]', ref, grain + '  [derived by rule — confirm]', period + '  [derived by rule — confirm]', numbered(dep)
 
 _DUP_OF = {}
-for _keep,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
-    for _f_id in _folded: _DUP_OF[_f_id] = (_keep,_why)
+for _survivor,(_folded,_why) in getattr(_f,'DUPLICATES',{}).items():
+    for _f_id in _folded: _DUP_OF[_f_id] = (_survivor,_why)
 
 _KNOWN_ENGINES = set()
 def mark_engine(engine):
@@ -259,7 +329,9 @@ def formulas(engine):
     if e in _f.NOTDOC: return _f.NOTDOC[e]
     if e in _f.OTHER:  return _f.OTHER[e]
     return '', ''
-INPUT_COLS = ['Input ID','Variable name','Source','Which metric uses it','Which engine uses it','Engine ID','Row status']
+INPUT_COLS = ['Input ID','Variable name','Source','Where the code keeps it',
+              'Functions that read it','Figures it reaches','Row status',
+              'Active or decommissioned','Date last modified']
 
 # ---------------------------------------------------------------- verified rows
 # Read screen by screen from the source on 2026-08-22. Nothing here is inferred:
@@ -323,6 +395,12 @@ CASHFLOW = [
  ('Out (spent + debt)',                      'out',           NM + ' — budgetVsActual, src/domain/budget'),
  ('= Surplus',                               'inn - out',     'worked out on the screen: in − out'),
  ('YOUR SOURCES — Base salary',              'op.baseSalary', 'TOTAL_INCOME'),
+ # The band has driven 25 functions since the app existed and had NO identifier: 163 metric rows
+ # were searched on 2026-08-27 and not one named it. It is one figure — everything the household
+ # is taxed on, at the filing status they gave — shown on the base-pay screen and again on the
+ # income summary. Founder ruling: total income is its home, base pay only reads it.
+ ('YOUR BASE PAY — your tax band, on everything you are taxed on', 'band',
+                                             'NOT IN OLD MASTER — effectiveRate, src/domain/income'),
  ('YOUR SOURCES — Self-employment',          'op.seAmount',   'TOTAL_INCOME'),
  ('YOUR SOURCES — Bonus',                    'op.bonusAnnual','TOTAL_INCOME'),
  ('YOUR SOURCES — Stock vesting (equity)',   'rsuTotal',      NM + ' — the equity schedule, src/domain/income'),
@@ -570,9 +648,49 @@ def sheet(name, cols):
     return ws
 
 counters = {}
-def nid(family, kind):
-    k=(family,kind); counters[k]=counters.get(k,0)+1
-    return f"MK-{family}-{kind}-{counters[k]:03d}"
+_MREG_PATH = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'moneykeel_metric_register.json')
+
+def _mreg_load():
+    """AN IDENTIFIER IS GIVEN ONCE AND NEVER CHANGES (identifier standard, rule 1).
+
+    Until 2026-08-28 a metric's number was its POSITION in the lists above: nid() simply counted up
+    as it walked them. Insert a row anywhere and every metric after it in that family silently
+    renumbered — and 93 audit findings are keyed to those numbers, as are the founder's own typed
+    answers. A finding would have quietly reattached itself to a different figure. This is the same
+    defect the FUNCTION register fixed on 2026-08-26, in the other half of the file.
+
+    A metric is now keyed by what it IS — its family, the words on the screen, and the underlying
+    figure — so it keeps its number wherever the row moves.
+    """
+    if os.path.exists(_MREG_PATH):
+        return json.load(open(_MREG_PATH))
+    return {'issued': {}, 'highest': {}, 'retired': {},
+            'note': 'A metric identifier is issued once against its key and never re-pointed. '
+                    'A number here is never handed to a different figure, even if the figure it was '
+                    'issued to is deleted — the retired block keeps it with the reason.'}
+
+_MREG = _mreg_load()
+_mreg_dirty = False
+
+def nid(family, kind, key=None):
+    global _mreg_dirty
+    if key is None:                       # engines (retired) and anything not yet keyed
+        k=(family,kind); counters[k]=counters.get(k,0)+1
+        return f"MK-{family}-{kind}-{counters[k]:03d}"
+    rk = '|'.join([family, kind] + [str(x) for x in key])
+    if rk in _MREG['issued']:
+        return _MREG['issued'][rk]
+    hk = f'{family}-{kind}'
+    nxt = _MREG['highest'].get(hk, 0) + 1
+    _MREG['highest'][hk] = nxt
+    ident = f"MK-{family}-{kind}-{nxt:03d}"
+    _MREG['issued'][rk] = ident
+    _mreg_dirty = True
+    return ident
+
+def _mreg_save():
+    if _mreg_dirty:
+        json.dump(_MREG, open(_MREG_PATH, 'w'), indent=1, sort_keys=True)
 
 # ---- engine identifiers: one per engine, assigned once
 ENGINE_FAMILY = {}
@@ -590,8 +708,12 @@ def eid_for(engine, family):
 ws = sheet('multiple_screens', COLS)
 for label, screens, metric, engine in MULTI:
     m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-    _mid = nid('XS','M'); record_metric(eid_for(engine,'XS'), _mid); _FN_OF = functions_for(engine)
-    ws.append([_mid, screens, 'NA', label, metric, _FN_OF[0], _FN_OF[1], m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+    _mid = nid('XS','M', (label, metric)); record_metric(eid_for(engine,'XS'), _mid); _FN_OF = functions_for(engine); _CA = chain_and_assumptions(_FN_OF[1])
+    ws.append([_mid, screens, 'NA', label, metric, _FN_OF[0], _FN_OF[1], m, w, *sp, *_CA, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22', _audit.for_row(_mid, _CA[1], w), _baudit.for_row(_mid, _FN_OF[1]),
+                   _why_none(_FN_OF[1], _FN_OF[0]), _baudit.accuracy_note(_mid),
+                   _finding_states(_mid),
+                   _HIST.state(_mid, _DUP_OF.get(_mid,('',''))[0]),
+                   _HIST.stamp(_mid, (m, w, _FN_OF[1], sp))])
 
 OWNED = {r for rows in SECONDARY.values() for (r,_,_,_) in rows}
 FAM = {'menu':'MN','home':'HM','networth':'NW','performance':'PF','cashflow':'CF','plan':'PL'}
@@ -599,9 +721,13 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     ws = sheet(tab, COLS)
     for label, metric, engine in VERIFIED.get(tab, []):
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
+        _mid = nid(FAM[tab],'M', (label, metric)); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine); _CA = chain_and_assumptions(_FN_OF[1])
         ws.append([_mid, PARENTS[tab], 'NA', label, metric, _FN_OF[0], _FN_OF[1],
-                   m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   m, w, *sp, *_CA, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22', _audit.for_row(_mid, _CA[1], w), _baudit.for_row(_mid, _FN_OF[1]),
+                   _why_none(_FN_OF[1], _FN_OF[0]), _baudit.accuracy_note(_mid),
+                   _finding_states(_mid),
+                   _HIST.state(_mid, _DUP_OF.get(_mid,('',''))[0]),
+                   _HIST.stamp(_mid, (m, w, _FN_OF[1], sp))])
     if tab == 'menu':
         routes = sorted(r for r in nav['routes'] if r not in nav['reach'] and r not in TABS)
     else:
@@ -611,9 +737,13 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
     for route, label, metric, engine in SECONDARY.get(tab, []):
         done.add(route)
         m,w = formulas(engine); fi,de,se = notes(engine); qs = questions_for(engine); sp = spec_cols(engine, label, m)
-        _mid = nid(FAM[tab],'M'); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine)
+        _mid = nid(FAM[tab],'M', (route, label, metric)); record_metric(eid_for(engine, FAM[tab]), _mid); _FN_OF = functions_for(engine); _CA = chain_and_assumptions(_FN_OF[1])
         ws.append([_mid, PARENTS[tab], route, label, metric, _FN_OF[0], _FN_OF[1],
-                   m, w, *sp, *chain_and_assumptions(_FN_OF[1]), se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22'])
+                   m, w, *sp, *_CA, se, (fi + (' | ' if fi else '') + _f.MISASSIGNED.get(_mid,'')).strip(' |'), assumptions(engine, m, de), dup_note(_mid), qs, '', '', 'NOT DETERMINED', 'VERIFIED 2026-08-22', _audit.for_row(_mid, _CA[1], w), _baudit.for_row(_mid, _FN_OF[1]),
+                   _why_none(_FN_OF[1], _FN_OF[0]), _baudit.accuracy_note(_mid),
+                   _finding_states(_mid),
+                   _HIST.state(_mid, _DUP_OF.get(_mid,('',''))[0]),
+                   _HIST.stamp(_mid, (m, w, _FN_OF[1], sp))])
     NO_FIGURES = {'/auth','/first-run','/settings','/tips','/rewards','/estate','/income','/sharpen','/connect','/add-account','/import-holdings','/onboarding'}
     for r in routes:
         if not r or r in done or r in OWNED: continue
@@ -629,16 +759,64 @@ for tab in ['home','networth','performance','plan','cashflow','menu']:
 
 # ---- inputs
 ws = sheet('inputs', INPUT_COLS)
+# Every input now names the FUNCTIONS that read it, swept from the code by the field the value is
+# stored under. The engine columns are gone: the word was retired on 2026-08-25 and neither the
+# name nor the E identifier could be looked up in the code.
+_BODIES = {}
+for _root in _inp.CALC_ROOTS:
+    for _dp, _, _fs in os.walk(_root):
+        if '__tests__' in _dp: continue
+        for _f2 in _fs:
+            if _f2.endswith(('.ts','.tsx')) and '.test.' not in _f2:
+                for _n, _l, _sg, _b, _nt in _fn.bodies(os.path.join(_dp, _f2)):
+                    _BODIES.setdefault(_n, _b)
+_READERS = _inp.readers(_BODIES)
+_FID = {r['name']: r['id'] for r in _FN_ROWS}
+# a function identifier → every metric identifier whose row names it
+_MET_BY_FN = {}
+for _t2 in ['multiple_screens','home','networth','performance','plan','cashflow','menu']:
+    _hd = [c.value for c in wb[_t2][1]]; _fi2 = _hd.index('Function ID')
+    for _r2 in wb[_t2].iter_rows(min_row=2, values_only=True):
+        if not _r2[0]: continue
+        for _f3 in re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(_r2[_fi2] or '')):
+            _MET_BY_FN.setdefault(_f3, set()).add(_r2[0])
+
+def _input_row(iid, var, source, fields):
+    names = _READERS.get(iid, [])
+    fns = [f'{_FID[n]} {n}' for n in names if n in _FID]
+    mets = sorted({m for n in names if n in _FID for m in _MET_BY_FN.get(_FID[n], ())})
+    if fns:
+        who = numbered(' · '.join(fns[:14]), ' · ')
+        if len(fns) > 14: who += '\n… and %d more — the full list is on functions_from_code' % (len(fns)-14)
+    else:
+        seen = _inp.in_files(fields)
+        who = ('NO FUNCTION READS IT. The value is captured and stored, and nothing calculates '
+               'with it. It appears in %s outside any function, which is the S21 blind spot.'
+               % ', '.join(os.path.basename(x) for x in seen)) if seen else \
+              'NOT FOUND IN THE CODE AT ALL — either it is named something else there, or nothing '\
+              'reads it. Needs reading by hand before this row can be trusted.'
+    fig = ' · '.join(mets) if mets else ('NONE ON RECORD — the functions above serve no figure that '
+                                         'names them. See S21.')
+    shown = ' · '.join(f.replace('\\', '').replace('r\'', '').strip("'") for f in fields)
+    return [iid, var, source, shown, who, fig, 'SWEPT FROM THE CODE 2026-08-26',
+            _HIST.state(iid), _HIST.stamp(iid, (var, source, shown, who))]
+
 for var, source, metrics, engines in INPUTS + _f.NEW_INPUTS:
-    ids = ' · '.join(engine_id[e] for e in engine_id if any(p.strip()==e for p in engines.split('·')))
-    ws.append([nid('XS','I'), var, source, metrics, engines, ids, 'VERIFIED 2026-08-22'])
+    _iid = nid('XS','I', (var, source))
+    ws.append(_input_row(_iid, var, source, _inp.FIELDS.get(_iid, [])))
+# raw values the code reads that had no row until 2026-08-26
+for _iid in sorted(_inp.NEW):
+    _v, _src, _flds = _inp.NEW[_iid]
+    ws.append(_input_row(_iid, _v, _src, _flds))
+for _c in range(1, len(INPUT_COLS)+1):
+    ws.column_dimensions[get_column_letter(_c)].width = [15,34,34,34,62,30,26,34,20][_c-1]
 
 
 # ---- Specification: what a row must carry before its calculation can be written
 SPEC = [
  ('', 'SECTION — WHAT THE NUMBER IS', '', ''),
  ('S01','The formula','The actual rules, both as arithmetic and in plain English, followable by hand.','COMPLETE — 163 of 163 carry both forms.'),
- ('S02','The inputs, one by one','Every input named, with its INPUT IDENTIFIER beside it, its unit and where it comes from.','PARTIAL — 59 rows name inputs carrying their identifiers; 72 rows name at least one input that appears nowhere on the inputs tab, and say so in the cell. The reconciliation tab checks both directions and is where the gap is counted.'),
+ ('S02','The inputs, one by one','Every input named, with its INPUT IDENTIFIER beside it, where it comes from, and what reads it.','PARTIAL — the inputs tab was rebuilt against the CODE on 2026-08-26: 60 rows (12 of them raw values nobody had captured before), each naming the field the code stores it under and every function that touches it. 50 of 60 name at least one function; 2 name none at all; 43 reach a figure. The engine columns are gone. Still partial on the figures side, which waits on S21.'),
  ('S03','The decisions and assumptions applied','Each marked with whose decision it was: the founder\'s, the person\'s, or built in.','PARTIAL — every row carries a cell; 37 name a real decision, 126 read NOT DETERMINED.'),
  ('S04','What comes out','Dollars, a percentage, a date, a count; its unit and its rounding.','COMPLETE — 163 of 163, derived by rule from the label and formula and marked as derived. Confirm rather than trust.'),
  ('S05','What it says when it cannot be computed','The exact refusal — where wrong numbers get invented.','PARTIAL — 126 of 163 written; 37 read NOT DETERMINED because that engine has not been read for its refusal yet.'),
@@ -661,6 +839,9 @@ SPEC = [
  ('S20','Figures with no function on record','Sixty-nine of the 163 figures name no function in the code. Most were names I assigned while reading a screen, which never had a function behind them. Until each is pointed at a real function, that figure cannot be traced, tested or trusted.','OPEN — counted per screen on the functions_per_metric tab: Plan 23, Menu 20, Cash flow 13, Net worth 9.'),
  ('S21','The identifier inside the code','Every link between this file and the code still travels through a column somebody typed in the old inventory. The identifier standard says it belongs in a header inside each code file; until it does, a real function can look undocumented and a stale line can look correct.','NOT STARTED — this is the weak link behind S12, S19 and S20.'),
  ('S16','The duplication pass','Figures that are the same thing under two identifiers.','COMPLETE — every group judged one at a time. 11 figures were being shown under 24 identifiers; the 13 folded rows now name the identifier that survives and why. 18 groups were checked and are NOT duplicates — one engine legitimately producing several figures — and say so, so the question is not asked twice. Two mis-assigned engines were found and recorded as findings.'),
+ ('S24','The formula audit — figure against function','A figure and the function that produces it must state the same rule. If they do not, one of the two is wrong and nobody knows which, which is exactly the case the objectives standard says work must stop on.','OPEN — 94 of the 163 figures name a function and were compared; the other 69 name none and could not be. 51 rows carry a finding: 15 CLASH (the file states a rule the code does not implement), 5 MISNAMED (the formula and the function are about different things), 4 ONE FORMULA (figures that are not the same figure sharing one). 43 rows agree. Every finding was checked against the code file and line, not against the two cells alone.'),
+ ('S23','The formula on every function','A figure can only be checked if the rule behind it can be read. The 163 figures carried a formula; the 455 functions underneath them did not, so there was no way to see HOW a number was worked out.','PARTIAL — all 455 now carry both forms, read from the code itself. 24 read by hand and checked line by line, 161 rendered clean from the code, 221 partly rendered with some code still showing, 29 not rendered at all and saying so, 20 with no arithmetic to state. The How-it-was-read column carries the verdict per row, so no row overstates itself.'),
+ ('S22','The 2026-08-25 audit','The last 48 hours of work read back against the three standards, so that what is wrong is on record before more is built on top of it.','OPEN — 51 findings, A01 to A51. The ones that land on a figure are in the last column of each screen tab; the ones that belong to the whole file are at the bottom of the Reference tab. A06, A07, A08 and A09 say that the status lines of S01, S02, S20 and S12 above do not match what the file holds — those four are left as they were written rather than quietly re-graded, because changing a status is the founder\'s call.'),
  ('S17','Which screens are the 55-70 core','The agreed first scope has never been written down.','READY FOR THE FOUNDER — the core_screens tab lists all 49 screens with my recommendation (39 in, 5 out, 5 borderline) and a column for his decision.'),
 ]
 
@@ -798,20 +979,22 @@ for r in range(2, ws.max_row+1):
 # ---- every FUNCTION in the calculation code, sorted into the four categories
 
 FN_COLS = ['Function ID','Function','File','Line','Category','Objective — what this function is for',
+           'Formula (mathematical)','Formula (in words)','How the formula was read',
            'What it is handed (its inputs)','What it gives back (its output)',
            'Where its answer appears — the words, the screen, the section','Assumptions it makes',
            'Can its answer reach a screen?','Dependent functions — one step below',
            'Dependent functions — how many in total',
            'Dependent functions — all of them',
            'The chain, ending in this function',
-           'Figures that name it','Name in the old inventory']
+           'Figures that name it','Name in the old inventory',
+           'Active or decommissioned','Date last modified']
 ws = sheet('functions_from_code', FN_COLS)
 ws.append(['READ FROM THE CODE ITSELF. Sorted by what the code does — what a function returns, '
            'whether it reaches outside for data, and who calls it — never by its name. '
            '1 ACTION does something and displays nothing · 2 DISPLAYED lands on a screen · '
            '3 DEPENDENT feeds a chain that ends at a screen · 4 BRINGS DATA IN fetches from outside. '
            'The chain reads left to right and ENDS in the function that shows the answer; everything feeding it comes first.',
-           '','','','','','','','','','','','','',''])
+           *([''] * (len(FN_COLS)-1))])
 ws.cell(ws.max_row,1).font = Font(bold=True, color='1F3864')
 
 _fn_to_old = {}
@@ -835,15 +1018,20 @@ for row in _fn_index().values() if False else sorted(_fn_index().values(), key=l
     if not _purpose:
         _purpose = 'NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.'
     ws.append([row['id'], row['name'], row['file'], row['line'], row['category'], _purpose,
+               row['formula_math'], row['formula_words'], row['read_as'],
                numbered(row['inputs'], ' · '), row['output'],
                numbered(row['screen_labels'], ' · '), numbered(row['assumptions']),
                row['can_reach_a_screen'], numbered(row['depends_on'], ' · '), row['feeder_count'],
                numbered(row['fed_by'], ' · '), numbered(row['chain']),
-               ' · '.join(mids) or '—', old or '—'])
-for i,w in enumerate([15,28,34,7,26,44,42,30,62,54,14,34,12,52,66,26,22], start=1):
+               ' · '.join(mids) or '—', old or '—',
+               _HIST.state(row['id']),
+               _HIST.stamp(row['id'], (row['formula_math'], row['file'], row['category']))])
+for i,w in enumerate([15,28,34,7,26,42,60,64,34,42,30,62,54,14,34,12,52,66,26,22,34,20], start=1):
     ws.column_dimensions[get_column_letter(i)].width = w
+_fcol = FN_COLS.index('Formula (mathematical)') + 1
 for r in range(2, ws.max_row+1):
-    for c in range(1,18): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    for c in range(1,len(FN_COLS)+1): ws.cell(r,c).alignment = Alignment(wrap_text=True, vertical='top')
+    ws.cell(r,_fcol).font = Font(name='Menlo', size=10)
 print('functions_from_code:', dict(_cat_counts))
 
 
@@ -925,7 +1113,7 @@ for _tab in ['multiple_screens','home','networth','performance','plan','cashflow
     for _r in _sh.iter_rows(min_row=2, values_only=True):
         if not _r[0]: continue
         _screen = _r[_pa] if _tab != 'multiple_screens' else 'Shown on more than one screen'
-        _ids = re.findall(r'MK-[A-Z]{2}-F-\d{3}', str(_r[_fi] or ''))
+        _ids = re.findall(r'MK-[A-Z]{2}-[FO]-\d{3}', str(_r[_fi] or ''))
         _row = _per[_screen]
         _row[0] += 1
         if not _ids:
@@ -983,6 +1171,9 @@ ref = [
  ('COLUMN — Function ID', 'That function\'s identifier, MK-[family]-F-[number], from the functions_from_code tab.'),
  ('COLUMN — Category / File / Line', 'On the functions tab: which of the four categories the function falls in, and where it lives in the code.'),
  ('COLUMN — Objective — what this function is for', 'Its purpose in one sentence, in the author\'s own words from the note above it in the code, or from the old inventory. NOT DETERMINED where neither exists.'),
+ ('COLUMN — Formula (mathematical) [functions tab]', 'What the function actually computes, written as arithmetic, read out of its own body. A sum written in code as a reduce is shown as Σ; a rounding is shown with the number of decimal places it really uses; a condition is shown as its two answers. Nothing here is inferred from the function NAME — where a body could not be rendered faithfully the cell says so instead of guessing.'),
+ ('COLUMN — Formula (in words) [functions tab]', 'The same rule in plain English. It is generated from the SAME expression as the arithmetic beside it, so the two cannot drift apart. Where the formula was read by hand this column is written by hand and says what the rule means, not just what it does.'),
+ ('COLUMN — How the formula was read', 'How much to trust the two columns before it. READ BY HAND — checked line by line against the code, and the words say what the rule means. READ FROM THE CODE — rendered from the expressions the function runs, with no code left showing. PARTLY READ — faithful, but some of the code is still showing through and it needs a hand pass. NO ARITHMETIC — it fetches, saves or announces, so there is no formula to state. NOT READ — the body is not a shape the reader can render, and nothing is claimed rather than something guessed.'),
  ('COLUMN — What it gives back (its output)', 'What the function returns. NOT DECLARED means the code does not say, so nothing can check it returns the right kind of thing.'),
  ('COLUMN — Can its answer reach a screen?', 'The question that decides whether a function can put a wrong number in front of a person.'),
  ('COLUMN — Figures that name it', 'Which metric identifiers reach this function. It travels through the old inventory to get there, so it is only as good as that record.'),
@@ -1012,6 +1203,13 @@ ref = [
  ('COLUMN — Same figure as (S16)', 'Where the same figure appears under more than one identifier, the row names the surviving identifier and why. Nothing is deleted: identifiers are never reused, so a folded row stays visible and says what it became.'),
  ('COLUMN — Questions for you (numbered)', 'My open questions about that engine or figure, each with a number that never changes. A number is never reused or renumbered, so an answer can always be matched to its question.'),
  ('COLUMN — YOUR ANSWER — use the same number', 'Answer here, starting each answer with the question number. Nothing else in the file needs to line up.'),
+ ('COLUMN — Where each finding stands', 'Every finding on this row, and its outcome. OPEN means nothing has closed it — not that it is unproven, but that it is unaddressed. FIXED carries the date. NOT A DEFECT means the finding itself was examined and was wrong; those are kept, never deleted, because erasing them would hide that the audit can be wrong and the next reader could not tell a dismissed finding from a forgotten one. PARTLY FIXED and NAMED-NOT-FIXED say exactly how far it got. What closed each one, and the test that fails if it returns, are in moneykeel_finding_status.py. Added 2026-08-27 at the founder\'s ruling: a finding without an outcome is half a record.'),
+ ('COLUMN — Active or decommissioned', 'ACTIVE means it exists in the code or on a screen today. SUPERSEDED BY names the identifier that replaced it — the same thing under another number, which is then retired and never handed to anything else. DECOMMISSIONED with its date means it was here and is not any more; the row is kept so the number is never reused and earlier work can still be traced. Never blank. Added 2026-08-27.'),
+ ('COLUMN — Date last modified', 'The date this ROW last changed — not the date the build last ran. The row\'s content is hashed and kept, so the date only moves when the content really moves. A row untouched since August still reads August in December, which is the whole point: a date that says today on every row means nothing. Added 2026-08-27.'),
+ ('COLUMN — Wrong on screen — build first', 'A finding here changes a NUMBER OR A WORD a person actually reads, on one of the three screens being built first: cash flow This month, cash flow Spending, and the base-salary income screen. Blank does NOT mean the row is right — most rows carry findings where the FILE is wrong and the app is correct, which is real work but not a wrong number in front of anyone. Marked 2026-08-27 at the founder\'s request, so the queue is visible on the row rather than in a list somewhere else.'),
+ ('COLUMN — Why no function', 'Four answers, never a blank. HAS A FUNCTION. TYPED — the person entered it, none needed, already right. WORKED OUT ON THE SCREEN — the arithmetic is in a screen file and cannot be shared. NO FUNCTION ON RECORD — nothing says what produces it. Added 2026-08-26 because the file reported 69 figures with no function as ONE number, which reads as 69 problems; it is 64 problems of two kinds and 5 rows that are already correct.'),
+ ('COLUMN — Formula audit — metric vs the function it names', 'The 2026-08-26 pass: this figure\'s arithmetic checked against the arithmetic of the function in its Function ID column, and against every other figure naming the same function. Four verdicts. CLASH — the figure states a rule the code does not implement; a real defect. MISNAMED — the formula and the function are about different things. ONE FORMULA — figures that are not the same figure sharing one formula between them. AGREES — the two say the same thing. NOT COMPARABLE — no function is named, so nothing can be checked. Each finding is numbered B01 upwards and names the code file and line it was checked against.'),
+ ('COLUMN — Audit finding — 2026-08-25 review', 'What the 2026-08-25 review found wrong, unproved or missing on THIS row, each numbered A01 upwards. A number is given once and never reused, the same rule the questions follow. Findings that belong to the whole file rather than to any one row are listed at the bottom of this tab under AUDIT. Blank means nothing was found on this row by this review — it does not mean the row is right.'),
  ('COLUMN — Errors or findings to address', 'What is known to be wrong or unproved about this figure, in plain English. Blank means nothing is on record yet — not that nothing is wrong.'),
  ('COLUMN — Decisions made (S03)', 'The rulings and assumptions that govern this figure, each marked with WHOSE decision it was: [Founder] his own ruling, [The person] something the user set, [Built in] an assumption nobody chose on a screen — which is usually why a number looks wrong. The standing display and rounding rule applies to every row and is stated at the top of this tab.'),
  ('COLUMN — Formula (mathematical)', 'The rule written as arithmetic, so it can be followed symbol by symbol and checked against the code.'),
@@ -1021,11 +1219,12 @@ ref = [
  ('COLUMN — Core screen?', 'Whether the screen is part of the 55-70 core, the agreed first scope. Currently NOT DETERMINED on every row: the core list has never been written down, so no row can honestly claim to be in or out of it.'),
  ('COLUMN — Row status', 'VERIFIED with its date means a person read the screen and confirmed the chain. NOT STARTED means the screen has not been read yet. Nothing in between is claimed.'),
  ('', ''),
+ ('COLUMN — Where the code keeps it', 'The field name the value is stored under in the code. This is the join between a value a person would name — "bond maturity date" — and the code, and it is what makes the next column checkable rather than remembered.'),
+ ('COLUMN — Functions that read it', 'Every function whose body touches that field, swept from the code on every build. Replaces the two engine columns this tab carried until 2026-08-26: the word engine was retired by the vocabulary standard, and neither the engine name nor its E identifier could be looked up in the code.'),
+ ('COLUMN — Figures it reaches', 'The figures served by the functions above. NONE ON RECORD means those functions are named by no figure in this file — an S21 gap, not proof the input reaches nobody.'),
  ('COLUMN — Input ID', 'The identifier of a raw input, per the same standard.'),
  ('COLUMN — Variable name', 'What the raw value is called.'),
  ('COLUMN — Source', 'Where the value comes from: the person typed it, an institution download, a connected provider, or another engine computed it.'),
- ('COLUMN — Which metric uses it', 'Every metric identifier that depends on this input.'),
- ('COLUMN — Which engine uses it', 'Every engine identifier that reads this input.'),
  ('', ''),
  ('Complies with — naming', 'MoneyKeel/documents/standards/moneykeel_naming_spec_file-and-folder-naming_v01.md'),
  ('Complies with — identifiers', 'MoneyKeel/documents/standards/moneykeel_naming_spec_unique-identifier_v01.md'),
@@ -1033,7 +1232,11 @@ ref = [
  ('', ''),
  ('COVERAGE — screens read so far', '49 of 49. Every screen in the app has been read: the five parent screens, every secondary screen and every menu screen. Twelve screens carry no calculated figure and say so.'),
  ('COVERAGE — what that means', 'Every screen in the app is listed on its tab. Only Home carries figures so far; the rest are marked NOT STARTED. A rising count is not completeness while screens remain unread.'),
-]
+] + [(' ',' '),
+ ('AUDIT — 2026-08-25 review', 'Read against the three standards: the vocabulary, the identifiers, '
+  'and the objectives-and-verification. These findings belong to the FILE rather than to any one '
+  'row. The ones that land on rows are in the last column of each screen tab, numbered from the '
+  'same list, so a number means the same thing wherever it is read.')] + _audit.reference_rows()
 for a,b in ref: ws.append([a,b])
 ws.column_dimensions['A'].width=46; ws.column_dimensions['B'].width=118
 for r in range(2, ws.max_row+1):
@@ -1059,7 +1262,18 @@ _unplaced = _all_q - _placed
 if _unplaced:
     raise SystemExit('BUILD STOPPED — these questions landed on no row: ' + ', '.join(sorted(_unplaced)))
 
+_gone = _HIST.gone()
+if _gone:
+    print('DECOMMISSIONED this build — in the file yesterday, gone today: %d' % len(_gone))
+    for _g in _gone[:12]: print('   ' + _g)
+_HIST.save()
+
+_placed, _lost = _keepmod.apply(wb, _KEPT)
+_keepmod.write_orphans(_lost, os.path.join(os.path.dirname(OUT), 'kept-but-unplaced.md'))
+print(_keepmod.report(_placed, _lost))
+
 wb.save(OUT)
+_mreg_save()   # the identifiers this build issued, kept so they never move again
 print("wrote", OUT)
 
 # S18 — the gate. Structural breaks stop the build; open findings are counted, not hidden.

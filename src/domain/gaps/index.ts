@@ -31,11 +31,55 @@ export interface DataGap {
 
 const STALE_SYNC_DAYS = 3;
 const STALE_VALUE_DAYS = 365;
-const daysBetween = (iso: string | null | undefined, now: number): number | null => {
+/* ─ MK-XS-F-170 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * daysSince
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     nothing   when iso is missing
+ *     t = date.parse(string(iso))
+ *     the answer:
+ *     nothing   if number.is na n(t)
+ *     max(0, round down((now − t) ÷ 86400000))   otherwise
+ *
+ * Called by ... MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-170
+ * Changed ..... not in git yet (—)
+ */
+const daysSince = (iso: string | null | undefined, now: number): number | null => {
   if (!iso) return null;
   const t = Date.parse(String(iso));
   return Number.isNaN(t) ? null : Math.max(0, Math.floor((now - t) / 86400000));
 };
+/* ─ MK-XS-F-118 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * prettyDate
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     d = the date `${iso}-15T12:00:00`   if iso.length = 7
+ *     `${iso}T12:00:00`   otherwise
+ *     the answer:
+ *     iso   if is na n(get time())
+ *     to locale date string('en − US', { month: 'short', day: 'numeric' })   otherwise
+ *
+ * Called by ... MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-118
+ * Changed ..... not in git yet (—)
+ */
 const prettyDate = (iso: string) => {
   const d = new Date(iso.length === 7 ? `${iso}-15T12:00:00` : `${iso}T12:00:00`);
   return isNaN(d.getTime()) ? iso : d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
@@ -44,7 +88,44 @@ const prettyDate = (iso: string) => {
 // accounts produced two identical banner lines ("Vanguard last updated Aug 3" twice) with no way to
 // tell which was which. It now speaks the app's ONE account name — institution + last four — and
 // falls back to the same disambiguation every other screen uses.
+/* ─ MK-XS-F-119 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * namesFor
+ *
+ * Answers ..... Founder finding 2026-08-11: this named an account by its INSTITUTION alone, so two Vanguard accounts produced two identical banner lines ("Vanguard last updated Aug 3" twice) with no way to tell which was which.
+ *
+ * Formula .....
+ *     account display names(accounts)
+ *
+ * Called by ... MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-002 dataGaps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-119
+ * Changed ..... not in git yet (—)
+ */
 const namesFor = (accounts: AssetAccount[]) => accountDisplayNames(accounts);
+/* ─ MK-XS-F-120 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * nameOf
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-NW-F-028 classPortionLabel · MK-XS-F-002 dataGaps
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-003 institution name
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-120
+ * Changed ..... not in git yet (—)
+ */
 const nameOf = (a: AssetAccount, names: Map<string, string>) =>
   names.get(a.asset_id) || a.institution?.trim() || a.label || 'this account';
 
@@ -53,6 +134,42 @@ const nameOf = (a: AssetAccount, names: Map<string, string>) =>
  * @param windowStart the window the screen's figures cover ('YYYY-MM-DD' / 'YYYY-MM'); the
  *   history-depth gap speaks ONLY when a figure's window predates what the source shared
  *   (founder 2026-08-04: on a one-day change line it would wrongly imply older income is inside).
+ */
+/* ─ MK-XS-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * dataGaps
+ *
+ * Answers ..... Every incomplete promise across the given accounts.
+ *
+ * Formula .....
+ *     gaps = []
+ *     names = names for(accounts ?? [])
+ *     who = name of(a, names)
+ *     priced = price ≠ nothing and price > 0
+ *     d = days since(last synced, now)
+ *     unreachable = (failures ?? []).find((f) => account id = asset id)
+ *     has activity = (transactions ?? []).some((t) => account id = asset id and (type = 'DIVIDEND' or type = 'INTEREST'))
+ *     cov = history coverage(a, window start, new date(now))   if window start
+ *     nothing   otherwise
+ *     d = days since(value as of, now)
+ *     the answer = gaps
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-006 price fetched at
+ *               MK-XS-I-024 logged spending
+ *               MK-XS-I-033 the date a hand-typed value was set
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If shares is missing it uses 0.
+ *     · Treats a year as 365 days.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-002
+ * Changed ..... 2026-08-11 (bfefb86)
  */
 export function dataGaps(
   accounts: AssetAccount[],
@@ -82,7 +199,7 @@ export function dataGaps(
 
     // 2) a connected account whose last successful sync has gone stale
     if (a.source === 'connected') {
-      const d = daysBetween(a.last_synced, now);
+      const d = daysSince(a.last_synced, now);
       const unreachable = (failures ?? []).find((f) => f.accountId === a.asset_id);
       if (unreachable) {
         // We TRIED and could not reach it — say that, and offer the re-login, because another sync
@@ -132,7 +249,7 @@ export function dataGaps(
 
     // 4) a value you typed once and haven't touched in a year
     if (a.source !== 'connected' && a.tax_bucket === 'PROPERTY') {
-      const d = daysBetween(a.value_as_of, now);
+      const d = daysSince(a.value_as_of, now);
       if (d != null && d > STALE_VALUE_DAYS) {
         gaps.push({
           kind: 'stale-value', accountId: a.asset_id,
@@ -150,6 +267,23 @@ export function dataGaps(
 }
 
 /** The banner sentence — plural-correct, and absent (null) when nothing is missing. */
+/* ─ MK-XS-F-003 ───────────────────────────────────────────── 2 · DISPLAYED (presentation only)
+ * gapsHeadline
+ *
+ * Answers ..... The banner sentence — plural-correct, and absent (null) when nothing is missing.
+ *
+ * Formula .....
+ *     nothing   when count of gaps is missing
+ *     '1 number needs more information'   if gaps.length = 1
+ *     `${gaps.length} numbers need more information`   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-003
+ * Changed ..... 2026-08-09 (69f88a0)
+ */
 export function gapsHeadline(gaps: DataGap[]): string | null {
   if (!gaps.length) return null;
   return gaps.length === 1 ? '1 number needs more information' : `${gaps.length} numbers need more information`;

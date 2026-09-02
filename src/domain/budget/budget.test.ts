@@ -1,4 +1,5 @@
-import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly, nonMonthlyBasis, actualMonthFlow, allocatableThisMonth } from './index';
+import { spendBuckets, budgetFromOnboarding, budgetVsActual, spendByMonth, savingsByMonth, emergencyTest, monthlyEssentials, plannedMonthlySpend, annualCashflow, categoryMonthly, nonMonthlyBasis, allocatableThisMonth } from './index';
+import { actualMonthFlow } from '../../../MoneyKeel/functions/cashflow/this-month';
 import { takeHomeMonthly } from '../savings';
 import { categoryBucketFor } from '../../constants/categories';
 import type { OnboardingProfile } from '../onboardingProfile';
@@ -275,12 +276,26 @@ describe('actualMonthFlow + allocatableThisMonth — the canonical month surplus
     { date: '2026-07-01', amount: 999, category: 'Groceries' },      // other month — ignored
   ];
 
+  // There is now ONE actualMonthFlow — the This-month one. MK-CF-F-005 was deleted rather than left
+  // beside it. Same arithmetic, said as lines: every row shown is a row deducted.
   test('income + spent(excl. debt) + debtPaid → surplus, with debt counted once', () => {
-    const f = actualMonthFlow(null, incomes, expenses, '2026-06');   // op=null → baseNet 0, income = logged
-    expect(f.income).toBe(5000);
-    expect(f.debtPaid).toBe(800);
-    expect(f.spent).toBe(1200);                 // groceries only — the $800 debt is NOT in spent
-    expect(f.surplus).toBe(3000);               // 5000 − 1200 − 800 (after debt, once)
+    const f = actualMonthFlow({ ym: '2026-06', takeHomeMonthly: 5000, debts: [],
+                                plannedExpenses: 0, expenses: expenses as any });
+    const amountOf = (label: string) => f.lines.find((l) => l.label === label)?.amount;
+    expect(amountOf('In (take-home) received')).toBe(5000);
+    expect(amountOf('Other debt payments')).toBe(-800);   // logged debt, no debt record — still deducted
+    expect(amountOf('Spent so far')).toBe(-1200);         // groceries only — the $800 debt is NOT in spent
+    expect(f.surplus).toBe(3000);                         // 5000 − 1200 − 800 (after debt, once)
+  });
+
+  // The leak this closes: MK-CF-F-005 totalled every logged debt payment, mine only counted those
+  // matching a debt still held. Delete a paid-off debt and the surplus would have risen by what was
+  // paid. Money that left the bank is deducted whether or not the debt record survives.
+  test('a logged debt payment is deducted even when the debt itself is gone', () => {
+    const f = actualMonthFlow({ ym: '2026-06', takeHomeMonthly: 5000, debts: [],
+                               plannedExpenses: 0, expenses: expenses as any });
+    expect(f.surplus).toBe(3000);
+    expect(f.lines.reduce((t, l) => t + l.amount, 0)).toBe(f.surplus);   // every row shown is a row deducted
   });
 
   test('allocatable = surplus − already-allocated, never below 0', () => {

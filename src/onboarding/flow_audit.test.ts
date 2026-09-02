@@ -28,8 +28,13 @@ const VALIDATORS = new Set([...src.matchAll(/^\s*([a-zA-Z0-9_]+): a =>/gm)].map(
 // Question screens = everything the user must look at except meta (status/goals/account/name/summary)
 // and recaps. Required = questions without a "Skip for now".
 const MAX_REQUIRED_QUESTIONS = 19;  // hard ceiling — worst legal flow today; ratchet DOWN, never up
-const MAX_TOTAL_QUESTIONS = 37;     // incl. optional/skippable — worst today (36 + the dedicated
-                                    // employer-match screen split out of income_401k, 2026-06-10)
+const MAX_TOTAL_QUESTIONS = 38;     // incl. optional/skippable — worst today. 36 → 37 when the
+                                    // employer-match screen was split out of income_401k (2026-06-10);
+                                    // 37 → 38 for the filing-status question (founder, 2026-08-28).
+                                    // The REQUIRED ceiling did not move: filing status is pre-answered
+                                    // and skippable, so it adds a confirmation, not a question. The
+                                    // founder's note when he approved it: onboarding still needs
+                                    // refining — this budget is a holding position, not a target.
 
 // Income-detail step each source gates ON (presence required when the income block ran with sources).
 const SOURCE_STEP: Record<IncomeSourceKey, StepId> = {
@@ -47,8 +52,11 @@ const SOURCE_ONLY: [IncomeSourceKey, StepId][] = [
   ['benefits', 'income_benefits'], ['support', 'income_support'],
   ['scholarship', 'income_scholarship'], ['loans', 'income_loans'], ['other_income', 'income_other'],
 ];
-const EMPLOYMENT_EXTRAS: StepId[] = ['birth', 'income_401k', 'employerContribution', 'income_bonus', 'income_rsu'];
-const ALL_INCOME_DETAILS: StepId[] = [...Object.values(SOURCE_STEP), 'income_tax', ...EMPLOYMENT_EXTRAS.slice(1)];
+// The 401(k) and its match left this list on 2026-08-28: picking a job now brings the base-pay
+// screen, which carries both inside each earner own section. They are still reachable without a
+// job, from retire_acc — see the describe block at the foot of this file.
+const EMPLOYMENT_EXTRAS: StepId[] = ['birth', 'income_bonus', 'income_rsu'];
+const ALL_INCOME_DETAILS: StepId[] = [...Object.values(SOURCE_STEP), 'income_tax', ...EMPLOYMENT_EXTRAS.slice(1), 'income_401k', 'employerContribution'];
 const TAXABLE: Set<IncomeSourceKey> = new Set(['employment', 'self_employment', 'investment_income', 'rental', 'retirement_income', 'other_income']);
 const INCOME_BEARING: Track[] = ['spend', 'partner', 'family'];  // tracks that embed the income block
 // Questions another track may legitimately ABSORB (the fact is computed, not lost):
@@ -62,7 +70,12 @@ const ASSET_TOTALS: StepId[] = ['currentRetirementSavings', 'currentSavingsPortf
 const NEED: Partial<Record<Track, StepId[]>> = {
   spend: ['monthlySpending'],
   retire_dec: ['birth', 'currentSavingsPortfolio', 'retirementIncomeSources', 'monthlySpending', 'horizonAge'],
-  retire_acc: ['birth', 'currentRetirementSavings', 'income_401k', 'employerContribution', 'contributionsByType', 'targetRetirementAge', 'expectedRetirementSpending'],
+  // CHANGED 2026-08-28. The 401(k) and its match are asked where the WAGE is — inside each earner's
+  // section on the base-pay screen. retire_acc still contributes them when there is no employment
+  // income, because that screen never appears for such a person and contributionsByType asks for
+  // Roth, taxable and property but NOT the 401(k). So they are conditional, and the audit checks
+  // the unconditional part here and the condition in its own test below.
+  retire_acc: ['birth', 'currentRetirementSavings', 'contributionsByType', 'targetRetirementAge', 'expectedRetirementSpending'],
   invest: ['investObjective', 'trackingLevel'],
   goals: ['goals_detail'],
   debt: ['debts'],
@@ -347,5 +360,41 @@ describe('onboarding flow audit — every persona × track-subset × source-subs
     if (a.assetTotalOverlaps.length)
       console.log('  ⚠️  asset-total overlaps to review:', a.assetTotalOverlaps);
     expect(true).toBe(true);
+  });
+});
+
+// ── the 401(k) is asked exactly once, wherever it belongs ──────────────────────────────────────
+describe('a 401(k) is asked only where one can legally exist', () => {
+  // The IRS rule: contributions come out of COMPENSATION — wages, or self-employment earnings
+  // through a solo 401(k). A pension, Social Security, rent or dividends earn nobody the right to
+  // contribute. Founder challenge 2026-08-28: "if someone is not working, how can they contribute?"
+  const has = (srcs: string[], tracks: string[] = ['retire_acc']) =>
+    buildSteps('employed', tracks as any, { incomeSources: srcs });
+
+  test('a wage: the base-pay screen carries it, so there is no separate step', () => {
+    const steps = has(['employment'], ['spend', 'retire_acc']);
+    expect(steps).toContain('income_salary');
+    expect(steps).not.toContain('income_401k');
+    expect(steps).not.toContain('employerContribution');
+  });
+
+  test('self-employment only: a solo 401(k) is real, and there is no base-pay screen to hold it', () => {
+    const steps = has(['self_employment']);
+    expect(steps).not.toContain('income_salary');
+    expect(steps).toContain('income_401k');
+  });
+
+  test('NO earned income: never asked — the answer could only be zero', () => {
+    for (const srcs of [['investment_income'], ['retirement_income'], ['rental'], ['benefits'], ['support'], []]) {
+      const steps = has(srcs);
+      expect(steps).not.toContain('income_401k');
+      expect(steps).not.toContain('employerContribution');
+    }
+  });
+
+  test('a wage AND self-employment: still once, on the base-pay screen', () => {
+    const steps = has(['employment', 'self_employment'], ['spend', 'retire_acc']);
+    expect(steps).not.toContain('income_401k');
+    expect(steps.filter((x) => x === 'income_salary')).toHaveLength(1);
   });
 });

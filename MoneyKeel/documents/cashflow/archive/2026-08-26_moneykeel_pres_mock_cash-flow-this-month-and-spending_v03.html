@@ -1,0 +1,244 @@
+<title>MoneyKeel — Cash flow: planned and actual, separated (v3, for approval)</title>
+<style>
+  :root{ --bg:#e8ece9; --ink:#1a1a18; --ink2:#585d59; --line:rgba(20,40,30,.14); --accent:#178F6B; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#161917; --ink:#eceeea; --ink2:#a4aaa5; --line:rgba(255,255,255,.14);} }
+  *{box-sizing:border-box}
+  body{background:var(--bg); color:var(--ink); margin:0; padding:32px 20px 64px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased;}
+  .wrap{max-width:1700px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:26px;font-weight:800;margin:6px 0 8px}
+  h2.sec{font-size:19px;font-weight:800;margin:40px 0 4px}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:900px}
+  .lede b{color:var(--ink)}
+  .row{display:flex;gap:24px;flex-wrap:wrap;margin-top:20px;align-items:flex-start}
+  .col h3{font-size:14px;font-weight:800;margin:0 0 8px}
+  .col .note{font-size:12px;color:var(--ink2);max-width:330px;margin:8px 0 0;line-height:1.5}
+  .phone{width:330px;background:#0c0d0c;border-radius:46px;padding:8px;box-shadow:0 18px 40px rgba(10,25,18,.25)}
+  .screen{background:#F6F7F5;border-radius:39px;overflow:hidden;color:#1A1A18;position:relative;min-height:660px;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:11px 24px 2px;font-size:12px;font-weight:700}
+  .content{padding:6px 13px 0;flex:1}
+  .t{font-size:18px;font-weight:800;padding:4px 2px 6px;display:block}
+  .subtabs{display:flex;gap:5px;padding-bottom:7px}
+  .stab{font-size:11.5px;font-weight:700;color:#6B6B66;border:1.5px solid rgba(0,0,0,.10);border-radius:0;padding:6px 10px}
+  .stab.on{color:#0F6E56;border-color:#178F6B;background:#E1F5EE;font-weight:800}
+  /* Founder design principle: the green bars run END TO END across the screen, square corners.
+     The band bleeds past the content padding; rows keep the padding, so every number on the
+     screen still lands on ONE right edge — the same geometry as SectionBand in the app. */
+  .card{background:#FFFFFF;border-radius:0;padding:10px 13px;margin:0 -13px 0}
+  .band{background:#085041;color:#fff;font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+        padding:7px 13px;border-radius:0;margin:12px -13px 0;display:flex;justify-content:space-between}
+  .band.sub{background:#DFF2E9;color:#085041}
+  .band + .card{margin-bottom:0}
+  .kicker{font-size:10px;font-weight:800;letter-spacing:.05em;color:#6B6B66;text-transform:uppercase}
+  .hero{font-size:34px;font-weight:800;letter-spacing:-.5px;font-variant-numeric:tabular-nums;margin:2px 0 0}
+  .herosub{font-size:12px;color:#6B6B66;font-weight:700;margin-bottom:2px}
+  .rrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(0,0,0,.09);
+        font-size:13.5px;font-variant-numeric:tabular-nums;gap:6px}
+  .rrow:first-of-type{border-top:none}
+  .rrow .sub{display:block;font-size:10.5px;color:#76766F;font-weight:400}
+  .rrow.tot{border-top:1.5px solid #1A1A18;font-weight:800;margin-top:2px}
+  .neg{color:#A32D2D}.pos{color:#006300}.dim{color:#6B6B66}
+  .pill{font-size:9.5px;font-weight:800;padding:1px 6px;border-radius:8px;letter-spacing:.04em;text-transform:uppercase}
+  .pill.plan{background:#E6F1FB;color:#185FA5}.pill.act{background:#E1F5EE;color:#0F6E56}
+  .pill.due{background:#FAEEDA;color:#854F0B}
+  .track{height:7px;border-radius:4px;background:#EEEEE9;position:relative;margin:8px 0 5px;overflow:hidden}
+  .fill{height:100%;border-radius:4px}
+  .mark{position:absolute;top:-2px;width:2px;height:11px;background:#3A3A36}
+  .pace{font-size:12px;font-weight:700}.pacesub{font-size:10.5px;color:#76766F}
+  .empty{font-size:12.5px;color:#6B6B66;line-height:1.5}
+  .cta{display:inline-block;margin-top:8px;font-size:12.5px;font-weight:800;color:#fff;background:#178F6B;padding:8px 14px;border-radius:0}
+  .tabbar{display:flex;justify-content:space-around;border-top:1px solid rgba(0,0,0,.10);padding:7px 0 12px;background:#fff}
+  .tb{font-size:9.5px;font-weight:700;color:#76766F;text-align:center}
+  .tb.on{color:#178F6B}.tb i{display:block;font-size:15px;font-style:normal}
+  .flag{background:#FCEBEB;border-left:3px solid #A32D2D;padding:9px 11px;border-radius:0;font-size:12.5px;margin:14px 0;max-width:900px;line-height:1.5}
+</style>
+<div class="wrap">
+<p class="eyebrow">MoneyKeel · mock for approval · 2026-08-26</p>
+<h1>Cash flow — planned and actual, kept apart</h1>
+<p class="lede">Two tabs, four states. Every money row carries a <span class="pill plan">Planned</span> or <span class="pill act">Actual</span> tag, and each has exactly one helper behind it.
+<b>Planned</b> = take-home − each debt − planned expenses. <b>Actual</b> = take-home − only the debts confirmed paid − what has actually been logged.</p>
+
+<div class="flag"><b>What this fixes.</b> Today one card says <b>Out (bills + debt) $8,321</b> and four rows later <b>“Spent $45 of $0 planned”</b>. Those are two different definitions of <i>planned</i> — the dated grid, and the itemised categories — differing by the whole amount. The $45 is a third thing again: actual. Three meanings, one card, none labelled.</div>
+
+<h2 class="sec">1 · This month</h2>
+<p class="lede">The plan on top, what has really happened underneath. They never share a row.</p>
+<div class="row">
+
+  <div class="col"><h3>A · with data (your numbers)</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>The plan · August</span><span>−$3,503</span></div>
+      <div class="card">
+        <div class="herosub">Planned surplus</div>
+        <div class="hero neg">−$3,503</div>
+        <div class="rrow"><span>In (take-home) <span class="sub">after tax and 401(k)</span></span><b>$4,818</b></div>
+        <div class="rrow"><span class="dim">Mortgage</span><span class="dim">−$2,450</span></div>
+        <div class="rrow"><span class="dim">Car loan</span><span class="dim">−$480</span></div>
+        <div class="rrow"><span class="dim">Credit card</span><span class="dim">−$195</span></div>
+        <div class="rrow"><span class="dim">Planned expenses <span class="sub">from your spending plan</span></span><span class="dim">−$5,196</span></div>
+        <div class="rrow tot"><span>= Planned surplus</span><span class="neg">−$3,503</span></div>
+      </div>
+
+      <div class="band"><span>What has actually happened</span><span>+$473</span></div>
+      <div class="card">
+        <div class="herosub">Actual surplus so far</div>
+        <div class="hero pos">+$473</div>
+        <div class="rrow"><span>In (take-home) received</span><b>$4,818</b></div>
+        <div class="rrow"><span class="dim">Mortgage <span class="pill act">paid</span></span><span class="dim">−$2,450</span></div>
+        <div class="rrow"><span class="dim">Car loan <span class="pill due">due 28th</span></span><span class="dim">$0</span></div>
+        <div class="rrow"><span class="dim">Credit card <span class="pill act">paid</span> <span class="sub">$1,850 — well above your usual $195</span></span><span class="dim">−$1,850</span></div>
+        <div class="rrow"><span class="dim">Spent so far <span class="sub">15 logged expenses</span></span><span class="dim">−$45</span></div>
+        <div class="rrow tot"><span>= Actual surplus so far</span><span class="pos">+$473</span></div>
+        <div class="track"><div class="fill" style="width:1%;background:#178F6B"></div><div class="mark" style="left:52%"></div></div>
+        <div class="pace">$45 spent of $5,196 planned</div>
+        <div class="pacesub">1% spent, 52% of the month gone ›</div>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Two debts are unpaid, so they are $0 in Actual and shown with their due date — never silently dropped. The pace bar now compares spent against <b>planned expenses</b>, like with like.</p>
+  </div>
+
+  <div class="col"><h3>B · fresh account — nothing planned yet</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab on">This month</span><span class="stab">Income</span><span class="stab">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>The plan · August</span><span>−$3,503</span></div>
+      <div class="card">
+        <div class="herosub">Planned surplus</div>
+        <div class="hero dim">Not set yet</div>
+        <div class="rrow"><span>In (take-home)</span><b>$4,818</b></div>
+        <div class="rrow"><span class="dim">Mortgage</span><span class="dim">−$2,450</span></div>
+        <div class="rrow"><span class="dim">Car loan</span><span class="dim">−$480</span></div>
+        <div class="rrow"><span class="dim">Credit card</span><span class="dim">−$195</span></div>
+        <div class="rrow"><span class="dim">Planned expenses</span><span class="dim">— not set</span></div>
+        <p class="empty" style="margin:9px 0 0">Your debts are here, but you haven’t said what you plan to spend. Until you do, there is no planned surplus to show — we won’t guess one.</p>
+        <span class="cta">Plan your spending</span>
+      </div>
+
+      <div class="band"><span>What has actually happened</span><span>+$473</span></div>
+      <div class="card">
+        <div class="herosub">Actual surplus so far</div>
+        <div class="hero pos">+$2,368</div>
+        <div class="rrow"><span>In (take-home) received</span><b>$4,818</b></div>
+        <div class="rrow"><span class="dim">Mortgage <span class="pill act">paid</span></span><span class="dim">−$2,450</span></div>
+        <div class="rrow"><span class="dim">Spent so far</span><span class="dim">$0</span></div>
+        <div class="rrow tot"><span>= Actual surplus so far</span><span class="pos">+$2,368</span></div>
+        <p class="empty" style="margin:9px 0 0">Nothing logged this month yet. This fills in as you record what you spend.</p>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note"><b>This is the state that produced the bug.</b> No categories itemised, so planned was $0 — and the old screen printed “Spent $45 of $0 planned”. Here it says <b>not set</b> and offers the way to set it. No pace bar, because there is nothing to pace against.</p>
+  </div>
+</div>
+
+<h2 class="sec">2 · Spending</h2>
+<p class="lede">Two sub-sections: what you planned, then what you actually spent. Same categories, same order, so a line can be read straight across.</p>
+<div class="row">
+
+  <div class="col"><h3>C · with data</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Recurring debt payments</span><span>$3,125</span></div>
+      <div class="card">
+        <div class="rrow"><span>Mortgage <span class="sub">same every month · installment</span></span><b>$2,450</b></div>
+        <div class="rrow"><span>Car loan <span class="sub">same every month · installment</span></span><b>$480</b></div>
+        <div class="rrow"><span>Credit card <span class="sub">varies · revolving · usually $195</span></span><b>$195</b></div>
+        <div class="rrow tot"><span>= Debt payments a month</span><span>$3,125</span></div>
+      </div>
+
+      <div class="band"><span>Planned expenses</span><span>$5,196</span></div>
+      <div class="card">
+        <div class="rrow"><span>Rent / housing costs</span><b>$1,500</b></div>
+        <div class="rrow"><span>Food and groceries</span><b>$900</b></div>
+        <div class="rrow"><span>Utilities</span><b>$340</b></div>
+        <div class="rrow"><span>Transport</span><b>$410</b></div>
+        <div class="rrow"><span>Health and insurance</span><b>$620</b></div>
+        <div class="rrow"><span>Everything else</span><b>$1,426</b></div>
+        <div class="rrow tot"><span>= Planned a month</span><span>$5,196</span></div>
+      </div>
+
+      <div class="band"><span>Actual · August so far</span><span>$45</span></div>
+      <div class="card">
+        <div class="rrow"><span>Food and groceries <span class="sub">3 expenses</span></span><span><b>$45</b> <span class="sub" style="display:inline">of $900</span></span></div>
+        <div class="rrow"><span class="dim">Rent / housing costs</span><span class="dim">$0 of $1,500</span></div>
+        <div class="rrow"><span class="dim">Utilities</span><span class="dim">$0 of $340</span></div>
+        <div class="rrow"><span class="dim">Transport</span><span class="dim">$0 of $410</span></div>
+        <div class="rrow"><span class="dim">Health and insurance</span><span class="dim">$0 of $620</span></div>
+        <div class="rrow"><span class="dim">Everything else</span><span class="dim">$0 of $1,426</span></div>
+        <div class="rrow tot"><span>= Spent so far</span><span>$45</span></div>
+        <div class="track"><div class="fill" style="width:1%;background:#178F6B"></div><div class="mark" style="left:52%"></div></div>
+        <div class="pacesub">1% spent, 52% of the month gone</div>
+      </div>
+
+      <div class="band sub">Big-ticket radar</div>
+      <div class="card">
+        <div class="rrow"><span>Credit card payment <span class="pill plan">debt payment</span><span class="sub">18 Aug · well above your usual $195</span></span><b>$1,850</b></div>
+        <div class="rrow"><span>Car insurance renewal <span class="sub">due September</span></span><b>$1,180</b></div>
+        <p class="empty" style="margin:8px 0 0">Your mortgage and car loan are not here. They are the same every month, so they live under <b>Recurring debt payments</b> above — a warning you see every month stops being a warning.</p>
+      </div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Every actual row carries its planned figure beside it — <b>$45 of $900</b> — so one line answers both questions. Categories keep the same order in both sections.</p>
+  </div>
+
+  <div class="col"><h3>D · fresh account</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Cash flow</span>
+      <div class="subtabs"><span class="stab">This month</span><span class="stab">Income</span><span class="stab on">Spending</span><span class="stab">Debts</span></div>
+
+      <div class="band"><span>Recurring debt payments</span><span>$3,125</span></div>
+      <div class="card">
+        <div class="rrow"><span>Mortgage</span><b>$2,450</b></div>
+        <div class="rrow"><span>Car loan</span><b>$480</b></div>
+        <div class="rrow"><span>Credit card <span class="sub">usually</span></span><b>$195</b></div>
+        <div class="rrow tot"><span>= Debt payments a month</span><span>$3,125</span></div>
+      </div>
+
+      <div class="band">Planned expenses</div>
+      <div class="card">
+        <p class="empty">You haven’t planned your spending yet. Adding it here is what makes the planned surplus on <b>This month</b> work, and what every “of $X planned” line is measured against.</p>
+        <span class="cta">Plan your spending</span>
+      </div>
+
+      <div class="band"><span>Actual · August so far</span><span>$45</span></div>
+      <div class="card">
+        <p class="empty">Nothing logged this month. As you record what you spend, each expense lands in its category here.</p>
+        <span class="cta">Log an expense</span>
+      </div>
+
+      <div class="band sub">Big-ticket radar</div>
+      <div class="card"><p class="empty">Nothing unusual coming up. Regular debt payments never appear here — only a bill or a card payment well above its usual size.</p></div>
+    </div>
+    <div class="tabbar"><span class="tb"><i>⌂</i>Home</span><span class="tb"><i>◈</i>Net worth</span><span class="tb on"><i>⇄</i>Cash flow</span><span class="tb"><i>▲</i>Plan</span><span class="tb"><i>≡</i>Menu</span></div>
+  </div></div>
+  <p class="note">Both sections keep their heading when empty, so the shape of the screen never changes — only what is in it. Each says what it is for and offers the one action that fills it.</p>
+  </div>
+</div>
+
+<h2 class="sec">The rules underneath</h2>
+<p class="lede">
+1 · <b>Every money row is Planned or Actual, never both.</b> One helper behind each, so two rows can never disagree.<br>
+2 · <b>Debts are listed one by one</b>, not lumped into “bills + debt”. In Actual only a debt confirmed paid counts; the rest show their due date at $0.<br>
+2b · <b>Recurring debt sits in its own section; the radar only warns about the unusual.</b> The split is one the data already makes — <i>installment</i> debt (mortgage, car, student loan) is the same every month and is never a radar item; <i>revolving</i> debt (credit card, HELOC) and a due-in-full lump vary, so a payment well above its usual IS one. Nothing new to capture.<br>
+3 · <b>Planned expenses come from one place</b> — the spending plan — and every “of $X planned” on any screen reads that same number.<br>
+4 · <b>Nothing is guessed.</b> With no plan set, the app says “not set” and offers the way to set it. It never prints $0 as if it were an answer.<br>
+5 · <b>The numbers add up on the page.</b> 4,818 − 2,450 − 480 − 195 − 5,196 = −3,503, and 4,818 − 2,450 − 45 = +2,323.
+</p>
+</div>

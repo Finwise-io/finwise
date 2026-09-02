@@ -101,6 +101,29 @@ export class Dec {
 }
 
 /** Round-half-even division on bigints. */
+/* ─ MK-ST-F-057 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * divRounded
+ *
+ * Answers ..... Round-half-even division on bigints.
+ *
+ * Formula .....
+ *     negative = (num < 0n) ! = (den < 0n)
+ *     n = -num   if num < 0n
+ *     -den   if num, d = den < 0n
+ *     den   otherwise   otherwise
+ *     q = n ÷ d, r = (n % d) × 2n
+ *     out = q
+ *     the answer:
+ *     -out   if negative
+ *     out   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-057
+ * Changed ..... not in git yet (—)
+ */
 function divRounded(num: bigint, den: bigint): bigint {
   const negative = (num < 0n) !== (den < 0n);
   const n = num < 0n ? -num : num, d = den < 0n ? -den : den;

@@ -1,4 +1,4 @@
-import { parseCsv, importHoldings, decodeCsvBase64, classifyHolding } from './holdingsImport';
+import { parseCsv, importHoldings, decodeCsvBase64, assetClassForSymbol } from './holdingsImport';
 
 describe('parseCsv', () => {
   test('handles quoted fields with embedded commas and "" escapes', () => {
@@ -150,50 +150,50 @@ describe('decodeCsvBase64 — robust to UTF-8/UTF-16, with or without BOM (#12)'
 
 // PRD F1 #19 (founder review): crypto / currency / commodities must classify as alternatives,
 // not fall through to the stocks_etf default — while mining COMPANIES stay equities.
-describe('classifyHolding — crypto, commodities, currency (F1 #19)', () => {
+describe('assetClassForSymbol — crypto, commodities, currency (F1 #19)', () => {
   test('crypto tickers and names → alternatives', () => {
-    expect(classifyHolding('GBTC', 'Grayscale Bitcoin Trust')).toBe('alternatives');
-    expect(classifyHolding('IBIT', '')).toBe('alternatives');
-    expect(classifyHolding('XYZ', 'Something Ethereum Fund')).toBe('alternatives');
-    expect(classifyHolding('ZZZ', 'Cryptocurrency Index')).toBe('alternatives');
+    expect(assetClassForSymbol('GBTC', 'Grayscale Bitcoin Trust')).toBe('alternatives');
+    expect(assetClassForSymbol('IBIT', '')).toBe('alternatives');
+    expect(assetClassForSymbol('XYZ', 'Something Ethereum Fund')).toBe('alternatives');
+    expect(assetClassForSymbol('ZZZ', 'Cryptocurrency Index')).toBe('alternatives');
   });
   test('spot-commodity funds → alternatives', () => {
-    expect(classifyHolding('GLD', 'SPDR Gold Shares')).toBe('alternatives');
-    expect(classifyHolding('SLV', '')).toBe('alternatives');
-    expect(classifyHolding('ZZZ', 'Physical Platinum Trust')).toBe('alternatives');
+    expect(assetClassForSymbol('GLD', 'SPDR Gold Shares')).toBe('alternatives');
+    expect(assetClassForSymbol('SLV', '')).toBe('alternatives');
+    expect(assetClassForSymbol('ZZZ', 'Physical Platinum Trust')).toBe('alternatives');
   });
   test('mining COMPANIES with commodity words stay stocks', () => {
-    expect(classifyHolding('GOLD', 'Barrick Gold Corp')).toBe('stocks_etf');
-    expect(classifyHolding('AG', 'First Majestic Silver Corp')).toBe('stocks_etf');
-    expect(classifyHolding('NEM', 'Newmont Mining')).toBe('stocks_etf');
+    expect(assetClassForSymbol('GOLD', 'Barrick Gold Corp')).toBe('stocks_etf');
+    expect(assetClassForSymbol('AG', 'First Majestic Silver Corp')).toBe('stocks_etf');
+    expect(assetClassForSymbol('NEM', 'Newmont Mining')).toBe('stocks_etf');
   });
   test('COIN (Coinbase) is a stock, not crypto', () => {
-    expect(classifyHolding('COIN', 'Coinbase Global Inc')).toBe('stocks_etf');
+    expect(assetClassForSymbol('COIN', 'Coinbase Global Inc')).toBe('stocks_etf');
   });
   test('currency funds → alternatives', () => {
-    expect(classifyHolding('FXE', 'Invesco Currency Shares Euro')).toBe('alternatives');
+    expect(assetClassForSymbol('FXE', 'Invesco Currency Shares Euro')).toBe('alternatives');
   });
   test('FOUNDER RULE 2026-08-04: money market → stocks (a dividend-paying fund), treasuries → bonds, options → alternatives', () => {
-    expect(classifyHolding('SPAXX', 'Fidelity Government Money Market')).toBe('stocks_etf');
-    expect(classifyHolding('ZZZ', 'US Treasury Note 2030')).toBe('bonds');
-    expect(classifyHolding('ZZZ', 'AAPL Jan 2027 Call')).toBe('alternatives');
+    expect(assetClassForSymbol('SPAXX', 'Fidelity Government Money Market')).toBe('stocks_etf');
+    expect(assetClassForSymbol('ZZZ', 'US Treasury Note 2030')).toBe('bonds');
+    expect(assetClassForSymbol('ZZZ', 'AAPL Jan 2027 Call')).toBe('alternatives');
   });
 });
 
 // PRD Capability-map G2 (founder 2026-06-30, closed 2026-07-18): OPTION rows — OCC symbols,
 // date-style symbols, and named calls/puts — file under ALTERNATIVES, never as stocks.
-describe('classifyHolding — options (G2)', () => {
-  const { classifyHolding } = require('./holdingsImport');
+describe('assetClassForSymbol — options (G2)', () => {
+  const { assetClassForSymbol } = require('./holdingsImport');
   test('OCC option symbols classify as alternatives', () => {
-    expect(classifyHolding('AAPL250116C00220000')).toBe('alternatives');
-    expect(classifyHolding('F  261218P00009000')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL250116C00220000')).toBe('alternatives');
+    expect(assetClassForSymbol('F  261218P00009000')).toBe('alternatives');
   });
   test('date-style option symbols classify as alternatives', () => {
-    expect(classifyHolding('AAPL 01/16/2027 220.00 C')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL 01/16/2027 220.00 C')).toBe('alternatives');
   });
   test('named calls/puts classify as alternatives; plain tickers stay equities', () => {
-    expect(classifyHolding('AAPL', 'AAPL Jan 2027 220 Call')).toBe('alternatives');
-    expect(classifyHolding('AAPL', 'Apple Inc')).toBe('stocks_etf');
-    expect(classifyHolding('CALLON', 'Callon Petroleum')).toBe('stocks_etf');   // 'call' inside a word ≠ option
+    expect(assetClassForSymbol('AAPL', 'AAPL Jan 2027 220 Call')).toBe('alternatives');
+    expect(assetClassForSymbol('AAPL', 'Apple Inc')).toBe('stocks_etf');
+    expect(assetClassForSymbol('CALLON', 'Callon Petroleum')).toBe('stocks_etf');   // 'call' inside a word ≠ option
   });
 });

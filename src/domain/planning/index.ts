@@ -2,7 +2,7 @@
 import type { OnboardingProfile } from '../onboardingProfile';
 // Pure functions — no I/O — so they're easy to test and reuse across screens.
 import { round2, toNum } from '../_shared/num';
-import { TAX_BRACKETS, STANDARD_DEDUCTION, taxableIncome, taxOwed } from '../income/tax';
+
 import { salaryAnnual, tipsAnnual, rsuAnnual, rentalNetAnnual, currentRetirementIncomeMonthly, effectiveRate, benefitAnnual } from '../income';
 
 // ───────────────────────── Tax organizer (the "give this to your CPA" summary) ─────────────────────────
@@ -19,6 +19,52 @@ export interface TaxOrganizer {
   accounts: { label: string; kind: string; balance: number }[];
   documents: string[];
 }
+/* ─ MK-PL-F-031 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * taxOrganizer
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     accounts = opts.accounts (or [], liabilities = opts.liabilities (or none when missing) when missing)
+ *     se annual = se amount read as a number (0 when it is not one)   if se freq = 'annual'
+ *     to num(se amount) × 12   otherwise
+ *     other annual = other amount read as a number (0 when it is not one)   if other freq = 'annual'
+ *     other amount read as a number (0 when it is not one)   if other freq = 'onetime'
+ *     to num(other amount) × 12   otherwise   otherwise
+ *     inv div = opts.actual passive   if opts.actual passive and opts.actual passive > 0
+ *     inv annual read as a number (0 when it is not one)   otherwise
+ *     ret inc = current retirement income monthly(op) × 12
+ *     taxable total = round(Σ over income where taxable of (amount), 2 dp)
+ *     non taxable total = round(Σ over income where taxable is missing of (amount), 2 dp)
+ *     acct = for each of accounts: label = institution.trim() (or label (or kind (or 'Account' when missing or zero) when missing or zero) when missing or zero)
+ *     kind = kind (or tax bucket (or 'account' when missing) when missing)
+ *     balance = balance (or 0 when missing or zero)
+ *     has = (k: string) => accounts.some((x: any) => (kind ?? '') = k)
+ *     docs = ["last year's tax return", 'SSN ÷ ID for you and any dependents']
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-003 institution name
+ *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-043 their own retirement contribution
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · If balance is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-031
+ * Changed ..... 2026-06-13 (41698dd)
+ */
 export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: any[]; liabilities?: any[]; actualPassive?: number; year: number }): TaxOrganizer {
   const a = op ?? {};
   const accounts = opts.accounts ?? [], liabilities = opts.liabilities ?? [];
@@ -81,6 +127,22 @@ export function taxOrganizer(op: OnboardingProfile | null, opts: { accounts?: an
  *  year on top of `gross` income — progressive, filing-status + state aware, the SAME taxOwedFor
  *  every other tax figure uses. The old bracket-fill rothConversion helper (flat federal math,
  *  zero product callers) is retired — one concept, one helper. */
+/* ─ MK-PL-F-032 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * rothConversionCost
+ *
+ * Answers ..... ───────────────────────── Roth conversion (fill a low bracket) ───────────────────────── In a low-income year (e.g.
+ *
+ * Formula .....
+ *     round(tax owed for(gross + amount, status, state rate) − tax owed for(gross, status, state rate), 2 dp)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-030 tax filing status and age
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-032
+ * Changed ..... 2026-07-30 (a85874e)
+ */
 export function rothConversionCost(gross: number, amount: number, status: import('../income/tax').FilingStatus, stateRate: number): number {
   const { taxOwedFor } = require('../income/tax');
   return round2(taxOwedFor(gross + amount, status, stateRate) - taxOwedFor(gross, status, stateRate));
@@ -102,6 +164,38 @@ export interface EduPlan {
   monthlyNeeded: number;       // level monthly contribution to close the gap by start
   onTrackPct: number;          // savingsAtStart / futureTotalCost (0–100+)
 }
+/* ─ MK-PL-F-033 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * educationPlan
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     yrs = max(0, round down(inp.years until start))
+ *     n school = max(1, round down(inp.years of school))
+ *     future total cost = 0
+ *     savings at start = inp.current savings × (1 + inp.return rate)^(yrs)
+ *     gap = max(0, future total cost − savings at start)
+ *     n = yrs × 12, r = inp.return rate ÷ 12
+ *     factor = (math.pow(1 + r, n) − 1) ÷ r   if r > 0
+ *     n   otherwise
+ *     monthly needed = gap ÷ factor   if n > 0 and factor > 0
+ *     gap   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in future total cost of 0.
+ *     · Uses a built-in y of 0.
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-033
+ * Changed ..... 2026-06-08 (8770420)
+ */
 export function educationPlan(inp: EduPlanInput): EduPlan {
   const yrs = Math.max(0, Math.floor(inp.yearsUntilStart));
   const nSchool = Math.max(1, Math.floor(inp.yearsOfSchool));
@@ -139,6 +233,23 @@ export interface InsuranceNeed {
   covered: number;          // savings + existing coverage
   gap: number;              // additional coverage to buy
 }
+/* ─ MK-PL-F-034 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * lifeInsuranceNeed
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     income replacement = max(0, inp.annual income) × math.max(0, inp.years to replace)
+ *     total need = income replacement + max(0, inp.debts) + max(0, inp.future goals) + max(0, inp.final expenses)
+ *     covered = max(0, inp.liquid savings) + math.max(0, inp.existing coverage)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-034
+ * Changed ..... 2026-06-08 (eceb40c)
+ */
 export function lifeInsuranceNeed(inp: InsuranceInput): InsuranceNeed {
   const incomeReplacement = Math.max(0, inp.annualIncome) * Math.max(0, inp.yearsToReplace);
   const totalNeed = incomeReplacement + Math.max(0, inp.debts) + Math.max(0, inp.futureGoals) + Math.max(0, inp.finalExpenses);

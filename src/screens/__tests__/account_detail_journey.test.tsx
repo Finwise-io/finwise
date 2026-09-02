@@ -7,6 +7,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import AccountDetailScreen from '../AccountDetailScreen';
 import { useStore } from '../../store/useStore';
 import { valueFreshness } from '../../domain/assets';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 let mockParams: Record<string, string | undefined> = {};
 const mockPushes: string[] = [];
@@ -75,7 +76,7 @@ test('a hand-entered value 6+ months old gets the gentle nudge; "Still right" re
   fireEvent.press(screen.getByLabelText('Still right — keep the amount and re-stamp today'));
   const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'hme');
   expect(a.balance).toBe(650000);                                    // the amount never changes silently
-  expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10)); // only the honesty stamp moves
+  expect(a.value_as_of).toBe(isoLocalDate(new Date())); // only the honesty stamp moves
 });
 
 test('Update value re-stamps the as-of date with the new amount', () => {
@@ -86,7 +87,7 @@ test('Update value re-stamps the as-of date with the new amount', () => {
   fireEvent.press(screen.getByLabelText('Save the updated value'));
   const a = (useStore.getState() as any).assetAccounts.find((x: any) => x.asset_id === 'hme');
   expect(a.balance).toBe(680000);
-  expect(a.value_as_of).toBe(new Date().toISOString().slice(0, 10));
+  expect(a.value_as_of).toBe(isoLocalDate(new Date()));
 });
 
 test('property accounts get no money-movement buttons; cash gets deposit/withdraw/transfer AND interest (savings earns it)', () => {

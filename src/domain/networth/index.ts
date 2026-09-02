@@ -9,6 +9,26 @@ export interface NetWorthState {
   gross_debt: number;
 }
 
+/* ─ MK-NW-F-065 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildNetWorth
+ *
+ * Answers ..... What is this household worth?
+ *
+ * Formula .....
+ *     gross assets = round(assets total, 2 dp)
+ *     gross debt   = round(debt total, 2 dp)
+ *     net worth    = round(assets total − debt total, 2 dp)
+ *
+ * Called by ... MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... MK-NW-M-016 · MK-NW-M-017 · MK-XS-M-001
+ *
+ * Formula also on the master file · functions_from_code · MK-NW-F-065
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function buildNetWorth(uid: UserId, grossAssets: number, grossDebt: number): NetWorthState {
   return { user_id: uid, gross_assets: round2(grossAssets), gross_debt: round2(grossDebt), net_worth: round2(grossAssets - grossDebt) };
 }

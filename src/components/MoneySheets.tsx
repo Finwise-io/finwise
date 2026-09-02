@@ -15,7 +15,7 @@ import { pickReceipt, ocrReceipt, ocrAvailable } from '../services/receiptScan';
 import { modalAnimation } from '../hooks/reducedMotion';
 
 const BUCKET_TITLE: Record<string, string> = { fixed: 'Fixed', nonmonthly: 'Non-monthly', flexible: 'Flexible' };
-const iso = (d: Date) => d.toISOString().slice(0, 10);
+import { isoLocalDate as iso } from '../domain/_shared/dates';
 const ordinal = (n: number) => { const s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); };
 
 // ── shared sheet chrome ────────────────────────────────────────────────────────

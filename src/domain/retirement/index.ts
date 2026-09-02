@@ -6,6 +6,7 @@ import { rmdStartAgeFromAge, rmdDivisor as engineRmdDivisor } from '../../../Cal
 import { round2, toNum } from '../_shared/num';
 import type { OnboardingProfile } from '../onboardingProfile';
 import { colFactor } from './col';
+import { median } from '../_shared/num';
 
 export { colFactor, type ColMatch } from './col';
 
@@ -30,6 +31,34 @@ export interface CapitalNeed {
   annuityFactor: number;       // PV factor applied to netAnnual
   pvBequest: number;           // today's-$ cost of the bequest
 }
+/* ─ MK-PL-F-048 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * capitalNeeded
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     years = max(1, inp.horizon age − inp.retire age)
+ *     net annual = max(0, (inp.monthly spend − inp.guaranteed monthly) × 12)
+ *     r = inp.real return
+ *     annuity factor = (1 − math.pow(1 + r, -years)) ÷ r   if r > 0
+ *     years   otherwise
+ *     pv bequest = inp.bequest ÷ (1 + max(0, r))^(years)   if inp.bequest > 0
+ *     0   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-047 money to leave behind
+ *
+ * Decides .....
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-048
+ * Changed ..... 2026-06-11 (e63c44f)
+ */
 export function capitalNeeded(inp: CapitalNeedInputs): CapitalNeed {
   const years = Math.max(1, inp.horizonAge - inp.retireAge);
   const netAnnual = Math.max(0, (inp.monthlySpend - inp.guaranteedMonthly) * 12);
@@ -46,6 +75,44 @@ export function capitalNeeded(inp: CapitalNeedInputs): CapitalNeed {
 /** All-in monthly retirement spend = base + travel + medical (annual→monthly), adjusted by the
  *  expected trajectory (spend less / same / more later) and the retirement location's
  *  cost-of-living factor (retLocation). Returns 0 if nothing's set (caller falls back). */
+/* ─ MK-PL-F-049 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * retirementSpendMonthly
+ *
+ * Answers ..... All-in monthly retirement spend = base + travel + medical (annual→monthly), adjusted by the expected trajectory (spend less / same / more later) and the retirement location's cost-of-living factor (retLocation).
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     base = expected retirement spending read as a number (0 when it is not one) (or monthly spending read as a number (0 when it is not one) (or 0 when missing or zero) when missing or zero)
+ *     travel = to num(travel budget) ÷ 12
+ *     medical = to num(medical budget) ÷ 12
+ *     mult = 0.85   if spending change later = 'less'
+ *     1.15   if spending change later = 'more'
+ *     1   otherwise   otherwise
+ *     the answer = round((base + travel + medical) × mult × col factor(ret location).factor, 2 dp)
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... MK-PL-M-009
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-019 monthly spending in retirement
+ *               MK-XS-I-022 pension monthly amount
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-035 annuity income
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-049
+ * Changed ..... 2026-07-14 (6952f12)
+ */
 export function retirementSpendMonthly(op: OnboardingProfile | null): number {
   const a = op ?? {};
   const base = toNum(a.expectedRetirementSpending) || toNum(a.monthlySpending) || 0;
@@ -123,6 +190,34 @@ export interface RetirementState {
 }
 
 // deterministic RNG so results/tests are reproducible
+/* ─ MK-PL-F-072 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * mulberry32
+ *
+ * Answers ..... deterministic RNG so results/tests are reproducible
+ *
+ * Formula .....
+ *     t = seed += 0x6d2b79f5
+ *     the answer = ((t ^ (t >>> 14)) >>> 0) ÷ 4294967296
+ *
+ * Called by ... MK-PL-F-050 simulate
+ *
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-056 solveRetireAge · MK-CF-F-106 solveSafeDraw
+ *               … and 7 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-072
+ * Changed ..... not in git yet (—)
+ */
 function mulberry32(seed: number) {
   return function () {
     let t = (seed += 0x6d2b79f5);
@@ -131,19 +226,73 @@ function mulberry32(seed: number) {
     return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
   };
 }
+/* ─ MK-PL-F-073 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * normal
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     u = 0, v = 0
+ *     the answer = mean + sd × √(-2 × math.log(u)) × math.cos(2 × math.PI × v)
+ *
+ * Called by ... MK-PL-F-050 simulate
+ *
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-056 solveRetireAge · MK-CF-F-106 solveSafeDraw
+ *               … and 7 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-073
+ * Changed ..... not in git yet (—)
+ */
 function normal(rng: () => number, mean: number, sd: number): number {
   let u = 0, v = 0;
   while (u === 0) u = rng();
   while (v === 0) v = rng();
   return mean + sd * Math.sqrt(-2 * Math.log(u)) * Math.cos(2 * Math.PI * v);
 }
-function median(xs: number[]): number {
-  if (!xs.length) return 0;
-  const s = [...xs].sort((a, b) => a - b);
-  const m = Math.floor(s.length / 2);
-  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
-}
 // p in [0,1] over a pre-sorted ascending array (nearest-rank)
+/* ─ MK-PL-F-075 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * pctOfSorted
+ *
+ * Answers ..... p in [0,1] over a pre-sorted ascending array (nearest-rank)
+ *
+ * Formula .....
+ *     0   when count of sorted is missing
+ *     idx = min(sorted.length − 1, max(0, round(p × (sorted.length − 1))))
+ *     the answer = sorted[idx]
+ *
+ * Called by ... MK-PL-F-050 simulate
+ *
+ * Reaches ..... 25 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-050 simulate · MK-XS-F-032 snapshotFromOnboarding
+ *               MK-PL-F-056 solveRetireAge · MK-CF-F-106 solveSafeDraw
+ *               … and 7 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-075
+ * Changed ..... not in git yet (—)
+ */
 function pctOfSorted(sorted: number[], p: number): number {
   if (!sorted.length) return 0;
   const idx = Math.min(sorted.length - 1, Math.max(0, Math.round(p * (sorted.length - 1))));
@@ -153,6 +302,74 @@ function pctOfSorted(sorted: number[], p: number): number {
 // B4 (founder brief 2026-08-20): the RMD rule lives in the ONE dated, sourced table — the
 // Calculation Module's rmd engine. The mirror this file used to carry is gone.
 
+/* ─ MK-PL-F-050 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * simulate
+ *
+ * Answers ..... B4 (founder brief 2026-08-20): the RMD rule lives in the ONE dated, sourced table — the Calculation Module's rmd engine.
+ *
+ * Formula .....
+ *     paths = inp.paths (or 500 when missing)
+ *     n acc = max(0, inp.retire age − inp.current age)
+ *     n dec = max(0, inp.horizon age − inp.retire age)
+ *     rng = mulberry32(inp.seed ?? 12345)
+ *     infl factor = (1 + inp.inflation)^(n acc)
+ *     spend at retire = inp.retire monthly spend today × 12 × infl factor
+ *     guar at retire = Σ over streams of (annual at retire)
+ *     total years = n acc + n dec
+ *     now year = inp.now year (or 2026 when missing)
+ *     birth year sim = now year − inp.current age
+ *     rmd start sim = rmd start age from age(inp.current age, now year)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-042 mortgageOddsEffect · MK-CF-F-106 solveSafeDraw
+ *               MK-PL-F-036 weighGoals · MK-PL-F-042 savingToReachTarget
+ *               MK-PL-F-043 howTheGapCloses · MK-PL-F-044 planTarget
+ *               MK-PL-F-053 buildRetirementState · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-065 volOf · MK-PL-F-068 selectWillItLast
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *
+ * Reaches ..... 24 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear · MK-PL-F-053 buildRetirementState
+ *               MK-XS-F-031 buildSnapshot · MK-PL-F-043 howTheGapCloses
+ *               MK-PL-F-046 leverDeltas · MK-CF-F-042 mortgageOddsEffect
+ *               MK-PL-F-069 oddsAt · MK-PL-F-071 oddsOf
+ *               MK-PL-F-044 planTarget · MK-PL-F-055 projectNestEgg
+ *               MK-PL-F-041 requiredAnnualSaving · MK-PL-F-035 retireAgeWithContribution
+ *               MK-PL-F-042 savingToReachTarget · MK-PL-F-068 selectWillItLast
+ *               MK-XS-F-032 snapshotFromOnboarding · MK-PL-F-056 solveRetireAge
+ *               MK-CF-F-106 solveSafeDraw · MK-PL-F-039 spendMoreSentence
+ *               … and 6 more — the full list is on functions_from_code
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If paths is missing it uses 500.
+ *     · If seed is missing it uses 12345.
+ *     · If now year is missing it uses 2026.
+ *     · If contribution growth is missing it uses 0.
+ *     · If pre tax share is missing it uses 0.
+ *     · If required withdrawal tax rate is missing it uses 22%.
+ *     · If monthly is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If one off by year[off] is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If recurring by year[y] is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · If contrib by year[y] is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses a built-in y of 1.
+ *     · Uses a built-in successes of 0.
+ *     · Uses a built-in p of 0.
+ *     · Uses a built-in y of 0.
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-050
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function simulate(inp: RetirementInputs) {
   const paths = inp.paths ?? 500;
   const nAcc = Math.max(0, inp.retire_age - inp.current_age);
@@ -276,6 +493,30 @@ export function simulate(inp: RetirementInputs) {
 }
 
 /** The Social Security stream inside an input set, when streams are in use. */
+/* ─ MK-PL-F-051 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * ssStreamOf
+ *
+ * Answers ..... The Social Security stream inside an input set, when streams are in use.
+ *
+ * Formula .....
+ *     st = (inp.guaranteed streams ?? []).find((x) => kind = 'ss')
+ *     the answer:
+ *     monthly = st.monthly
+ *     start age = st.start age   if st
+ *     nothing   otherwise
+ *
+ * Called by ... MK-PL-F-046 leverDeltas
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-046 leverDeltas
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-051
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function ssStreamOf(inp: RetirementInputs): { monthly: number; start_age?: number } | null {
   const st = (inp.guaranteed_streams ?? []).find((x) => x.kind === 'ss');
   return st ? { monthly: st.monthly, start_age: st.start_age } : null;
@@ -284,6 +525,30 @@ export function ssStreamOf(inp: RetirementInputs): { monthly: number; start_age?
 /** An input set with its Social Security stream replaced — the ONE way a decision screen patches
  *  a claim scenario, so the flat streams ride along untouched and the legacy fields stay in step
  *  for anything still reading them. */
+/* ─ MK-PL-F-052 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * withSsStream
+ *
+ * Answers ..... An input set with its Social Security stream replaced — the ONE way a decision screen patches a claim scenario, so the flat streams ride along untouched and the legacy fields stay in step for anything still reading them.
+ *
+ * Formula .....
+ *     others = inp.guaranteed streams (or none when missing) where kind ! = 'ss'
+ *
+ * Called by ... MK-PL-F-046 leverDeltas
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-046 leverDeltas
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-052
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function withSsStream(inp: RetirementInputs, monthly: number, claimAge: number): RetirementInputs {
   const others = (inp.guaranteed_streams ?? []).filter((x) => x.kind !== 'ss');
   return {
@@ -294,6 +559,30 @@ export function withSsStream(inp: RetirementInputs, monthly: number, claimAge: n
   };
 }
 
+/* ─ MK-PL-F-053 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * buildRetirementState
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     sim = simulate(inp)
+ *
+ * Called by ... MK-XS-F-031 buildSnapshot
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-031 buildSnapshot · MK-XS-F-032 snapshotFromOnboarding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-044 the person’s own plan overrides
+ *
+ * Decides .....
+ *     · If paths is missing it uses 500.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-053
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function buildRetirementState(uid: UserId, inp: RetirementInputs): RetirementState {
   const sim = simulate(inp);
   return {
@@ -311,6 +600,28 @@ export function buildRetirementState(uid: UserId, inp: RetirementInputs): Retire
  *  schedule-only 12% clamp — a quiet divergence from the nest-egg projection's convention. The
  *  closed-form projections (compound interest via Math.pow) are mathematically THIS step iterated;
  *  an agreement test pins that equivalence. */
+/* ─ MK-PL-F-054 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * growOneYear
+ *
+ * Answers ..... ── Deterministic projection (instant — drives the live sliders; no RNG) ────────────── Assumes the average return every year (no market swings).
+ *
+ * Formula .....
+ *     balance × (1 + (rate or 0))
+ *
+ * Called by ... MK-PL-F-008 rmdSchedule
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-008 rmdSchedule
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · If rate is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-054
+ * Changed ..... 2026-07-30 (a85874e)
+ */
 export function growOneYear(balance: number, rate: number): number {
   return balance * (1 + (rate || 0));
 }
@@ -321,6 +632,40 @@ export interface NestEggProjection {
   shortfall: number;   // need − have (positive = short)
 }
 
+/* ─ MK-PL-F-055 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * projectNestEgg
+ *
+ * Answers ..... What will the pot be worth at retirement, and how big does it need to be?
+ *
+ * Formula .....
+ *     years to retire  n = max(0, retire age − age today)
+ *     pot = start balance × (1 + r)^n
+ *         + Σ for year y = 0 … n−1 of ( contribution × (1 + g)^y × (1 + r)^(n − y − 1) )
+ *     where r = the assumed return and g = the rate contributions grow
+ *
+ * Called by ... MK-PL-F-035 retireAgeWithContribution · MK-PL-F-056 solveRetireAge
+ *
+ * Reaches ..... 4 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-035 retireAgeWithContribution · MK-PL-F-056 solveRetireAge
+ *               MK-PL-F-037 trimHints · MK-PL-F-036 weighGoals
+ *
+ * Serves ...... MK-CF-M-022 · MK-NW-M-015 · MK-PL-M-026 · MK-PL-M-033
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-036 other guaranteed income
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Decides .....
+ *     · If contribution growth is missing it uses 0.
+ *     · If monthly is missing it counts as zero, so nothing recorded and a real zero look the same.
+ *     · Uses a built-in y of 0.
+ *     · Uses a built-in need of 0.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-055
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function projectNestEgg(inp: RetirementInputs): NestEggProjection {
   const r = inp.mean_return, f = inp.inflation;
   const nAcc = Math.max(0, inp.retire_age - inp.current_age);
@@ -356,6 +701,25 @@ export function projectNestEgg(inp: RetirementInputs): NestEggProjection {
 
 // "Even if you never save another dollar, you can retire at age Y." Earliest retire age where
 // the current pot (no further contributions) already covers the plan. Returns null if not by `maxAge`.
+/* ─ MK-PL-F-056 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * solveRetireAge
+ *
+ * Answers ..... "Even if you never save another dollar, you can retire at age Y." Earliest retire age where the current pot (no further contributions) already covers the plan.
+ *
+ * Formula .....
+ *     p = project nest egg({ ...inp, annual contribution: 0, retire age: age, guaranteed start age: inp.guaranteed start age })
+ *     age   when will have ≥ will need
+ *     the answer = nothing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-018 retirement age
+ *               MK-XS-I-043 their own retirement contribution
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-056
+ * Changed ..... 2026-06-05 (f742136)
+ */
 export function solveRetireAge(inp: RetirementInputs, maxAge = 80): number | null {
   for (let age = inp.current_age; age <= maxAge; age++) {
     const p = projectNestEgg({ ...inp, annual_contribution: 0, retire_age: age, guaranteed_start_age: inp.guaranteed_start_age });

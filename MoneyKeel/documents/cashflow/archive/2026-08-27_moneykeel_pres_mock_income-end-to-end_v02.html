@@ -1,0 +1,494 @@
+<title>Income, End To End</title>
+<style>
+  :root{--bg:#e8ece9;--ink:#1a1a18;--ink2:#585d59;--accent:#178F6B}
+  @media(prefers-color-scheme:dark){:root{--bg:#161917;--ink:#eceeea;--ink2:#a4aaa5}}
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);margin:0;padding:32px 20px 72px;
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+  .wrap{max-width:1760px;margin:0 auto}
+  .eyebrow{font-size:12px;font-weight:800;letter-spacing:.09em;color:var(--accent);text-transform:uppercase}
+  h1{font-size:28px;font-weight:800;margin:6px 0 8px}
+  h2.sec{font-size:20px;font-weight:800;margin:44px 0 2px;padding-top:18px;border-top:2px solid rgba(20,40,30,.16)}
+  h2.sec .n{color:var(--accent);margin-right:8px}
+  .lede{font-size:14.5px;line-height:1.55;color:var(--ink2);max-width:980px}
+  .lede b{color:var(--ink)}
+  .row{display:flex;gap:22px;flex-wrap:wrap;margin-top:18px;align-items:flex-start}
+  .col h3{font-size:13.5px;font-weight:800;margin:0 0 8px}
+  .col .note{font-size:11.5px;color:var(--ink2);max-width:320px;margin:8px 0 0;line-height:1.5}
+  .phone{width:320px;background:#0c0d0c;border-radius:44px;padding:8px;box-shadow:0 16px 36px rgba(10,25,18,.24)}
+  .screen{background:#F6F7F5;border-radius:37px;overflow:hidden;color:#1A1A18;min-height:660px;display:flex;flex-direction:column}
+  .statusbar{display:flex;justify-content:space-between;align-items:center;padding:11px 22px 2px;font-size:11.5px;font-weight:700}
+  .content{padding:6px 12px 0;flex:1}
+  .nav{display:flex;align-items:center;padding:2px 2px 6px}.nav .bk{font-size:14.5px;font-weight:700;color:#178F6B}
+  .prog{height:3px;background:#EEEEE9;margin:4px 0 12px}.prog i{display:block;height:3px;background:#178F6B}
+  .t{font-size:19px;font-weight:800;padding:2px 2px 2px;display:block}
+  .tsub{font-size:11.5px;color:#6B6B66;display:block;padding:0 2px 10px;line-height:1.4}
+  .band{background:#085041;color:#fff;font-size:10px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;
+        padding:7px 12px;margin:12px -12px 0;display:flex;justify-content:space-between;gap:8px}
+  .band.sub{background:#DFF2E9;color:#085041}
+  .card{background:#FFF;padding:10px 12px;margin:0 -12px}
+  details{margin:0}
+  summary{list-style:none;cursor:pointer;background:#FFF;padding:11px 12px;margin:0 -12px;
+    border-top:1px solid rgba(0,0,0,.09);display:flex;justify-content:space-between;align-items:center;gap:8px}
+  summary::-webkit-details-marker{display:none}
+  summary .who{font-size:14.5px;font-weight:800}
+  summary .sm{display:block;font-size:11px;color:#76766F;font-weight:400;margin-top:2px}
+  summary .chev{font-size:12.5px;font-weight:800;color:#178F6B;white-space:nowrap}
+  details[open] summary{background:#E1F5EE}
+  .lbl{font-size:12.5px;font-weight:700;margin:9px 0 4px;display:block}
+  .lbl .q{display:block;font-size:11px;font-weight:400;color:#6B6B66;margin-top:2px;line-height:1.45}
+  .inp{border:1.5px solid rgba(0,0,0,.20);padding:9px 11px;font-size:16px;font-weight:700;font-variant-numeric:tabular-nums;background:#fff}
+  .inp.empty{color:#9E9E99;font-weight:400}.inp.bad{border-color:#A32D2D;background:#FCEBEB}
+  .seg{display:flex;margin:4px 0 2px}
+  .sg{flex:1;text-align:center;font-size:10.5px;font-weight:700;color:#6B6B66;border:1.5px solid rgba(0,0,0,.10);padding:7px 3px}
+  .sg.on{color:#0F6E56;border-color:#178F6B;background:#E1F5EE;font-weight:800}
+  .src{display:flex;align-items:center;gap:10px;background:#FFF;padding:11px 12px;margin:0 -12px;border-top:1px solid rgba(0,0,0,.09)}
+  .src .ic{font-size:19px;width:24px;text-align:center}
+  .src b{font-size:13.5px;display:block}.src span{font-size:10.5px;color:#76766F;display:block;margin-top:1px}
+  .src .ck{width:20px;height:20px;border:2px solid rgba(0,0,0,.22);border-radius:4px;flex:none}
+  .src.on{background:#E1F5EE}.src.on .ck{background:#178F6B;border-color:#178F6B;color:#fff;font-size:13px;
+    text-align:center;line-height:17px;font-weight:800}
+  .src.on b{color:#0F6E56}
+  .mrow{display:flex;align-items:center;gap:6px;font-size:12px;padding:5px 0;border-top:1px solid rgba(0,0,0,.07);font-variant-numeric:tabular-nums}
+  .mrow span{color:#76766F;width:44px;flex:none}.mrow b{flex:1;font-weight:600}
+  .mrow b.past{color:#76766F;font-weight:400}.mrow b.edit{color:#0F6E56;background:#E1F5EE;padding:1px 4px}
+  .rrow{display:flex;justify-content:space-between;align-items:center;padding:7px 0;border-top:1px solid rgba(0,0,0,.09);
+        font-size:13px;font-variant-numeric:tabular-nums;gap:8px}
+  .rrow:first-of-type{border-top:none}
+  .rrow .sub{display:block;font-size:10px;color:#76766F;font-weight:400}
+  .rrow.tot{border-top:1.5px solid #1A1A18;font-weight:800}
+  .dim{color:#6B6B66}.pos{color:#006300}.tick{color:#0F6E56;font-weight:800}
+  .opt{display:flex;align-items:flex-start;gap:10px;padding:12px 0;border-top:1px solid rgba(0,0,0,.09)}
+  .opt:first-child{border-top:none}
+  .dot{width:18px;height:18px;border:2px solid rgba(0,0,0,.25);border-radius:50%;flex:none;margin-top:1px}
+  .opt.on .dot{border-color:#178F6B;background:#178F6B;box-shadow:inset 0 0 0 3px #fff}
+  .opt b{font-size:14px;font-weight:700;display:block}.opt.on b{color:#0F6E56}
+  .opt span{font-size:11px;color:#76766F;display:block;margin-top:2px}
+  .info{background:#E6F1FB;border-left:3px solid #185FA5;padding:9px 11px;font-size:12px;line-height:1.5;margin:10px 0 0}
+  .warn{background:#FCEBEB;border-left:3px solid #A32D2D;padding:9px 11px;font-size:12px;line-height:1.5;margin:10px 0 0}
+  .pre{background:#E1F5EE;border-left:3px solid #178F6B;padding:9px 11px;font-size:12px;line-height:1.5;margin:10px 0 0}
+  .cta{display:block;text-align:center;margin:13px 0 12px;font-size:13.5px;font-weight:800;color:#fff;background:#178F6B;padding:11px}
+  .flag{background:#E1F5EE;border-left:3px solid #178F6B;padding:11px 13px;font-size:13px;margin:14px 0;max-width:980px;line-height:1.55}
+  .map{background:#fff;border:1px solid rgba(20,40,30,.16);padding:14px 16px;margin:16px 0;max-width:980px}
+  .map table{border-collapse:collapse;width:100%;font-size:13px}
+  .map td{padding:6px 8px;border-bottom:1px solid rgba(0,0,0,.07);vertical-align:top}
+  .map tr:last-child td{border-bottom:none}
+  .map td.k{font-weight:700;white-space:nowrap;width:1%}
+  .map td.s{color:var(--ink2);font-size:12px}
+  .badge{display:inline-block;font-size:10px;font-weight:800;padding:1px 6px;letter-spacing:.03em}
+  .b-new{background:#E1F5EE;color:#0F6E56}.b-same{background:#EEEEE9;color:#3A3A36}.b-fix{background:#FAEEDA;color:#854F0B}
+</style>
+<div class="wrap">
+<p class="eyebrow">MoneyKeel · mock for approval · 2026-08-27 · income, end to end</p>
+<h1>Income — every screen, one document</h1>
+<p class="lede">The whole income surface: the picker, each source it opens, the new tax question, and the summary that reads it all back. Numbers reconcile across every screen — <b>$167,400 gross a year</b>, <b>$9,500 a month landing</b> — and the $250 of dividends that is taxed but never reaches the bank. Supersedes every earlier income mock; those are in <span style="font-family:ui-monospace,monospace">archive/</span>.</p>
+
+<div class="flag"><b>Three patterns run through all of it.</b> One question decides what gets asked, so nobody sees a screen they do not need. Each answer sits in a section that opens on its own, so a screen is never longer than the thing you are filling in. And every figure says what it is worth before you leave it, so nothing is entered blind.</div>
+
+<div class="map"><table>
+<tr><td class="k">1 · Where does your money come from?</td><td class="s">Ten sources, pick any. Everything after this is decided here.</td><td><span class="badge b-same">exists</span></td></tr>
+<tr><td class="k">2 · Your base pay</td><td class="s">Full screen, a section per earner: pay pattern, gross, 401(k), what lands.</td><td><span class="badge b-fix">redesigned</span></td></tr>
+<tr><td class="k">3 · 401(k) and employer match</td><td class="s">Moves into the base-pay section — it is part of a wage, not a separate screen.</td><td><span class="badge b-fix">moved</span></td></tr>
+<tr><td class="k">4 · Bonus and equity</td><td class="s">Lands in the month it is paid, not spread across the year.</td><td><span class="badge b-same">exists</span></td></tr>
+<tr><td class="k">5 · The other eight sources</td><td class="s">Self-employment · rent · interest and dividends · benefits · support · scholarships · student loans · something else.</td><td><span class="badge b-same">exists</span></td></tr>
+<tr><td class="k">6 · How do you file your taxes?</td><td class="s">Never asked before. Everyone has been taxed as a single filer.</td><td><span class="badge b-new">new</span></td></tr>
+<tr><td class="k">7 · Your income, all of it</td><td class="s">The summary. Every source, what lands, and what it is taxed on.</td><td><span class="badge b-new">new</span></td></tr>
+</table></div>
+
+<h2 class="sec"><span class="n">1</span>Where does your money come from?</h2>
+<p class="lede">Unchanged, and it is the spine — <b>every screen after this one appears only if it was picked here.</b></p>
+<div class="row">
+  <div class="col"><h3>the picker</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i style="width:22%"></i></div>
+      <span class="t">Where does your money come from?</span>
+      <span class="tsub">Pick everything that applies. We’ll only ask about what you choose.</span>
+      <div class="src on"><span class="ic">💼</span><div><b>A job (wages or salary)</b><span>Paycheck from an employer</span></div><span class="ck">✓</span></div>
+      <div class="src"><span class="ic">🧰</span><div><b>Self-employed / side gig</b><span>Freelance, consulting, a small business</span></div><span class="ck"></span></div>
+      <div class="src on"><span class="ic">🏠</span><div><b>Rent from a property</b><span>You rent out a place you own</span></div><span class="ck">✓</span></div>
+      <div class="src on"><span class="ic">💵</span><div><b>Interest &amp; dividends</b><span>Money your savings or investments pay you</span></div><span class="ck">✓</span></div>
+      <div class="src"><span class="ic">📨</span><div><b>Retirement income</b><span>Social Security, pension, 401(k)/IRA withdrawals</span></div><span class="ck"></span></div>
+      <div class="src"><span class="ic">🛟</span><div><b>Benefits</b><span>SNAP, TANF, disability, unemployment, housing help</span></div><span class="ck"></span></div>
+      <div class="src"><span class="ic">👪</span><div><b>Child support or alimony</b><span>Support payments you receive</span></div><span class="ck"></span></div>
+      <div class="src"><span class="ic">🎓</span><div><b>Scholarships, grants, stipend</b><span>Money for school or research</span></div><span class="ck"></span></div>
+      <div class="src"><span class="ic">🏦</span><div><b>Student loans</b><span>Money you borrow now and repay later</span></div><span class="ck"></span></div>
+      <div class="src"><span class="ic">🧾</span><div><b>Something else</b><span>Gifts, a one-off payment, anything else</span></div><span class="ck"></span></div>
+      <span class="cta">Continue</span>
+    </div>
+  </div></div>
+  <p class="note">Three picked here — a job, rent, interest and dividends — so the next screens are base pay, the rental, and the dividends. The other seven never appear.</p>
+  </div>
+</div>
+<h2 class="sec"><span class="n">2</span>Your base pay</h2>
+<p class="lede">A <b>full screen</b>, not the bottom sheet it is today — a sheet caps at 88% of the display and this does not fit in one. One section per earner, opening on its own. The 401(k) and the employer match move in here: they are part of a wage, not separate screens.</p>
+<div class="row">
+
+  <div class="col"><h3>2a · both sections closed</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Your base pay</span><span class="tsub">Bonus, stocks and other income are captured separately</span>
+      <div class="band"><span>Who earns a wage?</span></div>
+      <div class="card"><div class="seg"><span class="sg">Just me</span><span class="sg">Just Sam</span><span class="sg on">Both of us</span></div></div>
+      <div class="band"><span>Each person’s pay</span><span>$138,000/yr</span></div>
+      <details><summary><span><span class="who">You <span class="tick">✓</span></span><span class="sm">Monthly · the same each month · $5,000 lands</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <details><summary><span><span class="who">Sam <span class="tick">✓</span></span><span class="sm">Fortnightly · varies · $3,300 a month lands</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <div class="band sub"><span>Your household</span><span>$8,300/mo</span></div>
+      <div class="card">
+        <div class="rrow"><span>Gross a year <span class="sub">both wages</span></span><b>$138,000</b></div>
+        <div class="rrow"><span class="dim">Your tax band on your pay alone</span><span class="dim">12%</span></div>
+        <div class="rrow"><span>Your tax band on both</span><b>22%</b></div>
+        <div class="rrow tot"><span>= Lands in your bank</span><span class="pos">$8,300/mo</span></div>
+        <p class="info">Filing jointly, the band comes from what you earn together. On your pay alone we would have read 12% and shown about <b>$168 a month more</b> than really lands.</p>
+      </div>
+      <span class="cta">Save</span>
+    </div>
+  </div></div>
+  <p class="note">Closed, each person is one line. The household total is visible without opening anything, and says which band it used and why.</p>
+  </div>
+
+  <div class="col"><h3>2b · your section open</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Your base pay</span><span class="tsub">Bonus, stocks and other income are captured separately</span>
+      <div class="band"><span>Each person’s pay</span><span>$138,000/yr</span></div>
+      <details open><summary><span><span class="who">You</span><span class="sm">Monthly · the same each month</span></span><span class="chev">Done ⌃</span></summary>
+      <div class="card">
+        <span class="lbl">How often you are paid</span>
+        <div class="seg"><span class="sg">Hourly</span><span class="sg">Weekly</span><span class="sg">Bi-weekly</span><span class="sg on">Monthly</span></div>
+        <span class="lbl">Is your pay the same every month?</span>
+        <div class="seg"><span class="sg on">The same</span><span class="sg">It varies</span></div>
+        <span class="lbl">Gross pay each month<span class="q">Before anything comes out.</span></span>
+        <div class="inp">$7,000</div>
+        <span class="lbl">Into your 401(k) each month<span class="q">Your own contribution, not your employer’s match.</span></span>
+        <div class="inp">$800</div>
+        <span class="lbl">Your employer’s match<span class="q">A share of what you put in, or a flat amount.</span></span>
+        <div class="seg"><span class="sg on">% of theirs</span><span class="sg">A set amount</span></div>
+        <div class="inp">50%  ·  $400/mo</div>
+        <span class="lbl">What lands in your bank each month<span class="q">After tax and everything else taken out of your pay.</span></span>
+        <div class="inp">$5,000</div>
+        <div class="rrow tot" style="margin-top:10px"><span>Everything else taken out</span><span>$1,200</span></div>
+        <p class="info">17% of your gross. Tax, medical cover and anything else bought through work — we do not need to ask about each.</p>
+      </div>
+      </details>
+      <details><summary><span><span class="who">Sam <span class="tick">✓</span></span><span class="sm">Fortnightly · varies · $3,300 lands</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <span class="cta">Save</span>
+    </div>
+  </div></div>
+  <p class="note"><b>The 401(k) and the match are here now</b>, not two screens later. They come out of this wage, so they are asked where the wage is — and every earner’s section carries them, which is how three copies of the match arithmetic came to exist when it was one screen for one person.</p>
+  </div>
+
+  <div class="col"><h3>2c · Sam’s section, pay varies</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Your base pay</span><span class="tsub">Bonus, stocks and other income are captured separately</span>
+      <div class="band"><span>Each person’s pay</span><span>$138,000/yr</span></div>
+      <details><summary><span><span class="who">You <span class="tick">✓</span></span><span class="sm">Monthly · the same · $5,000 lands</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <details open><summary><span><span class="who">Sam</span><span class="sm">Fortnightly · varies</span></span><span class="chev">Done ⌃</span></summary>
+      <div class="card">
+        <span class="lbl">How often Sam is paid</span>
+        <div class="seg"><span class="sg">Hourly</span><span class="sg">Weekly</span><span class="sg on">Bi-weekly</span><span class="sg">Monthly</span></div>
+        <span class="lbl">Is Sam’s pay the same every month?</span>
+        <div class="seg"><span class="sg">The same</span><span class="sg on">It varies</span></div>
+        <span class="lbl">Gross a fortnight<span class="q">A typical one. Every month below starts from this.</span></span>
+        <div class="inp">$2,077</div>
+        <div class="mrow"><span>Jul 26</span><b class="past">$4,500</b><span>Aug 26</span><b>$4,500</b></div>
+        <div class="mrow"><span>Sep 26</span><b class="edit">$6,000</b><span>Oct 26</span><b>$4,500</b></div>
+        <div class="mrow"><span>Nov 26</span><b>$4,500</b><span>Dec 26</span><b>$4,500</b></div>
+        <div class="mrow"><span>Jan 27</span><b>$4,500</b><span>Feb 27</span><b>$4,500</b></div>
+        <div class="mrow"><span>Mar 27</span><b class="edit">$6,000</b><span>Apr 27</span><b>$4,500</b></div>
+        <div class="mrow"><span>May 27</span><b>$4,500</b><span>Jun 27</span><b>$4,500</b></div>
+        <div class="mrow"><span>Jul 27</span><b>$4,500</b><span>Aug 27</span><b>$4,500</b></div>
+        <span class="lbl">Into Sam’s 401(k) each month</span><div class="inp">$400</div>
+        <span class="lbl">Sam’s employer’s match<span class="q">A share of what they put in, or a flat amount.</span></span>
+        <div class="seg"><span class="sg">% of theirs</span><span class="sg on">A set amount</span></div>
+        <div class="inp">$150/mo  ·  a set amount</div>
+        <span class="lbl">What lands in Sam’s bank each month</span><div class="inp">$3,300</div>
+        <p class="info">The months are shown as months even though Sam is paid fortnightly — a fortnightly figure typed into a monthly box is the mistake this prevents.</p>
+      </div>
+      </details>
+      <span class="cta">Save</span>
+    </div>
+  </div></div>
+  <p class="note">Fourteen months, last month to twelve ahead, two per row with the year. Last month is greyed — already happened, there to check against. The table lives inside Sam’s section, so it never lengthens the screen for someone steadily paid.</p>
+  </div>
+
+  <div class="col"><h3>2d · the three do not agree</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Your base pay</span><span class="tsub">Bonus, stocks and other income are captured separately</span>
+      <div class="band"><span>Each person’s pay</span></div>
+      <details open><summary><span><span class="who">You</span><span class="sm">Monthly · the same each month</span></span><span class="chev">Done ⌃</span></summary>
+      <div class="card">
+        <span class="lbl">How often you are paid</span>
+        <div class="seg"><span class="sg">Hourly</span><span class="sg">Weekly</span><span class="sg">Bi-weekly</span><span class="sg on">Monthly</span></div>
+        <span class="lbl">Is your pay the same every month?</span>
+        <div class="seg"><span class="sg on">The same</span><span class="sg">It varies</span></div>
+        <span class="lbl">Gross pay each month</span><div class="inp bad">$5,500</div>
+        <span class="lbl">Into your 401(k) each month</span><div class="inp">$800</div>
+        <span class="lbl">Your employer’s match<span class="q">A share of what you put in, or a flat amount.</span></span>
+        <div class="seg"><span class="sg on">% of theirs</span><span class="sg">A set amount</span></div>
+        <div class="inp">50%  ·  $400/mo</div>
+        <span class="lbl">What lands in your bank each month</span><div class="inp bad">$5,000</div>
+        <p class="warn"><b>These three cannot all be right.</b> $5,500 gross, less $800 into your 401(k), leaves $4,700 — but you have said $5,000 lands in your bank. That is $300 more than there is.<br><br>Most likely the gross figure is per fortnight rather than per month, or the 401(k) is a yearly amount.</p>
+      </div>
+      </details>
+      <span class="cta" style="background:#EEEEE9;color:#9E9E99">Save</span>
+    </div>
+  </div></div>
+  <p class="note">Three figures that must reconcile catch each other; one figure alone never could. Save waits until it holds. On variable pay every month is checked on its own, not only the total.</p>
+  </div>
+</div>
+<h2 class="sec"><span class="n">3</span>Bonus, equity, and the other sources</h2>
+<p class="lede">Each appears only if it was picked. Same accordion, same rule: a lump lands in the month it is paid, never spread across the year — that is what makes a cash-flow month real.</p>
+<div class="row">
+
+  <div class="col"><h3>3a · bonus and equity</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Bonus and stock</span><span class="tsub">Paid on top of base pay</span>
+      <div class="band"><span>Who gets a bonus?</span></div>
+      <div class="card"><div class="seg"><span class="sg on">Just me</span><span class="sg">Just Sam</span><span class="sg">Both of us</span></div></div>
+      <div class="band"><span>Your bonus</span><span>$12,000/yr</span></div>
+      <div class="card">
+        <span class="lbl">How much, a year<span class="q">Before tax. A typical year if it varies.</span></span>
+        <div class="inp">$12,000</div>
+        <span class="lbl">Which month is it paid?<span class="q">It lands in that month, not spread across the year.</span></span>
+        <div class="seg"><span class="sg">Mar</span><span class="sg">Jun</span><span class="sg">Sep</span><span class="sg on">Dec</span></div>
+        <span class="lbl">Stock that vests, a year<span class="q">Leave blank if you have none.</span></span>
+        <div class="inp empty">$0</div>
+      </div>
+      <div class="band sub"><span>December will look different</span></div>
+      <div class="card">
+        <div class="rrow"><span>A usual month</span><b>$9,500</b></div>
+        <div class="rrow"><span>December <span class="sub">bonus, after tax</span></span><b class="pos">$18,860</b></div>
+        <p class="info">Cash flow will show that spike where it happens. Spreading it across twelve months would make every month wrong to make one look tidy.</p>
+      </div>
+      <span class="cta">Save</span>
+    </div>
+  </div></div>
+  <p class="note">A bonus belongs to a person, so it follows the same just-me / just-Sam / both pattern as base pay. The month matters more than the amount. A December bonus in a January plan is a wrong number in both months.</p>
+  </div>
+
+  <div class="col"><h3>3b · rent from a property</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Rent from a property</span><span class="tsub">What you keep, after what it costs to run</span>
+      <div class="band"><span>The property</span><span>$1,200/mo net</span></div>
+      <div class="card">
+        <span class="lbl">Rent you receive each month</span><div class="inp">$1,800</div>
+        <span class="lbl">What it costs to run each month<span class="q">Mortgage interest, tax, insurance, repairs, management.</span></span>
+        <div class="inp">$600</div>
+        <div class="rrow tot" style="margin-top:10px"><span>= You keep</span><span class="pos">$1,200/mo</span></div>
+        <p class="info">$14,400 a year. This is the figure every other screen uses — the rent alone would overstate what reaches you by half.</p>
+      </div>
+      <span class="cta">Add another property</span>
+    </div>
+  </div></div>
+  <p class="note">Two figures, not one. Rent received is not income; what is left after running the place is.</p>
+  </div>
+
+  <div class="col"><h3>3c · interest and dividends</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Interest &amp; dividends</span><span class="tsub">What your savings and investments pay you</span>
+      <div class="band"><span>From your accounts</span><span>$3,000/yr</span></div>
+      <div class="card">
+        <div class="rrow"><span>Chase savings <span class="sub">3.8% on $18,400</span></span><b>$699</b></div>
+        <div class="rrow"><span>Treasury bonds <span class="sub">4.2% on $30,000</span></span><b>$1,260</b></div>
+        <div class="rrow"><span>VTI and holdings <span class="sub">1.3% dividend yield</span></span><b>$1,041</b></div>
+        <div class="rrow tot"><span>= We work out</span><span>$3,000/yr</span></div>
+        <span class="lbl">Change it if that is not right<span class="q">We only see the accounts you have told us about.</span></span>
+        <div class="inp empty">use $3,000</div>
+      </div>
+      <div class="band sub"><span>This does not reach your bank</span></div>
+      <div class="card">
+        <p class="info"><b>Interest and dividends are counted as income you are taxed on, not money you can spend.</b> They are normally reinvested where they are earned, so they never land in your bank account. If you actually take them as cash, tell us and we will count them.</p>
+        <div class="seg" style="margin-top:8px"><span class="sg on">Reinvested</span><span class="sg">Paid to my bank</span></div>
+      </div>
+      <span class="cta">Save</span>
+    </div>
+  </div></div>
+  <p class="note"><b>Two corrections here.</b> The app holds the accounts, so it can work this out rather than ask — a typed figure invites a second, different answer to the same question. And it is <b>taxable but not spendable</b>: today it flows into take-home, which makes every surplus $250 a month too generous. That is finding B34.</p>
+  </div>
+
+  <div class="col"><h3>3d · the ones not picked</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="nav"><span class="bk">‹ Income</span></div>
+      <span class="t">Your income</span><span class="tsub">Add anything that changes</span>
+      <div class="band"><span>You told us about</span><span>3 sources</span></div>
+      <details><summary><span><span class="who">A job <span class="tick">✓</span></span><span class="sm">You and Sam · $8,300 a month lands</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <details><summary><span><span class="who">Rent <span class="tick">✓</span></span><span class="sm">One property · $1,200 a month net</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <details><summary><span><span class="who">Interest &amp; dividends <span class="tick">✓</span></span><span class="sm">$3,000 a year · reinvested</span></span><span class="chev">Edit ⌄</span></summary></details>
+      <div class="band sub"><span>Anything else?</span></div>
+      <div class="card">
+        <div class="src"><span class="ic">🧰</span><div><b>Self-employed / side gig</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">📨</span><div><b>Retirement income</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">🛟</span><div><b>Benefits</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">👪</span><div><b>Child support or alimony</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">🎓</span><div><b>Scholarships, grants, stipend</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">🏦</span><div><b>Student loans</b></div><span class="ck"></span></div>
+        <div class="src"><span class="ic">🧾</span><div><b>Something else</b></div><span class="ck"></span></div>
+      </div>
+      <span class="cta">Done</span>
+    </div>
+  </div></div>
+  <p class="note">The seven not picked are here, one tap away, rather than hidden behind the picker they said no to. Life changes; the screen should not have to be re-run to say so.</p>
+  </div>
+</div>
+<h2 class="sec"><span class="n">4</span>How do you file your taxes?</h2>
+<p class="lede"><b>Never asked, in the whole app.</b> The code reads a filing status, finds nothing, and falls back to <b>single</b> — for everyone, including the couple who just said they have a partner. Five surfaces use it: every month’s withholding rate, the effective rate, the Roth conversion, the retirement tax rate, and the base-pay estimate.</p>
+<div class="row">
+
+  <div class="col"><h3>4a · they said “just me”</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i style="width:62%"></i></div>
+      <span class="t">How do you file your taxes?</span>
+      <span class="tsub">It decides your tax bands, so every take-home figure depends on it.</span>
+      <div class="card">
+        <div class="opt on"><span class="dot"></span><div><b>Single</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing jointly</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing separately</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Head of household</b></div></div>
+      </div>
+      <p class="pre">Set to <b>Single</b> because you told us it is just you. Change it if that is not right.</p>
+      <span class="cta">Continue</span>
+    </div>
+  </div></div>
+  <p class="note">Pre-answered from what they already said, so most people confirm rather than choose. No small print — anyone filing a return knows what these mean.</p>
+  </div>
+
+  <div class="col"><h3>4b · they have a partner</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i style="width:62%"></i></div>
+      <span class="t">How do you file your taxes?</span>
+      <span class="tsub">It decides your tax bands, so every take-home figure depends on it.</span>
+      <div class="card">
+        <div class="opt"><span class="dot"></span><div><b>Single</b></div></div>
+        <div class="opt on"><span class="dot"></span><div><b>Married filing jointly</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Married filing separately</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Head of household</b></div></div>
+      </div>
+      <p class="pre">Set to <b>Married filing jointly</b> because you told us about Sam.</p>
+      <div class="band sub"><span>Is either of you 65 or older?</span></div>
+      <div class="card">
+        <div class="opt on"><span class="dot"></span><div><b>Just me</b><span>You are 67, so we have you already.</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Both of us</b></div></div>
+        <div class="opt"><span class="dot"></span><div><b>Neither</b></div></div>
+        <p class="info">Being 65 or older adds to your standard deduction — $1,650 each on a joint return. We know your age from your birth year; we have never asked about Sam’s.</p>
+      </div>
+      <span class="cta">Continue</span>
+    </div>
+  </div></div>
+  <p class="note">The over-65 question is only asked of a couple — for one person the birth year already answers it. Today the code counts one person even on a joint return, and this is where that closes.</p>
+  </div>
+
+  <div class="col"><h3>4c · what it changes</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <div class="prog"><i style="width:68%"></i></div>
+      <span class="t">That changes your take-home</span>
+      <span class="tsub">On the $84,000 you told us about</span>
+      <div class="card">
+        <div class="opt"><span class="dot" style="border-color:#76766F"></span><div><b>Taxed as single</b><span>$9,650 a year — what we were assuming</span></div></div>
+        <div class="opt on"><span class="dot"></span><div><b>Married filing jointly</b><span>$5,720 a year</span></div></div>
+        <div class="opt"><span class="dot"></span><div><b>…and both of you over 65</b><span>$5,324 a year</span></div></div>
+      </div>
+      <p class="pre"><b>$328 a month more</b> lands in your bank than we were showing you — $361 if you are both over 65.</p>
+      <p class="info"><b>Your tax bracket is worked out from your income only.</b> Add your partner’s income if you want it to be accurate.</p>
+      <span class="cta">Got it</span>
+    </div>
+  </div></div>
+  <p class="note">Shown once, right after the answer, so the question feels worth having answered. Married filing separately is its own table — every band half the joint ones, the statutory rule.</p>
+  </div>
+</div>
+
+<h2 class="sec"><span class="n">5</span>Your income, all of it</h2>
+<p class="lede">The summary — reached from Cash flow → Income. Every source, what lands, and what it is taxed on, in one place.</p>
+<div class="row">
+
+  <div class="col"><h3>5a · the whole picture</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Your income</span><span class="tsub">Everything coming in, and what reaches your bank</span>
+      <div class="band"><span>What lands each month</span><span>$9,500</span></div>
+      <div class="card">
+        <div class="rrow"><span>Your pay <span class="sub">after tax and 401(k)</span></span><b>$5,000</b></div>
+        <div class="rrow"><span>Sam’s pay <span class="sub">after tax and 401(k)</span></span><b>$3,300</b></div>
+        <div class="rrow"><span>Rent <span class="sub">after running costs</span></span><b>$1,200</b></div>
+        <div class="rrow tot"><span>= A usual month</span><span class="pos">$9,500</span></div>
+        <div class="rrow"><span class="dim">December <span class="sub">with the bonus</span></span><span class="dim">$18,860</span></div>
+        <p class="info">Your <b>$250 a month</b> of interest and dividends is not here — it is reinvested where it is earned and never reaches your bank. It is taxed, so it appears below.</p>
+      </div>
+      <div class="band sub"><span>What it is taxed on</span><span>$167,400</span></div>
+      <div class="card">
+        <div class="rrow"><span>Your gross</span><b>$84,000</b></div>
+        <div class="rrow"><span>Sam’s gross</span><b>$54,000</b></div>
+        <div class="rrow"><span>Rent, net</span><b>$14,400</b></div>
+        <div class="rrow"><span>Interest &amp; dividends</span><b>$3,000</b></div>
+        <div class="rrow"><span>Bonus</span><b>$12,000</b></div>
+        <div class="rrow tot"><span>= Gross a year</span><span>$167,400</span></div>
+        <div class="rrow"><span class="dim">Filing jointly · your band</span><span class="dim">22%</span></div>
+        <p class="info">Married filing jointly, both incomes counted. Federal only — it knows nothing about your state.</p>
+      </div>
+      <span class="cta">Edit your income</span>
+    </div>
+  </div></div>
+  <p class="note"><b>Two totals, never one.</b> What lands is what you can spend; what it is taxed on is a different number and is labelled as one. Mixing them is how a take-home figure comes to include a bonus nobody has been paid yet.</p>
+  </div>
+
+  <div class="col"><h3>5b · a fresh account</h3>
+  <div class="phone"><div class="screen">
+    <div class="statusbar"><span>9:41</span><span>▮▮▮ ⌁</span></div>
+    <div class="content">
+      <span class="t">Your income</span><span class="tsub">Everything coming in, and what reaches your bank</span>
+      <div class="band"><span>What lands each month</span><span>—</span></div>
+      <div class="card">
+        <p class="info" style="background:#F6F7F5;border-left-color:#76766F">Nothing yet. Tell us where your money comes from and this fills in — it is what every other screen measures against.</p>
+        <span class="cta" style="margin-top:10px">Add your income</span>
+      </div>
+      <div class="band sub"><span>What it is taxed on</span><span>—</span></div>
+      <div class="card"><p class="info" style="background:#F6F7F5;border-left-color:#76766F">We will work this out once you have told us about a wage.</p></div>
+    </div>
+  </div></div>
+  <p class="note">Both sections keep their heading when empty, so the shape of the screen never changes — only what is in it. Neither shows $0 as though it were an answer.</p>
+  </div>
+</div>
+
+<h2 class="sec">The rules underneath</h2>
+<p class="lede">
+1 · <b>One question decides what gets asked.</b> Ten sources; only the ones picked ever appear, and the seven not picked stay one tap away rather than hidden.<br>
+2 · <b>One section per thing, opening on its own.</b> A screen is never longer than the thing being filled in, whether that is one earner or two.<br>
+3 · <b>Each earner has their own pay pattern</b> — frequency and steady-or-varies — and their month table lives inside their own section.<br>
+4 · <b>Three figures that must reconcile.</b> Gross, the 401(k), and what lands. One figure alone can never be checked; three catch each other, within $5 a month.<br>
+5 · <b>Nothing is grossed up, and nothing is subtracted that was not entered.</b> What someone says lands IS what lands; with no 401(k) given, none is deducted.<br>
+6 · <b>The tax bracket is read from gross, annualised — average month × 12</b>, never the total of a fourteen-month window, and never from take-home, which also carries medical cover and anything else bought through work.<br>
+7 · <b>A lump lands in its own month.</b> A December bonus makes December different; spreading it makes all twelve wrong to make one look tidy.<br>
+8 · <b>Two totals, never one.</b> What lands is not what it is taxed on, and each says which it is. Interest and dividends are the clearest case: taxed, and never spendable unless someone says they take them as cash. [Founder 2026-08-27]<br>
+8b · <b>Never ask for what can be worked out.</b> The app holds the accounts, so it shows what they pay and lets the person correct it. Asking invites a second, different answer to the same question with nothing to reconcile them.<br>
+9 · <b>Nothing is guessed.</b> Every estimate is prefixed ≈ and says what it cannot see: no state tax, no insurance, one income unless a partner’s is given.
+</p>
+</div>

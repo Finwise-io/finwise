@@ -63,6 +63,55 @@ export interface GridOptions {
 }
 
 /** Build the dated 12-month grid. Pure; all placement rules stated here once. */
+/* ─ MK-XS-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * buildDatedGrid
+ *
+ * Answers ..... Build the dated 12-month grid.
+ *
+ * Formula .....
+ *     a = op (or none when missing)
+ *     now = opts.now (or new date() when missing)
+ *     rates = monthly tax rates(op, opts.now ?? new date())
+ *     net at = (s: number, gross: number) => gross × (1 − rates[cal month(s)])
+ *     start month = now.get month()
+ *     start year = now.get full year()
+ *     now idx = start year × 12 + start month
+ *     cal month = (s: number) => (start month + s) % 12
+ *     slot of = (m1to12: number) => ((m1to12 − 1) − start month + 12) % 12
+ *     slot of(m1to12)   when year is missing
+ *     idx = year × 12 + (m1to12 − 1) − now idx
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-CF-F-107 buildPaycheckYear
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-107 buildPaycheckYear
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-014 debt balance
+ *               MK-XS-I-023 salary and other income
+ *               MK-XS-I-026 big costs (amount and year)
+ *               MK-XS-I-032 spending categories the person set up
+ *               MK-XS-I-042 how a stream is paid — monthly, yearly or one lump
+ *               MK-XS-I-052 the day of the month a debt payment is due
+ *               MK-XS-I-053 the month a debt is first paid
+ *               MK-XS-I-054 the date a debt is due to be paid off in full
+ *
+ * Decides .....
+ *     · If year is missing it uses 0.
+ *     · If a year is missing it uses 0.
+ *     · If start balance is missing it uses 0.
+ *     · Uses a built-in s of 0.
+ *     · Uses a built-in q of 0.
+ *     · Uses a built-in t of 0.
+ *     · Treats a year as twelve equal months.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-004
+ * Changed ..... 2026-07-14 (cf50737)
+ */
 export function buildDatedGrid(op: OnboardingProfile | null, opts: GridOptions = {}): DatedGrid {
   const a: Record<string, any> = op ?? {};
   const now = opts.now ?? new Date();

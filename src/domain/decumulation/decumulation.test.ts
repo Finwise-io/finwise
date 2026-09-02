@@ -1,4 +1,4 @@
-import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisor, rmdStartAgeFor } from './index';
+import { taxBucketSplit, withdrawalPlan, depletionAge, withdrawalOrder, rmdAtAge, rmdDivisorAtAge, rmdStartAgeFor } from './index';
 import type { AssetAccount } from '../assets';
 
 const a = (id: string, bucket: AssetAccount['tax_bucket'], balance: number, pct = 100): AssetAccount =>
@@ -56,9 +56,9 @@ describe('decumulation', () => {
     expect(rmdStartAgeFor(70, 2026)).toBe(73);      // born ~1956
     expect(rmdStartAgeFor(60, 2026)).toBe(75);      // born ~1966
     expect(rmdStartAgeFor(null)).toBe(73);          // unknown: the earlier age — conservative
-    expect(rmdDivisor(73)).toBe(26.5);
+    expect(rmdDivisorAtAge(73)).toBe(26.5);
     expect(rmdAtAge(500000, 73)).toBeCloseTo(500000 / 26.5, 0);
-    expect(rmdDivisor(81)).toBeGreaterThan(rmdDivisor(85));   // divisor shrinks with age
+    expect(rmdDivisorAtAge(81)).toBeGreaterThan(rmdDivisorAtAge(85));   // divisor shrinks with age
   });
 });
 

@@ -1,6 +1,6 @@
 // D3 window boundaries and D4 money-weighted return — the thresholds live in ONE module and
 // every one is proven here (founder brief 2026-08-20).
-import { windowBounds, moneyWeightedReturn, DATELESS_FLOW_LIMIT, BAND_ABSOLUTE } from '../window-return';
+import { windowBounds, modifiedDietzOverWindow, DATELESS_FLOW_LIMIT, BAND_ABSOLUTE } from '../window-return';
 import { Dec } from '../decimal';
 
 describe('D3 — both boundary days inside, and windows tile', () => {
@@ -20,7 +20,7 @@ describe('D4 — the money-weighted return', () => {
   const D = Dec.of;
 
   test('no flows: the plain return, and Vanguard\'s own −4.2% reproduces', () => {
-    const v = moneyWeightedReturn({
+    const v = modifiedDietzOverWindow({
       beginning: D('378022'), ending: D('362088.59'), flows: [],
       start: '2026-01-01', end: '2026-08-16',
     });
@@ -30,8 +30,8 @@ describe('D4 — the money-weighted return', () => {
 
   test('a start-day flow carries full weight; a last-day flow essentially none', () => {
     const base = { beginning: D('100000'), ending: D('112000'), start: '2026-07-01', end: '2026-07-31' };
-    const early = moneyWeightedReturn({ ...base, flows: [{ date: '2026-07-01', amount: D('10000') }] });
-    const late = moneyWeightedReturn({ ...base, flows: [{ date: '2026-07-31', amount: D('10000') }] });
+    const early = modifiedDietzOverWindow({ ...base, flows: [{ date: '2026-07-01', amount: D('10000') }] });
+    const late = modifiedDietzOverWindow({ ...base, flows: [{ date: '2026-07-31', amount: D('10000') }] });
     // same $2,000 gain; the early flow was at work all month → smaller rate
     expect(early.rate!).toBeLessThan(late.rate!);
     // early denominator = 100k + 10k×(31/31) = 110k exactly
@@ -39,7 +39,7 @@ describe('D4 — the money-weighted return', () => {
   });
 
   test('REFUSED unconditionally when the denominator is at or below zero', () => {
-    const v = moneyWeightedReturn({
+    const v = modifiedDietzOverWindow({
       beginning: D('0'), ending: D('500'), flows: [],
       start: '2026-07-01', end: '2026-07-31',
     });
@@ -49,7 +49,7 @@ describe('D4 — the money-weighted return', () => {
 
   test('the timing-sensitivity band refuses a rate that timing drives — the walk is the answer', () => {
     // a flow nearly the size of the account: where it lands in the month swings the figure
-    const v = moneyWeightedReturn({
+    const v = modifiedDietzOverWindow({
       beginning: D('50000'), ending: D('141000'), flows: [{ date: '2026-07-15', amount: D('90000') }],
       start: '2026-07-01', end: '2026-07-31',
     });
@@ -60,7 +60,7 @@ describe('D4 — the money-weighted return', () => {
   });
 
   test('a small flow passes the band and returns Dietz', () => {
-    const v = moneyWeightedReturn({
+    const v = modifiedDietzOverWindow({
       beginning: D('100000'), ending: D('104500'), flows: [{ date: '2026-07-10', amount: D('500') }],
       start: '2026-07-01', end: '2026-07-31',
     });
@@ -70,14 +70,14 @@ describe('D4 — the money-weighted return', () => {
   });
 
   test('dateless flows: absorbed at mid-window only while under 1% of beginning', () => {
-    const small = moneyWeightedReturn({
+    const small = modifiedDietzOverWindow({
       beginning: D('100000'), ending: D('101500'), flows: [{ amount: D('900') }],
       start: '2026-07-01', end: '2026-07-31',
     });
     expect(small.method).toBe('dateless-fallback');
     expect(small.rate).not.toBeNull();
 
-    const large = moneyWeightedReturn({
+    const large = modifiedDietzOverWindow({
       beginning: D('100000'), ending: D('112000'), flows: [{ amount: D('10000') }],
       start: '2026-07-01', end: '2026-07-31',
     });

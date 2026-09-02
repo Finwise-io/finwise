@@ -24,6 +24,7 @@ import { monthlySavings } from '../domain/savings';
 import { usePlanCompleteness } from './SharpenPlanScreen';
 import { money } from '../domain/_shared/num';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { monthKey } from '../domain/income/salary-months';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (d: number) => `${(d * 100).toFixed(1)}%`;
@@ -98,7 +99,7 @@ export function useInsights(limit?: number): Insight[] {
     const nowIso = new Date().toISOString();
     const notDismissed = (i: { id: string }) => i.id === 'worth-a-look' || !hiddenUntil[i.id] || hiddenUntil[i.id] <= nowIso;
     // r12: the worst dated goal judged at its REAL funding pace this month (never typed promises)
-    const nowYmG = new Date().toISOString().slice(0, 7);
+    const nowYmG = monthKey(new Date());
     const { monthsUntil, monthsToGoal } = require('../domain/goals');
     const goalOffTrack = (activeGoals as any[])
       .map((g) => {

@@ -4,6 +4,7 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react-native';
 import { useStore } from '../store/useStore';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 jest.mock('expo-router', () => ({
   useRouter: () => ({ back: jest.fn(), push: jest.fn(), replace: jest.fn(), setParams: jest.fn() }),
@@ -21,7 +22,7 @@ test('dump the founder-state hero, top to bottom', () => {
       { asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 350152, target_return: 0.07 },
     ],
     liabilities: [], transactions: [],
-    nwDaily: { [new Date().toISOString().slice(0, 10)]: 355152 },   // today only — no history yet
+    nwDaily: { [isoLocalDate(new Date())]: 355152 },   // today only — no history yet
   } as any);
   const NW = require('../screens/NetWorthScreen').default;
   render(<NW />);

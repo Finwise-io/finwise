@@ -29,7 +29,45 @@ export const BAND_ABSOLUTE = 0.01;                // ~1 percentage point
 
 // ── D3: the window ─────────────────────────────────────────────────────────────────────────────
 const dayMs = 86_400_000;
+/* ─ MK-ST-F-062 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * toUtc
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-ST-F-038 windowBounds · MK-ST-F-063 shiftDay
+ *               MK-ST-F-064 modifiedDietzOverWindow
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-ST-F-063 shiftDay
+ *               MK-ST-F-038 windowBounds
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-062
+ * Changed ..... not in git yet (—)
+ */
 const toUtc = (d: string) => Date.parse(`${d}T00:00:00Z`);
+/* ─ MK-ST-F-063 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * shiftDay
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     the first 10 of the date to utc(d) + by × day ms).to isostring(
+ *
+ * Called by ... MK-ST-F-038 windowBounds
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-ST-F-064 modifiedDietzOverWindow · MK-ST-F-038 windowBounds
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-063
+ * Changed ..... not in git yet (—)
+ */
 const shiftDay = (d: string, by: number) => new Date(toUtc(d) + by * dayMs).toISOString().slice(0, 10);
 
 export interface WindowBounds {
@@ -39,6 +77,27 @@ export interface WindowBounds {
   /** Inclusive day count: a July window is 31 days, and July windows tile against June's. */
   days: number;
 }
+/* ─ MK-ST-F-038 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * windowBounds
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-ST-F-064 modifiedDietzOverWindow
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-ST-F-064 modifiedDietzOverWindow
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-038
+ * Changed ..... 2026-08-20 (9f201fb)
+ */
 export function windowBounds(start: string, end: string): WindowBounds {
   return {
     start, end,
@@ -66,7 +125,36 @@ export interface ReturnVerdict {
   sentence: string;
 }
 
-export function moneyWeightedReturn(a: {
+/* ─ MK-ST-F-064 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * modifiedDietzOverWindow
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     w = window bounds(start, end)
+ *     flows = flows (or none when missing)
+ *     net flows = dec.sum(flows.map((f) => amount))
+ *     gain = ending.sub(beginning).sub(net flows)
+ *     t = min(max(round((to utc(date) − to utc(start)) ÷ day ms), 0), days − 1)
+ *     the answer = (days − t) ÷ days
+ *     denom = Σ over flows of (amount.to number(8) × weight(each))  starting from beginning.to number(8)
+ *     dateless = flows.some((f) => !date)
+ *     limit = beginning.abs().to number(8) × DATELESS_FLOW_LIMIT
+ *     r = rate with(() => 0.5)
+ *     rate = rate with((f) => weight of(date!))
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-064
+ * Changed ..... not in git yet (—)
+ */
+export function modifiedDietzOverWindow(a: {
   beginning: Dec; ending: Dec; flows: ExternalFlow[]; start: string; end: string;
 }): ReturnVerdict {
   const w = windowBounds(a.start, a.end);

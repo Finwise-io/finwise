@@ -11,7 +11,7 @@ import { toLedgerRow, totalOf, unclassified, personalFlowTotals, importKey, type
 import { classifyHoldingClass, type HoldingClass } from '../engines/holding-class';
 import { reconcileAccountTotal, reconcileLedgerIdentity } from '../engines/reconcile';
 import { rmdStartAge, rmdDivisor } from '../engines/rmd';
-import { windowBounds, moneyWeightedReturn, type ExternalFlow } from '../engines/window-return';
+import { windowBounds, modifiedDietzOverWindow, type ExternalFlow } from '../engines/window-return';
 import { fullRetirementAge, fraLabel, ssClaimFactorFor, ssBenefitAt, ssLifetimeTotal } from '../../src/domain/retirement/ssTiming';
 import { taxOwedFor, taxableIncomeFor, deductionFor, effectiveRateOnGrossFor, marginalBracketFor, ltcgRateFor, TAX_YEAR, type FilingStatus } from '../../src/domain/income/tax';
 import { capGains, type Position } from '../../src/domain/performance';
@@ -327,7 +327,7 @@ export const CARDS: Card[] = [
         return { date: hasDate ? p[0] : null, amount: Dec.parse(hasDate ? p[1] : p[0]) ?? Dec.ZERO };
       });
       const w = windowBounds(v.start, v.end);
-      const r = moneyWeightedReturn({ beginning: Dec.parse(v.beginning) ?? Dec.ZERO, ending: Dec.parse(v.ending) ?? Dec.ZERO, flows, start: v.start, end: v.end });
+      const r = modifiedDietzOverWindow({ beginning: Dec.parse(v.beginning) ?? Dec.ZERO, ending: Dec.parse(v.ending) ?? Dec.ZERO, flows, start: v.start, end: v.end });
       const out: ResultRow[] = [
         { label: 'Window', value: `${w.days} days, beginning measured at the close of ${w.beginningAsOf}` },
         r.rate == null

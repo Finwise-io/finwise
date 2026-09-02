@@ -10,8 +10,11 @@ import { money } from '../domain/_shared/num';
 import { taxOrganizer, type TaxOrganizer } from '../domain/planning';
 import { investmentIncomeAnnual } from '../domain/transactions';
 import { interestIncomeAnnual } from '../domain/bonds';
+import { useRouter } from 'expo-router';
+import { incomeFromAccounts } from '../domain/income/from-accounts';
 
 export default function TaxOrganizerScreen() {
+  const router = useRouter();
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const accounts = store.assetAccounts ?? [];
@@ -20,7 +23,7 @@ export default function TaxOrganizerScreen() {
   const [busy, setBusy] = useState(false);
 
   const org: TaxOrganizer = useMemo(() => {
-    const actualPassive = Math.round(investmentIncomeAnnual(store.transactions ?? []) + interestIncomeAnnual(accounts));
+    const actualPassive = Math.round(incomeFromAccounts(accounts, store.transactions ?? []).annual);
     return taxOrganizer(op, { accounts, liabilities, actualPassive, year });
   }, [op, accounts, liabilities, year]);
 
@@ -52,19 +55,21 @@ export default function TaxOrganizerScreen() {
           (withholding, Roth, capital gains, the RMD drag) reads these two answers */}
       <SectionBand title="HOW YOU FILE" />
       <View style={styles.card}>
-        <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>
-          {([['single', 'Single'], ['married', 'Married, filing jointly'], ['hoh', 'Head of household']] as const).map(([v, label]) => {
-            const on = (store.onboardingProfile?.filingStatus ?? 'single') === v;
-            return (
-              <TouchableOpacity accessibilityRole="radio" key={v}
-                style={[styles.fileChip, on && styles.fileChipOn]}
-                accessibilityState={{ selected: on }} accessibilityLabel={label}
-                onPress={() => store.setOnboardingProfile?.({ ...(store.onboardingProfile ?? {}), filingStatus: v })}>
-                <Text style={[styles.fileChipTxt, on && { color: Colors.primaryDark }]}>{label}</Text>
-              </TouchableOpacity>
-            );
-          })}
-        </View>
+        {/* ONE QUESTION, ONE PLACE. These three chips were the only way to set a filing status in the
+            whole app — and married-filing-separately was not among them, though its table exists. The
+            question now lives on its own screen, asked in onboarding where people pass through, and
+            this shows the answer and opens it. Founder ruling 2026-08-27 (mock income-v5, 4a-4c). */}
+        <TouchableOpacity accessibilityRole="button" style={styles.fileRow}
+          accessibilityLabel="How you file your taxes — change it"
+          onPress={() => router.push('/filing-status')}>
+          <View style={{ flex: 1 }}>
+            <Text style={styles.fileNow}>{FILING_WORDS[(store.onboardingProfile?.filingStatus ?? 'single') as string] ?? 'Single'}</Text>
+            {!store.onboardingProfile?.filingStatus && (
+              <Text style={styles.fileHint}>Assumed — we have never asked</Text>
+            )}
+          </View>
+          <Text style={styles.fileGo}>Change ›</Text>
+        </TouchableOpacity>
         <Text style={styles.fieldL}>State income tax % (optional — leave blank for no state tax)</Text>
         <TextInput style={styles.stateInput} keyboardType="decimal-pad" placeholder="0"
           placeholderTextColor={Colors.textTertiary}
@@ -142,8 +147,17 @@ function orgToHtml(o: TaxOrganizer): string {
   </body></html>`;
 }
 
+const FILING_WORDS: Record<string, string> = {
+  single: 'Single', married: 'Married, filing jointly',
+  mfs: 'Married, filing separately', hoh: 'Head of household',
+};
+
 const styles = StyleSheet.create({
   content: { padding: Spacing.lg },
+  fileRow: { flexDirection: 'row', alignItems: 'center', minHeight: 52, paddingVertical: 8 },
+  fileNow: { fontSize: 15, fontWeight: '800', color: Colors.textPrimary },
+  fileHint: { fontSize: 11, color: Colors.textTertiary, marginTop: 2 },
+  fileGo: { fontSize: 13, fontWeight: '700', color: Colors.primaryDark },
   fileChip: { borderWidth: 1.5, borderColor: Colors.border, borderRadius: Radii.md, paddingVertical: 9, paddingHorizontal: 12, minHeight: 42, justifyContent: 'center', backgroundColor: Colors.cardBg },
   fileChipOn: { borderColor: Colors.primary, backgroundColor: Colors.primaryLight },
   fileChipTxt: { fontSize: 13, fontWeight: '700', color: Colors.textSecondary },

@@ -175,6 +175,34 @@ export interface Classified {
 /** Classify one institution word. Anything unmatched is UNKNOWN — never guessed from an amount.
  *  Fidelity writes the action with detail appended ("INTEREST as of 2026-08-15 UNITED STATES…"),
  *  so a match anywhere in the string is correct; ordering above keeps that safe. */
+/* ─ MK-ST-F-007 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * classifyEvent
+ *
+ * Answers ..... Classify one institution word.
+ *
+ * Formula .....
+ *     w = string(word ?? '').trim()
+ *     event = 'UNKNOWN'
+ *     rule = EVENTS.UNKNOWN
+ *     word = ''
+ *     recognised = false   when w is missing
+ *     the answer:
+ *     event = event
+ *     rule = EVENTS[event]
+ *     word = w
+ *     matched by = source
+ *     recognised = true
+ *
+ * Called by ... MK-ST-F-012 toLedgerRow
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-ST-F-012 toLedgerRow
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-007
+ * Changed ..... 2026-08-18 (bfea15e)
+ */
 export function classifyEvent(word: string | null | undefined): Classified {
   const w = String(word ?? '').trim();
   if (!w) return { event: 'UNKNOWN', rule: EVENTS.UNKNOWN, word: '', recognised: false };
@@ -187,11 +215,42 @@ export function classifyEvent(word: string | null | undefined): Classified {
 }
 
 /** Does this event add to that total? The single place any screen may ask. */
+/* ─ MK-ST-F-008 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * touches
+ *
+ * Answers ..... Does this event add to that total?
+ *
+ * Formula .....
+ *     EVENTS[e].totals.includes(total)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-008
+ * Changed ..... 2026-08-20 (c3e2601)
+ */
 export function touches(e: CanonicalEvent, total: 'contributions' | 'withdrawals' | 'income' | 'costs' | 'units' | 'costBasis' | 'realisedGain'): boolean {
   return EVENTS[e].totals.includes(total);
 }
 
 /** The direction an event implies, where the event itself decides it. */
+/* ─ MK-ST-F-009 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * directionOf
+ *
+ * Answers ..... The direction an event implies, where the event itself decides it.
+ *
+ * Formula .....
+ *     EVENTS[e].direction (or 'NONE' when missing)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-009
+ * Changed ..... 2026-08-18 (bfea15e)
+ */
 export function directionOf(e: CanonicalEvent): Money['direction'] {
   return EVENTS[e].direction ?? 'NONE';
 }

@@ -15,6 +15,7 @@ import { InfoDot } from '../components/UI';
 import { taxBucketSplit, rmdAtAge, rmdSchedule, rmdTakenThisYear, rmdStartAgeFor } from '../domain/decumulation';
 import { requestNotificationPermission, scheduleRmdReminder } from '../services/notifications';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 
@@ -55,7 +56,7 @@ export default function RequiredWithdrawalsScreen() {
     if (!acctId || num(markAmt) <= 0) return;
     store.recordTransaction({
       type: 'WITHDRAWAL', account_id: acctId, amount: num(markAmt),
-      date: new Date().toISOString().slice(0, 10), note: 'required withdrawal',
+      date: isoLocalDate(new Date()), note: 'required withdrawal',
     });
     setMarkOpen(false); setMarkAmt(''); setMarkAcct('');
   };

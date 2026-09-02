@@ -11,7 +11,7 @@ import { flagComparisonText, type TxnFlag } from '../domain/transactions/flags';
 import { maskedMoney, maskDollars, spokenMoney } from '../components/useMoney';
 
 const WEEKDAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
-const prettyDate = (d: string) => {
+const weekdayDate = (d: string) => {
   const dt = new Date(`${d}T12:00:00`);
   return isNaN(dt.getTime()) ? d : `${WEEKDAYS[dt.getDay()]}, ${dt.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })}`;
 };
@@ -62,8 +62,8 @@ export default function WorthALookScreen() {
 
       {/* fact block — pure facts from the transaction record, one sentence for screen readers */}
       <Text style={styles.factHead}
-        accessibilityLabel={`${spokenMoney(f.amount)} left ${accountName(f.account_id)} on ${prettyDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
-        {maskedMoney(f.amount)} left {accountName(f.account_id)} on {prettyDate(f.date)}
+        accessibilityLabel={`${spokenMoney(f.amount)} left ${accountName(f.account_id)} on ${weekdayDate(f.date)}${f.payee ? `, paid to ${f.payee}` : ''}`}>
+        {maskedMoney(f.amount)} left {accountName(f.account_id)} on {weekdayDate(f.date)}
       </Text>
       {/* payee is stored lowercase — show it title-cased, never SHOUTED (audit WL-5) */}
       {f.payee ? <Text style={styles.payee}>Paid to: {String(f.payee).replace(/\b\w/g, (c) => c.toUpperCase())}</Text> : null}
@@ -75,7 +75,7 @@ export default function WorthALookScreen() {
       <Text style={styles.softener}>Most large {f.reason === 'first_time_payee' ? 'first-time ' : ''}payments are fine — you know best.</Text>
 
       {resolvedWasMe ? (
-        <Text style={styles.confirmed}>✓ You confirmed this on {prettyDate(String(f.resolved_at ?? '').slice(0, 10))}</Text>
+        <Text style={styles.confirmed}>✓ You confirmed this on {weekdayDate(String(f.resolved_at ?? '').slice(0, 10))}</Text>
       ) : flaggedByYou ? (
         <View style={styles.checklistBox}>
           <Text style={styles.checklistHead}>WHAT TO DO</Text>

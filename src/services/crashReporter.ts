@@ -12,6 +12,24 @@ type Extra = Record<string, unknown>;
 let sentry: any = null;
 let enabled = false;
 
+/* ─ MK-XS-F-133 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * loadSentry
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-036 initCrashReporting
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-036 initCrashReporting
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-133
+ * Changed ..... not in git yet (—)
+ */
 function loadSentry(): any {
   // @sentry/react-native is installed + wired (Expo plugin in app.config.js, Metro wrap, DSN in extra).
   // require()'d (not import) so the app still runs if the native module is ever absent; jest uses the
@@ -20,6 +38,22 @@ function loadSentry(): any {
 }
 
 /** Initialise crash reporting once, at app start. Safe to call when Sentry isn't installed. */
+/* ─ MK-XS-F-036 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * initCrashReporting
+ *
+ * Answers ..... Initialise crash reporting once, at app start.
+ *
+ * Formula .....
+ *     dsn = (constants.expo config.extra as any).SENTRY_DSN (or process.env.SENTRY_DSN (or '' when missing or zero) when missing or zero)
+ *     s = load sentry()
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-036
+ * Changed ..... 2026-06-23 (f43819e)
+ */
 export function initCrashReporting(): void {
   const dsn = (Constants.expoConfig?.extra as any)?.SENTRY_DSN || process.env.SENTRY_DSN || '';
   const S = loadSentry();
@@ -38,6 +72,25 @@ export function initCrashReporting(): void {
   installGlobalHandler();
 }
 
+/* ─ MK-XS-F-134 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * installGlobalHandler
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     g = global this as any
+ *     prev = error utils.get global handler.()
+ *
+ * Called by ... MK-XS-F-036 initCrashReporting
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-036 initCrashReporting
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-134
+ * Changed ..... not in git yet (—)
+ */
 function installGlobalHandler(): void {
   const g: any = globalThis as any;
   if (g.__finwiseErrHandler) return; // install once
@@ -50,6 +103,26 @@ function installGlobalHandler(): void {
 }
 
 /** Report a caught error. No-ops safely when reporting isn't configured. */
+/* ─ MK-XS-F-037 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * captureException
+ *
+ * Answers ..... Report a caught error.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... MK-XS-F-036 initCrashReporting · MK-XS-F-040 sendTestReport
+ *               MK-XS-F-134 installGlobalHandler
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-036 initCrashReporting · MK-XS-F-134 installGlobalHandler
+ *               MK-XS-F-040 sendTestReport
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-037
+ * Changed ..... 2026-06-19 (fb87a0b)
+ */
 export function captureException(error: unknown, extra?: Extra): void {
   if (enabled && sentry) {
     try {
@@ -63,6 +136,21 @@ export function captureException(error: unknown, extra?: Extra): void {
 }
 
 /** Tag the current user on reports (call after login; pass null on logout). Never sends PII beyond the uid. */
+/* ─ MK-XS-F-038 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * setUserScope
+ *
+ * Answers ..... Tag the current user on reports (call after login; pass null on logout).
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-038
+ * Changed ..... 2026-06-23 (f43819e)
+ */
 export function setUserScope(uid: string | null): void {
   if (enabled && sentry) {
     try {
@@ -74,12 +162,43 @@ export function setUserScope(uid: string | null): void {
 }
 
 /** Whether reports are actually shipping to Sentry (DSN + SDK present). Used by the verification UI. */
+/* ─ MK-XS-F-039 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * crashReportingEnabled
+ *
+ * Answers ..... Whether reports are actually shipping to Sentry (DSN + SDK present).
+ *
+ * Formula .....
+ *     enabled
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-039
+ * Changed ..... 2026-07-13 (762d771)
+ */
 export function crashReportingEnabled(): boolean {
   return enabled;
 }
 
 /** B-L2 verification: send a harmless test event so you can confirm wiring in the Sentry dashboard
  *  (works on the production/TestFlight build). No-ops to the dev console when Sentry isn't configured. */
+/* ─ MK-XS-F-040 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * sendTestReport
+ *
+ * Answers ..... B-L2 verification: send a harmless test event so you can confirm wiring in the Sentry dashboard (works on the production/TestFlight build).
+ *
+ * Formula .....
+ *     enabled
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-040
+ * Changed ..... 2026-07-13 (762d771)
+ */
 export function sendTestReport(): boolean {
   captureException(new Error('MoneyKeel diagnostic test — Sentry wiring check'), { kind: 'test_report' });
   return enabled;

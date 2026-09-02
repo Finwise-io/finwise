@@ -1,0 +1,260 @@
+<title>Which Figures Have A Function</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1240px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;margin:26px 0 34px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:15px 17px}
+.c.lead{border-left:3px solid var(--ok)}.c.w{border-left:3px solid var(--warn)}
+.c.b{border-left:3px solid var(--bad)}.c.i{border-left:3px solid var(--blue)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:31px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:920px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:9px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+tr.grp .gc{float:right;font-family:"IBM Plex Mono",monospace;font-weight:400;font-size:11.5px;opacity:.8}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12px}
+td.id{color:var(--ink);white-space:nowrap;font-weight:500}
+td.lbl{color:var(--ink);font-weight:500;min-width:200px}
+td.scr{color:var(--ink3);font-family:"IBM Plex Mono",monospace;font-size:11.5px;white-space:nowrap}
+td.met{color:var(--ink3)}
+td.fn{min-width:230px}
+tr.k-unknown td.id,tr.k-unknown td.lbl{color:var(--bad)}
+tr.k-screen td.id,tr.k-screen td.lbl{color:var(--warn)}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 7px;white-space:nowrap}
+.t-unknown{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-screen{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-typed{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:30px;margin:42px 0 8px;letter-spacing:-.005em}
+h2+p{color:var(--ink2);margin:0 0 18px;max-width:72ch}
+.key{display:flex;flex-wrap:wrap;gap:9px 22px;margin:0 0 14px;font-size:13px;color:var(--ink2);align-items:center}
+.key b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<div class="wrap">
+<header>
+<p class="eyebrow">MoneyKeel · Calculation Module · 2026-08-26</p>
+<h1>Which figures have a function, and which do not</h1>
+<p class="stand">All 163 figures a person can read, with the label exactly as it appears and the screen it appears on. The 69 without a function are not one problem — they are three, and only one of them is fine. Grouped exactly as the master file groups them: a figure shown on more than one parent screen is its own group, never folded into whichever screen is named first.</p>
+</header>
+
+<div class="cards">
+<div class="c lead"><div class="n">94</div><div class="l">Have a function</div><div class="s">A named function in the code produces the figure. Traceable end to end.</div></div>
+<div class="c b"><div class="n">52</div><div class="l">No function on record</div><div class="s">Nothing in the file says what produces this. Most were named while reading a screen and never traced back.</div></div>
+<div class="c w"><div class="n">12</div><div class="l">Worked out on the screen</div><div class="s">Arithmetic done in the screen file itself. A place a second definition can appear, and none of it is tested.</div></div>
+<div class="c i"><div class="n">5</div><div class="l">Typed — none needed</div><div class="s">The person entered the number. Nothing calculates it, and nothing should. These are correct as they are.</div></div>
+</div>
+
+<div class="key">
+<span><b>Read the colours:</b></span>
+<span><span class="tag t-unknown">No function on record</span> needs tracing</span>
+<span><span class="tag t-screen">Worked out on the screen</span> needs moving into a function</span>
+<span><span class="tag t-typed">Typed — none needed</span> already right</span>
+</div>
+
+<div class="tw"><table>
+<thead><tr><th>Metric ID</th><th>Label, exactly as it appears</th><th>Screen</th><th>Metric in code</th><th>Function that produces it</th></tr></thead>
+<tbody>
+<tr class="grp"><th colspan="5">Home · 4 figures<span class="gc">2 with a function · 2 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-HM-M-003</td><td class="lbl">Needs your attention (1, 2, 3)</td><td class="scr">—</td><td class="mono met">topInsights</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-HM-M-004</td><td class="lbl">&lt;n&gt;% spent · day n of m</td><td class="scr">—</td><td class="mono met">pctSpent</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-HM-M-001</td><td class="lbl">prices updated &lt;when&gt;</td><td class="scr">—</td><td class="mono met">freshness</td><td class="fn"><span class="mono">MK-XS-F-082</span> priceFreshness</td></tr>
+<tr class="k-has"><td class="mono id">MK-HM-M-002</td><td class="lbl">Your net worth just crossed X</td><td class="scr">—</td><td class="mono met">milestone</td><td class="fn"><span class="mono">MK-HM-F-004</span> milestoneCrossed</td></tr>
+<tr class="grp"><th colspan="5">Networth · 45 figures<span class="gc">36 with a function · 9 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-019</td><td class="lbl">Income</td><td class="scr">/account-detail</td><td class="mono met">acctIncome</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-021</td><td class="lbl">Income: &lt;amount&gt; on a holding row</td><td class="scr">/account-detail</td><td class="mono met">incomeOf(rw)</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-028</td><td class="lbl">Rates rise 1% → value roughly $X–$Y</td><td class="scr">/account-detail</td><td class="mono met">sens.ratesUp</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-029</td><td class="lbl">CURRENT PRICE · LIVE</td><td class="scr">/holding-detail</td><td class="mono met">price</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-034</td><td class="lbl">Dividends received (12 mo)</td><td class="scr">/holding-detail</td><td class="mono met">dividends.trailing12</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-NW-M-038</td><td class="lbl">We keep the total at $X</td><td class="scr">/itemize</td><td class="mono met">lump.balance</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-NW-M-006</td><td class="lbl">🏠 PERSONAL PROPERTY</td><td class="scr">—</td><td class="mono met">sectionTotals</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-NW-M-013</td><td class="lbl">EMERGENCY CUSHION — X.X months</td><td class="scr">—</td><td class="mono met">runwayMonths</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-NW-M-039</td><td class="lbl">$X of $Y itemized · remainder</td><td class="scr">/itemize</td><td class="mono met">allocated / remainder</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-001</td><td class="lbl">Change in net worth +$X</td><td class="scr">—</td><td class="mono met">changeThisYear</td><td class="fn"><span class="mono">MK-XS-F-005</span> trendPoints</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-002</td><td class="lbl">Return on cash + investments ±X%</td><td class="scr">—</td><td class="mono met">invPct</td><td class="fn"><span class="mono">MK-XS-F-010</span> investableChangePct</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-003</td><td class="lbl">the trend line</td><td class="scr">—</td><td class="mono met">series</td><td class="fn"><span class="mono">MK-XS-F-005</span> trendPoints</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-004</td><td class="lbl">WHAT YOU OWN</td><td class="scr">—</td><td class="mono met">totalAssets</td><td class="fn"><span class="mono">MK-NW-F-039</span> buildAssetsState</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-005</td><td class="lbl">💵 CASH</td><td class="scr">—</td><td class="mono met">cashOnHand</td><td class="fn"><span class="mono">MK-NW-F-016</span> cashTotal</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-007</td><td class="lbl">class rows — by class, institution or type</td><td class="scr">—</td><td class="mono met">classRows</td><td class="fn"><span class="mono">MK-NW-F-029</span> assetAllocation</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-008</td><td class="lbl">each account and its balance</td><td class="scr">—</td><td class="mono met">a.balance</td><td class="fn"><span class="mono">MK-NW-F-027</span> accountClassBreakdown</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-009</td><td class="lbl">WHAT YOU OWE · 💳 DEBTS</td><td class="scr">—</td><td class="mono met">dState.total_debt_balance</td><td class="fn"><span class="mono">MK-CF-F-036</span> buildDebtState</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-010</td><td class="lbl">each debt and what is left on it</td><td class="scr">—</td><td class="mono met">d.remaining_balance</td><td class="fn"><span class="mono">MK-CF-F-036</span> buildDebtState</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-011</td><td class="lbl">minimum monthly payment on a debt</td><td class="scr">—</td><td class="mono met">d.minimum_monthly_payment</td><td class="fn"><span class="mono">MK-CF-F-023</span> requiredPayment</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-012</td><td class="lbl">Monthly debt payments $X/mo</td><td class="scr">—</td><td class="mono met">dState.total_monthly_debt_</td><td class="fn"><span class="mono">MK-CF-F-036</span> buildDebtState</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-014</td><td class="lbl">of essentials covered by your cash — $X cash ÷ $Y/mo essentials</td><td class="scr">—</td><td class="mono met">cashOnHand / monthlySpend</td><td class="fn"><span class="mono">1. MK-NW-F-016
+2. MK-CF-F-002</span> 1. cashTotal
+2. plannedMonthlySpend</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-015</td><td class="lbl">YOUR RETIREMENT PLAN — on track for $X by age Y</td><td class="scr">—</td><td class="mono met">pathAhead</td><td class="fn"><span class="mono">MK-PL-F-055</span> projectNestEgg</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-016</td><td class="lbl">Net worth so far (setup)</td><td class="scr">—</td><td class="mono met">nw.net_worth</td><td class="fn"><span class="mono">MK-NW-F-065</span> buildNetWorth</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-017</td><td class="lbl">Assets $X − Debts $Y = Net worth $Z</td><td class="scr">—</td><td class="mono met">totalAssets / dState.total</td><td class="fn"><span class="mono">1. MK-NW-F-065
+2. MK-CF-F-036</span> 1. buildNetWorth
+2. buildDebtState</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-018</td><td class="lbl">Market value</td><td class="scr">/account-detail</td><td class="mono met">account.balance</td><td class="fn"><span class="mono">MK-NW-F-003</span> valueFreshness</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-020</td><td class="lbl">each asset class inside the account</td><td class="scr">/account-detail</td><td class="mono met">breakdown[k]</td><td class="fn"><span class="mono">MK-NW-F-027</span> accountClassBreakdown</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-022</td><td class="lbl">ACTIVITY — n records</td><td class="scr">/account-detail</td><td class="mono met">txns.length</td><td class="fn"><span class="mono">MK-XS-F-111</span> mergeHistoryFrom</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-023</td><td class="lbl">Face value</td><td class="scr">/account-detail</td><td class="mono met">b.face</td><td class="fn"><span class="mono">MK-NW-F-056</span> bondInfo</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-024</td><td class="lbl">Interest payments — X%/yr · $Y/yr</td><td class="scr">/account-detail</td><td class="mono met">annualCoupon(b)</td><td class="fn"><span class="mono">MK-NW-F-057</span> annualCoupon</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-025</td><td class="lbl">Matures — &lt;date&gt; (n years away)</td><td class="scr">/account-detail</td><td class="mono met">years</td><td class="fn"><span class="mono">MK-NW-F-058</span> yearsToMaturity</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-026</td><td class="lbl">Yield if held to maturity</td><td class="scr">/account-detail</td><td class="mono met">ytm</td><td class="fn"><span class="mono">MK-NW-F-060</span> approxYTM</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-027</td><td class="lbl">Yield on today&#x27;s value</td><td class="scr">/account-detail</td><td class="mono met">cy</td><td class="fn"><span class="mono">MK-NW-F-059</span> currentYield</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-030</td><td class="lbl">Current value</td><td class="scr">/holding-detail</td><td class="mono met">value</td><td class="fn"><span class="mono">MK-PF-F-004</span> marketValue</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-031</td><td class="lbl">Quantity — n shares</td><td class="scr">/holding-detail</td><td class="mono met">shares</td><td class="fn"><span class="mono">MK-PF-F-001</span> totalShares</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-032</td><td class="lbl">Price paid (average)</td><td class="scr">/holding-detail</td><td class="mono met">rawAvg</td><td class="fn"><span class="mono">MK-PF-F-002</span> costBasis</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-033</td><td class="lbl">Total paid</td><td class="scr">/holding-detail</td><td class="mono met">basis</td><td class="fn"><span class="mono">MK-PF-F-002</span> costBasis</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-035</td><td class="lbl">Realized gain from your buys and sells</td><td class="scr">/holding-detail</td><td class="mono met">realized</td><td class="fn"><span class="mono">MK-PF-F-028</span> realizedFromLedger</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-036</td><td class="lbl">Gain — long-term (held over 1 yr)</td><td class="scr">/holding-detail</td><td class="mono met">cg.longGain</td><td class="fn"><span class="mono">MK-PF-F-006</span> capGains</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-037</td><td class="lbl">Gain — short-term (under 1 yr)</td><td class="scr">/holding-detail</td><td class="mono met">cg.shortGain</td><td class="fn"><span class="mono">MK-PF-F-006</span> capGains</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-040</td><td class="lbl">each holding and its value</td><td class="scr">/itemize</td><td class="mono met">h.value</td><td class="fn"><span class="mono">MK-PF-F-004</span> marketValue</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-041</td><td class="lbl">total value of your bonds</td><td class="scr">/bonds</td><td class="mono met">summary.totalValue</td><td class="fn"><span class="mono">MK-NW-F-056</span> bondInfo</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-042</td><td class="lbl">n bonds · face $X</td><td class="scr">/bonds</td><td class="mono met">summary.totalFace</td><td class="fn"><span class="mono">MK-NW-F-056</span> bondInfo</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-043</td><td class="lbl">COUPON / YR</td><td class="scr">/bonds</td><td class="mono met">summary.coupon</td><td class="fn"><span class="mono">MK-NW-F-057</span> annualCoupon</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-044</td><td class="lbl">AVG YIELD</td><td class="scr">/bonds</td><td class="mono met">summary.yield</td><td class="fn"><span class="mono">MK-NW-F-059</span> currentYield</td></tr>
+<tr class="k-has"><td class="mono id">MK-NW-M-045</td><td class="lbl">each bond — face, coupon, yield</td><td class="scr">/bonds</td><td class="mono met">bi</td><td class="fn"><span class="mono">1. MK-NW-F-056
+2. MK-NW-F-057</span> 1. bondInfo
+2. annualCoupon</td></tr>
+<tr class="grp"><th colspan="5">Performance · 12 figures<span class="gc">11 with a function · 1 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-PF-M-009</td><td class="lbl">Return (money-weighted, when the record covers it)</td><td class="scr">—</td><td class="mono met">mw.rate</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-001</td><td class="lbl">Ending value</td><td class="scr">—</td><td class="mono met">walk.ending</td><td class="fn"><span class="mono">MK-XS-F-011</span> buildChangeWalk</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-002</td><td class="lbl">Wealth generated</td><td class="scr">—</td><td class="mono met">walk.wealthGenerated</td><td class="fn"><span class="mono">MK-XS-F-011</span> buildChangeWalk</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-003</td><td class="lbl">HOW $X BECAME $Y · ALL ACCOUNTS</td><td class="scr">—</td><td class="mono met">walk.beginning / walk.endi</td><td class="fn"><span class="mono">MK-XS-F-011</span> buildChangeWalk</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-004</td><td class="lbl">Ending market value (per account)</td><td class="scr">—</td><td class="mono met">w.ending</td><td class="fn"><span class="mono">MK-XS-F-011</span> buildChangeWalk</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-005</td><td class="lbl">each account and its ending value</td><td class="scr">—</td><td class="mono met">a.ending</td><td class="fn"><span class="mono">MK-PF-F-014</span> buildPerformance</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-006</td><td class="lbl">WHAT EACH CATEGORY EARNED — RETURN</td><td class="scr">—</td><td class="mono met">b.earned / b.ret</td><td class="fn"><span class="mono">MK-PF-F-014</span> buildPerformance</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-007</td><td class="lbl">All categories</td><td class="scr">—</td><td class="mono met">total</td><td class="fn"><span class="mono">MK-PF-F-014</span> buildPerformance</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-008</td><td class="lbl">HONEST COMPARISON</td><td class="scr">—</td><td class="mono met">benchPort</td><td class="fn"><span class="mono">MK-PF-F-020</span> portfolioBenchReturn</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-010</td><td class="lbl">Left in &lt;fund&gt; it became $X (up/down $Y, Z%)</td><td class="scr">/look-back</td><td class="mono met">result.stayed</td><td class="fn"><span class="mono">MK-PF-F-023</span> lookBack</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-011</td><td class="lbl">Moved to &lt;fund&gt; it would be $X</td><td class="scr">/look-back</td><td class="mono met">result.moved</td><td class="fn"><span class="mono">MK-PF-F-023</span> lookBack</td></tr>
+<tr class="k-has"><td class="mono id">MK-PF-M-012</td><td class="lbl">Difference: $X more/less if you had moved</td><td class="scr">/look-back</td><td class="mono met">result.difference</td><td class="fn"><span class="mono">MK-PF-F-023</span> lookBack</td></tr>
+<tr class="grp"><th colspan="5">Plan · 37 figures<span class="gc">14 with a function · 23 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-003</td><td class="lbl">YOUR RETIREMENT PAYCHECK — each guaranteed source</td><td class="scr">—</td><td class="mono met">g.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-004</td><td class="lbl">(no label recorded)</td><td class="scr">—</td><td class="mono met">payMonth.guaranteedTotal</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-005</td><td class="lbl">+ Draw from savings</td><td class="scr">—</td><td class="mono met">payMonth.safeDraw</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-007</td><td class="lbl">SAVED SCENARIOS (n)</td><td class="scr">—</td><td class="mono met">scenarios.length</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-010</td><td class="lbl">Guaranteed income — $X/mo from age Y</td><td class="scr">/will-it-last</td><td class="mono met">inp.guaranteed_monthly_inc</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-012</td><td class="lbl">Yours starts in &lt;year&gt; (age N)</td><td class="scr">/required-withdrawals</td><td class="mono met">rmdStartAgeFor(age)</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-013</td><td class="lbl">Required $X</td><td class="scr">/required-withdrawals</td><td class="mono met">required</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-015</td><td class="lbl">YEAR BY YEAR (ESTIMATES) — each year and amount</td><td class="scr">/required-withdrawals</td><td class="mono met">r.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-020</td><td class="lbl">about $X in total by age N</td><td class="scr">/ss-timing</td><td class="mono met">r.lifetime</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-021</td><td class="lbl">Showing example numbers (a $X/mo statement)</td><td class="scr">/ss-timing</td><td class="mono met">exampleStmt</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-023</td><td class="lbl">Extra tax next April (estimate) — about $X</td><td class="scr">/roth</td><td class="mono met">taxCost</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-024</td><td class="lbl">from your pre-tax $X</td><td class="scr">/roth</td><td class="mono met">preTax</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-031</td><td class="lbl">paid off &lt;month&gt; · saves $X</td><td class="scr">/multi-goal</td><td class="mono met">weighed.debtPayoff</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-036</td><td class="lbl">the future total cost of school</td><td class="scr">/education</td><td class="mono met">plan.futureTotalCost</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-PL-M-037</td><td class="lbl">$X/mo set aside closes the $Y gap</td><td class="scr">/education</td><td class="mono met">plan.monthlyNeeded / plan.</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-PL-M-006</td><td class="lbl">Your paycheck $X/mo</td><td class="scr">—</td><td class="mono met">paycheckTotal</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-PL-M-014</td><td class="lbl">Taken so far $X · still to take</td><td class="scr">/required-withdrawals</td><td class="mono met">taken / still</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-PL-M-027</td><td class="lbl">the difference the change makes</td><td class="scr">/what-if</td><td class="mono met">result.after.egg - result.</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-typed"><td class="mono id">MK-PL-M-022</td><td class="lbl">Convert to Roth this year (&lt;year&gt;)</td><td class="scr">/roth</td><td class="mono met">A.rothConversionThisYear</td><td class="fn"><span class="tag t-typed">Typed — none needed</span></td></tr>
+<tr class="k-typed"><td class="mono id">MK-PL-M-025</td><td class="lbl">+$X/mo (the saving dial)</td><td class="scr">/what-if</td><td class="mono met">addMonthly</td><td class="fn"><span class="tag t-typed">Typed — none needed</span></td></tr>
+<tr class="k-typed"><td class="mono id">MK-PL-M-028</td><td class="lbl">each goal and its monthly amount</td><td class="scr">/multi-goal</td><td class="mono met">d.monthlyAmount</td><td class="fn"><span class="tag t-typed">Typed — none needed</span></td></tr>
+<tr class="k-typed"><td class="mono id">MK-PL-M-030</td><td class="lbl">Extra on debt $X/mo</td><td class="scr">/multi-goal</td><td class="mono met">extraDebt</td><td class="fn"><span class="tag t-typed">Typed — none needed</span></td></tr>
+<tr class="k-typed"><td class="mono id">MK-PL-M-035</td><td class="lbl">Retire at age (the dial)</td><td class="scr">/retirement</td><td class="mono met">rAge</td><td class="fn"><span class="tag t-typed">Typed — none needed</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-001</td><td class="lbl">✓ What you have — already in: N accounts, $X counted</td><td class="scr">—</td><td class="mono met">door.credit.total</td><td class="fn"><span class="mono">MK-PL-F-026</span> planDoor</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-002</td><td class="lbl">Your odds — can&#x27;t work them out yet. Add &lt;what&gt; below</td><td class="scr">—</td><td class="mono met">door.missing</td><td class="fn"><span class="mono">MK-PL-F-026</span> planDoor</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-008</td><td class="lbl">What you have (nest egg)</td><td class="scr">/will-it-last</td><td class="mono met">inp.start_balance</td><td class="fn"><span class="mono">MK-PL-F-067</span> willItLastInputs</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-009</td><td class="lbl">Monthly spending in retirement</td><td class="scr">/will-it-last</td><td class="mono met">inp.retire_monthly_spend_t</td><td class="fn"><span class="mono">MK-PL-F-049</span> retirementSpendMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-011</td><td class="lbl">Monthly saving until then</td><td class="scr">/will-it-last</td><td class="mono met">inp.annual_contrib</td><td class="fn"><span class="mono">MK-PL-F-067</span> willItLastInputs</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-016</td><td class="lbl">BASED ON THESE ACCOUNTS — each balance</td><td class="scr">/required-withdrawals</td><td class="mono met">a.balance</td><td class="fn"><span class="mono">MK-NW-F-003</span> valueFreshness</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-017</td><td class="lbl">Monthly check (today&#x27;s dollars)</td><td class="scr">/ss-timing</td><td class="mono met">A.guaranteedMonthly</td><td class="fn"><span class="mono">MK-PL-F-060</span> ssBenefitAt</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-018</td><td class="lbl">You receive $X/mo ✓</td><td class="scr">/ss-timing</td><td class="mono met">op.ri_ss</td><td class="fn"><span class="mono">MK-CF-F-072</span> currentRetirementIncomeMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-019</td><td class="lbl">Claiming at N pays $X a month</td><td class="scr">/ss-timing</td><td class="mono met">r.monthly</td><td class="fn"><span class="mono">1. MK-PL-F-058
+2. MK-PL-F-060</span> 1. ssClaimFactorFor
+2. ssBenefitAt</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-026</td><td class="lbl">$X → $Y (nest egg before and after)</td><td class="scr">/what-if</td><td class="mono met">result.before.egg / result</td><td class="fn"><span class="mono">MK-PL-F-055</span> projectNestEgg</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-029</td><td class="lbl">Retirement saving — $X/mo now → $Y/mo</td><td class="scr">/multi-goal</td><td class="mono met">A.contribMonthly / retirem</td><td class="fn"><span class="mono">MK-PL-F-067</span> willItLastInputs</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-032</td><td class="lbl">incl. Social Security $X/mo from age N</td><td class="scr">/retirement</td><td class="mono met">ssIncome</td><td class="fn"><span class="mono">MK-CF-F-072</span> currentRetirementIncomeMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-033</td><td class="lbl">your $X grows to $Y by age N at Z%/yr</td><td class="scr">/retirement</td><td class="mono met">nestEgg / scProjected</td><td class="fn"><span class="mono">MK-PL-F-055</span> projectNestEgg</td></tr>
+<tr class="k-has"><td class="mono id">MK-PL-M-034</td><td class="lbl">At Z% return, your money lasts past age N</td><td class="scr">/retirement</td><td class="mono met">scDeplete</td><td class="fn"><span class="mono">MK-PL-F-068</span> selectWillItLast</td></tr>
+<tr class="grp"><th colspan="5">Cashflow · 28 figures<span class="gc">15 with a function · 13 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-001</td><td class="lbl">Expected in</td><td class="scr">—</td><td class="mono met">cell.inflow</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-002</td><td class="lbl">Planned out · incl. &lt;big bill&gt;</td><td class="scr">—</td><td class="mono met">cell.outflow</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-009</td><td class="lbl">YOUR SOURCES — Stock vesting (equity)</td><td class="scr">—</td><td class="mono met">rsuTotal</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-012</td><td class="lbl">RECEIVED · &lt;month&gt; — each payment</td><td class="scr">—</td><td class="mono met">i.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-016</td><td class="lbl">BIG-TICKET RADAR — &lt;bill&gt; · due &lt;month&gt;</td><td class="scr">—</td><td class="mono met">b.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-017</td><td class="lbl">well above your usual &lt;category&gt;</td><td class="scr">—</td><td class="mono met">e.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-021</td><td class="lbl">&lt;goal&gt; · from your Plan</td><td class="scr">—</td><td class="mono met">c.monthlyAmount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-025</td><td class="lbl">what came in and went out that month</td><td class="scr">/month-detail</td><td class="mono met">cell</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-026</td><td class="lbl">the months a paycheck lands</td><td class="scr">/paycheck-months</td><td class="mono met">payYear</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-CF-M-028</td><td class="lbl">each bill and the day it falls</td><td class="scr">/bill-calendar</td><td class="mono met">bills</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-CF-M-003</td><td class="lbl">(no label recorded)</td><td class="scr">—</td><td class="mono met">cell.net</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-CF-M-005</td><td class="lbl">(no label recorded)</td><td class="scr">—</td><td class="mono met">inn - out</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-CF-M-020</td><td class="lbl">THIS MONTH — free to use</td><td class="scr">—</td><td class="mono met">free</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-004</td><td class="lbl">Out (spent + debt)</td><td class="scr">—</td><td class="mono met">out</td><td class="fn"><span class="mono">MK-CF-F-014</span> budgetVsActual</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-006</td><td class="lbl">YOUR SOURCES — Base salary</td><td class="scr">—</td><td class="mono met">op.baseSalary</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-007</td><td class="lbl">YOUR SOURCES — Self-employment</td><td class="scr">—</td><td class="mono met">op.seAmount</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-008</td><td class="lbl">YOUR SOURCES — Bonus</td><td class="scr">—</td><td class="mono met">op.bonusAnnual</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-010</td><td class="lbl">YOUR SOURCES — Rental property</td><td class="scr">—</td><td class="mono met">rentalTotal</td><td class="fn"><span class="mono">MK-CF-F-068</span> rentalNetAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-011</td><td class="lbl">YOUR SOURCES — Social Security · pension</td><td class="scr">—</td><td class="mono met">guaranteed</td><td class="fn"><span class="mono">MK-CF-F-072</span> currentRetirementIncomeMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-013</td><td class="lbl">&lt;MONTH&gt; · $X SPENT</td><td class="scr">—</td><td class="mono met">spent</td><td class="fn"><span class="mono">MK-CF-F-004</span> spendBuckets</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-014</td><td class="lbl">each expense and its amount</td><td class="scr">—</td><td class="mono met">e.amount</td><td class="fn"><span class="mono">MK-CF-F-004</span> spendBuckets</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-015</td><td class="lbl">BY CATEGORY VS PLAN — $X of $Y</td><td class="scr">—</td><td class="mono met">b.spent / b.planned</td><td class="fn"><span class="mono">MK-CF-F-002</span> plannedMonthlySpend</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-018</td><td class="lbl">THIS MONTH — In (take-home)</td><td class="scr">—</td><td class="mono met">inflow</td><td class="fn"><span class="mono">MK-CF-F-092</span> incomeMonthlyGrid</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-019</td><td class="lbl">THIS MONTH — Out (bills + debt)</td><td class="scr">—</td><td class="mono met">outflow</td><td class="fn"><span class="mono">1. MK-CF-F-004
+2. MK-CF-F-023</span> 1. spendBuckets
+2. requiredPayment</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-022</td><td class="lbl">YOUR FUTURE PAYCHECK — At &lt;age&gt;: ~$X / mo</td><td class="scr">—</td><td class="mono met">projection.monthly</td><td class="fn"><span class="mono">MK-PL-F-055</span> projectNestEgg</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-023</td><td class="lbl">YOUR FUTURE PAYCHECK — Social Security · pension</td><td class="scr">—</td><td class="mono met">projection.guaranteed</td><td class="fn"><span class="mono">MK-CF-F-075</span> retirementIncomeMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-024</td><td class="lbl">each source of guaranteed income</td><td class="scr">/monthly-income</td><td class="mono met">g.amount</td><td class="fn"><span class="mono">MK-CF-F-072</span> currentRetirementIncomeMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-CF-M-027</td><td class="lbl">each income source and its amount</td><td class="scr">/income-manager</td><td class="mono met">sources</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="grp"><th colspan="5">Menu · 30 figures<span class="gc">10 with a function · 20 without</span></th></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-001</td><td class="lbl">each big cost and its year</td><td class="scr">/big-costs</td><td class="mono met">c.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-002</td><td class="lbl">the total of your big costs</td><td class="scr">/big-costs</td><td class="mono met">total</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-003</td><td class="lbl">$X left / up to $Y</td><td class="scr">/contribution-room</td><td class="mono met">room / limit</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-004</td><td class="lbl">about $X of the $Y limit</td><td class="scr">/contribution-room</td><td class="mono met">used / limit</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-006</td><td class="lbl">$X of $Y used — the line marks 30%</td><td class="scr">/credit</td><td class="mono met">bal / lim</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-008</td><td class="lbl">typical free cash to save $X/mo</td><td class="scr">/goals</td><td class="mono met">capacity.avg</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-009</td><td class="lbl">each goal — $X of $Y · $Z to go</td><td class="scr">/goals</td><td class="mono met">g.saved / g.target</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-010</td><td class="lbl">your non-monthly budget</td><td class="scr">/goals</td><td class="mono met">sinkBasis</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-015</td><td class="lbl">each insight and the dollars behind it</td><td class="scr">/insights</td><td class="mono met">shareOf(v)</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-017</td><td class="lbl">the life-cover gap</td><td class="scr">/insurance</td><td class="mono met">need.gap</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-018</td><td class="lbl">Income replacement (N yrs)</td><td class="scr">/insurance</td><td class="mono met">need.incomeReplacement</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-019</td><td class="lbl">+ Debts, goals &amp; final expenses · Total need</td><td class="scr">/insurance</td><td class="mono met">need.total</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-020</td><td class="lbl">N months of essentials is $X ($Y/mo)</td><td class="scr">/jobsafety</td><td class="mono met">target / ess</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-022</td><td class="lbl">the total value of these investments</td><td class="scr">/other-investments</td><td class="mono met">summary.totalValue</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-023</td><td class="lbl">EST. GROWTH / YR</td><td class="scr">/other-investments</td><td class="mono met">summary.growth</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-024</td><td class="lbl">You could cover a $X hit</td><td class="scr">/stress-test</td><td class="mono met">shock</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-025</td><td class="lbl">You&#x27;d have $X left — about N months of essentials</td><td class="scr">/stress-test</td><td class="mono met">r.cashAfter / r.runwayAfte</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-029</td><td class="lbl">each contribution and its amount</td><td class="scr">/tax-organizer</td><td class="mono met">c.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-unknown"><td class="mono id">MK-MN-M-030</td><td class="lbl">$X left &lt;account&gt; on &lt;date&gt;</td><td class="scr">/worth-a-look</td><td class="mono met">f.amount</td><td class="fn"><span class="tag t-unknown">No function on record</span></td></tr>
+<tr class="k-screen"><td class="mono id">MK-MN-M-005</td><td class="lbl">about $X/mo for the rest of the year</td><td class="scr">/contribution-room</td><td class="mono met">perMonth</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-007</td><td class="lbl">$X of $Y this month · over by $Z</td><td class="scr">/expense</td><td class="mono met">catSpend / catBudget</td><td class="fn"><span class="mono">MK-CF-F-002</span> plannedMonthlySpend</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-011</td><td class="lbl">net a year</td><td class="scr">/income-detail</td><td class="mono met">state.total_net_annual</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-012</td><td class="lbl">Gross / year</td><td class="scr">/income-detail</td><td class="mono met">state.total_gross_annual</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-013</td><td class="lbl">Net / month</td><td class="scr">/income-detail</td><td class="mono met">state.net_monthly_income</td><td class="fn"><span class="mono">MK-CF-F-083</span> totalGrossAnnual</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-014</td><td class="lbl">Employer 401(k) match</td><td class="scr">/income-detail</td><td class="mono met">state.employer_match_annua</td><td class="fn"><span class="mono">MK-CF-F-078</span> employerMatchMonthly</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-016</td><td class="lbl">Total invested · Cash total · Investable total</td><td class="scr">/insights</td><td class="mono met">investable / cash</td><td class="fn"><span class="mono">1. MK-NW-F-022
+2. MK-NW-F-016</span> 1. investableAssets
+2. cashTotal</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-021</td><td class="lbl">Using $X/mo from your logged spending</td><td class="scr">/jobsafety</td><td class="mono met">monthSpend</td><td class="fn"><span class="mono">MK-CF-F-004</span> spendBuckets</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-026</td><td class="lbl">your $X/mo of must-pay bills</td><td class="scr">/stress-test</td><td class="mono met">ess</td><td class="fn"><span class="mono">MK-CF-F-002</span> plannedMonthlySpend</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-027</td><td class="lbl">each taxable line and its amount</td><td class="scr">/tax-organizer</td><td class="mono met">l.amount</td><td class="fn"><span class="mono">MK-CF-F-100</span> taxableIncomeFor</td></tr>
+<tr class="k-has"><td class="mono id">MK-MN-M-028</td><td class="lbl">Taxable income · Non-taxable</td><td class="scr">/tax-organizer</td><td class="mono met">org.taxableTotal</td><td class="fn"><span class="mono">MK-CF-F-100</span> taxableIncomeFor</td></tr>
+<tr class="grp"><th colspan="5">Shown on more than one screen · 7 figures<span class="gc">6 with a function · 1 without</span></th></tr>
+<tr class="k-screen"><td class="mono id">MK-XS-M-007</td><td class="lbl">Left / Over · left to spend this month</td><td class="scr">—</td><td class="mono met">left</td><td class="fn"><span class="tag t-screen">Worked out on the screen</span></td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-001</td><td class="lbl">Net worth · YOUR NET WORTH</td><td class="scr">—</td><td class="mono met">nw.net_worth</td><td class="fn"><span class="mono">MK-NW-F-065</span> buildNetWorth</td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-002</td><td class="lbl">Will my money last / Is my money lasting (odds)</td><td class="scr">—</td><td class="mono met">wil.chance</td><td class="fn"><span class="mono">MK-PL-F-068</span> selectWillItLast</td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-003</td><td class="lbl">YOUR INVESTMENTS · 📈 INVESTMENTS</td><td class="scr">—</td><td class="mono met">investTotal</td><td class="fn"><span class="mono">MK-NW-F-021</span> investmentsTotal</td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-004</td><td class="lbl">▲ up/▼ down $X (Y%) this month · Return · YOUR RETURN</td><td class="scr">—</td><td class="mono met">youReturn / shownReturn</td><td class="fn"><span class="mono">MK-PF-F-019</span> portfolioPeriodReturn</td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-005</td><td class="lbl">Spent so far · Spent $X of $Y left to spend this month</td><td class="scr">—</td><td class="mono met">bva.spent_total</td><td class="fn"><span class="mono">MK-CF-F-014</span> budgetVsActual</td></tr>
+<tr class="k-has"><td class="mono id">MK-XS-M-006</td><td class="lbl">Income · In (received) · In (take-home)</td><td class="scr">—</td><td class="mono met">thisMonthNet</td><td class="fn"><span class="mono">MK-CF-F-092</span> incomeMonthlyGrid</td></tr></tbody></table></div>
+</div>

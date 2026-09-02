@@ -48,10 +48,42 @@ export class SandboxSyncProvider implements SyncProvider {
 }
 
 let overrideProvider: SyncProvider | null | undefined;   // tests inject here
+/* ─ MK-XS-F-098 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * setSyncProviderForTesting
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     It records or announces something and returns no figure — no arithmetic of its own.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-098
+ * Changed ..... 2026-07-14 (1990149)
+ */
 export function setSyncProviderForTesting(p: SyncProvider | null) { overrideProvider = p; }
 
 /** The one lookup the UI uses. Production returns null until a real provider ships —
  *  the connect screen renders the honest not-yet state off that null, never a dead button. */
+/* ─ MK-XS-F-099 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * activeSyncProvider
+ *
+ * Answers ..... The one lookup the UI uses.
+ *
+ * Formula .....
+ *     override provider   when override provider ! = undefined
+ *     new sandbox sync provider()   if typeof __DEV__ ! = 'undefined' and __DEV__
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-099
+ * Changed ..... 2026-07-14 (1990149)
+ */
 export function activeSyncProvider(): SyncProvider | null {
   if (overrideProvider !== undefined) return overrideProvider;
   // @ts-ignore -- __DEV__ is the RN global
@@ -62,6 +94,38 @@ export function activeSyncProvider(): SyncProvider | null {
 export interface ConnectionFreshness { label: string; stale: boolean; daysOld: number }
 /** How old a connected account's last successful sync is. Stale after 3 days —
  *  a connected balance older than that must SAY so wherever it is shown. */
+/* ─ MK-XS-F-100 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * connectionFreshness
+ *
+ * Answers ..... How old a connected account's last successful sync is.
+ *
+ * Formula .....
+ *     nothing   when last synced is missing
+ *     t = date.parse(last synced)
+ *     nothing   when number.is na n(t)
+ *     days = max(0, round down((now − t) ÷ 86400000))
+ *     label = 'today'
+ *     stale = false
+ *     days old = 0   when days = 0
+ *     label = 'yesterday'
+ *     stale = false
+ *     days old = 1   when days = 1
+ *     the answer:
+ *     label = `${days} days old`
+ *     stale = days > 3
+ *     days old = days
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-100
+ * Changed ..... 2026-08-10 (e37d50e)
+ */
 export function connectionFreshness(lastSynced: string | null | undefined, now: number = Date.now()): ConnectionFreshness | null {
   if (!lastSynced) return null;
   const t = Date.parse(lastSynced);

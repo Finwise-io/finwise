@@ -11,6 +11,26 @@ export const MILESTONE_LADDER = [
 ] as const;
 
 /** '$500k' / '$1M' — the label the celebration line uses. */
+/* ─ MK-HM-F-002 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * milestoneLabel
+ *
+ * Answers ..... '$500k' / '$1M' — the label the celebration line uses.
+ *
+ * Formula .....
+ *     m = threshold ÷ 1000000
+ *     the answer = `$${number.is integer(m) ? m : to fixed(1)}M`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *     · Shows 1 decimal place.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-002
+ * Changed ..... 2026-07-14 (63edc6b)
+ */
 export function milestoneLabel(threshold: number): string {
   if (threshold >= 1_000_000) {
     const m = threshold / 1_000_000;
@@ -20,6 +40,28 @@ export function milestoneLabel(threshold: number): string {
 }
 
 /** The highest ladder rung at or below `netWorth` (0 when below the first rung). */
+/* ─ MK-HM-F-003 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * milestoneFloor
+ *
+ * Answers ..... The highest ladder rung at or below `netWorth` (0 when below the first rung).
+ *
+ * Formula .....
+ *     floor = 0
+ *     the answer = floor
+ *
+ * Called by ... MK-HM-F-004 milestoneCrossed
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-HM-F-004 milestoneCrossed
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in floor of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-003
+ * Changed ..... 2026-07-14 (63edc6b)
+ */
 export function milestoneFloor(netWorth: number): number {
   let floor = 0;
   for (const t of MILESTONE_LADDER) { if (netWorth >= t) floor = t; else break; }
@@ -30,6 +72,25 @@ export function milestoneFloor(netWorth: number): number {
  * The one decision rule. `highSeen` is the highest acknowledged rung (null = never observed:
  * caller must set the baseline SILENTLY, no celebration). Returns the newly crossed rung to
  * celebrate, or null.
+ */
+/* ─ MK-HM-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * milestoneCrossed
+ *
+ * Answers ..... The one decision rule.
+ *
+ * Formula .....
+ *     nothing   when high seen = nothing
+ *     floor = milestone floor(net worth)
+ *     the answer:
+ *     floor   if floor > high seen
+ *     nothing   otherwise
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-HM-M-002
+ *
+ * Formula also on the master file · functions_from_code · MK-HM-F-004
+ * Changed ..... 2026-07-14 (63edc6b)
  */
 export function milestoneCrossed(netWorth: number, highSeen: number | null): number | null {
   if (highSeen == null) return null;                 // first sight = baseline, never a party

@@ -15,6 +15,7 @@ import { ASSET_CLASS_LABEL, type AssetClass, type TaxBucket } from '../domain/as
 import { newEntityId } from '../domain/_shared/ids';
 import { round2, money2 } from '../domain/_shared/num';
 import { Colors, Spacing, Radii, Typography } from '../utils/theme';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 // Read a picked CSV robustly (#12). UTF-8 is the common case; a UTF-16 / odd-encoding export either
 // throws or comes back NUL-laden when read as UTF-8 — in that case re-read the RAW BYTES (base64 never
@@ -34,7 +35,7 @@ async function readCsvText(uri: string): Promise<string> {
   return text;
 }
 
-const todayIso = () => new Date().toISOString().slice(0, 10);
+const todayIso = () => isoLocalDate(new Date());
 
 export default function ImportHoldingsScreen() {
   const router = useRouter();

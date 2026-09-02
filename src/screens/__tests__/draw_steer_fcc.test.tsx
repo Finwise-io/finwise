@@ -8,6 +8,7 @@ import { render, screen, fireEvent } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
 import { useStore } from '../../store/useStore';
 import { drawOrderOutcome, withdrawalOrder, taxBucketSplit, DEFAULT_DRAW_ORDER } from '../../domain/decumulation';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 const mockPushes: string[] = [];
 jest.mock('expo-router', () => ({
@@ -94,7 +95,7 @@ test('no spending gap (guaranteed covers spending): the comparison degrades hone
 
 test('the retiree pace bar: spent vs the SAME left-to-spend pool the paycheck shows', () => {
   useStore.setState({
-    expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
+    expenses: [{ id: 'e1', amount: 1200, category: 'Groceries', date: isoLocalDate(new Date()) }],
   } as any);
   render(<CashFlowScreen />);
   expect(screen.getByLabelText(/Spending pace: \$1,200 of \$[\d,]+ left to spend/)).toBeOnTheScreen();

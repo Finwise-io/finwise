@@ -1,0 +1,375 @@
+<title>Cash Flow Build Plan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Instrument+Serif&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+<style>
+:root{--ink:#16202B;--ink2:#41505F;--ink3:#6E7F8E;--paper:#EFF2F5;--surf:#FFF;--surf2:#F7F9FB;
+ --rule:#CBD5DE;--soft:#E2E9EF;--ok:#1C6B58;--okbg:#1C6B5814;--warn:#9B7318;--warnbg:#9B731818;
+ --bad:#A0453A;--badbg:#A0453A14;--blue:#1F5C8B;--bluebg:#1F5C8B14;--grey:#6E7F8E;--greybg:#6E7F8E14;}
+@media(prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;
+ --paper:#0E141A;--surf:#182129;--surf2:#1E2831;--rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;
+ --warn:#D3A644;--warnbg:#D3A64422;--bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;
+ --grey:#8B9AA8;--greybg:#8B9AA822;}}
+:root[data-theme="dark"]{--ink:#E3EAF1;--ink2:#A5B4C2;--ink3:#7B8B99;--paper:#0E141A;--surf:#182129;--surf2:#1E2831;
+ --rule:#31404D;--soft:#26323C;--ok:#57BC9F;--okbg:#57BC9F22;--warn:#D3A644;--warnbg:#D3A64422;
+ --bad:#DC8878;--badbg:#DC887822;--blue:#7FB2DC;--bluebg:#7FB2DC22;--grey:#8B9AA8;--greybg:#8B9AA822;}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font-family:"IBM Plex Sans",-apple-system,sans-serif;font-size:15px;line-height:1.55}
+.wrap{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+header{border-bottom:2px solid var(--ink);padding:52px 0 20px;margin-bottom:26px}
+.eyebrow{font-family:"IBM Plex Mono",monospace;font-size:11px;letter-spacing:.16em;text-transform:uppercase;color:var(--ink3);margin:0 0 14px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(36px,5.5vw,58px);line-height:1.04;margin:0 0 12px;letter-spacing:-.01em}
+.stand{font-size:17.5px;color:var(--ink2);max-width:66ch;margin:0}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:12px;margin:26px 0 32px}
+.c{background:var(--surf);border:1px solid var(--rule);padding:14px 16px}
+.c.k-done{border-left:3px solid var(--ok)}.c.k-coded{border-left:3px solid var(--blue)}
+.c.k-approved{border-left:3px solid var(--warn)}.c.k-found{border-left:3px solid var(--bad)}
+.c.k-notworked{border-left:3px solid var(--grey)}
+.c .n{font-family:"IBM Plex Mono",monospace;font-size:29px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.c .l{font-size:12.5px;color:var(--ink2);margin-top:6px;font-weight:600}
+.c .s{font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+.tw{overflow-x:auto;border:1px solid var(--rule);background:var(--surf)}
+table{border-collapse:collapse;width:100%;min-width:840px;font-size:13.5px}
+thead th{font-family:"IBM Plex Mono",monospace;font-size:10px;letter-spacing:.11em;text-transform:uppercase;color:var(--ink3);
+ text-align:left;padding:11px 14px;background:var(--surf2);border-bottom:1px solid var(--rule);font-weight:500;position:sticky;top:0}
+td{padding:11px 14px;border-bottom:1px solid var(--soft);vertical-align:top;color:var(--ink2)}
+tr.grp th{background:var(--ink);color:var(--paper);font-family:"IBM Plex Sans",sans-serif;font-size:12.5px;font-weight:700;
+ text-align:left;padding:9px 14px;letter-spacing:.02em}
+td.os{color:var(--ink);font-weight:600;min-width:190px}
+td.os .sub{display:block;font-weight:400;font-size:11.5px;color:var(--ink3);margin-top:3px;line-height:1.45}
+td.fn{min-width:150px}
+td.ac{white-space:nowrap;width:1%}
+td.nt{max-width:330px;line-height:1.5}
+td.im{max-width:330px;line-height:1.5;color:var(--ink3)}
+.none{color:var(--ink3);font-style:italic;font-size:12.5px}
+tr.v-fix td.im{color:var(--warn)}
+tr.v-park td.os{color:var(--ink3)}
+td.nm{color:var(--ink);font-weight:600;min-width:210px}
+td.wy{max-width:520px;line-height:1.5}
+td.st{white-space:nowrap;width:1%}
+.tag{display:inline-block;font-family:"IBM Plex Mono",monospace;font-size:10.5px;font-weight:600;padding:2px 8px;white-space:nowrap}
+.t-amend{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-data{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-use{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-fix{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-new{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-park{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.t-done{background:var(--okbg);color:var(--ok);border:1px solid var(--ok)}
+.t-coded{background:var(--bluebg);color:var(--blue);border:1px solid var(--blue)}
+.t-approved{background:var(--warnbg);color:var(--warn);border:1px solid var(--warn)}
+.t-found{background:var(--badbg);color:var(--bad);border:1px solid var(--bad)}
+.t-notworked{background:var(--greybg);color:var(--grey);border:1px solid var(--grey)}
+.ac .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:4px;font-family:"IBM Plex Sans",sans-serif}
+td.ac{white-space:nowrap;width:1%;min-width:120px}
+.st .sub{display:block;font-size:10.5px;color:var(--ink3);margin-top:3px}
+h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:29px;margin:40px 0 8px}
+h2+p{color:var(--ink2);margin:0 0 16px;max-width:74ch}
+.mono{font-family:"IBM Plex Mono",monospace;font-size:12.5px}
+ol{color:var(--ink2);max-width:74ch;padding-left:20px}ol li{margin-bottom:9px}ol li b{color:var(--ink)}
+@media(max-width:640px){.wrap{padding:0 14px 60px}}
+</style>
+<style>
+td.id{font-family:"IBM Plex Mono",monospace;font-size:11.5px;color:var(--ink2);min-width:132px;white-space:nowrap}
+td.id b{color:var(--ink);font-weight:600}
+td.id .o{color:var(--blue);font-weight:600}
+td.id .sub{display:block;color:var(--ink3);font-size:10.5px;margin-top:3px;white-space:normal;line-height:1.4}
+.legend{font-size:12.5px;color:var(--ink3);margin:10px 0 0}
+.legend b{color:var(--ink2)}
+</style>
+<style>
+td.num{font-family:"IBM Plex Mono",monospace;font-size:12px;color:var(--ink3);width:1%;text-align:right;padding-right:12px;vertical-align:top}
+pre.fx{font-family:"IBM Plex Mono",monospace;font-size:11.5px;line-height:1.55;margin:0;white-space:pre-wrap;color:var(--ink)}
+td.fxc{max-width:560px} td.os .sub{font-family:"IBM Plex Mono",monospace}
+</style><div class="wrap"><header>
+<p class="eyebrow">MoneyKeel &middot; what was coded since build 53 &middot; 1 September 2026 &middot; v2</p>
+<h1>Every function built or changed, with its formula</h1>
+<p class="stand">Read from the code: each function body was parsed and its arithmetic rendered. 65 entries, numbered &mdash;
+quote a number to ask about it. Screens, routes and tests are excluded; this is the arithmetic only.</p>
+<p class="stand" style="border-left:3px solid var(--bad);padding-left:14px"><b>v1 of this page was wrong.</b> Entries 9, 10 and 11
+were the same function three times. The header generator had been APPENDING a new header on each run instead of replacing the old
+one, so nine had stacked above basePay &mdash; because when type <span class="mono">O</span> was introduced for orchestrators on
+28 August, eight patterns across four scripts still matched only type <span class="mono">F</span> and could no longer recognise
+their own work. Fixed, headers regenerated, zero stacks remain.</p>
+</header>
+<div class="cards">
+<div class="c k-done"><div class="n">46</div><div class="l">New functions</div><div class="s">In eleven files that did not exist at build 53.</div></div>
+<div class="c k-approved"><div class="n">19</div><div class="l">Changed</div><div class="s">Already existed; the arithmetic or its inputs moved.</div></div>
+<div class="c k-coded"><div class="n">4</div><div class="l">Orchestrators</div><div class="s">base pay &middot; spending &middot; this month &middot; your income</div></div>
+<div class="c k-notworked"><div class="n">2,494</div><div class="l">Tests passing</div><div class="s">248 suites, tsc clean.</div></div>
+</div><h2 class="sec">Your base pay — the wage, per person</h2><p class="lede"><span class="mono">MoneyKeel/functions/cashflow/base-pay.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">1</td><td class="os">periodsAYear<span class="sub">MK-CF-F-140</span></td><td class="nt"></td><td class="fxc"><pre class="fx">PAY_PERIODS[string(freq)] (or 12 when missing)</pre></td></tr>
+<tr><td class="num">2</td><td class="os">perMonth<span class="sub">MK-CF-F-141</span></td><td class="nt">One period of pay expressed as a month.</td><td class="fxc"><pre class="fx">n = amount read as a number (0 when it is not one)
+(n × (to num(hours per week) or 40) × 52) ÷ 12   when string(freq) = &#x27;hourly&#x27;
+the answer = (n × periods ayear(e)) ÷ 12</pre></td></tr>
+<tr><td class="num">3</td><td class="os">monthsOf<span class="sub">MK-CF-F-142</span></td><td class="nt">The months the person filled in, in order.</td><td class="fxc"><pre class="fx">[]   when table is missing
+for each of the names in table, in order: [each, to num(table[each])] as [string, number]</pre></td></tr>
+<tr><td class="num">4</td><td class="os">grossByMonth<span class="sub">MK-CF-F-128</span></td><td class="nt">GROSS pay for each month the table covers, or twelve identical months when pay is steady.</td><td class="fxc"><pre class="fx">table = months of(gross by month)
+table   when count of varies and table
+the answer = [[&#x27;typical&#x27;, per month(gross typical, e)]]</pre></td></tr>
+<tr><td class="num">5</td><td class="os">annualisedGross<span class="sub">MK-CF-F-143</span></td><td class="nt">GROSS PAY ANNUALISED — the figure a tax bracket is read from.</td><td class="fxc"><pre class="fx">months = gross by month(e)
+0   when count of months is missing
+avg = count of months.reduce((t, [, v]) =&gt; t + v, 0) ÷ months
+the answer = round(avg × 12, 2 dp)</pre></td></tr>
+<tr><td class="num">6</td><td class="os">takeHomeAsEntered<span class="sub">MK-CF-F-144</span></td><td class="nt"></td><td class="fxc"><pre class="fx">months = months of(lands by month)
+entered = lands typical
+gross = annualised gross(e)
+k401 = round(to num(monthly401k) × 12, 2 dp)
+taxable = max(0, gross − k401)
+monthly = round((gross − k401 − tax owed for(taxable, filing status ?? &#x27;single&#x27;, 0, over65 ?? 0)) ÷ 12, 2 dp)</pre></td></tr>
+<tr><td class="num">7</td><td class="os">deductionsFromPay<span class="sub">MK-CF-F-145</span></td><td class="nt">EVERYTHING ELSE TAKEN OUT — gross, less the 401(k), less what lands in the bank.</td><td class="fxc"><pre class="fx">t = take home as entered(e)
+nothing   when estimated
+the answer = round(annualised gross(e) − round2(to num(monthly401k) × 12) − round2(monthly × 12), 2 dp)</pre></td></tr>
+<tr><td class="num">8</td><td class="os">payFiguresAgree<span class="sub">MK-CF-F-146</span></td><td class="nt"></td><td class="fxc"><pre class="fx">t = take home as entered(e)
+ok = true
+warn = false
+say = &#x27;&#x27;   when estimated
+k401 = round(monthly401k read as a number (0 when it is not one), 2 dp)
+gm = gross by month(e)
+lands = a lookup of lm
+landed = lands.get(key) as number   if lands.has(key)
+round(per month(lands typical, e), 2 dp)   otherwise
+left = gross − k401 − landed
+when = &#x27;&#x27;   if key = &#x27;typical&#x27;
+` in ${key}`   otherwise
+when = &#x27;&#x27;   if key = &#x27;typical&#x27;
+` in ${key}`   otherwise
+the answer:
+ok = true
+warn = false
+say = &#x27;&#x27;</pre></td></tr>
+<tr><td class="num">9</td><td class="os">earnerPay<span class="sub">MK-CF-F-171</span></td><td class="nt">basePay Answers .....</td><td class="fxc"><pre class="fx">t = take home as entered(e)
+annual = annualised gross(e)</pre></td></tr>
+<tr><td class="num">10</td><td class="os">basePay<span class="sub">MK-CF-O-001</span></td><td class="nt"></td><td class="fxc"><pre class="fx">profile = profile
+status = filing status (or &#x27;single&#x27; when missing)
+over65 = over65 (or 0 when missing)
+earners = for each of earners (or none when missing): name = name
+pay = earner pay({ ...entry, filing status: status, over65 })
+gross annual = round(Σ over earners of (pay.gross annualised), 2 dp)
+lands in bank = round(Σ over earners of (pay.lands in bank), 2 dp)
+first wage = earners[0].pay.gross annualised (or 0 when missing)
+band on one wage = marginal bracket for(first wage, status, over65)
+band on every wage = marginal bracket for(gross annual, status, over65)
+band note = nothing
+wrong = round((gross annual × band on one wage) ÷ 12, 2 dp)
+… the first steps only — the rest of the body needs reading by hand.</pre></td></tr>
+<tr><td class="num">11</td><td class="os">entryFromWage<span class="sub">MK-CF-F-179</span></td><td class="nt">WHAT IS STORED → WHAT THIS FILE READS.</td><td class="fxc"><pre class="fx">a = w (or none when missing)
+table = salary months(a as any)
+varies = salary month mode = &#x27;months&#x27; (or object.keys(table).length &gt; 0 when missing or zero)</pre></td></tr></tbody></table></div><h2 class="sec">This month — planned against actual</h2><p class="lede"><span class="mono">MoneyKeel/functions/cashflow/this-month.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">12</td><td class="os">cash<span class="sub">MK-CF-F-155</span></td><td class="nt">Negating zero in JavaScript gives NEGATIVE zero, which formats as &quot;−$0&quot; — and a person looking at &quot;−$0&quot; beside an unpaid car loan reasonably wonders what it means.</td><td class="fxc"><pre class="fx">0   if n = 0
+round(n, 2 dp)   otherwise</pre></td></tr>
+<tr><td class="num">13</td><td class="os">plannedMonthFlow<span class="sub">MK-CF-F-156</span></td><td class="nt">THE PLAN for this month: what lands, less each debt, less planned spending.</td><td class="fxc"><pre class="fx">lines = [{ label: &#x27;in (take − home)&#x27;, amount: round2(take home monthly), kind: &#x27;in&#x27; }]
+due = round(required payment(d), 2 dp)
+the answer:
+lines = lines
+surplus = cash(lines.reduce((t, l) =&gt; t + amount, 0))</pre></td></tr>
+<tr><td class="num">14</td><td class="os">actualMonthFlow<span class="sub">MK-CF-F-005</span></td><td class="nt">WHAT HAS ACTUALLY HAPPENED: what landed, less only the debts confirmed paid, less what was really spent.</td><td class="fxc"><pre class="fx">logged = expenses (or none when missing) where in month(each, ym)
+paid for = debt payments by debt(m)
+lines = [{ label: &#x27;in (take − home) received&#x27;, amount: round2(take home monthly), kind: &#x27;in&#x27; }]
+paid = round(paid for.get(debt id) (or 0 when missing), 2 dp)
+matched = Σ over [...paid for.values()] of (each)
+unmatched = round(all debt paid − matched, 2 dp)
+spending = logged where category ! = DEBT_CATEGORY
+spent = round(Σ over spending of (amount read as a number (0 when it is not one)), 2 dp)
+the answer:
+lines = lines
+surplus = cash(lines.reduce((t, l) =&gt; t + amount, 0))</pre></td></tr>
+<tr><td class="num">15</td><td class="os">debtPaymentsByDebt<span class="sub">MK-CF-F-157</span></td><td class="nt">WHICH DEBTS HAVE ACTUALLY BEEN PAID this month, and how much each.</td><td class="fxc"><pre class="fx">out = new map&lt;string, number&gt;()
+by label = a lookup of for each of debts (or none when missing): [string(label).trim().to lower case(), debt id]
+id = by label.get(string(store ?? &#x27;&#x27;).trim().to lower case())
+the answer = out</pre></td></tr>
+<tr><td class="num">16</td><td class="os">thisMonth<span class="sub">MK-CF-O-003</span></td><td class="nt"></td><td class="fxc"><pre class="fx">planned = planned month flow(m)
+actual = actual month flow(m)</pre></td></tr>
+<tr><td class="num">17</td><td class="os">isRecurringDebt<span class="sub">MK-CF-F-159</span></td><td class="nt">Is this debt one that repeats unchanged every month?</td><td class="fxc"><pre class="fx">payment shape(d) = &#x27;installment&#x27;</pre></td></tr></tbody></table></div><h2 class="sec">Spending</h2><p class="lede"><span class="mono">MoneyKeel/functions/cashflow/spending.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">18</td><td class="os">recurringDebtPayments<span class="sub">MK-CF-F-149</span></td><td class="nt">RECURRING DEBT PAYMENTS — the installment debts, one row each.</td><td class="fxc"><pre class="fx">NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.</pre></td></tr>
+<tr><td class="num">19</td><td class="os">debtPaymentsCountedAsExpenses<span class="sub">MK-CF-F-150</span></td><td class="nt">DEBT PAYMENTS THAT ARE COUNTED AS EXPENSES — revolving and due-in-full.</td><td class="fxc"><pre class="fx">out = []
+the answer = out</pre></td></tr>
+<tr><td class="num">20</td><td class="os">actualSpending<span class="sub">MK-CF-F-151</span></td><td class="nt"></td><td class="fxc"><pre class="fx">shown = the first SHOW_FIRST of items
+total = round(Σ over items of (amount read as a number (0 when it is not one)), 2 dp)
+shown total = round(Σ over shown of (amount read as a number (0 when it is not one)), 2 dp)</pre></td></tr>
+<tr><td class="num">21</td><td class="os">isRadarItem<span class="sub">MK-CF-F-152</span></td><td class="nt"></td><td class="fxc"><pre class="fx">shape = payment shape(d)
+nothing   when shape = &#x27;installment&#x27;
+the answer:
+&#x27;lump − debt&#x27;   if shape = &#x27;due_in_full&#x27;
+&#x27;revolving − debt&#x27;   otherwise</pre></td></tr>
+<tr><td class="num">22</td><td class="os">radar<span class="sub">MK-CF-F-153</span></td><td class="nt"></td><td class="fxc"><pre class="fx">out = []
+reason = is radar item(d)
+amount = round(paid   if paid &gt; 0
+required payment(d)   otherwise, 2 dp)
+counted = !purchases captured.has(string(debt id))
+the answer = out</pre></td></tr>
+<tr><td class="num">23</td><td class="os">spending<span class="sub">MK-CF-O-002</span></td><td class="nt"></td><td class="fxc"><pre class="fx">rec = recurring debt payments(s)
+act = actual spending(s)
+debt exp = debt payments counted as expenses(s, purchases captured)</pre></td></tr></tbody></table></div><h2 class="sec">Reading a logged expense</h2><p class="lede"><span class="mono">MoneyKeel/functions/cashflow/logged-expenses.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">24</td><td class="os">inMonth<span class="sub">MK-CF-F-148</span></td><td class="nt">Does this logged expense fall in the month `ym` (&quot;2026-08&quot;)?</td><td class="fxc"><pre class="fx">NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.</pre></td></tr></tbody></table></div><h2 class="sec">Your income, all of it</h2><p class="lede"><span class="mono">MoneyKeel/functions/cashflow/income-summary.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">25</td><td class="os">incomeSummary<span class="sub">MK-CF-O-004</span></td><td class="nt">── ORCHESTRATOR ──────────────────────────────────────────────────────────────────────────── WHAT IS THIS HOUSEHOLD&#x27;S INCOME?</td><td class="fxc"><pre class="fx">a = op (or none when missing)
+wages = earner wages(op as any)
+rent = round(rental net annual(op as any) ÷ 12, 2 dp)
+grid = income monthly grid(op as any, &#x27;available&#x27;)
+months = for each of grid: amount
+usual = round(months.slice().sort((x, y) =&gt; x − y)[math.floor(months.length ÷ 2)], 2 dp)   if count of months
+0   otherwise
+biggest = months.reduce((best, v, i) =&gt; (v &gt; months[best] ? i : best), 0)
+taxed lines = []
+rent annual = round(rental net annual(op as any), 2 dp)
+inv = round(inv annual read as a number (0 when it is not one), 2 dp)
+bonus = round(bonus annual read as a number (0 when it is not one), 2 dp)
+… the first steps only — the rest of the body needs reading by hand.</pre></td></tr></tbody></table></div><h2 class="sec">Months, keyed by date</h2><p class="lede"><span class="mono">src/domain/income/salary-months.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">26</td><td class="os">monthKey<span class="sub">MK-CF-F-163</span></td><td class="nt">&#x27;YYYY-MM&#x27; for a date, read from the local clock — never toISOString, which is UTC.</td><td class="fxc"><pre class="fx">`${get full year()}-${string(get month() + 1).pad start(2, &#x27;0&#x27;)}`</pre></td></tr>
+<tr><td class="num">27</td><td class="os">monthWindow<span class="sub">MK-CF-F-164</span></td><td class="nt">`count` month keys starting `back` months before `from` — the shape the base-pay table needs.</td><td class="fxc"><pre class="fx">out = []
+d = the date from.get full year(), from.get month() − back + i, 1
+the answer = out</pre></td></tr>
+<tr><td class="num">28</td><td class="os">salaryMonths<span class="sub">MK-CF-F-165</span></td><td class="nt">THE canonical table: month key → amount, whatever shape it was stored in.</td><td class="fxc"><pre class="fx">raw = (op ?? ({} as any)).salary by month
+out = {}
+the answer = out
+y = now.get full year()
+out = {}</pre></td></tr>
+<tr><td class="num">29</td><td class="os">hasMonthlySalaryTable<span class="sub">MK-CF-F-166</span></td><td class="nt">Did they tell us their pay varies month to month?</td><td class="fxc"><pre class="fx">object.keys(salary months(op)).length &gt; 0</pre></td></tr>
+<tr><td class="num">30</td><td class="os">salaryCalendarYear<span class="sub">MK-CF-F-167</span></td><td class="nt">One calendar year as twelve numbers, January first — the shape every existing caller expects.</td><td class="fxc"><pre class="fx">t = salary months(op, now)
+k = `${year}-${string(i + 1).pad start(2, &#x27;0&#x27;)}`
+the answer:
+t[k]   if k in t
+fallback   otherwise</pre></td></tr>
+<tr><td class="num">31</td><td class="os">salaryWindow<span class="sub">MK-CF-F-168</span></td><td class="nt">The table as the base-pay screen shows it: [month key, amount] for a window of months.</td><td class="fxc"><pre class="fx">t = salary months(op, now)
+the answer = for each of keys: [each, each in t ? t[each] : fallback]</pre></td></tr>
+<tr><td class="num">32</td><td class="os">withSalaryMonth<span class="sub">MK-CF-F-169</span></td><td class="nt">Write one month without disturbing the others.</td><td class="fxc"><pre class="fx">...salary months(op, now) = ...salary months(op, now)
+[key]: to num(amount) = [key]: to num(amount)</pre></td></tr>
+<tr><td class="num">33</td><td class="os">salaryYearFromCells<span class="sub">MK-CF-F-170</span></td><td class="nt">A whole calendar year written at once — what today&#x27;s twelve-cell grids save.</td><td class="fxc"><pre class="fx">out = {}
+the answer = out</pre></td></tr></tbody></table></div><h2 class="sec">Two earners</h2><p class="lede"><span class="mono">src/domain/income/earners.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">34</td><td class="os">hasWage<span class="sub">MK-CF-F-172</span></td><td class="nt"></td><td class="fxc"><pre class="fx">NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.</pre></td></tr>
+<tr><td class="num">35</td><td class="os">earnerWages<span class="sub">MK-CF-F-173</span></td><td class="nt">The wages this household actually has, in the order the screen shows them.</td><td class="fxc"><pre class="fx">a = op (or none when missing)
+own = a
+partner = partner wage (or nothing when missing)
+who = who earns (or &#x27;you&#x27; when missing)
+out = [own]
+the answer = out
+[partner as earner wage]   when who = &#x27;partner&#x27; and has wage(partner)</pre></td></tr>
+<tr><td class="num">36</td><td class="os">hasTwoEarners<span class="sub">MK-CF-F-174</span></td><td class="nt">Does this household have a second wage on record?</td><td class="fxc"><pre class="fx">earner wages(op).length &gt; 1</pre></td></tr>
+<tr><td class="num">37</td><td class="os">sumOverEarners<span class="sub">MK-CF-F-175</span></td><td class="nt">Add up one number per earner.</td><td class="fxc"><pre class="fx">Σ over earner wages(op) of (of(each) (or 0 when missing or zero))</pre></td></tr>
+<tr><td class="num">38</td><td class="os">sumMonthsOverEarners<span class="sub">MK-CF-F-176</span></td><td class="nt">Add up twelve numbers per earner, month by month.</td><td class="fxc"><pre class="fx">rows = for each of earner wages(op): of
+the answer = array.from({ length: 12 }, (_, i) =&gt; rows.reduce((t, r) =&gt; t + (r[i] or 0), 0))</pre></td></tr></tbody></table></div><h2 class="sec">The tax rate in force</h2><p class="lede"><span class="mono">src/domain/income/tax-rate.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">39</td><td class="os">enteredLandsAnnual<span class="sub">MK-CF-F-180</span></td><td class="nt">What every earner said lands in their bank, a year — or null when any of them did not say.</td><td class="fxc"><pre class="fx">wages = earner wages(op)
+nothing   when count of wages is missing
+total = 0
+v = (w as any).lands typical read as a number (0 when it is not one)
+nothing   when not (v &gt; 0)
+the answer = round(total, 2 dp)</pre></td></tr>
+<tr><td class="num">40</td><td class="os">rateInForce<span class="sub">MK-CF-F-181</span></td><td class="nt">THE ONE ANSWER every screen reads.</td><td class="fxc"><pre class="fx">a = op (or none when missing)
+rate = min(max(to num(manual tax rate) ÷ 100, 0), 1)
+gross = salary annual(op)
+lands = entered lands annual(op)
+k401 = Σ over earner wages(op) of (to num((each as any).c 401k) × 12)
+out = max(0, gross − k401 − lands)
+rate = min(max(out ÷ gross, 0), 1)
+rate = effective rate on gross for(taxable annual(op), filing status of(op), state rate of(op), over65 count of(op))</pre></td></tr></tbody></table></div><h2 class="sec">What your accounts pay you</h2><p class="lede"><span class="mono">src/domain/income/from-accounts.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">41</td><td class="os">asPercent<span class="sub">MK-CF-F-182</span></td><td class="nt">A rate as the person would say it: 3.8%, not 0.038.</td><td class="fxc"><pre class="fx">NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.</pre></td></tr>
+<tr><td class="num">42</td><td class="os">paidOutByAccount<span class="sub">MK-CF-F-183</span></td><td class="nt">What each account actually PAID OUT in the last year, by account.</td><td class="fxc"><pre class="fx">cutoff = iso local date(new date(now.get full year() − 1, now.get month(), now.get date()))
+out = new map&lt;string, number&gt;()
+id = string(account id ?? &#x27;&#x27;)
+the answer = out</pre></td></tr>
+<tr><td class="num">43</td><td class="os">incomeFromAccounts<span class="sub">MK-CF-F-184</span></td><td class="nt">One line per account that pays something, and the total.</td><td class="fxc"><pre class="fx">paid = paid out by account(transactions, now)
+lines = []
+unseen = []
+cls = asset class of(a)
+label = string((a as any).label or (a as any).institution or &#x27;Account&#x27;)
+balance = (a as any).balance (or 0 when missing or zero)
+rate = (a as any).coupon rate (or 0 when missing or zero)
+actual = paid.get(string((a as any).asset id ?? &#x27;&#x27;))
+face = (a as any).face value (or 0 when missing or zero)</pre></td></tr></tbody></table></div><h2 class="sec">The take-home mode, converted once</h2><p class="lede"><span class="mono">src/domain/income/take-home-mode-migration.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">44</td><td class="os">needsTakeHomeConversion<span class="sub">MK-CF-F-185</span></td><td class="nt">True when this profile still holds a pre-2026-08-28 take-home entry.</td><td class="fxc"><pre class="fx">(op as any).salary mode = &#x27;takehome&#x27; and to num((op as any).base salary) &gt; 0</pre></td></tr>
+<tr><td class="num">45</td><td class="os">convertTakeHomeMode<span class="sub">MK-CF-F-186</span></td><td class="nt">Convert it. What they typed becomes what LANDS; the gross is worked back once and stored.</td><td class="fxc"><pre class="fx">op   when !needs take home conversion(op as any)
+periods = PERIODS[string(op.salary freq ?? &#x27;monthly&#x27;)] (or 12 when missing)
+net per period = op.base salary read as a number (0 when it is not one)
+net annual = net per period × periods
+gross annual = gross from net(net annual, filing status of(op as any), over65 count of(op as any))</pre></td></tr></tbody></table></div><h2 class="sec">Today, locally</h2><p class="lede"><span class="mono">src/domain/_shared/dates.ts</span></p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>What it answers</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">46</td><td class="os">isoLocalDate<span class="sub">MK-ST-F-065</span></td><td class="nt">THE DATE A PERSON IS LIVING IN, not the one UTC is.</td><td class="fxc"><pre class="fx">`${get full year()}-${string(get month() + 1).pad start(2, &#x27;0&#x27;)}-${string(get date()).pad start(2, &#x27;0&#x27;)}`</pre></td></tr></tbody></table></div><h2 class="sec">Changed, not new</h2><p class="lede">Already existed; the arithmetic or its inputs moved since build 53.</p><div class="tw"><table><thead><tr><th>#</th><th>Function</th><th>File</th><th>The formula, read from the code</th></tr></thead><tbody><tr><td class="num">47</td><td class="os">salaryGrossByMonth<span class="sub">MK-CF-F-060</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">sum months over earners(op, (w) =&gt; wage gross by month(w))</pre></td></tr>
+<tr><td class="num">48</td><td class="os">wageGrossByMonth<span class="sub">MK-CF-F-177</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = w (or none when missing)
+has = has monthly salary table(a as any)
+typical = entered monthly raw(a)
+the answer = for each of raw: round(each, 2 dp)</pre></td></tr>
+<tr><td class="num">49</td><td class="os">extraIncome<span class="sub">MK-CF-F-071</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+se m = to num(se amount) ÷ 12   if se freq = &#x27;annual&#x27;
+se amount read as a number (0 when it is not one)   otherwise
+inv m = to num(inv annual) ÷ 12
+ben m = benefit annual(a) ÷ 12
+sup m = support monthly read as a number (0 when it is not one)
+sch list = scholarships   if array.is array(scholarships)
+nothing   otherwise
+oth freq = other freq (or &#x27;monthly&#x27; when missing)
+oth m = to num(other amount) ÷ 12   if oth freq = &#x27;annual&#x27;
+other amount read as a number (0 when it is not one)   if oth freq = &#x27;monthly&#x27;
+0   otherwise   otherwise
+oth once = other amount read as a number (0 when it is not one)   if oth freq = &#x27;onetime&#x27;
+0   otherwise
+oth taxable = other taxable ! = &#x27;no&#x27;
+reinvested = 0   if inv paid to bank = &#x27;yes&#x27;
+inv m   otherwise
+… the first steps only — the rest of the body needs reading by hand.</pre></td></tr>
+<tr><td class="num">50</td><td class="os">employerMatchMonthly<span class="sub">MK-CF-F-078</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">sum over earners(op, wage match monthly)</pre></td></tr>
+<tr><td class="num">51</td><td class="os">wageMatchMonthly<span class="sub">MK-CF-F-178</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = w (or none when missing)
+val = employer match value read as a number (0 when it is not one)
+the answer:
+(to num(c 401k) × val) ÷ 100   if employer match mode = &#x27;pct&#x27;
+val   otherwise</pre></td></tr>
+<tr><td class="num">52</td><td class="os">filingStatusOf<span class="sub">MK-CF-F-085</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+the answer:
+&#x27;married&#x27;   if has partner = &#x27;yes&#x27;
+&#x27;single&#x27;   otherwise
+v = filing status</pre></td></tr>
+<tr><td class="num">53</td><td class="os">monthlyTaxRates<span class="sub">MK-CF-F-087</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+flat = effective rate(op)
+12 slots, each flat   when rate in force(op).mine
+taxable = taxable by calendar month(op, now)
+total = Σ over taxable of (each)
+12 slots, each flat   when total ≤ 0
+tax = progressive monthly tax(taxable, filing status of(op), state rate of(op), over65 count of(op))
+the answer:
+for each of taxable: min(0.6, max(0, tax[i] ÷ each))   if each &gt; 0
+flat   otherwise</pre></td></tr>
+<tr><td class="num">54</td><td class="os">taxableByCalendarMonth<span class="sub">MK-CF-F-088</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+sal by month = salary gross by month(op)
+tips m = tips monthly read as a number (0 when it is not one)
+rental m = rental net annual(op) ÷ 12
+ex = extra income(op)
+ret inc monthly = current retirement income monthly(op)
+eq annual = rsu annual(op)
+vest w = equity vest weights(op)
+equity by month = for each of vest w ? vest w: eq annual × each: 12 slots, each 0
+bonus idx = min(11, max(0, (to num(bonus month) or 12) − 1))
+other idx = other income month(op) − 1
+… the first steps only — the rest of the body needs reading by hand.</pre></td></tr>
+<tr><td class="num">55</td><td class="os">over65CountOf<span class="sub">MK-CF-F-089</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+joint = filing status = &#x27;married&#x27;
+the answer:
+2   if over65 who = &#x27;both&#x27;
+0   if over65 who = &#x27;neither&#x27;
+1   otherwise   otherwise
+y = birth year read as a number (0 when it is not one)
+0   when y is missing</pre></td></tr>
+<tr><td class="num">56</td><td class="os">effectiveRate<span class="sub">MK-CF-F-090</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">rate in force(op).rate</pre></td></tr>
+<tr><td class="num">57</td><td class="os">incomeMonthlyGrid<span class="sub">MK-CF-F-092</span></td><td class="nt"><span class="mono">onboarding.ts</span></td><td class="fxc"><pre class="fx">a = op (or none when missing)
+sal by month = salary gross by month(op)
+tips m = tips monthly read as a number (0 when it is not one)
+rental m = rental net annual(op) ÷ 12
+bonus = bonus annual read as a number (0 when it is not one)
+signing = signing onetime read as a number (0 when it is not one)
+c401k m = c 401k read as a number (0 when it is not one)
+rates = monthly tax rates(op, now)
+eq annual = rsu annual(op)
+vest w = equity vest weights(op)
+equity by month = for each of vest w ? vest w: eq annual × each: 12 slots, each 0
+… the first steps only — the rest of the body needs reading by hand.</pre></td></tr>
+<tr><td class="num">58</td><td class="os">grossFromNet<span class="sub">MK-CF-F-097</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">0   when net ≤ 0
+lo = net, hi = net × 3
+mid = (lo + hi) ÷ 2
+the answer = round((lo + hi) ÷ 2)</pre></td></tr>
+<tr><td class="num">59</td><td class="os">progressiveMonthlyTax<span class="sub">MK-CF-F-098</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">cum = 0, prev tax = 0, prev ti = 0
+t = tax owed for(cum, status, 0, over65)
+m = t − prev tax
+ti = taxable income for(cum, status, over65)
+state m = (ti − prev ti) × min(0.15, max(0, state rate))
+the answer = m + state m</pre></td></tr>
+<tr><td class="num">60</td><td class="os">deductionFor<span class="sub">MK-CF-F-099</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">t = TAX_TABLES[status]
+the answer = deduction + min(2, max(0, over65)) × over65 add</pre></td></tr>
+<tr><td class="num">61</td><td class="os">taxableIncomeFor<span class="sub">MK-CF-F-100</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">max(0, gross − deduction for(status, over65))</pre></td></tr>
+<tr><td class="num">62</td><td class="os">taxOwedFor<span class="sub">MK-CF-F-101</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">ti = taxable income for(gross, status, over65)
+tax = 0, lower = 0
+the answer = tax + ti × min(0.15, max(0, state rate))</pre></td></tr>
+<tr><td class="num">63</td><td class="os">effectiveRateOnGrossFor<span class="sub">MK-CF-F-102</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">tax owed for(gross, status, state rate, over65) ÷ gross   if gross &gt; 0
+0   otherwise</pre></td></tr>
+<tr><td class="num">64</td><td class="os">marginalBracketFor<span class="sub">MK-CF-F-103</span></td><td class="nt"><span class="mono">tax.ts</span></td><td class="fxc"><pre class="fx">ti = taxable income for(gross, status, over65)
+the answer = 0.37</pre></td></tr>
+<tr><td class="num">65</td><td class="os">mortgageOddsEffect<span class="sub">MK-CF-F-042</span></td><td class="nt"><span class="mono">mortgageOdds.ts</span></td><td class="fxc"><pre class="fx">slow = months to clear(balance, annual rate, monthly payment)
+fast = months to clear(balance, annual rate, monthly payment + extra monthly)
+nothing   when slow = nothing (or fast = nothing (or extra monthly ≤ 0 when missing or zero) when missing or zero)
+year of = (months: number) =&gt; now year + round down((months − 1) ÷ 12)
+payoff year = year of(slow)
+faster payoff year = year of(fast)
+the answer = { before, after, payoff year, faster payoff year }</pre></td></tr></tbody></table></div></div></body></html>

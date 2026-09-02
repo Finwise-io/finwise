@@ -10,7 +10,7 @@ import { DataGapsBanner } from '../components/DataGapsBanner';
 import { dataGaps } from '../domain/gaps';
 import { buildChangeWalk } from '../domain/history';
 import { personalFlowTotals } from '../../Calculation Module code/engines/ledger';
-import { windowBounds, moneyWeightedReturn as dietzReturn } from '../../Calculation Module code/engines/window-return';
+import { windowBounds, modifiedDietzOverWindow } from '../../Calculation Module code/engines/window-return';
 import { Dec } from '../../Calculation Module code/engines/decimal';
 import { valueOn, covers as snapshotCovers } from '../../Calculation Module code/engines/snapshots';
 import { Colors, Spacing, Radii, ChartPalette, ClassMarkColors } from '../utils/theme';
@@ -40,6 +40,7 @@ import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
 import { modalAnimation } from '../hooks/reducedMotion';
 import { BondEditor } from './BondsScreen';
 import { AltEditor } from './OtherInvestmentsScreen';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const pct = (v: number | null) => (v == null ? '—' : `${v >= 0 ? '+' : ''}${(v * 100).toFixed(1)}%`);
@@ -158,7 +159,7 @@ export default function PerformanceScreen() {
   const coverage = useMemo(() => {
     const dates = Object.keys((store.invDaily ?? {}) as Record<string, number>)
       .filter((k) => /^\d{4}-\d{2}-\d{2}$/.test(k)).map((date) => ({ date }));
-    return coverageFor(dates, periodStartKey(period), new Date().toISOString().slice(0, 10));
+    return coverageFor(dates, periodStartKey(period), isoLocalDate(new Date()));
   }, [store.invDaily, period]);
   const PERIOD_PHRASE: Record<string, string> = { '1M': 'past month', '3M': 'past 3 months', '6M': 'past 6 months', 'YTD': 'this year', '1Y': 'past year', '2Y': 'past 2 years' };
   const freshLine = (() => {
@@ -328,7 +329,7 @@ export default function PerformanceScreen() {
             // Track 1 step 7: the beginning is READ from the daily record when it covers the
             // window — the close of the day BEFORE the start (D3). Only when the record does not
             // reach back that far does the derived figure remain, and the record grows daily.
-            const todayKey = new Date().toISOString().slice(0, 10);
+            const todayKey = isoLocalDate(new Date());
             const bounds = windowStart ? windowBounds(windowStart, todayKey) : null;
             const snapDays = (store as any).snapshotDays ?? [];
             const investIds = new Set<string>(resolvedNwAccounts
@@ -341,7 +342,7 @@ export default function PerformanceScreen() {
             // the timing-sensitivity band — a refusal shows the dollar walk below instead of a
             // rate that timing drives. Until the record covers the window, the price-based figure
             // stands with its existing coverage sentence.
-            const mw = snapBeginning != null && bounds ? dietzReturn({
+            const mw = snapBeginning != null && bounds ? modifiedDietzOverWindow({
               beginning: Dec.of(String(snapBeginning)), ending: Dec.of(String(ending)),
               flows: led
                 .filter((t: any) => t.type === 'DEPOSIT' || t.type === 'WITHDRAWAL')
@@ -430,7 +431,7 @@ export default function PerformanceScreen() {
               const acctFlows = personalFlowTotals(led.filter((t) => t.account_id === id));
               const contributions = acctFlows.contributions.toNumber(2), withdrawals = acctFlows.withdrawals.toNumber(2);
               // Track 1 step 7: read the account's beginning from the record when covered
-              const todayKey2 = new Date().toISOString().slice(0, 10);
+              const todayKey2 = isoLocalDate(new Date());
               const bounds2 = windowStart ? windowBounds(windowStart, todayKey2) : null;
               const snapDays2 = (store as any).snapshotDays ?? [];
               const acctBeginning = bounds2 && snapshotCovers(snapDays2, bounds2.beginningAsOf)
@@ -957,7 +958,7 @@ export function HoldingEditor({ open, accounts, existing, onClose, onSave, onDel
     </Modal>
   );
 }
-const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: new Date().toISOString().slice(0, 10) });
+const blankLot = (): Lot => ({ lot_id: `lot_${Math.random().toString(36).slice(2, 8)}`, shares: 0, cost_per_share: 0, purchase_date: isoLocalDate(new Date()) });
 
 // ── trend line chart (portfolio vs rebased benchmark) ──
 function TrendChartAuto({ data }: { data: TrendPoint[] }) {
@@ -1002,8 +1003,8 @@ export function TransactionSheet({ open, accounts, onClose, onSave, prefill }: {
   const [price, setPrice] = useState('');
   const [amount, setAmount] = useState('');
   const [reinvest, setReinvest] = useState(false);
-  const [date, setDate] = useState(new Date().toISOString().slice(0, 10));
-  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(new Date().toISOString().slice(0, 10)); } }, [open]);
+  const [date, setDate] = useState(isoLocalDate(new Date()));
+  useEffect(() => { if (open) { setType('BUY'); setAccountId(prefill?.accountId ?? (accounts.filter(accountAllowsTicker)[0]?.asset_id) ?? accounts[0]?.asset_id ?? ''); setCounterId(''); setTicker(prefill?.ticker ?? ''); setShares(''); setPrice(''); setAmount(''); setReinvest(false); setDate(isoLocalDate(new Date())); } }, [open]);
 
   const isTrade = type === 'BUY' || type === 'SELL';
   const isBuy = type === 'BUY';

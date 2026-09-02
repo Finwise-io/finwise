@@ -14,13 +14,6 @@
 // It needs only DATES, not whole snapshots — which means it works with the history the app keeps
 // today AND with the new per-account store, so the sentence can appear before that store lands.
 export interface Dated { date: string }
-const firstDate = (days: Dated[]): string | null =>
-  days.length ? days.reduce((a, b) => (a.date < b.date ? a : b)).date : null;
-const onOrBefore = (days: Dated[], date: string): Dated | null => {
-  let best: Dated | null = null;
-  for (const d of days) if (d.date <= date && (!best || d.date > best.date)) best = d;
-  return best;
-};
 
 export interface Coverage {
   /** The earliest date we hold anything at all. */
@@ -38,6 +31,27 @@ export interface Coverage {
 const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
 
 /** "March 2022" — a month a person reads, not a date stamp. */
+/* ─ MK-ST-F-002 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * monthWords
+ *
+ * Answers ..... "March 2022" — a month a person reads, not a date stamp.
+ *
+ * Formula .....
+ *     ''   when iso is missing
+ *     `${MONTHS[m − 1]} ${y}`   if m
+ *     string(y)   otherwise
+ *
+ * Called by ... MK-ST-F-003 dayWords · MK-ST-F-004 coverageFor
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-ST-F-004 coverageFor · MK-ST-F-003 dayWords
+ *               MK-ST-F-005 measuredFromLabel
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-002
+ * Changed ..... 2026-08-18 (cd2fd51)
+ */
 export function monthWords(iso: string | null): string {
   if (!iso) return '';
   const [y, m] = iso.split('-').map(Number);
@@ -45,6 +59,26 @@ export function monthWords(iso: string | null): string {
 }
 
 /** "14 March 2022". Used where the exact day matters, as it does for a figure's start. */
+/* ─ MK-ST-F-003 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * dayWords
+ *
+ * Answers ..... "14 March 2022".
+ *
+ * Formula .....
+ *     ''   when iso is missing
+ *     `${d} ${MONTHS[m − 1]} ${y}`   if m and d
+ *     month words(iso)   otherwise
+ *
+ * Called by ... MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-ST-F-004 coverageFor · MK-ST-F-005 measuredFromLabel
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-003
+ * Changed ..... 2026-08-18 (cd2fd51)
+ */
 export function dayWords(iso: string | null): string {
   if (!iso) return '';
   const [y, m, d] = iso.split('-').map(Number);
@@ -56,6 +90,31 @@ export function dayWords(iso: string | null): string {
  *
  * The sentence is written for someone with no finance background and no interest in how the app
  * stores anything. It says what we have, not what we do.
+ */
+/* ─ MK-ST-F-004 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * coverageFor
+ *
+ * Answers ..... What can we honestly say about a window starting on `from`?
+ *
+ * Formula .....
+ *     start = first date(days)
+ *     daily cut = the date today
+ *     daily from = the first 10) ? start : daily cut.to isostring().slice(0, 10 of start > daily cut.to isostring()   if start
+ *     nothing   otherwise
+ *     the answer:
+ *     from = start
+ *     daily from = daily from
+ *     covers = true
+ *     measured from = from
+ *     sentence = ''
+ *     has monthly only = daily from ≠ nothing and start < daily from
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-004
+ * Changed ..... 2026-08-18 (8d0e8be)
  */
 export function coverageFor(days: Dated[], from: string, today: string): Coverage {
   const start = firstDate(days);
@@ -87,6 +146,25 @@ export function coverageFor(days: Dated[], from: string, today: string): Coverag
  * A figure that never says what it is measured from is the thing that let "+2.0%" stand for a year
  * in which the account actually fell 4.2%.
  */
+/* ─ MK-ST-F-005 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * measuredFromLabel
+ *
+ * Answers ..... The short label that rides beside a change figure, always — whether the window is covered or not.
+ *
+ * Formula .....
+ *     start = first date(days)
+ *     ''   when start is missing
+ *     actual = start   if start > from
+ *     from   otherwise
+ *     the answer = `since ${day words(actual)}`
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-005
+ * Changed ..... 2026-08-18 (8d0e8be)
+ */
 export function measuredFromLabel(days: Dated[], from: string): string {
   const start = firstDate(days);
   if (!start) return '';
@@ -96,6 +174,23 @@ export function measuredFromLabel(days: Dated[], from: string): string {
 
 /** Is there any record at all on or before this date? Used to suppress a figure rather than show a
  *  number measured over some other period with a misleading label. */
+/* ─ MK-ST-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * canAnswer
+ *
+ * Answers ..... Is there any record at all on or before this date?
+ *
+ * Formula .....
+ *     on or before(days, from) ≠ nothing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-006
+ * Changed ..... 2026-08-18 (8d0e8be)
+ */
 export function canAnswer(days: Dated[], from: string): boolean {
   return onOrBefore(days, from) != null;
 }
+
+import { firstDate, onOrBefore } from './snapshots';

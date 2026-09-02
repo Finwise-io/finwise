@@ -39,6 +39,7 @@ import { modalAnimation } from '../hooks/reducedMotion';
 import { DotJoined } from '../components/SepDot';
 import { SourceChip } from '../components/SourceChip';
 import { DebtEditorSheet } from '../components/DebtEditorSheet';   // B47 finding 11: THE one debt editor
+import { isoLocalDate } from '../domain/_shared/dates';
 
 // asset class → glossary term, so the By-class group headers carry an in-context "what is this?" dot.
 const CLASS_TO_TERM: Partial<Record<AssetClass, GlossaryTerm>> = {
@@ -629,7 +630,7 @@ export default function NetWorthScreen() {
     // reaches further back than anything we hold. A month-only point is read as its first day.
     const historyDates = series.map((pt) => ({ date: pt.month.length === 7 ? `${pt.month}-01` : pt.month }));
     const windowStart = `${new Date().getFullYear()}-01-01`;
-    const coverage = coverageFor(historyDates, windowStart, new Date().toISOString().slice(0, 10));
+    const coverage = coverageFor(historyDates, windowStart, isoLocalDate(new Date()));
     const measuredFrom = measuredFromLabel(historyDates, windowStart);
     // FOUNDER DECISION 2026-08-18: the label now ALWAYS names the date it is measured from, with the
     // year, rather than saying "this year" when the record began in July. The engine writes it.

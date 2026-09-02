@@ -10,6 +10,36 @@ export interface PriceProvider {
 }
 
 // Map a plain ticker to the provider's symbol convention (crypto needs the -USD pair on Yahoo).
+/* ─ MK-XS-F-143 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * yahooSymbol
+ *
+ * Answers ..... Map a plain ticker to the provider's symbol convention (crypto needs the -USD pair on Yahoo).
+ *
+ * Formula .....
+ *     t = ticker.trim().to upper case()
+ *     ''   when t is missing
+ *     'BTC − USD'   when t = 'BTC' (or t = 'BTCUSD' when missing or zero)
+ *     'ETH − USD'   when t = 'ETH' (or t = 'ETHUSD' when missing or zero)
+ *     the answer = t
+ *     sym = yahoo symbol(ticker)
+ *     nothing   when sym is missing
+ *     res = await fetch(url, { headers: { 'user − Agent': 'mozilla ÷ 5.0', accept: 'application ÷ json' } })
+ *     nothing   when res.ok is missing
+ *     json = await res.json()
+ *     result = the first of json.chart.result?.
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-005 holding price
+ *
+ * Decides .....
+ *     · Uses a built-in i of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-143
+ * Changed ..... not in git yet (—)
+ */
 function yahooSymbol(ticker: string): string {
   const t = ticker.trim().toUpperCase();
   if (!t) return '';
@@ -50,6 +80,21 @@ export const yahooProvider: PriceProvider = {
 
 /** Is a ticker plausibly valid before we spend a network call? (1–6 letters, optional .suffix or
  *  -USD crypto pair). Lets the UI flag a typo instead of silently returning no data. */
+/* ─ MK-XS-F-081 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * isPlausibleTicker
+ *
+ * Answers ..... Is a ticker plausibly valid before we spend a network call?
+ *
+ * Formula .....
+ *     ÷ ^[A − za − z]{1,6}([.\-][A − za − z]{1,4})?$ ÷ .test((ticker ?? '').trim())
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-081
+ * Changed ..... 2026-06-13 (c42d16b)
+ */
 export function isPlausibleTicker(ticker: string): boolean {
   return /^[A-Za-z]{1,6}([.\-][A-Za-z]{1,4})?$/.test((ticker ?? '').trim());
 }
@@ -57,6 +102,23 @@ export function isPlausibleTicker(ticker: string): boolean {
 export interface PriceFreshness { label: string; stale: boolean; }
 /** Human freshness of the price cache + whether it's stale enough to warn (markets move daily, so
  *  anything older than ~4 days — a long weekend/holiday — is worth a "may be out of date" note). */
+/* ─ MK-XS-F-082 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * priceFreshness
+ *
+ * Answers ..... Human freshness of the price cache + whether it's stale enough to warn (markets move daily, so anything older than ~4 days — a long weekend/holiday — is worth a "may be out of date" note).
+ *
+ * Formula .....
+ *     age   = now − the moment prices were last fetched
+ *     stale = age ≥ 4 days,  or nothing was ever fetched,  or the moment cannot be read
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-HM-M-001
+ * Reads ....... MK-XS-I-006 price fetched at
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-082
+ * Changed ..... 2026-06-13 (c42d16b)
+ */
 export function priceFreshness(fetchedAt: string | null | undefined, now: number): PriceFreshness {
   if (!fetchedAt) return { label: 'not updated yet', stale: true };
   const ms = now - Date.parse(fetchedAt);
@@ -68,6 +130,28 @@ export function priceFreshness(fetchedAt: string | null | undefined, now: number
 }
 
 /** Fetch many tickers in parallel; returns only the ones that resolved. */
+/* ─ MK-XS-F-083 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * fetchPriceSeries
+ *
+ * Answers ..... Fetch many tickers in parallel; returns only the ones that resolved.
+ *
+ * Formula .....
+ *     unique = array.from(new set(tickers.map((t) => trim().to upper case()).filter(boolean)))
+ *     results = await promise.all settled(unique.map((t) => provider.fetch series(t, range)))
+ *     out = {}
+ *     r = results[i]
+ *     the answer = out
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-083
+ * Changed ..... 2026-06-05 (2db90af)
+ */
 export async function fetchPriceSeries(
   tickers: string[],
   provider: PriceProvider = yahooProvider,

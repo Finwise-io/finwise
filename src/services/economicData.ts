@@ -44,6 +44,26 @@ const BLS_API = 'https://api.bls.gov/publicAPI/v1/timeseries/data/';
 // to the last real reading rather than taking the final line.
 const TREASURY_API = 'https://fred.stlouisfed.org/graph/fredgraph.csv?id=DGS10';
 
+/* ─ MK-XS-F-056 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * fetchEconomicData
+ *
+ * Answers ..... What are inflation and the 10-year Treasury yield?
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-006 price fetched at
+ *               MK-XS-I-029 inflation rate
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-056
+ * Changed ..... 2026-06-13 (b54d85a)
+ */
 export async function fetchEconomicData(): Promise<EconomicData> {
   const [inflation, treasury] = await Promise.allSettled([
     fetchInflation(),
@@ -59,6 +79,34 @@ export async function fetchEconomicData(): Promise<EconomicData> {
   };
 }
 
+/* ─ MK-XS-F-140 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * fetchInflation
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     res = await fetch(BLS_API + BLS_CPI_SERIES)
+ *     json = await res.json()
+ *     series = json.results.series.[0].data
+ *     latest = parse float(series[0].value)
+ *     year ago = parse float(series[12].value)
+ *     rate = ((latest − year ago) ÷ year ago) × 100
+ *     the answer = round(rate, 2 dp)
+ *
+ * Called by ... MK-XS-F-056 fetchEconomicData
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-056 fetchEconomicData
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-140
+ * Changed ..... not in git yet (—)
+ */
 async function fetchInflation(): Promise<number> {
   // BLS returns last 3 years of monthly CPI data
   const res = await fetch(BLS_API + BLS_CPI_SERIES);
@@ -75,6 +123,33 @@ async function fetchInflation(): Promise<number> {
   return Math.round(rate * 100) / 100;
 }
 
+/* ─ MK-XS-F-141 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * fetchTreasuryYield
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     res = await fetch(TREASURY_API)
+ *     csv = await res.text()
+ *     rows = csv.trim().split('\n').slice(1)
+ *     value = rows[i].split(',')[1].trim()
+ *     rate = parse float(value)
+ *     the answer = round(rate, 2 dp)
+ *
+ * Called by ... MK-XS-F-056 fetchEconomicData
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-056 fetchEconomicData
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-141
+ * Changed ..... not in git yet (—)
+ */
 async function fetchTreasuryYield(): Promise<number> {
   const res = await fetch(TREASURY_API);
   if (!res.ok) throw new Error('Treasury API error');
@@ -106,6 +181,24 @@ export type ExpenseAnalysis = {
   totalSavingsMax: number;
 };
 
+/* ─ MK-XS-F-057 ──────────────────────────────────────────────────────────── 4 · BRINGS DATA IN
+ * analyzeExpenses
+ *
+ * Answers ..... What is worth saying about this spending?
+ *
+ * Formula .....
+ *     data = await res.json()
+ *     the answer = data as expense analysis
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged spending
+ *               MK-XS-I-029 inflation rate
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-057
+ * Changed ..... 2026-06-19 (fb87a0b)
+ */
 export async function analyzeExpenses(
   expenses: Array<{ category: string; store: string; amount: number }>,
   monthlyIncome: number,
@@ -152,25 +245,3 @@ export async function analyzeExpenses(
   };
 }
 
-// ── Receipt OCR simulation ───────────────────────────────────────────
-// In production, integrate Google Vision API or AWS Textract.
-// This stub returns realistic parsed data for prototyping.
-export async function parseReceipt(_imageUri: string): Promise<{
-  store: string;
-  amount: number;
-  date: string;
-  category: string;
-  items: string[];
-} | null> {
-  // TODO: replace with real OCR call
-  // Example with Google Vision:
-  // const base64 = await FileSystem.readAsStringAsync(imageUri, { encoding: 'base64' });
-  // const res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${GOOGLE_KEY}`, {
-  //   method: 'POST',
-  //   body: JSON.stringify({ requests: [{ image: { content: base64 }, features: [{ type: 'TEXT_DETECTION' }] }] })
-  // });
-  // Then parse the text response with regex patterns for totals, store names, dates.
-
-  await new Promise((r) => setTimeout(r, 1500)); // simulate processing
-  return null; // Return null to fall back to manual entry
-}

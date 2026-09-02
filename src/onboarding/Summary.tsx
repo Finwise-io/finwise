@@ -9,6 +9,7 @@ import { Status, Track } from './engine';
 import { num, grossAnnual, retirementMonthlyIncome } from './modules';
 import { rsuAnnual, rentalNetAnnual } from '../domain/income';
 import Mascot from './Mascot';
+import { salaryAnnual } from '../domain/income';
 
 // onOpen: finish onboarding FIRST, then deep-link into the module (wired by OnboardingScreen) —
 // navigating away without finishing would bounce the user straight back into onboarding.
@@ -22,7 +23,7 @@ function joinHuman(parts: string[]): string {
 
 function incomeStreams(a: Record<string, any>): string {
   const p: string[] = [];
-  if (num(a.baseSalary) > 0) p.push('salary');
+  if (salaryAnnual(a as any) > 0) p.push('salary');
   if (num(a.bonusAnnual) > 0 || num(a.signingOnetime) > 0) p.push('bonus');
   if (rsuAnnual(a) > 0) p.push('equity');
   if (rentalNetAnnual(a) > 0) p.push('rental');

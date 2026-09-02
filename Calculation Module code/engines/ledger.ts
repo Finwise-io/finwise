@@ -15,6 +15,7 @@
 import { classifyEvent, EVENTS, type CanonicalEvent } from './events';
 import { readMoney, signed, type SignConvention, type Money } from './money';
 import { Dec } from './decimal';
+import { round2 } from './money';
 
 /** The app's existing transaction vocabulary, kept so screens keep working during the migration. */
 export type LegacyTxnType =
@@ -103,6 +104,33 @@ export interface LedgerRow {
  * carries real money. The founder challenged this directly: "option could expire in the money".
  * So the rule here is: a skipped-type row with a non-zero amount keeps its money and stays visible.
  */
+/* ─ MK-ST-F-012 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * toLedgerRow
+ *
+ * Answers ..... Read one institution row into one ledger row.
+ *
+ * Formula .....
+ *     c = classify event(raw.word)
+ *     money = read money(raw.amount, convention, rule.direction)
+ *     units = number or undefined(raw.units)
+ *     legacy = TO_LEGACY[event]
+ *     is trade = legacy = 'BUY' (or legacy = 'SELL' when missing or zero)
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-012
+ * Changed ..... 2026-08-18 (d299744)
+ */
 export function toLedgerRow(raw: RawActivity, convention: SignConvention): LedgerRow {
   const c = classifyEvent(raw.word);
   const money = readMoney(raw.amount, convention, c.rule.direction);
@@ -175,6 +203,24 @@ export interface StoredFlowRow { type?: string | null; amount?: number | string 
 export interface PersonalFlowTotals {
   contributions: Dec; withdrawals: Dec; dividends: Dec; interest: Dec; fees: Dec; debtPrincipal: Dec;
 }
+/* ─ MK-ST-F-013 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * personalFlowTotals
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     bucket = STORED_TYPE_BUCKET[string(type ?? '')] (or 'none' when missing)
+ *     d = dec.parse(amount)
+ *     the answer = t
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-013
+ * Changed ..... 2026-08-20 (c3e2601)
+ */
 export function personalFlowTotals(rows: StoredFlowRow[]): PersonalFlowTotals {
   const t: PersonalFlowTotals = {
     contributions: Dec.ZERO, withdrawals: Dec.ZERO, dividends: Dec.ZERO,
@@ -207,6 +253,26 @@ export interface ImportIdentity {
   ref?: string | null;                   // an external reference id, where the road carries one
   description?: string | null;
 }
+/* ─ MK-ST-F-014 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * importKey
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-108 activityKey
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-108 activityKey · MK-XS-F-109 dedupeActivities
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-014
+ * Changed ..... 2026-08-20 (157df51)
+ */
 export function importKey(id: ImportIdentity): string {
   return [
     id.account,
@@ -220,6 +286,27 @@ export function importKey(id: ImportIdentity): string {
   ].join('|');
 }
 
+/* ─ MK-ST-F-015 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * rowsFor
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     rows where EVENTS[event].totals.includes(total)
+ *
+ * Called by ... MK-ST-F-016 totalOf
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-ST-F-016 totalOf
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-015
+ * Changed ..... 2026-08-20 (ae39c4e)
+ */
 export function rowsFor(
   rows: LedgerRow[],
   total: 'contributions' | 'withdrawals' | 'income' | 'costs',
@@ -229,18 +316,91 @@ export function rowsFor(
 
 /** A total, summed SIGNED and EXACT — a reversal reduces its total instead of inflating it.
  *  (Audit item 36: the absolute-value sum here was the $2,387 class rebuilt; now the sign carries.) */
+/* ─ MK-ST-F-016 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * totalOf
+ *
+ * Answers ..... A total, summed SIGNED and EXACT — a reversal reduces its total instead of inflating it.
+ *
+ * Formula .....
+ *     dec.sum(rows for(rows, total).map((r) => signed amount))
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-016
+ * Changed ..... 2026-08-20 (ae39c4e)
+ */
 export function totalOf(rows: LedgerRow[], total: 'contributions' | 'withdrawals' | 'income' | 'costs'): Dec {
   return Dec.sum(rowsFor(rows, total).map((r) => r.signedAmount));
 }
 
 /** Everything we could not name, for the honest line on screen: "12 entries we could not classify". */
+/* ─ MK-ST-F-017 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * unclassified
+ *
+ * Answers ..... Everything we could not name, for the honest line on screen: "12 entries we could not classify".
+ *
+ * Formula .....
+ *     rows where recognised is missing
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-017
+ * Changed ..... 2026-08-18 (d299744)
+ */
 export function unclassified(rows: LedgerRow[]): LedgerRow[] {
   return rows.filter((r) => !r.recognised);
 }
 
+/* ─ MK-ST-F-058 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * numberOrUndefined
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     n = v   if v is a number
+ *     na n   if v = nothing
+ *     parse float(string(v).replace( ÷ [$,\s] ÷ g, ''))   otherwise   otherwise
+ *     the answer:
+ *     n   if number.is finite(n)
+ *     undefined   otherwise
+ *
+ * Called by ... MK-ST-F-012 toLedgerRow
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-ST-F-012 toLedgerRow
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-058
+ * Changed ..... not in git yet (—)
+ */
 const numberOrUndefined = (v: unknown): number | undefined => {
   const n = typeof v === 'number' ? v : v == null ? NaN : parseFloat(String(v).replace(/[$,\s]/g, ''));
   return Number.isFinite(n) ? n : undefined;
 };
-const round2 = (n: number) => Math.round(n * 100) / 100;
+/* ─ MK-ST-F-059 ──────────────────────────────────────────────────────────────────── 1 · ACTION
+ * round8
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     round(n × 1e8) ÷ 1e8
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-ST-F-059
+ * Changed ..... not in git yet (—)
+ */
 const round8 = (n: number) => Math.round(n * 1e8) / 1e8;

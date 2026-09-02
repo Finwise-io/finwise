@@ -22,6 +22,7 @@ import { money, money2 } from '../domain/_shared/num';
 import { Swipeable } from 'react-native-gesture-handler';
 import { format } from 'date-fns';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 type Tab = 'Activity' | 'Budget' | 'Debts' | 'Import';
 
@@ -333,7 +334,7 @@ export default function BudgetScreen({ embedded, initialTab, monthOffset: moProp
   function logPayment() {
     const d = payDebt; const amt = num(payAmt);
     if (!d || amt <= 0) return;
-    addExpense({ amount: amt, category: 'Debt payment', store: d.label, date: new Date().toISOString().slice(0, 10), notes: '' });
+    addExpense({ amount: amt, category: 'Debt payment', store: d.label, date: isoLocalDate(new Date()), notes: '' });
     updateLiability(d.debt_id, { remaining_balance: Math.max(0, (d.remaining_balance || 0) - amt) });
     setPayDebt(null); setPayAmt('');
   }
@@ -981,7 +982,7 @@ function TxnSheet({ state, onClose, onDelete }: { state: { open: boolean; editin
   const save = () => {
     if (amt <= 0) return;
     // editing keeps its original date; a new entry uses today / yesterday
-    const date = editing ? editing.date : (() => { const d = new Date(); if (day === 'yesterday') d.setDate(d.getDate() - 1); return d.toISOString().slice(0, 10); })();
+    const date = editing ? editing.date : (() => { const d = new Date(); if (day === 'yesterday') d.setDate(d.getDate() - 1); return isoLocalDate(d); })();
     if (kind === 'income') {
       const payload = { type: editing?.type ?? 'other', amount: amt, source: src.trim() || 'Income', date, notes: notes.trim() };
       if (editing) store.updateIncome(editing.id, payload); else store.addIncome(payload);

@@ -12,6 +12,29 @@ const PAGE = 1000;
 const MAX_PAGES = 20;                      // 20k rows — far beyond any personal account's history
 const OVERLAP_DAYS = 7;                    // re-pull a week's overlap; dedupe makes it idempotent
 
+/* ─ MK-XS-F-115 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * shouldDailySync
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     true   when last sync at is missing
+ *     t = date.parse(last sync at)
+ *     the answer = number.is na n(t) (or now − t > 20 × 3600000 when missing or zero)
+ *
+ * Called by ... MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-115
+ * Changed ..... 2026-07-19 (49547d9)
+ */
 export function shouldDailySync(lastSyncAt: string | null | undefined, now: number = Date.now()): boolean {
   if (!lastSyncAt) return true;
   const t = Date.parse(lastSyncAt);
@@ -21,6 +44,32 @@ export function shouldDailySync(lastSyncAt: string | null | undefined, now: numb
 // SnapTrade wraps this endpoint in a pagination envelope {data, pagination:{total}} — LIVE-VERIFIED
 // 2026-07-19 against a real E*TRADE connection (their docs' examples show a bare array; production
 // does not). Accept both shapes so neither side of a rollout can silently produce an empty ledger.
+/* ─ MK-XS-F-148 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * unwrapActivities
+ *
+ * Answers ..... SnapTrade wraps this endpoint in a pagination envelope {data, pagination:{total}} — LIVE-VERIFIED 2026-07-19 against a real E*TRADE connection (their docs' examples show a bare array; production does not).
+ *
+ * Formula .....
+ *     batch = raw
+ *     total = nothing   when array.is array(raw)
+ *     data = (raw as { data?: unknown } | nothing | undefined).data
+ *     total = (raw as { pagination?: { total?: number } } | nothing | undefined).pagination.total
+ *     the answer:
+ *     batch = data as st activity[]   if array.is array(data)
+ *     []   otherwise
+ *     total = total   if total is a number
+ *     nothing   otherwise
+ *
+ * Called by ... MK-XS-F-149 allActivities
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-149 allActivities · MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-148
+ * Changed ..... not in git yet (—)
+ */
 function unwrapActivities(raw: unknown): { batch: StActivity[]; total: number | null } {
   if (Array.isArray(raw)) return { batch: raw, total: null };
   const data = (raw as { data?: unknown } | null | undefined)?.data;
@@ -28,6 +77,28 @@ function unwrapActivities(raw: unknown): { batch: StActivity[]; total: number | 
   return { batch: Array.isArray(data) ? (data as StActivity[]) : [], total: typeof total === 'number' ? total : null };
 }
 
+/* ─ MK-XS-F-149 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * allActivities
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     out = []
+ *     the answer = out
+ *
+ * Called by ... MK-XS-F-116 runSnapTradeSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-116 runSnapTradeSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Uses a built-in page of 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-149
+ * Changed ..... not in git yet (—)
+ */
 async function allActivities(accountId: string, startDate?: string): Promise<StActivity[]> {
   const out: StActivity[] = [];
   for (let page = 0; page < MAX_PAGES; page++) {
@@ -40,6 +111,37 @@ async function allActivities(accountId: string, startDate?: string): Promise<StA
 }
 
 /** Full sync. Returns the number of accounts synced (0 = nothing connected). */
+/* ─ MK-XS-F-116 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * runSnapTradeSync
+ *
+ * Answers ..... Full sync. Returns the number of accounts synced (0 = nothing connected).
+ *
+ * Formula .....
+ *     0   when !snaptrade configured()
+ *     s = use store.get state() as any
+ *     0   when !opts.force and !should daily sync(snaptrade last sync at)
+ *     connections = await snaptrade api.connections()
+ *     the answer = 0
+ *     accounts = await snaptrade api.accounts()
+ *     cursors = { ...(snaptrade activity cursor ?? {}) }
+ *     payloads = []
+ *     failed = []
+ *     now iso = the date ).to isostring(
+ *     h = await snaptrade api.holdings(account.id)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-024 logged spending
+ *
+ * Decides .....
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-116
+ * Changed ..... 2026-07-18 (0dc9061)
+ */
 export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<number> {
   if (!snaptradeConfigured()) return 0;
   const s = useStore.getState() as any;

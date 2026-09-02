@@ -6,9 +6,9 @@ import { snapshotFromOnboarding } from '../domain/snapshot';
 import { simulate, solveRetireAge, projectNestEgg, capitalNeeded } from '../domain/retirement';
 import { cashflowYear } from '../domain/cashflow';
 import { spendByMonth, savingsByMonth, emergencyTest } from '../domain/budget';
-import { taxOwed, grossFromNet, marginalBracket } from '../domain/income/tax';
+import { taxOwedFor, grossFromNet, marginalBracketFor } from '../domain/income/tax';
 import { loanPayment } from '../domain/debt';
-import { rmdDivisor, rmdAtAge } from '../domain/decumulation';
+import { rmdDivisorAtAge, rmdAtAge } from '../domain/decumulation';
 import { currentYield, bondInfo } from '../domain/bonds';
 import {
   earmarkedAmount, blendedReturn, portfolioActualReturn, investableAssets, type AssetAccount,
@@ -208,10 +208,10 @@ describe('Pure-function edge matrix: divide-by-zero & degenerate inputs', () => 
     expect(c.needed).toBe(c.pvBequest);
   });
 
-  test('taxOwed: $0 income and a negative income both owe $0', () => {
-    expect(taxOwed(0)).toBe(0);
-    expect(taxOwed(-5000)).toBe(0);
-    expect(marginalBracket(0)).toBe(0.10);         // lowest bracket, never undefined
+  test('taxOwedFor: $0 income and a negative income both owe $0', () => {
+    expect(taxOwedFor(0)).toBe(0);
+    expect(taxOwedFor(-5000)).toBe(0);
+    expect(marginalBracketFor(0)).toBe(0.10);         // lowest bracket, never undefined
   });
   test('grossFromNet monotonically increases and never returns less than net', () => {
     for (const net of [1_000, 50_000, 250_000, 1_000_000]) {
@@ -231,10 +231,10 @@ describe('Pure-function edge matrix: divide-by-zero & degenerate inputs', () => 
   });
 
   test('RMD: below the start age is 0; beyond the table holds the last divisor', () => {
-    expect(rmdDivisor(72)).toBe(0);                // pre-73 → no RMD
+    expect(rmdDivisorAtAge(72)).toBe(0);                // pre-73 → no RMD
     expect(rmdAtAge(1_000_000, 72)).toBe(0);
-    expect(rmdDivisor(73)).toBeGreaterThan(0);
-    expect(rmdDivisor(130)).toBeGreaterThan(0);    // off the end of the ULT → clamps, no undefined
+    expect(rmdDivisorAtAge(73)).toBeGreaterThan(0);
+    expect(rmdDivisorAtAge(130)).toBeGreaterThan(0);    // off the end of the ULT → clamps, no undefined
   });
 
   test('currentYield: a $0-value bond yields null, not Infinity', () => {

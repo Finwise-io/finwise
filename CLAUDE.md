@@ -45,14 +45,15 @@ the founder had approved all of it. Never again.
   Actual (this month) / Planned (from the plan). Canonical labels live in `docs/finwise-taxonomy-spec.md`.
 
 ## MOCK-FIRST — standing order (2026-07-19, after the build-43 trust breach)
-- EVERY screen change gets a mock-up saved in `mockups/` BEFORE it is built — named
-  `screen-vN-date.html`, NEVER overwritten (supersede with a new file; old mocks stay).
+- EVERY screen change gets a mock-up saved in `MoneyKeel/documents/<domain>/` BEFORE it is built — named by the
+  file-and-folder standard (`moneykeel_pres_mock_<descriptor>_vNN.html`), NEVER overwritten: the
+  superseded one gains its date and moves to that domain's `archive/`.
 - Mocks are FULL-COLOR, HIGH-FIDELITY (founder order, 2026-07-19): styled HTML phone frames using
   the app's REAL tokens from `src/utils/theme.ts` (colors, type sizes, radii) — never ASCII, never
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
-  every section → tab bar. Never a cropped card. Reference: `mockups/networth-v6-hifi-fullscreen-…`,
-  `mockups/account-detail-v1-hifi-…`. Numbers inside mocks must ADD UP (accuracy rule applies).
+  every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth_v06.html`,
+  `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a
   fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid
   them behind has-data conditions; in the founder's new-account state the screen looked nothing

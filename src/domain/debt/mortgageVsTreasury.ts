@@ -40,6 +40,33 @@ export interface MortgageComparison {
 export const TOO_CLOSE_POINTS = 0.25;
 
 /** Months to clear a balance at a given payment, and the total interest paid getting there. */
+/* ─ MK-CF-F-125 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * amortise
+ *
+ * Answers ..... Months to clear a balance at a given payment, and the total interest paid getting there.
+ *
+ * Formula .....
+ *     i = annual rate ÷ 12
+ *     b = balance, months = 0, interest = 0
+ *     months = infinity
+ *     interest = infinity   when payment ≤ b × i
+ *     charge = b × i
+ *     the answer = { months, interest }
+ *
+ * Called by ... MK-CF-F-043 compareMortgageToTreasury
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-043 compareMortgageToTreasury
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-125
+ * Changed ..... not in git yet (—)
+ */
 function amortise(balance: number, annualRate: number, payment: number): { months: number; interest: number } {
   const i = annualRate / 12;
   let b = balance, months = 0, interest = 0;
@@ -55,6 +82,29 @@ function amortise(balance: number, annualRate: number, payment: number): { month
 }
 
 /** Future value of a monthly contribution earning `rate`, contributed at the end of each month. */
+/* ─ MK-CF-F-126 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * futureValue
+ *
+ * Answers ..... Future value of a monthly contribution earning `rate`, contributed at the end of each month.
+ *
+ * Formula .....
+ *     0   when months ≤ 0 (or monthly ≤ 0 when missing or zero)
+ *     i = rate ÷ 12
+ *     the answer = monthly × (((1 + i) ×  × months − 1) ÷ i)
+ *
+ * Called by ... MK-CF-F-043 compareMortgageToTreasury
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-CF-F-043 compareMortgageToTreasury
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Treats a year as twelve equal months.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-126
+ * Changed ..... not in git yet (—)
+ */
 function futureValue(monthly: number, rate: number, months: number): number {
   if (months <= 0 || monthly <= 0) return 0;
   const i = rate / 12;
@@ -68,6 +118,37 @@ function futureValue(monthly: number, rate: number, months: number): number {
  * the same date. Route A pays the loan down faster, then invests the WHOLE freed-up payment for the
  * months it bought back. Route B keeps the mortgage and invests only the extra, the whole way.
  * Anything less than that flatters one side.
+ */
+/* ─ MK-CF-F-043 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * compareMortgageToTreasury
+ *
+ * Answers ..... Compare paying `extraMonthly` into the mortgage against putting the same money into Treasuries.
+ *
+ * Formula .....
+ *     nothing   when not (balance > 0) or !(annual rate > 0) or !(monthly payment > 0)
+ *     gap points = +((annual rate − treasury yield) × 100).to fixed(2)
+ *     too close = size of(gap points) < TOO_CLOSE_POINTS
+ *     base = amortise(balance, annual rate, monthly payment)
+ *     fast = amortise(balance, annual rate, monthly payment + extra monthly)
+ *     lifetime = 0
+ *     freed months = base.months − fast.months
+ *     paying down = future value(monthly payment + extra monthly, treasury yield, freed months)
+ *     treasuries = future value(extra monthly, treasury yield, base.months)
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-001 account balance
+ *               MK-XS-I-005 holding price
+ *
+ * Decides .....
+ *     · Uses a built-in lifetime of 0.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Shows 2 decimal places.
+ *
+ * Formula also on the master file · functions_from_code · MK-CF-F-043
+ * Changed ..... 2026-08-15 (dc3368f)
  */
 export function compareMortgageToTreasury(args: {
   balance: number;

@@ -12,6 +12,7 @@ import { InfoDot } from '../components/UI';
 import { assetKind, benchmarkReturn, investableAssets, type AssetAccount, type TaxBucket } from '../domain/assets';
 import { isAlternative, alternativesSummary, ALT_KINDS_CAPTURE } from '../domain/alternatives';
 import { modalAnimation } from '../hooks/reducedMotion';
+import { isoLocalDate } from '../domain/_shared/dates';
 
 const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
 const ALT_HINT: Record<string, string> = {
@@ -111,7 +112,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
         { text: 'Cancel', style: 'cancel' },
         { text: full ? 'Close position' : 'Record sale', onPress: () => {
           if (full) { onDelete?.(); return; }
-          if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: new Date().toISOString().slice(0, 10), note: 'Sale' });
+          if (item) recordTransaction?.({ type: 'SELL', account_id: item.asset_id, amount: sold, date: isoLocalDate(new Date()), note: 'Sale' });
           onSave({ kind, label: label.trim(), institution: inst.trim(), tax_bucket: bucket, ...(item ? {} : { balance: Math.round((cur - sold) * 100) / 100 }) });
         } },
       ],
@@ -157,7 +158,7 @@ export function AltEditor({ item, open, onClose, onSave, onDelete, presetKind }:
             </View>
           )}
           <TouchableOpacity style={[styles.saveBtn, !valid && { opacity: 0.4 }]} disabled={!valid}
-            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket, value_as_of: valueAsOf || new Date().toISOString().slice(0, 10) })}>
+            onPress={() => onSave({ kind, label: label.trim(), institution: inst.trim(), balance: num(value), tax_bucket: bucket, value_as_of: valueAsOf || isoLocalDate(new Date()) })}>
             <Text style={styles.saveBtnT}>{item ? 'Save' : 'Add'}</Text>
           </TouchableOpacity>
           {onDelete && <TouchableOpacity accessibilityRole="button" accessibilityLabel="Delete this holding" hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }} onPress={() => Alert.alert('Delete this holding?', `Removes ${label.trim() || 'this investment'} from your holdings.`, [{ text: 'Cancel', style: 'cancel' }, { text: 'Delete', style: 'destructive', onPress: onDelete }])}><Text style={styles.deleteLink}>Delete</Text></TouchableOpacity>}

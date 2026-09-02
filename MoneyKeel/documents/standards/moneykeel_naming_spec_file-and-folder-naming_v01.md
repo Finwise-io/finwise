@@ -12,7 +12,7 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 | Folder | Lives here | Never here |
 |---|---|---|
 | `MoneyKeel/documents/` | Workbooks, specifications, decisions, standards — the paper the founder reads and approves | Code of any kind |
-| `MoneyKeel/engines/` | Every calculation the app makes, one family per file, its test beside it | Screens, wording, colours |
+| `MoneyKeel/functions/` | Every calculation the app makes, one family per file, its test beside it | Screens, wording, colours |
 | `MoneyKeel/screens/` | Layout, wording, what to show when | Arithmetic — a screen asks an engine |
 | `MoneyKeel/data/` | Reading downloads, connections, saving and loading | Arithmetic |
 | `MoneyKeel/archive/` | Dated copies of anything replaced | Anything the app still uses |
@@ -37,7 +37,7 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 | The ledger engine | `networth-and-performance` | Founder's ruling |
 
 A rule has two homes and one identifier: the **written rule** in `documents/standards/`, and the
-**code that obeys it** in `engines/standards/`.
+**code that obeys it** in `functions/standards/`.
 
 ## Naming a document
 
@@ -52,9 +52,13 @@ and once it is superseded, the same name with its date in front:
 | Date | Only on superseded copies, in `archive/`. **The live file carries no date.** | `2026-08-22` |
 | Domain | The product | `moneykeel` (older files keep `finwise` until next touched) |
 | Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and engines · `data` schemas and contracts · `pres` screens and mockups |
-| Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `mock`, `mockup`, `component` |
+| Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `master`, `mock`, `mockup`, `component` |
 | Descriptor | **The only part you invent** — see the rule below | `will-money-last`, `monte-carlo-simulator` |
 | Version | Lifecycle | `v01`, `v02`, `draft`, `final` |
+
+`master` was added 2026-08-28 (founder). It is the one workbook that carries every metric, input and
+function on one page — `moneykeel_calc_master_calculation-master_v01.xlsx`. It existed before the
+pattern did and had no type that fitted; naming it `schema` would have been a lie about what it is.
 
 Examples: `moneykeel_naming_spec_retirement-metrics-dictionary_v01.md` ·
 `moneykeel_data_schema_plan-inputs-contract_v02.json` ·
@@ -86,8 +90,8 @@ file finds it; renaming it on each version means editing everything that uses it
 rename breaks the build. So a code file is named plainly for the answer it produces, inside the
 folder that gives it its domain and layer:
 
-    MoneyKeel/engines/retirement/depletion-age-solver.ts
-    MoneyKeel/engines/retirement/depletion-age-solver.test.ts
+    MoneyKeel/functions/retirement/depletion-age-solver.ts
+    MoneyKeel/functions/retirement/depletion-age-solver.test.ts
 
 The date, the version and the identifier live in a header block **inside** the file and in its row
 in the master file — the same information, nothing breakable.

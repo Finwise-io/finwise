@@ -7,6 +7,7 @@ import React from 'react';
 import { render } from '@testing-library/react-native';
 import CashFlowScreen from '../CashFlowScreen';
 import { useStore } from '../../store/useStore';
+import { isoLocalDate } from '../../domain/_shared/dates';
 
 beforeEach(() => useStore.getState().resetAll());
 
@@ -17,7 +18,7 @@ test('working lens: this-month in/out + the canonical Planned surplus + dated by
       taxMode: 'manual', manualTaxRate: '20',
       baseSalary: '8000', salaryFreq: 'monthly', c_401k: '500', monthlySpending: '4000',
     },
-    expenses: [{ amount: 1000, category: 'Groceries', date: new Date().toISOString().slice(0, 10) }],
+    expenses: [{ amount: 1000, category: 'Groceries', date: isoLocalDate(new Date()) }],
   } as any);
 
   const { getByText } = render(<CashFlowScreen />);

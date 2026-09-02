@@ -70,6 +70,57 @@ export interface StActivity {
 // anything unmatched returns confident:false and the connect flow ASKS with the Held-in chooser
 // (wrong wrapper = wrong tax math — accuracy-is-trust P0, never guessed silently).
 export interface WrapperGuess { kind: string; tax_bucket: 'CASH' | 'TAXABLE' | 'PRE_TAX' | 'ROTH'; confident: boolean }
+/* ─ MK-XS-F-104 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * mapAccountType
+ *
+ * Answers ..... What kind of account is this, and how is it taxed?
+ *
+ * Formula .....
+ *     t = (raw type ?? '').to lower case()
+ *     has = (...words: string[]) => words.some((w) => includes(w))
+ *     kind = '401k'   if has('401')
+ *     'roth_ira'   otherwise
+ *     tax bucket = 'ROTH'
+ *     confident = true   when has('roth')
+ *     kind = '401k'
+ *     tax bucket = 'PRE_TAX'
+ *     confident = true   when has('401k', '401(k)', '403b', '403(b)', '457')
+ *     kind = 'trad_ira'
+ *     tax bucket = 'PRE_TAX'
+ *     confident = true   when has('rollover', 'traditional', 'sep', 'simple ira')
+ *     kind = 'trad_ira'
+ *     tax bucket = 'PRE_TAX'
+ *     confident = true   when has('ira')
+ *     kind = 'hsa'
+ *     tax bucket = 'PRE_TAX'
+ *     confident = true   when has('hsa')
+ *     kind = 'checking'
+ *     tax bucket = 'CASH'
+ *     confident = true   when has('checking')
+ *     kind = 'brokerage'
+ *     tax bucket = 'TAXABLE'
+ *     confident = false   when has('savings')
+ *     kind = 'college_529'
+ *     tax bucket = 'TAXABLE'
+ *     confident = true   when has('529', 'education')
+ *     the answer:
+ *     kind = 'brokerage'
+ *     tax bucket = 'TAXABLE'
+ *     confident = true
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-002 account type (taxable, pre-tax, Roth)
+ *               MK-XS-I-055 the wrapper an account sits in — ISA, 401(k), IRA and the rest
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-104
+ * Changed ..... 2026-08-03 (fc3df97)
+ */
 export function mapAccountType(rawType: string | null | undefined, category?: string | null): WrapperGuess {
   const t = (rawType ?? '').toLowerCase();
   const has = (...words: string[]) => words.some((w) => t.includes(w));
@@ -92,6 +143,30 @@ export function mapAccountType(rawType: string | null | undefined, category?: st
 }
 
 // ── positions → our holdings ───────────────────────────────────────────────────────────────────
+/* ─ MK-XS-F-145 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * flatSymbol
+ *
+ * Answers ..... ── positions → our holdings ───────────────────────────────────────────────────────────────────
+ *
+ * Formula .....
+ *     s = symbol
+ *     nothing   when s is missing
+ *     the answer:
+ *     symbol   if symbol and typeof symbol = 'object'
+ *     s   otherwise
+ *
+ * Called by ... MK-XS-F-105 mapPosition
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-105 mapPosition
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-145
+ * Changed ..... not in git yet (—)
+ */
 const flatSymbol = (p: StPosition): StSymbol | null => {
   const s: any = p.symbol;
   if (!s) return null;
@@ -113,6 +188,33 @@ export interface MappedPosition {
 // B7 (founder brief 2026-08-20): classification lives in the ONE engine — name first, broker tag
 // as fallback only. This road only gathers the evidence. (Supersedes the inline 2026-08-04 rule
 // and the B47 finding-5 fixed-income patterns — both moved into the engine, behavior kept.)
+/* ─ MK-XS-F-105 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * mapPosition
+ *
+ * Answers ..... B7 (founder brief 2026-08-20): classification lives in the ONE engine — name first, broker tag as fallback only.
+ *
+ * Formula .....
+ *     sym = flat symbol(p)
+ *     shares = units (or 0 when missing)
+ *     nothing   when sym is missing (or shares = 0 when missing or zero)
+ *     code = (sym.type.code ?? '').to lower case()
+ *     tick = (sym.raw symbol or sym.symbol or '').to upper case()
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Decides .....
+ *     · If units is missing it uses 0.
+ *     · If quantity is missing it uses 0.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-105
+ * Changed ..... 2026-08-20 (026b132)
+ */
 export function mapPosition(p: StPosition): MappedPosition | null {
   const sym = flatSymbol(p);
   const shares = p.units ?? 0;
@@ -144,11 +246,65 @@ export function mapPosition(p: StPosition): MappedPosition | null {
 
 // ── option holdings → alternatives rows (G2 closure: itemized, never hidden) ──────────────────
 const MONTHS = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+/* ─ MK-XS-F-146 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * prettyExpiry
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     `${MONTHS[m − 1]} ${d} ${y}`   if y and m and d
+ *     'unknown expiry'   otherwise
+ *
+ * Called by ... MK-XS-F-106 mapOptionHolding
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync · MK-XS-F-106 mapOptionHolding
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-146
+ * Changed ..... not in git yet (—)
+ */
 const prettyExpiry = (iso: string | null | undefined) => {
   const [y, m, d] = String(iso ?? '').split('-').map(Number);
   return y && m && d ? `${MONTHS[m - 1]} ${d} ${y}` : 'unknown expiry';
 };
 export interface MappedOption { label: string; contracts: number; value: number; costBasis: number | null }
+/* ─ MK-XS-F-106 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * mapOptionHolding
+ *
+ * Answers ..... What is this option position worth, and what do we call it?
+ *
+ * Formula .....
+ *     os = symbol.option symbol
+ *     contracts = units (or 0 when missing)
+ *     nothing   when os is missing (or contracts = 0 when missing or zero)
+ *     under = (os.underlying symbol.raw symbol or os.underlying symbol.symbol or os.ticker or '?').to upper case()
+ *     kind word = 'put'   if os.option type = 'PUT'
+ *     'call'   otherwise
+ *     strike = `$${os.strike price}`   if os.strike price ≠ nothing
+ *     ''   otherwise
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-007 purchase price and date (per lot)
+ *               MK-XS-I-034 option positions — contracts, strike, expiry, put or call
+ *
+ * Decides .....
+ *     · If units is missing it uses 0.
+ *     · If price is missing it uses 0.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-106
+ * Changed ..... 2026-07-18 (99d220a)
+ */
 export function mapOptionHolding(o: StOptionHolding, multiplier = 100): MappedOption | null {
   const os = o.symbol?.option_symbol;
   const contracts = o.units ?? 0;
@@ -180,6 +336,37 @@ export interface MappedActivity {
   note?: string;
   cashSign?: 1 | -1;                      // for option cash-effect rows mapped to DEPOSIT/WITHDRAWAL
 }
+/* ─ MK-XS-F-107 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * mapActivityType
+ *
+ * Answers ..... A line arrived from the broker. Is this money you paid IN, money you took OUT, or something that happened inside the account?
+ *
+ * Formula .....
+ *     t = (type ?? '').to upper case()
+ *     is option = !!option symbol (or !!option type when missing or zero)
+ *     the answer:
+ *     txn type = t as 'BUY' | 'SELL'
+ *     note = 'option purchase'   if t = 'BUY'
+ *     'option sale'   otherwise
+ *     txn type = 'FEE'
+ *     note = `broker: ${type}`   when includes('FEE')
+ *     txn type = 'DEPOSIT'
+ *     note = `broker: ${type ?? 'unknown'}`   when (amount ?? 0) > 0
+ *     txn type = 'WITHDRAWAL'
+ *     note = `broker: ${type ?? 'unknown'}`   when (amount ?? 0) < 0
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *               MK-XS-I-013 bond maturity date
+ *
+ * Decides .....
+ *     · If amount is missing it uses 0.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-107
+ * Changed ..... 2026-07-18 (8fab2d2)
+ */
 export function mapActivityType(a: StActivity): MappedActivity {
   const t = (a.type ?? '').toUpperCase();
   const isOption = !!a.option_symbol || !!a.option_type;
@@ -242,6 +429,25 @@ export function mapActivityType(a: StActivity): MappedActivity {
 // The identity itself lives in the Calculation Module (importKey — Track 1 step 2); this road
 // only maps its fields in. The output is BYTE-IDENTICAL to the pre-engine format, so every
 // seenKeys registry already persisted on a device stays valid.
+/* ─ MK-XS-F-108 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * activityKey
+ *
+ * Answers ..... ── duplicate-proofing ───────────────────────────────────────────────────────────────────────── SnapTrade activity ids can change when they reprocess history, so identity = the composite of everything that makes the row THAT row.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-XS-F-102 ingestSync · MK-XS-F-109 dedupeActivities
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-XS-F-109 dedupeActivities · MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-010 transaction words (the institution's own wording)
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-108
+ * Changed ..... 2026-08-20 (157df51)
+ */
 export function activityKey(accountId: string, a: StActivity): string {
   return importKey({
     account: accountId,
@@ -254,6 +460,23 @@ export function activityKey(accountId: string, a: StActivity): string {
     description: a.description,   // audit fix: separates two otherwise-identical same-day fills
   });
 }
+/* ─ MK-XS-F-109 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * dedupeActivities
+ *
+ * Answers ..... Which of these activities are new since the last sync?
+ *
+ * Formula .....
+ *     fresh = []
+ *     k = activity key(account id, a)
+ *     the answer = fresh
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-109
+ * Changed ..... 2026-07-18 (99d220a)
+ */
 export function dedupeActivities(accountId: string, incoming: StActivity[], seenKeys: Set<string>): StActivity[] {
   const fresh: StActivity[] = [];
   for (const a of incoming) {
@@ -268,6 +491,35 @@ export function dedupeActivities(accountId: string, incoming: StActivity[], seen
 // ── the cash sleeve, deduped ───────────────────────────────────────────────────────────────────
 // SnapTrade counts money-market (cash_equivalent) positions INSIDE balances.cash too. We show them
 // as holdings, so the sleeve = cash − Σ(cash-equivalent position values), floored at zero.
+/* ─ MK-XS-F-110 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * netCashSleeve
+ *
+ * Answers ..... ── the cash sleeve, deduped ─────────────────────────────────────────────────────────────────── SnapTrade counts money-market (cash_equivalent) positions INSIDE balances.cash too.
+ *
+ * Formula .....
+ *     net = round((balances cash ?? 0) − mmf, 2 dp)
+ *     the answer:
+ *     0   if net < 0 and net > -1
+ *     net   otherwise
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-004 holding quantity (shares)
+ *
+ * Decides .....
+ *     · If price is missing it uses 0.
+ *     · If balances cash is missing it uses 0.
+ *     · Multiplies by 100 — a percentage, or an option contract treated as 100 shares. Worth checking which.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-110
+ * Changed ..... 2026-08-07 (0482964)
+ */
 export function netCashSleeve(balancesCash: number | null | undefined, positions: MappedPosition[]): number {
   const mmf = positions.filter((p) => p.cashEquivalent)
     .reduce((t, p) => t + (p.price ?? 0) * p.shares, 0);
@@ -281,6 +533,32 @@ export function netCashSleeve(balancesCash: number | null | undefined, positions
 /** FOUNDER RULE 2026-08-04: record how far back the broker's OWN activity feed reaches, so a
  *  "past year" income figure can label itself honestly. Keeps the earliest date ever seen — a
  *  later sync returning a shallower page must never shorten the recorded depth. */
+/* ─ MK-XS-F-111 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+ * mergeHistoryFrom
+ *
+ * Answers ..... FOUNDER RULE 2026-08-04: record how far back the broker's OWN activity feed reaches, so a "past year" income figure can label itself honestly.
+ *
+ * Formula .....
+ *     earliest now = the first of dates
+ *     existing   when earliest now is missing
+ *     earliest now   when existing is missing
+ *     the answer:
+ *     earliest now   if earliest now < existing
+ *     existing   otherwise
+ *
+ * Called by ... MK-XS-F-102 ingestSync
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-XS-F-102 ingestSync
+ *
+ * Serves ...... MK-NW-M-022
+ *
+ * Decides .....
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-XS-F-111
+ * Changed ..... 2026-08-07 (0482964)
+ */
 export function mergeHistoryFrom(existing: string | undefined, activityDates: (string | null | undefined)[]): string | undefined {
   const dates = activityDates
     .map((d) => (d ? String(d).slice(0, 10) : ''))

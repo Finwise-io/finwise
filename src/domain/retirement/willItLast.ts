@@ -10,12 +10,73 @@ import { effectiveRateOnGrossFor } from '../income/tax';
 import { totalGrossAnnual, filingStatusOf, stateRateOf } from '../income';
 import { retirementIncomeMonthly, guaranteedOutsideStreams, over65CountOf } from '../income';
 
-const num = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
-const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+/* ─ MK-PL-F-079 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
+ * numOrZero
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs · MK-PL-F-068 selectWillItLast
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-079
+ * Changed ..... not in git yet (—)
+ */
+const numOrZero = (v: any) => { const n = parseFloat(String(v ?? '').replace(/[^0-9.]/g, '')); return isNaN(n) ? 0 : n; };
+/* ─ MK-PL-F-077 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * clamp
+ *
+ * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
+ *
+ * Formula .....
+ *     max(lo, min(hi, v))
+ *
+ * Called by ... MK-PL-F-065 volOf
+ *
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-065 volOf
+ *               MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-077
+ * Changed ..... not in git yet (—)
+ */
+export const clamp = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
 /** Same volatility convention as the cockpit: higher return ⇒ more volatility. */
 /** SCENARIO fallback only: when someone types a return on the Plan sliders with nothing held yet,
  *  there are no holdings to measure, so risk is derived from the return. Real portfolios use
  *  blendedVolatility (per-class figures from the same long-run series as the returns). */
+/* ─ MK-PL-F-065 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * volOf
+ *
+ * Answers ..... Same volatility convention as the cockpit: higher return ⇒ more volatility.
+ *
+ * Formula .....
+ *     hold ret × 1.7 between 0.05 and 0.2
+ *
+ * Called by ... MK-PL-F-067 willItLastInputs
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast · MK-PL-F-067 willItLastInputs
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ * Reads ....... MK-XS-I-026 big costs (amount and year)
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-044 the person’s own plan overrides
+ *
+ * Decides .....
+ *     · Never lets the answer fall below 5% or rise above 20%.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-065
+ * Changed ..... 2026-08-12 (bb56c4d)
+ */
 export const volOf = (ret: number) => clamp(ret * 1.7, 0.05, 0.2);
 
 // chanceWord (Likely/Uncertain/Unlikely) was deleted 2026-08-12 on the founder's ruling: a
@@ -52,6 +113,30 @@ export interface WillItLastResult {
 /** B6 (founder brief 2026-08-20): the odds a person sees, to the nearest 5 — with one honesty
  *  guard at each end: 100 means "every simulated future worked" and 0 means "none did", and
  *  neither claim may be minted by rounding. A 98 shows as 95, never as a certainty. */
+/* ─ MK-PL-F-066 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * displayOdds
+ *
+ * Answers ..... B6 (founder brief 2026-08-20): the odds a person sees, to the nearest 5 — with one honesty guard at each end: 100 means "every simulated future worked" and 0 means "none did", and neither claim may be minted by rounding.
+ *
+ * Formula .....
+ *     r = min(100, max(0, round(chance ÷ 5) × 5))
+ *     95   when r = 100 and chance < 99.5
+ *     5   when r = 0 and chance > 0.5
+ *     the answer = r
+ *
+ * Called by ... MK-PL-F-068 selectWillItLast
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast
+ *
+ * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to a whole number.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-066
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function displayOdds(chance: number): number {
   const r = Math.min(100, Math.max(0, Math.round(chance / 5) * 5));
   if (r === 100 && chance < 99.5) return 95;
@@ -59,14 +144,62 @@ export function displayOdds(chance: number): number {
   return r;
 }
 
+/* ─ MK-PL-F-067 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * willItLastInputs
+ *
+ * Answers ..... What goes into working out the odds?
+ *
+ * Formula .....
+ *     op = op (or none when missing)
+ *     a = assumptions (or none when missing)
+ *     age = the date ).get full year() − num or zero(op.birth year   if op.birth year
+ *     nothing   otherwise
+ *     nothing   when age = nothing
+ *     nest egg = retirement earmarked value(accounts)
+ *     bequest = num or zero(op.legacy target)
+ *     spendable egg = max(0, nest egg − bequest)
+ *     bench blended = blended return(accounts)
+ *     actual blended = portfolio actual return(accounts)
+ *     return basis = A.return basis (or 'benchmark' when missing)
+ *     scenario return = A.expected return (or bench blended when missing)
+ *     … the first steps only — the rest of the body needs reading by hand.
+ *
+ * Called by ... MK-PL-F-068 selectWillItLast
+ *
+ * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ *               MK-PL-F-068 selectWillItLast
+ *
+ * Serves ...... MK-PL-M-008 · MK-PL-M-011 · MK-PL-M-029
+ * Reads ....... MK-XS-I-017 birth year
+ *               MK-XS-I-018 retirement age
+ *               MK-XS-I-020 Social Security monthly amount
+ *               MK-XS-I-021 Social Security claim age
+ *               MK-XS-I-026 big costs (amount and year)
+ *               MK-XS-I-028 assumed return
+ *               MK-XS-I-029 inflation rate
+ *               MK-XS-I-036 other guaranteed income
+ *
+ * Decides .....
+ *     · If inflation rate is missing it uses 2.5.
+ *     · If social security claim age is missing it uses 67.
+ *     · If monthly is missing it uses 0.
+ *     · If salary growth is missing it uses 0.
+ *     · Turns a monthly figure into a year by multiplying by twelve.
+ *     · Uses today's date from the device clock, so the answer changes by itself overnight.
+ *     · Rounds the answer to a whole number.
+ *     · Leaves some rows out of the answer — check which.
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-067
+ * Changed ..... 2026-07-13 (9ac80a7)
+ */
 export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const op = a.op ?? {};
   const A = a.assumptions ?? {};
-  const age = op.birthYear ? new Date().getFullYear() - num(op.birthYear) : null;
+  const age = op.birthYear ? new Date().getFullYear() - numOrZero(op.birthYear) : null;
   if (age == null) return null;
 
   const nestEgg = retirementEarmarkedValue(a.accounts);
-  const bequest = num(op.legacyTarget);
+  const bequest = numOrZero(op.legacyTarget);
   const spendableEgg = Math.max(0, nestEgg - bequest);
 
   const benchBlended = blendedReturn(a.accounts);
@@ -83,15 +216,15 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
   const flatStreams = outside.filter((st) => st.kind !== 'ss');
   const outsideTotal = outside.reduce((t, st) => t + st.monthly, 0);
   const contribDefault = Math.round(monthlyContributionsFromOnboarding(op));
-  const spendDefault = Math.round(retirementSpendMonthly(op) || num(op.monthlySpending) || 5000);
-  const retireDefault = num(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
-  const horizon = A.horizonAge ?? (num(op.horizonAge) || 90);
+  const spendDefault = Math.round(retirementSpendMonthly(op) || numOrZero(op.monthlySpending) || 5000);
+  const retireDefault = numOrZero(op.targetRetirementAge) || (a.employmentStatus === 'retired' ? age : 65);
+  const horizon = A.horizonAge ?? (numOrZero(op.horizonAge) || 90);
   const ssEligibleEffective = A.ssEligible == null ? outsideTotal > 0 : A.ssEligible;
   const claimAge = A.ssClaimAge ?? 67;
   // B2: ssMonthly is the statement amount at the person's OWN full retirement age (66y2m–67 by
   // birth year), and the factor is anchored there — not at a hard-coded 67.
   const ssIncome = ssEligibleEffective
-    ? (A.ssMonthly != null ? ssBenefitAt(A.ssMonthly, claimAge, num(op.birthYear) || null) : (ssBase?.monthly ?? 0))
+    ? (A.ssMonthly != null ? ssBenefitAt(A.ssMonthly, claimAge, numOrZero(op.birthYear) || null) : (ssBase?.monthly ?? 0))
     : 0;
 
   const planRetireAge = A.retireAge ?? retireDefault;
@@ -146,14 +279,43 @@ export function willItLastInputs(a: WillItLastArgs): RetirementInputs | null {
  * answered the three questions (their age, what they spend, what they have) — the design's
  * "never a chance computed from guessed inputs" rule.
  */
+/* ─ MK-PL-F-068 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED
+ * selectWillItLast
+ *
+ * Answers ..... The one will-it-last read.
+ *
+ * Formula .....
+ *     op = op (or none when missing)
+ *     inputs = will it last inputs(a)
+ *     nest egg = retirement earmarked value(accounts)
+ *     spend known = (retirement spend monthly(op) or num or zero(op.monthly spending)) > 0 (or (assumptions.spend monthly ?? nothing) ≠ nothing when missing or zero)
+ *     captured = inputs ≠ nothing and spend known and nest egg > 0
+ *     the answer:
+ *     captured = false
+ *     chance = nothing
+ *     chance exact = nothing
+ *     band = nothing
+ *     horizon age = inputs.horizon age (or num or zero(op.horizon age) (or 90 when missing or zero) when missing)
+ *     inputs = inputs
+ *     sim = simulate(with band ? { ...inputs, with band: true } : inputs) as any
+ *     exact = sim.chance of success as number
+ *
+ * Called by ... nothing — it is an entry point, or nothing reaches it
+ *
+ * Serves ...... MK-PL-M-034 · MK-XS-M-002
+ * Reads ....... MK-XS-I-044 the person’s own plan overrides
+ *
+ * Formula also on the master file · functions_from_code · MK-PL-F-068
+ * Changed ..... 2026-08-20 (16a56f7)
+ */
 export function selectWillItLast(a: WillItLastArgs): WillItLastResult {
   const op = a.op ?? {};
   const inputs = willItLastInputs(a);
   const nestEgg = retirementEarmarkedValue(a.accounts);
-  const spendKnown = (retirementSpendMonthly(op) || num(op.monthlySpending)) > 0 || (a.assumptions?.spendMonthly ?? null) != null;
+  const spendKnown = (retirementSpendMonthly(op) || numOrZero(op.monthlySpending)) > 0 || (a.assumptions?.spendMonthly ?? null) != null;
   const captured = inputs != null && spendKnown && nestEgg > 0;
   if (!captured || !inputs) {
-    return { captured: false, chance: null, chanceExact: null, band: null, horizonAge: inputs?.horizon_age ?? (num(op.horizonAge) || 90), inputs };
+    return { captured: false, chance: null, chanceExact: null, band: null, horizonAge: inputs?.horizon_age ?? (numOrZero(op.horizonAge) || 90), inputs };
   }
   const sim = simulate(a.withBand ? { ...inputs, with_band: true } : inputs) as any;
   const exact = sim.chance_of_success as number;
