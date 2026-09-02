@@ -126,7 +126,7 @@ describe('4 · brand-new user who skips everything (just explore)', () => {
     render(<PlanHubScreen />);
     // 2026-08-12: the questions are ON the tab now — the invitation is the can't-compute box plus
     // the rows themselves, not a door to a second screen
-    expect(screen.getByText(/can't work them out yet/)).toBeOnTheScreen();
+    expect(screen.getByText(/can't be calculated yet/)).toBeOnTheScreen();
     expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   });
 });

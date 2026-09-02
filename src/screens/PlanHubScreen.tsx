@@ -268,9 +268,9 @@ export default function PlanHubScreen() {
             </View>
             {/* the can't-compute box, in place of the odds — the design's "Missing Age" state */}
             <View style={styles.cantCompute} accessible
-              accessibilityLabel={`Your odds can't be worked out yet. Add ${door.missing.join(' and ')} in the facts below.`}>
+              accessibilityLabel={`Your odds can't be calculated yet. Add ${door.missing.join(' and ')} in the facts below.`}>
               <Text style={styles.cantComputeTxt}>
-                Your odds — can't work them out yet. Add {door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' and ')} below.
+                Your odds — can't be calculated yet. Add {door.missing.map((m) => m === 'what you spend' && lens === 'retired' ? 'what you spend each month' : m).join(' and ')} below.
               </Text>
             </View>
             {door.credit && (
@@ -490,7 +490,7 @@ export default function PlanHubScreen() {
   </>);
   const footBlock = (<>
       {wil.captured && wil.chance != null
-        ? <Text style={styles.tinyFoot}>Estimates from ~400 market simulations of your own numbers — not advice.</Text>
+        ? <Text style={styles.tinyFoot}>Estimates from 1,000 market simulations of your own numbers — not advice.</Text>
         : <Text style={styles.tinyFoot}>No percent is shown until it's yours — we never fake a number.</Text>}
   </>);
 

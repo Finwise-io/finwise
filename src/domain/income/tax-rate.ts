@@ -5,7 +5,7 @@
  *  1 · THEIRS, TYPED. Someone entered what really comes out of their pay, off a payslip. It is an
  *      AVERAGE — everything withheld, divided by everything earned — and it beats anything we work
  *      out, because they can see it and we cannot.
- *  2 · THEIRS, IMPLIED. They told us what lands in the bank. Then the rate is not a guess either: it
+ *  2 · THEIRS, IMPLIED. They entered their take-home. Then the rate is not a guess either: it
  *      is their own gross, less their own 401(k), less what they said lands. Until 2026-08-28 this
  *      was thrown away — every screen but base pay re-estimated a figure the person had already
  *      given us, and disagreed with itself by $572 a month on the founder's own persona.
@@ -40,11 +40,11 @@ export interface RateInForce {
   covers: string;        // what the rate includes, in words
 }
 
-/** What every earner said lands in their bank, a year — or null when any of them did not say. */
+/** Every earner’s entered take-home, a year — or null when any of them did not say. */
 /* ─ MK-CF-F-180 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * enteredLandsAnnual
  *
- * Answers ..... What every earner said lands in their bank, a year — or null when any of them did not say.
+ * Answers ..... Every earner’s entered take-home, a year — or null when any of them did not say.
  *
  * Formula .....
  *     wages = earner wages(op)
@@ -136,7 +136,7 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
   const a: any = op ?? {};
 
   // taxMode alone decides, never the value: 0% is a real answer (someone with no tax liability),
-  // and requiring a positive number quietly sent those people back to our estimate.
+  // and requiring a positive number quietly sent those people back to the calculated rate.
   if (a.taxMode === 'manual') {
     const rate = Math.min(Math.max(toNum(a.manualTaxRate) / 100, 0), 1);
     return { rate, source: 'typed', mine: true,
@@ -152,11 +152,11 @@ export function rateInForce(op: OnboardingProfile | null): RateInForce {
     const rate = Math.min(Math.max(out / gross, 0), 1);
     return { rate, source: 'implied', mine: true,
              label: `your figures, ${Math.round(rate * 100)}%`,
-             covers: 'everything that comes out, worked back from what you said lands in your bank' };
+             covers: 'everything that comes out, calculated from the take-home you entered' };
   }
 
   const rate = effectiveRateOnGrossFor(taxableAnnual(op), filingStatusOf(op), stateRateOf(op), over65CountOf(op));
   return { rate, source: 'estimated', mine: false,
-           label: `our estimate, ${Math.round(rate * 100)}%`,
+           label: `calculated, ${Math.round(rate * 100)}%`,
            covers: 'federal income tax only, assuming the standard deduction' };
 }

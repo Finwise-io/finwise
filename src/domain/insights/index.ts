@@ -46,7 +46,8 @@ export interface InsightInput {
  *
  * Called by ... MK-HM-F-006 money0
  *
- * Reaches ..... 1 function. Change the arithmetic above and these change with it:
+ * Reaches ..... 3 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *               MK-HM-F-006 money0
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
@@ -59,7 +60,7 @@ export interface InsightInput {
  * Changed ..... not in git yet (—)
  */
 const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
-/* ─ MK-HM-F-006 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
+/* ─ MK-HM-F-006 ───────────────────────────────────────────────────────────────── 3 · DEPENDENT
  * money0
  *
  * Answers ..... NOT DETERMINED — the code carries no note saying what this is for, and it has no row in the old inventory. Needs reading.
@@ -67,7 +68,10 @@ const pctTxt = (d: number) => `${Math.round(d * 100)}%`;
  * Formula .....
  *     NOT READ YET — the body is not a shape this can render faithfully, so nothing is claimed rather than something being guessed. It needs reading by hand.
  *
- * Called by ... nothing — it is an entry point, or nothing reaches it
+ * Called by ... MK-CF-O-001 basePay
+ *
+ * Reaches ..... 2 functions. Change the arithmetic above and these change with it:
+ *               MK-CF-O-001 basePay · MK-CF-O-004 incomeSummary
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  * Reads ....... MK-XS-I-027 goals (target, saved, date)

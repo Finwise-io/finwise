@@ -16,7 +16,7 @@ import { inMonth, DEBT_CATEGORY, type LoggedExpense } from './logged-expenses';
 
 export interface MonthInput {
   ym: string;                    // 'YYYY-MM' — the month being shown
-  takeHomeMonthly: number;       // from basePay — what lands in the bank
+  takeHomeMonthly: number;       // from basePay — the take-home
   debts: Debt[];
   plannedExpenses: number;       // from plannedMonthlySpend — the ONE canonical planned figure
   expenses: LoggedExpense[];     // everything logged, debt payments included
@@ -42,17 +42,17 @@ export interface MonthBlock { lines: Line[]; surplus: number; }
  *               MK-HM-F-006 money0 · MK-NW-F-008 incomeBearingClassOf
  *               MK-PL-F-022 goalProgressPct
  *
- * Reaches ..... 45 functions. Change the arithmetic above and these change with it:
+ * Reaches ..... 47 functions. Change the arithmetic above and these change with it:
  *               MK-NW-F-005 accountAllowsTicker · MK-NW-F-027 accountClassBreakdown
  *               MK-CF-F-005 actualMonthFlow · MK-NW-F-002 alternativesSummary
  *               MK-NW-F-019 alternativesTotal · MK-NW-F-029 assetAllocation
  *               MK-NW-F-011 assetClassOf · MK-NW-F-007 assetKind
- *               MK-NW-F-036 benchmarkInfo · MK-NW-F-034 benchmarkReturn
- *               MK-NW-F-037 blendedReturn · MK-NW-F-035 blendedVolatility
- *               MK-CF-F-107 buildPaycheckYear · MK-XS-F-031 buildSnapshot
- *               MK-NW-F-016 cashTotal · MK-PL-F-077 clamp
- *               MK-NW-F-053 correctClassOf · MK-NW-F-030 earmarkDefault
- *               … and 27 more — the full list is on functions_from_code
+ *               MK-CF-O-001 basePay · MK-NW-F-036 benchmarkInfo
+ *               MK-NW-F-034 benchmarkReturn · MK-NW-F-037 blendedReturn
+ *               MK-NW-F-035 blendedVolatility · MK-CF-F-107 buildPaycheckYear
+ *               MK-XS-F-031 buildSnapshot · MK-NW-F-016 cashTotal
+ *               MK-PL-F-077 clamp · MK-NW-F-053 correctClassOf
+ *               … and 29 more — the full list is on functions_from_code
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
@@ -62,14 +62,14 @@ export interface MonthBlock { lines: Line[]; surplus: number; }
 const cash = (n: number): number => (n === 0 ? 0 : round2(n));
 
 
-/** THE PLAN for this month: what lands, less each debt, less planned spending.
+/** THE PLAN for this month: the take-home, less each debt, less planned spending.
  *
  *  Each debt is its own line — never lumped into "bills + debt". A person chasing a wrong figure
  *  can see which debt it came from without opening another screen. */
 /* ─ MK-CF-F-156 ────────────────────────────────────────── 3 · DEPENDENT (feeds an action only)
  * plannedMonthFlow
  *
- * Answers ..... THE PLAN for this month: what lands, less each debt, less planned spending.
+ * Answers ..... THE PLAN for this month: the take-home, less each debt, less planned spending.
  *
  * Formula .....
  *     lines = [{ label: 'in (take − home)', amount: round2(take home monthly), kind: 'in' }]

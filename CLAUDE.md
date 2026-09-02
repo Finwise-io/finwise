@@ -44,6 +44,16 @@ the founder had approved all of it. Never again.
 - Take-home = after tax AND 401(k). Surplus = take-home − spending − debt (after debt), labeled
   Actual (this month) / Planned (from the plan). Canonical labels live in `docs/finwise-taxonomy-spec.md`.
 
+## ONE TERM PER CONCEPT — app-wide standing order (founder, 2026-09-02)
+- "Always use same words to describe same thing in the app. There is no score for creative writing
+  use different terms to describe same thing." One canonical word per concept in EVERY user-visible
+  string; synonyms are RETIRED. The canon table lives in `docs/finwise-taxonomy-spec.md`
+  (§ One term per concept); `src/__tests__/one_term_per_concept.test.ts` scans `src/` and
+  `MoneyKeel/functions` (comments included) and fails the build on any retired word.
+- Adding copy? Check the canon FIRST. Naming a new concept? Pick its word, add the row, and put the
+  synonyms on the retired list in the same commit. Current canon: **take-home** (never "lands in
+  your bank", "takes home"), **calculated** (never "worked out", "our estimate", "Estimated" rows).
+
 ## MOCK-FIRST — standing order (2026-07-19, after the build-43 trust breach)
 - EVERY screen change gets a mock-up saved in `MoneyKeel/documents/<domain>/` BEFORE it is built — named by the
   file-and-folder standard (`moneykeel_pres_mock_<descriptor>_vNN.html`), NEVER overwritten: the

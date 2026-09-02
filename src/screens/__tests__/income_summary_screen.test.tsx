@@ -22,7 +22,7 @@ const HOUSE: any = {
 test('5a — two totals, each named', () => {
   set(HOUSE);
   render(<IncomeSummaryScreen />);
-  expect(screen.getByText('What lands each month')).toBeOnTheScreen();
+  expect(screen.getByText('Take-home each month')).toBeOnTheScreen();
   expect(screen.getByText('What it is taxed on')).toBeOnTheScreen();
   expect(screen.getByText('= A usual month')).toBeOnTheScreen();
   expect(screen.getByText('= Gross a year')).toBeOnTheScreen();
@@ -58,14 +58,14 @@ test('without a rate of their own it says the bracket and what the estimate assu
   set({ baseSalary: '7000', salaryFreq: 'monthly' });
   render(<IncomeSummaryScreen />);
   expect(screen.getByText('Federal tax bracket')).toBeOnTheScreen();
-  expect(screen.getByText('Estimated federal tax')).toBeOnTheScreen();
+  expect(screen.getByText('Calculated federal tax')).toBeOnTheScreen();
   expect(screen.getByText('assumes you take the standard deduction')).toBeOnTheScreen();
 });
 
 test('5b — a fresh account keeps both headings and shows no invented $0', () => {
   set({});
   render(<IncomeSummaryScreen />);
-  expect(screen.getByText('What lands each month')).toBeOnTheScreen();
+  expect(screen.getByText('Take-home each month')).toBeOnTheScreen();
   expect(screen.getByText('What it is taxed on')).toBeOnTheScreen();
   expect(screen.getAllByText('—')).toHaveLength(2);
   expect(screen.queryByText(/\$0/)).toBeNull();

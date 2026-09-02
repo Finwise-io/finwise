@@ -1,6 +1,6 @@
-/**  WHAT YOUR OWN ACCOUNTS PAY YOU — worked out, with the working shown.
+/**  WHAT YOUR OWN ACCOUNTS PAY YOU — calculated, with the working shown.
  *
- *  The app holds the accounts, so it can work this out rather than ask. Asking invites a second,
+ *  The app holds the accounts, so it can calculate this rather than ask. Asking invites a second,
  *  different answer to one question with nothing to reconcile them (approved mock income-v5, 3c).
  *
  *  IT DOES NOT ADD UP HISTORY AND FORECAST. Three screens showed

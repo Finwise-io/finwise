@@ -27,7 +27,7 @@ function RoomCard({ icon, title, limit, used, knownUsed, catchUp, how, note }: {
       </View>
       <ProgressBar pct={Math.round(pct)} color={room > 0 ? Colors.primary : Colors.successGreen} height={7} />
       <Text style={s.line}>
-        {knownUsed ? `That is about ${money(used)} of the ${money(limit)} limit — worked out from what you told us you contribute each month, not from your payroll, so check it against your latest statement.` : `The ${IRS_LIMITS.year} limit is ${money(limit)}.`}
+        {knownUsed ? `That is about ${money(used)} of the ${money(limit)} limit — calculated from what you told us you contribute each month, not from your payroll, so check it against your latest statement.` : `The ${IRS_LIMITS.year} limit is ${money(limit)}.`}
         {catchUp ? ' (Includes the age-50+ catch-up.)' : ''}
       </Text>
       {note ? <Text style={s.note}>{note}</Text> : null}

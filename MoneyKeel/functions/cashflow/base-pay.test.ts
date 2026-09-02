@@ -174,3 +174,46 @@ describe('the orchestrator', () => {
     }
   });
 });
+
+// ── v6, from the founder's build-54 device test (2026-09-02) ───────────────────────────────────
+describe('the card adds up, and every figure says whose it is (mock v6, rule 8e)', () => {
+  const YOU = steady();                                                            // $84,000, lands 5,000
+  const SAM = steady({ grossTypical: 4500, monthly401k: 400, landsTypical: 3300 }); // $54,000
+  const SAM_SILENT = steady({ grossTypical: 4500, monthly401k: 400, landsTypical: undefined });
+
+  it("THE LAW: 'Both of us' is never banded as single — jointly is assumed and SAID", () => {
+    const p = basePay({ earners: [{ name: 'You', entry: YOU }, { name: 'Sam', entry: SAM }],
+                        filingStatus: 'married', profile: { whoEarns: 'both' } });
+    // on $138,000 the single band is 24%+ territory read wrong; jointly it is 22%
+    expect(Math.round(p.bandOnEveryWage * 100)).toBe(22);
+    expect(p.tax.statusAssumed).toBe(true);                 // no filing answer yet → said, not silent
+  });
+
+  it('THE LAW: when nobody told us, gross − tax − 401(k)s = lands, TO THE CENT', () => {
+    const you = steady({ landsTypical: undefined });
+    const p = basePay({ earners: [{ name: 'You', entry: you }, { name: 'Sam', entry: SAM_SILENT }],
+                        filingStatus: 'married', profile: { whoEarns: 'both', baseSalary: '7000',
+                          salaryFreq: 'monthly', hasPartner: 'yes', whoEarns2: undefined,
+                          partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } } });
+    expect(p.tax.mode).toBe('estimated');
+    const identity = p.grossAnnual / 12 - p.tax.monthly - p.monthly401k;
+    expect(p.landsInBank).toBeCloseTo(identity, 1);         // build 54 was $1,280/mo off itself
+  });
+
+  it('THE LAW: a mixed household shows NO single tax row, and the sentence names each figure', () => {
+    const p = basePay({ earners: [{ name: 'You', entry: YOU }, { name: 'Sam', entry: SAM_SILENT }],
+                        filingStatus: 'married', profile: { whoEarns: 'both', baseSalary: '7000',
+                          salaryFreq: 'monthly', partnerWage: { baseSalary: '4500', salaryFreq: 'monthly' } } });
+    expect(p.tax.mode).toBe('mixed');
+    expect(p.landsEstimated).toBe(true);                    // the total wears ≈
+    expect(p.landsNote).toMatch(/Your take-home: \$5,000 \(you entered\)/);
+    expect(p.landsNote).toMatch(/Sam’s take-home: ≈\$[\d,]+ \(calculated/);
+    // entered beats estimated: your figure is exactly what you typed
+    expect(p.earners[0].pay.landsInBank).toBe(5000);
+  });
+
+  it('THE LAW: everything-else-monthly is the annual figure ÷ 12, produced by the FUNCTION', () => {
+    const p = earnerPay(steady());
+    expect(p.everythingElseMonthly).toBeCloseTo((p.everythingElse as number) / 12, 2);
+  });
+});

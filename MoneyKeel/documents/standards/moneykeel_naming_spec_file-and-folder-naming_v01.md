@@ -25,6 +25,9 @@ date** in its name is the live one, and the moment it is replaced it gains its d
 4. `home-screen` — the glance, insights, what greets the person.
 5. `other` — serves several screens at once: **tax**, and anything that is no single screen's own.
 6. `standards` — the rules themselves.
+7. `audit` — verification records: per-build device-test sheets, audit findings and outcomes.
+   Added by the founder 2026-09-01: checking the work is its own kind of paper, and filing test
+   sheets under `standards` (or the old `docs/`) hid the record of what was verified.
 
 ### Where the founder placed the shared machinery (2026-08-22)
 
@@ -52,9 +55,12 @@ and once it is superseded, the same name with its date in front:
 | Date | Only on superseded copies, in `archive/`. **The live file carries no date.** | `2026-08-22` |
 | Domain | The product | `moneykeel` (older files keep `finwise` until next touched) |
 | Layer | What kind of work it is | `naming` standards and dictionaries · `calc` maths and engines · `data` schemas and contracts · `pres` screens and mockups |
-| Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `master`, `mock`, `mockup`, `component` |
+| Type | What the artifact is | `spec`, `enum`, `engine`, `formula`, `schema`, `master`, `audit`, `mock`, `mockup`, `component` |
 | Descriptor | **The only part you invent** — see the rule below | `will-money-last`, `monte-carlo-simulator` |
 | Version | Lifecycle | `v01`, `v02`, `draft`, `final` |
+
+`audit` was added 2026-09-01 with the folder of the same name — a test sheet is not a spec,
+and rule 5 would otherwise force it into `standards`.
 
 `master` was added 2026-08-28 (founder). It is the one workbook that carries every metric, input and
 function on one page — `moneykeel_calc_master_calculation-master_v01.xlsx`. It existed before the

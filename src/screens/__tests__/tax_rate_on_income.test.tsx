@@ -20,12 +20,15 @@ const set = (op: any) => useStore.setState({ onboardingProfile: op, onboardingCo
 const TOLD_US   = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800', landsTypical: '5000' };
 const ESTIMATED = { baseSalary: '7000', salaryFreq: 'monthly', c_401k: '800' };   // no landsTypical
 
-test('when they told us what lands, the tax is THEIRS — not an estimate', () => {
+test('when they told us what lands, the figures are THEIRS — read back, never estimated', () => {
   set(TOLD_US);
   render(<BasePayScreen />);
-  expect(screen.getByText('Tax')).toBeOnTheScreen();                    // not "Estimated federal tax"
-  expect(screen.getByText(/your figures, \d+%/)).toBeOnTheScreen();     // and it says whose
-  expect(screen.queryByText('Estimated federal tax')).toBeNull();
+  // v6: the entered card shows their own figure back — "Everything taken out · what you told us" —
+  // and says in a sentence that nothing is estimated.
+  expect(screen.getAllByText('Everything else taken out').length).toBeGreaterThan(0);
+  expect(screen.getByText('what you told us')).toBeOnTheScreen();
+  expect(screen.getByText(/nothing here is calculated/)).toBeOnTheScreen();
+  expect(screen.queryByText('Calculated federal tax')).toBeNull();
   expect(screen.queryByText(/Federal income tax only\./)).toBeNull();   // no shortfall warning
 });
 
@@ -33,12 +36,13 @@ test('the bracket is NAMED, and the estimate says what it assumed', () => {
   set(ESTIMATED);
   render(<BasePayScreen />);
   expect(screen.getByText('Federal tax bracket')).toBeOnTheScreen();
-  expect(screen.getByText('Estimated federal tax')).toBeOnTheScreen();
+  expect(screen.getByText('Calculated federal tax')).toBeOnTheScreen();
   expect(screen.getByText('assumes you take the standard deduction')).toBeOnTheScreen();
   // the tax figure is MONEY, as a payslip shows it — never a percentage. Two rows carry a ≈$/mo
   // figure here: the tax, and what lands. Neither may carry a % — that was the confusion.
-  expect(screen.getAllByText(/^≈\$[\d,]+\/mo$/)).toHaveLength(2);
-  expect(screen.queryByText(/\$[\d,]+ · \d+%/)).toBeNull();
+  // v6: three ≈ figures — the band echo, the estimated tax, and the lands total (#7, #8)
+  expect(screen.getAllByText(/^≈\$[\d,]+\/mo$/).length).toBeGreaterThanOrEqual(2);
+  expect(screen.queryByText(/\$[\d,]+ · \d+%$/)).toBeNull();
 });
 
 test('when we are estimating, it names the shortfall IN MONEY', () => {

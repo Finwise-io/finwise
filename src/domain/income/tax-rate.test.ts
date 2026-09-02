@@ -45,12 +45,12 @@ test('THE LAW: one silence and the household figure is ours again', () => {
   expect(rateInForce(half).source).toBe('estimated');
 });
 
-test('THE LAW: our estimate says it is ours, and what it covers', () => {
+test('THE LAW: the calculated rate says it is ours, and what it covers', () => {
   const r = rateInForce(SILENT);
   expect(r.source).toBe('estimated');
   expect(r.mine).toBe(false);
   expect(r.covers).toMatch(/federal income tax only/);
-  expect(r.label).toMatch(/^our estimate, \d+%$/);
+  expect(r.label).toMatch(/^calculated, \d+%$/);
 });
 
 test('THE LAW: effectiveRate IS the rate in force — never a second opinion', () => {

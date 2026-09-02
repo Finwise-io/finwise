@@ -179,7 +179,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
       assetAccounts: [{ asset_id: 'b1', label: 'Brokerage', kind: 'brokerage', tax_bucket: 'TAXABLE', balance: 200000, target_return: 0.08 }],
     } as any);
     render(<WhatIfScreen />);
-    expect(screen.getAllByLabelText('What is How we work out your odds?').length).toBe(2);
+    expect(screen.getAllByLabelText('What is How we calculate your odds?').length).toBe(2);
     // founder's approved wording (2026-07-19), near-verbatim
     // REWRITTEN 2026-08-11 (founder ask): the whole method, for someone who does not follow finance —
     // what we run, what Monte Carlo means, every assumption, and where to change them.
@@ -193,7 +193,7 @@ describe('R6 · What-if (lookahead-v3 FINAL): inline sliders, canonical saves, i
     expect(body).toMatch(/Shares and funds 10\.4%/);
     expect(body).toMatch(/bonds and CDs 4\.2%/);
     expect(body).toMatch(/shares ±18%/);                       // the swing, per year
-    expect(body).toMatch(/a rate worked out from your own income and filing status/);   // B4/E8: no flat 22% any more
+    expect(body).toMatch(/a rate calculated from your own income and filing status/);   // B4/E8: no flat 22% any more
     expect(body).toMatch(/the dice are seeded/);               // same answer every time
     expect(body).toMatch(/Plan tab and open Retirement/);      // where to change them
     expect(body).toMatch(/WHAT THIS IS NOT — a promise/);      // and the honest limits

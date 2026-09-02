@@ -182,7 +182,7 @@ export function wageGrossByMonth(w: Record<string, any> | null): number[] {
     : new Array(12).fill(typical);
   // THE GROSS-UP BRANCH IS GONE (build step 2, 2026-08-28). It used to invert the tax schedule here
   // to find a gross that would produce a take-home someone had typed — a guess laid on an estimate,
-  // re-run on every read. The approved screen asks for gross AND what lands as two figures that must
+  // re-run on every read. The approved screen asks for gross AND the take-home as two figures that must
   // reconcile, and a profile saved before that is converted once on its way into the store.
   return raw.map((x) => round2(x));
 }
@@ -680,7 +680,7 @@ export function extraIncome(op: OnboardingProfile | null): {
   // be counted as money to spend. They were, and that made every surplus, runway and savings figure
   // too generous by the whole dividend: $250 a month on $3,000 a year. Finding B34, approved mock
   // income-v5 frame 3c. They stay in taxableMonthly, because the tax base is unchanged; what changes
-  // is that the income grid now takes this figure back out of what lands in the bank.
+  // is that the income grid now takes this figure back out of the take-home.
   const reinvested = a.invPaidToBank === 'yes' ? 0 : invM;
   return {
     taxableMonthly: round2(seM + invM + (othTaxable ? othM : 0)),
@@ -1282,8 +1282,9 @@ export function taxableAnnual(op: OnboardingProfile | null, now: Date = new Date
  *
  * Formula .....
  *     a = op (or none when missing)
+ *     who = who earns
  *     the answer:
- *     'married'   if has partner = 'yes'
+ *     'married'   if has partner = 'yes' (or who = 'both' (or who = 'partner' when missing or zero) when missing or zero)
  *     'single'   otherwise
  *     v = filing status
  *
@@ -1316,7 +1317,13 @@ export function filingStatusOf(op: OnboardingProfile | null): import('./tax').Fi
   // this fell back to 'single' for them, which is finding B31: every couple taxed as one person, on
   // five surfaces, worth $328–$866 a month. The screen still asks, and their answer always wins.
   if (a.filingStatus == null || a.filingStatus === '') {
-    return a.hasPartner === 'yes' ? 'married' : 'single';
+    // Saying "Both of us" (or "Just my partner") on the base-pay screen is telling us there is a
+    // partner, even though the partner QUESTION comes later in the flow. Build 54 banded a
+    // two-earner household as single because this read only hasPartner — 32% where jointly reads
+    // 24% (founder's device test, 2026-09-02). Assumed status is STATED on screen, and the filing
+    // answer still always wins.
+    const who = a.whoEarns;
+    return a.hasPartner === 'yes' || who === 'both' || who === 'partner' ? 'married' : 'single';
   }
   const v = a.filingStatus;
   return v === 'married' || v === 'mfs' || v === 'hoh' ? v : 'single';
@@ -1403,7 +1410,7 @@ export function monthlyTaxRates(op: OnboardingProfile | null, now: Date = new Da
   // WHEN THE RATE IS THEIRS, IT IS THE RATE — every month, flat. Progressive bracket-filling is how
   // we work out a rate we were not given; running it over one the person handed us would replace
   // their answer with our guess. Until 2026-08-28 this checked only taxMode, so a household that had
-  // told us exactly what lands in the bank still had it re-estimated here, and the income grid
+  // entered an exact take-home still had it re-estimated here, and the income grid
   // disagreed with the base-pay screen by $572 a month on the founder's own persona.
   const { rateInForce } = require('./tax-rate');
   if (rateInForce(op).mine) return new Array(12).fill(flat);
@@ -1696,7 +1703,7 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
   const bonusIdx = Math.min(11, Math.max(0, (toNum(a.bonusMonth) || 12) - 1));   // bonus month (default December)
   const otherIdx = otherIncomeMonth(op) - 1;                                      // one-time other → its month
   // B05 (2026-08-26): ONE definition of the taxable base, shared with the withholding rate.
-  // These four lines used to be copied here verbatim. The rate is worked out as tax ÷ taxable in
+  // These four lines used to be copied here verbatim. The rate is calculated as tax ÷ taxable in
   // taxableByCalendarMonth and then applied to this number, so if the two ever drifted apart the
   // tax would be wrong in a way nothing could see. They cannot drift now.
   const taxableByMonth = taxableByCalendarMonth(op, now);   // 401(k) already removed — it is pre-tax
@@ -1711,11 +1718,11 @@ export function incomeMonthlyGrid(op: OnboardingProfile | null, mode: 'gross' | 
     const gross = earnedBefore401k + nontax - ex.reinvestedMonthly;
     // The three stages stay three stages, and the waterfall still reads
     //     gross − tax = net,   net − 401(k) = available.
-    // What changed on 2026-08-26 is only the BASE the tax is worked out on: `taxable` now has the
+    // What changed on 2026-08-26 is only the BASE the tax is calculated on: `taxable` now has the
     // 401(k) already removed, because it is taken from pay before tax. Collapsing net into
     // available — which an earlier attempt at this fix did — makes the 401(k) stage read zero and
     // breaks that waterfall, so the two are kept apart deliberately.
-    // WHOSE RATE DECIDES WHAT IT IS A SHARE OF. Ours is worked out as tax ÷ taxable, so it applies to
+    // WHOSE RATE DECIDES WHAT IT IS A SHARE OF. Ours is calculated as tax ÷ taxable, so it applies to
     // `taxable`. Theirs comes off a payslip — everything that came out, divided by everything they
     // earned — so it applies to what the job actually paid, BEFORE the 401(k). Applying a rate of
     // gross to a base that already has the 401(k) removed understates the tax by the rate times the

@@ -82,7 +82,7 @@ export default function FilingStatusScreen({ frame = 'screen', onDone }: {
             )}
             <Text style={s.big}>{money((asSingle - asChosen) / 12)} a month more</Text>
             <Text style={s.note}>
-              lands in your bank than we were showing you — {money((asSingle - asChosenBoth65) / 12)} if you are
+              take-home than we were showing you — {money((asSingle - asChosenBoth65) / 12)} if you are
               both over 65. Federal only: it knows nothing about your state.
             </Text>
           </View>

@@ -147,8 +147,8 @@ export default function RothScreen() {
             <SectionBand title="THE COST NOW" />
             <Text style={s.bigLine}>Tax bill next April: about {maskedMoney(taxCost)}</Text>
             <TouchableOpacity accessibilityRole="button" onPress={() => setRateOpen(!rateOpen)}
-              accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'set by you' : 'estimated from your income'}. Tap to change it.`}>
-              <Text style={s.link}>Rate used: {Math.round(rate * 100)}% ({rateOverride !== '' ? 'set by you' : 'estimated from your income'}) · change it ›</Text>
+              accessibilityLabel={`Tax rate used: ${Math.round(rate * 100)} percent, ${rateOverride !== '' ? 'set by you' : 'calculated from your income'}. Tap to change it.`}>
+              <Text style={s.link}>Rate used: {Math.round(rate * 100)}% ({rateOverride !== '' ? 'set by you' : 'calculated from your income'}) · change it ›</Text>
             </TouchableOpacity>
             {rateOpen && (
               <TextInput style={s.rateInput} keyboardType="decimal-pad" placeholder={`${Math.round((estRate ?? 0.22) * 100)}`}

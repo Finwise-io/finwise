@@ -30,6 +30,20 @@ user‑facing word on every surface. The single source is **`ASSET_CLASS_LABEL`*
 The Net Worth donut and onboarding read these. The onboarding goal is **"Track my real estate & personal
 property"** (was "property & belongings"). Guarded by `naming_consistency.test.ts`.
 
+#### ONE TERM PER CONCEPT — app-wide standing order (founder, 2026-09-02)
+> "Always use same words to describe same thing in the app. There is no score for creative
+> writing use different terms to describe same thing."
+
+Every concept has ONE canonical word in user-visible copy; its synonyms are RETIRED and the guard
+`src/__tests__/one_term_per_concept.test.ts` fails the build if a retired word appears anywhere in
+`src/` or `MoneyKeel/functions` (comments included — a comment is how a synonym creeps back).
+When a new concept gets its word, the synonyms go on the retired list in the SAME commit.
+
+| concept | canonical word | retired |
+|---|---|---|
+| money after tax and everything taken out | **take-home** | lands in your bank · what lands · takes home |
+| a figure the app computed, not entered | **calculated** | worked out · our estimate · "Estimated …" row labels |
+
 | Old (muddled) | New (canonical) |
 |---|---|
 | `kind` (mixed instrument+wrapper) | `assetClass` + `taxTreatment` (split) |

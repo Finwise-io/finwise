@@ -127,7 +127,7 @@ test('first day: locked sample gauge + the dynamic door counting ONLY missing an
   render(<PlanHubScreen />);
   expect(screen.getByText(/Sample: 84% odds of lasting to age \d+/)).toBeOnTheScreen();
   // the door became the state: the box names exactly what is missing, and the row wears MISSING
-  expect(screen.getByText(/can't work them out yet\. Add what you spend/)).toBeOnTheScreen();
+  expect(screen.getByText(/can't be calculated yet\. Add what you spend/)).toBeOnTheScreen();
   expect(screen.getByText(/MISSING/)).toBeOnTheScreen();
   // (the old doorSub list is gone — the box above names it, and the row itself wears MISSING)
   expect(screen.getByText(/What you have — already in: 1 account, \$162,000 counted/)).toBeOnTheScreen();

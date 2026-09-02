@@ -25,7 +25,7 @@ export interface IncomeSummary {
     grossAnnual: number;
     bracket: number;          // the FEDERAL TAX BRACKET, named
     tax: number;              // the year's tax, at whichever rate is in force
-    whose: string;            // 'your rate, 24%' · 'our estimate, 9%'
+    whose: string;            // 'your rate, 24%' · 'calculated, 9%'
     estimated: boolean;
   };
   /** Money that is taxed but never lands — said on the screen so the gap is never a mystery. */
@@ -80,7 +80,7 @@ export function incomeSummary(op: Record<string, any> | null): IncomeSummary {
     filingStatus: filingStatusOf(op as any), over65: over65CountOf(op as any), profile: op,
   });
 
-  // ── what lands ──────────────────────────────────────────────────────────────────────────────
+  // ── the take-home ──────────────────────────────────────────────────────────────────────────────
   const landsLines: Line[] = pay.earners
     .filter((e) => e.pay.landsInBank > 0)
     .map((e) => ({ label: e.name, note: 'after tax and 401(k)', amount: round2(e.pay.landsInBank) }));

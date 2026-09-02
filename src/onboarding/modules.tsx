@@ -13,7 +13,7 @@ import { capitalNeeded } from '../domain/retirement';
 import { createInvite, resendVerification, refreshEmailVerified } from '../services/firebase';
 import { useStore } from '../store/useStore';
 import { savingsByMonth, spendBuckets, annualCashflow } from '../domain/budget';
-// ONE take-home in the whole app. This screen used to work it out for itself — tax on the full
+// ONE take-home in the whole app. This screen used to calculate it for itself — tax on the full
 // gross, then the 401(k) off afterwards — while every other screen read the income grid, where
 // the 401(k) comes off BEFORE tax as a traditional contribution does. $160 a month apart on the
 // employedPartner persona. Same defect as B05, fixed in the grid and never reaching this copy.
@@ -559,7 +559,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
               <Text style={s.label}>Does this reach your bank?</Text>
               <Choice ctx={ctx} k="invPaidToBank" options={[
                 { value: 'no',  title: 'No — it is reinvested', sub: 'It stays where it is earned. Taxed, but not money you can spend.' },
-                { value: 'yes', title: 'Yes — it is paid out',  sub: 'It lands in your bank and you can spend it.' }]} />
+                { value: 'yes', title: 'Yes — it is paid out',  sub: 'It is paid into your bank and you can spend it.' }]} />
             </Card>
             <Callout
               text={`About ${money(annual)} a year`}
@@ -869,7 +869,7 @@ export function renderStep(step: StepId, ctx: StepCtx): React.ReactNode {
           sub={`On ~${money(gross)} gross, from the IRS schedule after the standard deduction. It does NOT include Social Security and Medicare — about another 7.7% of a wage — or any state tax.`} />}
         <Card>
           <Choice ctx={ctx} k="taxMode" options={[
-            { value: 'system', title: `Use our estimate (~${estPct}%)`, sub: 'Federal income tax only' },
+            { value: 'system', title: `Use the calculated rate (~${estPct}%)`, sub: 'Federal income tax only' },
             { value: 'manual', title: 'Tell us what really comes out', sub: 'Everything withheld, from a payslip' }]} />
           {a.taxMode === 'manual' && <NumRow ctx={ctx} k="manualTaxRate" decimal
             label="Everything taken out, as a share of your gross" ph="24" />}

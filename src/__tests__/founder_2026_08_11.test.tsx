@@ -487,7 +487,7 @@ test('the three questions screen shows ALL three, missing first, prefilled with 
   // 2026-08-12: folded into the Plan tab — ONE component for the complete and the missing states
   const PlanHubScreen = require('../screens/PlanHubScreen').default;
   render(<PlanHubScreen />);
-  expect(screen.getByText(/can't work them out yet\. Add what you spend/)).toBeOnTheScreen();
+  expect(screen.getByText(/can't be calculated yet\. Add what you spend/)).toBeOnTheScreen();
   // the answered ones are STILL shown, prefilled, so they can be changed in place
   expect(screen.getByLabelText('Your age in years').props.value).toBe('55');
   expect(screen.getByText('Monthly spending in retirement  MISSING')).toBeOnTheScreen();
@@ -712,7 +712,7 @@ test('the info dot scrolls — a definition longer than the card is no longer un
   const { GLOSSARY } = require('../domain/glossary');
   const flat = (n: any) => Object.assign({}, ...[n.props.style].flat(Infinity).filter(Boolean));
   render(<InfoDot term="nestEggMath" />);
-  fireEvent.press(screen.getByLabelText('What is How we work out your odds?'));
+  fireEvent.press(screen.getByLabelText('What is How we calculate your odds?'));
   // the body sits in a scroller that is capped, so the Got-it button can never be pushed off-screen
   const scrollers = screen.UNSAFE_getAllByType(require('react-native').ScrollView);
   expect(scrollers.length).toBeGreaterThan(0);

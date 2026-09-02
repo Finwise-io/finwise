@@ -4,12 +4,12 @@
  *  then INVERTED the tax schedule to find a gross that would produce it — a guess laid on top of an
  *  estimate, and the only reason grossFromNet exists.
  *
- *  The approved base-pay screen asks differently: gross AND what lands, as two figures that must
+ *  The approved base-pay screen asks differently: gross AND the take-home, as two figures that must
  *  reconcile. So the mode has nothing left to do — but a profile saved before today may still carry
  *  it, and reading that number as gross would overstate someone's income by their whole tax bill.
  *
  *  So it is converted, once, by the only honest reading of what they told us: the number they typed
- *  IS what lands in their bank. Their gross is worked back through the same schedule that used to do
+ *  IS their take-home. Their gross is worked back through the same schedule that used to do
  *  it silently — and from then on both figures are on record and the screen can check them.
  *
  *  This is the last caller of grossFromNet. When no stored profile carries the mode, both go.

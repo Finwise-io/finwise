@@ -361,12 +361,12 @@ function IncomeTab({ op, store, ym, onSetup, onSummary }: { op: any; store: any;
           <Text style={styles.soonPill}>SOON</Text>
         </View>
       </View>
-      {/* Your income, all of it — the summary (approved mock income-v5, 5a). Two totals: what lands,
+      {/* Your income, all of it — the summary (approved mock income-v5, 5a). Two totals: the take-home,
           and what it is taxed on. It reads the rate set on Your base pay and never asks again. */}
       <TouchableOpacity accessibilityRole="button" style={styles.door} onPress={onSummary}
-        accessibilityLabel="Your income, all of it — what lands and what it is taxed on">
+        accessibilityLabel="Your income, all of it — the take-home and what it is taxed on">
         <View style={{ flex: 1 }}><Text style={styles.doorT}>Your income, all of it</Text>
-          <Text style={styles.doorSub}>what lands, and what it is taxed on</Text></View>
+          <Text style={styles.doorSub}>the take-home, and what it is taxed on</Text></View>
         <Text style={styles.link}>Open ›</Text>
       </TouchableOpacity>
 

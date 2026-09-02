@@ -30,7 +30,7 @@ export default function IncomeSummaryScreen() {
       <Text style={s.sub}>Everything coming in, and what reaches your bank</Text>
 
       <View style={s.bandRow}>
-        <Text style={s.band}>What lands each month</Text>
+        <Text style={s.band}>Take-home each month</Text>
         <Text style={s.bandNum}>{sum.ready ? money(sum.lands.usualMonth) : '—'}</Text>
       </View>
       <View style={s.card}>
@@ -69,14 +69,14 @@ export default function IncomeSummaryScreen() {
       </View>
       <View style={s.card}>
         {!sum.ready ? (
-          <Text style={s.empty}>We will work this out once you have told us about a wage.</Text>
+          <Text style={s.empty}>We will calculate this once you have told us about a wage.</Text>
         ) : (
           <>
             {sum.taxed.lines.map((l) => <Row key={l.label} label={l.label} value={money(l.amount)} />)}
             <Row label="= Gross a year" value={money(sum.taxed.grossAnnual)} strong />
             <Row label="Federal tax bracket" note="every source counted"
                  value={`${Math.round(sum.taxed.bracket * 100)}%`} />
-            <Row label={sum.taxed.estimated ? 'Estimated federal tax' : 'Tax'}
+            <Row label={sum.taxed.estimated ? 'Calculated federal tax' : 'Tax'}
                  note={sum.taxed.estimated
                    ? 'assumes you take the standard deduction'
                    : `${sum.taxed.whose} (edit on Your base pay screen)`}
@@ -84,7 +84,7 @@ export default function IncomeSummaryScreen() {
             <Text style={s.note}>
               {sum.taxed.estimated
                 ? 'Federal only — it knows nothing about your state, and nothing about Social Security or Medicare.'
-                : 'Your own rate, used on every figure built from what lands in your bank.'}
+                : 'Your own rate, used on every figure built from your take-home.'}
             </Text>
           </>
         )}

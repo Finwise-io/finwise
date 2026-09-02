@@ -26,7 +26,7 @@ export interface EarnerWage {
   c_401k?: Money;
   employerMatchValue?: Money;
   employerMatchMode?: 'pct' | 'dollar';
-  /** What they say lands in their bank, per period. Used as typed — never grossed up. */
+  /** The take-home they enter, per period. Used as typed — never grossed up. */
   landsTypical?: Money;
 }
 

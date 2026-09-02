@@ -354,14 +354,14 @@ export default function RetirementCockpit() {
         {/* MONTE CARLO — gated behind an explicit run */}
         <View style={styles.card}>
           <Text style={styles.liK}>How confident is this?</Text>
-          <Text style={styles.note}>A Monte Carlo simulation runs this scenario through ~400 random market futures (good and bad return sequences) and counts how often your money lasts to {horizon}. Markets aren't a straight line, so this shows the range of outcomes — not a promise.</Text>
+          <Text style={styles.note}>A Monte Carlo simulation runs this scenario through 1,000 random market futures (good and bad return sequences) and counts how often your money lasts to {horizon}. Markets aren't a straight line, so this shows the range of outcomes — not a promise.</Text>
           {scBand == null ? (
             <TouchableOpacity style={[styles.save, { marginTop: 10 }]} onPress={runMC}><Text style={styles.saveT}>Run Monte Carlo simulation</Text></TouchableOpacity>
           ) : (
             <>
               <View style={[styles.conf, { alignSelf: 'stretch', marginTop: 10 }, scChance != null && scChance < 60 && { backgroundColor: Colors.redLight }]}>
                 <Text style={[styles.confPct, { color: scLevel }]}>{scChance}%</Text>
-                <Text style={styles.confT}>your money lasts to age {horizon} in {scChance}% of ~400 simulated markets</Text>
+                <Text style={styles.confT}>your money lasts to age {horizon} in {scChance}% of 1,000 simulated markets</Text>
               </View>
               <Text style={[styles.section, { marginTop: 14 }]}>RANGE OF OUTCOMES BY AGE</Text>
               <BandChartAuto band={scBand} retireAge={scRetired ? null : Math.max(age + 1, rAge)} />
@@ -548,7 +548,7 @@ export default function RetirementCockpit() {
               <Text style={styles.heroRoi}>at {(planGrowth * 100).toFixed(1)}%/yr</Text>
             </View>
           </View>
-          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across ~400 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
+          {!simple && planChance != null && <Text style={styles.heroExplain}>“{planChance}% chance it lasts to {horizon}” = across 1,000 market simulations, your money doesn't run out before {horizon} in {planChance}% of them.</Text>}
           <Text style={styles.planStmt}>▸ Everything below assumes your plan: retire at {Math.round(planRetireAge)}{planSave > 0 ? `, keep saving ${money(planSave)}/mo` : ''}.</Text>
         </>
       )}

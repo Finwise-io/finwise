@@ -45,6 +45,9 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
   const store = useStore() as any;
   const op = store.onboardingProfile ?? {};
   const partnerName = String(op.partnerName || '').trim() || 'my partner';
+  // 'Your partner' opens a heading; 'your partner' sits inside a sentence. Interpolating the
+  // heading form mid-sentence gave build 54 'Is Your partner's pay…' (founder screenshot #6).
+  const midSentence = (n: string) => (n === 'Your partner' ? 'your partner' : n);
 
   const [who, setWho] = useState<Who>((op.whoEarns as Who) ?? 'you');
   const [mine, setMine] = useState<Record<string, any>>(() => ({ ...op }));
@@ -122,30 +125,43 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
           onToggle={() => setOpen(open === e.key ? null : e.key)} />
       ))}
 
-      <Text style={s.band}>Your household</Text>
+      <View style={s.bandRow}>
+        <Text style={s.band}>Your household</Text>
+        <Text style={s.bandNum}>{`${pay.landsEstimated ? '≈' : ''}${money(pay.landsInBank)}/mo`}</Text>
+      </View>
       <View style={s.card}>
         <Row label="Gross a year" note={wages.length > 1 ? 'both wages' : null} value={money(pay.grossAnnual)} />
-        <Row label={wages.length > 1 ? 'Your tax band on one wage alone' : 'Your tax band'}
-             value={`${Math.round(pay.bandOnOneWage * 100)}%`} />
-        {wages.length > 1 && (
-          <Row label="Your tax band on both" value={`${Math.round(pay.bandOnEveryWage * 100)}%`} />
-        )}
         <Row label="Federal tax bracket"
-             note={wages.length > 1 ? 'on both wages, filing jointly' : 'what your next dollar costs'}
+             note={pay.tax.statusAssumed && wages.length > 1
+               ? 'assumed filing jointly — both of you earn'
+               : wages.length > 1 ? 'on both wages, filing jointly' : 'what your next dollar costs'}
              value={`${Math.round(pay.tax.bracket * 100)}%`} />
-        <Row label={pay.tax.estimated ? 'Estimated federal tax' : 'Tax'}
-             note={pay.tax.estimated ? 'assumes you take the standard deduction' : pay.tax.whose}
-             value={`${pay.tax.estimated ? '≈' : ''}${money(pay.tax.monthly)}/mo`} />
-        <Row label="= Lands in your bank"
-             value={`${pay.tax.estimated ? '≈' : ''}${money(pay.landsInBank)}/mo`} strong />
-        {pay.bandNote && <Text style={s.note}>{pay.bandNote}</Text>}
+        {/* WHICH ROWS APPEAR FOLLOWS WHOSE FIGURES THEY ARE (mock v6, rule 8e). Entered: their own
+            figures read back. Calculated: our row, and the card adds up — gross − tax − 401(k)s =
+            take-home, exactly. Mixed: NO tax row — your tax is already inside your entered figure, so
+            one line for the household would be a number that explains nothing. */}
+        {pay.tax.mode === 'entered' && pay.grossAnnual > 0 && (
+          <Row label="Everything else taken out" note="what you told us"
+               value={`${money((pay.grossAnnual - pay.monthly401k * 12 - pay.landsInBank * 12) / 12)}/mo · ${Math.round(pay.tax.rate * 100)}%`} />
+        )}
+        {pay.tax.mode === 'estimated' && (
+          <>
+            <Row label="Calculated federal tax" note="assumes you take the standard deduction"
+                 value={`≈${money(pay.tax.monthly)}/mo`} />
+            {pay.monthly401k > 0 && <Row label="Your 401(k)s" value={`${money(pay.monthly401k)}/mo`} />}
+          </>
+        )}
+        <Row label="= Take-home"
+             value={`${pay.landsEstimated ? '≈' : ''}${money(pay.landsInBank)}/mo`} strong />
+        {pay.landsNote && <Text style={s.landsNote}>{pay.landsNote}</Text>}
+                {pay.bandNote && <Text style={s.note}>{pay.bandNote}</Text>}
 
         {/* A FIGURE IS CORRECTED WHERE IT IS SHOWN (founder rule 8c). The rate could only be changed
             on the Taxes step inside the guided questionnaire, which was itself unreachable. And the
             words "effective tax rate" appear nowhere: TurboTax divides by adjusted gross income, the
             textbook by taxable income, others by total income — a number a person cannot check. We
             ask for the one they can: what their payslip says comes out. */}
-        {pay.tax.estimated && (
+        {pay.tax.estimated && pay.landsEstimated && (
           <View style={s.warn}>
             <Text style={s.warnT}>
               <Text style={{ fontWeight: '800' }}>Federal income tax only.</Text> Social Security and Medicare take
@@ -159,7 +175,7 @@ export default function BasePayScreen({ frame = 'screen', onDone }: {
         <Text style={s.q}>The tax rate you want us to use</Text>
         <Text style={s.qsub}>
           Everything that comes out, as a share of your gross — from a payslip, add up every deduction except your
-          401(k) and divide by the gross. Leave it blank to use our estimate.
+          401(k) and divide by the gross. Leave it blank to use the calculated rate.
         </Text>
         <TextInput style={s.input} keyboardType="numeric" accessibilityLabel="The tax rate you want us to use"
           value={op.taxMode === 'manual' && op.manualTaxRate != null ? String(op.manualTaxRate) : ''}
@@ -200,6 +216,7 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
   pay?: EarnerPay; open: boolean; onToggle: () => void;
 }) {
   const freq = String(wage.salaryFreq ?? 'monthly');
+  const midName = name === 'Your partner' ? 'your partner' : name;   // lowercase mid-sentence (#6)
   const varies = wage.salaryMonthMode === 'months';
   const set = (k: string, v: any) => onChange({ ...wage, [k]: v });
   // Fourteen months, last month to twelve ahead — the window the approved screen asks for, and the
@@ -207,7 +224,7 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
   const keys = useMemo(() => monthWindow(new Date(), 1, 14), []);
   const table = salaryMonths(wage as any);
   const summary = pay
-    ? `${FREQ_WORD[freq]} · ${varies ? 'varies' : 'the same each month'} · ${money(pay.landsInBank)} lands`
+    ? `${FREQ_WORD[freq]} · ${varies ? 'varies' : 'the same each month'} · ${pay.landsIsEstimated ? `take-home ≈${money(pay.landsInBank)} (calculated)` : `take-home ${money(pay.landsInBank)}`}`
     : FREQ_WORD[freq];
 
   return (
@@ -226,7 +243,7 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
 
       {open && (
         <View style={s.card}>
-          <Text style={s.q}>How often {name === 'You' ? 'you are' : `${name} is`} paid</Text>
+          <Text style={s.q}>How often {name === 'You' ? 'you are' : `${midName} is`} paid</Text>
           <View style={s.segRow}>
             {FREQS.map((f) => (
               <TouchableOpacity key={f.k} accessibilityRole="radio" accessibilityState={{ selected: freq === f.k }}
@@ -237,7 +254,7 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
             ))}
           </View>
 
-          <Text style={s.q}>Is {name === 'You' ? 'your' : `${name}’s`} pay the same every month?</Text>
+          <Text style={s.q}>Is {name === 'You' ? 'your' : `${midName}’s`} pay the same every month?</Text>
           <View style={s.segRow}>
             {([['same', 'The same'], ['months', 'It varies']] as [string, string][]).map(([v, label]) => (
               <TouchableOpacity key={v} accessibilityRole="radio" accessibilityState={{ selected: (varies ? 'months' : 'same') === v }}
@@ -268,11 +285,12 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
             </View>
           )}
 
-          <Field label={`Into ${name === 'You' ? 'your' : `${name}’s`} 401(k) each month`}
-            hint="Their own contribution, not their employer’s match."
+          <Field label={`Into ${name === 'You' ? 'your' : `${midName}’s`} 401(k) each month`}
+            hint={name === 'You' ? 'Your own contribution, not your employer’s match.'
+                                 : `${midName}’s own contribution, not their employer’s match.`}
             value={wage.c_401k} onChangeText={(v) => set('c_401k', v)} />
 
-          <Text style={s.q}>{name === 'You' ? 'Your' : `${name}’s`} employer’s match</Text>
+          <Text style={s.q}>{name === 'You' ? 'Your' : `${midName}’s`} employer’s match</Text>
           <Text style={s.qsub}>A share of what they put in, or a flat amount.</Text>
           <View style={s.segRow}>
             {([['pct', '% of theirs'], ['dollar', 'A set amount']] as [string, string][]).map(([v, label]) => (
@@ -286,16 +304,16 @@ function EarnerSection({ name, wage, onChange, pay, open, onToggle }: {
           <Field label="" value={wage.employerMatchValue} onChangeText={(v) => set('employerMatchValue', v)}
             a11y={`${name} employer match amount`} />
 
-          <Field label={`What lands in ${name === 'You' ? 'your' : `${name}’s`} bank each month`}
+          <Field label={`${name === 'You' ? 'Your' : `${midName}’s`} take-home each month`}
             hint="After tax and everything else taken out of the pay."
             value={wage.landsTypical} onChangeText={(v) => set('landsTypical', v)} />
 
-          {pay && pay.everythingElse != null && (
+          {pay && pay.everythingElseMonthly != null && (
             <>
-              <Row label="Everything else taken out" value={money(pay.everythingElse)} />
+              <Row label="Everything else taken out" value={`${money(pay.everythingElseMonthly)}/mo`} />
               <Text style={s.qsub}>
-                {Math.round((pay.everythingElse / (pay.grossAnnualised || 1)) * 100)}% of the gross. Tax, medical
-                cover and anything else bought through work — we do not need to ask about each.
+                {Math.round(((pay.everythingElse ?? 0) / (pay.grossAnnualised || 1)) * 100)}% of the gross. Tax,
+                medical cover and anything else bought through work — we do not need to ask about each.
               </Text>
             </>
           )}
@@ -359,6 +377,7 @@ const s = StyleSheet.create({
   rowV: { fontSize: 15, fontWeight: '700', color: Colors.textPrimary, fontVariant: ['tabular-nums'] },
   rowVStrong: { fontSize: 17, fontWeight: '800' },
   note: { fontSize: 11, color: Colors.textSecondary, lineHeight: 17, marginTop: 8 },
+  landsNote: { fontSize: 13, color: Colors.textPrimary, lineHeight: 18, marginTop: 8, backgroundColor: Colors.bgSecondary, borderLeftWidth: 3, borderLeftColor: Colors.primary, paddingVertical: 6, paddingHorizontal: 10 },
   warn: { backgroundColor: Colors.redLight, borderRadius: Radii.sm, padding: 12, marginTop: 12 },
   warnT: { fontSize: 13, color: Colors.red, lineHeight: 18, fontWeight: '600' },
   cta: { backgroundColor: Colors.primary, borderRadius: Radii.md, minHeight: 52, justifyContent: 'center', alignItems: 'center', marginTop: 24 },

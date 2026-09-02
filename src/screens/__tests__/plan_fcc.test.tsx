@@ -53,7 +53,7 @@ test('typing an amount → the tax line (estimate, editable rate) + the two late
   render(<RothScreen />);
   fireEvent.changeText(screen.getByLabelText('Amount to convert this year'), '25000');
   expect(screen.getByText(/Tax bill next April: about \$/)).toBeOnTheScreen();
-  expect(screen.getByText(/estimated from your income.*change it/)).toBeOnTheScreen();
+  expect(screen.getByText(/calculated from your income.*change it/)).toBeOnTheScreen();
   expect(screen.getByText(/Estimate — your tax preparer has the exact number/)).toBeOnTheScreen();
   expect(screen.getByText(/a year smaller/)).toBeOnTheScreen();                    // RMD effect
   expect(screen.getByText(/\$118,000 → /)).toBeOnTheScreen();                      // tax-free bucket grows
