@@ -542,7 +542,7 @@
   "proof": "the formula-agreement gate · check-rulings-in-file.py (fails if the row loses this)",
   "coded": "2026-09-09",
   "verified": "",
-  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build.",
+  "notes": "File-only ruling: CODED is its last stage before your VERIFIED mark (objectives standard, \"How a ruling is tracked\"). TESTED 2026-09-12: the row's expected text is checked against the built file on every build. SUPERSEDED IN PART 2026-09-14: the nearest-5 rounding is replaced by \"Odds — exact, no rounding\"; the 1,000 futures and the removed band stand.",
   "expect": [
    {
     "tab": "multiple_screens",
@@ -550,7 +550,7 @@
     "col": "Formula (in words)",
     "contains": [
      "1,000 simulated futures",
-     "nearest 5",
+     "no rounding",
      "The best-to-worst band was removed"
     ]
    }
@@ -1123,7 +1123,7 @@
   "proof": "src/screens/__tests__/cashflow_fcc.test.tsx· src/screens/__tests__/will_it_last_detail.test.tsx",
   "coded": "2026-09-12 (tallied)",
   "verified": "",
-  "notes": ""
+  "notes": "SUPERSEDED IN PART 2026-09-14: nearest 5 replaced by \"Odds — exact, no rounding\"."
  },
  {
   "id": "Brief B7",
@@ -1873,10 +1873,10 @@
   "source": "chat, 2026-09-14 (\"one door one term rule - so change on all.\")",
   "ruling": "one door one term rule - so change on all.",
   "rows": "src/constants/doors.ts · Home first-run block · Sharpen your plan · Plan tab, What counts toward retirement · Net worth first day · Net worth add sheet · Connect an account screen · Performance · MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "CODED",
+  "code": "Net worth built (v08): ADD_ACCOUNT_DOORS + ADD_ACCOUNT_QUESTION in src/constants/doors.ts, the first day, the add sheet's title, '＋ Add an account'. Home, Sharpen your plan and the Plan tab still read DOORS; the Link an account screen and Performance are owed (guard_add_account_doors)",
+  "proof": "src/__tests__/guard_add_account_doors.test.ts · src/screens/__tests__/networth_v08.test.tsx",
+  "coded": "2026-09-14",
   "verified": "",
   "notes": "The three doors read \"Link it (read-only)\", \"Add by hand\" and \"Import from a file\" on every screen, under the heading \"How do you want to add an account?\" — the words he chose from the Net worth add sheet, and the heading he asked for because \"it\" named nothing. Supersedes the same morning's \"Connect your bank\". A screen change, so the mock comes first (standing order 2026-07-19): MoneyKeel/documents/home-screen/moneykeel_pres_mock_ways-to-add-an-account_v10.html. Nothing is built until he approves it."
  },
@@ -1925,12 +1925,12 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "per the latest ruling use exact everywhere no rounding for odds",
   "rows": "every surface that shows the odds · MK-XS-M-002 · MK-PL-F-025 displayOdds · the precision standard (its 'nearest 5' line)",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "simulate (MK-PL-F-050) returns the exact share of futures; displayOdds (MK-PL-F-025) removes only floating-point noise; the suggested target and required saving walk down to the smallest amount that holds 80%; spend-more's losing count adds to 100",
+  "proof": "src/domain/retirement/odds_exact.test.ts · src/__tests__/brief_figures_guard.test.ts · june_numbers_probe · ray_numbers_probe · spendMore.test · target_rounding.test",
+  "coded": "2026-09-14",
   "verified": "",
-  "notes": "Supersedes Brief B6 (2026-08-20) and C2 (2026-09-08), which both said nearest 5. Drawn in Net worth mock v08; the app and the file change together once v08 is approved."
+  "notes": "Supersedes Brief B6 (2026-08-20) and C2 (2026-09-08), which both said nearest 5. Drawn in Net worth mock v08; the app and the file change together once v08 is approved. CONSEQUENCES, measured 2026-09-14: amounts found by holding 80% moved (June's draw $4,155 → $4,140); Ray's claim at 70 reads 79.5%, under the line; the Retirement cockpit shows 13.3% where Home and Plan show 13.9% for the working household, and 87.8 where they show 93.2 for the retired one — the rounding had hidden that disagreement (workplan)."
  },
  {
   "id": "Return on cash + investments — two decimals",
@@ -1938,10 +1938,10 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "Return on cash - use 2 decimals",
   "rows": "MK-NW-M-002 · the Net worth change line",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "investableChangePct (src/domain/history.ts) keeps full precision — it had rounded to one decimal inside the function; NetWorthScreen prints two decimals; master MK-NW-M-002 unit says two decimals",
+  "proof": "src/screens/__tests__/networth_v08.test.tsx · src/__tests__/mock_match_dump.test.tsx · src/domain/history.test.ts",
+  "coded": "2026-09-14",
   "verified": "",
   "notes": "The precision standard (Q49) already says two decimals for returns; the master row and the app said one. Drawn in v08."
  },
@@ -1951,10 +1951,10 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "tight besides emergency funds - keep it",
   "rows": "MK-NW-M-013 · the Emergency fund card",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "no change — the word stays",
+  "proof": "src/__tests__/mock_match_dump.test.tsx ('Tight ⚠')",
+  "coded": "2026-09-14",
   "verified": "",
   "notes": "A named exception to Brief R3 (show the fact, not the verdict)."
  },
@@ -1964,10 +1964,10 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "connected only unless stale",
   "rows": "src/components/SourceChip.tsx · every account row",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "src/components/SourceChip.tsx: '🔗 Linked', and '🔗 Linked · N days old' only when stale",
+  "proof": "src/screens/__tests__/networth_v08.test.tsx · src/screens/__tests__/build47_walk.test.tsx",
+  "coded": "2026-09-14",
   "verified": "",
   "notes": "Applies Brief R7 (source always, date only when stale) to the chip."
  },
@@ -1977,12 +1977,12 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "connected / reconnected - change to linked / link again",
   "rows": "every screen: the source chip, the fix sheet's Reconnect button, and the words for an account that is linked",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "SourceChip, the missing-data rows and fix sheet (src/domain/gaps, DataGapsBanner), Settings 'Linked accounts', Home's broken-link line, the broker notes, sourceWording; canon row 18 retires Connected · / Reconnect / Connection paused / Connected accounts / re-login / re-linking",
+  "proof": "src/__tests__/one_term_per_concept.test.ts (canon row 18) · founder_2026_08_11.test.tsx · build47_walk.test.tsx · user_walk_2026_07_18.test.tsx · snaptrade_connect_fcc.test.tsx",
+  "coded": "2026-09-14",
   "verified": "",
-  "notes": "One term per concept: the door says 'Link it (read-only)', so an account that went through it is 'Linked' and the repair is 'Link again'. A canon row is added when it is built."
+  "notes": "One term per concept: the door says 'Link it (read-only)', so an account that went through it is 'Linked' and the repair is 'Link again'. A canon row is added when it is built. Not changed: 'Disconnect' in Settings (not ruled) — to the founder."
  },
  {
   "id": "Headings — dark bars and light-green bars",
@@ -2003,10 +2003,10 @@
   "source": "chat, 2026-09-14 (on Net worth mock v07)",
   "ruling": "State C - what you own section has 'add account three times, + how you want to add an account - too much duplication",
   "rows": "Net worth first day (state C)",
-  "status": "RULED",
-  "code": "",
-  "proof": "",
-  "coded": "",
+  "status": "TESTED",
+  "code": "NetWorthScreen first day: one line 'Nothing entered yet. How do you want to add an account?' and ADD_ACCOUNT_DOORS once; Debts the same one line",
+  "proof": "src/screens/__tests__/networth_v08.test.tsx",
+  "coded": "2026-09-14",
   "verified": "",
   "notes": "Drawn in v08: one line and one set of doors under What you own; the same fix applied to Debts."
  }

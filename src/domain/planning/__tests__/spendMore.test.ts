@@ -10,14 +10,14 @@ const JUNE: RetirementInputs = {
 } as any;
 
 test('THE HEADLINE IS FREE MONEY — the largest extra that changes nothing', () => {
-  const s = spendMoreState(JUNE, 2555);
+  const s = spendMoreState(JUNE, 2540);   // her maximum under exact odds (2026-09-14); was 2,555
   expect(s.oddsToday).toBe(100);
   expect(s.freeExtra).toBe(1000);          // her first $1,000/month costs her nothing
-  expect(s.maxExtra).toBe(2555);
+  expect(s.maxExtra).toBe(2540);
 });
 
 test('the free figure lands on a position the stepper can actually reach', () => {
-  const s = spendMoreState(JUNE, 2555, 500);
+  const s = spendMoreState(JUNE, 2540, 500);
   expect(s.freeExtra % 500).toBe(0);
 });
 
@@ -26,10 +26,10 @@ test('every position is a REAL run — the design bucketed and overstated at $2,
   expect(t(0).chance).toBe(100);
   expect(t(1000).chance).toBe(100);
   expect(t(1500).chance).toBe(97);
-  expect(t(2000).chance).toBe(90);
+  expect(t(2000).chance).toBe(89.5);   // exact odds (2026-09-14)
   // the handoff said "about 9 out of 10" here. It is 81 — nearly 4 in 5.
-  expect(t(2500).chance).toBe(81);
-  expect(t(2500).text).toMatch(/about 81 out of 100 simulated futures/);
+  expect(t(2500).chance).toBe(80.75);
+  expect(t(2500).text).toMatch(/about 80\.75 out of 100 simulated futures\. In the other 19\.25,/);
   expect(t(2500).text).not.toMatch(/about 90 out of 100/);
 });
 
@@ -40,7 +40,7 @@ test('at rest it says what is true today, not a floor she never set', () => {
 });
 
 test('bad news NAMES the losing case rather than leaving her to imagine it', () => {
-  const t = spendMoreSentence(JUNE, 2555, 94, 100);
+  const t = spendMoreSentence(JUNE, 2540, 94, 100);
   expect(t.chance).toBe(80);
   expect(t.text).toMatch(/In the other 20, it runs out before 94/);
   expect(t.tone).toBe('edge');

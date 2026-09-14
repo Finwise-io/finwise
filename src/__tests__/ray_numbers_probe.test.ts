@@ -45,9 +45,9 @@ test('waiting is worth more over a life, not just per month', () => {
   expect(Math.round(ssLifetimeTotal(STATEMENT, LATEST_CREDIT_AGE, 90))).toBe(773_760);
 });
 
-test('THE POINT OF HIM: the claim decision alone takes him from 73% to 80%', () => {
-  expect(oddsClaimingAt(FULL_RETIREMENT_AGE)).toBe(73);
-  expect(oddsClaimingAt(LATEST_CREDIT_AGE)).toBe(80);
+test('THE POINT OF HIM, measured exactly (2026-09-14): the claim decision takes him from 73.25% to 79.5% — just short of 80', () => {
+  expect(oddsClaimingAt(FULL_RETIREMENT_AGE)).toBe(73.25);
+  expect(oddsClaimingAt(LATEST_CREDIT_AGE)).toBe(79.5);
 });
 
 test('his two dials disagree and both are honest — 67% of a target he will not reach, 73% odds', () => {

@@ -157,7 +157,7 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
     // reports NO connections at all — the link was revoked, expired, or the provider-side user was
     // reset. Nothing throws, so nothing was ever recorded, and those accounts just sat there looking
     // connected with a date that never moved. Record every one of them as unreachable, so each says
-    // it cannot be refreshed and offers the re-login instead of quietly ageing.
+    // it cannot be refreshed and offers Link again instead of quietly ageing.
     const orphaned = ((s.assetAccounts ?? []) as { asset_id: string; source?: string }[])
       .filter((a) => a.source === 'connected')
       .map((a) => ({ accountId: a.asset_id, at: new Date().toISOString(), reason: 'no connection found for this account' }));
@@ -204,7 +204,7 @@ export async function runSnapTradeSync(opts: { force?: boolean } = {}): Promise<
       // one broken account never sinks the sync — its prior data stays, freshness shows its age.
       // Founder finding 2026-08-11: swallowing it here was why a dead connection and a healthy idle
       // one looked identical on screen. The failure is now RECORDED against the account so the
-      // missing-data banner can say "we couldn't reach it" and offer Reconnect, instead of leaving
+      // missing-data banner can say "we couldn't reach it" and offer Link again, instead of leaving
       // the person to guess from a date that never moves.
       failed.push({ accountId: stAssetId(account.id), at: nowIso, reason: (e as Error).message?.slice(0, 200) });
       console.warn('snaptrade sync: account failed', account.id, (e as Error).message);

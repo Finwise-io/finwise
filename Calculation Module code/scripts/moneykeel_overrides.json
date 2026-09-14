@@ -1327,7 +1327,7 @@
     "key": "MK-XS-M-002",
     "col": "Formula (in words)",
     "mode": "replace",
-    "text": "If age, spending and a pot are all known, run 1,000 simulated futures and report the share in which the money never runs out, rounded to the nearest 5 — a real 100 or 0 is shown literally. Otherwise report that it could not be answered — NOT a confident zero. The best-to-worst band was removed (founder decision, fix B6); this row no longer describes one.",
+    "text": "If age, spending and a pot are all known, run 1,000 simulated futures and report the share in which the money never runs out, exactly — no rounding (founder, 2026-09-14); 1,000 futures give it to a tenth. Otherwise report that it could not be answered — NOT a confident zero. The best-to-worst band was removed (founder decision, fix B6); this row no longer describes one.",
     "date": "2026-09-08",
     "why": "second-verification ruling, 2026-09-08"
   },

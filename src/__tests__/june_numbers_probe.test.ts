@@ -17,13 +17,13 @@ test('the accounts sum to her balance', () => {
 });
 
 test('her balance is the one that produces the $4,155 draw on the paycheck', () => {
-  expect(Math.round(solveSafeDraw(JUNE_BALANCE, GUARANTEED, SIM as any, 80))).toBe(4155);
+  expect(Math.round(solveSafeDraw(JUNE_BALANCE, GUARANTEED, SIM as any, 80))).toBe(4140);   // exact odds (2026-09-14); was 4,155
 });
 
 test('the paycheck adds up, and the headroom is the draw she is not using', () => {
-  expect(GUARANTEED + 4155).toBe(8155);            // guaranteed + draw = paycheck
+  expect(GUARANTEED + 4140).toBe(8140);            // guaranteed + draw = paycheck
   expect(SPENDING - GUARANTEED).toBe(1600);        // what she actually takes from savings
-  expect(4155 - 1600).toBe(2555);                  // "estimated amount you can draw more"
+  expect(4140 - 1600).toBe(2540);                  // "estimated amount you can draw more"
 });
 
 test('at what she actually spends, the odds are 100 — capacity and actual are different questions', () => {
@@ -63,11 +63,11 @@ describe('spend-more: the odds move with the control', () => {
 
   test('past that it declines honestly, reaching the 80% floor exactly at the maximum', () => {
     expect(oddsAtSpend(SPENDING + 1500)).toBe(97);
-    expect(oddsAtSpend(SPENDING + 2000)).toBe(90);
-    expect(oddsAtSpend(SPENDING + 2555)).toBe(80);       // $8,155 — her whole paycheck
+    expect(oddsAtSpend(SPENDING + 2000)).toBe(89.5);     // exact odds (2026-09-14)
+    expect(oddsAtSpend(SPENDING + 2540)).toBe(80);       // $8,140 — her whole paycheck
   });
 
   test('the maximum position spends exactly her paycheck: guaranteed + the full draw', () => {
-    expect(SPENDING + 2555).toBe(GUARANTEED + 4155);
+    expect(SPENDING + 2540).toBe(GUARANTEED + 4140);
   });
 });

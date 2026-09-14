@@ -103,7 +103,7 @@ describe('display & lifecycle', () => {
       snaptradeConnections: [{ id: 'conn-9', brokerage: 'Vanguard', disabled: true }],
     } as any);
     render(<HomeScreen />);
-    expect(screen.getByText(/Vanguard needs re-linking — fix it ›/)).toBeOnTheScreen();
+    expect(screen.getByText(/Vanguard needs linking again — fix it ›/)).toBeOnTheScreen();
   });
 });
 

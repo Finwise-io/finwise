@@ -53,10 +53,10 @@ test('readHistory: normalized, garbage-free, sorted by month — mixed legacy an
 describe('investableChangePct — % on cash + investments only', () => {
   const inv = { '2026-08-02': 361242, '2026-08-03': 362000 };
   test('percent = investable move ÷ the baseline invDaily point at/after the since date', () => {
-    expect(investableChangePct(inv, 363152, '2026-08-02')).toBeCloseTo(0.5, 5);   // (363152−361242)/361242
+    expect(investableChangePct(inv, 363152, '2026-08-02')).toBeCloseTo(0.528731, 5);   // (363152−361242)/361242, full precision (Q49)
   });
   test('daily baseline resolves against a MONTHLY since key too', () => {
-    expect(investableChangePct(inv, 363152, '2026-08')).toBeCloseTo(0.5, 5);
+    expect(investableChangePct(inv, 363152, '2026-08')).toBeCloseTo(0.528731, 5);
   });
   test('no invDaily history yet → null (the percent is never invented)', () => {
     expect(investableChangePct({}, 363152, '2026-08-02')).toBeNull();

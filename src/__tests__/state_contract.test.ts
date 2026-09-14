@@ -51,7 +51,8 @@ describe('state contract (FCC-state-contract.md)', () => {
       guaranteed_monthly_income: 2000, guaranteed_start_age: 67, mean_return: 0.055,
       vol_return: 0.11, inflation: 0.025, seed: 42, paths: 200,
     });
-    expect(Number.isInteger(r.chance_of_success)).toBe(true);
+    // exact odds (founder 2026-09-14): a share of 1,000 futures — a tenth at most, never a 100x value
+    expect(Number.isInteger(Math.round(r.chance_of_success * 10 * 1e6) / 1e6)).toBe(true);
     expect(r.chance_of_success).toBeGreaterThanOrEqual(0);
     expect(r.chance_of_success).toBeLessThanOrEqual(100);
     const wil = selectWillItLast({

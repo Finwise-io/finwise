@@ -81,7 +81,7 @@ describe('USER WALK · 10 common flows', () => {
     render(<HomeScreen />);
     expect(screen.getByText('YOUR INVESTMENTS')).toBeOnTheScreen();
     expect(screen.getByText('Net worth')).toBeOnTheScreen();
-    expect(screen.queryByText(/needs re-linking/)).toBeNull();       // healthy link = no alarm
+    expect(screen.queryByText(/needs linking again/)).toBeNull();       // healthy link = no alarm
   });
 
   test('W3 · the retiree morning: paycheck leads, guaranteed income from the answers', () => {
@@ -181,7 +181,7 @@ describe('USER WALK · 5 edge cases', () => {
     seedConnected();
     useStore.setState({ snaptradeConnections: [{ id: 'conn-1', brokerage: 'Robinhood', disabled: true }] } as any);
     const home = render(<HomeScreen />);
-    fireEvent.press(screen.getByText(/Robinhood needs re-linking — fix it ›/));
+    fireEvent.press(screen.getByText(/Robinhood needs linking again — fix it ›/));
     expect(mockPushes.some((p) => String(p).includes('reconnect=conn-1'))).toBe(true);
     home.unmount();
     render(<SnapTradeConnect reconnectId="conn-1" />);

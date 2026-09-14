@@ -1797,7 +1797,8 @@ export async function getAssetsState(uid: UserId) {
  * Formula .....
  *     day = the first 10 of string(last synced)   if last synced
  *     ''   otherwise
- *     `connected · ${day or 'linked'}`   when source = 'connected'
+ *     `linked · ${day}`   if day
+ *     'Linked'   otherwise   when source = 'connected'
  *     `imported · ${day or '—'}`   when source = 'imported'
  *     the answer = 'by hand · you update it'
  *
@@ -1812,7 +1813,7 @@ export async function getAssetsState(uid: UserId) {
  */
 export function sourceWording(a: AssetAccount): string {
   const day = a.last_synced ? String(a.last_synced).slice(0, 10) : '';
-  if (a.source === 'connected') return `Connected · ${day || 'linked'}`;
+  if (a.source === 'connected') return day ? `Linked · ${day}` : 'Linked';   // founder 2026-09-14: linked / link again
   if (a.source === 'imported') return `Imported · ${day || '—'}`;
   return 'By hand · you update it';
 }

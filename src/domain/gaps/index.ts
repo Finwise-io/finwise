@@ -24,7 +24,7 @@ export interface DataGap {
    *  founder finding 2026-08-11); 'reconnect' opens the connection flow; absent = plain navigation. */
   action?: 'sync' | 'reconnect';
   /** A SECOND door, when the first one may not be enough. The approved fix-it sheet (State F) always
-   *  offered "Sync now › Reconnect ›" together: a sync cannot revive a connection the broker has
+   *  offered "Sync now › Link again ›" together: a sync cannot revive a connection the broker has
    *  dropped, and the founder found himself told to re-log-in with nowhere to do it. */
   alt?: { label: string; route: string };
 }
@@ -202,25 +202,25 @@ export function dataGaps(
       const d = daysSince(a.last_synced, now);
       const unreachable = (failures ?? []).find((f) => f.accountId === a.asset_id);
       if (unreachable) {
-        // We TRIED and could not reach it — say that, and offer the re-login, because another sync
+        // We TRIED and could not reach it — say that, and offer Link again, because another sync
         // will not fix a connection the broker has dropped (founder finding 2026-08-11).
         gaps.push({
           kind: 'unreachable-account', accountId: a.asset_id,
           title: `We couldn't reach ${who}`,
-          meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don't guess at newer ones. This usually means the connection needs a re-login.`,
-          fixLabel: 'Reconnect', route: '/connect',
+          meanwhile: `Its numbers are the ones from ${d != null ? prettyDate(String(a.last_synced).slice(0, 10)) : 'its last successful update'} — we don't guess at newer ones. This usually means it needs linking again.`,
+          fixLabel: 'Link again', route: '/connect',   // founder 2026-09-14: linked / link again
           action: 'reconnect',
         });
       } else if (d != null && d > STALE_SYNC_DAYS) {
         gaps.push({
           kind: 'stale-account', accountId: a.asset_id,
           title: `${who} last updated ${prettyDate(String(a.last_synced).slice(0, 10))}`,
-          meanwhile: `Balances may have moved in ${d} days. A fresh sync usually fixes this; if not, the connection needs a re-login.`,
+          meanwhile: `Balances may have moved in ${d} days. A fresh sync usually fixes this; if not, link it again.`,
           // founder finding 2026-08-11: this used to NAVIGATE to the account page, which has no sync
           // on it — a button that said "Sync now" and synced nothing. It runs the sync in place now.
           fixLabel: 'Sync now', route: `/account-detail?id=${a.asset_id}`, action: 'sync',
           // …and always a way to re-log-in, because a sync cannot fix a dropped connection
-          alt: { label: 'Reconnect', route: '/connect' },
+          alt: { label: 'Link again', route: '/connect' },
         });
       }
       // 3) a broker that sends balances but no dividend/interest records

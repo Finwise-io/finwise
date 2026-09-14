@@ -56,21 +56,21 @@ export function DataGapsBanner({ gaps }: { gaps: DataGap[] }) {
                       // The count is what actually came back; say that, and nothing else.
                       const n = await runSnapTradeSync({ force: true });
                       setResult(n > 0
-                        ? `Updated ${n} account${n === 1 ? '' : 's'}. Anything still listed below needs a re-login — use Reconnect.`
-                        : "Nothing could be refreshed — your broker didn't answer. That usually means the connection has expired: use Reconnect below.");
+                        ? `Updated ${n} account${n === 1 ? '' : 's'}. Anything still listed below needs linking again — use Link again.`
+                        : "Nothing could be refreshed — your broker didn't answer. That usually means the link has expired: use Link again below.");
                     } catch {
-                      setResult("We couldn't reach it just now — use Reconnect below to sign in again.");
+                      setResult("We couldn't reach it just now — use Link again below to sign in again.");
                     } finally { setBusy(null); }
                   }}
                   accessibilityLabel={g.action === 'sync' ? `${g.fixLabel}. Updates this account now.` : g.fixLabel}>
                   <Text style={s.fixTxt}>{busy === i ? 'Syncing…' : `${g.fixLabel} ›`}</Text>
                 </TouchableOpacity>
-                {/* the second door — always present on a connection row, so "needs a re-login" is
+                {/* the second door — always present on a connection row, so "needs linking again" is
                     never advice without a way to act on it (founder finding 2026-08-11) */}
                 {!!g.alt && (
                   <TouchableOpacity accessibilityRole="button" style={s.altBtn}
                     onPress={() => { setOpen(false); router.push(g.alt!.route as any); }}
-                    accessibilityLabel={`${g.alt.label} — sign in to this connection again`}>
+                    accessibilityLabel={`${g.alt.label} — link this account again`}>
                     <Text style={s.altTxt}>{g.alt.label} ›</Text>
                   </TouchableOpacity>
                 )}

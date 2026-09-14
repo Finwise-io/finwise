@@ -359,7 +359,6 @@ function pctOfSorted(sorted: number[], p: number): number {
  *     · Never lets off fall below 0.
  *     · Never lets balance fall below 0.
  *     · Never lets required withdrawal tax rate fall below 0.
- *     · Rounds the answer to a whole number.
  *     · The tax on pre-tax withdrawals is the rate the caller passes, capped at 60%; when no rate is passed NO tax is applied and the result says so — never a built-in 22% (G7, founder 2026-09-12).
  *     · Founder ruling 2026-09-08 (G17): one count, 1,000 futures, on every surface; the guard test simulation_paths.test.ts fails on any other number.
  *
@@ -479,7 +478,9 @@ export function simulate(inp: RetirementInputs) {
   const extraMonthly = gap > 0 && fvFactor > 0 ? gap / fvFactor : 0;
 
   return {
-    chance_of_success: Math.round((successes / paths) * 100),
+    // founder 2026-09-14: "use exact everywhere no rounding for odds" (replaces B6's nearest 5 and the
+    // whole-number rounding here) — 1,000 futures give the odds to a tenth
+    chance_of_success: (successes * 100) / paths,
     projected_at_retirement: (projected),
     needed: (needed),
     gap: (gap),

@@ -76,10 +76,10 @@ test('MK-NW-M-017 — net worth reads the same on Home and on the Net worth tab'
 
 test('MK-XS-M-002 — the will-it-last odds read the same on Home and on the Plan hub', () => {
   renderScreen('HomeScreen');
-  const home = firstMatch(/Will my money last: (\d{1,3}) percent odds/);
+  const home = firstMatch(/Will my money last: (\d{1,3}(?:\.\d+)?) percent odds/);   // exact odds (2026-09-14)
   screen.unmount();
   renderScreen('PlanHubScreen');
-  const plan = firstMatch(/Will my money last: [^0-9]*?(\d{1,3})(?: percent| out of 100|%)/);
+  const plan = firstMatch(/Will my money last: [^0-9]*?(\d{1,3}(?:\.\d+)?)(?: percent| out of 100|%)/);
   expect(home).not.toBeNull();
   expect(plan).not.toBeNull();
   expect(home).toBe(plan);

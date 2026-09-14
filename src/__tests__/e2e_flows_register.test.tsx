@@ -68,7 +68,7 @@ test('E2E-38 what-if raises the extra amount and speaks a full before→after es
   render(<WhatIfScreen />);
   fireEvent.press(screen.getByLabelText('Raise the extra monthly amount by $100'));
   fireEvent.press(screen.getByLabelText('Raise the extra monthly amount by $100'));
-  expect(screen.getByLabelText(/Estimates at age \d+: nest egg .* becomes .*; the chance your money lasts \d+ percent becomes \d+ percent/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Estimates at age \d+: nest egg .* becomes .*; the chance your money lasts \d+(?:\.\d+)? percent becomes \d+(?:\.\d+)? percent/)).toBeOnTheScreen();
 });
 
 // ── E2E-39 · Social Security at 62: every claim age shown, adopt 70, revert ──
@@ -78,8 +78,8 @@ test('E2E-39 SS timing: statement → the 62-70 rows with chances → adopt 70 �
   const SsTimingScreen = require('../screens/SsTimingScreen').default;
   render(<SsTimingScreen />);
   fireEvent.changeText(screen.getByLabelText(/Monthly amount from your Social Security statement/), '2400');
-  expect(screen.getByLabelText(/Claiming at 62: \d+ percent chance/)).toBeOnTheScreen();
-  expect(screen.getByLabelText(/Claiming at 70: \d+ percent chance/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Claiming at 62: \d+(?:\.\d+)? percent chance/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Claiming at 70: \d+(?:\.\d+)? percent chance/)).toBeOnTheScreen();
   fireEvent.press(screen.getByLabelText('Use claim at 70 as my plan'));
   fireEvent.press(screen.getByLabelText('Use as my plan: Plan to claim Social Security at 70'));
   expect((useStore.getState() as any).retirementAssumptions.ssClaimAge).toBe(70);

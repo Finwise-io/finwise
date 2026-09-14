@@ -293,7 +293,7 @@ export function readHistory(raw: Record<string, unknown> | null | undefined): Mo
  *     base = (inv daily as any)[base key]   if base key ≠ nothing
  *     nothing   otherwise
  *     nothing   when base is not a number (or not (base > 0) when missing or zero)
- *     the answer = round(((current investable − base) ÷ base) × 1000) ÷ 10
+ *     the answer = ((current investable − base) ÷ base) × 100
  *
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
@@ -314,7 +314,9 @@ export function investableChangePct(
     .sort()[0];
   const base = baseKey != null ? (invDaily as any)[baseKey] : null;
   if (typeof base !== 'number' || !(base > 0)) return null;
-  return Math.round(((currentInvestable - base) / base) * 1000) / 10;
+  // Q49 (2026-09-09): full precision here — it used to round to one decimal INSIDE the function, so the
+  // screen's two decimals (founder 2026-09-14) printed +0.50% for a real +0.53%. Rounding happens at display.
+  return ((currentInvestable - base) / base) * 100;
 }
 
 /** THE CHANGE WALK (founder-approved final mock, 2026-08-04) — what drove the net-worth change,

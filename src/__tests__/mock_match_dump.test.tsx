@@ -257,7 +257,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
     const line = screen.getByText(/Change in net worth/);
-    expect(line.props.children.join('')).toMatch(/Change in net worth \+\$2,110 · Return on cash \+ investments \+0\.5%/);
+    expect(line.props.children.join('')).toMatch(/Change in net worth \+\$2,110 · Return on cash \+ investments \+0\.53%/);   // two decimals (2026-09-14)
     expect(flat(line).color).toBe(Colors.gainText);      // up (and $0) is green; amber is only for a fall
   });
 
@@ -307,7 +307,7 @@ describe('appearance audit — rendered styles, not stylesheet definitions', () 
     const NW = require('../screens/NetWorthScreen').default;
     render(<NW />);
     expect(screen.queryByText("This month's cash flow")).toBeNull();
-    expect(screen.getByText('＋ Add or connect an account')).toBeOnTheScreen();   // the add door stays
+    expect(screen.getByText('＋ Add an account')).toBeOnTheScreen();   // the add door stays (v08 words)
   });
 
   test('first day: the grouping buttons are there, and By institution says what it will hold', () => {

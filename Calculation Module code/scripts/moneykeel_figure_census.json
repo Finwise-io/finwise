@@ -44,7 +44,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -278,7 +278,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -516,7 +516,7 @@
     },
     {
      "k": "t",
-     "s": "afternoon"
+     "s": "evening"
     },
     {
      "k": "t",
@@ -536,7 +536,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,800"
+     "s": "Surplus in Sep: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -548,7 +548,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -604,7 +604,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -612,7 +612,7 @@
     },
     {
      "k": "t",
-     "s": "$55,200"
+     "s": "$55,140"
     },
     {
      "k": "t",
@@ -740,7 +740,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 95 percent odds of lasting to age 95, an estimate. Opens Plan."
+     "s": "Will my money last: 99.4 percent odds of lasting to age 95, an estimate. Opens Plan."
     },
     {
      "k": "t",
@@ -748,7 +748,7 @@
     },
     {
      "k": "t",
-     "s": "95% odds of lasting to age 95"
+     "s": "99.4% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -1207,11 +1207,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "worker|By institution": [
@@ -1505,11 +1505,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "rich": [
@@ -1939,11 +1939,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "rich|By institution": [
@@ -2189,7 +2189,7 @@
     },
     {
      "k": "t",
-     "s": "Connected · updated 2 days old"
+     "s": "Linked"
     },
     {
      "k": "t",
@@ -2421,11 +2421,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "retiree": [
@@ -2487,7 +2487,7 @@
     },
     {
      "k": "t",
-     "s": "95% odds of lasting to age 95"
+     "s": "99.4% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -2699,11 +2699,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "retiree|By institution": [
@@ -2765,7 +2765,7 @@
     },
     {
      "k": "t",
-     "s": "95% odds of lasting to age 95"
+     "s": "99.4% odds of lasting to age 95"
     },
     {
      "k": "t",
@@ -2941,11 +2941,11 @@
     },
     {
      "k": "a",
-     "s": "Add or connect an account"
+     "s": "Add an account"
     },
     {
      "k": "t",
-     "s": "＋ Add or connect an account"
+     "s": "＋ Add an account"
     }
    ],
    "new": [
@@ -3042,36 +3042,12 @@
      "s": "$0"
     },
     {
-     "k": "a",
-     "s": "Nothing entered yet. Add your accounts ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Add your accounts ›"
-    },
-    {
      "k": "t",
      "s": "📈 INVESTMENTS"
     },
     {
      "k": "t",
      "s": "$0"
-    },
-    {
-     "k": "a",
-     "s": "Nothing entered yet. Add your accounts ›"
-    },
-    {
-     "k": "t",
-     "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Add your accounts ›"
     },
     {
      "k": "t",
@@ -3082,24 +3058,20 @@
      "s": "$0"
     },
     {
-     "k": "a",
-     "s": "Nothing entered yet. Add your accounts ›"
-    },
-    {
      "k": "t",
      "s": "Nothing entered yet."
     },
     {
      "k": "t",
-     "s": "Add your accounts ›"
+     "s": "How do you want to add an account?"
     },
     {
      "k": "a",
-     "s": "Connect a brokerage"
+     "s": "Link it (read-only)"
     },
     {
      "k": "t",
-     "s": "Connect a brokerage"
+     "s": "Link it (read-only)"
     },
     {
      "k": "t",
@@ -3107,11 +3079,11 @@
     },
     {
      "k": "a",
-     "s": "Add a file from your bank"
+     "s": "Add by hand"
     },
     {
      "k": "t",
-     "s": "Add a file from your bank"
+     "s": "Add by hand"
     },
     {
      "k": "t",
@@ -3119,11 +3091,11 @@
     },
     {
      "k": "a",
-     "s": "Type it yourself"
+     "s": "Import from a file"
     },
     {
      "k": "t",
-     "s": "Type it yourself"
+     "s": "Import from a file"
     },
     {
      "k": "t",
@@ -3158,16 +3130,8 @@
      "s": "$0"
     },
     {
-     "k": "a",
-     "s": "Nothing entered yet. Add your debts ›"
-    },
-    {
      "k": "t",
      "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Add your debts ›"
     },
     {
      "k": "a",
@@ -3284,12 +3248,20 @@
      "s": "Your banks and brokerages will be listed here, each with what it holds."
     },
     {
-     "k": "a",
-     "s": "Connect a brokerage"
+     "k": "t",
+     "s": "Nothing entered yet."
     },
     {
      "k": "t",
-     "s": "Connect a brokerage"
+     "s": "How do you want to add an account?"
+    },
+    {
+     "k": "a",
+     "s": "Link it (read-only)"
+    },
+    {
+     "k": "t",
+     "s": "Link it (read-only)"
     },
     {
      "k": "t",
@@ -3297,11 +3269,11 @@
     },
     {
      "k": "a",
-     "s": "Add a file from your bank"
+     "s": "Add by hand"
     },
     {
      "k": "t",
-     "s": "Add a file from your bank"
+     "s": "Add by hand"
     },
     {
      "k": "t",
@@ -3309,11 +3281,11 @@
     },
     {
      "k": "a",
-     "s": "Type it yourself"
+     "s": "Import from a file"
     },
     {
      "k": "t",
-     "s": "Type it yourself"
+     "s": "Import from a file"
     },
     {
      "k": "t",
@@ -3348,16 +3320,8 @@
      "s": "$0"
     },
     {
-     "k": "a",
-     "s": "Nothing entered yet. Add your debts ›"
-    },
-    {
      "k": "t",
      "s": "Nothing entered yet."
-    },
-    {
-     "k": "t",
-     "s": "Add your debts ›"
     },
     {
      "k": "a",
@@ -5625,11 +5589,11 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 95% odds of lasting to age 95, an estimate."
+     "s": "Will my money last: 99.4% odds of lasting to age 95, an estimate."
     },
     {
      "k": "t",
-     "s": "95"
+     "s": "99.4"
     },
     {
      "k": "t",
@@ -5921,7 +5885,7 @@
     },
     {
      "k": "a",
-     "s": "Your retirement paycheck: guaranteed $3,500, draw from savings $1,300, total $4,800 a month. Opens your income."
+     "s": "Your retirement paycheck: guaranteed $3,500, draw from savings $1,295, total $4,795 a month. Opens your income."
     },
     {
      "k": "t",
@@ -5961,7 +5925,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -5969,7 +5933,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -6005,7 +5969,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -6692,7 +6656,7 @@
     },
     {
      "k": "a",
-     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $20,210 a month."
+     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $20,125 a month."
     },
     {
      "k": "t",
@@ -6716,7 +6680,7 @@
     },
     {
      "k": "t",
-     "s": "$20,210"
+     "s": "$20,125"
     },
     {
      "k": "t",
@@ -6728,7 +6692,7 @@
     },
     {
      "k": "t",
-     "s": "~$20,210"
+     "s": "~$20,125"
     },
     {
      "k": "t",
@@ -7062,7 +7026,7 @@
     },
     {
      "k": "a",
-     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $20,210 a month."
+     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $20,125 a month."
     },
     {
      "k": "t",
@@ -7086,7 +7050,7 @@
     },
     {
      "k": "t",
-     "s": "$20,210"
+     "s": "$20,125"
     },
     {
      "k": "t",
@@ -7098,7 +7062,7 @@
     },
     {
      "k": "t",
-     "s": "~$20,210"
+     "s": "~$20,125"
     },
     {
      "k": "t",
@@ -7950,7 +7914,7 @@
     },
     {
      "k": "a",
-     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $35,130 a month."
+     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $35,095 a month."
     },
     {
      "k": "t",
@@ -7974,7 +7938,7 @@
     },
     {
      "k": "t",
-     "s": "$35,130"
+     "s": "$35,095"
     },
     {
      "k": "t",
@@ -7986,7 +7950,7 @@
     },
     {
      "k": "t",
-     "s": "~$35,130"
+     "s": "~$35,095"
     },
     {
      "k": "t",
@@ -8320,7 +8284,7 @@
     },
     {
      "k": "a",
-     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $35,130 a month."
+     "s": "Your future paycheck — a projection, an estimate, not a promise. At 65: about $35,095 a month."
     },
     {
      "k": "t",
@@ -8344,7 +8308,7 @@
     },
     {
      "k": "t",
-     "s": "$35,130"
+     "s": "$35,095"
     },
     {
      "k": "t",
@@ -8356,7 +8320,7 @@
     },
     {
      "k": "t",
-     "s": "~$35,130"
+     "s": "~$35,095"
     },
     {
      "k": "t",
@@ -9248,7 +9212,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,800"
+     "s": "Surplus in Sep: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -9260,7 +9224,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -9316,7 +9280,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -9324,7 +9288,7 @@
     },
     {
      "k": "t",
-     "s": "$55,200"
+     "s": "$55,140"
     },
     {
      "k": "t",
@@ -9352,7 +9316,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,800 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9368,7 +9332,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -9424,7 +9388,7 @@
     },
     {
      "k": "a",
-     "s": "Sep: 4800 dollars in, 0 out"
+     "s": "Sep: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9432,7 +9396,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: 4800 dollars in, 0 out"
+     "s": "Oct: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9440,7 +9404,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: 4800 dollars in, 0 out"
+     "s": "Nov: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9448,7 +9412,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: 4800 dollars in, 0 out"
+     "s": "Dec: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9456,7 +9420,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: 4800 dollars in, 0 out"
+     "s": "Jan ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9464,7 +9428,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: 4800 dollars in, 0 out"
+     "s": "Feb ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9472,7 +9436,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: 4800 dollars in, 0 out"
+     "s": "Mar ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9480,7 +9444,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: 4800 dollars in, 0 out"
+     "s": "Apr ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9488,7 +9452,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: 4800 dollars in, 0 out"
+     "s": "May ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9496,7 +9460,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: 4800 dollars in, 2400 out, Insurance premium due"
+     "s": "Jun ’27: 4795 dollars in, 2400 out, Insurance premium due"
     },
     {
      "k": "t",
@@ -9508,7 +9472,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: 4800 dollars in, 0 out"
+     "s": "Jul ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9516,7 +9480,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: 4800 dollars in, 0 out"
+     "s": "Aug ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9544,7 +9508,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 95 percent, an estimate. Lives in your Plan."
+     "s": "Will my money last: 99.4 percent, an estimate. Lives in your Plan."
     },
     {
      "k": "t",
@@ -9552,7 +9516,7 @@
     },
     {
      "k": "t",
-     "s": "95"
+     "s": "99.4"
     },
     {
      "k": "t",
@@ -9638,7 +9602,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in Sep: an estimate. $4,800"
+     "s": "Surplus in Sep: an estimate. $4,795"
     },
     {
      "k": "t",
@@ -9650,7 +9614,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -9706,7 +9670,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -9714,7 +9678,7 @@
     },
     {
      "k": "t",
-     "s": "$55,200"
+     "s": "$55,140"
     },
     {
      "k": "t",
@@ -9742,7 +9706,7 @@
     },
     {
      "k": "a",
-     "s": "Expense pace: $0 of $4,800 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
+     "s": "Expense pace: $0 of $4,795 surplus — 0 percent spent, 47 percent of the month gone. Opens this month's detail."
     },
     {
      "k": "t",
@@ -9758,7 +9722,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -9814,7 +9778,7 @@
     },
     {
      "k": "a",
-     "s": "Sep: 4800 dollars in, 0 out"
+     "s": "Sep: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9822,7 +9786,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: 4800 dollars in, 0 out"
+     "s": "Oct: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9830,7 +9794,7 @@
     },
     {
      "k": "a",
-     "s": "Nov: 4800 dollars in, 0 out"
+     "s": "Nov: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9838,7 +9802,7 @@
     },
     {
      "k": "a",
-     "s": "Dec: 4800 dollars in, 0 out"
+     "s": "Dec: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9846,7 +9810,7 @@
     },
     {
      "k": "a",
-     "s": "Jan ’27: 4800 dollars in, 0 out"
+     "s": "Jan ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9854,7 +9818,7 @@
     },
     {
      "k": "a",
-     "s": "Feb ’27: 4800 dollars in, 0 out"
+     "s": "Feb ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9862,7 +9826,7 @@
     },
     {
      "k": "a",
-     "s": "Mar ’27: 4800 dollars in, 0 out"
+     "s": "Mar ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9870,7 +9834,7 @@
     },
     {
      "k": "a",
-     "s": "Apr ’27: 4800 dollars in, 0 out"
+     "s": "Apr ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9878,7 +9842,7 @@
     },
     {
      "k": "a",
-     "s": "May ’27: 4800 dollars in, 0 out"
+     "s": "May ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9886,7 +9850,7 @@
     },
     {
      "k": "a",
-     "s": "Jun ’27: 4800 dollars in, 2400 out, Insurance premium due"
+     "s": "Jun ’27: 4795 dollars in, 2400 out, Insurance premium due"
     },
     {
      "k": "t",
@@ -9898,7 +9862,7 @@
     },
     {
      "k": "a",
-     "s": "Jul ’27: 4800 dollars in, 0 out"
+     "s": "Jul ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9906,7 +9870,7 @@
     },
     {
      "k": "a",
-     "s": "Aug ’27: 4800 dollars in, 0 out"
+     "s": "Aug ’27: 4795 dollars in, 0 out"
     },
     {
      "k": "t",
@@ -9934,7 +9898,7 @@
     },
     {
      "k": "a",
-     "s": "Will my money last: 95 percent, an estimate. Lives in your Plan."
+     "s": "Will my money last: 99.4 percent, an estimate. Lives in your Plan."
     },
     {
      "k": "t",
@@ -9942,7 +9906,7 @@
     },
     {
      "k": "t",
-     "s": "95"
+     "s": "99.4"
     },
     {
      "k": "t",
@@ -12366,7 +12330,7 @@
     },
     {
      "k": "t",
-     "s": "90% odds it lasts to 90"
+     "s": "88.1% odds it lasts to 90"
     },
     {
      "k": "t",
@@ -12880,7 +12844,7 @@
     },
     {
      "k": "t",
-     "s": "95% odds it lasts to 90"
+     "s": "98.4% odds it lasts to 90"
     },
     {
      "k": "t",
@@ -13466,7 +13430,7 @@
     },
     {
      "k": "t",
-     "s": "in most futures — 95out of 100 simulated futures"
+     "s": "in most futures — 99.4 out of 100 simulated futures"
     },
     {
      "k": "t",
@@ -17056,7 +17020,7 @@
     },
     {
      "k": "t",
-     "s": "Connected · read-only"
+     "s": "Linked · read-only"
     },
     {
      "k": "a",
@@ -17218,7 +17182,7 @@
     },
     {
      "k": "t",
-     "s": "Connected · read-only"
+     "s": "Linked · read-only"
     },
     {
      "k": "a",
@@ -26806,7 +26770,7 @@
     },
     {
      "k": "a",
-     "s": "Surplus in September 2026: $4,800. As of today."
+     "s": "Surplus in September 2026: $4,795. As of today."
     },
     {
      "k": "t",
@@ -26814,7 +26778,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -26846,7 +26810,7 @@
     },
     {
      "k": "a",
-     "s": "Draw from savings: $1,300"
+     "s": "Draw from savings: $1,295"
     },
     {
      "k": "t",
@@ -26854,11 +26818,11 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "a",
-     "s": "= In: $4,800"
+     "s": "= In: $4,795"
     },
     {
      "k": "t",
@@ -26866,7 +26830,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -26878,7 +26842,7 @@
     },
     {
      "k": "a",
-     "s": "= Surplus: $4,800"
+     "s": "= Surplus: $4,795"
     },
     {
      "k": "t",
@@ -26886,7 +26850,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -27916,7 +27880,7 @@
     },
     {
      "k": "a",
-     "s": "Effect on retirement: will-it-last 95 percent to 99 percent. Estimate, not a promise."
+     "s": "Effect on retirement: will-it-last 99.4 percent to 99.4 percent. Estimate, not a promise."
     },
     {
      "k": "t",
@@ -27936,7 +27900,7 @@
     },
     {
      "k": "t",
-     "s": "95% → 99%"
+     "s": "99.4% → 99.4%"
     },
     {
      "k": "t",
@@ -28254,7 +28218,7 @@
     },
     {
      "k": "t",
-     "s": "$480"
+     "s": "$420"
     },
     {
      "k": "t",
@@ -28262,7 +28226,7 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $340"
+     "s": "Sep: surplus $335"
     },
     {
      "k": "t",
@@ -28270,7 +28234,7 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "t",
@@ -28286,7 +28250,7 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "t",
@@ -28294,7 +28258,7 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "t",
@@ -28310,7 +28274,7 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "t",
@@ -28334,7 +28298,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $340"
+     "s": "Oct: surplus $335"
     },
     {
      "k": "t",
@@ -28342,11 +28306,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Nov: surplus $340"
+     "s": "Nov: surplus $335"
     },
     {
      "k": "t",
@@ -28354,11 +28318,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Dec: surplus $340"
+     "s": "Dec: surplus $335"
     },
     {
      "k": "t",
@@ -28366,11 +28330,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $340"
+     "s": "Jan ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28378,11 +28342,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $340"
+     "s": "Feb ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28390,11 +28354,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $340"
+     "s": "Mar ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28402,11 +28366,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus -$3,260, lower — big bill this month"
+     "s": "Apr ’27: surplus -$3,265, lower — big bill this month"
     },
     {
      "k": "t",
@@ -28418,11 +28382,11 @@
     },
     {
      "k": "t",
-     "s": "-$3,260"
+     "s": "-$3,265"
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $340"
+     "s": "May ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28430,11 +28394,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $340"
+     "s": "Jun ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28442,11 +28406,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $340"
+     "s": "Jul ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28454,11 +28418,11 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $340"
+     "s": "Aug ’27: surplus $335"
     },
     {
      "k": "t",
@@ -28466,7 +28430,7 @@
     },
     {
      "k": "t",
-     "s": "$340"
+     "s": "$335"
     },
     {
      "k": "t",
@@ -28484,7 +28448,7 @@
     },
     {
      "k": "t",
-     "s": "$14,640"
+     "s": "$14,340"
     },
     {
      "k": "t",
@@ -28492,7 +28456,7 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $1,520"
+     "s": "Sep: surplus $1,495"
     },
     {
      "k": "t",
@@ -28500,7 +28464,7 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "t",
@@ -28516,7 +28480,7 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "t",
@@ -28524,7 +28488,7 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "t",
@@ -28540,7 +28504,7 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "t",
@@ -28572,7 +28536,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $1,520"
+     "s": "Oct: surplus $1,495"
     },
     {
      "k": "t",
@@ -28580,11 +28544,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Nov: surplus $1,520"
+     "s": "Nov: surplus $1,495"
     },
     {
      "k": "t",
@@ -28592,11 +28556,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Dec: surplus $1,520"
+     "s": "Dec: surplus $1,495"
     },
     {
      "k": "t",
@@ -28604,11 +28568,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $1,520"
+     "s": "Jan ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28616,11 +28580,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $1,520"
+     "s": "Feb ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28628,11 +28592,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $1,520"
+     "s": "Mar ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28640,11 +28604,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus -$2,080, lower — big bill this month"
+     "s": "Apr ’27: surplus -$2,105, lower — big bill this month"
     },
     {
      "k": "t",
@@ -28656,11 +28620,11 @@
     },
     {
      "k": "t",
-     "s": "-$2,080"
+     "s": "-$2,105"
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $1,520"
+     "s": "May ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28668,11 +28632,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $1,520"
+     "s": "Jun ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28680,11 +28644,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $1,520"
+     "s": "Jul ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28692,11 +28656,11 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $1,520"
+     "s": "Aug ’27: surplus $1,495"
     },
     {
      "k": "t",
@@ -28704,7 +28668,7 @@
     },
     {
      "k": "t",
-     "s": "$1,520"
+     "s": "$1,495"
     },
     {
      "k": "t",
@@ -28722,7 +28686,7 @@
     },
     {
      "k": "t",
-     "s": "$55,200"
+     "s": "$55,140"
     },
     {
      "k": "t",
@@ -28730,7 +28694,7 @@
     },
     {
      "k": "a",
-     "s": "Sep: surplus $4,800"
+     "s": "Sep: surplus $4,795"
     },
     {
      "k": "t",
@@ -28738,7 +28702,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -28766,7 +28730,7 @@
     },
     {
      "k": "t",
-     "s": "$1,300"
+     "s": "$1,295"
     },
     {
      "k": "t",
@@ -28774,7 +28738,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -28790,7 +28754,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -28806,7 +28770,7 @@
     },
     {
      "k": "a",
-     "s": "Oct: surplus $4,800"
+     "s": "Oct: surplus $4,795"
     },
     {
      "k": "t",
@@ -28814,11 +28778,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Nov: surplus $4,800"
+     "s": "Nov: surplus $4,795"
     },
     {
      "k": "t",
@@ -28826,11 +28790,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Dec: surplus $4,800"
+     "s": "Dec: surplus $4,795"
     },
     {
      "k": "t",
@@ -28838,11 +28802,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Jan ’27: surplus $4,800"
+     "s": "Jan ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28850,11 +28814,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Feb ’27: surplus $4,800"
+     "s": "Feb ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28862,11 +28826,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Mar ’27: surplus $4,800"
+     "s": "Mar ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28874,11 +28838,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Apr ’27: surplus $4,800"
+     "s": "Apr ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28886,11 +28850,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "May ’27: surplus $4,800"
+     "s": "May ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28898,11 +28862,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Jun ’27: surplus $2,400, lower — big bill this month"
+     "s": "Jun ’27: surplus $2,395, lower — big bill this month"
     },
     {
      "k": "t",
@@ -28914,11 +28878,11 @@
     },
     {
      "k": "t",
-     "s": "$2,400"
+     "s": "$2,395"
     },
     {
      "k": "a",
-     "s": "Jul ’27: surplus $4,800"
+     "s": "Jul ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28926,11 +28890,11 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "a",
-     "s": "Aug ’27: surplus $4,800"
+     "s": "Aug ’27: surplus $4,795"
     },
     {
      "k": "t",
@@ -28938,7 +28902,7 @@
     },
     {
      "k": "t",
-     "s": "$4,800"
+     "s": "$4,795"
     },
     {
      "k": "t",
@@ -32995,7 +32959,7 @@
     },
     {
      "k": "a",
-     "s": "Estimates at age 65: nest egg $4,977,392 becomes $5,734,057; the chance your money lasts 95 percent becomes 95 percent."
+     "s": "Estimates at age 65: nest egg $4,977,392 becomes $5,734,057; the chance your money lasts 93 percent becomes 95.6 percent."
     },
     {
      "k": "t",
@@ -33051,7 +33015,7 @@
     },
     {
      "k": "t",
-     "s": "95% → 95%"
+     "s": "93% → 95.6%"
     },
     {
      "k": "t",
@@ -33149,7 +33113,7 @@
     },
     {
      "k": "a",
-     "s": "Estimates at age 65: nest egg $9,483,181 becomes $10,134,248; the chance your money lasts 95 percent becomes 95 percent."
+     "s": "Estimates at age 65: nest egg $9,483,181 becomes $10,134,248; the chance your money lasts 99.1 percent becomes 99.4 percent."
     },
     {
      "k": "t",
@@ -33205,7 +33169,7 @@
     },
     {
      "k": "t",
-     "s": "95% → 95%"
+     "s": "99.1% → 99.4%"
     },
     {
      "k": "t",
@@ -33303,7 +33267,7 @@
     },
     {
      "k": "a",
-     "s": "Estimates at age 76: nest egg $276,000 becomes $282,000; the chance your money lasts 95 percent becomes 95 percent."
+     "s": "Estimates at age 76: nest egg $276,000 becomes $282,000; the chance your money lasts 99.4 percent becomes 99.4 percent."
     },
     {
      "k": "t",
@@ -33359,7 +33323,7 @@
     },
     {
      "k": "t",
-     "s": "95% → 95%"
+     "s": "99.4% → 99.4%"
     },
     {
      "k": "t",
@@ -33430,7 +33394,7 @@
    "retiree": [
     {
      "k": "a",
-     "s": "Will my money last to 95: 95 percent, an estimate."
+     "s": "Will my money last to 95: 99.4 percent, an estimate."
     },
     {
      "k": "t",
@@ -33438,7 +33402,7 @@
     },
     {
      "k": "t",
-     "s": "95"
+     "s": "99.4"
     },
     {
      "k": "t",
@@ -33458,7 +33422,7 @@
     },
     {
      "k": "t",
-     "s": "95"
+     "s": "99.4"
     },
     {
      "k": "t",
@@ -35459,7 +35423,7 @@
    "inside": "PaycheckCard",
    "line": ": `Surplus in ${m.label}: an estimate. ${maskedMoney(m.netSafeToSpend)}`}>",
    "values": [
-    "$4,800"
+    "$4,795"
    ],
    "renders": 7
   },
@@ -35476,7 +35440,7 @@
    "inside": "PaycheckCard",
    "line": "<HeroAmount style={styles.hero}>{maskedMoney(m.netSafeToSpend)} <Text style={styles.unit}>this month</Text></HeroAmount>",
    "values": [
-    "$4,800"
+    "$4,795"
    ],
    "renders": 7
   },
@@ -35528,7 +35492,7 @@
    "inside": "PaycheckCard",
    "line": "<Text style={styles.rowValue}>{maskedMoney(m.safeDraw)}</Text>",
    "values": [
-    "$1,300"
+    "$1,295"
    ],
    "renders": 7
   },
@@ -35545,7 +35509,7 @@
    "inside": "PaycheckCard",
    "line": "<Text style={styles.year}>This year ~{maskedMoney(year.thisYear)} <EstimateTag /> <Text style={styles.yearNote}>— varies month to month</Text></Text>",
    "values": [
-    "$55,200"
+    "$55,140"
    ],
    "renders": 7
   },
@@ -36668,7 +36632,7 @@
    "line": "accessibilityLabel={`Expense pace: ${spokenMoney(Math.round(bva.spent_total))} of ${spokenMoney(safePool)} surplus — ${spentPct} percent spent, ${monthPct} percent of the month gone. Opens this month'",
    "values": [
     "$0",
-    "$4,800"
+    "$4,795"
    ],
    "renders": 10
   },
@@ -36684,7 +36648,7 @@
    "line": "<Text style={styles.paceLine}>Spent {maskedMoney(Math.round(bva.spent_total))} of {maskedMoney(safePool)} surplus this month</Text>",
    "values": [
     "$0",
-    "$4,800"
+    "$4,795"
    ],
    "renders": 10
   },
@@ -36818,8 +36782,8 @@
    "inside": "WorkingMain",
    "line": "accessibilityLabel={`Your future paycheck — a projection, an estimate, not a promise. At ${projection.retireAge}: about ${spokenMoney(projection.monthly)} a month.`}>",
    "values": [
-    "$20,210",
-    "$35,130"
+    "$20,125",
+    "$35,095"
    ],
    "renders": 10
   },
@@ -36835,8 +36799,8 @@
    "inside": "WorkingMain",
    "line": "<Text style={styles.projHero}>At {projection.retireAge}:  ~{maskedMoney(projection.monthly)} / mo</Text>",
    "values": [
-    "$20,210",
-    "$35,130"
+    "$20,125",
+    "$35,095"
    ],
    "renders": 10
   },
@@ -36852,8 +36816,8 @@
    "inside": "WorkingMain",
    "line": "<Row label=\"Draw from savings\" value={`~${maskedMoney(projection.draw)}`} dim />",
    "values": [
-    "$20,210",
-    "$35,130"
+    "$20,125",
+    "$35,095"
    ],
    "renders": 10
   },
@@ -38132,7 +38096,7 @@
    "values": [
     "$2,980",
     "$1,200",
-    "$4,800",
+    "$4,795",
     "$0"
    ],
    "renders": 4
@@ -38153,7 +38117,7 @@
    "values": [
     "$2,980",
     "$1,200",
-    "$4,800",
+    "$4,795",
     "$0"
    ],
    "renders": 4
@@ -38185,7 +38149,7 @@
    "inside": "MonthDetailScreen",
    "line": "{pm.safeDraw > 0 && <Row label=\"Draw from savings\" value={maskedMoney(pm.safeDraw)} />}",
    "values": [
-    "$1,300"
+    "$1,295"
    ],
    "renders": 1
   },
@@ -38200,7 +38164,7 @@
    "inside": "MonthDetailScreen",
    "line": "<Row label=\"= In\" value={maskedMoney(pm.guaranteedTotal + pm.safeDraw)} strong />",
    "values": [
-    "$4,800"
+    "$4,795"
    ],
    "renders": 1
   },
@@ -38247,7 +38211,7 @@
    "inside": "MonthDetailScreen",
    "line": "<Row label=\"= Surplus\" value={maskedMoney(pm.netSafeToSpend)} strong />",
    "values": [
-    "$4,800"
+    "$4,795"
    ],
    "renders": 1
   },
@@ -38399,7 +38363,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:317",
+   "site": "src/screens/NetWorthScreen.tsx:318",
    "routes": [
     "/analytics"
    ],
@@ -38421,7 +38385,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:324",
+   "site": "src/screens/NetWorthScreen.tsx:325",
    "routes": [
     "/analytics"
    ],
@@ -38443,7 +38407,7 @@
    "renders": 12
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:332",
+   "site": "src/screens/NetWorthScreen.tsx:333",
    "routes": [
     "/analytics"
    ],
@@ -38460,7 +38424,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:338",
+   "site": "src/screens/NetWorthScreen.tsx:339",
    "routes": [
     "/analytics"
    ],
@@ -38477,7 +38441,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:523",
+   "site": "src/screens/NetWorthScreen.tsx:524",
    "routes": [
     "/analytics"
    ],
@@ -38492,7 +38456,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:524",
+   "site": "src/screens/NetWorthScreen.tsx:525",
    "routes": [
     "/analytics"
    ],
@@ -38507,7 +38471,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:544",
+   "site": "src/screens/NetWorthScreen.tsx:545",
    "routes": [
     "/analytics"
    ],
@@ -38522,7 +38486,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:546",
+   "site": "src/screens/NetWorthScreen.tsx:547",
    "routes": [
     "/analytics"
    ],
@@ -38552,7 +38516,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:550",
+   "site": "src/screens/NetWorthScreen.tsx:549",
    "routes": [
     "/analytics"
    ],
@@ -38567,7 +38531,7 @@
    "renders": 2
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:576",
+   "site": "src/screens/NetWorthScreen.tsx:570",
    "routes": [
     "/analytics"
    ],
@@ -38582,7 +38546,7 @@
    "renders": 3
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:705",
+   "site": "src/screens/NetWorthScreen.tsx:700",
    "routes": [
     "/analytics"
    ],
@@ -38601,7 +38565,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:714",
+   "site": "src/screens/NetWorthScreen.tsx:709",
    "routes": [
     "/analytics"
    ],
@@ -38623,7 +38587,7 @@
    "renders": 18
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:718",
+   "site": "src/screens/NetWorthScreen.tsx:713",
    "routes": [
     "/analytics"
    ],
@@ -38642,7 +38606,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:803",
+   "site": "src/screens/NetWorthScreen.tsx:798",
    "routes": [
     "/analytics"
    ],
@@ -38661,7 +38625,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:830",
+   "site": "src/screens/NetWorthScreen.tsx:825",
    "routes": [
     "/analytics"
    ],
@@ -38683,7 +38647,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:832",
+   "site": "src/screens/NetWorthScreen.tsx:827",
    "routes": [
     "/analytics"
    ],
@@ -38705,7 +38669,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:837",
+   "site": "src/screens/NetWorthScreen.tsx:832",
    "routes": [
     "/analytics"
    ],
@@ -38728,7 +38692,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:842",
+   "site": "src/screens/NetWorthScreen.tsx:837",
    "routes": [
     "/analytics"
    ],
@@ -38751,7 +38715,7 @@
    "renders": 7
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:866",
+   "site": "src/screens/NetWorthScreen.tsx:861",
    "routes": [
     "/analytics"
    ],
@@ -38771,7 +38735,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:868",
+   "site": "src/screens/NetWorthScreen.tsx:863",
    "routes": [
     "/analytics"
    ],
@@ -38791,7 +38755,7 @@
    "renders": 8
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:884",
+   "site": "src/screens/NetWorthScreen.tsx:879",
    "routes": [
     "/analytics"
    ],
@@ -38807,7 +38771,7 @@
    "renders": 4
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:892",
+   "site": "src/screens/NetWorthScreen.tsx:887",
    "routes": [
     "/analytics"
    ],
@@ -38824,7 +38788,7 @@
    "renders": 6
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:903",
+   "site": "src/screens/NetWorthScreen.tsx:898",
    "routes": [
     "/analytics"
    ],
@@ -38842,7 +38806,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:910",
+   "site": "src/screens/NetWorthScreen.tsx:905",
    "routes": [
     "/analytics"
    ],
@@ -38860,7 +38824,7 @@
    "renders": 9
   },
   {
-   "site": "src/screens/NetWorthScreen.tsx:940",
+   "site": "src/screens/NetWorthScreen.tsx:935",
    "routes": [
     "/analytics"
    ],
@@ -38912,9 +38876,9 @@
    "inside": "PaycheckMonthsScreen",
    "line": "property tax in November dents November. This year: {maskedMoney(year.thisYear)} (calculated).",
    "values": [
-    "$480",
-    "$14,640",
-    "$55,200",
+    "$420",
+    "$14,340",
+    "$55,140",
     "$0"
    ],
    "renders": 4
@@ -38933,12 +38897,12 @@
    "inside": "PaycheckMonthsScreen",
    "line": "accessibilityLabel={`${m.label}: surplus ${spokenMoney(m.netSafeToSpend)}${dip ? ', lower — big bill this month' : ''}`}",
    "values": [
-    "$340",
-    "-$3,260",
-    "$1,520",
-    "-$2,080",
-    "$4,800",
-    "$2,400",
+    "$335",
+    "-$3,265",
+    "$1,495",
+    "-$2,105",
+    "$4,795",
+    "$2,395",
     "$0"
    ],
    "renders": 48
@@ -38957,12 +38921,12 @@
    "inside": "PaycheckMonthsScreen",
    "line": "<Text style={styles.monthNet}>{maskedMoney(m.netSafeToSpend)}</Text>",
    "values": [
-    "$340",
-    "-$3,260",
-    "$1,520",
-    "-$2,080",
-    "$4,800",
-    "$2,400",
+    "$335",
+    "-$3,265",
+    "$1,495",
+    "-$2,105",
+    "$4,795",
+    "$2,395",
     "$0"
    ],
    "renders": 48
@@ -38997,9 +38961,9 @@
    "inside": "PaycheckMonthsScreen",
    "line": "<Row label=\"Draw from savings\" value={maskedMoney(m.safeDraw)} />",
    "values": [
-    "$340",
-    "$1,520",
-    "$1,300",
+    "$335",
+    "$1,495",
+    "$1,295",
     "$0"
    ],
    "renders": 4
@@ -39018,9 +38982,9 @@
    "inside": "PaycheckMonthsScreen",
    "line": "<Row label=\"= In\" value={maskedMoney(m.guaranteedTotal + m.safeDraw)} bold />",
    "values": [
-    "$340",
-    "$1,520",
-    "$4,800",
+    "$335",
+    "$1,495",
+    "$4,795",
     "$0"
    ],
    "renders": 4
@@ -39039,9 +39003,9 @@
    "inside": "PaycheckMonthsScreen",
    "line": "<Row label=\"= Surplus\" value={maskedMoney(m.netSafeToSpend)} bold />",
    "values": [
-    "$340",
-    "$1,520",
-    "$4,800",
+    "$335",
+    "$1,495",
+    "$4,795",
     "$0"
    ],
    "renders": 4
@@ -39440,8 +39404,8 @@
    "line": "accessibilityLabel={`Your retirement paycheck: guaranteed ${spokenMoney(Math.round(payMonth.guaranteedTotal))}, draw from savings ${spokenMoney(Math.round(payMonth.safeDraw))}, total ${spokenMoney(Mat",
    "values": [
     "$3,500",
-    "$1,300",
-    "$4,800"
+    "$1,295",
+    "$4,795"
    ],
    "renders": 6
   },
@@ -39487,7 +39451,7 @@
    "inside": "PlanHubScreen",
    "line": "<View style={styles.payRow}><View style={{ flexDirection: 'row', alignItems: 'center', gap: 4 }}><Text style={styles.payL}>+ Draw from savings</Text><InfoDot term=\"safeDraw\" /></View><Text style={styl",
    "values": [
-    "$1,300"
+    "$1,295"
    ],
    "renders": 2
   },
@@ -39502,7 +39466,7 @@
    "inside": "PlanHubScreen",
    "line": "<View style={[styles.payRow, styles.payTotal]}><Text style={[styles.payL, styles.payStrong]}>Your paycheck</Text><Text style={[styles.payV, styles.payStrong]}>{maskedMoney(Math.round(paycheckTotal))}/",
    "values": [
-    "$4,800"
+    "$4,795"
    ],
    "renders": 2
   },
@@ -39533,7 +39497,7 @@
    "inside": "PlanHubScreen",
    "line": "{wplan?.withdrawalRate != null ? ` — ${(wplan.withdrawalRate * 100).toFixed(1)}% of your savings a year, ${rateWords(wplan.rateBand)}` : ''}. You could draw up to {maskedMoney(Math.round(payMonth.safe",
    "values": [
-    "$1,300"
+    "$1,295"
    ],
    "renders": 2
   },

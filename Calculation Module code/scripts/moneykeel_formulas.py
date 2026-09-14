@@ -313,9 +313,11 @@ def derive(engine, label, math_text):
     lab=(label or '').lower(); mt=(math_text or '').lower(); e=str(engine)
     # what comes out
     if 'odds' in lab or 'WILL_IT_LAST' in e:
-        unit='Percent · rounded to the nearest 5 · a real 100 or 0 shown literally'
+        unit='Percent · exact, no rounding — 1,000 futures give it to a tenth (founder, 2026-09-14)'
     elif 'price' in lab or 'price paid' in lab:
         unit='US dollars per unit · held to 8 decimal places · decimals shown'
+    elif 'return on cash' in lab:
+        unit='Percent · two decimals shown (founder, 2026-09-14)'
     elif '%' in lab or 'return' in lab or 'yield' in lab or 'rate' in lab or 'ret' == lab:
         unit='Percent · one decimal shown'
     elif 'months' in lab or 'runway' in lab or 'cushion' in lab:

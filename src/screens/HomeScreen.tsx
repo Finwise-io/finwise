@@ -333,8 +333,8 @@ export default function HomeScreen() {
           return (
             <TouchableOpacity accessibilityRole="button" style={styles.staleLine}
               onPress={() => router.push(`/connect?reconnect=${broken.id}` as any)}
-              accessibilityLabel={`The connection to ${broken.brokerage} needs re-linking. Opens the fix.`}>
-              <Text style={styles.staleTxt}>⚠ {broken.brokerage} needs re-linking — fix it ›</Text>
+              accessibilityLabel={`${broken.brokerage} needs linking again. Opens the fix.`}>
+              <Text style={styles.staleTxt}>⚠ {broken.brokerage} needs linking again — fix it ›</Text>
             </TouchableOpacity>
           );
         })()}

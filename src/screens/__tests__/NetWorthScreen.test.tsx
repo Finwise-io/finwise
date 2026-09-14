@@ -34,10 +34,10 @@ describe('NetWorthScreen first-run intro', () => {
     expect(screen.getByText('— months')).toBeOnTheScreen();
     // the three ways in are ledger rows now — the label and its arrow are separate cells, so the
     // arrow can sit in the SAME trailing column every other row uses
-    expect(screen.getByText('Connect a brokerage')).toBeOnTheScreen();
-    expect(screen.getByText('Add a file from your bank')).toBeOnTheScreen();
+    expect(screen.getByText('Link it (read-only)')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
+    expect(screen.getByText('Import from a file')).toBeOnTheScreen();
 
-    fireEvent.press(screen.getByText('Type it yourself'));
+    fireEvent.press(screen.getByText('Add by hand'));
 
     const st = useStore.getState();
     expect(st.nwSetupChoice).toBe('self');
@@ -88,7 +88,7 @@ describe('NetWorthScreen manager totals (single source of wealth)', () => {
 
     render(<NetWorthScreen />);
     expect(screen.getByText('YOUR NET WORTH')).toBeOnTheScreen();   // State C keeps the full layout
-    fireEvent.press(screen.getByText('Type it yourself'));
+    fireEvent.press(screen.getByText('Add by hand'));
 
     const accounts = useStore.getState().assetAccounts;
     // B-21: '200000' retirement + explicit '0' holdings → a $0 Investments placeholder too.
@@ -187,9 +187,9 @@ test('#13: import is reachable from Net Worth via the add-or-connect chooser', (
     { asset_id: 'a1', label: 'Brokerage', kind: 'stocks_etf', tax_bucket: 'TAXABLE', balance: 50000, target_return: 0.07 },
   ], liabilities: [] } as any);
   render(<NetWorthScreen />);
-  fireEvent.press(screen.getByLabelText('Add or connect an account'));
-  expect(screen.getByLabelText(/Link it, read-only/)).toBeOnTheScreen();   // a real door into the connect flow now
-  fireEvent.press(screen.getByLabelText('Import from a file'));
+  fireEvent.press(screen.getByLabelText('Add an account'));
+  expect(screen.getByLabelText(/^Link it \(read-only\)\./)).toBeOnTheScreen();   // a real door into the link flow
+  fireEvent.press(screen.getByLabelText(/^Import from a file\./));
   expect(router.push).toHaveBeenCalledWith('/import-holdings');
 });
 
@@ -287,7 +287,7 @@ test('change line: % on cash + investments, from real history — never total-NW
   // current investable = 410,000 vs baseline 400,000 → +2.5%. Founder wording 2026-08-10: both halves
   // are NAMED — the dollars are the change in net worth, the percent is a RETURN, and the line says
   // out loud which pot the percent is measured on.
-  expect(screen.getByText(/Change in net worth \+\$20,000 · Return on cash \+ investments \+2\.5%/)).toBeOnTheScreen();
+  expect(screen.getByText(/Change in net worth \+\$20,000 · Return on cash \+ investments \+2\.50%/   /* two decimals (founder 2026-09-14) */)).toBeOnTheScreen();
 });
 
 test('change line: NO percent before the cash+investments history exists', () => {

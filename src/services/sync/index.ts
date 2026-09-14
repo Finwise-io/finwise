@@ -132,7 +132,7 @@ export function connectionFreshness(lastSynced: string | null | undefined, now: 
   if (Number.isNaN(t)) return null;
   const days = Math.max(0, Math.floor((now - t) / 86400000));
   // 2026-08-10: the label carries the TIME only, never the verb — it used to say "updated today"
-  // while every caller also wrote "updated", printing "Connected · updated updated today" on each
+  // while every caller also wrote "updated", printing "updated updated today" on each
   // connected account row (and in the spoken labels on Home and Performance).
   if (days === 0) return { label: 'today', stale: false, daysOld: 0 };
   if (days === 1) return { label: 'yesterday', stale: false, daysOld: 1 };

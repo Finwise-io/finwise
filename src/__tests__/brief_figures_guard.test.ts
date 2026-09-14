@@ -93,7 +93,8 @@ describe('the brief agrees with the function', () => {
     const mirror = projected({ ...PAT, annual_contribution: 17_500 });
     expect(mirror).toBeGreaterThanOrEqual(1_500_000);
     inBrief(money(mirror));                                                       // $1,505,001
-    expect(odds({ ...PAT, annual_contribution: 17_500 })).toBe(74);               // on target, still short of 80
+    expect(odds({ ...PAT, annual_contribution: 17_500 })).toBe(73.75);            // on target, still short of 80 (the brief's 74% before exact odds — its erratum carries 73.75%)
+    inBrief('73.75%');
     inBrief('1 future simulation in 4');                                                     // 74% said as a count
     inBrief('1 future simulation in 3');                                                     // 67% said as a count
     // the correction that started this file: 45% is never presented as an odds figure
@@ -110,27 +111,32 @@ describe('the brief agrees with the function', () => {
   test('the mortgage consequence is a second honest run, not a subtracted penalty', () => {
     // $500/month extra on the mortgage = $6,000/year that stops going into savings
     expect(odds({ ...PAT, annual_contribution: PAT_SAVES })).toBe(67);
-    expect(odds({ ...PAT, annual_contribution: PAT_SAVES - 6_000 })).toBe(65);
+    expect(odds({ ...PAT, annual_contribution: PAT_SAVES - 6_000 })).toBe(64.5);   // the brief's 65 before exact odds (erratum)
+    inBrief('64.5%');
     inBrief('67 future simulations out of 100'); inBrief('65 out of 100');
   });
 
   test("June's paycheck, headroom and the live spend-more curve", () => {
     // solveSafeDraw needs the ages too — BASE alone returns NaN, which this test caught on its first run.
-    expect(Math.round(solveSafeDraw(985_000, 4000, { ...BASE, current_age: 72, horizon_age: 94 } as any, 80))).toBe(4155);
+    // exact odds (2026-09-14): the most that holds 80% is $4,140, not the $4,155 the rounding allowed (erratum)
+    expect(Math.round(solveSafeDraw(985_000, 4000, { ...BASE, current_age: 72, horizon_age: 94 } as any, 80))).toBe(4140);
+    inBrief('$4,140'); inBrief('$8,140'); inBrief('$2,540');
     inBrief('$8,155'); inBrief('$2,555'); inBrief('$985,000');
     expect(odds({ ...JUNE, retire_monthly_spend_today: 5600 })).toBe(100);   // at rest
-    expect(odds({ ...JUNE, retire_monthly_spend_today: 8155 })).toBe(80);    // at the maximum
+    expect(odds({ ...JUNE, retire_monthly_spend_today: 8140 })).toBe(80);    // at the maximum, $8,140
+    expect(odds({ ...JUNE, retire_monthly_spend_today: 8155 })).toBe(79.5);  // the old $8,155 maximum no longer holds 80
     inBrief('4 future simulations out of 5');
     // founder 2026-08-14: "futures" alone reads as a prediction about her life; these are model runs
     expect(brief).not.toMatch(/\d+ futures out of/);
   });
 
-  test("Ray's Social Security figures and the decision that carries him over the line", () => {
+  test("Ray's Social Security figures — and, with exact odds, the claim decision no longer carries him over the 80% line", () => {
     expect(Math.round(ssBenefitAtClaimAge(2600, 70))).toBe(3224);
     inBrief('$3,224'); inBrief('$624');
     const at67 = odds({ ...RAY, guaranteed_monthly_income: 2600, guaranteed_start_age: 67 });
     const at70 = odds({ ...RAY, guaranteed_monthly_income: 3224, guaranteed_start_age: 70 });
-    expect([at67, at70]).toEqual([73, 80]);
+    expect([at67, at70]).toEqual([73.25, 79.5]);   // the brief's 73 and 80 before exact odds: 79.5 is under the line (erratum)
+    inBrief('79.5%');
     inBrief('7 future simulations out of 10'); inBrief('8 in 10');
   });
 
@@ -167,9 +173,9 @@ describe('handoff v4 defects — pinned so a corrected file can be checked mecha
     const oddsAt = (spend: number) => simulate({
       ...BASE, ...JUNE, retire_monthly_spend_today: spend,
     } as RetirementInputs).chance_of_success;
-    expect(oddsAt(5600 + 2000)).toBe(90);        // "9 in 10" — true here
-    expect(oddsAt(5600 + 2500)).toBe(81);        // the design still says "9 in 10" — it is 4 in 5
-    expect(oddsAt(5600 + 2555)).toBe(80);
+    expect(oddsAt(5600 + 2000)).toBe(89.5);      // exact odds (2026-09-14); was 90
+    expect(oddsAt(5600 + 2500)).toBe(80.75);     // the design still says "9 in 10" — it is 4 in 5; was 81
+    expect(oddsAt(5600 + 2540)).toBe(80);        // the maximum is $2,540 now; was $2,555
     // the bucket boundary has to sit below $2,500, not at $2,555
     expect(oddsAt(5600 + 2500)).toBeLessThan(85);
   });

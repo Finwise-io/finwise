@@ -70,7 +70,8 @@ describe('NW_CHANGE_PCT', () => {
     // if the only stored point was written AFTER the fall, the fall is invisible and the small
     // recovery since shows as a gain. The percent is honest about its own baseline and nothing else.
     const afterTheFall = { '2026-08-01': 355_000 };
-    expect(investableChangePct(afterTheFall, 362_089, '2026-08-01')).toBe(2);
+    // full precision (Q49): 1.9969…% — the screen prints +2.00% (two decimals, founder 2026-09-14)
+    expect(investableChangePct(afterTheFall, 362_089, '2026-08-01')).toBeCloseTo(1.9969, 4);
   });
 });
 

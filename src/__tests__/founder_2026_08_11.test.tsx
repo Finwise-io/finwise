@@ -131,7 +131,7 @@ test('"Sync now" is an action, not a link to a page that cannot sync', () => {
   expect(gap.action).toBe('sync');            // the button RUNS the sync — it used to only navigate
 });
 
-test('an account the sync could NOT reach says so, and offers the re-login instead of another sync', () => {
+test('an account the sync could NOT reach says so, and offers Link again instead of another sync', () => {
   const NOW = Date.parse('2026-08-11T12:00:00Z');
   const accounts = [
     { asset_id: 'v1', label: 'Brokerage', institution: 'Vanguard', mask: '••5738', source: 'connected', last_synced: '2026-08-03T09:00:00Z', tax_bucket: 'TAXABLE', balance: 1, target_return: 0 },
@@ -140,7 +140,7 @@ test('an account the sync could NOT reach says so, and offers the re-login inste
   const gaps = dataGaps(accounts, null, NOW, [], failures);
   const g = gaps.find((x) => x.kind === 'unreachable-account')!;
   expect(g.title).toBe("We couldn't reach Vanguard -5738");
-  expect(g.fixLabel).toBe('Reconnect');
+  expect(g.fixLabel).toBe('Link again');   // founder 2026-09-14: linked / link again
   expect(g.action).toBe('reconnect');
   expect(g.meanwhile).toMatch(/we don't guess at newer ones/);
   // and it REPLACES the plain stale line — one row per problem, never two for the same account
@@ -176,7 +176,7 @@ test('when nothing could be refreshed, the sheet says SO — it never claims an 
   render(<DataGapsBanner gaps={[{
     kind: 'stale-account', accountId: 'v1', title: 'Vanguard -5738 last updated Aug 3',
     meanwhile: 'Balances may have moved.', fixLabel: 'Sync now', route: '/account-detail?id=v1',
-    action: 'sync', alt: { label: 'Reconnect', route: '/connect' },
+    action: 'sync', alt: { label: 'Link again', route: '/connect' },
   }]} />);
   fireEvent.press(screen.getByText(/1 number needs more information/));
   await fireEvent.press(screen.getByLabelText(/Sync now\. Updates this account now\./));
@@ -184,17 +184,17 @@ test('when nothing could be refreshed, the sheet says SO — it never claims an 
   expect(screen.queryByText(/^Updated/)).toBeNull();
 });
 
-test('there is always somewhere to re-log-in — "needs a re-login" is never advice with no door', () => {
+test('there is always a way to link it again — "link it again" is never advice with no door', () => {
   const { dataGaps } = require('../domain/gaps');
   const NOW = Date.parse('2026-08-11T12:00:00Z');
   const [stale] = dataGaps([
     { asset_id: 'v1', label: 'Brokerage', institution: 'Vanguard', mask: '••5738', source: 'connected', last_synced: '2026-08-03T09:00:00Z', tax_bucket: 'TAXABLE', balance: 1, target_return: 0 },
   ] as any, null, NOW, []);
-  expect(stale.alt).toEqual({ label: 'Reconnect', route: '/connect' });
+  expect(stale.alt).toEqual({ label: 'Link again', route: '/connect' });
   const { DataGapsBanner } = require('../components/DataGapsBanner');
   render(<DataGapsBanner gaps={[stale]} />);
   fireEvent.press(screen.getByText(/1 number needs more information/));
-  expect(screen.getByLabelText(/Reconnect — sign in to this connection again/)).toBeOnTheScreen();
+  expect(screen.getByLabelText(/Link again — link this account again/)).toBeOnTheScreen();
 });
 
 // ── MEASURED VOLATILITY (founder ask 2026-08-11: "where are we getting assumptions?") ───────────

@@ -122,10 +122,7 @@ export interface WillItLastResult {
  * Answers ..... B6 (founder brief 2026-08-20): the odds a person sees, to the nearest 5 — with one honesty guard at each end: 100 means "every simulated future worked" and 0 means "none did", and neither claim may be minted by rounding.
  *
  * Formula .....
- *     r = min(100, max(0, round(chance ÷ 5) × 5))
- *     95   when r = 100 and chance < 99.5
- *     5   when r = 0 and chance > 0.5
- *     the answer = r
+ *     min(100, max(0, round(chance, 6 dp)))
  *
  * Called by ... MK-PL-F-068 selectWillItLast
  *
@@ -135,16 +132,15 @@ export interface WillItLastResult {
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
  *
  * Decides .....
- *     · Rounds the answer to a whole number.
+ *     · Rounds the answer to 6 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-066
  * Changed ..... 2026-08-20 (16a56f7)
  */
 export function displayOdds(chance: number): number {
-  const r = Math.min(100, Math.max(0, Math.round(chance / 5) * 5));
-  if (r === 100 && chance < 99.5) return 95;
-  if (r === 0 && chance > 0.5) return 5;
-  return r;
+  // founder 2026-09-14: "use exact everywhere no rounding for odds" — replaces B6's nearest 5. Only
+  // floating-point noise is removed — never a real digit (400 futures give quarters, 1,000 give tenths).
+  return Math.min(100, Math.max(0, Math.round(chance * 1e6) / 1e6));
 }
 
 /* ─ MK-PL-F-067 ───────────────────────────────────────────────────────────────── 2 · DISPLAYED

@@ -13,7 +13,7 @@ const JUNE: RetirementInputs = {
 } as any;
 
 beforeEach(() => { useStore.setState({ hideBalances: false } as any); });
-const show = () => render(<SpendMoreControl inputs={JUNE} maxExtra={2555} horizonAge={94} />);
+const show = () => render(<SpendMoreControl inputs={JUNE} maxExtra={2540} horizonAge={94} />);   // exact odds (2026-09-14); was 2,555
 
 test('THE ANSWER COMES FIRST, and it is the free room', () => {
   show();
@@ -33,14 +33,14 @@ test('the consequence is a real run at every position — not a bucket', () => {
   const up = screen.getByLabelText('Spend more extra');
   for (let i = 0; i < 5; i++) fireEvent.press(up);          // 0 -> 2500
   // the design said "9 out of 10" here; it is 8
-  expect(screen.getByText(/about 81 out of 100 simulated futures/)).toBeOnTheScreen();
+  expect(screen.getByText(/about 80\.75 out of 100 simulated futures/)).toBeOnTheScreen();
   expect(screen.queryByText(/about 90 out of 100/)).toBeNull();
 });
 
 test('at the maximum it names the losing case rather than leaving it to imagination', () => {
   show();
   const up = screen.getByLabelText('Spend more extra');
-  for (let i = 0; i < 8; i++) fireEvent.press(up);          // clamps at 2555
+  for (let i = 0; i < 8; i++) fireEvent.press(up);          // clamps at 2540
   expect(screen.getByText(/In the other 20, it runs out before 94/)).toBeOnTheScreen();
   expect(screen.getByText(/the most your income and savings can cover/)).toBeOnTheScreen();
 });

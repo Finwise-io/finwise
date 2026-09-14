@@ -88,9 +88,9 @@ const oddsOf = (inp: RetirementInputs) => simulate(inp).chance_of_success;
  *
  * Formula .....
  *     found = smallest that works(0, MAX_TARGET, 5000, (x) => odds of(at retirement(x)) ≥ TARGET_ODDS)
- *     the answer:
- *     nothing   if found = nothing
- *     round up(found ÷ 10000) × 10000   otherwise
+ *     nothing   when found = nothing
+ *     total = round up(found ÷ 10000) × 10000
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-PL-F-044 planTarget
  *
@@ -117,7 +117,13 @@ export function targetAtRetirement(base: RetirementInputs): number | null {
   // to the NEAREST $10,000 could land back BELOW the line the search had just cleared: the audit
   // measured a printed target of $1,370,000 that delivered 76%, not the 80% its own label promised.
   // Erring high keeps the sentence true; erring low makes the app over-promise by a whisker.
-  return found == null ? null : Math.ceil(found / 10_000) * 10_000;
+  if (found == null) return null;
+  // Exact odds (founder 2026-09-14): with no rounding to hide it, the halving search can stop a $10,000
+  // step high. Walk down while one step lower still holds — the target must reach 80% and one step
+  // lower must miss.
+  let total = Math.ceil(found / 10_000) * 10_000;
+  while (total >= 10_000 && oddsOf(atRetirement(total - 10_000)) >= TARGET_ODDS) total -= 10_000;
+  return total;
 }
 
 /** THE YEARLY SAVING: the total annual contribution that reaches TARGET_ODDS on the real plan —
@@ -136,6 +142,7 @@ export function targetAtRetirement(base: RetirementInputs): number | null {
  *     the answer:
  *     total = total
  *     extra = max(0, total − (base.annual contribution ?? 0))
+ *     [LOOP — the answer is found inside a loop the extractor cannot render; the steps above are the ones before it. Read by hand.]
  *
  * Called by ... MK-PL-F-044 planTarget
  *
@@ -156,8 +163,10 @@ export function requiredAnnualSaving(base: RetirementInputs): { total: number; e
   const found = smallestThatWorks(0, MAX_SAVING, 500, (x) => oddsOf(withSaving(x)) >= TARGET_ODDS);
   if (found == null) return null;
   // rounds UP, same reason as the target above: the bridge sentence says "raises your odds to 80%",
-  // and rounding to the nearest $500 delivered 79% (audit, 2026-08-12).
-  const total = Math.ceil(found / 500) * 500;
+  // and rounding to the nearest $500 delivered 79% (audit, 2026-08-12). Exact odds: then walk down while
+  // one $500 step lower still holds (2026-09-14).
+  let total = Math.ceil(found / 500) * 500;
+  while (total >= 500 && oddsOf(withSaving(total - 500)) >= TARGET_ODDS) total -= 500;
   return { total, extra: Math.max(0, total - (base.annual_contribution ?? 0)) };
 }
 

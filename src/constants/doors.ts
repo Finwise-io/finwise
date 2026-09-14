@@ -24,3 +24,14 @@ export const DOORS: { icon: string; title: string; sub: string; route: string }[
   { icon: '📄', title: 'Import a file from your brokerage ›', sub: 'The CSV export — we read your holdings, nothing is uploaded.', route: '/import-holdings' },
   { icon: '✍️', title: 'Add something by hand ›', sub: 'Your home, savings, or an account with no login.', route: '/add-account' },
 ];
+
+/** THE WAYS TO ADD AN ACCOUNT — founder ruling "one door, one term" (2026-09-14), built on Net worth
+ *  (mock v08, approved 2026-09-14): the three doors read these words, in this order, under this one
+ *  question, and nobody types them anywhere else (guard_add_account_doors). Home, Sharpen your plan and
+ *  the Plan tab still read DOORS above until their own mocks are approved; then DOORS folds into this. */
+export const ADD_ACCOUNT_QUESTION = 'How do you want to add an account?';
+export const ADD_ACCOUNT_DOORS: { icon: string; title: string; sub: string; route: string }[] = [
+  { icon: '🔗', title: 'Link it (read-only)', sub: 'We can look, never touch your money.', route: '/connect' },
+  { icon: '✍️', title: 'Add by hand', sub: 'Your home, savings, or any account with no login.', route: '/add-account' },
+  { icon: '📄', title: 'Import from a file', sub: 'The CSV export from your brokerage.', route: '/import-holdings' },
+];

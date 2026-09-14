@@ -47,7 +47,7 @@ the founder had approved all of it. Never again.
 ## ONE TERM PER CONCEPT — app-wide standing order (founder, 2026-09-02)
 - "Always use same words to describe same thing in the app. There is no score for creative writing
   use different terms to describe same thing." One canonical word per concept in EVERY user-visible
-  string; synonyms are RETIRED. The canon table — 20 rows: take-home, calculated, the retired word "engine" (0c, 2026-09-13), the connect door "Connect your bank ›" (17, 2026-09-14), and the sixteen
+  string; synonyms are RETIRED. The canon table — 21 rows: take-home, calculated, the retired word "engine" (0c, 2026-09-13), the connect door "Connect your bank ›" (17, 2026-09-14), Linked / Link again (18, 2026-09-14), and the sixteen
   cluster rulings of 2026-09-10 (Surplus, odds out of 100 simulated futures, Expenses, you entered,
   Inflow (sources), Emergency fund, Budget, Gross (before any deductions), Performance / Net worth,
   Debt, Holding, activity, one-time, /month · /year, Will my money last, spouse) — lives in ONE
@@ -74,7 +74,7 @@ the founder had approved all of it. Never again.
   the app's REAL tokens from `src/utils/theme.ts` (colors, type sizes, radii) — never ASCII, never
   grayscale boxes. Show BOTH the rich state and the empty/first-day state.
 - Mocks show the FULL SCREEN, top to bottom (founder order, same day): status bar → header → hero →
-  every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v06.html` (Net worth as Build 53 shipped it),
+  every section → tab bar. Never a cropped card. Reference: `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_net-worth-quiet-instrument_v08.html` (the current Net worth design),
   `MoneyKeel/documents/networth-and-performance/moneykeel_pres_mock_account-detail_v01.html`. Numbers inside mocks must ADD UP (accuracy rule applies).
 - A mock is only satisfied when the built screen matches it in EVERY data state — including a
   fresh/empty account. Lesson: build 43 had the approved change+date elements in code but hid

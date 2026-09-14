@@ -39,7 +39,7 @@ test('working verdict: the percent AND the if-clause that names THEIR plan', () 
   expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
   expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
   // founder 2026-08-12: no verdict word — the number is the verdict
-  expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
+  expect(screen.getByText(/^\d{1,3}(?:\.\d+)?%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Likely|Uncertain|Unlikely/)).toBeNull();
   // 2026-08-12: the if-clause is gone — the inputs sit directly beneath the number and say it
   // truthfully. The old line also claimed "you entered" of a spending figure the app had derived.
@@ -73,7 +73,7 @@ test('retired verdict: the present-tense question, the spending frame, and the w
   render(<PlanHubScreen />);
   expect(screen.getByText('WILL MY MONEY LAST?')).toBeOnTheScreen();
   expect(screen.getByText(/odds of lasting to age \d+/)).toBeOnTheScreen();
-  expect(screen.getByText(/^\d{1,3}%$/)).toBeOnTheScreen();
+  expect(screen.getByText(/^\d{1,3}(?:\.\d+)?%$/)).toBeOnTheScreen();
   expect(screen.queryByText(/Holding|Watch closely|Running short/)).toBeNull();
   expect(screen.getByText(/Your \$4,500\/month expenses/)).toBeOnTheScreen();
 });

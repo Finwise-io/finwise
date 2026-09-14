@@ -10,10 +10,11 @@ import type { AssetAccount } from '../domain/assets';
 export function SourceChip({ account, paused }: { account: AssetAccount; paused?: boolean }) {
   let icon = '✍️'; let text = 'By hand · you update it'; let bg = Colors.bgTertiary; let fg = Colors.textSecondary;
   if (account.source === 'connected') {
-    if (paused) { icon = '⏸'; text = 'Connection paused · reconnect ›'; bg = Colors.amberLight; fg = Colors.amber; }
+    if (paused) { icon = '⏸'; text = 'Link paused · link again ›'; bg = Colors.amberLight; fg = Colors.amber; }
     else {
       const f = connectionFreshness(account.last_synced);
-      icon = '🔗'; text = `Connected · ${f ? `updated ${f.label}` : 'linked'}`; bg = Colors.primaryLight; fg = Colors.primaryDark;
+      // founder 2026-09-14: "connected only unless stale" and "linked / link again" — the date shows only when stale
+      icon = '🔗'; text = f?.stale ? `Linked · ${f.label}` : 'Linked'; bg = Colors.primaryLight; fg = Colors.primaryDark;
     }
   } else if (account.source === 'imported') {
     const day = account.last_synced ? String(account.last_synced).slice(0, 10) : '';

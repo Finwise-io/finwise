@@ -85,11 +85,10 @@ describe('SELECT_WILL_IT_LAST — and its refusal', () => {
     expect(r.chance).toBeNull();
   });
 
-  test('B6: the best-to-worst range is gone, and the displayed odds land on fives', () => {
+  test('B6: the best-to-worst range is gone; the displayed odds are exact (founder 2026-09-14)', () => {
     const r = selectWillItLast(args({ withBand: true }));
     expect(r.band).toBeNull();
-    expect(r.chance! % 5).toBe(0);
-    expect(Math.abs(r.chance! - r.chanceExact!)).toBeLessThanOrEqual(2.5);   // rounding, nothing more
+    expect(r.chance).toBe(Math.round(r.chanceExact! * 10) / 10);   // no rounding beyond floating-point noise
   });
 });
 

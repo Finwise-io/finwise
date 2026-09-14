@@ -252,7 +252,7 @@ test('separator dots render the dark designed glyph on the marquee lines', () =>
 test('source chips: connected/imported/by-hand pills on NW account rows; paused goes amber', () => {
   const { SourceChip } = require('../../components/SourceChip');
   const r1 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'connected', last_synced: new Date().toISOString() } as any} />);
-  expect(r1.getByText(/🔗 Connected · updated/)).toBeTruthy();
+  expect(r1.getByText('🔗 Linked')).toBeTruthy();   // founder 2026-09-14: Linked, a date only when stale
   r1.unmount();
   const r2 = render(<SourceChip account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'imported', last_synced: '2026-06-12T00:00:00Z' } as any} />);
   expect(r2.getByText('📄 Imported · 2026-06-12')).toBeTruthy();
@@ -261,7 +261,7 @@ test('source chips: connected/imported/by-hand pills on NW account rows; paused 
   expect(r3.getByText('✍️ By hand · you update it')).toBeTruthy();
   r3.unmount();
   const r4 = render(<SourceChip paused account={{ asset_id: 'a', label: 'x', tax_bucket: 'TAXABLE', balance: 1, source: 'connected' } as any} />);
-  expect(r4.getByText('⏸ Connection paused · reconnect ›')).toBeTruthy();
+  expect(r4.getByText('⏸ Link paused · link again ›')).toBeTruthy();
   r4.unmount();
   // and the NW rows actually render it
   // a lone class auto-expands, so the member row (and its chip) is visible without a tap
@@ -273,7 +273,7 @@ test('source chips: connected/imported/by-hand pills on NW account rows; paused 
   } as any);
   const NetWorthScreen = require('../NetWorthScreen').default;
   render(<NetWorthScreen />);
-  expect(screen.getAllByText(/🔗 Connected · updated/).length).toBeGreaterThan(0);
+  expect(screen.getAllByText('🔗 Linked').length).toBeGreaterThan(0);
 });
 
 // ── Mock approvals built 2026-07-31: emergency fund · matured banner · router · path-ahead "how" ──

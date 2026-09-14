@@ -1,5 +1,13 @@
 > **Figures re-run 2026-09-09** under founder ruling Q49 — every calculation now runs at full precision and rounds only at display. Pat's blended return is used unrounded (5.8538%, shown as 5.85%), which moves the projections by a few thousand dollars: projects to $2,008,606 (was $2,008,196), growth on what he has $422,645 (was $426,859), growth on new money $134,309 (was $129,685), the mirror $1,505,353 (was $1,505,001). The engine guard (brief_figures_guard.test.ts) holds the brief to these. The previous text is archived beside this file.
 
+> **ERRATUM 2026-09-14 — the odds are now exact** (founder: *"use exact everywhere no rounding for odds"*, replacing the nearest-5 rounding this brief was written under). The figures below were computed with rounded odds, and at 400 simulated futures. Exact, they read:
+> - Pat, state 6, saving $17,500 a year: **73.75%** (printed below as 74%). His mortgage consequence: **64.5%** (printed as 65%).
+> - Ray: claiming at 67 gives **73.25%**, and claiming at 70 gives **79.5%** — just short of 80%, so the claim decision **no longer carries him over the line** (printed as 73% and 80%).
+> - June: the most she can draw while holding 80% is **$4,140** a month (printed as $4,155), so her paycheck is **$8,140** (printed as $8,155) and she can draw **$2,540** more (printed as $2,555). At the old $8,155 her odds are 79.5%.
+> - Spend more: $2,000 extra gives **89.5%** (printed as 90%); $2,500 extra gives **80.75%** (printed as 81%).
+> - The app itself runs 1,000 futures, where the odds come to a tenth. Every figure here is re-run at 1,000 in the Plan screen step before it is drawn again.
+
+
 # Plan surface — redesign brief v3
 
 **For:** Claude Design

@@ -33,6 +33,7 @@ import { willItLastInputs } from '../domain/retirement/willItLast';
 import { projectNestEgg } from '../domain/retirement';
 import { KeyboardAwareSheet } from '../components/KeyboardAwareSheet';   // Theme 3: shared keyboard-safe sheet
 import { InfoDot, EmptyNote } from '../components/UI';
+import { ADD_ACCOUNT_DOORS, ADD_ACCOUNT_QUESTION } from '../constants/doors';
 import { type GlossaryTerm } from '../domain/glossary';
 import { HeroAmount } from '../components/HeroAmount';
 import { HiddenBalancesBanner } from '../components/HiddenBalancesBanner';
@@ -522,7 +523,7 @@ export default function NetWorthScreen() {
           <View style={styles.blockBody}>
             <Text style={styles.ownOweLine}>Own {maskedMoney(0)} − Owe {maskedMoney(0)}</Text>
             <HeroAmount style={styles.glanceVal}>{maskedMoney(0)}</HeroAmount>
-            <EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} />   {/* Q48 mock frame 1 */}
+            <EmptyNote door="accounts" onPress={() => setAddChooser(true)} />   {/* Q48; Net worth v08: opens the add sheet */}
           </View>
         </View>
 
@@ -544,29 +545,22 @@ export default function NetWorthScreen() {
           <SectionBand title="WHAT YOU OWN" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
           {nwGrouping === 'class' ? (<>
             <SectionBand light title="💵 CASH" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
             <SectionBand light title="📈 INVESTMENTS" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
             <SectionBand light title="🏠 PERSONAL PROPERTY" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-            <View style={styles.ledgerPad}><EmptyNote door="accounts" onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }} /></View>
           </>) : (
             <Text style={[styles.empty, styles.ledgerPad]}>Your banks and brokerages will be listed here, each with what it holds.</Text>
           )}
-          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Connect a brokerage"
-            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/connect' as any); }}>
-            <Text style={styles.doorTxt}>Connect a brokerage</Text>
-            <Text style={styles.arrowSlot}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a file from your bank"
-            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push('/import-holdings' as any); }}>
-            <Text style={styles.doorTxt}>Add a file from your bank</Text>
-            <Text style={styles.arrowSlot}>›</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Type it yourself"
-            onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); }}>
-            <Text style={styles.doorTxt}>Type it yourself</Text>
-            <Text style={styles.arrowSlot}>›</Text>
-          </TouchableOpacity>
+          {/* THE WAYS TO ADD AN ACCOUNT (Net worth v08, approved 2026-09-14): one line and the three doors,
+              once. It used to repeat "Add your accounts ›" under every empty group and then add a heading
+              over the doors — founder: "too much duplication". */}
+          <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.{' '}<Text style={styles.firstDayAskQ}>{ADD_ACCOUNT_QUESTION}</Text></Text>
+          {ADD_ACCOUNT_DOORS.map((d) => (
+            <TouchableOpacity key={d.route} style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel={d.title}
+              onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); router.push(d.route as any); }}>
+              <Text style={styles.doorTxt}>{d.title}</Text>
+              <Text style={styles.arrowSlot}>›</Text>
+            </TouchableOpacity>
+          ))}
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Guided setup — walk through each bucket"
             onPress={() => { store.seedNetWorth?.(op); store.setNwSetupChoice?.('guided'); setStep(0); }}>
             <Text style={styles.doorTxtQuiet}>or walk through it step by step</Text>
@@ -574,7 +568,8 @@ export default function NetWorthScreen() {
           </TouchableOpacity>
 
           <SectionBand title="DEBTS" infoTerm="debt" value={maskedMoney(0)} trailing={RIGHT_SLOT} />
-          <View style={styles.ledgerPad}><EmptyNote door="debts" onPress={() => setDebtSheet({ open: true })} /></View>
+          {/* the same one line: the door is the row right below it, so it is not repeated (v08) */}
+          <Text style={[styles.firstDayAsk, styles.ledgerPad]}>Nothing entered yet.</Text>
           <TouchableOpacity style={styles.ledgerRow} accessibilityRole="button" accessibilityLabel="Add a mortgage, card, or loan"
             onPress={() => setDebtSheet({ open: true })}>
             <Text style={styles.doorTxt}>Add a mortgage, card, or loan</Text>
@@ -651,7 +646,7 @@ export default function NetWorthScreen() {
     // worth, the percent is a RETURN and it is measured on cash + investments only. Spelled out in
     // full on both sides (no "NW"), so the line never needs a decoder.
     const pctText = invPct == null ? ''
-      : ` · Return on cash + investments ${invPct > 0 ? '+' : invPct < 0 ? '−' : ''}${Math.abs(invPct).toFixed(1)}%`;
+      : ` · Return on cash + investments ${invPct > 0 ? '+' : invPct < 0 ? '−' : ''}${Math.abs(invPct).toFixed(2)}%`   /* founder 2026-09-14: "Return on cash - use 2 decimals" */;
     // B45 rule, re-broken and re-fixed 2026-08-10: ONE rounded value drives the words, the arrow and
     // the colour — so "up $0" / "down $0" can never be rendered again by any path.
     // a NaN slipped past the zero check and printed "down $0" — guard for finiteness too
@@ -960,8 +955,9 @@ export default function NetWorthScreen() {
 
         {/* ONE button, three honest paths */}
         <TouchableOpacity accessibilityRole="button" style={[styles.addConnect, styles.inset]} onPress={() => setAddChooser(true)}
-          accessibilityLabel="Add or connect an account">
-          <Text style={styles.addConnectTxt}>＋ Add or connect an account</Text>
+          accessibilityLabel="Add an account">
+          {/* Net worth v08: "connect" was the old word for linking (one door, one term) */}
+          <Text style={styles.addConnectTxt}>＋ Add an account</Text>
         </TouchableOpacity>
         <View style={{ height: 40 }} />
       </ScrollView>
@@ -979,21 +975,16 @@ export default function NetWorthScreen() {
         <TouchableOpacity accessibilityRole="button" accessibilityLabel="Close" style={styles.chooserBackdrop} activeOpacity={1} onPress={() => setAddChooser(false)}>
           <View style={styles.chooserCard} onStartShouldSetResponder={() => true}>
             <View style={styles.chooserGrip} />
-            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/connect' as any); }}
-              accessibilityLabel="Link it, read-only. We can look, never touch your money.">
-              <Text style={styles.chooserTitle}>🔗  Link it (read-only)</Text>
-              <Text style={styles.chooserSub}>We can look, never touch your money.</Text>
-            </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/add-account' as any); }}
-              accessibilityLabel="Add by hand">
-              <Text style={styles.chooserTitle}>✍️  Add by hand</Text>
-              <Text style={styles.chooserSub}>Your home, savings, or any account with no login.</Text>
-            </TouchableOpacity>
-            <TouchableOpacity accessibilityRole="button" style={styles.chooserRow} onPress={() => { setAddChooser(false); router.push('/import-holdings'); }}
-              accessibilityLabel="Import from a file">
-              <Text style={styles.chooserTitle}>📄  Import from a file</Text>
-              <Text style={styles.chooserSub}>The CSV export from your brokerage.</Text>
-            </TouchableOpacity>
+            {/* Net worth v08 (approved 2026-09-14): the sheet names what the three doors are for */}
+            <Text style={styles.chooserHead}>{ADD_ACCOUNT_QUESTION}</Text>
+            {ADD_ACCOUNT_DOORS.map((d) => (
+              <TouchableOpacity key={d.route} accessibilityRole="button" style={styles.chooserRow}
+                accessibilityLabel={`${d.title}. ${d.sub}`}
+                onPress={() => { setAddChooser(false); if (!choice) { store.seedNetWorth?.(op); store.setNwSetupChoice?.('self'); } router.push(d.route as any); }}>
+                <Text style={styles.chooserTitle}>{d.icon}  {d.title}</Text>
+                <Text style={styles.chooserSub}>{d.sub}</Text>
+              </TouchableOpacity>
+            ))}
           </View>
         </TouchableOpacity>
       </Modal>
@@ -1257,6 +1248,9 @@ const styles = StyleSheet.create({
   groupPillTxtOn: { color: Colors.cardBg },
   addConnect: { backgroundColor: Colors.primary, borderRadius: Radii.lg, minHeight: 50, alignItems: 'center', justifyContent: 'center', marginTop: Spacing.md },
   addConnectTxt: { color: Colors.white, fontSize: 17, fontWeight: '800' },
+  firstDayAsk: { fontSize: 13, color: Colors.textSecondary, lineHeight: 18, paddingVertical: Spacing.sm },
+  firstDayAskQ: { fontWeight: '800', color: Colors.textPrimary },
+  chooserHead: { fontSize: 20, fontWeight: '800', color: Colors.textPrimary, textAlign: 'center', marginBottom: Spacing.md },
   chooserBackdrop: { flex: 1, backgroundColor: 'rgba(0,0,0,0.4)', justifyContent: 'flex-end' },
   chooserCard: { backgroundColor: Colors.bgSecondary, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: Spacing.lg, paddingBottom: 34 },
   chooserGrip: { width: 40, height: 4, borderRadius: 2, backgroundColor: Colors.border, alignSelf: 'center', marginBottom: Spacing.md },

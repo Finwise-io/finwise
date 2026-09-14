@@ -129,7 +129,7 @@ describe('THE SMALL RULES', () => {
 
   test('the screen says where a value came from, and when', () => {
     expect(sourceWording(A({ source: 'connected', last_synced: '2026-08-18T09:00:00Z' })))
-      .toBe('Connected · 2026-08-18');
+      .toBe('Linked · 2026-08-18');   // founder 2026-09-14: linked / link again
     expect(sourceWording(A({ source: 'imported' }))).toMatch(/^Imported/);
     expect(sourceWording(A({}))).toBe('By hand · you update it');   // absent means hand-entered
   });

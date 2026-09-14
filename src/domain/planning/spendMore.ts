@@ -100,7 +100,7 @@ export function spendMoreState(base: RetirementInputs, maxExtra: number, step = 
  *
  * Formula .....
  *     chance = odds at(base, base.retire monthly spend today + extra)
- *     failing = 100 − chance
+ *     failing = round(100 − chance, 6 dp)
  *     the answer:
  *     chance = chance
  *     tone = 'watch'
@@ -109,6 +109,9 @@ export function spendMoreState(base: RetirementInputs, maxExtra: number, step = 
  * Called by ... nothing — it is an entry point, or nothing reaches it
  *
  * Serves ...... NO FIGURE ON RECORD names this function. That is an S21 gap, not proof it reaches nobody.
+ *
+ * Decides .....
+ *     · Rounds the answer to 6 decimal places.
  *
  * Formula also on the master file · functions_from_code · MK-PL-F-039
  * Changed ..... 2026-08-15 (9542793)
@@ -128,7 +131,7 @@ export function spendMoreSentence(base: RetirementInputs, extra: number, horizon
   // Cluster #2 ruling (2026-09-10): the odds are always "N out of 100 simulated futures"; below 95
   // we also name what happens in the futures that fail, because a bare count invites a person to
   // imagine something worse than the truth.
-  const failing = 100 - chance;
+  const failing = Math.round((100 - chance) * 1e6) / 1e6;   // exact odds (2026-09-14): only floating-point noise removed, so the two always add to 100
   if (chance >= 95) {
     return { chance, tone: 'watch', text: `Lasts in almost every simulated future — about ${chance} out of 100.` };
   }

@@ -516,7 +516,7 @@ export default function RetirementCockpit() {
                 <Text style={styles.divider}>WILL YOUR MONEY LAST?</Text>
                 <View style={[styles.insightBox, { backgroundColor: bg }]}>
                   <Text style={styles.verdictHead}>{head}</Text>
-                  <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your expenses {lasts}{planChance != null ? ` in most futures — ${planChance}out of 100 simulated futures` : ''}.</Text>
+                  <Text style={styles.verdictBody}>Your {big(spendableEgg)} covers your expenses {lasts}{planChance != null ? ` in most futures — ${planChance} out of 100 simulated futures` : ''}.</Text>
                   <Text style={styles.verdictSub}>Each year you spend {money(dPlan.spendAnnual)}{dPlan.guaranteedAnnual > 0 ? `: Social Security / pension covers ${money(dPlan.guaranteedAnnual)}, and you take ${money(dPlan.netWithdrawal)} from savings` : ' from savings'} ({pace}).</Text>
                 </View>
               </>

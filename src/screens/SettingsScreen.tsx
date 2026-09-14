@@ -410,16 +410,16 @@ export default function SettingsScreen() {
       <Card>
         {(useStore.getState() as any).snaptradeConnections?.length > 0 && (
           <>
-            <SectionBand title="Connected accounts" />
+            <SectionBand title="Linked accounts" />
             {((useStore.getState() as any).snaptradeConnections ?? []).map((c: any) => (
               <View key={c.id} style={styles.actionRow}>
                 <Text style={{ fontSize: 24 }}>🔗</Text>
                 <View style={{ flex: 1, marginLeft: Spacing.sm }}>
                   <Text style={styles.actionLabel}>{c.brokerage}</Text>
-                  <Text style={styles.actionSub}>{c.disabled ? 'Needs re-linking — tap Fix' : 'Connected · read-only'}</Text>
+                  <Text style={styles.actionSub}>{c.disabled ? 'Needs linking again — tap Fix' : 'Linked · read-only'}</Text>
                 </View>
                 {c.disabled && (
-                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Fix the ${c.brokerage} connection`}
+                  <TouchableOpacity accessibilityRole="button" accessibilityLabel={`Link ${c.brokerage} again`}
                     style={{ minHeight: 44, justifyContent: 'center', paddingHorizontal: 8 }}
                     onPress={() => router.push(`/connect?reconnect=${c.id}` as any)}>
                     <Text style={{ fontSize: 15, fontWeight: '700', color: Colors.amber }}>Fix ›</Text>

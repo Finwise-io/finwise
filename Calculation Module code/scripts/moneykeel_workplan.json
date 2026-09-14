@@ -1326,6 +1326,54 @@
     "status": "WAITING ON YOU",
     "comments": ""
    }
+  },
+  {
+   "task": "With the odds exact, the Retirement cockpit disagrees with Home and the Plan tab for the same household: the working household reads 13.3% in the cockpit and 13.9% on Home and Plan; the retired household reads 87.8 out of 100 in the cockpit and 93.2% on Home and Plan (it was 90 against 95 before, so that one was already visible). Rounding to 5 hid the first.",
+   "todo": "Claude: find which input the cockpit builds differently from willItLastInputs, and fix it in the Plan step, with a screens-agree check covering the cockpit. Founder: nothing, unless you want it before Plan.",
+   "status": "WAITING ON YOU",
+   "ref": "src/screens/RetirementCockpit.tsx planInputs · src/domain/retirement/willItLast.ts · src/__tests__/guard_d3_screens_agree.test.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Exact odds moved the amounts found by holding 80%: June's draw $4,155 → $4,140 a month (paycheck $8,155 → $8,140), a retiree's surplus $4,025 → $4,010, a future paycheck $2,460 → $2,455; Ray's claim at 70 now reads 79.5% (under 80%). The Plan brief carries a dated erratum.",
+   "todo": "Founder: read, no action — these follow from your ruling. Claude: re-run every Plan brief figure at 1,000 futures in the Plan step.",
+   "status": "WAITING ON YOU",
+   "ref": "August 14th Design/PLAN-REDESIGN-BRIEF-v3-2026-08-14.md (erratum) · src/__tests__/photograph_figures.test.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Net worth with no accounts yet but past the first day (the Q48 frame) still repeats 'Add your accounts ›' under each empty group — the same duplication the founder removed from the first day",
+   "todo": "Claude: draw it in the Net worth series (v09) for approval before building.",
+   "status": "TO DO",
+   "ref": "src/screens/NetWorthScreen.tsx (seeded, no accounts) · src/screens/__tests__/empty_state_q48.test.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "TO DO",
+    "comments": ""
+   }
+  },
+  {
+   "task": "Two word collisions found building v08: Cash flow's 'Add by hand' adds an EXPENSE (the same words as the account door), and Settings still says 'Disconnect' beside 'Linked accounts'",
+   "todo": "Founder: say whether Cash flow's door should read differently (for example 'Add an expense by hand') and whether Disconnect becomes 'Unlink'.",
+   "status": "WAITING ON YOU",
+   "ref": "src/screens/CashFlowScreen.tsx · src/screens/SettingsScreen.tsx",
+   "date": "2026-09-14",
+   "comments": "",
+   "_written": {
+    "status": "WAITING ON YOU",
+    "comments": ""
+   }
   }
  ]
 }

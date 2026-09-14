@@ -112,8 +112,8 @@ test('C1 first day — Home and Net worth both open, invite the first answer, an
   expect(screen.getByText(/Sample: 84%/)).toBeOnTheScreen();
   // and the way in is offered, not hidden behind a menu
   expect(screen.getByText(/3 answers make it yours/)).toBeOnTheScreen();
-  expect(screen.getByText('Connect a brokerage')).toBeOnTheScreen();
-  expect(screen.getByText('Type it yourself')).toBeOnTheScreen();
+  expect(screen.getByText('Link it (read-only)')).toBeOnTheScreen();   // Net worth v08 (2026-09-14)
+  expect(screen.getByText('Add by hand')).toBeOnTheScreen();
 });
 
 // ── C2 · ADD AN ACCOUNT BY HAND: the total must move by exactly what was typed ─────────────────

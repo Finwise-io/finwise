@@ -34,8 +34,8 @@ test('the headline equals the hub selector to the digit, with the range and the 
   // B6 (2026-08-20): the best-to-worst range is GONE — a sensitivity test wearing a
   // distribution's clothes; the odds stand alone, rounded to 5.
   expect(screen.queryByText(/range \d+–\d+% across bad-to-good markets/)).toBeNull();
-  expect(hub.chance! % 5).toBe(0);
-  expect(screen.getByText(new RegExp(`In ${hub.chance} out of 100 simulated futures`))).toBeOnTheScreen();
+  expect(hub.chance).toBe(Math.round(hub.chanceExact! * 10) / 10);   // exact odds (founder 2026-09-14)
+  expect(screen.getByText(new RegExp(`In ${String(hub.chance).replace('.', '\\.')} out of 100 simulated futures`))).toBeOnTheScreen();
   // every driver names its source and is a labeled road to change it
   expect(screen.getByLabelText(/What you have \(nest egg\).*your live account balances/)).toBeOnTheScreen();
   expect(screen.getByLabelText(/Guaranteed income.*Opens where you can change it/)).toBeOnTheScreen();
